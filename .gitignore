@@ -22,8 +22,6 @@ debug_caldip.py
 example_caldip_usage.py
 simple_caldip_plot.py
 plot_calibration_data.py
-test_caldip.py
-test_caldip_simple.py
 data/moor/proc_calib/
 calibration_data_plot.png
 calibration_dip_comparison.png
