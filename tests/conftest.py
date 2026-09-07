@@ -23,6 +23,9 @@ AQUADOPP_STAGE3 = FIXTURE_PROC / "aquadopp" / "dune2_1_2026_9920_stage3.nc"
 GRID_NC = FIXTURE_PROC / "dune2_1_2026_grid.nc"
 STACK_NC = FIXTURE_PROC / "dune2_1_2026_stack.nc"
 
+#: Real caldip per-cast netCDF (msm142 castM4, a .cnv-input cast: ctd_* provenance is UNK).
+CALDIP_CAST = Path(__file__).parent / "fixtures" / "caldip" / "castM4_caldip.nc"
+
 
 @pytest.fixture(autouse=True)
 def _raise_on_plot_error(monkeypatch):
@@ -136,3 +139,17 @@ def stack_ds():
 def ts_dataset():
     """Standard synthetic time-series dataset (50 samples, 10 min interval)."""
     return make_ts_dataset()
+
+
+@pytest.fixture
+def caldip_cast_path() -> Path:
+    """Path to the committed castM4 caldip per-cast NetCDF fixture."""
+    return CALDIP_CAST
+
+
+@pytest.fixture
+def caldip_cast():
+    """The castM4 caldip cast, read and serial-normalised by the reader."""
+    from oceanarray.processors import caldip
+
+    return caldip.read_caldip_cast(CALDIP_CAST)

@@ -146,8 +146,23 @@ class Stage3Processor:
         serials: Optional[List[str]] = None,
         force: bool = False,
         dry_run: bool = False,
+        caldip_dir: Optional[str] = None,
     ) -> bool:
-        """Run Stage 3 QC and pressure interpolation for all instruments on a mooring."""
+        """Run Stage 3 QC and pressure interpolation for all instruments on a mooring.
+
+        When ``caldip_dir`` is ``None`` (the default) no calibration-dip correction is
+        applied and the output is unchanged. Supplying ``caldip_dir`` is the planned entry
+        point for the front-of-Stage-3 caldip correction; the per-cast reader exists
+        (:mod:`oceanarray.processors.caldip`) but the application step is not yet wired, so a
+        non-``None`` value raises rather than silently skip a requested correction.
+        """
+        if caldip_dir is not None:
+            msg = (
+                "caldip correction at the front of Stage 3 is not yet implemented; "
+                "the per-cast reader is available via oceanarray.processors.caldip. "
+                "See the caldip-apply plan for the remaining application work."
+            )
+            raise NotImplementedError(msg)
         proc_dir = self._get_proc_dir(mooring_name)
         if not proc_dir.exists():
             print(f"ERROR: Processing directory not found: {proc_dir}")
