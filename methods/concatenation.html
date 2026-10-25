@@ -1,0 +1,258 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Concatenate Deployments &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Multi-site Merging" href="multisite_merging.html" />
+    <link rel="prev" title="4. Conversion to OS format" href="conversion.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Combine Deployments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#purpose">Purpose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#process-overview">Process Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#notes">Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#original-source">Original Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#legacy-context-rapid">Legacy Context (RAPID)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Concatenate Deployments</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/methods/concatenation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="concatenate-deployments">
+<h1>Concatenate Deployments<a class="headerlink" href="#concatenate-deployments" title="Link to this heading"></a></h1>
+<p>This step combines multiple mooring deployments at the same site (e.g., WB1, WB2)
+into a single continuous time series on a regular time-pressure grid.</p>
+<section id="purpose">
+<h2>Purpose<a class="headerlink" href="#purpose" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Interpolate individual deployment periods onto a common pressure grid (e.g., every 20 dbar from 0–4820 dbar).</p></li>
+<li><p>Construct a consistent time axis (e.g., half-daily <cite>jg</cite> from April 1, 2004 to October 11, 2015).</p></li>
+<li><p>Interpolate all segments onto this unified time grid, filling short gaps between deployments.</p></li>
+<li><p>Output gridded <cite>.mat</cite> files for later use in AMOC transport code.</p></li>
+</ul>
+</section>
+<section id="process-overview">
+<h2>Process Overview<a class="headerlink" href="#process-overview" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Define a global pressure grid <cite>PG</cite> for all moorings.</p></li>
+<li><p>Load gridded temperature and salinity profiles from each deployment, e.g.:
+- <cite>wb1_2_200527_grid.mat</cite>
+- <cite>wb1_3_200607_grid.mat</cite>
+- …</p></li>
+<li><p>Interpolate each deployment’s <cite>TGfs</cite> (temperature) and <cite>SGfs</cite> (salinity)
+to the common pressure grid <cite>PG</cite>.</p></li>
+<li><p>Collect and concatenate the corresponding <cite>jd</cite> (Julian day) values for each deployment.</p></li>
+<li><p>Linearly interpolate all values onto the global time grid <cite>jg</cite>.</p></li>
+<li><p>Save the final combined profiles for each mooring site (e.g., <cite>TG_wb1</cite>, <cite>SG_wb1</cite>, etc.)
+along with metadata like location and pressure grid.</p></li>
+</ol>
+</section>
+<section id="notes">
+<h2>Notes<a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>This process assumes that all individual deployment files have already been vertically interpolated
+(i.e., gridded in pressure).</p></li>
+<li><p>The output is suitable for subsequent merging across mooring sites and dynamic height calculation.</p></li>
+<li><p>Time interpolation smooths over deployment transitions and data gaps.</p></li>
+</ul>
+</section>
+<section id="original-source">
+<h2>Original Source<a class="headerlink" href="#original-source" title="Link to this heading"></a></h2>
+</section>
+<section id="legacy-context-rapid">
+<h2>Legacy Context (RAPID)<a class="headerlink" href="#legacy-context-rapid" title="Link to this heading"></a></h2>
+<p>Adapted from MATLAB routines by Kanzow (2005) and later modified.</p>
+<p>The MATLAB script <cite>mooring_interp_wb2_3_5.m</cite> from the RAPID processing workflow interpolates individual deployments together in time using matlab’s <cite>interp1</cite> function. It combines multiple mooring deployments at the same site (e.g., WB2) into a single continuous time series on a regular time-pressure grid.  Note that filenaming within the RAPID project has changed several times without changing the core functionality, but the legacy code provided here may <em>not</em> be consistent with the current RAPID processing.</p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">Excerpt from <cite>mooring_interp_wb2_3_5.m</cite></span><a class="headerlink" href="#id1" title="Link to this code"></a></div>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c">%%  Code to interpolate the mooring data together prior to loading into the</span>
+<span class="linenos"> 2</span><span class="c">%%  MOC code</span>
+<span class="linenos"> 3</span><span class="c">%</span>
+<span class="linenos"> 4</span><span class="c">%</span>
+<span class="linenos"> 5</span><span class="c">%  Interpolates the temperature and salinity gridded data produced by Julie</span>
+<span class="linenos"> 6</span><span class="c">%  Collins onto a common time and pressure grid at each of the principal</span>
+<span class="linenos"> 7</span><span class="c">%  locations.   The anomaly plots at the end are to check for obvious</span>
+<span class="linenos"> 8</span><span class="c">%  errors in the data processing.</span>
+<span class="linenos"> 9</span><span class="c">%</span>
+<span class="linenos">10</span><span class="c">%  The output file is saved in the amoc/grdat/ directory for use by the MOC</span>
+<span class="linenos">11</span><span class="c">%  code.</span>
+<span class="linenos">12</span><span class="c">%</span>
+<span class="linenos">13</span><span class="c">%  This code WILL need to be edited for every update of the time series and</span>
+<span class="linenos">14</span><span class="c">%  the time stamp, jg, is a key variable, that will be an input to set the</span>
+<span class="linenos">15</span><span class="c">%  length of the time series.</span>
+<span class="linenos">16</span><span class="c">%</span>
+<span class="linenos">17</span><span class="c">%</span>
+<span class="linenos">18</span><span class="c">% adapted from an original code by Kanzow 2005</span>
+<span class="linenos">19</span>
+<span class="linenos">20</span><span class="c">% Code History</span>
+<span class="linenos">21</span><span class="c">% -------------------</span>
+<span class="linenos">22</span><span class="c">% v2 - removed the separate pressure grid for WB2 and standardised to the</span>
+<span class="linenos">23</span><span class="c">% normal grid PG</span>
+<span class="linenos">24</span><span class="c">%</span>
+<span class="linenos">25</span><span class="c">% just mochab, mochae, wb2</span>
+<span class="linenos">26</span>
+<span class="linenos">27</span><span class="nb">clear</span><span class="w"> </span><span class="nb">all</span>
+<span class="linenos">28</span><span class="nb">close</span><span class="w"> </span><span class="nb">all</span>
+<span class="linenos">29</span><span class="nb">clc</span>
+<span class="linenos">30</span>
+<span class="linenos">31</span><span class="nb">warning</span><span class="w"> </span><span class="n">off</span>
+<span class="linenos">32</span>
+<span class="linenos">33</span><span class="n">basedir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">'/noc/mpoc/'</span><span class="p">;</span>
+<span class="linenos">34</span><span class="n">datadir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">basedir</span><span class="w"> </span><span class="s">'/rpdmoc/rapid/data/amoc/grout/OCT_2012/annual/'</span><span class="p">];</span>
+<span class="linenos">35</span><span class="c">% basedir = '/Volumes/';</span>
+<span class="linenos">36</span><span class="n">nowrite</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="linenos">37</span>
+<span class="linenos">38</span><span class="n">jlim</span><span class="w">        </span><span class="p">=</span><span class="w"> </span><span class="n">julian</span><span class="p">([[</span><span class="mi">2004</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];[</span><span class="mi">2012</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">18</span><span class="p">,</span><span class="mi">0</span><span class="p">]]);</span>
+<span class="linenos">39</span><span class="n">jg</span><span class="w">          </span><span class="p">=</span><span class="w"> </span><span class="n">jlim</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span><span class="mf">.5</span><span class="p">:</span><span class="n">jlim</span><span class="p">(</span><span class="k">end</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="conversion.html" class="btn btn-neutral float-left" title="4. Conversion to OS format" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="multisite_merging.html" class="btn btn-neutral float-right" title="Multi-site Merging" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

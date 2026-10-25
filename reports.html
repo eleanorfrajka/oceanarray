@@ -1,0 +1,401 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTML Reports &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=20758594" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8b92e751"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Directory Structure and File Layout" href="directory_structure.html" />
+    <link rel="prev" title="OceanArray processing framework" href="processing_framework.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            oceanarray
+              <img src="_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">HTML Reports</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#live-example">Live example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#report-pages">Report pages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary-report">Summary report</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#per-instrument-report">Per-instrument report</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#stack-report">Stack report</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#grid-report">Grid report</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pdf-output">PDF output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#report-colour-conventions">Report colour conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interpreting-processing-status-pills">Interpreting processing status pills</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">HTML Reports</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/reports.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="html-reports">
+<h1>HTML Reports<a class="headerlink" href="#html-reports" title="Link to this heading"></a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">oceanarray</span></code> generates self-contained HTML reports at the end of processing.
+Reports require no web server — open them directly in a browser.  Each report
+page is colour-coded by its scope: <strong>navy</strong> for the mooring Summary, <strong>blue</strong>
+for the Stack, <strong>purple</strong> for the Grid, and <strong>green</strong> for per-instrument pages.</p>
+<p>Generate reports with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># Summary page only (fast)
+oceanarray report MOORING --raw-dir $RAW --proc-dir $PROC
+
+# Summary + per-instrument pages + stack + grid
+oceanarray report MOORING --raw-dir $RAW --proc-dir $PROC \
+    --instruments --stack --grid
+
+# Regenerate one instrument without touching others
+oceanarray report MOORING --raw-dir $RAW --proc-dir $PROC \
+    --instruments --serial 16648
+</pre></div>
+</div>
+<p>Or generate all reports in one go with <code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">run</span></code> (see <a class="reference internal" href="cli_reference.html"><span class="doc">CLI Reference</span></a>).</p>
+<hr class="docutils" />
+<section id="live-example">
+<h2>Live example<a class="headerlink" href="#live-example" title="Link to this heading"></a></h2>
+<p>The report suite below was generated from the <code class="docutils literal notranslate"><span class="pre">dune2_1_2026</span></code> test mooring and
+is hosted alongside these docs so you can explore the real output interactively.</p>
+<figure class="align-center" id="id1">
+<a class="reference external image-reference" href="_static/demo/dune2/dune2_1_2026_report.html"><img alt="Live dune2_1_2026 Summary report — click to open" src="_images/oceanarray_report_header.png" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>Click to open the live</strong> <code class="docutils literal notranslate"><span class="pre">dune2_1_2026</span></code> <strong>example report.</strong>  It opens the
+Summary page; the header pills link through to the Stack, Grid, and
+per-instrument pages.  Every figure is embedded in the page — no web server,
+downloads, or extra assets needed.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>Direct links to each page:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="_static/demo/dune2/dune2_1_2026_report.html">Summary</a></p></li>
+<li><p><a class="reference external" href="_static/demo/dune2/dune2_1_2026_stack_report.html">Stack</a></p></li>
+<li><p><a class="reference external" href="_static/demo/dune2/dune2_1_2026_grid_report.html">Grid</a></p></li>
+<li><p><a class="reference external" href="_static/demo/dune2/instrument/dune2_1_2026_2941_report.html">Instrument — microcat 2941</a></p></li>
+<li><p><a class="reference external" href="_static/demo/dune2/instrument/dune2_1_2026_9920_report.html">Instrument — aquadopp 9920</a></p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="report-pages">
+<h2>Report pages<a class="headerlink" href="#report-pages" title="Link to this heading"></a></h2>
+<section id="summary-report">
+<h3>Summary report<a class="headerlink" href="#summary-report" title="Link to this heading"></a></h3>
+<figure class="align-center" id="id2">
+<img alt="Mooring summary report header showing serial number pills and metadata cards" src="_images/oceanarray_report_header.png" />
+<figcaption>
+<p><span class="caption-text">The Summary report header for mooring <em>dsG2_1_2026</em>.  Each instrument type
+appears on its own row; a pill’s colour is its role (Summary dark, Stack blue,
+Grid purple, instruments green), and a greyed pill marks an instrument with no
+generated report.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p><strong>File</strong>: <code class="docutils literal notranslate"><span class="pre">{proc_dir}/{mooring}/report/{mooring}_report.html</span></code></p>
+<p>The Summary report is the first thing to open after processing.  It shows:</p>
+<ul class="simple">
+<li><p><strong>Instrument inventory</strong> — all instruments in the YAML grouped by type
+(MicroCAT, Aquadopp, RBRsolo, ADCP, …).  Each serial number is a pill linking
+to the per-instrument page; a greyed pill marks an instrument with no
+generated report.</p></li>
+<li><p><strong>Navigation pills</strong> — the header row links to the Summary, Stack, and Grid
+reports (and the array report when present).  A pill’s colour is its role, not
+its page, and the current page’s pill is muted.</p></li>
+<li><p><strong>Metadata cards</strong> — cruise, ship, latitude, longitude, water depth,
+deployment and recovery times, duration, instrument count.</p></li>
+<li><p><strong>Processing pipeline table</strong> — one row per instrument with Raw / Stage 1 /
+Stage 2 / Stage 3 / Stack / Grid status pills.</p></li>
+<li><p><strong>Clock corrections table</strong> — applied offset and drift for every instrument.</p></li>
+<li><p><strong>QC summary</strong> — flag counts per variable across all instruments.</p></li>
+</ul>
+</section>
+<section id="per-instrument-report">
+<h3>Per-instrument report<a class="headerlink" href="#per-instrument-report" title="Link to this heading"></a></h3>
+<figure class="align-center" id="id3">
+<img alt="Per-instrument report header for an Aquadopp current meter" src="_images/oceanarray_instrument_report.png" />
+<figcaption>
+<p><span class="caption-text">The per-instrument header for Aquadopp s/n 16648, showing HAB, depth,
+record length, sampling interval, and the source NetCDF filename.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p><strong>File</strong>: <code class="docutils literal notranslate"><span class="pre">{proc_dir}/{mooring}/report/instrument/{mooring}_{serial}_report.html</span></code></p>
+<p>Generated when <code class="docutils literal notranslate"><span class="pre">--instruments</span></code> is passed (or <code class="docutils literal notranslate"><span class="pre">--serial</span> <span class="pre">SN</span></code>).  One page per
+instrument.  Sections vary by instrument type:</p>
+<ul class="simple">
+<li><p><strong>Files</strong> — Raw, Stage 1, Stage 2, Stage 3 filenames with sizes and
+modification times.  A red “not found” entry flags a missing raw file.</p></li>
+<li><p><strong>Processing history</strong> — clock correction applied, QC thresholds used.</p></li>
+<li><p><strong>Time series</strong> — stacked panels for each variable (temperature, salinity,
+pressure, velocities, …) colour-coded by QARTOD flag.</p></li>
+<li><p><strong>Start/end windows</strong> — zoomed-in view of the first and last days of the
+record to help verify deployment/recovery trimming.</p></li>
+<li><p><strong>Current roses</strong> <em>(Aquadopp/ADCP only)</em> — direction–speed roses split by
+QARTOD flag (good / suspect / fail).</p></li>
+<li><p><strong>Trajectory</strong> <em>(Aquadopp/ADCP only)</em> — cumulative displacement (progressive
+vector diagram).</p></li>
+<li><p><strong>Hodograph</strong> <em>(Aquadopp/ADCP only)</em> — tip of the velocity vector over time.</p></li>
+<li><p><strong>Speed distribution</strong> <em>(Aquadopp/ADCP only)</em> — speed histogram.</p></li>
+<li><p><strong>Distributions</strong> — histogram of each scalar variable.</p></li>
+<li><p><strong>QC thresholds &amp; flags</strong> — the exact gross-range thresholds applied and the
+resulting flag-count breakdown.</p></li>
+<li><p><strong>Dimensions / Variables</strong> — a summary of the NetCDF structure.</p></li>
+</ul>
+</section>
+<section id="stack-report">
+<h3>Stack report<a class="headerlink" href="#stack-report" title="Link to this heading"></a></h3>
+<figure class="align-center" id="id4">
+<img alt="Stack report header showing all instruments on a common time grid" src="_images/oceanarray_stack_report.png" />
+<figcaption>
+<p><span class="caption-text">The Stack report header.  The metadata row shows the time-grid interval
+(Samp. ΔT), total record count, and source filename.</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p><strong>File</strong>: <code class="docutils literal notranslate"><span class="pre">{proc_dir}/{mooring}/report/{mooring}_stack_report.html</span></code></p>
+<p>Generated when <code class="docutils literal notranslate"><span class="pre">--stack</span></code> is passed.  Requires <code class="docutils literal notranslate"><span class="pre">{mooring}_stack.nc</span></code> (run
+<code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">process</span> <span class="pre">MOORING</span> <span class="pre">--stage</span> <span class="pre">stack</span></code> first).  Sections include:</p>
+<ul class="simple">
+<li><p><strong>Processing history</strong> — how many instruments were stacked and the
+resampling method used (nearest-neighbour for fast instruments,
+linear interpolation for slow).</p></li>
+<li><p><strong>Instruments (deep-first)</strong> — metadata for each level in the stack:
+serial, HAB, depth, sampling interval, record count.</p></li>
+<li><p><strong>Pressure / Temperature / Salinity / Velocity / Tilt time series</strong> —
+colour-contoured time-depth sections for each variable.</p></li>
+<li><p><strong>Trajectories, T-S diagram, Current roses</strong> — diagnostics across all levels.</p></li>
+<li><p><strong>Spacing</strong> — depth spacing between instrument levels over time.</p></li>
+<li><p><strong>Dimensions / Variables</strong> — NetCDF structure summary.</p></li>
+</ul>
+</section>
+<section id="grid-report">
+<h3>Grid report<a class="headerlink" href="#grid-report" title="Link to this heading"></a></h3>
+<figure class="align-center" id="id5">
+<img alt="Grid report header showing pressure grid parameters and instrument count" src="_images/oceanarray_grid_report.png" />
+<figcaption>
+<p><span class="caption-text">The Grid report header.  The extra metadata cards show Grid ΔP, number of
+pressure levels, and pressure range.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p><strong>File</strong>: <code class="docutils literal notranslate"><span class="pre">{proc_dir}/{mooring}/report/{mooring}_grid_report.html</span></code></p>
+<p>Generated when <code class="docutils literal notranslate"><span class="pre">--grid</span></code> is passed.  Requires <code class="docutils literal notranslate"><span class="pre">{mooring}_grid.nc</span></code> (run
+<code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">process</span> <span class="pre">MOORING</span> <span class="pre">--stage</span> <span class="pre">grid</span></code> first).  Sections include:</p>
+<ul class="simple">
+<li><p><strong>Processing history</strong> — stack parameters then grid interpolation method
+and pressure range.</p></li>
+<li><p><strong>Hydrography, Velocity</strong> — time-depth sections on the regular pressure grid.</p></li>
+<li><p><strong>T-S diagram, Velocity profiles</strong> — profile-based diagnostics.</p></li>
+<li><p><strong>Current roses, Particle trajectory, Velocity time series</strong> — current diagnostics.</p></li>
+<li><p><strong>Stratification, Power spectrum</strong> — derived diagnostics.</p></li>
+<li><p><strong>Dimensions / Variables</strong> — NetCDF structure.</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="pdf-output">
+<h2>PDF output<a class="headerlink" href="#pdf-output" title="Link to this heading"></a></h2>
+<p>The HTML reports can be combined into a single A4 PDF for printing or
+archiving.  The HTML pages remain the single source of truth — the PDF is a
+post-processing step (via <a class="reference external" href="https://weasyprint.org/">WeasyPrint</a>) that applies
+a print stylesheet (A4 page size, page numbers, page-break avoidance, hidden
+navigation buttons) without altering report generation.</p>
+<p>PDF output requires the optional <code class="docutils literal notranslate"><span class="pre">pdf</span></code> extra:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">oceanarray</span><span class="p">[</span><span class="n">pdf</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Build the PDF alongside the HTML pages with <code class="docutils literal notranslate"><span class="pre">--pdf</span></code> (or <code class="docutils literal notranslate"><span class="pre">--all</span></code>, which
+implies it):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># Combine whatever HTML pages exist into MOORING_report.pdf
+oceanarray report MOORING --raw-dir $RAW --proc-dir $PROC --pdf
+
+# Generate every page and the combined PDF in one go
+oceanarray report MOORING --raw-dir $RAW --proc-dir $PROC --all
+</pre></div>
+</div>
+<p>Pages are concatenated in reading order — summary → per-instrument → stack →
+grid — and only pages that exist on disk are included.  The result is written
+to <code class="docutils literal notranslate"><span class="pre">{mooring}_report.pdf</span></code> in the same directory as the HTML pages.</p>
+</section>
+<hr class="docutils" />
+<section id="report-colour-conventions">
+<h2>Report colour conventions<a class="headerlink" href="#report-colour-conventions" title="Link to this heading"></a></h2>
+<p>Each report page uses a distinct header colour so you can immediately tell
+which report you are reading:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Report</p></th>
+<th class="head"><p>Header colour</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Summary</p></td>
+<td><p>Navy (#1a2a4a)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Stack</p></td>
+<td><p>Blue (#2980b9)</p></td>
+</tr>
+<tr class="row-even"><td><p>Grid</p></td>
+<td><p>Purple (#8e44ad)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Per-instrument</p></td>
+<td><p>Instrument-specific
+(green for current
+meters, teal for
+CTDs)</p></td>
+</tr>
+</tbody>
+</table>
+<p>The header on every page includes pill buttons linking to the Summary, Stack,
+and Grid sibling reports, plus a row of per-instrument serial-number links
+grouped by instrument type.</p>
+</section>
+<hr class="docutils" />
+<section id="interpreting-processing-status-pills">
+<h2>Interpreting processing status pills<a class="headerlink" href="#interpreting-processing-status-pills" title="Link to this heading"></a></h2>
+<p>In the Summary and per-instrument reports, each processing stage is represented
+by a colour-coded pill:</p>
+<ul class="simple">
+<li><p><strong>Green pill</strong> — output file exists and was found.</p></li>
+<li><p><strong>Grey pill</strong> — stage not yet run, or file not found.</p></li>
+<li><p><strong>“skipped” note</strong> — instrument has <code class="docutils literal notranslate"><span class="pre">skip:</span> <span class="pre">true</span></code> in the YAML.</p></li>
+</ul>
+<p>Stack and Grid pills are grey for any instrument that did not reach Stage 3
+(only Stage 3 output is included in the stack).</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="processing_framework.html" class="btn btn-neutral float-left" title="OceanArray processing framework" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="directory_structure.html" class="btn btn-neutral float-right" title="Directory Structure and File Layout" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

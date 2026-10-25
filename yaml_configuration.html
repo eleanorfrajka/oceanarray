@@ -1,0 +1,1081 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YAML Configuration Reference &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=20758594" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8b92e751"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="OceanArray Project Structure" href="project_structure.html" />
+    <link rel="prev" title="CLI Reference" href="cli_reference.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            oceanarray
+              <img src="_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">YAML Configuration Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#minimal-working-example">Minimal working example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mooring-level-keys">Mooring-level keys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#instrument-entries-the-clamp-list">Instrument entries (the <code class="docutils literal notranslate"><span class="pre">clamp</span></code> list)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fields-required-for-processing">Fields required for processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optional-fields">Optional fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#additional-fields">Additional fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fields-used-only-by-moordiag-ignored-by-oceanarray">Fields used only by moordiag (ignored by oceanarray)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#the-instrument-field">The <code class="docutils literal notranslate"><span class="pre">instrument</span></code> field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#valid-file-type-values">Valid <code class="docutils literal notranslate"><span class="pre">file_type</span></code> values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#clock-correction">Clock correction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qc-ranges">QC ranges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hab-height-above-bottom">HAB — height above bottom</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inline-hardware-and-instruments">Inline hardware and instruments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pending-and-skipped-instruments">Pending and skipped instruments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#position-and-latitude-longitude-priority">Position and latitude/longitude priority</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#validate-your-yaml">Validate your YAML</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#from-python">From Python</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">YAML Configuration Reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/yaml_configuration.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="yaml-configuration-reference">
+<span id="yaml-configuration"></span><h1>YAML Configuration Reference<a class="headerlink" href="#yaml-configuration-reference" title="Link to this heading"></a></h1>
+<p>Each mooring is configured with a single YAML file named
+<code class="docutils literal notranslate"><span class="pre">{mooring_name}.mooring.yaml</span></code>, placed in the processed directory for that
+mooring (see <a class="reference internal" href="directory_structure.html"><span class="doc">Directory Structure and File Layout</span></a>).  This file tells <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code>
+everything it needs to know: where the raw data files are, what instruments
+were deployed, when the mooring was in the water, and how to quality-control
+the data.</p>
+<hr class="docutils" />
+<section id="minimal-working-example">
+<h2>Minimal working example<a class="headerlink" href="#minimal-working-example" title="Link to this heading"></a></h2>
+<p>The following YAML is sufficient to process a mooring that carries one
+SeaBird microCAT and one Nortek Aquadopp.  Copy it and fill in the values
+for your deployment before running any <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code> command.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dsG3_1_2026</span>
+<span class="nt">waterdepth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1800</span>
+<span class="nt">deployment_time</span><span class="p">:</span><span class="w"> </span><span class="s">"2026-04-10T12:00:00"</span>
+<span class="nt">recovery_time</span><span class="p">:</span><span class="w"> </span><span class="s">"2027-04-15T08:30:00"</span>
+
+<span class="c1"># Position — used for magnetic declination correction</span>
+<span class="nt">deployment_latitude</span><span class="p">:</span><span class="w"> </span><span class="s">"65</span><span class="nv"> </span><span class="s">29.84</span><span class="nv"> </span><span class="s">N"</span>
+<span class="nt">deployment_longitude</span><span class="p">:</span><span class="w"> </span><span class="s">"009</span><span class="nv"> </span><span class="s">30.12</span><span class="nv"> </span><span class="s">W"</span>
+
+<span class="nt">clamp</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">serial</span><span class="p">:</span><span class="w"> </span><span class="s">"26261"</span>
+<span class="w">    </span><span class="nt">instrument</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">microcat</span>
+<span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">26261_recovery.asc</span>
+<span class="w">    </span><span class="nt">file_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sbe-ascii</span>
+<span class="w">    </span><span class="nt">hab</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">450</span>
+<span class="w">    </span><span class="nt">computer_clock_at_recovery</span><span class="p">:</span><span class="w"> </span><span class="s">"2027-04-15T08:00:00"</span>
+<span class="w">    </span><span class="nt">instrument_clock_at_recovery</span><span class="p">:</span><span class="w"> </span><span class="s">"2027-04-15T07:59:48"</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">serial</span><span class="p">:</span><span class="w"> </span><span class="s">"400115"</span>
+<span class="w">    </span><span class="nt">instrument</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aquadopp</span>
+<span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">A400115_dsG3.aqd</span>
+<span class="w">    </span><span class="nt">file_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nortek-raw</span>
+<span class="w">    </span><span class="nt">header_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">A400115_dsG3.hdr</span>
+<span class="w">    </span><span class="nt">hab</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">460</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="mooring-level-keys">
+<h2>Mooring-level keys<a class="headerlink" href="#mooring-level-keys" title="Link to this heading"></a></h2>
+<p>These fields appear at the top level of the YAML file and apply to the
+mooring as a whole.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 10.0%" />
+<col style="width: 15.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Required</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Required</p></td>
+<td><p>Mooring identifier, e.g. <code class="docutils literal notranslate"><span class="pre">dsG3_1_2026</span></code>.  Used in all output file
+names.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">waterdepth</span></code></p></td>
+<td><p>number</p></td>
+<td><p>Required</p></td>
+<td><p>Water depth at the anchor position in metres.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">deployment_time</span></code></p></td>
+<td><p>ISO-8601 string</p></td>
+<td><p>Required</p></td>
+<td><p>When the mooring was deployed (UTC).  Used by stage 2 to trim the
+record.  Format: <code class="docutils literal notranslate"><span class="pre">&quot;YYYY-MM-DDTHH:MM:SS&quot;</span></code>, e.g.
+<code class="docutils literal notranslate"><span class="pre">&quot;2026-05-07T17:05:00&quot;</span></code> means 7 May 2026 at 17:05 UTC.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">recovery_time</span></code></p></td>
+<td><p>ISO-8601 string</p></td>
+<td><p>Required</p></td>
+<td><p>When the mooring was recovered (UTC).  Used by stage 2 to trim the
+record.  Same format as <code class="docutils literal notranslate"><span class="pre">deployment_time</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">year</span></code></p></td>
+<td><p>integer</p></td>
+<td><p>Optional</p></td>
+<td><p>Calendar year of deployment start; used in report headers.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">status</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Optional</p></td>
+<td><p>Mooring lifecycle state: typically <code class="docutils literal notranslate"><span class="pre">planned</span></code>, <code class="docutils literal notranslate"><span class="pre">deployed</span></code>, or
+<code class="docutils literal notranslate"><span class="pre">recovered</span></code>.  Used by <code class="docutils literal notranslate"><span class="pre">moordiag</span></code> to select which information to
+display on the diagram (e.g. <code class="docutils literal notranslate"><span class="pre">planned</span></code> uses
+<code class="docutils literal notranslate"><span class="pre">planned_latitude/longitude</span></code> for the nominal position).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">deployment_cruise</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Optional</p></td>
+<td><p>Cruise identifier for the deployment leg.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">deployment_ship</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Optional</p></td>
+<td><p>Vessel name for the deployment.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">recovery_cruise</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Optional</p></td>
+<td><p>Cruise identifier for the recovery leg.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">recovery_ship</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Optional</p></td>
+<td><p>Vessel name for the recovery.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">seabed_latitude</span></code> / <code class="docutils literal notranslate"><span class="pre">seabed_longitude</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Optional</p></td>
+<td><p>Confirmed anchor position (most accurate).  See
+<a class="reference internal" href="#position-and-latitude-longitude-priority">Position and latitude/longitude priority</a> below.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">deployment_latitude</span></code> / <code class="docutils literal notranslate"><span class="pre">deployment_longitude</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Optional</p></td>
+<td><p>Ship GPS fix at the time of deployment.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">planned_latitude</span></code> / <code class="docutils literal notranslate"><span class="pre">planned_longitude</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Optional</p></td>
+<td><p>Pre-cruise planned position.  Used by <code class="docutils literal notranslate"><span class="pre">moordiag</span></code> only (for
+<code class="docutils literal notranslate"><span class="pre">status:</span> <span class="pre">planned</span></code> moorings before deployment); not used by
+<code class="docutils literal notranslate"><span class="pre">oceanarray</span></code> for magnetic declination.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">latitude</span></code> / <code class="docutils literal notranslate"><span class="pre">longitude</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Optional</p></td>
+<td><p>Generic fallback position if none of the above are set.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">directory</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Deprecated</p></td>
+<td><p><strong>Deprecated — do not use.</strong>  The raw-data root is a run-time location,
+not part of the mooring description; pass it as <code class="docutils literal notranslate"><span class="pre">raw_dir</span></code> / <code class="docutils literal notranslate"><span class="pre">--raw-dir</span></code>.
+<code class="docutils literal notranslate"><span class="pre">validate</span></code> warns on this key, and the stage-1 absolute-path override is
+removed in 0.7.0.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qc_ranges</span></code></p></td>
+<td><p>mapping</p></td>
+<td><p>Optional</p></td>
+<td><p>Mooring-wide QC thresholds applied in stage 3 to all instruments
+unless overridden at the instrument level.  See <a class="reference internal" href="#qc-ranges">QC ranges</a> below.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<hr class="docutils" />
+<section id="instrument-entries-the-clamp-list">
+<h2>Instrument entries (the <code class="docutils literal notranslate"><span class="pre">clamp</span></code> list)<a class="headerlink" href="#instrument-entries-the-clamp-list" title="Link to this heading"></a></h2>
+<p>Each physical instrument on the mooring appears as one entry under the
+<code class="docutils literal notranslate"><span class="pre">clamp</span></code> key.  Entries are processed in the order they appear; <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code>
+does not re-order them by depth.</p>
+<section id="fields-required-for-processing">
+<h3>Fields required for processing<a class="headerlink" href="#fields-required-for-processing" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 10.0%" />
+<col style="width: 65.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">serial</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Instrument serial number.  Used in all output filenames, NetCDF
+attributes, and report links.  Use a bare number string, e.g.
+<code class="docutils literal notranslate"><span class="pre">&quot;26261&quot;</span></code>.  A trailing <code class="docutils literal notranslate"><span class="pre">*</span></code> is allowed (stripped from filenames).
+See <a class="reference internal" href="#inline-hardware-and-instruments">Inline hardware and instruments</a> for the special comma
+convention used for ADCPs on floats.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">instrument</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Instrument type.  Controls the raw-file subdirectory, the output
+subdirectory, which processing code paths are activated, and the
+instrument-type column in reports.  See <a class="reference internal" href="#the-instrument-field">The instrument field</a> for
+the full list of valid values.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">filename</span></code></p></td>
+<td><p>string or <code class="docutils literal notranslate"><span class="pre">null</span></code></p></td>
+<td><p>Raw data filename, relative to
+<code class="docutils literal notranslate"><span class="pre">{raw_dir}/{mooring}/{instrument}/</span></code>.
+<strong>Recommended naming convention</strong>: <code class="docutils literal notranslate"><span class="pre">{serial}_recovery.&lt;ext&gt;</span></code>
+(e.g. <code class="docutils literal notranslate"><span class="pre">26261_recovery.asc</span></code>, <code class="docutils literal notranslate"><span class="pre">9415_recovery.dat</span></code>).
+If omitted or set to <code class="docutils literal notranslate"><span class="pre">null</span></code>, <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code> will try to locate the
+file automatically using the conventions in the table below — if a
+match is found, processing proceeds; if not, the instrument is skipped
+with a diagnostic message listing the paths tried.</p>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Auto-detected filename conventions</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 30.0%" />
+<col style="width: 20.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">instrument</span></code> value</p></th>
+<th class="head"><p>Condition</p></th>
+<th class="head"><p>Filename tried</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">file_type</span></code></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">microcat</span></code></p></td>
+<td><p>serial &lt; 6000</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{serial}_recovery.asc</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sbe-ascii</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">microcat</span></code></p></td>
+<td><p>serial ≥ 6000</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{serial}_recovery.hex</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sbe-hex</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tr1050</span></code></p></td>
+<td><p>any</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{serial}_recovery.hex</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rbr-hex</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rbrsolo</span></code>, <code class="docutils literal notranslate"><span class="pre">rbrduet</span></code>, <code class="docutils literal notranslate"><span class="pre">seapoint</span></code></p></td>
+<td><p>any</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{serial}_recovery.rsk</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rbr-rsk</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">aquadopp</span></code> / <code class="docutils literal notranslate"><span class="pre">nortek</span></code></p></td>
+<td><p>serial &lt; 400000</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{serial}_recovery.dat</span></code> (+ <code class="docutils literal notranslate"><span class="pre">.hdr</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nortek-ascii</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">aquadopp</span></code> / <code class="docutils literal notranslate"><span class="pre">nortek</span></code></p></td>
+<td><p>serial ≥ 400000</p></td>
+<td><p>not auto-detected — set <code class="docutils literal notranslate"><span class="pre">filename</span></code> explicitly</p></td>
+<td><p>—</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ADCP</span></code></p></td>
+<td><p>any</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{serial}_{mooring}_recovery.000</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rdi-raw</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>A trailing <code class="docutils literal notranslate"><span class="pre">*</span></code> in the serial field is stripped before building the
+filename (e.g. <code class="docutils literal notranslate"><span class="pre">serial:</span> <span class="pre">13560*</span></code> → tries <code class="docutils literal notranslate"><span class="pre">13560_recovery.asc</span></code>).
+Searched directories (in order):
+<code class="docutils literal notranslate"><span class="pre">{raw_dir}/{mooring}/{instrument}/</span></code>, then <code class="docutils literal notranslate"><span class="pre">{raw_dir}/{mooring}/</span></code>.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">file_type</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Reader type passed to seasenselib.  See
+<a class="reference internal" href="#valid-file-type-values">Valid file_type values</a> below.
+Can be omitted when <code class="docutils literal notranslate"><span class="pre">filename</span></code> is also omitted — the auto-detection
+logic sets <code class="docutils literal notranslate"><span class="pre">file_type</span></code> to match the discovered file.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hab</span></code></p></td>
+<td><p>number</p></td>
+<td><p>Height above bottom in metres.  Used for pressure interpolation,
+mooring diagram positioning, and vertical ordering in the stack and
+grid.  See <a class="reference internal" href="#hab-height-above-bottom">HAB — height above bottom</a> for what happens if this
+field is missing.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="optional-fields">
+<h3>Optional fields<a class="headerlink" href="#optional-fields" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 10.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">header_file</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Path to the header file, relative to the instrument raw directory.
+<strong>Required for Nortek Aquadopps</strong> — used to recover the
+beam-to-XYZ transformation matrix.  For older Aquadopp units supply
+the <code class="docutils literal notranslate"><span class="pre">.hdr</span></code> file (e.g. <code class="docutils literal notranslate"><span class="pre">9920_recovery.hdr</span></code>); for 400### serial
+units supply the string-data CSV (e.g.
+<code class="docutils literal notranslate"><span class="pre">converted_raw/A400115005_400115_dsG3/String</span> <span class="pre">Data.csv</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">clock_offset</span></code></p></td>
+<td><p>number</p></td>
+<td><p>Constant time shift in seconds applied to the entire record.
+Positive means the instrument clock was slow (behind UTC), so
+the correction adds time.  Omit if the offset is negligible or
+unknown.  For linear drift correction, use
+<code class="docutils literal notranslate"><span class="pre">computer_clock_at_recovery</span></code> / <code class="docutils literal notranslate"><span class="pre">instrument_clock_at_recovery</span></code>
+instead.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">computer_clock_at_recovery</span></code></p></td>
+<td><p>ISO-8601 string or <code class="docutils literal notranslate"><span class="pre">unknown</span></code></p></td>
+<td><p>GPS/computer time read at the moment of recovery comparison.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">instrument_clock_at_recovery</span></code></p></td>
+<td><p>ISO-8601 string or <code class="docutils literal notranslate"><span class="pre">unknown</span></code></p></td>
+<td><p>Instrument’s internal clock time read at the same moment.
+If either value is <code class="docutils literal notranslate"><span class="pre">unknown</span></code>, clock drift correction is skipped
+for this instrument.  See <a class="reference internal" href="#clock-correction">Clock correction</a> below.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pressure_qc</span></code></p></td>
+<td><p>integer</p></td>
+<td><p>QARTOD flag (1–4) forced onto all pressure values for this
+instrument.  Set to <code class="docutils literal notranslate"><span class="pre">4</span></code> to mark pressure as bad/absent (e.g.
+the pressure sensor failed or the instrument type has no pressure
+sensor).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qc_ranges</span></code></p></td>
+<td><p>mapping</p></td>
+<td><p>Per-instrument QC overrides.  Same structure as mooring-level
+<code class="docutils literal notranslate"><span class="pre">qc_ranges</span></code>; instrument-level values override mooring-level
+values for the same variable.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">skip</span></code></p></td>
+<td><p>boolean</p></td>
+<td><p>Set to <code class="docutils literal notranslate"><span class="pre">true</span></code> to skip this instrument entirely during processing.
+The entry is retained in the YAML for documentation purposes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">skip_reason</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Free-text explanation for why the instrument is skipped.  Displayed
+in reports alongside the skipped indicator, e.g.
+<code class="docutils literal notranslate"><span class="pre">&quot;pressure</span> <span class="pre">sensor</span> <span class="pre">failed</span> <span class="pre">at</span> <span class="pre">deployment&quot;</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">file_type:</span> <span class="pre">TBD</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Special sentinel value indicating no data file exists yet.
+Processing is skipped; the instrument appears in reports as pending.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">stack</span></code></p></td>
+<td><p>boolean</p></td>
+<td><p>Set to <code class="docutils literal notranslate"><span class="pre">false</span></code> to keep this instrument out of the stack and grid
+while still processing it through Stages 1–3 and its instrument
+report (reference data, e.g. a low-passed RODB <code class="docutils literal notranslate"><span class="pre">.lowedt</span></code> file).
+The stack records it in its <code class="docutils literal notranslate"><span class="pre">instruments_excluded</span></code> attribute.
+Default <code class="docutils literal notranslate"><span class="pre">true</span></code>.  A low-passed file reaching the stack without it is
+omitted with an error naming this key.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">units_override</span></code></p></td>
+<td><p>mapping</p></td>
+<td><p>Corrects a file whose <code class="docutils literal notranslate"><span class="pre">units</span></code> attribute is wrong, as
+<code class="docutils literal notranslate"><span class="pre">{variable:</span> <span class="pre">units}</span></code>, e.g. <code class="docutils literal notranslate"><span class="pre">{conductivity:</span> <span class="pre">mS/cm}</span></code> for a file that
+labels mS/cm values <code class="docutils literal notranslate"><span class="pre">S/m</span></code>.  Applied in Stage 1 before the units pass;
+the stated value is kept in the variable’s <code class="docutils literal notranslate"><span class="pre">units_override_from</span></code>
+attribute.  For <code class="docutils literal notranslate"><span class="pre">oceansites</span></code> and <code class="docutils literal notranslate"><span class="pre">rodb</span></code> files Stage 1 checks each
+variable’s median against the registry’s valid range and refuses the
+instrument, naming this key, when the stated units look wrong.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="additional-fields">
+<h3>Additional fields<a class="headerlink" href="#additional-fields" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">sample_interval_seconds</span></code></dt><dd><p>Nominal sampling interval in seconds.  Used by <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code> in HTML
+reports (shown in instrument metadata cards and compared against the
+actual computed sampling interval) and by <code class="docutils literal notranslate"><span class="pre">moordiag</span></code> for the mooring
+diagram.  Does not affect any data processing.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">label</span></code></dt><dd><p>Short human-readable name for the instrument, e.g. <code class="docutils literal notranslate"><span class="pre">&quot;SM-p&quot;</span></code> or
+<code class="docutils literal notranslate"><span class="pre">&quot;Aquadopp&quot;</span></code>.  Used by <code class="docutils literal notranslate"><span class="pre">moordiag</span></code> for diagram labels and may be used
+by <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code> as a legend label in plots.</p>
+</dd>
+</dl>
+</section>
+<section id="fields-used-only-by-moordiag-ignored-by-oceanarray">
+<h3>Fields used only by moordiag (ignored by oceanarray)<a class="headerlink" href="#fields-used-only-by-moordiag-ignored-by-oceanarray" title="Link to this heading"></a></h3>
+<p>The following fields are read by the <code class="docutils literal notranslate"><span class="pre">moordiag</span></code> mooring diagram package
+and are ignored by <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code>: <code class="docutils literal notranslate"><span class="pre">image</span></code>, <code class="docutils literal notranslate"><span class="pre">clamp_id</span></code>, <code class="docutils literal notranslate"><span class="pre">position</span></code>,
+<code class="docutils literal notranslate"><span class="pre">hardware_type</span></code>, <code class="docutils literal notranslate"><span class="pre">category</span></code>, <code class="docutils literal notranslate"><span class="pre">component_id</span></code>, <code class="docutils literal notranslate"><span class="pre">length</span></code>, <code class="docutils literal notranslate"><span class="pre">repeat</span></code>.
+They may safely remain in the YAML alongside the processing fields.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="the-instrument-field">
+<h2>The <code class="docutils literal notranslate"><span class="pre">instrument</span></code> field<a class="headerlink" href="#the-instrument-field" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">instrument</span></code> field in each <code class="docutils literal notranslate"><span class="pre">clamp</span></code> entry does four things:</p>
+<ol class="arabic simple">
+<li><p><strong>Raw-file subdirectory</strong>: <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code> looks for raw files in
+<code class="docutils literal notranslate"><span class="pre">{raw_dir}/{mooring}/{instrument}/</span></code>.</p></li>
+<li><p><strong>Output subdirectory</strong>: stage NC files are written to
+<code class="docutils literal notranslate"><span class="pre">{proc_dir}/{mooring}/{instrument}/</span></code>.</p></li>
+<li><p><strong>Processing code path</strong>: the value activates instrument-specific
+processing.  For example, <code class="docutils literal notranslate"><span class="pre">aquadopp</span></code> triggers velocity rotation and
+tilt QC; <code class="docutils literal notranslate"><span class="pre">microcat</span></code> triggers salinity derivation from conductivity,
+temperature, and pressure.</p></li>
+<li><p><strong>Report rendering</strong>: the value appears as the instrument-type label in
+HTML reports.</p></li>
+</ol>
+<p>Valid values and their descriptions:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 25.0%" />
+<col style="width: 55.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Value</p></th>
+<th class="head"><p>Instrument</p></th>
+<th class="head"><p>Reader families accepted by <code class="docutils literal notranslate"><span class="pre">file_type</span></code></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">microcat</span></code></p></td>
+<td><p>SeaBird SBE37 CTD</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sbe-cnv</span></code>, <code class="docutils literal notranslate"><span class="pre">sbe-ascii</span></code>, <code class="docutils literal notranslate"><span class="pre">sbe-hex</span></code>, <code class="docutils literal notranslate"><span class="pre">oceansites</span></code>, <code class="docutils literal notranslate"><span class="pre">rodb</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sbe56</span></code></p></td>
+<td><p>SeaBird SBE56 temperature logger</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sbe-cnv</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sbe16</span></code></p></td>
+<td><p>SeaBird SBE16plus CTD</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sbe-cnv</span></code>, <code class="docutils literal notranslate"><span class="pre">sbe-hex</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rbrsolo</span></code></p></td>
+<td><p>RBR Solo temperature logger</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rbr-rsk</span></code>, <code class="docutils literal notranslate"><span class="pre">rbr-dat</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rbrduet</span></code></p></td>
+<td><p>RBR Duet CT (conductivity + temperature)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rbr-rsk</span></code>, <code class="docutils literal notranslate"><span class="pre">rbr-dat</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">aquadopp</span></code></p></td>
+<td><p>Nortek Aquadopp current meter</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nortek-raw</span></code>, <code class="docutils literal notranslate"><span class="pre">nortek-ascii</span></code>, <code class="docutils literal notranslate"><span class="pre">nortek-csv</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">currentmeter</span></code></p></td>
+<td><p>Point current meter delivered already processed (e.g. an Aanderaa RCM
+from an OceanSITES or RODB archive)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceansites</span></code>, <code class="docutils literal notranslate"><span class="pre">rodb</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ADCP</span></code></p></td>
+<td><p>RDI WorkHorse broadband ADCP</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rdi-raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tr1050</span></code></p></td>
+<td><p>Turner TR-1050 fluorometer/turbidity</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rbr-matlab</span></code>, <code class="docutils literal notranslate"><span class="pre">rbr-hex</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">seapoint</span></code></p></td>
+<td><p>Seapoint turbidity sensor</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rbr-rsk</span></code>, <code class="docutils literal notranslate"><span class="pre">rbr-dat</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>Custom values are allowed if used consistently: the string becomes a
+subdirectory name, so avoid spaces and special characters.  If you use
+a custom value, ensure every instrument entry in the YAML that shares the
+same instrument type uses the same string.</p>
+</section>
+<hr class="docutils" />
+<section id="valid-file-type-values">
+<h2>Valid <code class="docutils literal notranslate"><span class="pre">file_type</span></code> values<a class="headerlink" href="#valid-file-type-values" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 25.0%" />
+<col style="width: 20.0%" />
+<col style="width: 35.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Value</p></th>
+<th class="head"><p>Reader</p></th>
+<th class="head"><p>Typical instrument</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sbe-cnv</span></code></p></td>
+<td><p>SeaBird CNV</p></td>
+<td><p>SBE37, SBE56, SBE16</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sbe-ascii</span></code></p></td>
+<td><p>SeaBird ASCII export</p></td>
+<td><p>SBE37</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sbe-hex</span></code></p></td>
+<td><p>SeaBird HEX</p></td>
+<td><p>SBE16</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nortek-raw</span></code></p></td>
+<td><p>Nortek binary AQD</p></td>
+<td><p>Aquadopp</p></td>
+<td><p>Requires a matching <code class="docutils literal notranslate"><span class="pre">.hdr</span></code> file; supply path with <code class="docutils literal notranslate"><span class="pre">header_file</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nortek-ascii</span></code></p></td>
+<td><p>Nortek ASCII export</p></td>
+<td><p>Aquadopp</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nortek-csv</span></code></p></td>
+<td><p>Nortek CSV string-data export</p></td>
+<td><p>Aquadopp (400### series)</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceansites</span></code></p></td>
+<td><p>OceanSITES netCDF (oceanarray reader)</p></td>
+<td><p>MicroCAT, current meter</p></td>
+<td><p>A single-instrument time series already processed by its originator:
+OceanSITES 1.3 (variables on <code class="docutils literal notranslate"><span class="pre">TIME,</span> <span class="pre">DEPTH</span></code>) or the OSNAP variant
+(variables on <code class="docutils literal notranslate"><span class="pre">TIME</span></code>).  <code class="docutils literal notranslate"><span class="pre">TEMP</span></code>, <code class="docutils literal notranslate"><span class="pre">PSAL</span></code>, <code class="docutils literal notranslate"><span class="pre">CNDC</span></code>, <code class="docutils literal notranslate"><span class="pre">PRES</span></code>,
+<code class="docutils literal notranslate"><span class="pre">UCUR</span></code>, <code class="docutils literal notranslate"><span class="pre">VCUR</span></code>, <code class="docutils literal notranslate"><span class="pre">WCUR</span></code> are read; a <code class="docutils literal notranslate"><span class="pre">&lt;CODE&gt;_QC</span></code> variable is kept
+as <code class="docutils literal notranslate"><span class="pre">&lt;name&gt;_qc_originator</span></code>.  Velocities are geographic, so Stage 3
+applies no rotation and no magnetic declination.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rodb</span></code></p></td>
+<td><p>RODB text (oceanarray reader)</p></td>
+<td><p>MicroCAT, current meter</p></td>
+<td><p>RAPID/BODC <code class="docutils literal notranslate"><span class="pre">.microcat</span></code>, <code class="docutils literal notranslate"><span class="pre">.edt</span></code> and <code class="docutils literal notranslate"><span class="pre">.lowedt</span></code> files.  Units are
+those documented for each column code (<code class="docutils literal notranslate"><span class="pre">U</span></code>/<code class="docutils literal notranslate"><span class="pre">V</span></code>/<code class="docutils literal notranslate"><span class="pre">W</span></code> in cm/s,
+converted to m s-1).  An <code class="docutils literal notranslate"><span class="pre">.edt</span></code> header’s <code class="docutils literal notranslate"><span class="pre">MagDeviation</span></code> is recorded
+as <code class="docutils literal notranslate"><span class="pre">originator_magnetic_declination</span></code> and not applied again.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rbr-rsk</span></code></p></td>
+<td><p>RBR Ruskin SQLite</p></td>
+<td><p>RBR Solo, Duet, etc.</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rbr-dat</span></code></p></td>
+<td><p>RBR legacy DAT format</p></td>
+<td><p>RBR instruments</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rbr-matlab</span></code></p></td>
+<td><p>RBR MATLAB export</p></td>
+<td><p>Turner TR-1050 via RBR logger</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rbr-hex</span></code></p></td>
+<td><p>RBR HEX binary</p></td>
+<td><p>Turner TR-1050, Seapoint via RBR logger</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rdi-raw</span></code></p></td>
+<td><p>RDI raw binary</p></td>
+<td><p>WorkHorse ADCP</p></td>
+<td><p>Read via <code class="docutils literal notranslate"><span class="pre">seasenselib</span></code> (<code class="docutils literal notranslate"><span class="pre">mhkit[dolfyn]</span></code>); no extra install needed.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">adcp-matlab</span></code></p></td>
+<td><p>ADCP MATLAB export</p></td>
+<td><p>RDI WorkHorse</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</section>
+<hr class="docutils" />
+<section id="clock-correction">
+<h2>Clock correction<a class="headerlink" href="#clock-correction" title="Link to this heading"></a></h2>
+<p>Two methods are available for correcting instrument clock drift.</p>
+<p><strong>Two-timestamp method (recommended)</strong></p>
+<p>At recovery, record the GPS/computer time and the instrument’s internal
+clock time at the same moment.  Enter both values in the YAML:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">computer_clock_at_recovery</span><span class="p">:</span><span class="w"> </span><span class="s">"2027-04-15T08:00:00"</span>
+<span class="nt">instrument_clock_at_recovery</span><span class="p">:</span><span class="w"> </span><span class="s">"2027-04-15T07:59:48"</span>
+</pre></div>
+</div>
+<p>Stage 2 computes <code class="docutils literal notranslate"><span class="pre">drift</span> <span class="pre">=</span> <span class="pre">computer_time</span> <span class="pre">−</span> <span class="pre">instrument_time</span></code> and applies a
+linear correction over the full deployment record (zero drift at deployment
+time, full drift value at recovery time).</p>
+<p><strong>Sign convention</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 35.0%" />
+<col style="width: 15.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Situation</p></th>
+<th class="head"><p>Drift sign</p></th>
+<th class="head"><p>Effect</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Instrument clock was slow (behind UTC)</p></td>
+<td><p>Positive</p></td>
+<td><p>Stage 2 adds time to make records later</p></td>
+</tr>
+<tr class="row-odd"><td><p>Instrument clock was fast (ahead of UTC)</p></td>
+<td><p>Negative</p></td>
+<td><p>Stage 2 subtracts time to make records earlier</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Constant offset method</strong></p>
+<p>If you know a fixed offset (e.g. the clock was set incorrectly at the
+start) but have no recovery comparison, supply <code class="docutils literal notranslate"><span class="pre">clock_offset</span></code> in seconds:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">clock_offset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12</span><span class="w">    </span><span class="c1"># instrument was 12 seconds slow; add 12 s to all times</span>
+</pre></div>
+</div>
+<p><strong>Skipping clock correction</strong></p>
+<p>If neither <code class="docutils literal notranslate"><span class="pre">clock_offset</span></code> nor the two-timestamp pair is present in the
+YAML, no clock correction is applied.  If either clock timestamp is the
+string <code class="docutils literal notranslate"><span class="pre">unknown</span></code>, the drift correction is also skipped and a warning is
+logged.</p>
+</section>
+<hr class="docutils" />
+<section id="qc-ranges">
+<h2>QC ranges<a class="headerlink" href="#qc-ranges" title="Link to this heading"></a></h2>
+<p>Quality control is applied in stage 3, <strong>after</strong> pressure interpolation —
+so instruments that receive an interpolated pressure value participate in
+the QC tests alongside instruments with native pressure sensors.</p>
+<p>The gross-range test uses two nested spans.  <strong>The spans define the
+acceptable (non-flagged) range, not the flagged range.</strong></p>
+<ul class="simple">
+<li><p>Values <strong>within</strong> <code class="docutils literal notranslate"><span class="pre">suspect_span</span></code> → flag 1 (pass / good data)</p></li>
+<li><p>Values <strong>outside</strong> <code class="docutils literal notranslate"><span class="pre">suspect_span</span></code> but <strong>within</strong> <code class="docutils literal notranslate"><span class="pre">fail_span</span></code> → flag 3
+(suspect / probably bad)</p></li>
+<li><p>Values <strong>outside</strong> <code class="docutils literal notranslate"><span class="pre">fail_span</span></code> → flag 4 (fail / bad data)</p></li>
+<li><p>NaN values → flag 9 (missing)</p></li>
+</ul>
+<p>For example, <code class="docutils literal notranslate"><span class="pre">fail_span:</span> <span class="pre">[-2.0,</span> <span class="pre">35.0]</span></code> means temperatures below −2 °C
+or above 35 °C are flagged 4 (bad); a temperature of 40 °C would receive
+flag 4.</p>
+<p>QC flag values follow the OceanSITES / QARTOD convention:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 40.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Flag</p></th>
+<th class="head"><p>OceanSITES name</p></th>
+<th class="head"><p>QARTOD name</p></th>
+<th class="head"><p>When applied</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>Good data</p></td>
+<td><p>Pass</p></td>
+<td><p>Within <code class="docutils literal notranslate"><span class="pre">suspect_span</span></code> (or no QC configured for this variable)</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>Probably good data</p></td>
+<td><p>Not evaluated</p></td>
+<td><p>Not used by <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>Probably bad data</p></td>
+<td><p>Suspect</p></td>
+<td><p>Outside <code class="docutils literal notranslate"><span class="pre">suspect_span</span></code> but within <code class="docutils literal notranslate"><span class="pre">fail_span</span></code>; also tilt suspect</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>Bad data</p></td>
+<td><p>Fail</p></td>
+<td><p>Outside <code class="docutils literal notranslate"><span class="pre">fail_span</span></code>; also tilt fail; forced via <code class="docutils literal notranslate"><span class="pre">pressure_qc:</span> <span class="pre">4</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>8</p></td>
+<td><p>Interpolated</p></td>
+<td><p>—</p></td>
+<td><p>Pressure values filled by interpolation (<code class="docutils literal notranslate"><span class="pre">pressure_qc</span> <span class="pre">=</span> <span class="pre">8</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>9</p></td>
+<td><p>Missing value</p></td>
+<td><p>Missing</p></td>
+<td><p>NaN in the underlying data</p></td>
+</tr>
+</tbody>
+</table>
+<p>Define thresholds under the <code class="docutils literal notranslate"><span class="pre">qc_ranges</span></code> key as a mapping of variable
+name to span pair:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">qc_ranges</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">temperature</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">fail_span</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">-2.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">35.0</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">suspect_span</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">-1.5</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">30.0</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">salinity</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">fail_span</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">50.0</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">suspect_span</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">35.5</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">pressure</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">fail_span</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">-5.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1050.0</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">suspect_span</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">-0.5</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1020.0</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">pitch</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">fail_span</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">-30.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">30.0</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">suspect_span</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">-20.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">20.0</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">roll</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">fail_span</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">-30.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">30.0</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">suspect_span</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">-20.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">20.0</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">up_velocity</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">fail_span</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">-0.5</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.5</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">suspect_span</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">-0.3</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.3</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<p><strong>Priority</strong>: if <code class="docutils literal notranslate"><span class="pre">qc_ranges</span></code> appears both at the mooring level and within
+an instrument <code class="docutils literal notranslate"><span class="pre">clamp</span></code> entry, the instrument-level values override the
+mooring-level values for that specific variable.  Other variables not
+overridden at the instrument level still use the mooring-level thresholds.</p>
+<p>Applied thresholds are stored as attributes on each <code class="docutils literal notranslate"><span class="pre">*_qc</span></code> variable in
+the stage 3 NetCDF file so that the exact configuration can be recovered
+from the output file alone.</p>
+<p>Commonly useful variables to configure:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 80.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable name</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
+<td><p>Adjust for your deployment depth and region (e.g. deep water
+narrows the expected range)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">salinity</span></code></p></td>
+<td><p>Upper bound near 36.5 for Atlantic; lower in Baltic or Arctic</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pressure</span></code></p></td>
+<td><p>Upper bound should exceed instrument nominal depth by ~10 %</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pitch</span></code>, <code class="docutils literal notranslate"><span class="pre">roll</span></code></p></td>
+<td><p>Controls Aquadopp tilt QC.  Symmetric spans are normal;
+<code class="docutils literal notranslate"><span class="pre">fail_span:</span> <span class="pre">[-30,</span> <span class="pre">30]</span></code> flags bad when <code class="docutils literal notranslate"><span class="pre">|tilt|</span> <span class="pre">&gt;</span> <span class="pre">30°</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">up_velocity</span></code></p></td>
+<td><p>Aquadopp/ADCP vertical velocity; useful for detecting stuck instruments</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">error_velocity</span></code></p></td>
+<td><p>RDI ADCP only (4-beam instruments).  The error velocity is the
+residual from the overdetermined beam solution; large values indicate
+beam contamination, fish echoes, or instrument problems.  Flagged
+bins also propagate to <code class="docutils literal notranslate"><span class="pre">east_velocity_qc</span></code> and
+<code class="docutils literal notranslate"><span class="pre">north_velocity_qc</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<hr class="docutils" />
+<section id="hab-height-above-bottom">
+<h2>HAB — height above bottom<a class="headerlink" href="#hab-height-above-bottom" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">hab</span></code> (height above bottom, in metres) is the vertical distance from
+the seabed to the instrument’s pressure port or measurement point.</p>
+<p>It is used for:</p>
+<ul class="simple">
+<li><p><strong>Pressure interpolation</strong> (stage 3): instruments without an integrated
+pressure sensor (e.g. some Aquadopp configurations) receive a pressure
+value interpolated from the nearest instruments that do have pressure.
+<code class="docutils literal notranslate"><span class="pre">hab</span></code> is needed to know where in the water column to interpolate.</p></li>
+<li><p><strong>Mooring diagram positioning</strong> (<code class="docutils literal notranslate"><span class="pre">moordiag</span></code> package): controls where
+the instrument icon appears on the schematic.</p></li>
+<li><p><strong>Vertical ordering in stack and grid</strong>: instruments are sorted by depth
+(derived from <code class="docutils literal notranslate"><span class="pre">hab</span></code> and <code class="docutils literal notranslate"><span class="pre">waterdepth</span></code>) when building the stack file.</p></li>
+</ul>
+<p>If <code class="docutils literal notranslate"><span class="pre">hab</span></code> is absent from an instrument entry:</p>
+<ul class="simple">
+<li><p>Stages 1 and 2 complete normally.</p></li>
+<li><p>Stage 3 will skip pressure interpolation for that instrument if it has
+no native pressure sensor.  A warning is logged identifying the
+instrument by serial number.  The instrument will not contribute to the
+vertically resolved stack and grid.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="inline-hardware-and-instruments">
+<h2>Inline hardware and instruments<a class="headerlink" href="#inline-hardware-and-instruments" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">inline</span></code> list describes hardware elements attached to the mooring
+line but not in the <code class="docutils literal notranslate"><span class="pre">clamp</span></code> list: acoustic releases, floats, rope
+sections, shackles, and anchors.  These entries are used by the
+<code class="docutils literal notranslate"><span class="pre">moordiag</span></code> diagram package; <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code> ignores hardware-only inline
+entries.</p>
+<p>An inline entry that also carries <code class="docutils literal notranslate"><span class="pre">instrument</span></code>, <code class="docutils literal notranslate"><span class="pre">filename</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">file_type</span></code> fields is treated as an <strong>inline instrument</strong> — typically an
+ADCP mounted on a float.  These are processed identically to <code class="docutils literal notranslate"><span class="pre">clamp</span></code>
+instruments.</p>
+<p><strong>Serial with beacon ID</strong>: when an instrument on a float carries both an
+instrument serial number and a float beacon ID, enter them separated by a
+comma:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">inline</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">serial</span><span class="p">:</span><span class="w"> </span><span class="s">"16430,</span><span class="nv"> </span><span class="s">R01-024"</span>
+<span class="w">    </span><span class="nt">instrument</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ADCP</span>
+<span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">16430_raw.000</span>
+<span class="w">    </span><span class="nt">file_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rdi-raw</span>
+<span class="w">    </span><span class="nt">hab_bottom</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12</span>
+</pre></div>
+</div>
+<p>The first comma-separated token (<code class="docutils literal notranslate"><span class="pre">16430</span></code>) is used as the primary serial
+number for filenames and output.  The remainder (<code class="docutils literal notranslate"><span class="pre">R01-024</span></code>) is stored as
+the beacon ID.  <code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">validate</span></code> emits a WARNING for any inline
+instrument with a comma in the serial so the operator can confirm the
+ordering is correct.</p>
+<p>For the HAB of an inline instrument, use <code class="docutils literal notranslate"><span class="pre">hab_bottom</span></code> if the instrument
+faces downward (transducer at the bottom of the housing) or <code class="docutils literal notranslate"><span class="pre">hab_top</span></code>
+if it faces upward.</p>
+</section>
+<hr class="docutils" />
+<section id="pending-and-skipped-instruments">
+<h2>Pending and skipped instruments<a class="headerlink" href="#pending-and-skipped-instruments" title="Link to this heading"></a></h2>
+<p>To mark an instrument as not yet available (data file not yet downloaded,
+instrument still at sea), use the sentinel value <code class="docutils literal notranslate"><span class="pre">file_type:</span> <span class="pre">TBD</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">serial</span><span class="p">:</span><span class="w"> </span><span class="s">"99999"</span>
+<span class="w">  </span><span class="nt">instrument</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">microcat</span>
+<span class="w">  </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">99999_recovery.asc</span>
+<span class="w">  </span><span class="nt">file_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TBD</span>
+<span class="w">  </span><span class="nt">hab</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200</span>
+</pre></div>
+</div>
+<p>Processing is skipped for this instrument; it appears in reports as pending.</p>
+<p>To skip an instrument that has a data file but should not be processed
+(e.g. it was recovered with a fault), set <code class="docutils literal notranslate"><span class="pre">skip:</span> <span class="pre">true</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">serial</span><span class="p">:</span><span class="w"> </span><span class="s">"26265"</span>
+<span class="w">  </span><span class="nt">instrument</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">microcat</span>
+<span class="w">  </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">26265_recovery.asc</span>
+<span class="w">  </span><span class="nt">file_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sbe-ascii</span>
+<span class="w">  </span><span class="nt">hab</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">380</span>
+<span class="w">  </span><span class="nt">skip</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="position-and-latitude-longitude-priority">
+<h2>Position and latitude/longitude priority<a class="headerlink" href="#position-and-latitude-longitude-priority" title="Link to this heading"></a></h2>
+<p>Latitude and longitude are used to compute the magnetic declination applied
+during Aquadopp coordinate rotation (stage 3).  When multiple position
+fields are present, <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code> uses the most accurate one:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">seabed_latitude</span></code> / <code class="docutils literal notranslate"><span class="pre">seabed_longitude</span></code> — confirmed anchor position;
+highest accuracy.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">deployment_latitude</span></code> / <code class="docutils literal notranslate"><span class="pre">deployment_longitude</span></code> — GPS fix from the
+ship at the time of deployment.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">planned_latitude</span></code> / <code class="docutils literal notranslate"><span class="pre">planned_longitude</span></code> — pre-cruise planned
+position.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">latitude</span></code> / <code class="docutils literal notranslate"><span class="pre">longitude</span></code> — generic fallback.</p></li>
+</ol>
+<p>Only one pair needs to be provided.  Coordinates should be given in
+degrees-decimal-minutes format, e.g. <code class="docutils literal notranslate"><span class="pre">&quot;65</span> <span class="pre">29.84</span> <span class="pre">N&quot;</span></code> and
+<code class="docutils literal notranslate"><span class="pre">&quot;009</span> <span class="pre">30.12</span> <span class="pre">W&quot;</span></code>.  The degrees component for longitude must be
+zero-padded to three digits (<code class="docutils literal notranslate"><span class="pre">009</span></code>, not <code class="docutils literal notranslate"><span class="pre">9</span></code>).</p>
+</section>
+<hr class="docutils" />
+<section id="validate-your-yaml">
+<h2>Validate your YAML<a class="headerlink" href="#validate-your-yaml" title="Link to this heading"></a></h2>
+<p>Before running any processing, check the YAML for missing fields and
+common mistakes:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>oceanarray<span class="w"> </span>validate<span class="w"> </span>/path/to/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml
+</pre></div>
+</div>
+<p>The validator checks that required fields are present, that <code class="docutils literal notranslate"><span class="pre">instrument</span></code>
+and <code class="docutils literal notranslate"><span class="pre">file_type</span></code> values are recognised, and that the YAML can be parsed
+without errors.  It also emits warnings for inline instruments with commas
+in the serial number so you can confirm the ordering.</p>
+<p>You can validate multiple files at once:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>oceanarray<span class="w"> </span>validate<span class="w"> </span>/path/to/proc/*/<span class="w">  </span>*.mooring.yaml
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="from-python">
+<h2>From Python<a class="headerlink" href="#from-python" title="Link to this heading"></a></h2>
+<p>The same file is read, written and validated from Python through
+<code class="docutils literal notranslate"><span class="pre">oceanarray.mooring</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">mooring</span>
+
+<span class="c1"># Load one mooring's description (a path, a name + proc_dir, or a dict).</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">mooring</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml"</span><span class="p">)</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">mooring</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"dsG3_1_2026"</span><span class="p">,</span> <span class="n">proc_dir</span><span class="o">=</span><span class="s2">"proc"</span><span class="p">)</span>
+
+<span class="c1"># Validate without raising (returns a list of issues).</span>
+<span class="n">issues</span> <span class="o">=</span> <span class="n">mooring</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">"proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml"</span><span class="p">)</span>
+
+<span class="c1"># Write a commented stub (what ``oceanarray init`` does).</span>
+<span class="n">mooring</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">mooring</span><span class="o">.</span><span class="n">template</span><span class="p">(</span><span class="s2">"dsG3_1_2026"</span><span class="p">),</span> <span class="s2">"proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">load</span></code> keeps every key exactly as written and raises <code class="docutils literal notranslate"><span class="pre">MooringError</span></code> on an
+invalid config; <code class="docutils literal notranslate"><span class="pre">check</span></code> never raises.  <code class="docutils literal notranslate"><span class="pre">name</span></code> and <code class="docutils literal notranslate"><span class="pre">waterdepth</span></code> are
+required; <code class="docutils literal notranslate"><span class="pre">deployment_time</span></code> and <code class="docutils literal notranslate"><span class="pre">recovery_time</span></code> are recommended — if absent,
+Stage 2 uses the deployment window detected from the records.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cli_reference.html" class="btn btn-neutral float-left" title="CLI Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="project_structure.html" class="btn btn-neutral float-right" title="OceanArray Project Structure" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

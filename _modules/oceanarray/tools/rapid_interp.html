@@ -1,0 +1,1006 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.tools.rapid_interp &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.tools.rapid_interp</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.tools.rapid_interp</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Physics-informed vertical interpolation scheme for sparse ocean profiles.</span>
+
+<span class="sd">This module implements the core algorithm used in the RAPID array, which</span>
+<span class="sd">reconstructs full-depth temperature and salinity profiles using climatological</span>
+<span class="sd">vertical gradients.</span>
+
+<span class="sd">Functions</span>
+<span class="sd">---------</span>
+<span class="sd">- spacing : Generate evenly spaced pressure levels from start to end.</span>
+<span class="sd">- save_climatology : Save climatology fields as a NetCDF dataset.</span>
+<span class="sd">- smooth_climatology : Apply running mean smoothing to climatology fields.</span>
+<span class="sd">- interpolate_internal : Interpolate between two sparse profile points using gradient fields.</span>
+<span class="sd">- extrapolate_boundary : Extrapolate into unsampled regions near profile boundaries.</span>
+
+<span class="sd">References</span>
+<span class="sd">----------</span>
+<span class="sd">- Vertical interpolation based on climatological gradients (Johns et al., 2001).</span>
+<span class="sd">- Adapted and translated from Matlab routines by T. Kanzow (2000).</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">gsw</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearSegmentedColormap</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.integrate</span><span class="w"> </span><span class="kn">import</span> <span class="n">cumulative_trapezoid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp1d</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameters</span> <span class="k">as</span> <span class="n">params</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">utilities</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_info</span>
+
+
+<div class="viewcode-block" id="spacing">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.tools.rapid_interp.spacing">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">spacing</span><span class="p">(</span><span class="n">p_start</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">p_end</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Create an array of pressures from `p_start` to `p_end` using approximately uniform spacing.</span>
+
+<span class="sd">    This helper function generates a 1D pressure array using either increasing or decreasing</span>
+<span class="sd">    steps depending on the ordering of `p_start` and `p_end`. It ensures that the end point</span>
+<span class="sd">    is included.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    p_start : float</span>
+<span class="sd">        Starting pressure [dbar].</span>
+<span class="sd">    p_end : float</span>
+<span class="sd">        Ending pressure [dbar].</span>
+<span class="sd">    step : float</span>
+<span class="sd">        Approximate pressure increment [dbar].</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        1D array of pressure values from `p_start` to `p_end` (inclusive).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function is used internally by the vertical interpolation routines to construct</span>
+<span class="sd">    pressure grids between adjacent observations.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    verticalnn.rapid_interp.interpolate_internal : Uses this function to build vertical grids.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">p_start</span> <span class="o">&lt;</span> <span class="n">p_end</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">p_start</span><span class="p">,</span> <span class="n">p_end</span> <span class="o">+</span> <span class="n">step</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">p_start</span><span class="p">,</span> <span class="n">p_end</span> <span class="o">-</span> <span class="n">step</span><span class="p">,</span> <span class="o">-</span><span class="n">step</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="save_climatology">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.tools.rapid_interp.save_climatology">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_climatology</span><span class="p">(</span><span class="n">clim_ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Save a climatology dataset containing vertical gradients to a NetCDF file.</span>
+
+<span class="sd">    This function writes the input dataset—typically containing monthly fields</span>
+<span class="sd">    of dT/dP and dS/dP as a function of temperature—to disk, adding metadata.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    clim_ds : xr.Dataset</span>
+<span class="sd">        Dataset containing climatological temperature and salinity gradients.</span>
+<span class="sd">        Should include variables like 'dTdp', 'dSdp', and coordinate 'TEMP', 'month'.</span>
+<span class="sd">    output_path : str or pathlib.Path</span>
+<span class="sd">        Destination file path for the NetCDF file.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Adds metadata to the saved dataset:</span>
+<span class="sd">    - `description`: Short description of contents.</span>
+<span class="sd">    - `generated_by`: Marks source module (`verticalnn.rapid_interp`).</span>
+<span class="sd">    - `created_on`: ISO-formatted timestamp of when the file was written.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    verticalnn.rapid_interp.smooth_climatology : Smooths this dataset along the temperature axis.</span>
+<span class="sd">    verticalnn.rapid_interp.build_climatology : Creates the dataset to be saved.</span>
+
+<span class="sd">    """</span>
+    <span class="n">output_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+
+    <span class="c1"># Make sure parent folder exists</span>
+    <span class="n">output_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Add some metadata</span>
+    <span class="n">clim_ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Monthly climatology of dT/dP and dS/dP vs temperature."</span><span class="p">,</span>
+            <span class="s2">"generated_by"</span><span class="p">:</span> <span class="s2">"verticalnn rapid_interp module"</span><span class="p">,</span>
+            <span class="s2">"created_on"</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="n">timespec</span><span class="o">=</span><span class="s2">"seconds"</span><span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Save</span>
+    <span class="n">clim_ds</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+
+    <span class="n">log_info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"✅ Saved climatology to </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="smooth_climatology">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.tools.rapid_interp.smooth_climatology">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">smooth_climatology</span><span class="p">(</span><span class="n">clim_ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Apply rolling smoothing to vertical gradient climatology along the temperature axis.</span>
+
+<span class="sd">    This function smooths the dT/dP and dS/dP climatology fields using a centered</span>
+<span class="sd">    moving average along the temperature bins, applied independently for each month.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    clim_ds : xr.Dataset</span>
+<span class="sd">        Input climatology dataset with variables 'dTdp' and 'dSdp' on (month, TEMP) grid.</span>
+<span class="sd">    window : int, optional</span>
+<span class="sd">        Rolling window size (number of temperature bins), by default 3.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.Dataset</span>
+<span class="sd">        Smoothed climatology dataset with the same coordinates and attributes.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Rolling averages are computed with `center=True` and `min_periods=1`, preserving edge values.</span>
+<span class="sd">    The smoothing is purely horizontal (along TEMP), not temporal.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    verticalnn.rapid_interp.save_climatology : saves smoothed output to disk.</span>
+
+<span class="sd">    """</span>
+    <span class="n">dTdp_smoothed</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">clim_ds</span><span class="p">[</span><span class="s2">"dTdp"</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">TEMP</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">dSdp_smoothed</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">clim_ds</span><span class="p">[</span><span class="s2">"dSdp"</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">TEMP</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">"dTdp"</span><span class="p">:</span> <span class="n">dTdp_smoothed</span><span class="p">,</span>
+            <span class="s2">"dSdp"</span><span class="p">:</span> <span class="n">dSdp_smoothed</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="n">coords</span><span class="o">=</span><span class="n">clim_ds</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="n">clim_ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="build_climatology">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.tools.rapid_interp.build_climatology">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_climatology</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">standard_pressures</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">temp_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"CT"</span><span class="p">,</span>
+    <span class="n">salt_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"SA"</span><span class="p">,</span>
+    <span class="n">pres_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"PRESSURE"</span><span class="p">,</span>
+    <span class="n">time_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"TIME"</span><span class="p">,</span>
+    <span class="n">min_profiles_per_bin</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="n">temp_bins</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Build a seasonal climatology of dT/dP and dS/dP as a function of temperature.</span>
+
+<span class="sd">    This function processes hydrographic profiles to compute monthly climatologies</span>
+<span class="sd">    of temperature and salinity vertical gradients. It bins gradients by temperature</span>
+<span class="sd">    and month, and returns an xarray.Dataset with `dTdp` and `dSdp` fields indexed by</span>
+<span class="sd">    temperature and time of year.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xr.Dataset</span>
+<span class="sd">        Dataset containing temperature, salinity, pressure, and time variables.</span>
+<span class="sd">    standard_pressures : np.ndarray</span>
+<span class="sd">        Vertical pressure grid [dbar] to interpolate profiles before gradient calculation.</span>
+<span class="sd">    temp_key : str, optional</span>
+<span class="sd">        Variable name for Conservative Temperature, by default "CT".</span>
+<span class="sd">    salt_key : str, optional</span>
+<span class="sd">        Variable name for Absolute Salinity, by default "SA".</span>
+<span class="sd">    pres_key : str, optional</span>
+<span class="sd">        Variable name for Pressure, by default "PRESSURE".</span>
+<span class="sd">    time_key : str, optional</span>
+<span class="sd">        Variable name for time coordinate, by default "TIME".</span>
+<span class="sd">    min_profiles_per_bin : int, optional</span>
+<span class="sd">        Minimum number of valid profiles per (month, temp) bin to accept, by default 5.</span>
+<span class="sd">    temp_bins : np.ndarray, optional</span>
+<span class="sd">        Temperature bin edges for grouping (°C). If None, defaults to -2 to 35.5°C in 0.5°C bins.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.Dataset</span>
+<span class="sd">        Climatology dataset with 'dTdp' and 'dSdp' indexed by ('month', 'TEMP').</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - Interpolates all input profiles to `standard_pressures` before calculating gradients.</span>
+<span class="sd">    - Based on the physics-informed interpolation approach described in Johns et al. (2001).</span>
+<span class="sd">    - Original implementation adapted from Matlab code by T. Kanzow (2000).</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    verticalnn.rapid_interp.smooth_climatology : Applies smoothing to output climatology.</span>
+<span class="sd">    verticalnn.rapid_interp.save_climatology : Saves climatology dataset to disk.</span>
+<span class="sd">    verticalnn.rapid_interp.interpolate_profiles : Uses this climatology for profile interpolation.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">temp_bins</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">temp_bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mf">35.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>  <span class="c1"># typical ocean range</span>
+
+    <span class="c1"># Step 1: Downsample each profile to standard pressures</span>
+    <span class="n">pres_key</span><span class="p">,</span> <span class="n">time_key</span><span class="p">,</span> <span class="n">pres_dim</span><span class="p">,</span> <span class="n">time_dim</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">get_dims</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+    <span class="n">profile_dim</span> <span class="o">=</span> <span class="n">time_dim</span>
+    <span class="n">ntime</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="n">profile_dim</span><span class="p">]</span>
+
+    <span class="c1"># Reshape pressure array to match the number of profiles</span>
+    <span class="k">if</span> <span class="n">ds</span><span class="p">[</span><span class="n">pres_key</span><span class="p">]</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">pressure_array</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">pres_key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pressure_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">pres_key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="n">ntime</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">temp_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">ntime</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">standard_pressures</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">salt_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">ntime</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">standard_pressures</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ntime</span><span class="p">):</span>
+        <span class="n">t_prof</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">temp_key</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">({</span><span class="n">profile_dim</span><span class="p">:</span> <span class="n">i</span><span class="p">})</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">s_prof</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">salt_key</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">({</span><span class="n">profile_dim</span><span class="p">:</span> <span class="n">i</span><span class="p">})</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">p_prof</span> <span class="o">=</span> <span class="n">pressure_array</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span>
+
+        <span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">t_prof</span><span class="p">)</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">p_prof</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">continue</span>  <span class="c1"># skip bad profiles</span>
+
+        <span class="n">temp_std</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span>
+            <span class="n">standard_pressures</span><span class="p">,</span> <span class="n">p_prof</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">t_prof</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">left</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="p">)</span>
+        <span class="n">salt_std</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span>
+            <span class="n">standard_pressures</span><span class="p">,</span> <span class="n">p_prof</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">s_prof</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">left</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Step 2: Assign months</span>
+    <span class="n">months</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">time_key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">month</span>  <span class="c1"># array of months (1–12)</span>
+
+    <span class="c1"># Step 3: Compute gradients dT/dP and dS/dP</span>
+    <span class="n">dTdp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">temp_std</span><span class="p">,</span> <span class="n">standard_pressures</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">dSdp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">salt_std</span><span class="p">,</span> <span class="n">standard_pressures</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Step 4: Flatten arrays</span>
+    <span class="n">flat_temp</span> <span class="o">=</span> <span class="n">temp_std</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="n">flat_dTdp</span> <span class="o">=</span> <span class="n">dTdp</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="n">flat_dSdp</span> <span class="o">=</span> <span class="n">dSdp</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="n">flat_month</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">months</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">standard_pressures</span><span class="p">))</span>
+
+    <span class="c1"># Step 5: Bin by temperature and month</span>
+    <span class="n">temp_bin_centers</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">temp_bins</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">temp_bins</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="n">n_temp_bins</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">temp_bin_centers</span><span class="p">)</span>
+
+    <span class="n">dTdp_clim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">12</span><span class="p">,</span> <span class="n">n_temp_bins</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">dSdp_clim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">12</span><span class="p">,</span> <span class="n">n_temp_bins</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">):</span>
+        <span class="n">mask_month</span> <span class="o">=</span> <span class="n">flat_month</span> <span class="o">==</span> <span class="n">month</span>
+
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="p">(</span><span class="n">tmin</span><span class="p">,</span> <span class="n">tmax</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span><span class="n">temp_bins</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">temp_bins</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">mask_temp</span> <span class="o">=</span> <span class="p">(</span><span class="n">flat_temp</span> <span class="o">&gt;=</span> <span class="n">tmin</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">flat_temp</span> <span class="o">&lt;</span> <span class="n">tmax</span><span class="p">)</span>
+
+            <span class="n">combined_mask</span> <span class="o">=</span> <span class="n">mask_month</span> <span class="o">&amp;</span> <span class="n">mask_temp</span>
+
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">combined_mask</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_profiles_per_bin</span><span class="p">:</span>
+                <span class="n">dTdp_clim</span><span class="p">[</span><span class="n">month</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">flat_dTdp</span><span class="p">[</span><span class="n">combined_mask</span><span class="p">])</span>
+                <span class="n">dSdp_clim</span><span class="p">[</span><span class="n">month</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">flat_dSdp</span><span class="p">[</span><span class="n">combined_mask</span><span class="p">])</span>
+
+    <span class="c1"># Step 6: Build climatology xarray.Dataset</span>
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">"dTdp"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"month"</span><span class="p">,</span> <span class="s2">"TEMP"</span><span class="p">),</span> <span class="n">dTdp_clim</span><span class="p">),</span>
+            <span class="s2">"dSdp"</span><span class="p">:</span> <span class="p">((</span><span class="s2">"month"</span><span class="p">,</span> <span class="s2">"TEMP"</span><span class="p">),</span> <span class="n">dSdp_clim</span><span class="p">),</span>
+        <span class="p">},</span>
+        <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">"month"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">),</span>
+            <span class="s2">"TEMP"</span><span class="p">:</span> <span class="n">temp_bin_centers</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">"method"</span><span class="p">:</span> <span class="s2">"seasonal climatology built from downsampled CTD profiles"</span><span class="p">,</span>
+            <span class="s2">"temp_bin_width"</span><span class="p">:</span> <span class="n">temp_bins</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">temp_bins</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">},</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="extrapolate_boundary">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.tools.rapid_interp.extrapolate_boundary">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extrapolate_boundary</span><span class="p">(</span>
+    <span class="n">T</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">S</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">P</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">p_bound</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">dtdp_func</span><span class="p">,</span>
+    <span class="n">dsdp_func</span><span class="p">,</span>
+    <span class="n">int_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Extrapolate temperature and salinity profiles from a boundary point using climatological gradients.</span>
+
+<span class="sd">    This function integrates vertical gradients of temperature (dT/dP) and salinity (dS/dP)</span>
+<span class="sd">    downward or upward from a single observed point to reach a specified pressure boundary.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    T : float</span>
+<span class="sd">        Starting temperature [°C].</span>
+<span class="sd">    S : float</span>
+<span class="sd">        Starting salinity [g/kg].</span>
+<span class="sd">    P : float</span>
+<span class="sd">        Starting pressure [dbar].</span>
+<span class="sd">    p_bound : float</span>
+<span class="sd">        Target pressure to extrapolate to [dbar].</span>
+<span class="sd">    dtdp_func : function</span>
+<span class="sd">        Callable that returns dT/dP as a function of T.</span>
+<span class="sd">    dsdp_func : function</span>
+<span class="sd">        Callable that returns dS/dP as a function of T.</span>
+<span class="sd">    int_step : float, optional</span>
+<span class="sd">        Integration step size [dbar], by default 20.0.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    T_profile : np.ndarray</span>
+<span class="sd">        Extrapolated temperature profile.</span>
+<span class="sd">    S_profile : np.ndarray</span>
+<span class="sd">        Extrapolated salinity profile.</span>
+<span class="sd">    P_profile : np.ndarray</span>
+<span class="sd">        Corresponding pressure levels.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function integrates stepwise from the boundary point toward the pressure bound.</span>
+<span class="sd">    The step direction is automatically inferred from the sign of `(p_bound - P)`.</span>
+
+<span class="sd">    Based on the original Matlab routine `t_bound0.m` by T. Kanzow (2000).</span>
+<span class="sd">    Method described in Johns et al. (2001).</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    verticalnn.rapid_interp.interpolate_internal : Used for interpolation between data points.</span>
+<span class="sd">    verticalnn.rapid_interp.interpolate_profiles : Combines extrapolation and interpolation.</span>
+
+<span class="sd">    """</span>
+    <span class="c1"># Handle degenerate case early</span>
+    <span class="k">if</span> <span class="n">p_bound</span> <span class="o">==</span> <span class="n">P</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">T</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">S</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">P</span><span class="p">])</span>
+
+    <span class="c1"># Ensure consistent stepping direction</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">p_bound</span> <span class="o">-</span> <span class="n">P</span><span class="p">)</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">int_step</span><span class="p">)</span>
+
+    <span class="c1"># Create pressure steps from P to p_bound (inclusive)</span>
+    <span class="n">inc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">p_bound</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">inc</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">inc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">p_bound</span><span class="p">:</span>
+        <span class="n">inc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inc</span><span class="p">,</span> <span class="n">p_bound</span><span class="p">)</span>
+
+    <span class="c1"># Evaluate gradients at each pressure step</span>
+    <span class="n">T_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">inc</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">T_values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">T</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">inc</span><span class="p">)):</span>
+        <span class="n">T_values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">T_values</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">dtdp_func</span><span class="p">(</span><span class="n">T_values</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="n">inc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">inc</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Now compute gradients based on T_values</span>
+    <span class="n">dTdp_vals</span> <span class="o">=</span> <span class="n">dtdp_func</span><span class="p">(</span><span class="n">T_values</span><span class="p">)</span>
+    <span class="n">dSdp_vals</span> <span class="o">=</span> <span class="n">dsdp_func</span><span class="p">(</span><span class="n">T_values</span><span class="p">)</span>
+
+    <span class="c1"># Integrate gradients</span>
+    <span class="n">T_profile</span> <span class="o">=</span> <span class="n">T</span> <span class="o">+</span> <span class="n">cumulative_trapezoid</span><span class="p">(</span><span class="n">dTdp_vals</span><span class="p">,</span> <span class="n">inc</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">S_profile</span> <span class="o">=</span> <span class="n">S</span> <span class="o">+</span> <span class="n">cumulative_trapezoid</span><span class="p">(</span><span class="n">dSdp_vals</span><span class="p">,</span> <span class="n">inc</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">P_profile</span> <span class="o">=</span> <span class="n">inc</span>
+
+    <span class="c1"># Flatten to 1D arrays</span>
+    <span class="n">T_profile</span> <span class="o">=</span> <span class="n">T_profile</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="n">S_profile</span> <span class="o">=</span> <span class="n">S_profile</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="n">P_profile</span> <span class="o">=</span> <span class="n">P_profile</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+    <span class="c1"># Ensure output is sorted increasing in pressure</span>
+    <span class="k">if</span> <span class="n">P_profile</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">P_profile</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">T_profile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">T_profile</span><span class="p">)</span>
+        <span class="n">S_profile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">S_profile</span><span class="p">)</span>
+        <span class="n">P_profile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">P_profile</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">T_profile</span><span class="p">,</span> <span class="n">S_profile</span><span class="p">,</span> <span class="n">P_profile</span></div>
+
+
+
+<div class="viewcode-block" id="interpolate_internal">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.tools.rapid_interp.interpolate_internal">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">interpolate_internal</span><span class="p">(</span>
+    <span class="n">T</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">S</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">P</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">dtdp_func</span><span class="p">,</span>
+    <span class="n">dsdp_func</span><span class="p">,</span>
+    <span class="n">int_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Interpolate between observed data points using climatological vertical gradients.</span>
+
+<span class="sd">    This function fills gaps between observed pressure levels by integrating temperature</span>
+<span class="sd">    and salinity gradients from both the upper and lower sensors and blending the results.</span>
+<span class="sd">    It implements the logic of the original `t_int0.m` routine by Kanzow (2000).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    T : np.ndarray</span>
+<span class="sd">        Observed temperature values [°C].</span>
+<span class="sd">    S : np.ndarray</span>
+<span class="sd">        Observed salinity values [g/kg].</span>
+<span class="sd">    P : np.ndarray</span>
+<span class="sd">        Observed pressure values [dbar].</span>
+<span class="sd">    dtdp_func : callable</span>
+<span class="sd">        Function that returns dT/dP given temperature.</span>
+<span class="sd">    dsdp_func : callable</span>
+<span class="sd">        Function that returns dS/dP given temperature.</span>
+<span class="sd">    int_step : float, optional</span>
+<span class="sd">        Pressure increment for integration [dbar], by default 20.0.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        Interpolated temperature values between observations.</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        Interpolated salinity values between observations.</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        Corresponding pressure values.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function performs dual integration (from above and below) and blends the two</span>
+<span class="sd">    estimates using linear weighting. Duplicate pressure values are removed in the final output.</span>
+
+<span class="sd">    - Adapted from original Matlab function `t_int0.m`.</span>
+<span class="sd">    - Author: T. Kanzow, 4 April 2000.</span>
+<span class="sd">    - Part of the vertical interpolation scheme described in Johns et al. (2001):</span>
+<span class="sd">      "The Kuroshio east of Taiwan: Moored transport observations from the WOCE PCM-1 Array."</span>
+<span class="sd">      This version translated to Python and adapted for TEOS-10 Conservative Temperature and Absolute Salinity.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    verticalnn.rapid_interp.extrapolate_boundary : For extrapolation above or below the data range.</span>
+<span class="sd">    verticalnn.rapid_interp.interpolate_profiles : Applies this interpolation to all profiles in a dataset.</span>
+
+<span class="sd">    """</span>
+    <span class="n">innerT</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">innerS</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">innerP</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">ni</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># number of separate gaps to fill</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ni</span><span class="p">):</span>
+        <span class="n">p_start</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">p_end</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">t_start</span> <span class="o">=</span> <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">t_end</span> <span class="o">=</span> <span class="n">T</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">s_start</span> <span class="o">=</span> <span class="n">S</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">s_end</span> <span class="o">=</span> <span class="n">S</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Build pressure grid between points</span>
+        <span class="n">inc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">p_start</span><span class="p">,</span> <span class="n">p_end</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">p_end</span> <span class="o">-</span> <span class="n">p_start</span><span class="p">)</span> <span class="o">*</span> <span class="n">int_step</span><span class="p">)</span>
+        <span class="n">inc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inc</span><span class="p">,</span> <span class="n">p_end</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">inc</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">dinc_up</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">inc</span><span class="p">)</span>
+        <span class="n">dinc_down</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">inc</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># Upward integration (from top sensor)</span>
+        <span class="n">tgrad1</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">dtdp_func</span><span class="p">(</span><span class="n">t_start</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">t_start</span><span class="p">)</span>
+            <span class="k">else</span> <span class="n">dtdp_func</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">t_start</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">sgrad1</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">dsdp_func</span><span class="p">(</span><span class="n">t_start</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">t_start</span><span class="p">)</span>
+            <span class="k">else</span> <span class="n">dsdp_func</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">t_start</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">T1</span> <span class="o">=</span> <span class="n">t_start</span> <span class="o">+</span> <span class="n">cumulative_trapezoid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">inc</span><span class="p">,</span> <span class="n">tgrad1</span><span class="p">),</span> <span class="n">inc</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">S1</span> <span class="o">=</span> <span class="n">s_start</span> <span class="o">+</span> <span class="n">cumulative_trapezoid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">inc</span><span class="p">,</span> <span class="n">sgrad1</span><span class="p">),</span> <span class="n">inc</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Downward integration (from bottom sensor)</span>
+        <span class="n">tgrad2</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">dtdp_func</span><span class="p">(</span><span class="n">t_end</span><span class="p">)</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">t_end</span><span class="p">)</span> <span class="k">else</span> <span class="n">dtdp_func</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">t_end</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">sgrad2</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">dsdp_func</span><span class="p">(</span><span class="n">t_end</span><span class="p">)</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">t_end</span><span class="p">)</span> <span class="k">else</span> <span class="n">dsdp_func</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">t_end</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">T2</span> <span class="o">=</span> <span class="n">t_end</span> <span class="o">+</span> <span class="n">cumulative_trapezoid</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">inc</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">tgrad2</span><span class="p">),</span> <span class="n">inc</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
+        <span class="n">S2</span> <span class="o">=</span> <span class="n">s_end</span> <span class="o">+</span> <span class="n">cumulative_trapezoid</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">inc</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">sgrad2</span><span class="p">),</span> <span class="n">inc</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
+
+        <span class="n">T2</span> <span class="o">=</span> <span class="n">T2</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">S2</span> <span class="o">=</span> <span class="n">S2</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Weights</span>
+        <span class="n">w1</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">inc</span> <span class="o">-</span> <span class="n">p_start</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">p_end</span> <span class="o">-</span> <span class="n">p_start</span><span class="p">)</span>
+        <span class="n">w2</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">inc</span> <span class="o">-</span> <span class="n">p_end</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">p_end</span> <span class="o">-</span> <span class="n">p_start</span><span class="p">)</span>
+
+        <span class="c1"># Weighted average</span>
+        <span class="n">T_comb</span> <span class="o">=</span> <span class="n">w1</span> <span class="o">*</span> <span class="n">T1</span> <span class="o">+</span> <span class="n">w2</span> <span class="o">*</span> <span class="n">T2</span>
+        <span class="n">S_comb</span> <span class="o">=</span> <span class="n">w1</span> <span class="o">*</span> <span class="n">S1</span> <span class="o">+</span> <span class="n">w2</span> <span class="o">*</span> <span class="n">S2</span>
+
+        <span class="n">innerT</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">T_comb</span><span class="p">)</span>
+        <span class="n">innerS</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">S_comb</span><span class="p">)</span>
+        <span class="n">innerP</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inc</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">innerT</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+
+    <span class="n">innerT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">innerT</span><span class="p">)</span>
+    <span class="n">innerS</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">innerS</span><span class="p">)</span>
+    <span class="n">innerP</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">innerP</span><span class="p">)</span>
+
+    <span class="c1"># Remove duplicate pressures</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">unique_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">innerP</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">innerT</span> <span class="o">=</span> <span class="n">innerT</span><span class="p">[</span><span class="n">unique_idx</span><span class="p">]</span>
+    <span class="n">innerS</span> <span class="o">=</span> <span class="n">innerS</span><span class="p">[</span><span class="n">unique_idx</span><span class="p">]</span>
+    <span class="n">innerP</span> <span class="o">=</span> <span class="n">innerP</span><span class="p">[</span><span class="n">unique_idx</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">innerT</span><span class="p">,</span> <span class="n">innerS</span><span class="p">,</span> <span class="n">innerP</span></div>
+
+
+
+<div class="viewcode-block" id="interpolate_profiles">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.tools.rapid_interp.interpolate_profiles">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">interpolate_profiles</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">clim_ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">temp_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"CT"</span><span class="p">,</span>
+    <span class="n">salt_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"SA"</span><span class="p">,</span>
+    <span class="n">pres_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"PRES"</span><span class="p">,</span>
+    <span class="n">time_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"TIME"</span><span class="p">,</span>
+    <span class="n">p_grid</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">int_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.0</span><span class="p">,</span>
+    <span class="n">extrapolate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Interpolate sparse moored profiles onto a regular vertical grid using climatological gradients.</span>
+
+<span class="sd">    This function performs both interpolation between observed levels and extrapolation</span>
+<span class="sd">    beyond observed bounds using seasonal climatologies of dT/dP and dS/dP, following</span>
+<span class="sd">    the physics-informed method described by Johns et al. (2001) and originally implemented</span>
+<span class="sd">    in Matlab by T. Kanzow (2000).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xr.Dataset</span>
+<span class="sd">        Input dataset containing sparse temperature, salinity, and pressure profiles.</span>
+<span class="sd">    clim_ds : xr.Dataset</span>
+<span class="sd">        Climatology dataset with vertical gradients (variables: 'dTdp', 'dSdp') indexed by TEMP and month.</span>
+<span class="sd">    temp_key : str, optional</span>
+<span class="sd">        Variable name for Conservative Temperature, by default "CT".</span>
+<span class="sd">    salt_key : str, optional</span>
+<span class="sd">        Variable name for Absolute Salinity, by default "SA".</span>
+<span class="sd">    pres_key : str, optional</span>
+<span class="sd">        Variable name for pressure, by default "PRES".</span>
+<span class="sd">    time_key : str, optional</span>
+<span class="sd">        Variable name for profile time coordinate, by default "TIME".</span>
+<span class="sd">    p_grid : np.ndarray, optional</span>
+<span class="sd">        Target vertical grid for output profiles [dbar], by default `np.arange(0, 5000, 20)`.</span>
+<span class="sd">    int_step : float, optional</span>
+<span class="sd">        Step size for vertical integration [dbar], by default 20.</span>
+<span class="sd">    extrapolate : bool, optional</span>
+<span class="sd">        Whether to extrapolate above and below observed pressures, by default True.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.Dataset</span>
+<span class="sd">        Interpolated dataset with gridded CT, SA, and SIGMA0 on the pressure grid.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - Uses temperature-dependent vertical gradients from `clim_ds`.</span>
+<span class="sd">    - Combines logic of `con_tprof0.m`, `t_int0.m`, and `t_bound0.m` (Kanzow 2000).</span>
+<span class="sd">    - Final dataset includes derived potential density (SIGMA0) using TEOS-10.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    verticalnn.rapid_interp.build_climatology : Generates the dT/dP and dS/dP climatology.</span>
+<span class="sd">    verticalnn.rapid_interp.interpolate_internal : Fills gaps between sensors.</span>
+<span class="sd">    verticalnn.rapid_interp.extrapolate_boundary : Fills above/below observed range.</span>
+
+<span class="sd">    """</span>
+    <span class="c1"># Check if the climatology dataset has the required variables</span>
+    <span class="n">utilities</span><span class="o">.</span><span class="n">check_necessary_variables</span><span class="p">(</span><span class="n">clim_ds</span><span class="p">,</span> <span class="nb">vars</span><span class="o">=</span><span class="p">[</span><span class="s2">"dTdp"</span><span class="p">,</span> <span class="s2">"dSdp"</span><span class="p">])</span>
+    <span class="n">utilities</span><span class="o">.</span><span class="n">check_necessary_variables</span><span class="p">(</span>
+        <span class="n">ds</span><span class="p">,</span> <span class="nb">vars</span><span class="o">=</span><span class="p">[</span><span class="n">temp_key</span><span class="p">,</span> <span class="n">salt_key</span><span class="p">,</span> <span class="s2">"LATITUDE"</span><span class="p">,</span> <span class="s2">"LONGITUDE"</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="n">pres_key</span><span class="p">,</span> <span class="n">time_key1</span><span class="p">,</span> <span class="n">pres_dim</span><span class="p">,</span> <span class="n">time_dim</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">get_dims</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">time_key1</span> <span class="o">!=</span> <span class="n">time_key</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Time key mismatch: </span><span class="si">{</span><span class="n">time_key1</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="n">time_key</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">p_grid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">p_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+
+    <span class="n">profile_dim</span> <span class="o">=</span> <span class="n">time_dim</span>
+    <span class="n">ntime</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="n">profile_dim</span><span class="p">]</span>
+
+    <span class="n">t_con</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">ntime</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">p_grid</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">s_con</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">ntime</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">p_grid</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+    <span class="n">TEMP</span> <span class="o">=</span> <span class="n">clim_ds</span><span class="p">[</span><span class="s2">"TEMP"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="c1"># Reshape pressure array to match the number of profiles</span>
+    <span class="k">if</span> <span class="n">ds</span><span class="p">[</span><span class="n">pres_key</span><span class="p">]</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">pressure_array</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">pres_key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pressure_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">pres_key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="n">ntime</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">ti</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ntime</span><span class="p">):</span>
+        <span class="n">t_prof</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">temp_key</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">({</span><span class="n">time_dim</span><span class="p">:</span> <span class="n">ti</span><span class="p">})</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">s_prof</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">salt_key</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">({</span><span class="n">time_dim</span><span class="p">:</span> <span class="n">ti</span><span class="p">})</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">p_prof</span> <span class="o">=</span> <span class="n">pressure_array</span><span class="p">[</span><span class="n">ti</span><span class="p">,</span> <span class="p">:]</span>
+
+        <span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">t_prof</span><span class="p">)</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">p_prof</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">continue</span>  <span class="c1"># Not enough data to interpolate</span>
+
+        <span class="n">t_good</span> <span class="o">=</span> <span class="n">t_prof</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+        <span class="n">s_good</span> <span class="o">=</span> <span class="n">s_prof</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+        <span class="n">p_good</span> <span class="o">=</span> <span class="n">p_prof</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+
+        <span class="c1"># --- Select climatology for the month ---</span>
+        <span class="n">month_i</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">time_key</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">({</span><span class="n">time_dim</span><span class="p">:</span> <span class="n">ti</span><span class="p">})</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">month</span>
+
+        <span class="n">cTg_month</span> <span class="o">=</span> <span class="n">clim_ds</span><span class="p">[</span><span class="s2">"dTdp"</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">month</span><span class="o">=</span><span class="n">month_i</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">cSg_month</span> <span class="o">=</span> <span class="n">clim_ds</span><span class="p">[</span><span class="s2">"dSdp"</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">month</span><span class="o">=</span><span class="n">month_i</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="n">dtdp_func</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span>
+            <span class="n">TEMP</span><span class="p">,</span>
+            <span class="n">cTg_month</span><span class="p">,</span>
+            <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">fill_value</span><span class="o">=</span><span class="p">(</span><span class="n">cTg_month</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cTg_month</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="n">dsdp_func</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span>
+            <span class="n">TEMP</span><span class="p">,</span>
+            <span class="n">cSg_month</span><span class="p">,</span>
+            <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">fill_value</span><span class="o">=</span><span class="p">(</span><span class="n">cSg_month</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cSg_month</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span>
+        <span class="p">)</span>
+
+        <span class="n">segments</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># --- Extrapolate upward if needed</span>
+        <span class="k">if</span> <span class="n">extrapolate</span> <span class="ow">and</span> <span class="n">p_good</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">p_grid</span><span class="o">.</span><span class="n">min</span><span class="p">():</span>
+            <span class="n">upT</span><span class="p">,</span> <span class="n">upS</span><span class="p">,</span> <span class="n">upP</span> <span class="o">=</span> <span class="n">extrapolate_boundary</span><span class="p">(</span>
+                <span class="n">T</span><span class="o">=</span><span class="n">t_good</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">S</span><span class="o">=</span><span class="n">s_good</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">P</span><span class="o">=</span><span class="n">p_good</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">p_bound</span><span class="o">=</span><span class="n">p_grid</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+                <span class="n">dtdp_func</span><span class="o">=</span><span class="n">dtdp_func</span><span class="p">,</span>
+                <span class="n">dsdp_func</span><span class="o">=</span><span class="n">dsdp_func</span><span class="p">,</span>
+                <span class="n">int_step</span><span class="o">=</span><span class="n">int_step</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">mask_up</span> <span class="o">=</span> <span class="n">upP</span> <span class="o">&lt;</span> <span class="n">p_good</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">upT</span><span class="p">[</span><span class="n">mask_up</span><span class="p">],</span> <span class="n">upS</span><span class="p">[</span><span class="n">mask_up</span><span class="p">],</span> <span class="n">upP</span><span class="p">[</span><span class="n">mask_up</span><span class="p">]))</span>
+
+        <span class="c1"># --- Interpolate internal points</span>
+        <span class="n">innerT</span><span class="p">,</span> <span class="n">innerS</span><span class="p">,</span> <span class="n">innerP</span> <span class="o">=</span> <span class="n">interpolate_internal</span><span class="p">(</span>
+            <span class="n">t_good</span><span class="p">,</span>
+            <span class="n">s_good</span><span class="p">,</span>
+            <span class="n">p_good</span><span class="p">,</span>
+            <span class="n">dtdp_func</span><span class="o">=</span><span class="n">dtdp_func</span><span class="p">,</span>
+            <span class="n">dsdp_func</span><span class="o">=</span><span class="n">dsdp_func</span><span class="p">,</span>
+            <span class="n">int_step</span><span class="o">=</span><span class="n">int_step</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">innerT</span><span class="p">,</span> <span class="n">innerS</span><span class="p">,</span> <span class="n">innerP</span><span class="p">))</span>
+
+        <span class="c1"># --- Extrapolate downward if needed</span>
+        <span class="k">if</span> <span class="n">extrapolate</span> <span class="ow">and</span> <span class="n">p_good</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">p_grid</span><span class="o">.</span><span class="n">max</span><span class="p">():</span>
+            <span class="n">lowT</span><span class="p">,</span> <span class="n">lowS</span><span class="p">,</span> <span class="n">lowP</span> <span class="o">=</span> <span class="n">extrapolate_boundary</span><span class="p">(</span>
+                <span class="n">T</span><span class="o">=</span><span class="n">t_good</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">S</span><span class="o">=</span><span class="n">s_good</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">P</span><span class="o">=</span><span class="n">p_good</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">p_bound</span><span class="o">=</span><span class="n">p_grid</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
+                <span class="n">dtdp_func</span><span class="o">=</span><span class="n">dtdp_func</span><span class="p">,</span>
+                <span class="n">dsdp_func</span><span class="o">=</span><span class="n">dsdp_func</span><span class="p">,</span>
+                <span class="n">int_step</span><span class="o">=</span><span class="n">int_step</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">mask_low</span> <span class="o">=</span> <span class="n">lowP</span> <span class="o">&gt;</span> <span class="n">p_good</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">lowT</span><span class="p">[</span><span class="n">mask_low</span><span class="p">],</span> <span class="n">lowS</span><span class="p">[</span><span class="n">mask_low</span><span class="p">],</span> <span class="n">lowP</span><span class="p">[</span><span class="n">mask_low</span><span class="p">]))</span>
+
+        <span class="c1"># --- Stitch segments together</span>
+        <span class="n">full_T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">seg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">])</span>
+        <span class="n">full_S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">seg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">])</span>
+        <span class="n">full_P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">seg</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">])</span>
+
+        <span class="c1"># Sort by pressure</span>
+        <span class="n">sort_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">full_P</span><span class="p">)</span>
+        <span class="n">full_T</span> <span class="o">=</span> <span class="n">full_T</span><span class="p">[</span><span class="n">sort_idx</span><span class="p">]</span>
+        <span class="n">full_S</span> <span class="o">=</span> <span class="n">full_S</span><span class="p">[</span><span class="n">sort_idx</span><span class="p">]</span>
+        <span class="n">full_P</span> <span class="o">=</span> <span class="n">full_P</span><span class="p">[</span><span class="n">sort_idx</span><span class="p">]</span>
+
+        <span class="c1"># Interpolate onto regular p_grid</span>
+        <span class="n">t_interp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">p_grid</span><span class="p">,</span> <span class="n">full_P</span><span class="p">,</span> <span class="n">full_T</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="n">s_interp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">p_grid</span><span class="p">,</span> <span class="n">full_P</span><span class="p">,</span> <span class="n">full_S</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+        <span class="n">t_con</span><span class="p">[</span><span class="n">ti</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">t_interp</span>
+        <span class="n">s_con</span><span class="p">[</span><span class="n">ti</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">s_interp</span>
+
+    <span class="n">sigma_con</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">sigma0</span><span class="p">(</span><span class="n">s_con</span><span class="p">,</span> <span class="n">t_con</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="n">temp_key</span><span class="p">:</span> <span class="p">((</span><span class="n">time_dim</span><span class="p">,</span> <span class="n">pres_dim</span><span class="p">),</span> <span class="n">t_con</span><span class="p">),</span>
+            <span class="n">salt_key</span><span class="p">:</span> <span class="p">((</span><span class="n">time_dim</span><span class="p">,</span> <span class="n">pres_dim</span><span class="p">),</span> <span class="n">s_con</span><span class="p">),</span>
+            <span class="s2">"SIGMA0"</span><span class="p">:</span> <span class="p">((</span><span class="n">time_dim</span><span class="p">,</span> <span class="n">pres_dim</span><span class="p">),</span> <span class="n">sigma_con</span><span class="p">),</span>
+        <span class="p">},</span>
+        <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
+            <span class="n">pres_key</span><span class="p">:</span> <span class="p">(</span><span class="n">pres_dim</span><span class="p">,</span> <span class="n">p_grid</span><span class="p">),</span>
+            <span class="n">time_key</span><span class="p">:</span> <span class="p">(</span><span class="n">time_dim</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="n">time_key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">),</span>
+            <span class="s2">"LATITUDE"</span><span class="p">:</span> <span class="p">(</span><span class="n">time_dim</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"LATITUDE"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">),</span>
+            <span class="s2">"LONGITUDE"</span><span class="p">:</span> <span class="p">(</span><span class="n">time_dim</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"LONGITUDE"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">),</span>
+        <span class="p">},</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">"method"</span><span class="p">:</span> <span class="s2">"vertical interpolation using climatological gradients with seasonal adjustment"</span>
+        <span class="p">},</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="plot_climatology">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.tools.rapid_interp.plot_climatology">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_climatology</span><span class="p">(</span>
+    <span class="n">clim_ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"dTdp"</span><span class="p">,</span>
+    <span class="n">clim_ds_smoothed</span><span class="p">:</span> <span class="s2">"xr.Dataset | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fig</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Plot the seasonal climatology of dT/dP or dS/dP, optionally with a smoothed overlay.</span>
+
+<span class="sd">    Lives here because it visualises the climatological gradient field this module</span>
+<span class="sd">    builds. Follows the composable ``fig=None, ax=None`` convention.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    clim_ds : xarray.Dataset</span>
+<span class="sd">        Raw climatology dataset with ``dTdp`` and/or ``dSdp``.</span>
+<span class="sd">    var : str, optional</span>
+<span class="sd">        Variable to plot (``"dTdp"`` or ``"dSdp"``). Default ``"dTdp"``.</span>
+<span class="sd">    clim_ds_smoothed : xarray.Dataset, optional</span>
+<span class="sd">        Smoothed climatology dataset to overlay. When given, the raw climatology</span>
+<span class="sd">        is drawn in grey behind it. Default None.</span>
+<span class="sd">    fig : matplotlib.figure.Figure, optional</span>
+<span class="sd">        Existing figure to draw on; a new one is created when None.</span>
+<span class="sd">    ax : matplotlib.axes.Axes, optional</span>
+<span class="sd">        Existing axes to draw on; new axes are created when None.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple of (Figure, Axes)</span>
+<span class="sd">        The figure and axes drawn on.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">clim_ds</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2"> not found in climatology dataset."</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">MPLSTYLE</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+
+        <span class="n">months</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+        <span class="c1"># Seasonal colour cycle: cold → warm → cold.</span>
+        <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>  <span class="c1"># Blue (January, cold)</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>  <span class="c1"># Light blue (Spring)</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>  <span class="c1"># Green (Early summer)</span>
+            <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>  <span class="c1"># Yellow (Mid-summer, warm)</span>
+            <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>  <span class="c1"># Orange (Late summer)</span>
+            <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>  <span class="c1"># Red (July, peak warmth)</span>
+            <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>  <span class="c1"># Purple (Autumn)</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>  <span class="c1"># Blue (December, cold again)</span>
+        <span class="p">]</span>
+        <span class="n">seasonal_colormap</span> <span class="o">=</span> <span class="n">LinearSegmentedColormap</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span>
+            <span class="s2">"seasonal_cycle"</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">12</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="n">months</span><span class="p">:</span>
+            <span class="n">TEMP</span> <span class="o">=</span> <span class="n">clim_ds</span><span class="p">[</span><span class="s2">"TEMP"</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">clim_ds_smoothed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                    <span class="n">TEMP</span><span class="p">,</span>
+                    <span class="n">clim_ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">month</span><span class="o">=</span><span class="n">month</span><span class="p">),</span>
+                    <span class="n">color</span><span class="o">=</span><span class="s2">"grey"</span><span class="p">,</span>
+                    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
+                    <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                    <span class="n">TEMP</span><span class="p">,</span>
+                    <span class="n">clim_ds_smoothed</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">month</span><span class="o">=</span><span class="n">month</span><span class="p">),</span>
+                    <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Month </span><span class="si">{</span><span class="n">month</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">seasonal_colormap</span><span class="p">(</span><span class="n">month</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                    <span class="n">TEMP</span><span class="p">,</span>
+                    <span class="n">clim_ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">month</span><span class="o">=</span><span class="n">month</span><span class="p">),</span>
+                    <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Month </span><span class="si">{</span><span class="n">month</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">seasonal_colormap</span><span class="p">(</span><span class="n">month</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
+                    <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"Temperature (°C)"</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2"> (per dbar)"</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Monthly </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2"> Climatology"</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">ncol</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

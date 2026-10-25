@@ -1,0 +1,679 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.pipeline.pressure &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../pipeline.html">oceanarray.pipeline</a></li>
+      <li class="breadcrumb-item active">oceanarray.pipeline.pressure</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.pipeline.pressure</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Pressure interpolation helpers for stage 3."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.qc</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_qc_attrs</span>
+
+<span class="n">HAB_THRESHOLD</span> <span class="o">=</span> <span class="mf">2.0</span>  <span class="c1"># metres — use near-neighbour below this Δhab</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_times_to_float</span><span class="p">(</span><span class="n">time_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Convert numpy datetime64 array to float64 nanoseconds (for numpy.interp)."""</span>
+    <span class="k">return</span> <span class="n">time_values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"datetime64[ns]"</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_burst_mode</span><span class="p">(</span><span class="n">time_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">burst_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return True when the time series has a bimodal Δt (burst sampling).</span>
+
+<span class="sd">    Burst-mode instruments (e.g. Nortek Aquadopp) take N pings at 1 Hz then</span>
+<span class="sd">    wait ~120 s.  The within-burst interval (p50) is &lt;&lt; the burst interval</span>
+<span class="sd">    (p90).  The QARTOD spike test compares adjacent samples and generates false</span>
+<span class="sd">    positives at every burst boundary, so callers skip it when this is True.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_values</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">time_values</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"datetime64[s]"</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">dt</span><span class="p">[</span><span class="n">dt</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">p50</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="mi">50</span><span class="p">))</span>
+    <span class="n">p90</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="mi">90</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">p50</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">p90</span> <span class="o">&gt;</span> <span class="n">burst_ratio</span> <span class="o">*</span> <span class="n">p50</span>
+
+
+<div class="viewcode-block" id="interp_pressure">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.pressure.interp_pressure">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">interp_pressure</span><span class="p">(</span>
+    <span class="n">source_time</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">source_pressure</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">target_time</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Linearly interpolate source pressure onto target time axis.</span>
+
+<span class="sd">    Nearest-point extrapolation at the edges (no NaN fill outside range).</span>
+<span class="sd">    """</span>
+    <span class="n">src_t</span> <span class="o">=</span> <span class="n">_times_to_float</span><span class="p">(</span><span class="n">source_time</span><span class="p">)</span>
+    <span class="n">tgt_t</span> <span class="o">=</span> <span class="n">_times_to_float</span><span class="p">(</span><span class="n">target_time</span><span class="p">)</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">source_pressure</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">valid</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">target_time</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span>
+        <span class="n">tgt_t</span><span class="p">,</span>
+        <span class="n">src_t</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span>
+        <span class="n">source_pressure</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span>
+        <span class="n">left</span><span class="o">=</span><span class="n">source_pressure</span><span class="p">[</span><span class="n">valid</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">right</span><span class="o">=</span><span class="n">source_pressure</span><span class="p">[</span><span class="n">valid</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="interp_pressure_for_hab">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.pressure.interp_pressure_for_hab">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">interp_pressure_for_hab</span><span class="p">(</span>
+    <span class="n">hab_t</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">sorted_sources</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>
+    <span class="n">target_time</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">serial</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">log_fn</span><span class="p">:</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Interpolate pressure for a single nominal HAB; return (p_array, method_str).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    hab_t : float</span>
+<span class="sd">        Target height above bottom in metres.</span>
+<span class="sd">    sorted_sources : list of dict</span>
+<span class="sd">        Pressure source instrument dicts sorted by hab, each with ``'ds'``,</span>
+<span class="sd">        ``'hab'``, ``'pressure_var'``, ``'instrument'``, and ``'serial'`` keys.</span>
+<span class="sd">    target_time : np.ndarray</span>
+<span class="sd">        Target datetime64 time axis.</span>
+<span class="sd">    serial : str</span>
+<span class="sd">        Serial number of the target instrument (used in log messages only).</span>
+<span class="sd">    log_fn : callable, optional</span>
+<span class="sd">        Logging callback; falls back to print when None.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[np.ndarray, str]</span>
+<span class="sd">        Interpolated pressure array and a human-readable method string.</span>
+
+<span class="sd">    """</span>
+    <span class="n">habs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">s</span><span class="p">[</span><span class="s2">"hab"</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sorted_sources</span><span class="p">])</span>
+    <span class="n">diffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">habs</span> <span class="o">-</span> <span class="n">hab_t</span><span class="p">)</span>
+    <span class="n">nearest_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">diffs</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">diffs</span><span class="p">[</span><span class="n">nearest_idx</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">HAB_THRESHOLD</span><span class="p">:</span>
+        <span class="n">src</span> <span class="o">=</span> <span class="n">sorted_sources</span><span class="p">[</span><span class="n">nearest_idx</span><span class="p">]</span>
+        <span class="n">hab_offset_dbar</span> <span class="o">=</span> <span class="n">src</span><span class="p">[</span><span class="s2">"hab"</span><span class="p">]</span> <span class="o">-</span> <span class="n">hab_t</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">interp_pressure</span><span class="p">(</span>
+                <span class="n">src</span><span class="p">[</span><span class="s2">"ds"</span><span class="p">][</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="n">src</span><span class="p">[</span><span class="s2">"ds"</span><span class="p">][</span><span class="n">src</span><span class="p">[</span><span class="s2">"pressure_var"</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="n">target_time</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">+</span> <span class="n">hab_offset_dbar</span>
+        <span class="p">)</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"near-neighbour from </span><span class="si">{</span><span class="n">src</span><span class="p">[</span><span class="s1">'instrument'</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">src</span><span class="p">[</span><span class="s1">'serial'</span><span class="p">]</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"(Δhab=</span><span class="si">{</span><span class="n">diffs</span><span class="p">[</span><span class="n">nearest_idx</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">m, "</span>
+            <span class="sa">f</span><span class="s2">"static offset=</span><span class="si">{</span><span class="n">hab_offset_dbar</span><span class="si">:</span><span class="s2">+.1f</span><span class="si">}</span><span class="s2"> dbar)"</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">log_fn</span><span class="p">:</span>
+            <span class="n">log_fn</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2"> (hab=</span><span class="si">{</span><span class="n">hab_t</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">m): </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">below</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">sorted_sources</span><span class="p">,</span> <span class="n">habs</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">if</span> <span class="n">h</span> <span class="o">&lt;</span> <span class="n">hab_t</span>
+        <span class="p">]</span>
+        <span class="n">above</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">sorted_sources</span><span class="p">,</span> <span class="n">habs</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">if</span> <span class="n">h</span> <span class="o">&gt;</span> <span class="n">hab_t</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">below</span> <span class="ow">and</span> <span class="n">above</span><span class="p">:</span>
+            <span class="n">src_below</span><span class="p">,</span> <span class="n">h_below</span> <span class="o">=</span> <span class="n">below</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">src_above</span><span class="p">,</span> <span class="n">h_above</span> <span class="o">=</span> <span class="n">above</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">w_above</span> <span class="o">=</span> <span class="p">(</span><span class="n">hab_t</span> <span class="o">-</span> <span class="n">h_below</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">h_above</span> <span class="o">-</span> <span class="n">h_below</span><span class="p">)</span>
+            <span class="n">w_below</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">w_above</span>
+            <span class="n">p_below</span> <span class="o">=</span> <span class="n">interp_pressure</span><span class="p">(</span>
+                <span class="n">src_below</span><span class="p">[</span><span class="s2">"ds"</span><span class="p">][</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="n">src_below</span><span class="p">[</span><span class="s2">"ds"</span><span class="p">][</span><span class="n">src_below</span><span class="p">[</span><span class="s2">"pressure_var"</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="n">target_time</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">p_above</span> <span class="o">=</span> <span class="n">interp_pressure</span><span class="p">(</span>
+                <span class="n">src_above</span><span class="p">[</span><span class="s2">"ds"</span><span class="p">][</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="n">src_above</span><span class="p">[</span><span class="s2">"ds"</span><span class="p">][</span><span class="n">src_above</span><span class="p">[</span><span class="s2">"pressure_var"</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="n">target_time</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">w_below</span> <span class="o">*</span> <span class="n">p_below</span> <span class="o">+</span> <span class="n">w_above</span> <span class="o">*</span> <span class="n">p_above</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"bracketed: </span><span class="si">{</span><span class="n">w_below</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">×</span><span class="si">{</span><span class="n">src_below</span><span class="p">[</span><span class="s1">'instrument'</span><span class="p">]</span><span class="si">}</span><span class="s2"> "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">src_below</span><span class="p">[</span><span class="s1">'serial'</span><span class="p">]</span><span class="si">}</span><span class="s2"> (hab=</span><span class="si">{</span><span class="n">h_below</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">m) + "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">w_above</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">×</span><span class="si">{</span><span class="n">src_above</span><span class="p">[</span><span class="s1">'instrument'</span><span class="p">]</span><span class="si">}</span><span class="s2"> "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">src_above</span><span class="p">[</span><span class="s1">'serial'</span><span class="p">]</span><span class="si">}</span><span class="s2"> (hab=</span><span class="si">{</span><span class="n">h_above</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">m)"</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">log_fn</span><span class="p">:</span>
+                <span class="n">log_fn</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2"> (hab=</span><span class="si">{</span><span class="n">hab_t</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">m): </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">src</span> <span class="o">=</span> <span class="n">below</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">below</span> <span class="k">else</span> <span class="n">above</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">hab_offset_dbar</span> <span class="o">=</span> <span class="n">src</span><span class="p">[</span><span class="s2">"hab"</span><span class="p">]</span> <span class="o">-</span> <span class="n">hab_t</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">interp_pressure</span><span class="p">(</span>
+                    <span class="n">src</span><span class="p">[</span><span class="s2">"ds"</span><span class="p">][</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                    <span class="n">src</span><span class="p">[</span><span class="s2">"ds"</span><span class="p">][</span><span class="n">src</span><span class="p">[</span><span class="s2">"pressure_var"</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                    <span class="n">target_time</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="o">+</span> <span class="n">hab_offset_dbar</span>
+            <span class="p">)</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"extrapolated from </span><span class="si">{</span><span class="n">src</span><span class="p">[</span><span class="s1">'instrument'</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">src</span><span class="p">[</span><span class="s1">'serial'</span><span class="p">]</span><span class="si">}</span><span class="s2"> "</span>
+                <span class="sa">f</span><span class="s2">"(hab=</span><span class="si">{</span><span class="n">src</span><span class="p">[</span><span class="s1">'hab'</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">m, "</span>
+                <span class="sa">f</span><span class="s2">"static offset=</span><span class="si">{</span><span class="n">hab_offset_dbar</span><span class="si">:</span><span class="s2">+.1f</span><span class="si">}</span><span class="s2"> dbar) — WARNING: out of range"</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">log_fn</span><span class="p">:</span>
+                <span class="n">log_fn</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  WARNING: </span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2"> (hab=</span><span class="si">{</span><span class="n">hab_t</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">m): </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">p</span><span class="p">,</span> <span class="n">method</span></div>
+
+
+
+<div class="viewcode-block" id="interpolate_pressure">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.pressure.interpolate_pressure">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">interpolate_pressure</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">target_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">sources</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>
+    <span class="n">target_time</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">pressure_bad_flag</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">log_fn</span><span class="p">:</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Interpolate pressure from sources onto target; return (ds, method_str).</span>
+
+<span class="sd">    If *target_info* contains ``hab_segments`` (a sorted list of</span>
+<span class="sd">    ``(breakpoint_datetime64, hab_float)`` pairs), the record is split into</span>
+<span class="sd">    time segments and each segment is interpolated with its own HAB, allowing</span>
+<span class="sd">    for instruments that physically moved during the deployment.</span>
+
+<span class="sd">    HAB convention for segmented deployments</span>
+<span class="sd">    -----------------------------------------</span>
+<span class="sd">    ``target_info["hab"]`` is the **initial** HAB — the height above bottom</span>
+<span class="sd">    at which the instrument was **deployed**.  Segment 0 runs from the start</span>
+<span class="sd">    of the record up to (but not including) the first breakpoint, using this</span>
+<span class="sd">    value.  Each entry in ``hab_segments`` gives the new HAB **at and after**</span>
+<span class="sd">    the breakpoint timestamp (i.e. records with ``T &gt;= breakpoint`` use the</span>
+<span class="sd">    new HAB; the breakpoint itself belongs to the new segment).  This matches</span>
+<span class="sd">    the YAML convention where ``hab:`` records the as-deployed position and</span>
+<span class="sd">    ``hab_segments:`` records subsequent slides, with ``from:`` marking the</span>
+<span class="sd">    first timestamp that belongs to the post-slide position.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xr.Dataset</span>
+<span class="sd">        Stage 2 dataset for the target instrument.</span>
+<span class="sd">    target_info : dict</span>
+<span class="sd">        Instrument metadata dict with ``'hab'``, ``'hab_segments'``,</span>
+<span class="sd">        ``'serial'``, and ``'qc_flags'`` keys.</span>
+<span class="sd">    sources : list of dict</span>
+<span class="sd">        Pressure source instrument dicts (each must have ``'ds'`` loaded).</span>
+<span class="sd">    target_time : np.ndarray</span>
+<span class="sd">        Target datetime64 time axis (must match ``ds["time"].values``).</span>
+<span class="sd">    pressure_bad_flag : bool</span>
+<span class="sd">        When True, the original pressure is preserved as ``pressure_orig``</span>
+<span class="sd">        and ``pressure_orig_qc`` before being replaced.</span>
+<span class="sd">    log_fn : callable, optional</span>
+<span class="sd">        Logging callback.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[xr.Dataset, str]</span>
+<span class="sd">        Updated dataset and a human-readable method string.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_time</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ds</span><span class="p">,</span> <span class="s2">"no data"</span>
+
+    <span class="n">pressure_qc_val</span> <span class="o">=</span> <span class="n">target_info</span><span class="p">[</span><span class="s2">"qc_flags"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"pressure"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">serial</span> <span class="o">=</span> <span class="n">target_info</span><span class="p">[</span><span class="s2">"serial"</span><span class="p">]</span>
+
+    <span class="n">sorted_sources</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sources</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ds"</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">],</span>
+        <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="p">[</span><span class="s2">"hab"</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sorted_sources</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ds</span><span class="p">,</span> <span class="s2">"no sources available"</span>
+
+    <span class="n">hab_segments</span> <span class="o">=</span> <span class="n">target_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"hab_segments"</span><span class="p">,</span> <span class="p">[])</span>
+
+    <span class="k">if</span> <span class="n">hab_segments</span><span class="p">:</span>
+        <span class="c1"># Build list of (start_ns, end_ns, hab) covering the full record.</span>
+        <span class="c1"># Segment 0: record start → first breakpoint, using nominal HAB.</span>
+        <span class="c1"># Segment k: breakpoint[k-1] → breakpoint[k] (or record end), using</span>
+        <span class="c1">#            the HAB specified at breakpoint[k-1].</span>
+        <span class="n">T</span> <span class="o">=</span> <span class="n">target_time</span>
+        <span class="n">seg_bounds</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">seg_hab</span> <span class="o">=</span> <span class="n">target_info</span><span class="p">[</span><span class="s2">"hab"</span><span class="p">]</span>
+        <span class="n">seg_start</span> <span class="o">=</span> <span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">bp_ns</span><span class="p">,</span> <span class="n">next_hab</span> <span class="ow">in</span> <span class="n">hab_segments</span><span class="p">:</span>
+            <span class="n">seg_bounds</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">seg_start</span><span class="p">,</span> <span class="n">bp_ns</span><span class="p">,</span> <span class="n">seg_hab</span><span class="p">))</span>
+            <span class="n">seg_start</span> <span class="o">=</span> <span class="n">bp_ns</span>
+            <span class="n">seg_hab</span> <span class="o">=</span> <span class="n">next_hab</span>
+        <span class="n">seg_bounds</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">seg_start</span><span class="p">,</span> <span class="n">T</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"ns"</span><span class="p">),</span> <span class="n">seg_hab</span><span class="p">))</span>
+
+        <span class="n">p_interp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">T</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="n">method_parts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">seg_start_ns</span><span class="p">,</span> <span class="n">seg_end_ns</span><span class="p">,</span> <span class="n">hab_t</span> <span class="ow">in</span> <span class="n">seg_bounds</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">seg_start_ns</span> <span class="o">&lt;=</span> <span class="n">T</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">seg_end_ns</span> <span class="o">&gt;</span> <span class="n">T</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">p_seg</span><span class="p">,</span> <span class="n">meth</span> <span class="o">=</span> <span class="n">interp_pressure_for_hab</span><span class="p">(</span>
+                <span class="n">hab_t</span><span class="p">,</span> <span class="n">sorted_sources</span><span class="p">,</span> <span class="n">T</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">serial</span><span class="p">,</span> <span class="n">log_fn</span><span class="o">=</span><span class="n">log_fn</span>
+            <span class="p">)</span>
+            <span class="n">p_interp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_seg</span>
+            <span class="n">bp_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">seg_end_ns</span><span class="p">)[:</span><span class="mi">16</span><span class="p">]</span>
+            <span class="n">method_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"hab=</span><span class="si">{</span><span class="n">hab_t</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">m until </span><span class="si">{</span><span class="n">bp_str</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">meth</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">method_parts</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">p_interp</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">interp_pressure_for_hab</span><span class="p">(</span>
+            <span class="n">target_info</span><span class="p">[</span><span class="s2">"hab"</span><span class="p">],</span> <span class="n">sorted_sources</span><span class="p">,</span> <span class="n">target_time</span><span class="p">,</span> <span class="n">serial</span><span class="p">,</span> <span class="n">log_fn</span><span class="o">=</span><span class="n">log_fn</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Preserve bad original pressure</span>
+    <span class="k">if</span> <span class="n">pressure_bad_flag</span> <span class="ow">and</span> <span class="s2">"pressure"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">orig_attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+        <span class="n">orig_attrs</span><span class="p">[</span><span class="s2">"comment"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">orig_attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"comment"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span> <span class="o">+</span> <span class="s2">" [original; flagged bad in YAML]"</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s2">"pressure_orig"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s2">"pressure_orig"</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="n">orig_attrs</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s2">"pressure_orig_qc"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+            <span class="s2">"time"</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]),</span> <span class="n">pressure_qc_val</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">),</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"quality flag for pressure_orig"</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="c1"># pressure_orig_qc is excluded from the stage3 flag-attr sweep (it keeps the</span>
+        <span class="c1"># pre-interpolation flag, kept distinct from the interpolated pressure_qc),</span>
+        <span class="c1"># so attach its OceanSITES flag attributes here.</span>
+        <span class="n">set_qc_attrs</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"pressure_orig"</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="s2">"pressure"</span><span class="p">)</span>
+
+    <span class="n">ds</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+        <span class="s2">"time"</span><span class="p">,</span>
+        <span class="n">p_interp</span><span class="p">,</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"dbar"</span><span class="p">,</span>
+            <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"sea water pressure"</span><span class="p">,</span>
+            <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"sea_water_pressure"</span><span class="p">,</span>
+            <span class="s2">"pressure_source"</span><span class="p">:</span> <span class="n">method</span><span class="p">,</span>
+            <span class="s2">"comment"</span><span class="p">:</span> <span class="s2">"interpolated from neighbouring instrument(s)"</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">"pressure_qc"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+        <span class="s2">"time"</span><span class="p">,</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]),</span> <span class="mi">8</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">),</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"quality flag for pressure"</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds</span><span class="p">,</span> <span class="n">method</span></div>
+
+
+
+<div class="viewcode-block" id="compute_adcp_bin_pressure">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.pressure.compute_adcp_bin_pressure">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_adcp_bin_pressure</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">log_fn</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Compute pressure at each ADCP bin from transducer pressure and tilt-reduced range.</span>
+
+<span class="sd">    For each time step, adds a pressure offset per bin, ``gsw.p_from_z(-range_eff, lat)``,</span>
+<span class="sd">    the hydrostatic pressure of *range_eff* metres of seawater at the given latitude, where</span>
+<span class="sd">    *range_eff* is the bin's vertical distance from the transducer reduced for instrument</span>
+<span class="sd">    tilt (knock-down).</span>
+
+<span class="sd">    **Tilt correction.** The RDI firmware converts slant range to vertical distance using</span>
+<span class="sd">    the *nominal* beam angle (RDI Coordinate Transformation manual §4.2, Eq. 8), i.e.</span>
+<span class="sd">    assuming the instrument is vertical.  When the mooring is knocked down by an angle θ the</span>
+<span class="sd">    true vertical distance of each bin shrinks to ``range × cos(θ)``.  θ is the angle of the</span>
+<span class="sd">    instrument axis from vertical, ``arccos(cos(P_true)·cos(roll))``, where ``P_true =</span>
+<span class="sd">    arctan(tan(tilt1)·cos(roll))`` converts the raw tilt-1 pitch the RDI variable leader</span>
+<span class="sd">    stores into the true pitch.  This is the first-order, ensemble-mean correction: the ADCP</span>
+<span class="sd">    averages opposing beams, so the mean vertical bin range is ``range × cos(θ)`` (individual</span>
+<span class="sd">    beams differ, consistent with velocity being a beam-averaged quantity); it is not a full</span>
+<span class="sd">    3-beam geometry solution.  oceanarray's own BEAM→ENU</span>
+<span class="sd">    (:func:`oceanarray.pipeline.coordinate.apply_beam_to_enu`) rotates velocity vectors only</span>
+<span class="sd">    and does not bin-map, so beam/XYZ-coordinate bins reach this function at their nominal</span>
+<span class="sd">    depth and need this correction; the firmware's earth + bin mapping is the only step in the</span>
+<span class="sd">    pipeline that tilt-places the bins (and is the skip case below).</span>
+
+<span class="sd">    **Guard — fail closed.** The correction is applied *only* on positive evidence that the</span>
+<span class="sd">    bins are not already tilt-placed:</span>
+
+<span class="sd">    - earth + bin mapping (``firmware_coordinate_system == "earth"`` and</span>
+<span class="sd">      ``firmware_bin_mapping == "yes"``, surfaced by Stage 1 from the RDI ``EX`` command): the</span>
+<span class="sd">      firmware already re-selected cells per beam for tilt, so each bin's nominal range is its</span>
+<span class="sd">      true vertical distance → **skip** (``cos(tilt)`` would double-correct),</span>
+<span class="sd">      ``tilt_correction = "none (firmware bin mapping)"``.</span>
+<span class="sd">    - firmware config **unknown** (attrs absent — a non-RDI ADCP, or a file predating this</span>
+<span class="sd">      surfacing) → **skip** (``"none (firmware config unknown)"``): absence must not be read as</span>
+<span class="sd">      beam input, or a firmware-mapped file whose attrs were lost would be double-corrected.</span>
+<span class="sd">    - no pitch/roll → **skip** (``"none (pitch/roll unavailable)"``).</span>
+
+<span class="sd">    Every current UHH deployment is earth + bin-mapping, so in practice the apply path is</span>
+<span class="sd">    exercised only by beam-coordinate input (none in the current UHH data); it is correct for</span>
+<span class="sd">    such input and for future deployments.  Timesteps whose pitch/roll are NaN get a NaN</span>
+<span class="sd">    ``bin_pressure`` (the depth is unknown) and a warning naming the count — the correction is</span>
+<span class="sd">    never silently applied over missing attitude data.</span>
+
+<span class="sd">    **Approximation** (unchanged, separate from tilt): ``gsw.p_from_z`` measures the column</span>
+<span class="sd">    pressure from the *sea surface*, not the increment at the ADCP's depth — ~2–3 dbar at</span>
+<span class="sd">    300 m range from a 500 m transducer, within the seabed-QC margin.</span>
+
+<span class="sd">    The sign follows instrument orientation:</span>
+
+<span class="sd">    - Downward-looking (``orientation == "down"``): bins are deeper than the</span>
+<span class="sd">      transducer → pressure increases with bin index.</span>
+<span class="sd">    - Upward-looking (``orientation == "up"``): bins are shallower than the</span>
+<span class="sd">      transducer → pressure decreases with bin index.</span>
+
+<span class="sd">    If orientation cannot be determined from dataset attributes a WARNING is emitted</span>
+<span class="sd">    and ``"down"`` is assumed.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xr.Dataset</span>
+<span class="sd">        Stage 3 ADCP dataset.  Must contain ``pressure(time)`` in dbar (pressure at</span>
+<span class="sd">        the transducer head) and ``range(N_BINS)`` in metres (bin centre distance from</span>
+<span class="sd">        the transducer face).  Orientation is read from the ``orientation_yaml`` global</span>
+<span class="sd">        attribute (preferred) or ``orientation_instrument`` (fallback).</span>
+<span class="sd">    lat : float</span>
+<span class="sd">        Mooring latitude in decimal degrees (positive North), used by</span>
+<span class="sd">        ``gsw.p_from_z`` for the gravitational/centrifugal correction.</span>
+<span class="sd">    log_fn : callable, optional</span>
+<span class="sd">        Logging callback (e.g. ``logger.info``).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.Dataset</span>
+<span class="sd">        Input dataset with ``bin_pressure(time, N_BINS)`` added in dbar.  The variable's</span>
+<span class="sd">        ``comment`` records the formula and orientation; ``tilt_correction`` is ``"applied"``,</span>
+<span class="sd">        ``"none (firmware bin mapping)"`` or ``"none (pitch/roll unavailable)"``, and</span>
+<span class="sd">        ``tilt_definition`` records the tilt formula when applied.</span>
+<span class="sd">        Returns *ds* unchanged if ``pressure`` or ``range`` are absent.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">gsw</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameters</span> <span class="k">as</span> <span class="n">params</span>
+
+    <span class="k">if</span> <span class="s2">"pressure"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span> <span class="ow">or</span> <span class="s2">"range"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">log_fn</span><span class="p">:</span>
+            <span class="n">log_fn</span><span class="p">(</span><span class="s2">"  ADCP bin_pressure: skipped (no pressure or range coord)"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ds</span>
+
+    <span class="n">orientation</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"orientation_yaml"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="s2">"orientation_instrument"</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">orientation</span><span class="p">:</span>
+        <span class="n">orientation</span> <span class="o">=</span> <span class="s2">"down"</span>
+        <span class="k">if</span> <span class="n">log_fn</span><span class="p">:</span>
+            <span class="n">log_fn</span><span class="p">(</span>
+                <span class="s2">"  WARNING: ADCP orientation unknown (no orientation_yaml or "</span>
+                <span class="s2">"orientation_instrument attr) — assuming downward-looking. "</span>
+                <span class="s2">"bin_pressure signs may be wrong for upward-looking instruments."</span>
+            <span class="p">)</span>
+    <span class="n">sign</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">orientation</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"down"</span> <span class="k">else</span> <span class="o">-</span><span class="mf">1.0</span>
+
+    <span class="n">p_trans</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>  <span class="c1"># (time,)</span>
+    <span class="n">range_m</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"range"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>  <span class="c1"># (N_BINS,)</span>
+
+    <span class="c1"># Decide whether to apply the knock-down tilt correction to the bin ranges, from the</span>
+    <span class="c1"># firmware recording config Stage 1 surfaced (firmware_coordinate_system /</span>
+    <span class="c1"># firmware_bin_mapping, from the RDI EX command):</span>
+    <span class="c1">#   - earth + bin mapping on: the firmware already re-selected cells per beam for tilt,</span>
+    <span class="c1">#     so each bin's nominal range *is* its true vertical distance — applying cos(tilt)</span>
+    <span class="c1">#     again would double-correct.  Skip.</span>
+    <span class="c1">#   - a known non-mapped recording (beam/instrument coords, or earth without bin</span>
+    <span class="c1">#     mapping): the nominal range is the untilted vertical distance — apply cos(tilt).</span>
+    <span class="c1">#   - unknown (attrs absent: a non-RDI ADCP, or a file predating this surfacing): we</span>
+    <span class="c1">#     cannot tell, so DO NOT apply (fail closed) — this keeps the pre-correction values</span>
+    <span class="c1">#     and avoids double-correcting a firmware-mapped file whose attrs were lost.  The</span>
+    <span class="c1">#     correction only fires on positive evidence that the bins are *not* tilt-placed.</span>
+    <span class="n">firmware_cs</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"firmware_coordinate_system"</span><span class="p">)</span>
+    <span class="n">firmware_binmap</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"firmware_bin_mapping"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">firmware_known</span> <span class="o">=</span> <span class="n">firmware_cs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="n">firmware_mapped</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">firmware_cs</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"earth"</span> <span class="ow">and</span> <span class="n">firmware_binmap</span> <span class="o">==</span> <span class="s2">"yes"</span>
+    <span class="n">has_tilt</span> <span class="o">=</span> <span class="s2">"pitch"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span> <span class="ow">and</span> <span class="s2">"roll"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span>
+
+    <span class="n">tilt</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="kc">None</span>  <span class="c1"># instrument-axis angle from vertical, radians (time,)</span>
+    <span class="p">)</span>
+    <span class="n">tilt_definition</span> <span class="o">=</span> <span class="s2">"n/a"</span>
+    <span class="n">tilt_source</span> <span class="o">=</span> <span class="s2">"n/a"</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">firmware_known</span><span class="p">:</span>
+        <span class="n">tilt_correction</span> <span class="o">=</span> <span class="s2">"none (firmware config unknown)"</span>
+        <span class="n">_warn</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">"  WARNING: ADCP bin_pressure: firmware coordinate/bin-mapping config unknown "</span>
+            <span class="s2">"(not an RDI raw file, or attrs lost) — cos(tilt) NOT applied; bins at nominal "</span>
+            <span class="s2">"depth."</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">firmware_mapped</span><span class="p">:</span>
+        <span class="n">tilt_correction</span> <span class="o">=</span> <span class="s2">"none (firmware bin mapping)"</span>
+        <span class="n">_warn</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">"  ADCP bin_pressure: firmware earth + bin mapping — bins already tilt-placed; "</span>
+            <span class="s2">"cos(tilt) NOT applied (would double-correct)."</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">has_tilt</span><span class="p">:</span>
+        <span class="c1"># Angle of the instrument axis from vertical.  RDI stores pitch as the raw tilt-1</span>
+        <span class="c1"># reading; the true pitch is arctan(tan(tilt1)·cos(roll)) (RDI Coordinate</span>
+        <span class="c1"># Transformation manual), and the angle from vertical is arccos(cos P_true·cos R)</span>
+        <span class="c1"># (roll is already the true roll, tilt-2).</span>
+        <span class="n">roll_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"roll"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span>  <span class="c1"># (time,)</span>
+        <span class="n">p_true</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"pitch"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">roll_r</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">tilt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">p_true</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">roll_r</span><span class="p">),</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+        <span class="n">tilt_correction</span> <span class="o">=</span> <span class="s2">"applied"</span>
+        <span class="n">tilt_definition</span> <span class="o">=</span> <span class="s2">"arccos(cos(true_pitch)·cos(roll)); true_pitch = arctan(tan(tilt1)·cos(roll))"</span>
+        <span class="n">tilt_source</span> <span class="o">=</span> <span class="s2">"pitch,roll"</span>
+        <span class="n">_n_nan</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">tilt</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+        <span class="n">_warn</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"  WARNING: ADCP bin_pressure: </span><span class="si">{</span><span class="n">_n_nan</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="n">tilt</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2"> timesteps have missing "</span>
+            <span class="s2">"pitch/roll — bin_pressure is NaN there (tilt could not be computed)."</span>
+            <span class="k">if</span> <span class="n">_n_nan</span>
+            <span class="k">else</span> <span class="s2">""</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">tilt_correction</span> <span class="o">=</span> <span class="s2">"none (pitch/roll unavailable)"</span>
+        <span class="n">_warn</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">"  WARNING: ADCP bin_pressure: coordinates are not firmware-mapped but pitch/"</span>
+            <span class="s2">"roll are absent — cos(tilt) NOT applied; knocked-down bins sit at nominal depth."</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">log_fn</span> <span class="ow">and</span> <span class="n">_warn</span><span class="p">:</span>
+        <span class="n">log_fn</span><span class="p">(</span><span class="n">_warn</span><span class="p">)</span>
+
+    <span class="c1"># Tilt-reduced vertical range (2-D when the correction is applied, else the untilted 1-D</span>
+    <span class="c1"># range broadcast over time).  The correction is the first-order, ensemble-mean form:</span>
+    <span class="c1"># opposing beams average out the first-order asymmetry, so the mean vertical bin range is</span>
+    <span class="c1"># range × cos(tilt).  gsw.p_from_z(z, lat): z is depth in m (negative = below surface).</span>
+    <span class="n">range_vert</span> <span class="o">=</span> <span class="n">range_m</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="k">if</span> <span class="n">tilt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">range_vert</span> <span class="o">=</span> <span class="n">range_vert</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">tilt</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">dp</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">p_from_z</span><span class="p">(</span><span class="o">-</span><span class="n">range_vert</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+    <span class="n">bin_p</span> <span class="o">=</span> <span class="n">p_trans</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">+</span> <span class="n">sign</span> <span class="o">*</span> <span class="n">dp</span>  <span class="c1"># (time, N_BINS)</span>
+
+    <span class="n">ds</span><span class="p">[</span><span class="s2">"bin_pressure"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+        <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">ADCP_BIN_DIM</span><span class="p">),</span>
+        <span class="n">bin_p</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"pressure at ADCP bin"</span><span class="p">,</span>
+            <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"dbar"</span><span class="p">,</span>
+            <span class="s2">"comment"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"transducer pressure + sign(</span><span class="si">{</span><span class="n">orientation</span><span class="si">}</span><span class="s2">-looking) × "</span>
+                <span class="sa">f</span><span class="s2">"gsw.p_from_z(-range×cos(tilt), lat=</span><span class="si">{</span><span class="n">lat</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">°); "</span>
+                <span class="sa">f</span><span class="s2">"tilt_correction=</span><span class="si">{</span><span class="n">tilt_correction</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">),</span>
+            <span class="s2">"tilt_correction"</span><span class="p">:</span> <span class="n">tilt_correction</span><span class="p">,</span>
+            <span class="s2">"tilt_definition"</span><span class="p">:</span> <span class="n">tilt_definition</span><span class="p">,</span>
+            <span class="s2">"tilt_source"</span><span class="p">:</span> <span class="n">tilt_source</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">log_fn</span><span class="p">:</span>
+        <span class="n">_extra</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="k">if</span> <span class="n">tilt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">tilt</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="n">_td</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">tilt</span><span class="p">)</span>
+            <span class="n">_extra</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">", tilt median=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">_td</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">° max=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">_td</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">°"</span>
+        <span class="n">log_fn</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"  ADCP bin_pressure: </span><span class="si">{</span><span class="n">ds</span><span class="p">[</span><span class="s1">'range'</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2"> bins, "</span>
+            <span class="sa">f</span><span class="s2">"orientation=</span><span class="si">{</span><span class="n">orientation</span><span class="si">}</span><span class="s2">, lat=</span><span class="si">{</span><span class="n">lat</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">°, </span><span class="si">{</span><span class="n">tilt_correction</span><span class="si">}{</span><span class="n">_extra</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

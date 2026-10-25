@@ -1,0 +1,557 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.plotters.helpers &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.plotters.helpers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.plotters.helpers</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Shared helpers for the plotters package.</span>
+
+<span class="sd">Provides colormap helpers and rose-diagram rendering used across multiple</span>
+<span class="sd">Tier-2 plotter modules.</span>
+
+<span class="sd">Note: _fig_to_base64 stays in reports/_html_helpers.py (called only by</span>
+<span class="sd">Tier-3 wrappers in reports/_plots.py; plotters/ never serialises to base64).</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.config.unit_tables</span><span class="w"> </span><span class="kn">import</span> <span class="n">unit_label</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+
+<span class="c1">#: Okabe-Ito 8-colour qualitative palette — the accessibility-standard</span>
+<span class="c1">#: colourblind-safe set (distinguishable under protan/deutan/tritan CVD).  Note</span>
+<span class="c1">#: the yellow (#F0E442) is pale on a white background; the linewidth tiers in</span>
+<span class="c1">#: :func:`distinct_line_styles` and the linestyle help keep it legible.</span>
+<span class="n">OKABE_ITO</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"#000000"</span><span class="p">,</span>  <span class="c1"># black</span>
+    <span class="s2">"#E69F00"</span><span class="p">,</span>  <span class="c1"># orange</span>
+    <span class="s2">"#56B4E9"</span><span class="p">,</span>  <span class="c1"># sky blue</span>
+    <span class="s2">"#009E73"</span><span class="p">,</span>  <span class="c1"># bluish green</span>
+    <span class="s2">"#F0E442"</span><span class="p">,</span>  <span class="c1"># yellow</span>
+    <span class="s2">"#0072B2"</span><span class="p">,</span>  <span class="c1"># blue</span>
+    <span class="s2">"#D55E00"</span><span class="p">,</span>  <span class="c1"># vermillion</span>
+    <span class="s2">"#CC79A7"</span><span class="p">,</span>  <span class="c1"># reddish purple</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="distinct_line_styles">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.helpers.distinct_line_styles">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">distinct_line_styles</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Return *n* colourblind-safe ``(color, linestyle, linewidth)`` line styles.</span>
+
+<span class="sd">    Cycles the 8-colour :data:`OKABE_ITO` palette and advances the linestyle</span>
+<span class="sd">    every 8 lines (solid → dashed → dash-dot → dotted), so up to 32 lines each</span>
+<span class="sd">    get a unique ``(color, linestyle)`` pair — enough to tell apart a mooring's</span>
+<span class="sd">    worth of instruments where colour alone (max 8–20 hues) collides.  Linewidth</span>
+<span class="sd">    increases with the linestyle group so the sparser styles (dash-dot, dotted)</span>
+<span class="sd">    stay as visible as the solid ones: solid thinnest, dashed thin, dash-dot and</span>
+<span class="sd">    dotted thicker.  Beyond 32 lines the linestyle group is clamped (styles</span>
+<span class="sd">    repeat) rather than raising.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n : int</span>
+<span class="sd">        Number of line styles to return (&gt;= 0).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of (str, str, float)</span>
+<span class="sd">        ``(hex_color, linestyle, linewidth)`` per line, in order.</span>
+
+<span class="sd">    """</span>
+    <span class="n">linestyles</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"--"</span><span class="p">,</span> <span class="s2">"-."</span><span class="p">,</span> <span class="s2">":"</span><span class="p">]</span>
+    <span class="n">linewidths</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">]</span>  <span class="c1"># solid thinnest; dash-dot/dotted thicker</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+        <span class="n">grp</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="n">OKABE_ITO</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">linestyles</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">OKABE_ITO</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">OKABE_ITO</span><span class="p">)],</span> <span class="n">linestyles</span><span class="p">[</span><span class="n">grp</span><span class="p">],</span> <span class="n">linewidths</span><span class="p">[</span><span class="n">grp</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<div class="viewcode-block" id="grid_despine">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.helpers.grid_despine">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">grid_despine</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"both"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Turn the grid on and hide the top and right spines (report convention).</span>
+
+<span class="sd">    The report style keeps ``axes.grid`` off by default and figures opt in; when</span>
+<span class="sd">    they do, the top and right spines are redundant clutter.  Call this instead of</span>
+<span class="sd">    ``ax.grid(True)`` so the two always travel together.  Grid appearance (dotted,</span>
+<span class="sd">    faint) comes from the active mplstyle, not hard-coded here, so a single style</span>
+<span class="sd">    change restyles every grid.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax : matplotlib.axes.Axes</span>
+<span class="sd">        Axes to style.</span>
+<span class="sd">    axis : {"both", "x", "y"}, optional</span>
+<span class="sd">        Which gridlines to draw (default ``"both"``).  Bar/profile plots that</span>
+<span class="sd">        want one-directional gridlines pass ``"x"`` or ``"y"`` and still get the</span>
+<span class="sd">        top/right spines hidden.</span>
+
+<span class="sd">    """</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">"top"</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">"right"</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ordered_line_colors">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.helpers.ordered_line_colors">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ordered_line_colors</span><span class="p">(</span><span class="n">cmap_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">max_luminance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.72</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return *n* colours from *cmap_name*, in colormap order, skipping pale ones.</span>
+
+<span class="sd">    Samples the colormap on a fine grid, keeps only positions whose relative</span>
+<span class="sd">    luminance is ``&lt;= max_luminance`` (so no line washes out against white), then</span>
+<span class="sd">    returns *n* colours evenly spaced across the usable positions.  For a</span>
+<span class="sd">    diverging colormap this drops the pale midpoint, leaving two saturated arcs;</span>
+<span class="sd">    for a sequential one it drops the pale end.  Callers assign the colours in a</span>
+<span class="sd">    fixed order (e.g. deep-first) so the darkest end maps to the intended extreme.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cmap_name : str</span>
+<span class="sd">        Matplotlib colormap name.</span>
+<span class="sd">    n : int</span>
+<span class="sd">        Number of colours to return (&gt;= 1).</span>
+<span class="sd">    max_luminance : float</span>
+<span class="sd">        Rec. 709 relative-luminance ceiling in ``[0, 1]``; positions lighter than</span>
+<span class="sd">        this are excluded.  Default 0.72 — low enough that the least-saturated</span>
+<span class="sd">        remaining colour on a diverging map (the arc boundary either side of the</span>
+<span class="sd">        excluded pale centre) is still legible on white.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of RGBA tuples</span>
+<span class="sd">        *n* colours (length exactly ``max(n, 1)``).</span>
+
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">cmap_name</span><span class="p">)</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">256</span><span class="p">)</span>
+    <span class="n">cols</span> <span class="o">=</span> <span class="n">cmap</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+    <span class="n">lum</span> <span class="o">=</span> <span class="mf">0.2126</span> <span class="o">*</span> <span class="n">cols</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.7152</span> <span class="o">*</span> <span class="n">cols</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.0722</span> <span class="o">*</span> <span class="n">cols</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">lum</span> <span class="o">&lt;=</span> <span class="n">max_luminance</span>
+    <span class="n">usable</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+    <span class="n">usable_lum</span> <span class="o">=</span> <span class="n">lum</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">usable</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">usable</span><span class="p">,</span> <span class="n">usable_lum</span> <span class="o">=</span> <span class="n">grid</span><span class="p">,</span> <span class="n">lum</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># A single line: order carries no meaning, so pick the darkest (most</span>
+        <span class="c1"># saturated) usable colour rather than the midpoint, which on a diverging</span>
+        <span class="c1"># map lands in the pale gap between the two arcs.</span>
+        <span class="n">picks</span> <span class="o">=</span> <span class="p">[</span><span class="n">usable</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">usable_lum</span><span class="p">))]]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">usable</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">picks</span> <span class="o">=</span> <span class="n">usable</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">cmap</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="p">))</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">picks</span><span class="p">]</span></div>
+
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># QC colours and marker styles (OceanSITES Reference Table 2)</span>
+<span class="c1"># Defined here (Tier 2) so both plotters/ and report/ can import without</span>
+<span class="c1"># creating a plotters → report circular dependency.</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+<span class="n">QC_COLORS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">0</span><span class="p">:</span> <span class="s2">"#999999"</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="s2">"#27ae60"</span><span class="p">,</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="s2">"#a8e6cf"</span><span class="p">,</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="s2">"#f39c12"</span><span class="p">,</span>
+    <span class="mi">4</span><span class="p">:</span> <span class="s2">"#e74c3c"</span><span class="p">,</span>
+    <span class="mi">7</span><span class="p">:</span> <span class="s2">"#9b59b6"</span><span class="p">,</span>
+    <span class="mi">8</span><span class="p">:</span> <span class="s2">"#3498db"</span><span class="p">,</span>
+    <span class="mi">9</span><span class="p">:</span> <span class="s2">"#bdc3c7"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">QC_MARKER</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"marker"</span><span class="p">:</span> <span class="s2">"+"</span><span class="p">,</span>
+        <span class="s2">"c"</span><span class="p">:</span> <span class="n">QC_COLORS</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+        <span class="s2">"s"</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+        <span class="s2">"linewidths"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+        <span class="s2">"zorder"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">"rasterized"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="mi">4</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"marker"</span><span class="p">:</span> <span class="s2">"+"</span><span class="p">,</span>
+        <span class="s2">"c"</span><span class="p">:</span> <span class="n">QC_COLORS</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span>
+        <span class="s2">"s"</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+        <span class="s2">"linewidths"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+        <span class="s2">"zorder"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="s2">"rasterized"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="mi">8</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"marker"</span><span class="p">:</span> <span class="s2">"."</span><span class="p">,</span>
+        <span class="s2">"c"</span><span class="p">:</span> <span class="n">QC_COLORS</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span>
+        <span class="s2">"s"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+        <span class="s2">"linewidths"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+        <span class="s2">"zorder"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">"rasterized"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="tukey_smooth">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.helpers.tukey_smooth">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">tukey_smooth</span><span class="p">(</span><span class="n">arr</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">window_n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Zero-phase Tukey (cosine-tapered) smooth, NaN-gap aware.</span>
+
+<span class="sd">    Uses a convolution-based approach so NaN gaps do not propagate: output</span>
+<span class="sd">    points near gaps are weighted only by the finite neighbours that fall</span>
+<span class="sd">    within the window.  Output is set to NaN where fewer than 10 % of the</span>
+<span class="sd">    window weights are finite (edges of large data gaps).</span>
+
+<span class="sd">    Requires ``scipy``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    arr : np.ndarray</span>
+<span class="sd">        1-D array, possibly containing NaNs.</span>
+<span class="sd">    window_n : int</span>
+<span class="sd">        Window length in samples.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        Smoothed array, same shape as *arr*.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">windows</span> <span class="k">as</span> <span class="n">scipy_windows</span>
+
+    <span class="k">if</span> <span class="n">window_n</span> <span class="o">&lt;</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">window_n</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">arr</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">win</span> <span class="o">=</span> <span class="n">scipy_windows</span><span class="o">.</span><span class="n">tukey</span><span class="p">(</span><span class="n">window_n</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">win</span> <span class="o">=</span> <span class="n">win</span> <span class="o">/</span> <span class="n">win</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">finite</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+    <span class="n">smoothed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">finite</span><span class="p">,</span> <span class="n">arr</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">win</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"same"</span><span class="p">)</span>
+    <span class="n">wsum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">finite</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span> <span class="n">win</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"same"</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">wsum</span> <span class="o">&gt;</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">smoothed</span> <span class="o">/</span> <span class="n">wsum</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_velocity_panel_style</span><span class="p">(</span>
+    <span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">finite_vals</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">div_abs_max</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return (bounds, norm, cmap, cb_label) for one velocity pcolormesh panel.</span>
+
+<span class="sd">    Centralises all velocity colormap decisions so that the per-instrument</span>
+<span class="sd">    ADCP report and the grid/stack report always produce visually identical</span>
+<span class="sd">    panels.  Call this helper from every function that renders a velocity</span>
+<span class="sd">    variable as a pcolormesh — do not duplicate the logic inline.</span>
+
+<span class="sd">    Panel types</span>
+<span class="sd">    -----------</span>
+<span class="sd">    div (diverging)  east/north/up/error_velocity  Spectral_r  ± div_abs_max</span>
+<span class="sd">    seq (sequential) current_speed                 plasma       0 → 98th pctile</span>
+<span class="sd">    seq              bin_pressure                  PuRd         2nd→98th pctile</span>
+<span class="sd">    cyc (cyclic)     current_direction             twilight     0–360°</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    var : str</span>
+<span class="sd">        Variable name (e.g. ``"east_velocity"``, ``"current_direction"``).</span>
+<span class="sd">    finite_vals : np.ndarray</span>
+<span class="sd">        Finite values of *this* variable (used for seq bounds; pass ``[]``</span>
+<span class="sd">        for div/cyc panels where per-variable bounds are not needed).</span>
+<span class="sd">    div_abs_max : float</span>
+<span class="sd">        Pre-computed symmetric bound for diverging panels (ignored for seq/cyc).</span>
+<span class="sd">        Computed by the caller as the 2nd/98th percentile magnitude across all</span>
+<span class="sd">        ENU velocity components.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        ``(bounds, norm, cmap, cb_label)`` where *bounds* is a 1-D array of</span>
+<span class="sd">        colorbar tick/boundary values, *norm* is a ``BoundaryNorm``, *cmap*</span>
+<span class="sd">        is a colormap name string or a :class:`~matplotlib.colors.Colormap`</span>
+<span class="sd">        (cyclic panels return a resampled colormap), and *cb_label* is the</span>
+<span class="sd">        colorbar axis label.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mcolors</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.primitives</span><span class="w"> </span><span class="kn">import</span> <span class="n">colorbar_norm</span>
+
+    <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"east_velocity"</span><span class="p">,</span> <span class="s2">"north_velocity"</span><span class="p">,</span> <span class="s2">"up_velocity"</span><span class="p">,</span> <span class="s2">"error_velocity"</span><span class="p">):</span>
+        <span class="n">bounds</span><span class="p">,</span> <span class="n">norm</span> <span class="o">=</span> <span class="n">colorbar_norm</span><span class="p">(</span><span class="n">vmin</span><span class="o">=-</span><span class="n">div_abs_max</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">div_abs_max</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="s2">"Spectral_r"</span><span class="p">,</span> <span class="n">unit_label</span><span class="p">(</span><span class="s2">"m s-1"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">var</span> <span class="o">==</span> <span class="s2">"current_speed"</span><span class="p">:</span>
+        <span class="n">spd_max</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">finite_vals</span><span class="p">,</span> <span class="mi">98</span><span class="p">))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">finite_vals</span><span class="p">)</span> <span class="k">else</span> <span class="mf">1.0</span>
+        <span class="n">bounds</span><span class="p">,</span> <span class="n">norm</span> <span class="o">=</span> <span class="n">colorbar_norm</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="n">spd_max</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="s2">"plasma"</span><span class="p">,</span> <span class="n">unit_label</span><span class="p">(</span><span class="s2">"m s-1"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">var</span> <span class="o">==</span> <span class="s2">"current_direction"</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+        <span class="c1"># Cyclic colormap so 0° and 360° share a colour; twilight is perceptually</span>
+        <span class="c1"># uniform (hsv is not).  twilight has 510 native colours, so a plain</span>
+        <span class="c1"># BoundaryNorm(ncolors=256) maps 0–360° onto only the first half of the</span>
+        <span class="c1"># cycle (pale→dark, non-cyclic — Eleanor 2026-08-18).  Resample to one</span>
+        <span class="c1"># colour per bin and match ncolors so the full cycle shows and 0°==360°.</span>
+        <span class="n">bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">360</span><span class="p">,</span> <span class="mi">21</span><span class="p">)</span>
+        <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s2">"twilight"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">BoundaryNorm</span><span class="p">(</span><span class="n">bounds</span><span class="p">,</span> <span class="n">cmap</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">cmap</span><span class="p">,</span> <span class="n">unit_label</span><span class="p">(</span><span class="s2">"degrees"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">var</span> <span class="o">==</span> <span class="s2">"bin_pressure"</span><span class="p">:</span>
+        <span class="n">p_lo</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">finite_vals</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">finite_vals</span><span class="p">)</span> <span class="k">else</span> <span class="mf">0.0</span>
+        <span class="n">p_hi</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">finite_vals</span><span class="p">,</span> <span class="mi">98</span><span class="p">))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">finite_vals</span><span class="p">)</span> <span class="k">else</span> <span class="mf">1000.0</span>
+        <span class="n">bounds</span><span class="p">,</span> <span class="n">norm</span> <span class="o">=</span> <span class="n">colorbar_norm</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">p_lo</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">p_hi</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="s2">"PuRd"</span><span class="p">,</span> <span class="n">unit_label</span><span class="p">(</span><span class="s2">"dbar"</span><span class="p">)</span>
+    <span class="c1"># Unknown variable — fall back to diverging</span>
+    <span class="n">bounds</span><span class="p">,</span> <span class="n">norm</span> <span class="o">=</span> <span class="n">colorbar_norm</span><span class="p">(</span><span class="n">vmin</span><span class="o">=-</span><span class="n">div_abs_max</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">div_abs_max</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="s2">"Spectral_r"</span><span class="p">,</span> <span class="n">unit_label</span><span class="p">(</span><span class="s2">"m s-1"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_rose_ax</span><span class="p">(</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">,</span>
+    <span class="n">east</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">north</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+    <span class="n">n_dir</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"Blues"</span><span class="p">,</span>
+    <span class="n">max_speed</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Draw a current rose on a polar Axes (compass convention, N up, CW).</span>
+
+<span class="sd">    Returns ``(spd_edges, colors)`` so callers can add a shared colorbar, or</span>
+<span class="sd">    ``None`` if the panel was hidden due to insufficient data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax : plt.Axes</span>
+<span class="sd">        Polar axes to draw on.</span>
+<span class="sd">    east : np.ndarray</span>
+<span class="sd">        East velocity component (m s⁻¹).</span>
+<span class="sd">    north : np.ndarray</span>
+<span class="sd">        North velocity component (m s⁻¹).</span>
+<span class="sd">    title : str, optional</span>
+<span class="sd">        Axes title string.</span>
+<span class="sd">    n_dir : int, optional</span>
+<span class="sd">        Number of directional bins (default 16).</span>
+<span class="sd">    cmap : str, optional</span>
+<span class="sd">        Matplotlib colormap name for speed shading (default ``"Blues"``).</span>
+<span class="sd">    max_speed : float, optional</span>
+<span class="sd">        Upper speed limit.  If ``None``, the 99th percentile of the data is used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple or None</span>
+<span class="sd">        ``(spd_edges, colors)`` — 1-D arrays needed to build a shared colorbar —</span>
+<span class="sd">        or ``None`` if fewer than 2 finite values are present (panel is hidden).</span>
+
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+    <span class="n">speed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">east</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">north</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">direction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">east</span><span class="p">,</span> <span class="n">north</span><span class="p">))</span> <span class="o">%</span> <span class="mi">360</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">speed</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">direction</span><span class="p">)</span>
+    <span class="n">speed</span><span class="p">,</span> <span class="n">direction</span> <span class="o">=</span> <span class="n">speed</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span> <span class="n">direction</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">speed</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">dir_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">360</span><span class="p">,</span> <span class="n">n_dir</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">dir_centers</span> <span class="o">=</span> <span class="p">(</span><span class="n">dir_edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">dir_edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">dir_centers</span><span class="p">)</span>
+    <span class="n">bar_width</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">n_dir</span> <span class="o">*</span> <span class="mf">0.9</span>
+
+    <span class="k">if</span> <span class="n">max_speed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">max_speed</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">speed</span><span class="p">,</span> <span class="mi">99</span><span class="p">)),</span> <span class="mf">1e-9</span><span class="p">)</span>
+    <span class="n">n_spd</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">spd_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_speed</span><span class="p">,</span> <span class="n">n_spd</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="p">,</span> <span class="n">cmap</span><span class="p">)(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">n_spd</span><span class="p">))</span>
+
+    <span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">speed</span><span class="p">)</span>
+    <span class="n">freqs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_dir</span><span class="p">,</span> <span class="n">n_spd</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">d0</span><span class="p">,</span> <span class="n">d1</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">dir_edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dir_edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)):</span>
+        <span class="n">in_dir</span> <span class="o">=</span> <span class="p">(</span><span class="n">direction</span> <span class="o">&gt;=</span> <span class="n">d0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">direction</span> <span class="o">&lt;</span> <span class="n">d1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_spd</span><span class="p">):</span>
+            <span class="n">in_spd</span> <span class="o">=</span> <span class="p">(</span><span class="n">speed</span> <span class="o">&gt;=</span> <span class="n">spd_edges</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">speed</span> <span class="o">&lt;</span> <span class="n">spd_edges</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="n">freqs</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">in_dir</span> <span class="o">&amp;</span> <span class="n">in_spd</span><span class="p">)</span> <span class="o">/</span> <span class="n">total</span>
+
+    <span class="n">bottom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_dir</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_spd</span><span class="p">):</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span>
+            <span class="n">theta</span><span class="p">,</span>
+            <span class="n">freqs</span><span class="p">[:,</span> <span class="n">j</span><span class="p">],</span>
+            <span class="n">width</span><span class="o">=</span><span class="n">bar_width</span><span class="p">,</span>
+            <span class="n">bottom</span><span class="o">=</span><span class="n">bottom</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">j</span><span class="p">],</span>
+            <span class="n">align</span><span class="o">=</span><span class="s2">"center"</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+            <span class="n">edgecolor</span><span class="o">=</span><span class="s2">"white"</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">bottom</span> <span class="o">+=</span> <span class="n">freqs</span><span class="p">[:,</span> <span class="n">j</span><span class="p">]</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_theta_zero_location</span><span class="p">(</span><span class="s2">"N"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_theta_direction</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">270</span><span class="p">]))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="s2">"N"</span><span class="p">,</span> <span class="s2">"E"</span><span class="p">,</span> <span class="s2">"S"</span><span class="p">,</span> <span class="s2">"W"</span><span class="p">])</span>
+    <span class="c1"># Tuck the N/E/S/W labels closer to the frame (about half the default ~3.5 pad)</span>
+    <span class="c1"># so panels can sit nearer each other without "W" crowding the next axis.</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">"x"</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">1.75</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_rticks</span><span class="p">([])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">spd_edges</span><span class="p">,</span> <span class="n">colors</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

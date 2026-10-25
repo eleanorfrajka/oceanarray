@@ -1,0 +1,317 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clock Offset Analysis &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=20758594" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8b92e751"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Trim to deployment period (Stage 2)" href="methods/trimming.html" />
+    <link rel="prev" title="1. Standardisation (Internally-consistent format)" href="methods/standardisation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            oceanarray
+              <img src="_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">2. Clock Offset Analysis (optional)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#methods">Methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#deployment-period-detection">Deployment Period Detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lag-correlation-analysis">Lag Correlation Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#core-functions">Core Functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#workflow-functions">Workflow Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#output-and-application">Output and Application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Clock Offset Analysis</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/clock_offset.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="clock-offset-analysis">
+<h1>Clock Offset Analysis<a class="headerlink" href="#clock-offset-analysis" title="Link to this heading"></a></h1>
+<p>Clock offset analysis is a critical intermediate step in oceanographic data processing that occurs between Stage 1 (standardization) and Stage 2 (trimming to deployment) of the processing pipeline. This analysis identifies and corrects timing errors in instrument clocks to ensure accurate temporal alignment of data from multiple instruments on the same mooring.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>Oceanographic instruments deployed on moorings may have clock offsets due to incorrect setup, clock drift, or other timing issues. Since scientific analysis often requires precise temporal correlation between instruments at different depths, these timing errors must be identified and corrected.</p>
+<p>The clock offset analysis provides two complementary methods to detect timing discrepancies:</p>
+<ol class="arabic simple">
+<li><p><strong>Deployment Period Detection</strong>: Uses temperature profiles to identify when instruments were actually deployed on the seafloor</p></li>
+<li><p><strong>Lag Correlation Analysis</strong>: Compares temperature time series between instruments to detect systematic timing offsets</p></li>
+</ol>
+</section>
+<section id="methods">
+<h2>Methods<a class="headerlink" href="#methods" title="Link to this heading"></a></h2>
+<section id="deployment-period-detection">
+<h3>Deployment Period Detection<a class="headerlink" href="#deployment-period-detection" title="Link to this heading"></a></h3>
+<p>This method uses the characteristic temperature signature that occurs when instruments transition from surface conditions to deep-water conditions during deployment:</p>
+<ul class="simple">
+<li><p><strong>Temperature Threshold</strong>: Identifies “cold” water temperatures using statistical analysis (typically mean ± 3 standard deviations of deep values)</p></li>
+<li><p><strong>Start/End Times</strong>: Determines when each instrument first and last recorded temperatures within the cold water range</p></li>
+<li><p><strong>Consensus Analysis</strong>: Groups instruments with similar deployment timing to establish reference times</p></li>
+<li><p><strong>Offset Calculation</strong>: Computes timing differences relative to the consensus group</p></li>
+</ul>
+<p>This approach is effective for detecting large clock offsets (hours to days) and works well when instruments show clear temperature transitions during deployment and recovery.</p>
+</section>
+<section id="lag-correlation-analysis">
+<h3>Lag Correlation Analysis<a class="headerlink" href="#lag-correlation-analysis" title="Link to this heading"></a></h3>
+<p>This method performs cross-correlation analysis between temperature time series from different instruments:</p>
+<ul class="simple">
+<li><p><strong>Reference Selection</strong>: Uses one instrument as a temporal reference (typically the deepest or most reliable)</p></li>
+<li><p><strong>Subsampling</strong>: Reduces computational load by subsampling time series while maintaining correlation structure</p></li>
+<li><p><strong>Cross-Correlation</strong>: Computes lag correlations to find the temporal offset that maximizes correlation between instruments</p></li>
+<li><p><strong>Peak Detection</strong>: Identifies the lag corresponding to maximum correlation as the estimated clock offset</p></li>
+</ul>
+<p>This approach is sensitive to smaller timing errors (seconds to minutes) and works well when instruments record similar environmental variations.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<p>The analysis is implemented in the <code class="docutils literal notranslate"><span class="pre">oceanarray.clock_offset</span></code> module with the following key functions:</p>
+<section id="core-functions">
+<h3>Core Functions<a class="headerlink" href="#core-functions" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">load_mooring_instruments()</span></code>: Load instrument data and enrich with YAML metadata</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">analyze_deployment_timing()</span></code>: Perform temperature-based deployment period detection</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">calculate_timing_offsets()</span></code>: Calculate offsets using consensus grouping approach</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">perform_lag_correlation_analysis()</span></code>: Execute cross-correlation analysis</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">print_timing_offset_summary()</span></code>: Generate human-readable offset summary</p></li>
+</ul>
+</section>
+<section id="workflow-functions">
+<h3>Workflow Functions<a class="headerlink" href="#workflow-functions" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">create_common_time_grid()</span></code>: Generate interpolation grid for temporal alignment</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">interpolate_datasets_to_grid()</span></code>: Interpolate instrument data to common time base</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">combine_interpolated_datasets()</span></code>: Merge data into multi-level dataset structure</p></li>
+</ul>
+</section>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
+<p>The analysis is demonstrated in the <code class="docutils literal notranslate"><span class="pre">notebooks/legacy/demo_clock_offset.ipynb</span></code> notebook, which covers the following steps:</p>
+<ol class="arabic simple">
+<li><p><strong>Configuration</strong>: Specify mooring name and data paths</p></li>
+<li><p><strong>Data Loading</strong>: Load instrument datasets and YAML metadata</p></li>
+<li><p><strong>Preprocessing</strong>: Create common time grid and interpolate data</p></li>
+<li><p><strong>Deployment Analysis</strong>: Identify deployment periods using temperature profiles</p></li>
+<li><p><strong>Visualization</strong>: Plot temperature time series with deployment bounds</p></li>
+<li><p><strong>Offset Calculation</strong>: Compute timing offsets using both methods</p></li>
+<li><p><strong>Results Summary</strong>: Generate recommendations for YAML configuration</p></li>
+</ol>
+</section>
+<section id="output-and-application">
+<h2>Output and Application<a class="headerlink" href="#output-and-application" title="Link to this heading"></a></h2>
+<p>The analysis produces:</p>
+<ul class="simple">
+<li><p><strong>Offset Estimates</strong>: Recommended clock_offset values (in seconds) for each instrument</p></li>
+<li><p><strong>Quality Metrics</strong>: Correlation coefficients and confidence measures</p></li>
+<li><p><strong>Visualizations</strong>: Time series plots showing deployment periods and timing relationships</p></li>
+<li><p><strong>Summary Tables</strong>: Tabular results comparing both analysis methods</p></li>
+</ul>
+<p><strong>Important</strong>: The sign convention for YAML clock fields is: <strong>positive = instrument was slow (behind UTC), negative = instrument was fast (ahead of UTC)</strong>. The value is <em>added</em> to the raw instrument time. For example, if an instrument was 15 seconds behind UTC, set <code class="docutils literal notranslate"><span class="pre">clock_offset:</span> <span class="pre">15</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">clock_offset</span></code> and <code class="docutils literal notranslate"><span class="pre">clock_drift_seconds</span></code> describe the <strong>total correction</strong> at two points in time:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">clock_offset</span></code> — correction needed at the <strong>start</strong> of the deployment (instrument clock error when deployed).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">clock_drift_seconds</span></code> — correction needed at the <strong>end</strong> of the deployment (instrument clock error at recovery).</p></li>
+</ul>
+<p>Stage 2 applies a linear ramp between these two values, so every timestamp receives the
+appropriate interpolated correction.  All values are <strong>added</strong> to instrument time
+(positive = instrument was slow/behind UTC).</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Fields set</p></th>
+<th class="head"><p>Behaviour</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">clock_offset</span></code> only</p></td>
+<td><p>Uniform constant shift throughout the record.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">clock_drift_seconds</span></code> only</p></td>
+<td><p>Ramps from 0 at deployment to <code class="docutils literal notranslate"><span class="pre">clock_drift_seconds</span></code> at recovery.</p></td>
+</tr>
+<tr class="row-even"><td><p>Both</p></td>
+<td><p>Ramps from <code class="docutils literal notranslate"><span class="pre">clock_offset</span></code> at deployment to <code class="docutils literal notranslate"><span class="pre">clock_drift_seconds</span></code> at recovery.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example: clock was 5 s slow at deployment and 8 s slow at recovery.</span>
+<span class="c1"># Stage 2 applies +5 s at deployment time, +8 s at recovery, linearly in between.</span>
+<span class="nt">clock_offset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="nt">clock_drift_seconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
+
+<span class="c1"># Alternative — two timestamps read off at recovery (preferred; avoids sign errors).</span>
+<span class="c1"># Compact YYYYMMDDTHH:MM:SS, full ISO-8601 datetime, or time-only HH:MM:SS are all accepted.</span>
+<span class="nt">computer_clock_at_recovery</span><span class="p">:</span><span class="w">    </span><span class="s">'20260711T10:23:30'</span><span class="w">   </span><span class="c1"># or '2026-07-11T10:23:30' or '10:23:30'</span>
+<span class="nt">instrument_clock_at_recovery</span><span class="p">:</span><span class="w">  </span><span class="s">'20260711T10:23:22'</span>
+<span class="c1"># computer − instrument = +8 s → used as clock_drift_seconds (total correction at recovery)</span>
+<span class="c1"># clock_offset (if also set) remains the correction at deployment.</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The two-timestamp method measures <code class="docutils literal notranslate"><span class="pre">computer</span> <span class="pre">−</span> <span class="pre">instrument</span></code> at <strong>recovery only</strong>.
+If the clock was also set incorrectly at deployment, set <code class="docutils literal notranslate"><span class="pre">clock_offset</span></code> for that
+initial error and let the two timestamps capture the total at recovery.</p>
+</div>
+<p>After updating the YAML file with clock correction values, Stage 2 processing applies these corrections (before trimming) and writes <code class="docutils literal notranslate"><span class="pre">*_stage2.nc</span></code> files. The original, uncorrected time is preserved as <code class="docutils literal notranslate"><span class="pre">time_orig</span></code>, and the <code class="docutils literal notranslate"><span class="pre">history</span></code> attribute records what was applied. The clock offset analysis can then be re-run using the corrected data to verify that timing discrepancies have been resolved.</p>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Method Comparison</strong>: Always compare results from both deployment detection and lag correlation methods</p></li>
+<li><p><strong>Visual Inspection</strong>: Examine temperature time series plots to validate automated detection</p></li>
+<li><p><strong>Iterative Refinement</strong>: Re-run analysis after applying corrections to verify success</p></li>
+<li><p><strong>Documentation</strong>: Record analysis decisions and unusual findings in processing logs</p></li>
+<li><p><strong>Validation</strong>: Cross-check results with deployment/recovery logs when available</p></li>
+</ul>
+<p>The clock offset analysis ensures that subsequent processing stages work with temporally aligned data, which is essential for accurate calculation of transport estimates and other derived quantities that depend on precise temporal relationships between measurements at different depths.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="methods/standardisation.html" class="btn btn-neutral float-left" title="1. Standardisation (Internally-consistent format)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="methods/trimming.html" class="btn btn-neutral float-right" title="Trim to deployment period (Stage 2)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

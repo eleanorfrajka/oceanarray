@@ -1,0 +1,413 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nortek Aquadopp Coordinate Transformation &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Stack: Common Time Axis" href="time_gridding.html" />
+    <link rel="prev" title="Automatic QC flagging (Stage 3)" href="auto_qc.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">3. Coordinate Transform</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-beam-xyz-mathbf-t">Step 1 — BEAM → XYZ (<span class="math notranslate nohighlight">\(\mathbf{T}\)</span>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-xyz-enu-mathbf-r-mathbf-h-cdot-mathbf-p">Step 2 — XYZ → ENU (<span class="math notranslate nohighlight">\(\mathbf{R} = \mathbf{H} \cdot \mathbf{P}\)</span>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#heading-matrix-mathbf-h">Heading matrix <span class="math notranslate nohighlight">\(\mathbf{H}\)</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tilt-matrix-mathbf-p">Tilt matrix <span class="math notranslate nohighlight">\(\mathbf{P}\)</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#combined-rotation-mathbf-r">Combined rotation <span class="math notranslate nohighlight">\(\mathbf{R}\)</span></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tilt-qc">Tilt QC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#current-speed-and-direction">Current speed and direction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#implementation-reference">Implementation reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-reference">Configuration reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Nortek Aquadopp Coordinate Transformation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/methods/nortek_coordinate_transform.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="nortek-aquadopp-coordinate-transformation">
+<h1>Nortek Aquadopp Coordinate Transformation<a class="headerlink" href="#nortek-aquadopp-coordinate-transformation" title="Link to this heading"></a></h1>
+<p>Nortek Aquadopp current profilers measure velocity along three acoustic beams.
+The raw BEAM-frame data must be transformed to geographic East–North–Up (ENU)
+coordinates before any oceanographic analysis.  This page documents the full
+two-step transformation pipeline implemented in <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code>, the sign
+conventions used, and why the specific choices were made.</p>
+<p>The Nortek reference implementation used here is the <a class="reference external" href="https://support.nortekgroup.com/hc/en-us/articles/26048113914652-How-do-I-transform-a-coordinate-system-manually">Nortek Support article
+on manual coordinate system transformation</a>,
+and the companion Python script at <code class="docutils literal notranslate"><span class="pre">docs/source/_static/code/3_beam_transformation.py</span></code>.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>The full transformation from BEAM to ENU proceeds in two steps:</p>
+<div class="math notranslate nohighlight">
+\[\text{BEAM} \xrightarrow{\mathbf{T}} \text{XYZ} \xrightarrow{\mathbf{R}} \text{ENU}\]</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\mathbf{T}\)</span> is the instrument-specific transformation matrix (BEAM→XYZ),
+stored in the instrument’s <code class="docutils literal notranslate"><span class="pre">.hdr</span></code> file.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{R} = \mathbf{H} \cdot \mathbf{P}\)</span> is the orientation matrix
+(XYZ→ENU), built from the compass heading, pitch, and roll recorded at each
+timestep, plus the local magnetic declination.</p></li>
+</ul>
+<p>In <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code>:</p>
+<ul class="simple">
+<li><p><strong>Stage 1</strong> applies <span class="math notranslate nohighlight">\(\mathbf{T}\)</span> and writes <code class="docutils literal notranslate"><span class="pre">velocity_x</span></code>,
+<code class="docutils literal notranslate"><span class="pre">velocity_y</span></code>, <code class="docutils literal notranslate"><span class="pre">velocity_z</span></code> alongside the retained beam velocities
+<code class="docutils literal notranslate"><span class="pre">velocity_beam1/2/3</span></code>.</p></li>
+<li><p><strong>Stage 3</strong> computes the magnetic declination via IGRF (<code class="docutils literal notranslate"><span class="pre">ppigrf</span></code>), builds
+<span class="math notranslate nohighlight">\(\mathbf{R}\)</span> at every timestep, and writes <code class="docutils literal notranslate"><span class="pre">east_velocity</span></code>,
+<code class="docutils literal notranslate"><span class="pre">north_velocity</span></code>, <code class="docutils literal notranslate"><span class="pre">up_velocity</span></code>.</p></li>
+</ul>
+</section>
+<section id="step-1-beam-xyz-mathbf-t">
+<h2>Step 1 — BEAM → XYZ (<span class="math notranslate nohighlight">\(\mathbf{T}\)</span>)<a class="headerlink" href="#step-1-beam-xyz-mathbf-t" title="Link to this heading"></a></h2>
+<p>The standard Nortek Aquadopp head has three beams arranged at 25° from
+vertical (65° from the horizontal plane).  The transformation matrix
+<span class="math notranslate nohighlight">\(\mathbf{T}\)</span> maps beam velocities <span class="math notranslate nohighlight">\((V_1, V_2, V_3)\)</span> to the
+instrument’s Cartesian XYZ frame:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{pmatrix} V_x \\ V_y \\ V_z \end{pmatrix}
+= \mathbf{T}
+\begin{pmatrix} V_1 \\ V_2 \\ V_3 \end{pmatrix}\end{split}\]</div>
+<p>For a standard Aquadopp head (integer-scaled form, divide by 4096):</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}\begin{split}\mathbf{T}_{\text{int}} =
+\begin{pmatrix}
+ 2896 &amp;  2896 &amp;    0 \\
+-2896 &amp;  2896 &amp;    0 \\
+-2896 &amp; -2896 &amp; 5792
+\end{pmatrix}\end{split}\\\mathbf{T} = \mathbf{T}_{\text{int}} / 4096\end{aligned}\end{align} \]</div>
+<p>This matrix is <strong>instrument-specific</strong>.  The values stored in the <code class="docutils literal notranslate"><span class="pre">.hdr</span></code> file
+should always be preferred over the generic formula above.</p>
+<p><strong>Pointing-down orientation</strong></p>
+<p>When the instrument is mounted pointing downward (status bit 0 = 1), rows 2 and 3
+(0-indexed: rows 1 and 2) of <span class="math notranslate nohighlight">\(\mathbf{T}\)</span> change sign before application:</p>
+<div class="math notranslate nohighlight">
+\[T[1, :] \leftarrow -T[1, :]
+\qquad
+T[2, :] \leftarrow -T[2, :]\]</div>
+<p>This is controlled via the <code class="docutils literal notranslate"><span class="pre">pointing_down:</span> <span class="pre">true</span></code> key in the mooring YAML.
+By default <code class="docutils literal notranslate"><span class="pre">pointing_down</span></code> is <code class="docutils literal notranslate"><span class="pre">false</span></code> (upward-looking).</p>
+<p><strong>Reading the T matrix from instrument files</strong></p>
+<p>Stage 1 parses <span class="math notranslate nohighlight">\(\mathbf{T}\)</span> from the instrument header:</p>
+<ul class="simple">
+<li><p><strong>Old format</strong> (<code class="docutils literal notranslate"><span class="pre">.hdr</span></code> text block labelled <code class="docutils literal notranslate"><span class="pre">&quot;Transformation</span> <span class="pre">matrix&quot;</span></code>) —
+handled by <code class="docutils literal notranslate"><span class="pre">_parse_nortek_T_matrix_hdr()</span></code>.</p></li>
+<li><p><strong>New format</strong> (<code class="docutils literal notranslate"><span class="pre">.hdr</span></code> or <code class="docutils literal notranslate"><span class="pre">String</span> <span class="pre">Data.csv</span></code> with
+<code class="docutils literal notranslate"><span class="pre">GETXFAVG,ROWS=3,COLS=3,M11=...,M33=...</span></code>) — handled by
+<code class="docutils literal notranslate"><span class="pre">_parse_nortek_T_matrix_csv()</span></code>.</p></li>
+</ul>
+<p>The nine elements are stored in the dataset’s global attributes as
+<code class="docutils literal notranslate"><span class="pre">nortek_T_M11</span></code> … <code class="docutils literal notranslate"><span class="pre">nortek_T_M33</span></code>, and XYZ velocities are written as
+<code class="docutils literal notranslate"><span class="pre">velocity_x</span></code>, <code class="docutils literal notranslate"><span class="pre">velocity_y</span></code>, <code class="docutils literal notranslate"><span class="pre">velocity_z</span></code>.  The original beam velocities
+(<code class="docutils literal notranslate"><span class="pre">velocity_beam1/2/3</span></code>) are retained for post-hoc verification.</p>
+<p>If the header cannot be parsed, Stage 1 leaves <code class="docutils literal notranslate"><span class="pre">nortek_coordinate_system</span></code>
+as <code class="docutils literal notranslate"><span class="pre">&quot;BEAM&quot;</span></code>.  Stage 3 will then skip the transformation entirely and log a
+warning asking you to re-run Stage 1 with the correct header file.
+There is no analytical fallback — an instrument-specific T matrix is required.</p>
+</section>
+<section id="step-2-xyz-enu-mathbf-r-mathbf-h-cdot-mathbf-p">
+<h2>Step 2 — XYZ → ENU (<span class="math notranslate nohighlight">\(\mathbf{R} = \mathbf{H} \cdot \mathbf{P}\)</span>)<a class="headerlink" href="#step-2-xyz-enu-mathbf-r-mathbf-h-cdot-mathbf-p" title="Link to this heading"></a></h2>
+<p>The orientation matrix <span class="math notranslate nohighlight">\(\mathbf{R}\)</span> converts instrument-frame XYZ
+velocities to geographic ENU coordinates.  It is the product of a heading
+matrix <span class="math notranslate nohighlight">\(\mathbf{H}\)</span> and a tilt matrix <span class="math notranslate nohighlight">\(\mathbf{P}\)</span>.</p>
+<p>This step is performed in Stage 3 because it requires the local magnetic
+declination, which depends on the deployment position and time.</p>
+<section id="heading-matrix-mathbf-h">
+<h3>Heading matrix <span class="math notranslate nohighlight">\(\mathbf{H}\)</span><a class="headerlink" href="#heading-matrix-mathbf-h" title="Link to this heading"></a></h3>
+<p>The Nortek convention defines <em>heading</em> as the compass bearing (clockwise from
+geographic North) of the instrument’s X-axis.  The heading matrix is:</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}\text{let } h = \text{heading} - 90° + \delta\\\begin{split}\mathbf{H} =
+\begin{pmatrix}
+ \cos h &amp;  \sin h &amp; 0 \\
+-\sin h &amp;  \cos h &amp; 0 \\
+ 0      &amp;  0      &amp; 1
+\end{pmatrix}\end{split}\end{aligned}\end{align} \]</div>
+<p>where <span class="math notranslate nohighlight">\(\delta\)</span> is the <strong>magnetic declination</strong> (positive East).  The
+<code class="docutils literal notranslate"><span class="pre">-90°</span></code> offset is an instrument-frame convention: at heading = 90° (X-axis
+pointing East) with no tilt, <span class="math notranslate nohighlight">\(h = 0°\)</span> and <span class="math notranslate nohighlight">\(\mathbf{H} = \mathbf{I}\)</span>,
+giving X → East, Y → North, Z → Up — the standard ENU alignment.</p>
+<p>Magnetic declination is computed at the deployment midpoint using the IGRF
+model (<code class="docutils literal notranslate"><span class="pre">ppigrf</span></code> package):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Be</span><span class="p">,</span> <span class="n">Bn</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">ppigrf</span><span class="o">.</span><span class="n">igrf</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">t_mid</span><span class="p">)</span>
+<span class="n">declination</span> <span class="o">=</span> <span class="n">degrees</span><span class="p">(</span><span class="n">arctan2</span><span class="p">(</span><span class="n">Be</span><span class="p">,</span> <span class="n">Bn</span><span class="p">))</span>   <span class="c1"># positive East</span>
+</pre></div>
+</div>
+</section>
+<section id="tilt-matrix-mathbf-p">
+<h3>Tilt matrix <span class="math notranslate nohighlight">\(\mathbf{P}\)</span><a class="headerlink" href="#tilt-matrix-mathbf-p" title="Link to this heading"></a></h3>
+<p>Pitch (<span class="math notranslate nohighlight">\(p\)</span>) and roll (<span class="math notranslate nohighlight">\(r\)</span>) are combined into a single tilt matrix:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{P} =
+\begin{pmatrix}
+ \cos p &amp; -\sin p \sin r &amp; -\cos r \sin p \\
+ 0      &amp;  \cos r        &amp; -\sin r        \\
+ \sin p &amp;  \sin r \cos p &amp;  \cos p \cos r
+\end{pmatrix}\end{split}\]</div>
+</section>
+<section id="combined-rotation-mathbf-r">
+<h3>Combined rotation <span class="math notranslate nohighlight">\(\mathbf{R}\)</span><a class="headerlink" href="#combined-rotation-mathbf-r" title="Link to this heading"></a></h3>
+<p>Expanding <span class="math notranslate nohighlight">\(\mathbf{R} = \mathbf{H} \cdot \mathbf{P}\)</span> with
+<span class="math notranslate nohighlight">\(c_h = \cos h,\; s_h = \sin h,\; c_p = \cos p,\; s_p = \sin p,\;
+c_r = \cos r,\; s_r = \sin r\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{pmatrix} E \\ N \\ U \end{pmatrix}
+= \mathbf{R}
+\begin{pmatrix} V_x \\ V_y \\ V_z \end{pmatrix}\end{split}\]</div>
+<p>where:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}E &amp;= c_h c_p V_x + (-c_h s_p s_r + s_h c_r) V_y + (-c_h s_p c_r - s_h s_r) V_z \\
+N &amp;= -s_h c_p V_x + ( s_h s_p s_r + c_h c_r) V_y + ( s_h s_p c_r - c_h s_r) V_z \\
+U &amp;= s_p V_x + s_r c_p V_y + c_p c_r V_z\end{split}\]</div>
+<p>Sanity check (heading = 90°, no tilt):
+<span class="math notranslate nohighlight">\(h = 0°\)</span>, so <span class="math notranslate nohighlight">\(c_h = 1,\; s_h = 0\)</span>, and
+<span class="math notranslate nohighlight">\(\mathbf{P} = \mathbf{I}\)</span>.  Then <span class="math notranslate nohighlight">\(E = V_x\)</span>,
+<span class="math notranslate nohighlight">\(N = V_y\)</span>, <span class="math notranslate nohighlight">\(U = V_z\)</span> — X → East, Y → North. ✓</p>
+<p>Sanity check (heading = 0°, no tilt):
+<span class="math notranslate nohighlight">\(h = -90°\)</span>, so <span class="math notranslate nohighlight">\(c_h = 0,\; s_h = -1\)</span>.  Then
+<span class="math notranslate nohighlight">\(E = -V_y\)</span>, <span class="math notranslate nohighlight">\(N = V_x\)</span>, <span class="math notranslate nohighlight">\(U = V_z\)</span> — X → North. ✓</p>
+</section>
+</section>
+<section id="tilt-qc">
+<h2>Tilt QC<a class="headerlink" href="#tilt-qc" title="Link to this heading"></a></h2>
+<p>Excessive instrument tilt degrades the velocity measurement.  The combined
+tilt angle is computed from pitch <span class="math notranslate nohighlight">\(p\)</span> and roll <span class="math notranslate nohighlight">\(r\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\theta_{\text{tilt}} = \arccos(\cos p \cdot \cos r)\]</div>
+<p>QARTOD flags are applied by Stage 3:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\theta_{\text{tilt}} &gt; 20°\)</span> → flag 3 (suspect)</p></li>
+<li><p><span class="math notranslate nohighlight">\(\theta_{\text{tilt}} &gt; 30°\)</span> → flag 4 (bad)</p></li>
+</ul>
+<p>The tilt variable is also written to the per-instrument report so the flagging
+threshold can be visually verified.</p>
+</section>
+<section id="current-speed-and-direction">
+<h2>Current speed and direction<a class="headerlink" href="#current-speed-and-direction" title="Link to this heading"></a></h2>
+<p>After the ENU transform, current speed and direction are derived from the
+horizontal components:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{speed} &amp;= \sqrt{E^2 + N^2} \\
+\text{direction} &amp;= \operatorname{atan2}(E, N) \bmod 360°\end{split}\]</div>
+<p>Direction follows oceanographic convention (the direction <em>toward</em> which the
+current flows, measured clockwise from North).</p>
+</section>
+<section id="implementation-reference">
+<h2>Implementation reference<a class="headerlink" href="#implementation-reference" title="Link to this heading"></a></h2>
+<p>The reference Python script from Nortek Support is reproduced at
+<code class="docutils literal notranslate"><span class="pre">docs/source/_static/code/3_beam_transformation.py</span></code>.  Key excerpts:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Heading adjustment: -90° because heading=90° aligns X with East</span>
+<span class="n">hdg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">heading</span> <span class="o">-</span> <span class="mi">90</span><span class="p">)</span>
+
+<span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+    <span class="p">[</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">hdg</span><span class="p">),</span>  <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">hdg</span><span class="p">),</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">hdg</span><span class="p">),</span>  <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">hdg</span><span class="p">),</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="p">[</span>           <span class="mi">0</span><span class="p">,</span>            <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="p">])</span>
+
+<span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+    <span class="p">[</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">pch</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">pch</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rll</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rll</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">pch</span><span class="p">)],</span>
+    <span class="p">[</span>           <span class="mi">0</span><span class="p">,</span>              <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rll</span><span class="p">),</span>             <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rll</span><span class="p">)],</span>
+    <span class="p">[</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">pch</span><span class="p">),</span>  <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rll</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">pch</span><span class="p">),</span>  <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">pch</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rll</span><span class="p">)]</span>
+<span class="p">])</span>
+
+<span class="n">R</span> <span class="o">=</span> <span class="n">H</span> <span class="o">@</span> <span class="n">P</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code> implementation in <code class="docutils literal notranslate"><span class="pre">pipeline.coordinate.xyz_to_enu()</span></code> expands this
+product analytically (vectorised over the time dimension) and adds the magnetic
+declination offset to the heading before computing <span class="math notranslate nohighlight">\(h\)</span>.</p>
+</section>
+<section id="configuration-reference">
+<h2>Configuration reference<a class="headerlink" href="#configuration-reference" title="Link to this heading"></a></h2>
+<p>Relevant YAML keys under each Nortek instrument entry:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 21.7%" />
+<col style="width: 13.0%" />
+<col style="width: 65.2%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pointing_down</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>Set to <code class="docutils literal notranslate"><span class="pre">true</span></code> if the head points downward.  Negates rows 1 and 2 of
+<span class="math notranslate nohighlight">\(\mathbf{T}\)</span> before the BEAM→XYZ transform.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">header</span></code></p></td>
+<td><p>—</p></td>
+<td><p>Path (relative to the instrument folder) of the <code class="docutils literal notranslate"><span class="pre">.hdr</span></code> file or
+<code class="docutils literal notranslate"><span class="pre">String</span> <span class="pre">Data.csv</span></code> from which the T matrix is extracted.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The magnetic declination is computed automatically from the mooring latitude,
+longitude, and deployment midpoint using the IGRF model; no manual entry is
+required.</p>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://support.nortekgroup.com/hc/en-us/articles/26048113914652-How-do-I-transform-a-coordinate-system-manually">Nortek Support: How do I transform a coordinate system manually?</a></p></li>
+<li><p><a class="reference internal" href="auto_qc.html"><span class="doc">Automatic QC flagging (Stage 3)</span></a> — QARTOD flags applied to velocity after tilt QC</p></li>
+<li><p><a class="reference internal" href="../oceanarray.html#oceanarray.pipeline.coordinate.xyz_to_enu" title="oceanarray.pipeline.coordinate.xyz_to_enu"><code class="xref py py-func docutils literal notranslate"><span class="pre">oceanarray.pipeline.coordinate.xyz_to_enu()</span></code></a> — vectorised ENU rotation</p></li>
+<li><p><a class="reference internal" href="../oceanarray.html#oceanarray.pipeline.coordinate.apply_beam_to_enu" title="oceanarray.pipeline.coordinate.apply_beam_to_enu"><code class="xref py py-func docutils literal notranslate"><span class="pre">oceanarray.pipeline.coordinate.apply_beam_to_enu()</span></code></a> — full BEAM/XYZ → ENU pipeline</p></li>
+<li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">oceanarray.pipeline.stage1._parse_nortek_T_matrix_hdr()</span></code> — header parsing</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="auto_qc.html" class="btn btn-neutral float-left" title="Automatic QC flagging (Stage 3)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="time_gridding.html" class="btn btn-neutral float-right" title="Stack: Common Time Axis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

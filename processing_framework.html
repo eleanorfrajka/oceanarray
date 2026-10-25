@@ -1,0 +1,377 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OceanArray processing framework &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=20758594" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8b92e751"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="HTML Reports" href="reports.html" />
+    <link rel="prev" title="Troubleshooting" href="troubleshooting.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            oceanarray
+              <img src="_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">OceanArray processing framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#instrument-level-processing">Instrument-level processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mooring-level-processing">Mooring-level processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#array-level-processing">Array-level processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#summary-table">Summary table</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">OceanArray processing framework</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/processing_framework.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="oceanarray-processing-framework">
+<h1>OceanArray processing framework<a class="headerlink" href="#oceanarray-processing-framework" title="Link to this heading"></a></h1>
+<p>This document describes the stages of processing for data from moored instruments.
+Processing is separated into instrument-level (single instrument, single deployment),
+mooring-level (multiple instruments at the same location), and array-level
+(multiple moorings).</p>
+<p><strong>Principles:</strong></p>
+<ul class="simple">
+<li><p><strong>Modular</strong>: Each stage has clearly defined inputs and outputs.</p></li>
+<li><p><strong>Cruise-ready</strong>: Designed for quick-look processing at sea, with enough structure
+to carry forward into scientific analysis.</p></li>
+<li><p><strong>Reproducible</strong>: Every transformation step is traceable, with logs, versioning,
+and metadata.</p></li>
+<li><p><strong>Incremental</strong>: Intermediate outputs are storable and reloadable for downstream
+processing.</p></li>
+</ul>
+<p>Output files use CF-NetCDF conventions with OceanSITES-style metadata where possible.
+Full OceanSITES compliance is a work in progress.</p>
+<hr class="docutils" />
+<section id="instrument-level-processing">
+<h2>Instrument-level processing<a class="headerlink" href="#instrument-level-processing" title="Link to this heading"></a></h2>
+<figure class="align-center" id="id1">
+<img alt="Instrument-level processing workflow" src="_images/instrument_processing_v6.png" />
+<figcaption>
+<p><span class="caption-text">Instrument-level processing workflow.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>The instrument-level processing carries out the following steps:</p>
+<ul>
+<li><p><strong>Stage 0:</strong> Download raw instrument files from the instrument (e.g. <code class="docutils literal notranslate"><span class="pre">.cnv</span></code>,
+<code class="docutils literal notranslate"><span class="pre">.asc</span></code>, <code class="docutils literal notranslate"><span class="pre">.rsk</span></code>, <code class="docutils literal notranslate"><span class="pre">.aqd</span></code>).  See <a class="reference internal" href="yaml_configuration.html"><span class="doc">YAML Configuration Reference</span></a> for the full list of
+supported file types and instrument types.</p></li>
+<li><p><strong>Stage 1:</strong> Convert raw files to CF-NetCDF (<code class="docutils literal notranslate"><span class="pre">_stage1.nc</span></code>).  Data are stored
+as-is — no trimming or QC.  Unit normalisation at this stage: pressure standardised
+to <code class="docutils literal notranslate"><span class="pre">dbar</span></code>; conductivity renamed where needed; temperature receives a
+<code class="docutils literal notranslate"><span class="pre">scale</span> <span class="pre">=</span> <span class="pre">&quot;ITS-90&quot;</span></code> attribute for SeaBird ASCII files.</p></li>
+<li><p><strong>Stage 2:</strong> Trim the record to the deployment period and apply clock corrections
+(<code class="docutils literal notranslate"><span class="pre">_stage2.nc</span></code>).</p></li>
+<li><p><strong>Stage 3:</strong> Applied in this order:</p>
+<ol class="arabic simple">
+<li><p>Optional caldip calibration correction <strong>(planned, not yet implemented)</strong> — when the
+mooring is configured with caldip casts, per-instrument temperature/conductivity/pressure
+offsets from post-cruise caldip dips are applied to the raw values <em>first</em>, before
+pressure interpolation, so every downstream step sees corrected data.  Omitted when no
+caldip input is given, leaving the output unchanged from today.  See the note below.</p></li>
+<li><p>Pressure interpolation for instruments without a native pressure sensor, using
+HAB and the pressure records of neighbouring instruments.</p></li>
+<li><p>Conductivity unit check — converts S/m → mS/cm where needed.</p></li>
+<li><p>Derivation of practical salinity via <code class="docutils literal notranslate"><span class="pre">gsw.SP_from_C(C,</span> <span class="pre">T,</span> <span class="pre">p)</span></code>.</p></li>
+<li><p>QARTOD gross-range and spike QC tests on temperature, conductivity, salinity,
+and pressure — applied <em>after</em> pressure interpolation so that interpolated
+pressures also receive QC flags.</p></li>
+<li><p>XYZ→ENU coordinate rotation for Aquadopps, using heading, pitch, roll, and
+magnetic declination correction.  (Stage 1 applies the prior BEAM→XYZ step
+using the instrument T matrix from the <code class="docutils literal notranslate"><span class="pre">.hdr</span></code> file.)</p></li>
+<li><p>Tilt QC for Aquadopps: velocity variables flagged suspect or bad when pitch/roll
+exceed configurable thresholds (default 20°/30°).  For RDI ADCPs with four
+beams, <code class="docutils literal notranslate"><span class="pre">error_velocity</span></code> is used for QC instead.</p></li>
+</ol>
+<p>Output: <code class="docutils literal notranslate"><span class="pre">_stage3.nc</span></code>.  Applied QC thresholds are stored as attributes on each
+<code class="docutils literal notranslate"><span class="pre">*_qc</span></code> variable so the exact configuration can be recovered from the file.</p>
+</li>
+<li><p><strong>Stage 4 (planned):</strong> Full export to OceanSITES format with rich metadata.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Stage 2 applies two corrections.  <strong>Clock offset</strong> corrects an instrument whose
+clock was set to the wrong time at deployment — provide the computer and instrument
+times at recovery and <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code> applies a linear correction.  <strong>Clock drift</strong>
+is a slow accumulation of error that can happen to any instrument regardless of
+how carefully the clock was set; it is corrected the same way.  Both are optional —
+if neither <code class="docutils literal notranslate"><span class="pre">computer_clock_at_recovery</span></code> nor <code class="docutils literal notranslate"><span class="pre">instrument_clock_at_recovery</span></code> are
+set in the YAML, no clock correction is applied.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The caldip calibration correction (Stage 3, step 1) is <strong>planned, not yet implemented</strong>.
+When built it will be <em>optional</em> and will only <em>apply</em> corrections — the corrections
+themselves are determined separately, from a calibration cast (pre- and post-deployment) or
+from laboratory calibrations, using the <a class="reference external" href="https://github.com/ocean-uhh/caldip">caldip</a>
+package.  With no caldip input the Stage 3 output is unchanged; there is a single
+<code class="docutils literal notranslate"><span class="pre">_stage3.nc</span></code>, calibrated when caldip is configured.</p>
+</div>
+<p><strong>Further details:</strong></p>
+<ul class="simple">
+<li><p><a class="reference internal" href="methods/acquisition.html"><span class="doc">Data Acquisition (Download in proprietary formats)</span></a> — downloading raw instrument files.</p></li>
+<li><p><a class="reference internal" href="methods/standardisation.html"><span class="doc">1. Standardisation (Internally-consistent format)</span></a> — converting raw files to CF-NetCDF.</p></li>
+<li><p><a class="reference internal" href="methods/trimming.html"><span class="doc">Trim to deployment period (Stage 2)</span></a> — trimming and clock corrections.</p></li>
+<li><p><a class="reference internal" href="methods/auto_qc.html"><span class="doc">Automatic QC flagging (Stage 3)</span></a> — QARTOD QC flags.</p></li>
+<li><p><a class="reference internal" href="methods/calibration.html"><span class="doc">Calibration — applying caldip corrections at the front of Stage 3</span></a> — applying calibration corrections.</p></li>
+<li><p><a class="reference internal" href="methods/conversion.html"><span class="doc">4. Conversion to OS format</span></a> — exporting to OceanSITES format.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="mooring-level-processing">
+<h2>Mooring-level processing<a class="headerlink" href="#mooring-level-processing" title="Link to this heading"></a></h2>
+<figure class="align-center" id="id2">
+<img alt="Mooring-level processing workflow" src="_images/mooring_processing_v4.png" />
+<figcaption>
+<p><span class="caption-text">Mooring-level processing workflow.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>After per-instrument processing (stages 0–3), multiple instruments on the same
+mooring are combined:</p>
+<ul class="simple">
+<li><p><strong>Stack</strong> (<code class="docutils literal notranslate"><span class="pre">process</span> <span class="pre">--stage</span> <span class="pre">stack</span></code>): Resample all instruments onto a common time axis
+(default 60 s) and stack into a single NetCDF file with an <code class="docutils literal notranslate"><span class="pre">N_LEVELS</span></code> dimension
+ordered deep-first (<code class="docutils literal notranslate"><span class="pre">{mooring}_stack.nc</span></code>).  Fast-sampling instruments (Δt ≤ 60 s)
+are subsampled by nearest-neighbour; slower instruments are linearly interpolated.</p></li>
+<li><p><strong>Grid</strong> (<code class="docutils literal notranslate"><span class="pre">process</span> <span class="pre">--stage</span> <span class="pre">grid</span></code>): Linearly interpolate the stacked file onto a regular
+pressure grid (<code class="docutils literal notranslate"><span class="pre">{mooring}_grid.nc</span></code>).  Values outside the instrument range at each
+time step are set to NaN.  QC flags are not consulted — data flagged suspect or bad
+in stage 3 are treated the same as good data unless already NaN.</p></li>
+<li><p><strong>Concatenation (planned):</strong> Join multiple deployments at the same location into a
+continuous time series.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The stack step may include optional low-pass filtering to remove tides before
+subsampling.  This is controlled by YAML parameters; see <a class="reference internal" href="yaml_configuration.html"><span class="doc">YAML Configuration Reference</span></a>.</p>
+</div>
+<div class="hint admonition">
+<p class="admonition-title">RAPID Analogy</p>
+<p>For RAPID, data are de-tided by a 2-day, 6th-order Butterworth low-pass filter and
+subsampled to 12-hour intervals.  Vertical gridding uses monthly climatological T/S
+profiles built from CTD and Argo data.  Concatenation in time is a simple
+<code class="docutils literal notranslate"><span class="pre">interp1.m</span></code> call onto a uniform 12-hourly axis.</p>
+</div>
+<p><strong>Further details:</strong></p>
+<ul class="simple">
+<li><p><a class="reference internal" href="methods/time_gridding.html"><span class="doc">Stack: Common Time Axis</span></a> — low-pass filtering and common time axis.</p></li>
+<li><p><a class="reference internal" href="methods/vertical_gridding.html"><span class="doc">Grid: Vertical Pressure Grid</span></a> — pressure-grid interpolation.</p></li>
+<li><p><a class="reference internal" href="methods/concatenation.html"><span class="doc">Concatenate Deployments</span></a> — joining multiple deployments.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="array-level-processing">
+<h2>Array-level processing<a class="headerlink" href="#array-level-processing" title="Link to this heading"></a></h2>
+<figure class="align-center" id="id3">
+<img alt="Array-level processing workflow" src="_images/array_processing_v2.png" />
+<figcaption>
+<p><span class="caption-text">Array-level processing workflow.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>For <strong>boundary profiles</strong>, this step starts from the mooring-level gridded files,
+stacks and sorts them vertically at each time step across multiple moorings, and
+re-interpolates onto a common pressure grid.  This reduces data gaps and ensures
+smooth transitions across deployments.</p>
+<div class="hint admonition">
+<p class="admonition-title">RAPID Analogy</p>
+<p>For RAPID, sites WB2, WBH2, and WB3 are merged: WB2 data from 0–3800 dbar, then
+WBH2 and WB3 for deeper levels.  The final output is a merged “West” boundary
+profile ready for transport calculations.</p>
+</div>
+<p><strong>Further details:</strong></p>
+<ul class="simple">
+<li><p><a class="reference internal" href="methods/multisite_merging.html"><span class="doc">Multi-site Merging</span></a> — merging multiple mooring sites into a single
+boundary profile.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="summary-table">
+<h2>Summary table<a class="headerlink" href="#summary-table" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Step</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>Acquisition</p></td>
+<td><p>Download raw instrument files</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>Standardisation</p></td>
+<td><p>Convert raw files to CF-NetCDF; faithfully preserve raw values</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>Trimming &amp; clock corrections</p></td>
+<td><p>Restrict to deployment period; apply clock offset/drift corrections</p></td>
+</tr>
+<tr class="row-odd"><td><p>3</p></td>
+<td><p>QC &amp; rotation</p></td>
+<td><p>Pressure interpolation; QARTOD QC flags; salinity; velocity rotation (optional caldip T/C/P correction at the front — planned)</p></td>
+</tr>
+<tr class="row-even"><td><p>4</p></td>
+<td><p>OceanSITES export (planned)</p></td>
+<td><p>Full export to OceanSITES format with rich metadata</p></td>
+</tr>
+<tr class="row-odd"><td><p>A</p></td>
+<td><p>Stack</p></td>
+<td><p>Resample all instruments onto a common time axis; stack with depth dimension</p></td>
+</tr>
+<tr class="row-even"><td><p>B</p></td>
+<td><p>Grid</p></td>
+<td><p>Interpolate onto a regular pressure grid</p></td>
+</tr>
+<tr class="row-odd"><td><p>C</p></td>
+<td><p>Concatenation (planned)</p></td>
+<td><p>Join deployments into continuous mooring records</p></td>
+</tr>
+<tr class="row-even"><td><p>D</p></td>
+<td><p>Boundary merging</p></td>
+<td><p>Merge multiple moorings into a single boundary profile</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="troubleshooting.html" class="btn btn-neutral float-left" title="Troubleshooting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="reports.html" class="btn btn-neutral float-right" title="HTML Reports" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

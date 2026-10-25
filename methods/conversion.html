@@ -1,0 +1,370 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4. Conversion to OS format &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Concatenate Deployments" href="concatenation.html" />
+    <link rel="prev" title="Project Style Guide" href="../style_guide.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Convert to OceanSITES (Stage 4)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#file-format">2. File Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#variables">3. Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#global-attributes">4. Global Attributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#validation-rules">5. Validation Rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage-example">6. Usage Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#notes">7. Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">4. Conversion to OS format</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/methods/conversion.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="conversion-to-os-format">
+<h1>4. Conversion to OS format<a class="headerlink" href="#conversion-to-os-format" title="Link to this heading"></a></h1>
+<p>This document outlines the standardised conversion step from raw or partially processed instrument data to the AC1 format. This format builds on the OceanSITES specification but provides additional structure and vocabulary enforcement to support AMOC array interoperability.</p>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#overview" id="id3">1. Overview</a></p></li>
+<li><p><a class="reference internal" href="#file-format" id="id4">2. File Format</a></p></li>
+<li><p><a class="reference internal" href="#variables" id="id5">3. Variables</a></p></li>
+<li><p><a class="reference internal" href="#global-attributes" id="id6">4. Global Attributes</a></p></li>
+<li><p><a class="reference internal" href="#validation-rules" id="id7">5. Validation Rules</a></p></li>
+<li><p><a class="reference internal" href="#usage-example" id="id8">6. Usage Example</a></p></li>
+<li><p><a class="reference internal" href="#notes" id="id9">7. Notes</a></p></li>
+</ul>
+</nav>
+<section id="overview">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">1. Overview</a><a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>The AC1 format is produced by the <code class="docutils literal notranslate"><span class="pre">amocarray.convert.to_AC1()</span></code> function and is designed to ensure consistency across RAPID, OSNAP, MOVE, and SAMBA arrays.</p>
+<p>It is based on OceanSITES NetCDF conventions (see <a class="reference external" href="https://www.ocean-ops.org/oceansites/docs/oceansites_data_format_reference_manual.pdf">OceanSITES reference manual</a>), with adaptations for AMOC-specific use.</p>
+<p>See also: <a class="reference internal" href="../oceanarray_format.html"><span class="doc">OceanArray Data Format Specification</span></a>.</p>
+</section>
+<section id="file-format">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">2. File Format</a><a class="headerlink" href="#file-format" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Format</strong>: NetCDF4</p></li>
+<li><p><strong>Structure</strong>: <cite>xarray.Dataset</cite></p></li>
+<li><p><strong>Dimensions</strong>: <cite>TIME</cite>, <cite>N_LEVELS</cite>, <cite>N_PROF</cite>, <cite>N_COMPONENT</cite> (optional)</p></li>
+<li><p><strong>Coordinates</strong>: <cite>TIME</cite>, optionally <cite>DEPTH</cite> or <cite>PRESSURE</cite>, <cite>LATITUDE</cite>, <cite>LONGITUDE</cite></p></li>
+<li><p><strong>Encoding</strong>: float32, compressed NetCDF, optionally chunked</p></li>
+</ul>
+<p>CF conventions recommend dimensions ordered as: <cite>T</cite>, <cite>Z</cite>, <cite>Y</cite>, <cite>X</cite>.</p>
+</section>
+<section id="variables">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">3. Variables</a><a class="headerlink" href="#variables" title="Link to this heading"></a></h2>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Required and Optional Variables</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 22.2%" />
+<col style="width: 27.8%" />
+<col style="width: 22.2%" />
+<col style="width: 22.2%" />
+<col style="width: 5.6%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Dimensions</p></th>
+<th class="head"><p>Units</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>RS</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>TIME</p></td>
+<td><p>(TIME,)</p></td>
+<td><p>seconds since 1970-01-01</p></td>
+<td><p>Timestamps in UTC</p></td>
+<td><p><strong>M</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>LONGITUDE</p></td>
+<td><p>scalar or (N_PROF,)</p></td>
+<td><p>degrees_east</p></td>
+<td><p>Mooring or array longitude</p></td>
+<td><p>S</p></td>
+</tr>
+<tr class="row-even"><td><p>LATITUDE</p></td>
+<td><p>scalar or (N_PROF,)</p></td>
+<td><p>degrees_north</p></td>
+<td><p>Mooring or array latitude</p></td>
+<td><p>S</p></td>
+</tr>
+<tr class="row-odd"><td><p>DEPTH or PRESSURE</p></td>
+<td><p>(N_LEVELS,)</p></td>
+<td><p>m</p></td>
+<td><p>Depth levels if applicable</p></td>
+<td><p>S</p></td>
+</tr>
+<tr class="row-even"><td><p>TEMPERATURE</p></td>
+<td><p>(TIME, …)</p></td>
+<td><p>degree_Celsius</p></td>
+<td><p>In situ or potential temperature</p></td>
+<td><p>S</p></td>
+</tr>
+<tr class="row-odd"><td><p>SALINITY</p></td>
+<td><p>(TIME, …)</p></td>
+<td><p>psu</p></td>
+<td><p>Practical or absolute salinity</p></td>
+<td><p>S</p></td>
+</tr>
+<tr class="row-even"><td><p>TRANSPORT</p></td>
+<td><p>(TIME,)</p></td>
+<td><p>Sv</p></td>
+<td><p>Overturning transport estimate</p></td>
+<td><p>S</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="global-attributes">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">4. Global Attributes</a><a class="headerlink" href="#global-attributes" title="Link to this heading"></a></h2>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Required Global Attributes</span><a class="headerlink" href="#id2" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 28.6%" />
+<col style="width: 28.6%" />
+<col style="width: 35.7%" />
+<col style="width: 7.1%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Attribute</p></th>
+<th class="head"><p>Example</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>RS</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>title</p></td>
+<td><p>“RAPID-MOCHA Transport Time Series”</p></td>
+<td><p>Descriptive dataset title</p></td>
+<td><p><strong>M</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>platform</p></td>
+<td><p>“moorings”</p></td>
+<td><p>Platform type</p></td>
+<td><p><strong>M</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>featureType</p></td>
+<td><p>“timeSeries”</p></td>
+<td><p>NetCDF featureType</p></td>
+<td><p><strong>M</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>id</p></td>
+<td><p>“RAPID_20231231_&lt;orig&gt;.nc”</p></td>
+<td><p>File identifier</p></td>
+<td><p><strong>M</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>contributor_name</p></td>
+<td><p>“Dr. Jane Doe”</p></td>
+<td><p>Dataset PI</p></td>
+<td><p><strong>M</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>contributor_email</p></td>
+<td><p>“<a class="reference external" href="mailto:jane&#46;doe&#37;&#52;&#48;example&#46;org">jane<span>&#46;</span>doe<span>&#64;</span>example<span>&#46;</span>org</a>”</p></td>
+<td><p>Contact email</p></td>
+<td><p><strong>M</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>contributor_role</p></td>
+<td><p>“principalInvestigator”</p></td>
+<td><p>Controlled vocab role</p></td>
+<td><p><strong>M</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>contributing_institutions</p></td>
+<td><p>“University of Hamburg”</p></td>
+<td><p>Data owners</p></td>
+<td><p><strong>M</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>source_doi</p></td>
+<td><p>“<a class="reference external" href="https://doi.org/">https://doi.org/</a>…”</p></td>
+<td><p>Original data DOI</p></td>
+<td><p><strong>M</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>amocarray_version</p></td>
+<td><p>“0.2.1”</p></td>
+<td><p>Software version</p></td>
+<td><p><strong>M</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>date_created</p></td>
+<td><p>“20240419T130000”</p></td>
+<td><p>UTC file creation timestamp</p></td>
+<td><p><strong>M</strong></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="validation-rules">
+<h2><a class="toc-backref" href="#id7" role="doc-backlink">5. Validation Rules</a><a class="headerlink" href="#validation-rules" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Must include TIME.</p></li>
+<li><p>Must include one scientific variable (e.g. TEMP, SAL).</p></li>
+<li><p>Must define global attributes listed above.</p></li>
+<li><p>File should pass CF-checks where applicable.</p></li>
+</ul>
+</section>
+<section id="usage-example">
+<h2><a class="toc-backref" href="#id8" role="doc-backlink">6. Usage Example</a><a class="headerlink" href="#usage-example" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">amocarray.convert</span><span class="w"> </span><span class="kn">import</span> <span class="n">to_AC1</span>
+<span class="n">ds_ac1</span> <span class="o">=</span> <span class="n">to_AC1</span><span class="p">(</span><span class="n">ds_std</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This function:</p>
+<ul class="simple">
+<li><p>Validates inputs</p></li>
+<li><p>Applies variable attributes</p></li>
+<li><p>Adds global metadata</p></li>
+<li><p>Returns CF-compliant AC1 dataset</p></li>
+</ul>
+</section>
+<section id="notes">
+<h2><a class="toc-backref" href="#id9" role="doc-backlink">7. Notes</a><a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
+<p>This format is extensible and version-controlled. All AC1 files should include provenance fields like <cite>source</cite>, <cite>source_doi</cite>, <cite>source_acknowledgement</cite>, <cite>amocarray_version</cite>, and <cite>history</cite>.</p>
+<p>For full definitions and examples, see the <cite>format_AC1.rst</cite> file.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../style_guide.html" class="btn btn-neutral float-left" title="Project Style Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="concatenation.html" class="btn btn-neutral float-right" title="Concatenate Deployments" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

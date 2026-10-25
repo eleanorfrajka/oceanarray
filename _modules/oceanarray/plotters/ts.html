@@ -1,0 +1,787 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.plotters.ts &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.plotters.ts</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.plotters.ts</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""T-S diagram and thermohaline structure plot functions."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.reports._vendored</span><span class="w"> </span><span class="kn">import</span> <span class="n">design_tokens</span> <span class="k">as</span> <span class="n">report_tokens</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameters</span> <span class="k">as</span> <span class="n">params</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">nice_colorbar_ticks</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">QC_MARKER</span> <span class="k">as</span> <span class="n">_QC_MARKER</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.primitives</span><span class="w"> </span><span class="kn">import</span> <span class="n">colorbar_norm</span><span class="p">,</span> <span class="n">plot_title</span><span class="p">,</span> <span class="n">square_axes_grid</span><span class="p">,</span> <span class="n">unit_colorbar</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_sigma0_contours</span><span class="p">(</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">,</span> <span class="n">S_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">T_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n_grid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Overlay sigma-0 contour lines on a T-S axes."""</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">gsw</span>
+
+        <span class="n">s_min</span><span class="p">,</span> <span class="n">s_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">S_data</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">S_data</span><span class="p">)</span>
+        <span class="n">t_min</span><span class="p">,</span> <span class="n">t_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">T_data</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">T_data</span><span class="p">)</span>
+        <span class="n">s_pad</span> <span class="o">=</span> <span class="nb">max</span><span class="p">((</span><span class="n">s_max</span> <span class="o">-</span> <span class="n">s_min</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">)</span>
+        <span class="n">t_pad</span> <span class="o">=</span> <span class="nb">max</span><span class="p">((</span><span class="n">t_max</span> <span class="o">-</span> <span class="n">t_min</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">)</span>
+        <span class="n">s_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">s_min</span> <span class="o">-</span> <span class="n">s_pad</span><span class="p">,</span> <span class="n">s_max</span> <span class="o">+</span> <span class="n">s_pad</span><span class="p">,</span> <span class="n">n_grid</span><span class="p">)</span>
+        <span class="n">t_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">t_min</span> <span class="o">-</span> <span class="n">t_pad</span><span class="p">,</span> <span class="n">t_max</span> <span class="o">+</span> <span class="n">t_pad</span><span class="p">,</span> <span class="n">n_grid</span><span class="p">)</span>
+        <span class="n">Sg</span><span class="p">,</span> <span class="n">Tg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">s_c</span><span class="p">,</span> <span class="n">t_c</span><span class="p">)</span>
+        <span class="n">SA</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">SA_from_SP</span><span class="p">(</span><span class="n">Sg</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">CT</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">CT_from_t</span><span class="p">(</span><span class="n">SA</span><span class="p">,</span> <span class="n">Tg</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">sigma0</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">sigma0</span><span class="p">(</span><span class="n">SA</span><span class="p">,</span> <span class="n">CT</span><span class="p">)</span>
+        <span class="n">cs</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span>
+            <span class="n">Sg</span><span class="p">,</span>
+            <span class="n">Tg</span><span class="p">,</span>
+            <span class="n">sigma0</span><span class="p">,</span>
+            <span class="n">levels</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+            <span class="n">colors</span><span class="o">=</span><span class="s2">"0.35"</span><span class="p">,</span>
+            <span class="n">linewidths</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
+            <span class="n">linestyles</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span>
+            <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">clabel</span><span class="p">(</span><span class="n">cs</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">"</span><span class="si">%.1f</span><span class="s2">"</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">report_tokens</span><span class="o">.</span><span class="n">CLABEL_FS</span><span class="p">,</span> <span class="n">inline</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_ts_heatmap_panel</span><span class="p">(</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">,</span>
+    <span class="n">fig</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span>
+    <span class="n">S</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">T</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">n_bins</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">80</span><span class="p">,</span>
+    <span class="n">plo</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+    <span class="n">phi</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">99.99</span><span class="p">,</span>
+    <span class="n">s_lim</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">t_lim</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">cax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Render a T-S 2-D count heatmap on *ax*.</span>
+
+<span class="sd">    When *s_lim* / *t_lim* are given they set the bin range and axis limits so the</span>
+<span class="sd">    heatmap shares the dot-plot's axes exactly; otherwise a percentile range is</span>
+<span class="sd">    used.  The colorbar uses ~6 nice ticks.  When *cax* is given (a height-matched</span>
+<span class="sd">    colorbar axes from :func:`square_axes_grid`) the colorbar is drawn there via</span>
+<span class="sd">    :func:`unit_colorbar`; otherwise a normal colorbar is added and the box is</span>
+<span class="sd">    squared with ``set_box_aspect``.</span>
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">nice_colorbar_ticks</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.primitives</span><span class="w"> </span><span class="kn">import</span> <span class="n">unit_colorbar</span>
+
+    <span class="n">s_lo</span><span class="p">,</span> <span class="n">s_hi</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">s_lim</span>
+        <span class="k">if</span> <span class="n">s_lim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">else</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">plo</span><span class="p">)),</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">phi</span><span class="p">)))</span>
+    <span class="p">)</span>
+    <span class="n">t_lo</span><span class="p">,</span> <span class="n">t_hi</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">t_lim</span>
+        <span class="k">if</span> <span class="n">t_lim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">else</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">plo</span><span class="p">)),</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">phi</span><span class="p">)))</span>
+    <span class="p">)</span>
+    <span class="n">s_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">s_lo</span><span class="p">,</span> <span class="n">s_hi</span><span class="p">,</span> <span class="n">n_bins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">t_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">t_lo</span><span class="p">,</span> <span class="n">t_hi</span><span class="p">,</span> <span class="n">n_bins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">counts</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram2d</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="p">[</span><span class="n">s_edges</span><span class="p">,</span> <span class="n">t_edges</span><span class="p">])</span>
+    <span class="n">log_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">counts</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">log_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_where</span><span class="p">(</span><span class="n">counts</span><span class="o">.</span><span class="n">T</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">log_counts</span><span class="p">)</span>
+
+    <span class="n">vmin</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">log_counts</span><span class="p">))</span>
+    <span class="n">vmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">log_counts</span><span class="p">))</span>
+    <span class="n">bounds</span><span class="p">,</span> <span class="n">norm</span> <span class="o">=</span> <span class="n">colorbar_norm</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">)</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">YlOrRd</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">cmap</span><span class="o">.</span><span class="n">set_bad</span><span class="p">(</span><span class="s2">"white"</span><span class="p">)</span>
+    <span class="n">pc</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span>
+        <span class="n">s_edges</span><span class="p">,</span> <span class="n">t_edges</span><span class="p">,</span> <span class="n">log_counts</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">shading</span><span class="o">=</span><span class="s2">"flat"</span>
+    <span class="p">)</span>
+    <span class="n">_ticks</span> <span class="o">=</span> <span class="n">nice_colorbar_ticks</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="k">if</span> <span class="n">cax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">unit_colorbar</span><span class="p">(</span><span class="n">cax</span><span class="p">,</span> <span class="n">pc</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="sa">r</span><span class="s2">"$\log_</span><span class="si">{10}</span><span class="s2">$(count)"</span><span class="p">,</span> <span class="n">ticks</span><span class="o">=</span><span class="n">_ticks</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">cb</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">pc</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">ticks</span><span class="o">=</span><span class="n">_ticks</span><span class="p">)</span>
+        <span class="n">cb</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s2">"$\log_</span><span class="si">{10}</span><span class="s2">$(count)"</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">report_tokens</span><span class="o">.</span><span class="n">ANNOT_FS</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_box_aspect</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">_add_sigma0_contours</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">s_lo</span><span class="p">,</span> <span class="n">s_hi</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">t_lo</span><span class="p">,</span> <span class="n">t_hi</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">vlabel</span><span class="p">(</span><span class="s2">"salinity"</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">vlabel</span><span class="p">(</span><span class="s2">"temperature"</span><span class="p">))</span>
+    <span class="n">plot_title</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"T-S heat map"</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="draw_ts_diagram">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.ts.draw_ts_diagram">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">draw_ts_diagram</span><span class="p">(</span>
+    <span class="n">nc_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">width_in</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">report_tokens</span><span class="o">.</span><span class="n">W_FULL</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""T-S diagram from a NetCDF path; return a Figure.</span>
+
+<span class="sd">    Scatter by pressure, 2-D count heatmap, and (when present) scatter by O2 saturation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    nc_path : Path</span>
+<span class="sd">        Path to a stage-3 NetCDF file.</span>
+<span class="sd">    width_in : float, optional</span>
+<span class="sd">        Figure width in inches -- the display-slot width the report builder</span>
+<span class="sd">        resolves; standalone callers get the full content width.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    plt.Figure or None</span>
+<span class="sd">        Figure, or None if temperature or salinity are absent.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+    <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">nc_path</span><span class="p">,</span> <span class="n">decode_timedelta</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="s2">"temperature"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span> <span class="ow">or</span> <span class="s2">"salinity"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">T</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"temperature"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">S</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"salinity"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">finite</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">S</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">finite</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="s2">"pressure"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+            <span class="n">C</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">_cbar_unit</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">vunit</span><span class="p">(</span><span class="s2">"pressure"</span><span class="p">)</span>
+            <span class="n">cmap_sc</span> <span class="o">=</span> <span class="s2">"viridis_r"</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">T</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">_cbar_unit</span> <span class="o">=</span> <span class="s2">""</span>  <span class="c1"># sample index — no unit</span>
+            <span class="n">cmap_sc</span> <span class="o">=</span> <span class="s2">"plasma"</span>
+
+        <span class="n">t_flags</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">ds</span><span class="p">[</span><span class="s2">"temperature_qc"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">"temperature_qc"</span> <span class="ow">in</span> <span class="n">ds</span>
+            <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">T</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">s_flags</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">ds</span><span class="p">[</span><span class="s2">"salinity_qc"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">"salinity_qc"</span> <span class="ow">in</span> <span class="n">ds</span>
+            <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">T</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">combined_flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">t_flags</span><span class="p">,</span> <span class="n">s_flags</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="mi">4</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">t_flags</span><span class="p">,</span> <span class="n">s_flags</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">good_mask</span> <span class="o">=</span> <span class="n">finite</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">combined_flags</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">suspect_mask</span> <span class="o">=</span> <span class="n">finite</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">combined_flags</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">bad_mask</span> <span class="o">=</span> <span class="n">finite</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">combined_flags</span> <span class="o">==</span> <span class="mi">4</span><span class="p">)</span>
+
+        <span class="n">has_sat</span> <span class="o">=</span> <span class="s2">"oxygen_saturation_pct"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span>
+        <span class="n">sat_data</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"oxygen_saturation_pct"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="k">if</span> <span class="n">has_sat</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="n">ncols</span> <span class="o">=</span> <span class="mi">3</span> <span class="k">if</span> <span class="n">has_sat</span> <span class="k">else</span> <span class="mi">2</span>
+    <span class="c1"># Square panels with per-panel height-matched colorbars (shared deterministic</span>
+    <span class="c1"># layout — same path as the hodographs/trajectories).</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">_ax</span><span class="p">,</span> <span class="n">_cax</span> <span class="o">=</span> <span class="n">square_axes_grid</span><span class="p">(</span><span class="n">width_in</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="p">,</span> <span class="n">per_panel_colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">ax_l</span><span class="p">,</span> <span class="n">ax_r</span> <span class="o">=</span> <span class="n">_ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">_ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">ax_sat</span> <span class="o">=</span> <span class="n">_ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="n">has_sat</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="c1"># Panel 1: T-S scatter coloured by pressure</span>
+    <span class="n">vmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">C</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="n">vmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">C</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span> <span class="mi">95</span><span class="p">)</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">ax_l</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+        <span class="n">S</span><span class="p">[</span><span class="n">good_mask</span><span class="p">],</span>
+        <span class="n">T</span><span class="p">[</span><span class="n">good_mask</span><span class="p">],</span>
+        <span class="n">c</span><span class="o">=</span><span class="n">C</span><span class="p">[</span><span class="n">good_mask</span><span class="p">],</span>
+        <span class="n">cmap</span><span class="o">=</span><span class="n">cmap_sc</span><span class="p">,</span>
+        <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
+        <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
+        <span class="n">s</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">linewidths</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
+        <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">rasterized</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">unit_colorbar</span><span class="p">(</span>
+        <span class="n">_cax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="n">sc</span><span class="p">,</span>
+        <span class="n">unit</span><span class="o">=</span><span class="n">_cbar_unit</span><span class="p">,</span>
+        <span class="n">ticks</span><span class="o">=</span><span class="n">nice_colorbar_ticks</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">vmin</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">vmax</span><span class="p">)),</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">suspect_mask</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">ax_l</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+            <span class="n">S</span><span class="p">[</span><span class="n">suspect_mask</span><span class="p">],</span>
+            <span class="n">T</span><span class="p">[</span><span class="n">suspect_mask</span><span class="p">],</span>
+            <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">"suspect (</span><span class="si">{</span><span class="n">suspect_mask</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="s2">)"</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">_QC_MARKER</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">bad_mask</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">ax_l</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+            <span class="n">S</span><span class="p">[</span><span class="n">bad_mask</span><span class="p">],</span>
+            <span class="n">T</span><span class="p">[</span><span class="n">bad_mask</span><span class="p">],</span>
+            <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">"bad (</span><span class="si">{</span><span class="n">bad_mask</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="s2">)"</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">_QC_MARKER</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">suspect_mask</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="ow">or</span> <span class="n">bad_mask</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">ax_l</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">"best"</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+    <span class="n">_add_sigma0_contours</span><span class="p">(</span><span class="n">ax_l</span><span class="p">,</span> <span class="n">S</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span> <span class="n">T</span><span class="p">[</span><span class="n">finite</span><span class="p">])</span>
+    <span class="n">ax_l</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">vlabel</span><span class="p">(</span><span class="s2">"salinity"</span><span class="p">))</span>
+    <span class="n">ax_l</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">vlabel</span><span class="p">(</span><span class="s2">"temperature"</span><span class="p">))</span>
+    <span class="n">plot_title</span><span class="p">(</span><span class="n">ax_l</span><span class="p">,</span> <span class="s2">"T-S (colour = pressure)"</span><span class="p">)</span>
+
+    <span class="c1"># Shared T-S axis limits (the dot plot's data range) so the heatmap and O₂</span>
+    <span class="c1"># panels use identical axes; square every panel box.</span>
+    <span class="n">_sf</span><span class="p">,</span> <span class="n">_tf</span> <span class="o">=</span> <span class="n">S</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span> <span class="n">T</span><span class="p">[</span><span class="n">finite</span><span class="p">]</span>
+    <span class="n">_sp</span> <span class="o">=</span> <span class="mf">0.02</span> <span class="o">*</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">_sf</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">_sf</span><span class="p">))</span> <span class="o">+</span> <span class="mf">1e-9</span><span class="p">)</span>
+    <span class="n">_tp</span> <span class="o">=</span> <span class="mf">0.02</span> <span class="o">*</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">_tf</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">_tf</span><span class="p">))</span> <span class="o">+</span> <span class="mf">1e-9</span><span class="p">)</span>
+    <span class="n">_s_lim</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">_sf</span><span class="p">))</span> <span class="o">-</span> <span class="n">_sp</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">_sf</span><span class="p">))</span> <span class="o">+</span> <span class="n">_sp</span><span class="p">)</span>
+    <span class="n">_t_lim</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">_tf</span><span class="p">))</span> <span class="o">-</span> <span class="n">_tp</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">_tf</span><span class="p">))</span> <span class="o">+</span> <span class="n">_tp</span><span class="p">)</span>
+    <span class="n">ax_l</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">*</span><span class="n">_s_lim</span><span class="p">)</span>
+    <span class="n">ax_l</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">*</span><span class="n">_t_lim</span><span class="p">)</span>
+
+    <span class="c1"># Panel 2: count heatmap (shares the dot plot's limits + matched colorbar)</span>
+    <span class="n">_ts_heatmap_panel</span><span class="p">(</span>
+        <span class="n">ax_r</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="n">S</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span> <span class="n">T</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span> <span class="n">s_lim</span><span class="o">=</span><span class="n">_s_lim</span><span class="p">,</span> <span class="n">t_lim</span><span class="o">=</span><span class="n">_t_lim</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">_cax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Panel 3: T-S scatter coloured by O2 saturation (when available)</span>
+    <span class="k">if</span> <span class="n">ax_sat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">sat_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sat_finite</span> <span class="o">=</span> <span class="n">good_mask</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">sat_data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sat_finite</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="n">sv</span> <span class="o">=</span> <span class="n">sat_data</span><span class="p">[</span><span class="n">sat_finite</span><span class="p">]</span>
+            <span class="n">bounds_s</span><span class="p">,</span> <span class="n">norm_s</span> <span class="o">=</span> <span class="n">colorbar_norm</span><span class="p">(</span>
+                <span class="n">vmin</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">sv</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
+                <span class="n">vmax</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">sv</span><span class="p">,</span> <span class="mi">98</span><span class="p">)),</span>
+                <span class="n">n</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">sc_s</span> <span class="o">=</span> <span class="n">ax_sat</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                <span class="n">S</span><span class="p">[</span><span class="n">sat_finite</span><span class="p">],</span>
+                <span class="n">T</span><span class="p">[</span><span class="n">sat_finite</span><span class="p">],</span>
+                <span class="n">c</span><span class="o">=</span><span class="n">sv</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="s2">"BrBG"</span><span class="p">,</span>
+                <span class="n">norm</span><span class="o">=</span><span class="n">norm_s</span><span class="p">,</span>
+                <span class="n">s</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                <span class="n">linewidths</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
+                <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">rasterized</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">unit_colorbar</span><span class="p">(</span>
+                <span class="n">_cax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+                <span class="n">sc_s</span><span class="p">,</span>
+                <span class="n">unit</span><span class="o">=</span><span class="s2">"%"</span><span class="p">,</span>
+                <span class="n">ticks</span><span class="o">=</span><span class="n">nice_colorbar_ticks</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">bounds_s</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">bounds_s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])),</span>
+            <span class="p">)</span>
+            <span class="n">_add_sigma0_contours</span><span class="p">(</span><span class="n">ax_sat</span><span class="p">,</span> <span class="n">S</span><span class="p">[</span><span class="n">sat_finite</span><span class="p">],</span> <span class="n">T</span><span class="p">[</span><span class="n">sat_finite</span><span class="p">])</span>
+        <span class="n">ax_sat</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">vlabel</span><span class="p">(</span><span class="s2">"salinity"</span><span class="p">))</span>
+        <span class="n">ax_sat</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">vlabel</span><span class="p">(</span><span class="s2">"temperature"</span><span class="p">))</span>
+        <span class="n">plot_title</span><span class="p">(</span><span class="n">ax_sat</span><span class="p">,</span> <span class="s2">"T-S (colour = O₂ sat.)"</span><span class="p">)</span>
+        <span class="n">ax_sat</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">*</span><span class="n">_s_lim</span><span class="p">)</span>
+        <span class="n">ax_sat</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">*</span><span class="n">_t_lim</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_nice_axis_limits</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">plow</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">phigh</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">99.0</span><span class="p">,</span> <span class="n">pad_frac</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return padded, outward-rounded axis limits from robust percentiles.</span>
+
+<span class="sd">    Takes the *plow*/*phigh* percentiles of *x* (default 1st/99th) so outliers do</span>
+<span class="sd">    not stretch the axis, pads by *pad_frac* of that percentile range on each side</span>
+<span class="sd">    (default 5%, i.e. 10% of the range total), then rounds the low bound down and</span>
+<span class="sd">    the high bound up to a clean step (one tenth of the range's order of</span>
+<span class="sd">    magnitude) so the axis ticks land on round values.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : numpy.ndarray</span>
+<span class="sd">        Finite data values for the axis.</span>
+<span class="sd">    plow, phigh : float, optional</span>
+<span class="sd">        Low/high percentiles bounding the data core.  Default 1 and 99.</span>
+<span class="sd">    pad_frac : float, optional</span>
+<span class="sd">        Fraction of the percentile range added as padding on each side.</span>
+<span class="sd">        Default 0.05.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple of float</span>
+<span class="sd">        ``(lo, hi)`` axis limits.</span>
+
+<span class="sd">    """</span>
+    <span class="n">p_lo</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">plow</span><span class="p">))</span>
+    <span class="n">p_hi</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">phigh</span><span class="p">))</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">p_hi</span> <span class="o">-</span> <span class="n">p_lo</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span> <span class="ow">or</span> <span class="n">rng</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">p_lo</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">p_hi</span> <span class="o">+</span> <span class="mf">0.5</span>
+    <span class="n">lo</span> <span class="o">=</span> <span class="n">p_lo</span> <span class="o">-</span> <span class="n">pad_frac</span> <span class="o">*</span> <span class="n">rng</span>
+    <span class="n">hi</span> <span class="o">=</span> <span class="n">p_hi</span> <span class="o">+</span> <span class="n">pad_frac</span> <span class="o">*</span> <span class="n">rng</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">**</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">rng</span><span class="p">))</span> <span class="o">/</span> <span class="mf">10.0</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">lo</span> <span class="o">/</span> <span class="n">step</span><span class="p">)</span> <span class="o">*</span> <span class="n">step</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">hi</span> <span class="o">/</span> <span class="n">step</span><span class="p">)</span> <span class="o">*</span> <span class="n">step</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="draw_stack_ts_diagram">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.ts.draw_stack_ts_diagram">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">draw_stack_ts_diagram</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">width_in</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">report_tokens</span><span class="o">.</span><span class="n">W_FULL</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""T-S diagram for a stacked dataset; return a Figure.</span>
+
+<span class="sd">    Scatter-by-pressure, count heatmap, and (when present) scatter-by-AOU.</span>
+<span class="sd">    Panels are arranged in a single row.  The AOU panel is included when</span>
+<span class="sd">    ``apparent_oxygen_utilization`` is present in *ds* (written by stage3 for</span>
+<span class="sd">    instruments with dissolved oxygen data).</span>
+
+<span class="sd">    QC masking: bad (flag 4) and missing (flag 9) excluded; interpolated</span>
+<span class="sd">    pressure (flag 8) is kept as usable colour data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xr.Dataset</span>
+<span class="sd">        Stacked mooring dataset containing ``temperature`` and ``salinity``.</span>
+<span class="sd">    width_in : float, optional</span>
+<span class="sd">        Figure width in inches -- the display-slot width the report builder</span>
+<span class="sd">        resolves; standalone callers get the full content width.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    plt.Figure or None</span>
+<span class="sd">        Figure, or None if temperature or salinity are absent.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s2">"temperature"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span> <span class="ow">or</span> <span class="s2">"salinity"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">T_all</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"temperature"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">S_all</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"salinity"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">"temperature_qc"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">_tqc</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"temperature_qc"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">T_all</span><span class="p">[(</span><span class="n">_tqc</span> <span class="o">==</span> <span class="mi">4</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">_tqc</span> <span class="o">==</span> <span class="mi">9</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">if</span> <span class="s2">"salinity_qc"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">_sqc</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"salinity_qc"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">S_all</span><span class="p">[(</span><span class="n">_sqc</span> <span class="o">==</span> <span class="mi">4</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">_sqc</span> <span class="o">==</span> <span class="mi">9</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="n">T_flat</span> <span class="o">=</span> <span class="n">T_all</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="n">S_flat</span> <span class="o">=</span> <span class="n">S_all</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+
+    <span class="c1"># Pressure: keep flag 8 (interpolated) — only bad (4) and missing (9) excluded.</span>
+    <span class="n">P_flat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="s2">"pressure"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">P_arr</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">"pressure_qc"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+            <span class="n">_pqc</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"pressure_qc"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">P_arr</span><span class="p">[(</span><span class="n">_pqc</span> <span class="o">==</span> <span class="mi">4</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">_pqc</span> <span class="o">==</span> <span class="mi">9</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">P_flat</span> <span class="o">=</span> <span class="n">P_arr</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+
+    <span class="n">finite</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">T_flat</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">S_flat</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">P_flat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">finite</span> <span class="o">&amp;=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">P_flat</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">finite</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># O2 saturation: optional third panel.</span>
+    <span class="n">SAT_flat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="s2">"oxygen_saturation_pct"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">SAT_flat</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"oxygen_saturation_pct"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+
+    <span class="n">has_sat</span> <span class="o">=</span> <span class="n">SAT_flat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">SAT_flat</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span>
+    <span class="n">ncols</span> <span class="o">=</span> <span class="mi">3</span> <span class="k">if</span> <span class="n">has_sat</span> <span class="k">else</span> <span class="mi">2</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">_ax</span><span class="p">,</span> <span class="n">_cax</span> <span class="o">=</span> <span class="n">square_axes_grid</span><span class="p">(</span><span class="n">width_in</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="p">,</span> <span class="n">per_panel_colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">ax_scatter</span><span class="p">,</span> <span class="n">ax_heat</span> <span class="o">=</span> <span class="n">_ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">_ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">ax_sat</span> <span class="o">=</span> <span class="n">_ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="n">has_sat</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="c1"># --- Left panel: T-S scatter coloured by pressure ---</span>
+    <span class="k">if</span> <span class="n">P_flat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">pv</span> <span class="o">=</span> <span class="n">P_flat</span><span class="p">[</span><span class="n">finite</span><span class="p">]</span>
+        <span class="n">bounds_p</span><span class="p">,</span> <span class="n">norm_p</span> <span class="o">=</span> <span class="n">colorbar_norm</span><span class="p">(</span>
+            <span class="n">vmin</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">pv</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">pv</span><span class="p">,</span> <span class="mi">98</span><span class="p">)),</span>
+        <span class="p">)</span>
+        <span class="n">sc_p</span> <span class="o">=</span> <span class="n">ax_scatter</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+            <span class="n">S_flat</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span>
+            <span class="n">T_flat</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span>
+            <span class="n">c</span><span class="o">=</span><span class="n">pv</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s2">"viridis_r"</span><span class="p">,</span>
+            <span class="n">norm</span><span class="o">=</span><span class="n">norm_p</span><span class="p">,</span>
+            <span class="n">s</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">linewidths</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">rasterized</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">unit_colorbar</span><span class="p">(</span>
+            <span class="n">_cax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="n">sc_p</span><span class="p">,</span>
+            <span class="n">unit</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">vunit</span><span class="p">(</span><span class="s2">"pressure"</span><span class="p">),</span>
+            <span class="n">ticks</span><span class="o">=</span><span class="n">nice_colorbar_ticks</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">bounds_p</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">bounds_p</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])),</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_cax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># no pressure → no colorbar</span>
+        <span class="n">ax_scatter</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+            <span class="n">S_flat</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span>
+            <span class="n">T_flat</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span>
+            <span class="n">s</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">linewidths</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
+            <span class="n">rasterized</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">_add_sigma0_contours</span><span class="p">(</span><span class="n">ax_scatter</span><span class="p">,</span> <span class="n">S_flat</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span> <span class="n">T_flat</span><span class="p">[</span><span class="n">finite</span><span class="p">])</span>
+    <span class="n">ax_scatter</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">vlabel</span><span class="p">(</span><span class="s2">"salinity"</span><span class="p">))</span>
+    <span class="n">ax_scatter</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">vlabel</span><span class="p">(</span><span class="s2">"temperature"</span><span class="p">))</span>
+    <span class="n">plot_title</span><span class="p">(</span><span class="n">ax_scatter</span><span class="p">,</span> <span class="s2">"T-S (colour = pressure)"</span><span class="p">)</span>
+
+    <span class="c1"># Shared limits from robust percentiles (1/99, padded 5% each side and rounded</span>
+    <span class="c1"># outward) so a few outliers don't stretch the box; the heatmap matches (boxes</span>
+    <span class="c1"># are already square from square_axes_grid).</span>
+    <span class="n">_s_lim</span> <span class="o">=</span> <span class="n">_nice_axis_limits</span><span class="p">(</span><span class="n">S_flat</span><span class="p">[</span><span class="n">finite</span><span class="p">])</span>
+    <span class="n">_t_lim</span> <span class="o">=</span> <span class="n">_nice_axis_limits</span><span class="p">(</span><span class="n">T_flat</span><span class="p">[</span><span class="n">finite</span><span class="p">])</span>
+    <span class="n">ax_scatter</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">*</span><span class="n">_s_lim</span><span class="p">)</span>
+    <span class="n">ax_scatter</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">*</span><span class="n">_t_lim</span><span class="p">)</span>
+
+    <span class="c1"># --- Middle panel: count heatmap (shares the scatter's limits) ---</span>
+    <span class="n">_ts_heatmap_panel</span><span class="p">(</span>
+        <span class="n">ax_heat</span><span class="p">,</span>
+        <span class="n">fig</span><span class="p">,</span>
+        <span class="n">S_flat</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span>
+        <span class="n">T_flat</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span>
+        <span class="n">s_lim</span><span class="o">=</span><span class="n">_s_lim</span><span class="p">,</span>
+        <span class="n">t_lim</span><span class="o">=</span><span class="n">_t_lim</span><span class="p">,</span>
+        <span class="n">cax</span><span class="o">=</span><span class="n">_cax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="c1"># --- Right panel: T-S scatter coloured by O2 saturation ---</span>
+    <span class="k">if</span> <span class="n">ax_sat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">SAT_flat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sat_finite</span> <span class="o">=</span> <span class="n">finite</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">SAT_flat</span><span class="p">)</span>
+        <span class="n">sat_v</span> <span class="o">=</span> <span class="n">SAT_flat</span><span class="p">[</span><span class="n">sat_finite</span><span class="p">]</span>
+        <span class="n">bounds_s</span><span class="p">,</span> <span class="n">norm_s</span> <span class="o">=</span> <span class="n">colorbar_norm</span><span class="p">(</span>
+            <span class="n">vmin</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">sat_v</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">sat_v</span><span class="p">,</span> <span class="mi">98</span><span class="p">)),</span>
+            <span class="n">n</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">sc_s</span> <span class="o">=</span> <span class="n">ax_sat</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+            <span class="n">S_flat</span><span class="p">[</span><span class="n">sat_finite</span><span class="p">],</span>
+            <span class="n">T_flat</span><span class="p">[</span><span class="n">sat_finite</span><span class="p">],</span>
+            <span class="n">c</span><span class="o">=</span><span class="n">sat_v</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s2">"YlGnBu"</span><span class="p">,</span>
+            <span class="n">norm</span><span class="o">=</span><span class="n">norm_s</span><span class="p">,</span>
+            <span class="n">s</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">linewidths</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">rasterized</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">unit_colorbar</span><span class="p">(</span>
+            <span class="n">_cax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+            <span class="n">sc_s</span><span class="p">,</span>
+            <span class="n">unit</span><span class="o">=</span><span class="s2">"%"</span><span class="p">,</span>
+            <span class="n">ticks</span><span class="o">=</span><span class="n">nice_colorbar_ticks</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">bounds_s</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">bounds_s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])),</span>
+        <span class="p">)</span>
+        <span class="n">_add_sigma0_contours</span><span class="p">(</span><span class="n">ax_sat</span><span class="p">,</span> <span class="n">S_flat</span><span class="p">[</span><span class="n">sat_finite</span><span class="p">],</span> <span class="n">T_flat</span><span class="p">[</span><span class="n">sat_finite</span><span class="p">])</span>
+        <span class="n">ax_sat</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">vlabel</span><span class="p">(</span><span class="s2">"salinity"</span><span class="p">))</span>
+        <span class="n">ax_sat</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">vlabel</span><span class="p">(</span><span class="s2">"temperature"</span><span class="p">))</span>
+        <span class="n">plot_title</span><span class="p">(</span><span class="n">ax_sat</span><span class="p">,</span> <span class="s2">"T-S (colour = O₂ sat.)"</span><span class="p">)</span>
+        <span class="n">ax_sat</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">*</span><span class="n">_s_lim</span><span class="p">)</span>
+        <span class="n">ax_sat</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">*</span><span class="n">_t_lim</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+
+<div class="viewcode-block" id="draw_grid_ts_diagram">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.ts.draw_grid_ts_diagram">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">draw_grid_ts_diagram</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">width_in</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">report_tokens</span><span class="o">.</span><span class="n">W_FULL</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""T-S diagram for gridded mooring data; return a (Figure, bounds_dict) tuple.</span>
+
+<span class="sd">    Left panel: 2-D count heatmap (log₁₀ samples per T-S bin).</span>
+<span class="sd">    Right panel (when ``oxygen_saturation_pct`` is present): median O₂ saturation</span>
+<span class="sd">    per T-S bin, computed with ``scipy.stats.binned_statistic_2d``.  Bins with</span>
+<span class="sd">    fewer than 5 samples are masked white.</span>
+
+<span class="sd">    This lets you see which water masses (T-S combinations) are oxygen-rich vs</span>
+<span class="sd">    oxygen-depleted at this mooring — a compact water-mass characterisation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xr.Dataset</span>
+<span class="sd">        Gridded dataset with at least ``temperature`` and ``salinity`` variables.</span>
+<span class="sd">    n_bins : int</span>
+<span class="sd">        Number of bins per axis for the 2-D histogram.</span>
+<span class="sd">    width_in : float, optional</span>
+<span class="sd">        Figure width in inches -- the display-slot width the report builder</span>
+<span class="sd">        resolves; standalone callers get the full content width.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple of (plt.Figure, bounds_dict) or None</span>
+<span class="sd">        ``bounds_dict`` contains the axis/colorbar limits computed from the data so</span>
+<span class="sd">        the hydro pcolormesh panels can share the same scales:</span>
+
+<span class="sd">        - ``"t_lim"`` : (vmin, vmax) for temperature</span>
+<span class="sd">        - ``"s_lim"`` : (vmin, vmax) for salinity</span>
+<span class="sd">        - ``"o2_lim"`` : (vmin, vmax) for oxygen_saturation_pct, or None</span>
+
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">binned_statistic_2d</span>
+
+    <span class="k">if</span> <span class="s2">"temperature"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span> <span class="ow">or</span> <span class="s2">"salinity"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">T</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"temperature"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"salinity"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="n">finite</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">S</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">finite</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># Axis limits from robust percentiles (1/99, padded and rounded outward) so</span>
+    <span class="c1"># outliers don't stretch the box — returned to caller so hydro panels share</span>
+    <span class="c1"># the same scales.</span>
+    <span class="n">s_lo</span><span class="p">,</span> <span class="n">s_hi</span> <span class="o">=</span> <span class="n">_nice_axis_limits</span><span class="p">(</span><span class="n">S</span><span class="p">[</span><span class="n">finite</span><span class="p">])</span>
+    <span class="n">t_lo</span><span class="p">,</span> <span class="n">t_hi</span> <span class="o">=</span> <span class="n">_nice_axis_limits</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="n">finite</span><span class="p">])</span>
+    <span class="n">ts_bounds</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"t_lim"</span><span class="p">:</span> <span class="p">(</span><span class="n">t_lo</span><span class="p">,</span> <span class="n">t_hi</span><span class="p">),</span> <span class="s2">"s_lim"</span><span class="p">:</span> <span class="p">(</span><span class="n">s_lo</span><span class="p">,</span> <span class="n">s_hi</span><span class="p">),</span> <span class="s2">"o2_lim"</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+
+    <span class="n">has_o2</span> <span class="o">=</span> <span class="s2">"oxygen_saturation_pct"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span>
+    <span class="n">O2</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"oxygen_saturation_pct"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span> <span class="k">if</span> <span class="n">has_o2</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">o2_valid</span> <span class="o">=</span> <span class="n">finite</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">O2</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">O2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">finite</span><span class="p">)</span>
+    <span class="n">has_o2</span> <span class="o">=</span> <span class="n">has_o2</span> <span class="ow">and</span> <span class="n">o2_valid</span><span class="o">.</span><span class="n">any</span><span class="p">()</span>
+
+    <span class="n">ncols</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">has_o2</span> <span class="k">else</span> <span class="mi">1</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">_ax</span><span class="p">,</span> <span class="n">_cax</span> <span class="o">=</span> <span class="n">square_axes_grid</span><span class="p">(</span>
+        <span class="n">width_in</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="n">ncols</span><span class="p">,</span>
+        <span class="n">per_panel_colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">axes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_ax</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="c1"># Panel 1: count heatmap (shares the data limits + matched colorbar)</span>
+    <span class="n">_ts_heatmap_panel</span><span class="p">(</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">fig</span><span class="p">,</span>
+        <span class="n">S</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span>
+        <span class="n">T</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span>
+        <span class="n">n_bins</span><span class="o">=</span><span class="n">n_bins</span><span class="p">,</span>
+        <span class="n">s_lim</span><span class="o">=</span><span class="p">(</span><span class="n">s_lo</span><span class="p">,</span> <span class="n">s_hi</span><span class="p">),</span>
+        <span class="n">t_lim</span><span class="o">=</span><span class="p">(</span><span class="n">t_lo</span><span class="p">,</span> <span class="n">t_hi</span><span class="p">),</span>
+        <span class="n">cax</span><span class="o">=</span><span class="n">_cax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">plot_title</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="sa">r</span><span class="s2">"T-S count ($\log_</span><span class="si">{10}</span><span class="s2">$ samples per bin)"</span><span class="p">)</span>
+
+    <span class="c1"># Panel 2: median O2 saturation per T-S bin</span>
+    <span class="k">if</span> <span class="n">has_o2</span> <span class="ow">and</span> <span class="n">O2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">s_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">s_lo</span><span class="p">,</span> <span class="n">s_hi</span><span class="p">,</span> <span class="n">n_bins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">t_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">t_lo</span><span class="p">,</span> <span class="n">t_hi</span><span class="p">,</span> <span class="n">n_bins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">o2_med</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">binned_statistic_2d</span><span class="p">(</span>
+            <span class="n">S</span><span class="p">[</span><span class="n">o2_valid</span><span class="p">],</span>
+            <span class="n">T</span><span class="p">[</span><span class="n">o2_valid</span><span class="p">],</span>
+            <span class="n">O2</span><span class="p">[</span><span class="n">o2_valid</span><span class="p">],</span>
+            <span class="n">statistic</span><span class="o">=</span><span class="s2">"median"</span><span class="p">,</span>
+            <span class="n">bins</span><span class="o">=</span><span class="p">[</span><span class="n">s_edges</span><span class="p">,</span> <span class="n">t_edges</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">cnt</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">binned_statistic_2d</span><span class="p">(</span>
+            <span class="n">S</span><span class="p">[</span><span class="n">o2_valid</span><span class="p">],</span>
+            <span class="n">T</span><span class="p">[</span><span class="n">o2_valid</span><span class="p">],</span>
+            <span class="n">O2</span><span class="p">[</span><span class="n">o2_valid</span><span class="p">],</span>
+            <span class="n">statistic</span><span class="o">=</span><span class="s2">"count"</span><span class="p">,</span>
+            <span class="n">bins</span><span class="o">=</span><span class="p">[</span><span class="n">s_edges</span><span class="p">,</span> <span class="n">t_edges</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="c1"># o2_med shape is (n_s, n_t); transpose to (n_t, n_s) for pcolormesh</span>
+        <span class="n">populated</span> <span class="o">=</span> <span class="n">cnt</span> <span class="o">&gt;=</span> <span class="mi">5</span>
+        <span class="n">o2_masked</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_where</span><span class="p">(</span><span class="o">~</span><span class="n">populated</span> <span class="o">|</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">o2_med</span><span class="p">),</span> <span class="n">o2_med</span><span class="p">)</span>
+
+        <span class="n">valid_vals</span> <span class="o">=</span> <span class="n">o2_med</span><span class="p">[</span><span class="n">populated</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">o2_med</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">valid_vals</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+            <span class="n">o2_vmin</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">valid_vals</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">o2_vmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">valid_vals</span><span class="p">,</span> <span class="mi">98</span><span class="p">))</span>
+            <span class="n">ts_bounds</span><span class="p">[</span><span class="s2">"o2_lim"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">o2_vmin</span><span class="p">,</span> <span class="n">o2_vmax</span><span class="p">)</span>
+            <span class="n">bounds</span><span class="p">,</span> <span class="n">norm</span> <span class="o">=</span> <span class="n">colorbar_norm</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">o2_vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">o2_vmax</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+            <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">BrBG</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">cmap</span><span class="o">.</span><span class="n">set_bad</span><span class="p">(</span><span class="s2">"white"</span><span class="p">)</span>
+            <span class="n">pc</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span>
+                <span class="n">s_edges</span><span class="p">,</span>
+                <span class="n">t_edges</span><span class="p">,</span>
+                <span class="n">o2_masked</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+                <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span>
+                <span class="n">shading</span><span class="o">=</span><span class="s2">"flat"</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">unit_colorbar</span><span class="p">(</span>
+                <span class="n">_cax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                <span class="n">pc</span><span class="p">,</span>
+                <span class="n">unit</span><span class="o">=</span><span class="s2">"%"</span><span class="p">,</span>
+                <span class="n">ticks</span><span class="o">=</span><span class="n">nice_colorbar_ticks</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])),</span>
+            <span class="p">)</span>
+            <span class="n">_add_sigma0_contours</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">S</span><span class="p">[</span><span class="n">o2_valid</span><span class="p">],</span> <span class="n">T</span><span class="p">[</span><span class="n">o2_valid</span><span class="p">])</span>
+            <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">s_lo</span><span class="p">,</span> <span class="n">s_hi</span><span class="p">)</span>
+            <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">t_lo</span><span class="p">,</span> <span class="n">t_hi</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">vlabel</span><span class="p">(</span><span class="s2">"salinity"</span><span class="p">))</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">vlabel</span><span class="p">(</span><span class="s2">"temperature"</span><span class="p">))</span>
+        <span class="n">plot_title</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">"Median O₂ saturation per T-S bin"</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ts_bounds</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

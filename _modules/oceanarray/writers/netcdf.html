@@ -1,0 +1,544 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.writers.netcdf &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.writers.netcdf</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.writers.netcdf</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Single netCDF writer for oceanarray processing stages.</span>
+
+<span class="sd">One :func:`write` seam replaces the six write paths the stages used before</span>
+<span class="sd">(three via seasenselib's ``NetCdfWriter``, three via bare ``to_netcdf``).  It</span>
+<span class="sd">reproduces seasenselib's attribute and name handling — dict attributes to JSON,</span>
+<span class="sd">slash names to underscores — and cleans attributes: a ``None`` value is dropped</span>
+<span class="sd">with a warning (never written as ``""``).  Every numeric variable with at least</span>
+<span class="sd">one dimension, coordinates included, is written with zlib level 4 and the shuffle</span>
+<span class="sd">filter.</span>
+
+<span class="sd">Every ``datetime64`` variable is pinned to ``seconds since 1970-01-01T00:00:00``,</span>
+<span class="sd">float64, ``proleptic_gregorian`` (``_TIME_ENCODING``) rather than xarray's</span>
+<span class="sd">per-file guess.  Decoded instants are unchanged; raw stored values change.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_info</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">cast_output_dtypes</span>
+
+<span class="n">_DATETIME_ENCODING_ATTRS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"units"</span><span class="p">,</span> <span class="s2">"calendar"</span><span class="p">)</span>
+<span class="c1"># zlib level 4 with the shuffle filter.  Turning shuffle off for float64 — as</span>
+<span class="c1"># ctdcast does — is byte-identical here: re-measured across every dune2 fixture on</span>
+<span class="c1"># 2026-09-22, after the time pin made every ``time`` axis float64 (the largest</span>
+<span class="c1"># float64 array in each file), shuffle changes 0 bytes on four fixtures and +21 on</span>
+<span class="c1"># grid.  The shuffle decision is per package (it hurts ctdcast, helps seagliderOG1,</span>
+<span class="c1"># is a wash for oceanarray), so do not "fix" this to match another package.</span>
+<span class="n">_COMPRESSION</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"zlib"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">"complevel"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">"shuffle"</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+<span class="c1"># dtype kinds that cannot be zlib-compressed (object / unicode / byte strings).</span>
+<span class="n">_UNCOMPRESSIBLE_KINDS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"O"</span><span class="p">,</span> <span class="s2">"U"</span><span class="p">,</span> <span class="s2">"S"</span><span class="p">)</span>
+<span class="c1"># Encoding keys that fix stored values or CF interpretation and must survive a</span>
+<span class="c1"># re-write byte-for-byte.  Everything else in a variable's encoding is storage</span>
+<span class="c1"># layout (``contiguous``, ``chunksizes``, ``preferred_chunks``, ...) inherited</span>
+<span class="c1"># when a dataset is read back; it must be dropped, or it collides with the</span>
+<span class="c1"># compression filter (``contiguous`` + ``zlib``) or with a changed shape</span>
+<span class="c1"># (stale ``chunksizes`` after a stage trims time).  This is an allowlist on</span>
+<span class="c1"># purpose: an unrecognised key (a stale ``least_significant_digit`` from an</span>
+<span class="c1"># externally-quantized input, an unknown future key) is dropped rather than</span>
+<span class="c1"># re-applied — re-applying quantization would re-round already-rounded data, and</span>
+<span class="c1"># a denylist would instead let unknown keys reach ``to_netcdf`` and raise.</span>
+<span class="c1"># Time ``units``/``calendar`` are not listed: datetime64 variables are pinned to</span>
+<span class="c1"># ``_TIME_ENCODING`` and never consult this list; object-dtype cftime time variables</span>
+<span class="c1"># keep their ``units``/``calendar`` through a dedicated branch in ``_prepare`` (so a</span>
+<span class="c1"># non-standard calendar and epoch are preserved, not re-guessed) and likewise never</span>
+<span class="c1"># reach here; a timedelta64 variable's encoding is already stripped upstream by</span>
+<span class="c1"># ``cast_output_dtypes`` (it rebuilds the variable), and xarray then re-derives a valid</span>
+<span class="c1"># CF ``units`` for it on write — so no variable reaching this filter carries</span>
+<span class="c1"># ``units``/``calendar`` in encoding.</span>
+<span class="n">_PRESERVED_ENCODING</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"dtype"</span><span class="p">,</span>
+    <span class="s2">"_FillValue"</span><span class="p">,</span>
+    <span class="s2">"missing_value"</span><span class="p">,</span>
+    <span class="s2">"scale_factor"</span><span class="p">,</span>
+    <span class="s2">"add_offset"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># Pinned time encoding: every datetime variable is written as float64 seconds since</span>
+<span class="c1"># a fixed midnight epoch, not xarray's per-file guess (which varies with the file's</span>
+<span class="c1"># first timestamp and, in the string form, with the installed pandas).  Decoded</span>
+<span class="c1"># instants are unchanged; raw stored values change.  xarray normalises the epoch</span>
+<span class="c1"># string, so this reads back on disk as ``seconds since 1970-01-01``.  No</span>
+<span class="c1"># ``_FillValue`` is set — xarray writes ``nan`` itself for a float64 datetime and</span>
+<span class="c1"># NaT round-trips.  Calendar is a deliberate per-package choice:</span>
+<span class="c1"># ``proleptic_gregorian`` for OceanSITES here; seagliderOG1 uses ``gregorian``</span>
+<span class="c1"># because the OG1 manual specifies it.  Two calendars across the family is</span>
+<span class="c1"># intended — do not "harmonise" them.</span>
+<span class="n">_TIME_ENCODING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"seconds since 1970-01-01T00:00:00"</span><span class="p">,</span>
+    <span class="s2">"dtype"</span><span class="p">:</span> <span class="s2">"float64"</span><span class="p">,</span>
+    <span class="s2">"calendar"</span><span class="p">:</span> <span class="s2">"proleptic_gregorian"</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="c1">#: Sentinel returned by :func:`_clean_attr_value` for a ``None`` value; the caller</span>
+<span class="c1">#: drops the attribute instead of writing it.  None-valued attributes are dropped</span>
+<span class="c1">#: with a warning; nothing here verifies that required globals are present.</span>
+<span class="n">_DROP</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_clean_attr_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return an attribute value in a form netCDF4 can store, or :data:`_DROP`.</span>
+
+<span class="sd">    A ``dict`` becomes a JSON string, a non-empty list or tuple is kept when it</span>
+<span class="sd">    renders as text and JSON-encoded otherwise, and everything else is returned</span>
+<span class="sd">    unchanged.  A ``None`` value returns :data:`_DROP`: the writer drops the</span>
+<span class="sd">    attribute (with a warning) rather than substituting ``""``, because an empty</span>
+<span class="sd">    string is a silent stand-in for a missing value.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : object</span>
+<span class="sd">        The raw attribute value.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    object</span>
+<span class="sd">        A netCDF4-compatible attribute value, or :data:`_DROP` for ``None``.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_DROP</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="c1"># netCDF4 has no boolean attribute type; store the CF-conventional 0/1.</span>
+        <span class="c1"># (bool is a subclass of int, so this must precede any int handling.)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">value</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">value</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_clean_attr_dict</span><span class="p">(</span><span class="n">attrs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">scope</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">stacklevel</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Clean an attribute mapping, dropping ``None``-valued keys with a warning.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    attrs : dict</span>
+<span class="sd">        Raw attribute mapping (global or per-variable).</span>
+<span class="sd">    scope : str</span>
+<span class="sd">        Label used in the warning, e.g. ``"global"`` or ``"variable 'time'"``.</span>
+<span class="sd">    stacklevel : int</span>
+<span class="sd">        Frames from this call up to the user's :func:`write` call, so the warning</span>
+<span class="sd">        points at the caller's line rather than into the writer.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Cleaned mapping with every ``None``-valued key removed.</span>
+<span class="sd">    """</span>
+    <span class="n">cleaned</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">_clean_attr_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="n">_DROP</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">scope</span><span class="si">}</span><span class="s2">: dropping attribute </span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s2"> because its value is None"</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="n">stacklevel</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">cleaned</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span>
+    <span class="k">return</span> <span class="n">cleaned</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_sanitize_names</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Replace ``/`` in dimension, coordinate and variable names with ``_``.</span>
+
+<span class="sd">    NetCDF/HDF5 treats ``/`` as a group separator, so a name containing one</span>
+<span class="sd">    cannot be written.  Renamed variables gain an ``original_name`` attribute.</span>
+<span class="sd">    Reproduces seasenselib's name sanitization; a no-op once names are canonical.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        Dataset whose names may contain slashes.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        Dataset with slash-free names.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If two distinct names would collapse to the same sanitized name.</span>
+<span class="sd">    """</span>
+    <span class="n">name_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">final</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">seen</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">source</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">safe</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">"/"</span> <span class="ow">in</span> <span class="n">name</span>
+                <span class="k">else</span> <span class="n">name</span>
+            <span class="p">)</span>
+            <span class="n">previous</span> <span class="o">=</span> <span class="n">final</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">safe</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">previous</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">previous</span> <span class="o">!=</span> <span class="n">name</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"NetCDF name sanitization would map both '</span><span class="si">{</span><span class="n">previous</span><span class="si">}</span><span class="s2">' and "</span>
+                    <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">' to '</span><span class="si">{</span><span class="n">safe</span><span class="si">}</span><span class="s2">'. Rename one before writing."</span>
+                <span class="p">)</span>
+            <span class="n">final</span><span class="p">[</span><span class="n">safe</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+            <span class="k">if</span> <span class="n">safe</span> <span class="o">!=</span> <span class="n">name</span><span class="p">:</span>
+                <span class="n">name_map</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">safe</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">name_map</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ds</span>
+
+    <span class="n">renamed</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">name_map</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">original</span><span class="p">,</span> <span class="n">safe</span> <span class="ow">in</span> <span class="n">name_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">safe</span> <span class="ow">in</span> <span class="n">renamed</span><span class="o">.</span><span class="n">data_vars</span> <span class="ow">or</span> <span class="n">safe</span> <span class="ow">in</span> <span class="n">renamed</span><span class="o">.</span><span class="n">coords</span><span class="p">:</span>
+            <span class="n">renamed</span><span class="p">[</span><span class="n">safe</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"original_name"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">original</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">renamed</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_clean_attrs</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a shallow copy of *ds* with netCDF-safe attributes and encoding.</span>
+
+<span class="sd">    Cleans global and per-variable attributes with :func:`_clean_attr_dict`</span>
+<span class="sd">    (``None``-valued attributes are dropped with a warning), and moves</span>
+<span class="sd">    ``units``/``calendar`` from attributes to encoding on datetime variables (so a</span>
+<span class="sd">    decoded time coordinate that still carries a ``units`` attribute does not</span>
+<span class="sd">    collide with xarray's time encoding at write time).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        Dataset to clean.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        Shallow copy with cleaned attributes; the input is not modified.</span>
+<span class="sd">    """</span>
+
+    <span class="c1"># stacklevel to the user's write() call: warn -&gt; _clean_attr_dict -&gt;</span>
+    <span class="c1"># (clean_variable -&gt;) _clean_attrs -&gt; _prepare -&gt; write -&gt; caller. The</span>
+    <span class="c1"># per-variable path is one frame deeper than the global path.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clean_variable</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="n">_clean_attr_dict</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"variable </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">"</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+        <span class="n">encoding</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">encoding</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">_is_datetime</span><span class="p">(</span><span class="n">var</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">_DATETIME_ENCODING_ATTRS</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
+                    <span class="n">encoding</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">attrs</span><span class="p">,</span> <span class="n">encoding</span>
+
+    <span class="n">safe</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">safe</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="n">_clean_attr_dict</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">,</span> <span class="s2">"global"</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">attrs</span><span class="p">,</span> <span class="n">encoding</span> <span class="o">=</span> <span class="n">clean_variable</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+        <span class="n">safe</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="n">attrs</span>
+        <span class="n">safe</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">encoding</span> <span class="o">=</span> <span class="n">encoding</span>
+    <span class="k">return</span> <span class="n">safe</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_datetime</span><span class="p">(</span><span class="n">var</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return ``True`` if *var* holds numpy ``datetime64`` values.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    var : xarray.Variable or xarray.DataArray</span>
+<span class="sd">        The variable to test.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        Whether *var* is a numpy ``datetime64`` variable.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_has_cf_time_encoding</span><span class="p">(</span><span class="n">var</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return ``True`` for an object-dtype variable carrying CF time encoding.</span>
+
+<span class="sd">    A dataset decoded with ``use_cftime=True`` holds its time coordinate as ``object``</span>
+<span class="sd">    dtype (cftime objects) with ``units``/``calendar`` in encoding rather than numpy</span>
+<span class="sd">    ``datetime64``.  Such a variable must keep that encoding so its (possibly</span>
+<span class="sd">    non-standard) calendar and epoch are preserved on write rather than re-guessed by</span>
+<span class="sd">    xarray from the data, which can change the stored reference.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    var : xarray.Variable or xarray.DataArray</span>
+<span class="sd">        The variable to test.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        Whether *var* is object dtype with ``units`` or ``calendar`` in encoding.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"O"</span> <span class="ow">and</span> <span class="p">(</span>
+        <span class="s2">"units"</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">encoding</span> <span class="ow">or</span> <span class="s2">"calendar"</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">encoding</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_prepare</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">compress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a copy of *ds* ready to write: cast, cleaned, per-variable encoding set.</span>
+
+<span class="sd">    Casts dtypes, cleans attributes and names, and sets per-variable encoding —</span>
+<span class="sd">    datetime variables pinned to :data:`_TIME_ENCODING`, others filtered to</span>
+<span class="sd">    :data:`_PRESERVED_ENCODING` — then applies :data:`_COMPRESSION` to every</span>
+<span class="sd">    dimensioned numeric variable unless *compress* is ``False``.  A caller passes</span>
+<span class="sd">    ``compress=False`` to produce an otherwise-identical uncompressed file, so a</span>
+<span class="sd">    compressed write can be diffed against it and show only the zlib filter.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        Dataset to prepare.</span>
+<span class="sd">    compress : bool, default True</span>
+<span class="sd">        Apply the zlib + shuffle filter to dimensioned numeric variables.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        Prepared copy; the input is not modified.</span>
+<span class="sd">    """</span>
+    <span class="n">safe</span> <span class="o">=</span> <span class="n">_clean_attrs</span><span class="p">(</span><span class="n">_sanitize_names</span><span class="p">(</span><span class="n">cast_output_dtypes</span><span class="p">(</span><span class="n">ds</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">safe</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">_is_datetime</span><span class="p">(</span><span class="n">var</span><span class="p">):</span>
+            <span class="c1"># Pin datetime variables; do not inherit xarray's per-file guess.</span>
+            <span class="n">enc</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">_TIME_ENCODING</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">_has_cf_time_encoding</span><span class="p">(</span><span class="n">safe</span><span class="p">[</span><span class="n">name</span><span class="p">]):</span>
+            <span class="c1"># Object-dtype cftime time: keep its CF time encoding so a non-standard</span>
+            <span class="c1"># calendar and epoch survive rather than being re-guessed by xarray.</span>
+            <span class="n">keep</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">_PRESERVED_ENCODING</span><span class="p">,</span> <span class="s2">"units"</span><span class="p">,</span> <span class="s2">"calendar"</span><span class="p">)</span>
+            <span class="n">enc</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">safe</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">encoding</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keep</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">enc</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">safe</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">encoding</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">_PRESERVED_ENCODING</span>
+            <span class="p">}</span>
+        <span class="k">if</span> <span class="n">compress</span> <span class="ow">and</span> <span class="n">var</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_UNCOMPRESSIBLE_KINDS</span><span class="p">:</span>
+            <span class="n">enc</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_COMPRESSION</span><span class="p">)</span>
+        <span class="n">safe</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">encoding</span> <span class="o">=</span> <span class="n">enc</span>
+    <span class="k">return</span> <span class="n">safe</span>
+
+
+<div class="viewcode-block" id="write">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.writers.netcdf.write">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Write *ds* to *path* as compressed CF-NetCDF, one seam for every stage.</span>
+
+<span class="sd">    Casts variables to their storage dtypes, sanitizes names and attributes to</span>
+<span class="sd">    match seasenselib, applies zlib level 4 with the shuffle filter to every</span>
+<span class="sd">    numeric variable that has at least one dimension (coordinates included), and</span>
+<span class="sd">    writes atomically via a temporary file in the target directory.  Every</span>
+<span class="sd">    ``datetime64`` variable is pinned to ``seconds since 1970-01-01T00:00:00``</span>
+<span class="sd">    (float64); decoded instants are unchanged to sub-microsecond, raw stored values</span>
+<span class="sd">    change.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        Dataset to write.</span>
+<span class="sd">    path : pathlib.Path or str</span>
+<span class="sd">        Output netCDF path.  The parent directory is created if absent.</span>
+<span class="sd">    overwrite : bool, optional</span>
+<span class="sd">        When False (the default), refuse to replace an existing *path*; the</span>
+<span class="sd">        processing stages pass ``overwrite=True`` so re-running a stage replaces</span>
+<span class="sd">        its output.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pathlib.Path</span>
+<span class="sd">        The path written.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    FileExistsError</span>
+<span class="sd">        If *path* exists and *overwrite* is False.</span>
+<span class="sd">    """</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> exists; pass overwrite=True to replace it."</span><span class="p">)</span>
+        <span class="c1"># Re-running a stage is routine, but never silent: a replaced file is logged</span>
+        <span class="c1"># so a re-run is visible in the log and the report's run summary.</span>
+        <span class="n">log_info</span><span class="p">(</span><span class="s2">"overwriting </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">safe</span> <span class="o">=</span> <span class="n">_prepare</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+
+    <span class="c1"># Atomic write: to_netcdf creates a sibling temp file, then rename over the</span>
+    <span class="c1"># target.  The temp path is deterministic and let netCDF4 create it fresh —</span>
+    <span class="c1"># pre-creating it (e.g. via NamedTemporaryFile) and clobbering it triggers an</span>
+    <span class="c1"># HDF5 file-lock error on Windows.</span>
+    <span class="n">tmp</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">".tmp"</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">safe</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">"netcdf4"</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"NETCDF4"</span><span class="p">)</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">tmp</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">tmp</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+        <span class="k">raise</span>
+    <span class="k">return</span> <span class="n">path</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

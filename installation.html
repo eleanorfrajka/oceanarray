@@ -1,0 +1,263 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installation &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=20758594" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8b92e751"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Troubleshooting" href="troubleshooting.html" />
+    <link rel="prev" title="Quickstart Guide" href="quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            oceanarray
+              <img src="_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-oceanarray">Install oceanarray</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#in-an-isolated-environment-recommended">In an isolated environment (recommended)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#option-a-conda">Option A — conda</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#option-b-venv">Option B — venv</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#option-c-uv">Option C — uv</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#development-install-from-source">Development install (from source)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#stage-1-and-seasenselib">Stage 1 and seasenselib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rdi-adcp-support">RDI ADCP support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verify-the-installation">Verify the installation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Installation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/installation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="installation">
+<span id="id1"></span><h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<p>Python 3.11–3.13 is supported and tested in CI.</p>
+</section>
+<section id="install-oceanarray">
+<h2>Install oceanarray<a class="headerlink" href="#install-oceanarray" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">oceanarray</span></code> is on PyPI:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>oceanarray
+</pre></div>
+</div>
+<p>This pulls in its dependencies, including <code class="docutils literal notranslate"><span class="pre">seasenselib</span></code> — the reader
+<code class="docutils literal notranslate"><span class="pre">oceanarray</span></code> uses for raw instrument files in stage 1.</p>
+<section id="in-an-isolated-environment-recommended">
+<h3>In an isolated environment (recommended)<a class="headerlink" href="#in-an-isolated-environment-recommended" title="Link to this heading"></a></h3>
+<section id="option-a-conda">
+<h4>Option A — conda<a class="headerlink" href="#option-a-conda" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>oceanarray<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.11
+conda<span class="w"> </span>activate<span class="w"> </span>oceanarray
+pip<span class="w"> </span>install<span class="w"> </span>oceanarray
+</pre></div>
+</div>
+</section>
+<section id="option-b-venv">
+<h4>Option B — venv<a class="headerlink" href="#option-b-venv" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
+<span class="nb">source</span><span class="w"> </span>venv/bin/activate<span class="w">        </span><span class="c1"># macOS / Linux</span>
+<span class="c1"># venv\Scripts\activate         # Windows</span>
+pip<span class="w"> </span>install<span class="w"> </span>oceanarray
+</pre></div>
+</div>
+</section>
+<section id="option-c-uv">
+<h4>Option C — uv<a class="headerlink" href="#option-c-uv" title="Link to this heading"></a></h4>
+<p><a class="reference external" href="https://docs.astral.sh/uv/">uv</a> is a fast drop-in replacement for <code class="docutils literal notranslate"><span class="pre">pip</span></code> and
+<code class="docutils literal notranslate"><span class="pre">venv</span></code> (add <code class="docutils literal notranslate"><span class="pre">--python</span> <span class="pre">3.11</span></code> to <code class="samp docutils literal notranslate"><span class="pre">uv</span> <span class="pre">venv</span></code> to pin the interpreter):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>venv
+<span class="nb">source</span><span class="w"> </span>.venv/bin/activate<span class="w">       </span><span class="c1"># macOS / Linux</span>
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>oceanarray
+</pre></div>
+</div>
+<p>To install just the <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code> command-line tool in its own isolated
+environment (on your <code class="docutils literal notranslate"><span class="pre">PATH</span></code>, no venv to activate):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>oceanarray
+</pre></div>
+</div>
+</section>
+</section>
+<section id="development-install-from-source">
+<h3>Development install (from source)<a class="headerlink" href="#development-install-from-source" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/ocean-uhh/oceanarray
+<span class="nb">cd</span><span class="w"> </span>oceanarray
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">".[dev]"</span><span class="w">        </span><span class="c1"># or: uv pip install -e ".[dev]"</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">-e</span></code> flag installs in editable mode so that any local changes take effect
+immediately without reinstalling.  The <code class="docutils literal notranslate"><span class="pre">[dev]</span></code> extra adds the test and docs
+tooling plus <code class="docutils literal notranslate"><span class="pre">ruff</span></code> in one resolution.  To also work on PDF report output
+(WeasyPrint, which needs native pango/cairo libraries) use <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span>
+<span class="pre">&quot;.[all]&quot;</span></code> — everything, equivalent to <code class="docutils literal notranslate"><span class="pre">.[dev,pdf]</span></code>.  See <a class="reference internal" href="troubleshooting.html"><span class="doc">Troubleshooting</span></a>
+if a dependency fails to build.</p>
+</section>
+</section>
+<section id="stage-1-and-seasenselib">
+<h2>Stage 1 and seasenselib<a class="headerlink" href="#stage-1-and-seasenselib" title="Link to this heading"></a></h2>
+<p>Stage 1 (reading raw instrument files) needs <code class="docutils literal notranslate"><span class="pre">seasenselib</span></code>, which is installed
+automatically with <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code> (above).  Without <code class="docutils literal notranslate"><span class="pre">seasenselib</span></code>, stage 1
+processing cannot run.  Stages 2–3 and mooring-level processing (stack, grid,
+reports) can still run on existing NetCDF files.  See <a class="reference internal" href="troubleshooting.html"><span class="doc">Troubleshooting</span></a> if
+the install fails.</p>
+</section>
+<section id="rdi-adcp-support">
+<h2>RDI ADCP support<a class="headerlink" href="#rdi-adcp-support" title="Link to this heading"></a></h2>
+<p>Processing RDI WorkHorse ADCP files (<code class="docutils literal notranslate"><span class="pre">file_type:</span> <span class="pre">rdi-raw</span></code>) needs no extra
+install: <code class="docutils literal notranslate"><span class="pre">seasenselib</span></code> reads them via <code class="docutils literal notranslate"><span class="pre">mhkit[dolfyn]</span></code>, which is pulled in
+automatically with <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code>.</p>
+</section>
+<section id="verify-the-installation">
+<h2>Verify the installation<a class="headerlink" href="#verify-the-installation" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>oceanarray<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>If this prints a version string, the installation is complete.  See the
+<a class="reference internal" href="quickstart.html"><span class="doc">Quickstart Guide</span></a> for the next steps.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="quickstart.html" class="btn btn-neutral float-left" title="Quickstart Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="troubleshooting.html" class="btn btn-neutral float-right" title="Troubleshooting" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

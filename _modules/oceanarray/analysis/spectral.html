@@ -1,0 +1,515 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.analysis.spectral &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.analysis.spectral</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.analysis.spectral</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Spectral analysis utilities for oceanographic time series.</span>
+
+<span class="sd">Provides rotary spectrum decomposition (Gonella 1972), Welch PSD estimates</span>
+<span class="sd">with and without gap-awareness, and continuous wavelet transforms.</span>
+
+<span class="sd">Pairs with :mod:`oceanarray.plotters.spectrum` for figure output.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">welch</span> <span class="k">as</span> <span class="n">_scipy_welch</span>
+
+<span class="n">_log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="gonella_rotary_spectrum">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.spectral.gonella_rotary_spectrum">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">gonella_rotary_spectrum</span><span class="p">(</span>
+    <span class="n">u_col</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">v_col</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">nperseg</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">noverlap</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Compute the Gonella (1972) rotary power spectrum from 1-D velocity components.</span>
+
+<span class="sd">    Both input arrays must be finite (no NaN).  Calls ``scipy.signal.welch``</span>
+<span class="sd">    for the auto-spectra and ``scipy.signal.csd`` for the cross-spectrum, then</span>
+<span class="sd">    applies the Gonella rotary decomposition.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    u_col : np.ndarray</span>
+<span class="sd">        1-D east-velocity time series in m s⁻¹, finite (gap-filled).</span>
+<span class="sd">    v_col : np.ndarray</span>
+<span class="sd">        1-D north-velocity time series in m s⁻¹, finite (gap-filled).</span>
+<span class="sd">    fs : float</span>
+<span class="sd">        Sampling frequency in cycles per day.</span>
+<span class="sd">    nperseg : int</span>
+<span class="sd">        Number of samples per Welch segment.</span>
+<span class="sd">    noverlap : int</span>
+<span class="sd">        Number of overlapping samples between adjacent Welch segments.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]</span>
+<span class="sd">        ``(freq, s_cw, s_ccw, r)`` where:</span>
+
+<span class="sd">        * ``freq``  — 1-D frequency array in cycles per day.</span>
+<span class="sd">        * ``s_cw``  — clockwise power spectral density (≥ 0).</span>
+<span class="sd">        * ``s_ccw`` — counter-clockwise power spectral density (≥ 0).</span>
+<span class="sd">        * ``r``     — rotary coefficient ``(s_ccw - s_cw) / (s_ccw + s_cw)``,</span>
+<span class="sd">          in ``[-1, 1]``; 0 where both spectra are zero.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Gonella, J. (1972). A rotary-component method for analysing meteorological</span>
+<span class="sd">    and oceanographic vector time series. *Deep-Sea Research*, 19(12), 833–846.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">csd</span> <span class="k">as</span> <span class="n">_scipy_csd</span>
+
+    <span class="n">_kw</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"fs"</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
+        <span class="s2">"window"</span><span class="p">:</span> <span class="s2">"hann"</span><span class="p">,</span>
+        <span class="s2">"nperseg"</span><span class="p">:</span> <span class="n">nperseg</span><span class="p">,</span>
+        <span class="s2">"noverlap"</span><span class="p">:</span> <span class="n">noverlap</span><span class="p">,</span>
+        <span class="s2">"detrend"</span><span class="p">:</span> <span class="s2">"linear"</span><span class="p">,</span>
+        <span class="s2">"scaling"</span><span class="p">:</span> <span class="s2">"density"</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">f_uu</span><span class="p">,</span> <span class="n">p_uu</span> <span class="o">=</span> <span class="n">_scipy_welch</span><span class="p">(</span><span class="n">u_col</span><span class="p">,</span> <span class="o">**</span><span class="n">_kw</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">p_vv</span> <span class="o">=</span> <span class="n">_scipy_welch</span><span class="p">(</span><span class="n">v_col</span><span class="p">,</span> <span class="o">**</span><span class="n">_kw</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">c_uv</span> <span class="o">=</span> <span class="n">_scipy_csd</span><span class="p">(</span><span class="n">u_col</span><span class="p">,</span> <span class="n">v_col</span><span class="p">,</span> <span class="o">**</span><span class="n">_kw</span><span class="p">)</span>
+    <span class="c1"># Gonella (1972) rotary decomposition</span>
+    <span class="n">q_uv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">c_uv</span><span class="p">)</span>
+    <span class="n">s_cw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">((</span><span class="n">p_uu</span> <span class="o">+</span> <span class="n">p_vv</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">q_uv</span><span class="p">)</span> <span class="o">/</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">s_ccw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">((</span><span class="n">p_uu</span> <span class="o">+</span> <span class="n">p_vv</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">q_uv</span><span class="p">)</span> <span class="o">/</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">denom</span> <span class="o">=</span> <span class="n">s_cw</span> <span class="o">+</span> <span class="n">s_ccw</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">denom</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">s_ccw</span> <span class="o">-</span> <span class="n">s_cw</span><span class="p">)</span> <span class="o">/</span> <span class="n">denom</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">f_uu</span><span class="p">,</span> <span class="n">s_cw</span><span class="p">,</span> <span class="n">s_ccw</span><span class="p">,</span> <span class="n">r</span></div>
+
+
+
+<div class="viewcode-block" id="compute_cwt">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.spectral.compute_cwt">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_cwt</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">dt_seconds</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">wavelet</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"morlet"</span><span class="p">,</span>
+    <span class="n">dj</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span><span class="p">,</span>
+    <span class="n">significance_level</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.95</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Compute a continuous wavelet transform (CWT) on a 1-D time series.</span>
+
+<span class="sd">    Uses pycwt (Torrence &amp; Compo 1998 method).  The input array is gap-filled</span>
+<span class="sd">    by linear interpolation before the transform; a boolean gap mask is returned</span>
+<span class="sd">    so callers can overlay the filled regions.</span>
+
+<span class="sd">    If the AR(1) coefficient estimation fails (series too short or strongly</span>
+<span class="sd">    trended), a WARNING is logged and the significance test falls back to a</span>
+<span class="sd">    white-noise background (alpha=0); the wavelet itself is unaffected.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x:</span>
+<span class="sd">        1-D array of values.  NaNs are treated as gaps and filled by linear</span>
+<span class="sd">        interpolation before the transform.</span>
+<span class="sd">    dt_seconds:</span>
+<span class="sd">        Sample interval in seconds.</span>
+<span class="sd">    wavelet:</span>
+<span class="sd">        ``"morlet"`` (default, complex — gives amplitude and phase, best for</span>
+<span class="sd">        oscillatory signals) or ``"mexican_hat"`` (real — better for detecting</span>
+<span class="sd">        edges/sharp features, useful for wave-skewness studies).</span>
+<span class="sd">    dj:</span>
+<span class="sd">        Fractional octave spacing between scales.  Smaller values give more</span>
+<span class="sd">        scales (finer period resolution) at higher compute cost.  Default 0.25</span>
+<span class="sd">        (4 scales per octave).</span>
+<span class="sd">    significance_level:</span>
+<span class="sd">        Confidence level for the chi-squared significance test against a</span>
+<span class="sd">        red-noise background.  Default 0.95 (95 %).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict with keys:</span>
+
+<span class="sd">    - ``power``   : 2-D array ``(n_scales, n_time)``, real wavelet power.</span>
+<span class="sd">    - ``periods`` : 1-D array of periods in **days**.</span>
+<span class="sd">    - ``coi``          : 1-D array of raw record-edge COI periods in **days** (pycwt output).</span>
+<span class="sd">    - ``effective_coi``: 1-D array of gap-aware COI periods in **days**.  At each time</span>
+<span class="sd">                         step this is the minimum of the record-edge COI and the COI</span>
+<span class="sd">                         contributed by the nearest gap boundary.  Inside gap columns</span>
+<span class="sd">                         it is 0 (entire period range unreliable).  Use this for</span>
+<span class="sd">                         hatching in plots.</span>
+<span class="sd">    - ``signif``  : 1-D array ``(n_scales,)`` — significance threshold for each</span>
+<span class="sd">                    scale; power &gt; signif[:,None] is significant.</span>
+<span class="sd">    - ``gap_mask``: boolean 1-D array ``(n_time,)`` — True where the original</span>
+<span class="sd">                    data was NaN (gap-filled region).</span>
+<span class="sd">    - ``dt_days`` : sample interval in days (convenience).</span>
+
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">pycwt</span>
+    <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+            <span class="s2">"pycwt is required for wavelet analysis: pip install pycwt"</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+
+    <span class="n">dt_days</span> <span class="o">=</span> <span class="n">dt_seconds</span> <span class="o">/</span> <span class="mf">86400.0</span>
+
+    <span class="n">gap_mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x_filled</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">gap_mask</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">good</span> <span class="o">=</span> <span class="o">~</span><span class="n">gap_mask</span>
+        <span class="n">x_filled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">idx</span><span class="p">[</span><span class="n">good</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="n">good</span><span class="p">])</span>
+
+    <span class="c1"># Normalise (pycwt works best on zero-mean unit-variance data)</span>
+    <span class="n">std</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x_filled</span><span class="o">.</span><span class="n">std</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">std</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="n">std</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">x_norm</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_filled</span> <span class="o">-</span> <span class="n">x_filled</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">/</span> <span class="n">std</span>
+
+    <span class="n">wavelet_obj</span> <span class="o">=</span> <span class="n">pycwt</span><span class="o">.</span><span class="n">Morlet</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="k">if</span> <span class="n">wavelet</span> <span class="o">==</span> <span class="s2">"morlet"</span> <span class="k">else</span> <span class="n">pycwt</span><span class="o">.</span><span class="n">MexicanHat</span><span class="p">()</span>
+
+    <span class="n">wave</span><span class="p">,</span> <span class="n">scales</span><span class="p">,</span> <span class="n">freqs</span><span class="p">,</span> <span class="n">coi</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">pycwt</span><span class="o">.</span><span class="n">cwt</span><span class="p">(</span>
+        <span class="n">x_norm</span><span class="p">,</span> <span class="n">dt_days</span><span class="p">,</span> <span class="n">dj</span><span class="o">=</span><span class="n">dj</span><span class="p">,</span> <span class="n">wavelet</span><span class="o">=</span><span class="n">wavelet_obj</span>
+    <span class="p">)</span>
+
+    <span class="n">power</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">wave</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">std</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># back to physical units (°C²)</span>
+    <span class="n">periods</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">freqs</span>  <span class="c1"># days</span>
+
+    <span class="c1"># Significance against red-noise background.</span>
+    <span class="c1"># pycwt.ar1() can fail when the series is very short or strongly trended;</span>
+    <span class="c1"># in that case fall back to a white-noise background (alpha=0) and warn.</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">alpha</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">pycwt</span><span class="o">.</span><span class="n">ar1</span><span class="p">(</span><span class="n">x_norm</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ar1_exc</span><span class="p">:</span>  <span class="c1"># noqa: BLE001</span>
+        <span class="n">_log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">"compute_cwt: AR(1) estimation failed (</span><span class="si">%s</span><span class="s2">); falling back to white-noise "</span>
+            <span class="s2">"significance background (alpha=0).  Significance contour will be "</span>
+            <span class="s2">"approximate.  Consider detrending or using a longer series."</span><span class="p">,</span>
+            <span class="n">ar1_exc</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">signif_raw</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">pycwt</span><span class="o">.</span><span class="n">significance</span><span class="p">(</span>
+        <span class="n">std</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">dt_days</span><span class="p">,</span>
+        <span class="n">scales</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="p">,</span>
+        <span class="n">significance_level</span><span class="o">=</span><span class="n">significance_level</span><span class="p">,</span>
+        <span class="n">wavelet</span><span class="o">=</span><span class="n">wavelet_obj</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Gap-aware effective COI: treat each gap boundary as a record edge.</span>
+    <span class="c1"># pycwt's COI is a linear ramp from each record edge; the growth rate per</span>
+    <span class="c1"># sample (coi_per_sample) is derived from the first two elements of coi[].</span>
+    <span class="c1"># For each gap [s, e), the COI wings extend left from s and right from e</span>
+    <span class="c1"># using the same ramp, then we take the element-wise minimum with the</span>
+    <span class="c1"># record-edge COI so that whichever constraint is tightest wins.</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">coi</span><span class="p">)</span>
+    <span class="n">eff_coi</span> <span class="o">=</span> <span class="n">coi</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">gap_mask</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">coi_per_sample</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">coi</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">coi</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">dt_days</span><span class="p">)</span>
+        <span class="n">padded</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(([</span><span class="kc">False</span><span class="p">],</span> <span class="n">gap_mask</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">]))</span>
+        <span class="n">edge_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">padded</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">))</span>
+        <span class="n">gap_starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">edge_diff</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">gap_ends</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">edge_diff</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">t_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">gap_starts</span><span class="p">,</span> <span class="n">gap_ends</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="n">eff_coi</span><span class="p">[</span><span class="n">s</span><span class="p">:</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># entire gap column is unreliable</span>
+            <span class="c1"># Distance (samples) to the nearer gap boundary, outside the gap</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">t_all</span> <span class="o">&lt;</span> <span class="n">s</span><span class="p">,</span> <span class="n">s</span> <span class="o">-</span> <span class="n">t_all</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">t_all</span> <span class="o">&gt;=</span> <span class="n">e</span><span class="p">,</span> <span class="n">t_all</span> <span class="o">-</span> <span class="p">(</span><span class="n">e</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="c1"># Mirror pycwt's ramp: dist=1 → coi[0], dist=2 → coi[1], …</span>
+            <span class="n">gap_wing</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">dist</span><span class="p">),</span>
+                <span class="nb">float</span><span class="p">(</span><span class="n">coi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="p">(</span><span class="n">dist</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">coi_per_sample</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">eff_coi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">eff_coi</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">gap_wing</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"power"</span><span class="p">:</span> <span class="n">power</span><span class="p">,</span>
+        <span class="s2">"periods"</span><span class="p">:</span> <span class="n">periods</span><span class="p">,</span>
+        <span class="s2">"coi"</span><span class="p">:</span> <span class="n">coi</span><span class="p">,</span>
+        <span class="s2">"effective_coi"</span><span class="p">:</span> <span class="n">eff_coi</span><span class="p">,</span>
+        <span class="s2">"signif"</span><span class="p">:</span> <span class="n">signif_raw</span><span class="p">,</span>
+        <span class="s2">"gap_mask"</span><span class="p">:</span> <span class="n">gap_mask</span><span class="p">,</span>
+        <span class="s2">"dt_days"</span><span class="p">:</span> <span class="n">dt_days</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="welch_psd">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.spectral.welch_psd">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">welch_psd</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">dt_days</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">segment_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">overlap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"hann"</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Welch PSD estimate on a gap-filled (finite) time series.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x:</span>
+<span class="sd">        1-D array of evenly-spaced, finite values (no NaNs).</span>
+<span class="sd">    dt_days:</span>
+<span class="sd">        Sample interval in days.</span>
+<span class="sd">    segment_length:</span>
+<span class="sd">        Number of samples per Welch window (``nperseg``).</span>
+<span class="sd">    overlap:</span>
+<span class="sd">        Fractional overlap between windows (default 0.5 → 50 %).</span>
+<span class="sd">    window:</span>
+<span class="sd">        Window function name accepted by ``scipy.signal.welch``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[np.ndarray, np.ndarray]</span>
+<span class="sd">        ``(frequencies_cpd, psd)`` where frequencies are in cycles per day.</span>
+
+<span class="sd">    """</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">dt_days</span>
+    <span class="n">noverlap</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">overlap</span> <span class="o">*</span> <span class="n">segment_length</span><span class="p">))</span>
+    <span class="n">f</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">_scipy_welch</span><span class="p">(</span>
+        <span class="n">x</span><span class="p">,</span>
+        <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+        <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span>
+        <span class="n">nperseg</span><span class="o">=</span><span class="n">segment_length</span><span class="p">,</span>
+        <span class="n">noverlap</span><span class="o">=</span><span class="n">noverlap</span><span class="p">,</span>
+        <span class="n">detrend</span><span class="o">=</span><span class="s2">"linear"</span><span class="p">,</span>
+        <span class="n">scaling</span><span class="o">=</span><span class="s2">"density"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">,</span> <span class="n">p</span></div>
+
+
+
+<div class="viewcode-block" id="welch_psd_gapaware">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.spectral.welch_psd_gapaware">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">welch_psd_gapaware</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">dt_days</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">segment_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">overlap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"hann"</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Welch PSD over contiguous finite runs only; windows straddling gaps are skipped.</span>
+
+<span class="sd">    Returns a sample-count-weighted average PSD across all valid windows from</span>
+<span class="sd">    all contiguous finite segments.  This avoids the low-frequency bias that</span>
+<span class="sd">    arises from gap-filling (linear interpolation) before the Welch estimate.</span>
+
+<span class="sd">    Switching the LF panel to gap-aware is a one-line change: replace</span>
+<span class="sd">    ``welch_psd(col_filled, ...)`` with ``welch_psd_gapaware(col, ...)``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x:</span>
+<span class="sd">        1-D array of evenly-spaced values; NaN marks gaps.</span>
+<span class="sd">    dt_days:</span>
+<span class="sd">        Sample interval in days.</span>
+<span class="sd">    segment_length:</span>
+<span class="sd">        Number of samples per Welch window (``nperseg``).</span>
+<span class="sd">    overlap:</span>
+<span class="sd">        Fractional overlap between windows (default 0.5 → 50 %).</span>
+<span class="sd">    window:</span>
+<span class="sd">        Window function name accepted by ``scipy.signal.welch``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[np.ndarray | None, np.ndarray | None, int]</span>
+<span class="sd">        ``(frequencies_cpd, psd, n_windows)`` where *n_windows* is the total</span>
+<span class="sd">        number of valid Welch windows used.  Returns ``(None, None, 0)`` when</span>
+<span class="sd">        no contiguous run is long enough for a single window.</span>
+
+<span class="sd">    """</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">dt_days</span>
+    <span class="n">noverlap</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">overlap</span> <span class="o">*</span> <span class="n">segment_length</span><span class="p">))</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">segment_length</span> <span class="o">-</span> <span class="n">noverlap</span>
+
+    <span class="n">padded</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(([</span><span class="kc">False</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="p">[</span><span class="kc">False</span><span class="p">]))</span>
+    <span class="n">edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">padded</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">))</span>
+    <span class="n">starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">edges</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">ends</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">edges</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">freq_out</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">psd_sum</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">total_wins</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">starts</span><span class="p">,</span> <span class="n">ends</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">seg</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">s</span><span class="p">:</span><span class="n">e</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">seg</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">segment_length</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">f</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">_scipy_welch</span><span class="p">(</span>
+            <span class="n">seg</span><span class="p">,</span>
+            <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+            <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span>
+            <span class="n">nperseg</span><span class="o">=</span><span class="n">segment_length</span><span class="p">,</span>
+            <span class="n">noverlap</span><span class="o">=</span><span class="n">noverlap</span><span class="p">,</span>
+            <span class="n">detrend</span><span class="o">=</span><span class="s2">"linear"</span><span class="p">,</span>
+            <span class="n">scaling</span><span class="o">=</span><span class="s2">"density"</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">n_wins</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">seg</span><span class="p">)</span> <span class="o">-</span> <span class="n">segment_length</span><span class="p">)</span> <span class="o">//</span> <span class="n">step</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">freq_out</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">freq_out</span> <span class="o">=</span> <span class="n">f</span>
+            <span class="n">psd_sum</span> <span class="o">=</span> <span class="n">p</span> <span class="o">*</span> <span class="n">n_wins</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">psd_sum</span> <span class="o">=</span> <span class="n">psd_sum</span> <span class="o">+</span> <span class="n">p</span> <span class="o">*</span> <span class="n">n_wins</span>  <span class="c1"># type: ignore[operator]</span>
+        <span class="n">total_wins</span> <span class="o">+=</span> <span class="n">n_wins</span>
+
+    <span class="k">if</span> <span class="n">freq_out</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">total_wins</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">freq_out</span><span class="p">,</span> <span class="n">psd_sum</span> <span class="o">/</span> <span class="n">total_wins</span><span class="p">,</span> <span class="n">total_wins</span>  <span class="c1"># type: ignore[operator]</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,957 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.pipeline.qc &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../pipeline.html">oceanarray.pipeline</a></li>
+      <li class="breadcrumb-item active">oceanarray.pipeline.qc</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.pipeline.qc</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""QARTOD QC tests and CTD derivations for stage 3."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameters</span> <span class="k">as</span> <span class="n">params</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.units</span><span class="w"> </span><span class="kn">import</span> <span class="n">UnitsError</span>
+
+<span class="c1"># Merge priority for combining QC flags (higher priority wins = worse quality).</span>
+<span class="c1"># Single source of truth: parameters.QC_MERGE_PRIORITY, shared with</span>
+<span class="c1"># mooring.helpers._worst_flag so the two merge paths cannot drift.</span>
+<span class="n">_QC_PRIORITY</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">QC_MERGE_PRIORITY</span>
+
+<span class="c1"># Velocity variable names in both beam and ENU coordinate systems.</span>
+<span class="n">_VELOCITY_VARS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"velocity_beam1"</span><span class="p">,</span>
+    <span class="s2">"velocity_beam2"</span><span class="p">,</span>
+    <span class="s2">"velocity_beam3"</span><span class="p">,</span>
+    <span class="s2">"east_velocity"</span><span class="p">,</span>
+    <span class="s2">"north_velocity"</span><span class="p">,</span>
+    <span class="s2">"up_velocity"</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_merge_flags</span><span class="p">(</span><span class="o">*</span><span class="n">flag_arrays</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Merge multiple int8 flag arrays using priority ordering.</span>
+
+<span class="sd">    Returns element-wise flag with highest priority (worst quality).</span>
+<span class="sd">    Works on arrays of any shape (1-D time series or 2-D time×N_BINS).</span>
+<span class="sd">    """</span>
+    <span class="c1"># priority[flag] for flags 0-9, from the shared single-source LUT.</span>
+    <span class="n">_priority</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">QC_MERGE_PRIORITY_LUT</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">flag_arrays</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">fa</span> <span class="ow">in</span> <span class="n">flag_arrays</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="n">fa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">fa</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+        <span class="n">replace</span> <span class="o">=</span> <span class="n">_priority</span><span class="p">[</span><span class="n">fa</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">)]</span> <span class="o">&gt;</span> <span class="n">_priority</span><span class="p">[</span><span class="n">result</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">)]</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">replace</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_ingest_qartod</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Normalise one ioos_qc test result onto the OceanSITES flag table.</span>
+
+<span class="sd">    Folds the three steps every QARTOD test needs into one place: fill missing</span>
+<span class="sd">    entries with 9 (handling both ioos_qc return types — a masked array or a</span>
+<span class="sd">    plain ndarray, depending on version), cast to int8, and remap QARTOD</span>
+<span class="sd">    ``UNKNOWN(2)`` — "could not evaluate", e.g. ``spike_test`` at a record edge or</span>
+<span class="sd">    beside a gap — to OceanSITES ``unknown(0)``. Applied *before* merging, so a</span>
+<span class="sd">    point a test could not evaluate never asserts ``probably_good_data(2)``.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">"filled"</span><span class="p">):</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">arr</span><span class="p">),</span> <span class="mi">9</span><span class="p">,</span> <span class="n">arr</span><span class="p">)</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+    <span class="c1"># np.where over an int8 array and an int8 scalar is already int8.</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">flags</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">flags</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="set_qc_attrs">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.qc.set_qc_attrs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_qc_attrs</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">extra</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Attach the OceanSITES flag attributes to ``{var}_qc`` in place.</span>
+
+<span class="sd">    The single owner of QC-flag metadata: call this wherever a ``_qc`` variable</span>
+<span class="sd">    is created or updated so the CF flag attributes cannot be forgotten. The flag</span>
+<span class="sd">    table is sourced from :mod:`oceanarray.parameters` (one source of truth) and</span>
+<span class="sd">    the full legal set is declared, not only the values present. The status-flag</span>
+<span class="sd">    ``standard_name`` (``"{parent} status_flag"``) is attached only when the parent</span>
+<span class="sd">    variable has a ``standard_name`` — it is skipped, never fabricated, when the</span>
+<span class="sd">    parent has none (``standard_name`` is an optional CF attribute).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        Dataset containing both ``var`` and its ``{var}_qc`` companion.</span>
+<span class="sd">    var : str</span>
+<span class="sd">        Name of the data variable whose ``_qc`` companion is annotated.</span>
+<span class="sd">    extra : dict of str to Any, optional</span>
+<span class="sd">        Additional attributes to attach (e.g. QC threshold provenance).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        *ds*, modified in place.</span>
+
+<span class="sd">    """</span>
+    <span class="n">attrs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"flag_values"</span><span class="p">:</span> <span class="n">params</span><span class="o">.</span><span class="n">QC_FLAG_VALUES_I8</span><span class="p">,</span>
+        <span class="s2">"flag_meanings"</span><span class="p">:</span> <span class="n">params</span><span class="o">.</span><span class="n">QC_FLAG_MEANINGS</span><span class="p">,</span>
+        <span class="s2">"conventions"</span><span class="p">:</span> <span class="n">params</span><span class="o">.</span><span class="n">QC_CONVENTION</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">std</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"standard_name"</span><span class="p">)</span> <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">variables</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">std</span><span class="p">:</span>
+        <span class="n">attrs</span><span class="p">[</span><span class="s2">"standard_name"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">std</span><span class="si">}</span><span class="s2"> status_flag"</span>
+    <span class="k">if</span> <span class="n">extra</span><span class="p">:</span>
+        <span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span>
+    <span class="n">qc</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">_qc"</span><span class="p">]</span>
+    <span class="n">qc</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
+    <span class="c1"># Preserve an author-supplied long_name (e.g. a standalone diagnostic flag</span>
+    <span class="c1"># like seabed_qc); only fill it when absent.</span>
+    <span class="n">qc</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"long_name"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"quality flag for </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_deep_merge</span><span class="p">(</span><span class="n">base</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">override</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Merge two nested dicts; override values win at the variable level."""</span>
+    <span class="n">merged</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">override</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">merged</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">merged</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">merged</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">merged</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="o">**</span><span class="n">v</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">merged</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">merged</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_tilt_from_span</span><span class="p">(</span><span class="n">qc_ranges</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Extract tilt thresholds from a qc_ranges block if 'tilt' is present.</span>
+
+<span class="sd">    Converts the symmetric span format (matching all other variables) into the</span>
+<span class="sd">    threshold format used internally by apply_tilt_qc.  The upper bound of</span>
+<span class="sd">    each span is the threshold — tilt is always non-negative so the lower bound</span>
+<span class="sd">    is typically negative and only the upper bound matters:</span>
+<span class="sd">        suspect_span: [-20, 20]  →  suspect_threshold: 20</span>
+<span class="sd">        fail_span:    [-30, 30]  →  fail_threshold:    30</span>
+<span class="sd">    """</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">tilt_cfg</span> <span class="o">=</span> <span class="n">qc_ranges</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"tilt"</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="k">if</span> <span class="s2">"suspect_span"</span> <span class="ow">in</span> <span class="n">tilt_cfg</span><span class="p">:</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">"suspect_threshold"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">tilt_cfg</span><span class="p">[</span><span class="s2">"suspect_span"</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s2">"fail_span"</span> <span class="ow">in</span> <span class="n">tilt_cfg</span><span class="p">:</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">"fail_threshold"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">tilt_cfg</span><span class="p">[</span><span class="s2">"fail_span"</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<div class="viewcode-block" id="load_qc_config">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.qc.load_qc_config">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_qc_config</span><span class="p">(</span>
+    <span class="n">mooring_cfg</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">entry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return QC threshold dicts for one instrument.</span>
+
+<span class="sd">    Returns a 4-tuple ``(gross_range, spike, tilt, flat_line)`` built from</span>
+<span class="sd">    package defaults with mooring-level and then instrument-level YAML</span>
+<span class="sd">    overrides applied (later values win).</span>
+
+<span class="sd">    ``gross_range`` and ``spike`` map variable names (e.g. ``"temperature"``,</span>
+<span class="sd">    ``"pressure"``) to threshold dicts understood by ``apply_qc_tests``.</span>
+<span class="sd">    ``tilt`` holds ``suspect_threshold`` / ``fail_threshold`` in degrees,</span>
+<span class="sd">    used to flag Aquadopp velocity data when the instrument is tilted beyond</span>
+<span class="sd">    acceptable limits.  ``flat_line`` maps variable names to</span>
+<span class="sd">    ``{suspect_n, fail_n, tolerance}`` dicts for the stuck-sensor test.</span>
+
+<span class="sd">    YAML override keys:</span>
+
+<span class="sd">    * ``qc_ranges`` (mooring or instrument level) — gross-range and tilt spans</span>
+<span class="sd">    * ``qc_spike`` — spike thresholds</span>
+<span class="sd">    * ``tilt_qc`` — tilt thresholds (takes precedence over ``qc_ranges.tilt``)</span>
+<span class="sd">    * ``qc_flat_line`` — stuck-sensor thresholds</span>
+
+<span class="sd">    ``tilt`` is stripped from the gross-range dict before returning so it is</span>
+<span class="sd">    not passed to the QARTOD gross-range test runner.</span>
+<span class="sd">    """</span>
+    <span class="n">gr</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">QC_GROSS_RANGE</span><span class="p">)</span>
+    <span class="n">sp</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">QC_SPIKE</span><span class="p">)</span>
+    <span class="n">tilt</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">QC_TILT</span><span class="p">)</span>
+    <span class="n">fl</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">QC_FLAT_LINE</span><span class="p">)</span>
+
+    <span class="c1"># Mooring-level overrides</span>
+    <span class="k">if</span> <span class="s2">"qc_ranges"</span> <span class="ow">in</span> <span class="n">mooring_cfg</span><span class="p">:</span>
+        <span class="n">gr</span> <span class="o">=</span> <span class="n">_deep_merge</span><span class="p">(</span><span class="n">gr</span><span class="p">,</span> <span class="n">mooring_cfg</span><span class="p">[</span><span class="s2">"qc_ranges"</span><span class="p">])</span>
+        <span class="n">tilt</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_tilt_from_span</span><span class="p">(</span><span class="n">mooring_cfg</span><span class="p">[</span><span class="s2">"qc_ranges"</span><span class="p">]))</span>
+    <span class="k">if</span> <span class="s2">"qc_spike"</span> <span class="ow">in</span> <span class="n">mooring_cfg</span><span class="p">:</span>
+        <span class="n">sp</span> <span class="o">=</span> <span class="n">_deep_merge</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="n">mooring_cfg</span><span class="p">[</span><span class="s2">"qc_spike"</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s2">"tilt_qc"</span> <span class="ow">in</span> <span class="n">mooring_cfg</span><span class="p">:</span>
+        <span class="n">tilt</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">mooring_cfg</span><span class="p">[</span><span class="s2">"tilt_qc"</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s2">"qc_flat_line"</span> <span class="ow">in</span> <span class="n">mooring_cfg</span><span class="p">:</span>
+        <span class="n">fl</span> <span class="o">=</span> <span class="n">_deep_merge</span><span class="p">(</span><span class="n">fl</span><span class="p">,</span> <span class="n">mooring_cfg</span><span class="p">[</span><span class="s2">"qc_flat_line"</span><span class="p">])</span>
+
+    <span class="c1"># Instrument-level overrides</span>
+    <span class="k">if</span> <span class="s2">"qc_ranges"</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
+        <span class="n">gr</span> <span class="o">=</span> <span class="n">_deep_merge</span><span class="p">(</span><span class="n">gr</span><span class="p">,</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"qc_ranges"</span><span class="p">])</span>
+        <span class="n">tilt</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_tilt_from_span</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">"qc_ranges"</span><span class="p">]))</span>
+    <span class="k">if</span> <span class="s2">"qc_spike"</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
+        <span class="n">sp</span> <span class="o">=</span> <span class="n">_deep_merge</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"qc_spike"</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s2">"tilt_qc"</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
+        <span class="n">tilt</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">"tilt_qc"</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s2">"qc_flat_line"</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
+        <span class="n">fl</span> <span class="o">=</span> <span class="n">_deep_merge</span><span class="p">(</span><span class="n">fl</span><span class="p">,</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"qc_flat_line"</span><span class="p">])</span>
+
+    <span class="c1"># Remove tilt from the gross-range dict — it is handled separately and</span>
+    <span class="c1"># is not a valid QARTOD gross-range variable.</span>
+    <span class="n">gr</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"tilt"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">gr</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">tilt</span><span class="p">,</span> <span class="n">fl</span></div>
+
+
+
+<div class="viewcode-block" id="apply_tilt_qc">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.qc.apply_tilt_qc">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_tilt_qc</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">tilt_cfg</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Flag velocity variables when pitch or roll exceeds QC thresholds.</span>
+
+<span class="sd">    Primary path — pitch_qc / roll_qc already exist (created by the gross-range</span>
+<span class="sd">    QC step when pitch and/or roll appear in ``qc_ranges`` in the YAML):</span>
+
+<span class="sd">        The two flag arrays are merged element-wise (worst flag wins) and the</span>
+<span class="sd">        result is propagated to every velocity variable.  Any time step where</span>
+<span class="sd">        pitch OR roll is flagged suspect (3) or bad (4) will flag the velocities</span>
+<span class="sd">        with the same severity.</span>
+
+<span class="sd">    Fallback path — neither pitch_qc nor roll_qc exist:</span>
+
+<span class="sd">        tilt is computed as max(``|pitch|``, ``|roll|``) and compared against</span>
+<span class="sd">        tilt_cfg thresholds (``suspect_threshold`` / ``fail_threshold``).</span>
+
+<span class="sd">    In both paths ``tilt_suspect_threshold`` and ``tilt_fail_threshold`` are</span>
+<span class="sd">    written to global attrs so the report can draw reference lines on the tilt</span>
+<span class="sd">    time-series panel.</span>
+
+<span class="sd">    Returns (ds, n_suspect, n_bad).  No-ops when both pitch and roll are absent.</span>
+<span class="sd">    """</span>
+    <span class="n">has_pitch</span> <span class="o">=</span> <span class="s2">"pitch"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span>
+    <span class="n">has_roll</span> <span class="o">=</span> <span class="s2">"roll"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">has_pitch</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">has_roll</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ds</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+
+    <span class="n">has_pitch_qc</span> <span class="o">=</span> <span class="s2">"pitch_qc"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span>
+    <span class="n">has_roll_qc</span> <span class="o">=</span> <span class="s2">"roll_qc"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span>
+
+    <span class="k">if</span> <span class="n">has_pitch_qc</span> <span class="ow">or</span> <span class="n">has_roll_qc</span><span class="p">:</span>
+        <span class="c1"># Primary path: merge already-computed pitch/roll QC flags.</span>
+        <span class="n">n_time</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">combined</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n_time</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">has_pitch_qc</span><span class="p">:</span>
+            <span class="n">combined</span> <span class="o">=</span> <span class="n">_merge_flags</span><span class="p">(</span><span class="n">combined</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"pitch_qc"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">has_roll_qc</span><span class="p">:</span>
+            <span class="n">combined</span> <span class="o">=</span> <span class="n">_merge_flags</span><span class="p">(</span><span class="n">combined</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"roll_qc"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">))</span>
+        <span class="n">tilt_flags</span> <span class="o">=</span> <span class="n">combined</span>
+
+        <span class="c1"># Read thresholds from whichever QC variable is available so the</span>
+        <span class="c1"># report can draw consistent reference lines on the tilt panel.</span>
+        <span class="n">ref_attrs</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"pitch_qc"</span> <span class="k">if</span> <span class="n">has_pitch_qc</span> <span class="k">else</span> <span class="s2">"roll_qc"</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span>
+        <span class="n">suspect_thresh</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">ref_attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s2">"qc_gross_range_suspect_max"</span><span class="p">,</span> <span class="n">tilt_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"suspect_threshold"</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">fail_thresh</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">ref_attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s2">"qc_gross_range_fail_max"</span><span class="p">,</span> <span class="n">tilt_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"fail_threshold"</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Fallback: compute from raw pitch/roll values.</span>
+        <span class="n">n_time</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">pitch</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"pitch"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="k">if</span> <span class="n">has_pitch</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_time</span><span class="p">)</span>
+        <span class="n">roll</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"roll"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="k">if</span> <span class="n">has_roll</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_time</span><span class="p">)</span>
+
+        <span class="n">tilt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">pitch</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">roll</span><span class="p">))</span>
+        <span class="n">tilt</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">pitch</span><span class="p">)</span> <span class="o">|</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">roll</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+        <span class="n">suspect_thresh</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">tilt_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"suspect_threshold"</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">))</span>
+        <span class="n">fail_thresh</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">tilt_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"fail_threshold"</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">))</span>
+
+        <span class="n">tilt_flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">tilt</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">9</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">tilt</span> <span class="o">&gt;=</span> <span class="n">fail_thresh</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">tilt</span> <span class="o">&gt;=</span> <span class="n">suspect_thresh</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span>
+            <span class="p">),</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+
+    <span class="n">n_suspect</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">tilt_flags</span> <span class="o">==</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">n_bad</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">tilt_flags</span> <span class="o">==</span> <span class="mi">4</span><span class="p">))</span>
+
+    <span class="c1"># Persist thresholds so the report can draw reference lines on the tilt panel.</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"tilt_suspect_threshold"</span><span class="p">]</span> <span class="o">=</span> <span class="n">suspect_thresh</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"tilt_fail_threshold"</span><span class="p">]</span> <span class="o">=</span> <span class="n">fail_thresh</span>
+
+    <span class="k">if</span> <span class="n">n_suspect</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">n_bad</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ds</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+
+    <span class="n">vel_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_VELOCITY_VARS</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">varname</span> <span class="ow">in</span> <span class="n">vel_vars</span><span class="p">:</span>
+        <span class="n">qc_varname</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">varname</span><span class="si">}</span><span class="s2">_qc"</span>
+        <span class="c1"># For ADCP, velocity is 2-D (time, N_BINS); broadcast (time,) → (time, N_BINS).</span>
+        <span class="k">if</span> <span class="n">ds</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">flags_for_var</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span>
+                <span class="n">tilt_flags</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">ds</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">flags_for_var</span> <span class="o">=</span> <span class="n">tilt_flags</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">qc_varname</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="n">existing</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">qc_varname</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+            <span class="n">new_flags</span> <span class="o">=</span> <span class="n">_merge_flags</span><span class="p">(</span><span class="n">existing</span><span class="p">,</span> <span class="n">flags_for_var</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_flags</span> <span class="o">=</span> <span class="n">flags_for_var</span>
+        <span class="n">ds</span><span class="p">[</span><span class="n">qc_varname</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span>
+            <span class="n">new_flags</span><span class="p">,</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">"long_name"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"quality flag for </span><span class="si">{</span><span class="n">varname</span><span class="si">}</span><span class="s2">"</span><span class="p">},</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ds</span><span class="p">,</span> <span class="n">n_suspect</span><span class="p">,</span> <span class="n">n_bad</span></div>
+
+
+
+<div class="viewcode-block" id="compute_salinity_data">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.qc.compute_salinity_data">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_salinity_data</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">log_fn</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Compute Practical Salinity (SP) data values only — no QC flags yet.</span>
+
+<span class="sd">    Call this BEFORE ``apply_qc_tests`` so that salinity participates in the</span>
+<span class="sd">    gross-range QC pass and gets its threshold attrs written to ``salinity_qc``.</span>
+<span class="sd">    Call ``merge_salinity_parent_qc`` afterward to fold in T/C/P parent flags.</span>
+
+<span class="sd">    Conductivity must already be canonical ``mS cm-1`` — stage 3 runs</span>
+<span class="sd">    :func:`oceanarray.pipeline.units.to_canonical_units` first, which converts any</span>
+<span class="sd">    S/m input.  A non-canonical unit here means that pass was skipped and the ×10 is</span>
+<span class="sd">    missing, so this raises rather than compute salinity 10× too small from S/m.</span>
+<span class="sd">    """</span>
+    <span class="n">required</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"temperature"</span><span class="p">,</span> <span class="s2">"conductivity"</span><span class="p">,</span> <span class="s2">"pressure"</span><span class="p">}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">required</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ds</span>
+    <span class="n">cond_units</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"conductivity"</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"units"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">canonical</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">VARIABLES</span><span class="p">[</span><span class="s2">"conductivity"</span><span class="p">][</span><span class="s2">"units"</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">cond_units</span> <span class="o">!=</span> <span class="n">canonical</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">UnitsError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"conductivity units are </span><span class="si">{</span><span class="n">cond_units</span><span class="si">!r}</span><span class="s2">, not the canonical </span><span class="si">{</span><span class="n">canonical</span><span class="si">!r}</span><span class="s2">; "</span>
+            <span class="sa">f</span><span class="s2">"run to_canonical_units before computing salinity (salinity from S/m "</span>
+            <span class="sa">f</span><span class="s2">"would be 10x too small)."</span>
+        <span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">gsw</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">log_fn</span><span class="p">:</span>
+            <span class="n">log_fn</span><span class="p">(</span><span class="s2">"  WARNING: gsw not installed — salinity not computed"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ds</span>
+
+    <span class="n">C</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"conductivity"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>  <span class="c1"># mS/cm</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"temperature"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>  <span class="c1"># °C ITS-90</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>  <span class="c1"># dbar</span>
+
+    <span class="n">SP</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">SP_from_C</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">"salinity"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+        <span class="s2">"time"</span><span class="p">,</span>
+        <span class="n">SP</span><span class="p">,</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"1"</span><span class="p">,</span>
+            <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"Practical Salinity"</span><span class="p">,</span>
+            <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"sea_water_practical_salinity"</span><span class="p">,</span>
+            <span class="s2">"coverage_content_type"</span><span class="p">:</span> <span class="s2">"physicalMeasurement"</span><span class="p">,</span>
+            <span class="s2">"comment"</span><span class="p">:</span> <span class="s2">"Derived from conductivity, temperature, pressure via gsw.SP_from_C"</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds</span></div>
+
+
+
+<div class="viewcode-block" id="merge_salinity_parent_qc">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.qc.merge_salinity_parent_qc">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">merge_salinity_parent_qc</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Merge parent (T/C/P) QC flags into salinity_qc after QC tests have run.</span>
+
+<span class="sd">    ``apply_qc_tests`` sets salinity_qc from the gross-range test and stores</span>
+<span class="sd">    the threshold attrs needed by the report histogram.  Here we additionally</span>
+<span class="sd">    fold in the worst flag from temperature_qc, conductivity_qc, and</span>
+<span class="sd">    pressure_qc so that a bad/suspect input propagates to salinity.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s2">"salinity"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ds</span>
+    <span class="n">parent_flags</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">varname</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"temperature"</span><span class="p">,</span> <span class="s2">"conductivity"</span><span class="p">,</span> <span class="s2">"pressure"</span><span class="p">):</span>
+        <span class="n">qv</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">varname</span><span class="si">}</span><span class="s2">_qc"</span>
+        <span class="k">if</span> <span class="n">qv</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">qv</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">varname</span> <span class="o">==</span> <span class="s2">"pressure"</span><span class="p">:</span>
+            <span class="c1"># Interpolated pressure (flag 8) does not degrade salinity: T and C</span>
+            <span class="c1"># are still directly measured, so salinity is valid.  Treat flag 8</span>
+            <span class="c1"># as good (1) when propagating from pressure to salinity.</span>
+            <span class="n">f</span><span class="p">[</span><span class="n">f</span> <span class="o">==</span> <span class="mi">8</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">parent_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">parent_flags</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ds</span>
+
+    <span class="n">parent_merged</span> <span class="o">=</span> <span class="n">_merge_flags</span><span class="p">(</span><span class="o">*</span><span class="n">parent_flags</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">"salinity_qc"</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="n">existing_attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"salinity_qc"</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+        <span class="n">new_flags</span> <span class="o">=</span> <span class="n">_merge_flags</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">[</span><span class="s2">"salinity_qc"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">),</span> <span class="n">parent_merged</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">existing_attrs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">new_flags</span> <span class="o">=</span> <span class="n">parent_merged</span>
+
+    <span class="n">ds</span><span class="p">[</span><span class="s2">"salinity_qc"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+        <span class="s2">"time"</span><span class="p">,</span>
+        <span class="n">new_flags</span><span class="p">,</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+            <span class="o">**</span><span class="n">existing_attrs</span><span class="p">,</span>
+            <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"quality flag for salinity"</span><span class="p">,</span>
+            <span class="s2">"comment"</span><span class="p">:</span> <span class="s2">"QARTOD gross-range + worst of T/C/P parent flags"</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds</span></div>
+
+
+
+<div class="viewcode-block" id="apply_qc_tests">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.qc.apply_qc_tests">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_qc_tests</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">gross_range</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">spike</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">flat_line</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Apply QARTOD gross-range, spike, and flat-line tests, writing ``*_qc`` variables.</span>
+
+<span class="sd">    Three QARTOD tests are applied in sequence; the worst flag across all</span>
+<span class="sd">    tests wins for each sample:</span>
+
+<span class="sd">    * **Gross-range**: flags values outside physically plausible bounds as</span>
+<span class="sd">      SUSPECT (3) or BAD (4) — e.g. temperature below -2.5 °C or above 40 °C.</span>
+<span class="sd">    * **Spike**: flags isolated outliers that deviate from the surrounding</span>
+<span class="sd">      record by more than a threshold — e.g. a brief salinity glitch from</span>
+<span class="sd">      biofouling or a pressure transient.</span>
+<span class="sd">    * **Flat-line** (stuck-sensor): flags runs of consecutive samples where</span>
+<span class="sd">      the value does not change by more than ``tolerance`` — e.g. a pressure</span>
+<span class="sd">      sensor frozen at 0 dbar after a failure.  Threshold is expressed in</span>
+<span class="sd">      sample counts (``suspect_n``, ``fail_n``) and converted to seconds</span>
+<span class="sd">      using the median sample interval.  Applied by default to pressure only</span>
+<span class="sd">      (see ``parameters.QC_FLAT_LINE``).</span>
+
+<span class="sd">    Pre-existing ``*_qc`` values (e.g. ``pressure_qc = 8`` set by the</span>
+<span class="sd">    pressure-interpolation step in the stack) are preserved: the worst flag</span>
+<span class="sd">    across the incoming value and the new test flags is written to the output.</span>
+
+<span class="sd">    Provenance: the thresholds actually applied are stored as attributes on</span>
+<span class="sd">    each ``{var}_qc`` variable so the treatment can be reconstructed from</span>
+<span class="sd">    the NetCDF file alone, without re-reading the YAML:</span>
+
+<span class="sd">    * ``qc_gross_range_fail_min`` / ``qc_gross_range_fail_max``</span>
+<span class="sd">    * ``qc_gross_range_suspect_min`` / ``qc_gross_range_suspect_max``</span>
+<span class="sd">    * ``qc_spike_suspect_threshold`` / ``qc_spike_fail_threshold``</span>
+<span class="sd">    * ``qc_flat_line_suspect_count`` / ``qc_flat_line_fail_count``</span>
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">ioos_qc</span><span class="w"> </span><span class="kn">import</span> <span class="n">qartod</span>
+
+    <span class="n">_flat</span> <span class="o">=</span> <span class="n">flat_line</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">test_vars</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">v</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">v</span> <span class="ow">in</span> <span class="n">gross_range</span> <span class="ow">or</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">spike</span> <span class="ow">or</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_flat</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">v</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"_qc"</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">varname</span> <span class="ow">in</span> <span class="n">test_vars</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="c1"># Start with flag 1 (good) for all non-NaN, 9 (missing) for NaN</span>
+        <span class="n">base_flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">9</span><span class="p">))</span>
+        <span class="n">flags_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">base_flags</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">varname</span> <span class="ow">in</span> <span class="n">gross_range</span><span class="p">:</span>
+            <span class="n">cfg</span> <span class="o">=</span> <span class="n">gross_range</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span>
+            <span class="n">flags_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">_ingest_qartod</span><span class="p">(</span>
+                    <span class="n">qartod</span><span class="o">.</span><span class="n">gross_range_test</span><span class="p">(</span>
+                        <span class="n">inp</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+                        <span class="n">fail_span</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"fail_span"</span><span class="p">]),</span>
+                        <span class="n">suspect_span</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"suspect_span"</span><span class="p">,</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">"fail_span"</span><span class="p">])),</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">varname</span> <span class="ow">in</span> <span class="n">spike</span><span class="p">:</span>
+            <span class="n">cfg</span> <span class="o">=</span> <span class="n">spike</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span>
+            <span class="n">flags_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">_ingest_qartod</span><span class="p">(</span>
+                    <span class="n">qartod</span><span class="o">.</span><span class="n">spike_test</span><span class="p">(</span>
+                        <span class="n">inp</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+                        <span class="n">suspect_threshold</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"suspect_threshold"</span><span class="p">),</span>
+                        <span class="n">fail_threshold</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"fail_threshold"</span><span class="p">),</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">varname</span> <span class="ow">in</span> <span class="n">_flat</span> <span class="ow">and</span> <span class="s2">"time"</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="n">fl_cfg</span> <span class="o">=</span> <span class="n">_flat</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span>
+            <span class="n">time_vals</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="c1"># Convert datetime64 → float seconds since epoch for ioos_qc</span>
+            <span class="n">time_s</span> <span class="o">=</span> <span class="n">time_vals</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"datetime64[s]"</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">dt_s</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">time_s</span><span class="p">)))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_s</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mf">60.0</span>
+            <span class="k">if</span> <span class="n">dt_s</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># All timestamps are identical (or single record); ioos_qc would</span>
+                <span class="c1"># divide by zero inside flat_line_test — skip the test.</span>
+                <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"flat_line_test skipped for '</span><span class="si">{</span><span class="n">varname</span><span class="si">}</span><span class="s2">': median time interval is "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dt_s</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> s (all timestamps identical?)"</span><span class="p">,</span>
+                    <span class="ne">RuntimeWarning</span><span class="p">,</span>
+                    <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">suspect_n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fl_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"suspect_n"</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+            <span class="n">fail_n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fl_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"fail_n"</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">_fl_result</span> <span class="o">=</span> <span class="n">qartod</span><span class="o">.</span><span class="n">flat_line_test</span><span class="p">(</span>
+                    <span class="n">inp</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+                    <span class="n">tinp</span><span class="o">=</span><span class="n">time_s</span><span class="p">,</span>
+                    <span class="n">suspect_threshold</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">suspect_n</span> <span class="o">*</span> <span class="n">dt_s</span><span class="p">),</span>
+                    <span class="n">fail_threshold</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">fail_n</span> <span class="o">*</span> <span class="n">dt_s</span><span class="p">),</span>
+                    <span class="n">tolerance</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">fl_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"tolerance"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">OverflowError</span><span class="p">)</span> <span class="k">as</span> <span class="n">_fl_err</span><span class="p">:</span>
+                <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"flat_line_test skipped for '</span><span class="si">{</span><span class="n">varname</span><span class="si">}</span><span class="s2">': </span><span class="si">{</span><span class="n">_fl_err</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                    <span class="ne">RuntimeWarning</span><span class="p">,</span>
+                    <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">flags_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_ingest_qartod</span><span class="p">(</span><span class="n">_fl_result</span><span class="p">))</span>
+
+        <span class="n">new_flags</span> <span class="o">=</span> <span class="n">_merge_flags</span><span class="p">(</span><span class="o">*</span><span class="n">flags_list</span><span class="p">)</span>
+
+        <span class="n">qc_varname</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">varname</span><span class="si">}</span><span class="s2">_qc"</span>
+        <span class="k">if</span> <span class="n">qc_varname</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="n">existing</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">qc_varname</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+            <span class="n">new_flags</span> <span class="o">=</span> <span class="n">_merge_flags</span><span class="p">(</span><span class="n">existing</span><span class="p">,</span> <span class="n">new_flags</span><span class="p">)</span>
+
+        <span class="c1"># Store the actual thresholds applied so downstream tools (e.g. the</span>
+        <span class="c1"># report histogram) can show exactly what was used without re-reading YAML.</span>
+        <span class="n">threshold_attrs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">varname</span> <span class="ow">in</span> <span class="n">gross_range</span><span class="p">:</span>
+            <span class="n">gcfg</span> <span class="o">=</span> <span class="n">gross_range</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s2">"fail_span"</span> <span class="ow">in</span> <span class="n">gcfg</span><span class="p">:</span>
+                <span class="n">threshold_attrs</span><span class="p">[</span><span class="s2">"qc_gross_range_fail_min"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">gcfg</span><span class="p">[</span><span class="s2">"fail_span"</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">threshold_attrs</span><span class="p">[</span><span class="s2">"qc_gross_range_fail_max"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">gcfg</span><span class="p">[</span><span class="s2">"fail_span"</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span> <span class="s2">"suspect_span"</span> <span class="ow">in</span> <span class="n">gcfg</span><span class="p">:</span>
+                <span class="n">threshold_attrs</span><span class="p">[</span><span class="s2">"qc_gross_range_suspect_min"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+                    <span class="n">gcfg</span><span class="p">[</span><span class="s2">"suspect_span"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">threshold_attrs</span><span class="p">[</span><span class="s2">"qc_gross_range_suspect_max"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+                    <span class="n">gcfg</span><span class="p">[</span><span class="s2">"suspect_span"</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+                <span class="p">)</span>
+        <span class="k">if</span> <span class="n">varname</span> <span class="ow">in</span> <span class="n">spike</span><span class="p">:</span>
+            <span class="n">scfg</span> <span class="o">=</span> <span class="n">spike</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s2">"suspect_threshold"</span> <span class="ow">in</span> <span class="n">scfg</span><span class="p">:</span>
+                <span class="n">threshold_attrs</span><span class="p">[</span><span class="s2">"qc_spike_suspect_threshold"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+                    <span class="n">scfg</span><span class="p">[</span><span class="s2">"suspect_threshold"</span><span class="p">]</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="s2">"fail_threshold"</span> <span class="ow">in</span> <span class="n">scfg</span><span class="p">:</span>
+                <span class="n">threshold_attrs</span><span class="p">[</span><span class="s2">"qc_spike_fail_threshold"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+                    <span class="n">scfg</span><span class="p">[</span><span class="s2">"fail_threshold"</span><span class="p">]</span>
+                <span class="p">)</span>
+        <span class="k">if</span> <span class="n">varname</span> <span class="ow">in</span> <span class="n">_flat</span><span class="p">:</span>
+            <span class="n">fl_cfg</span> <span class="o">=</span> <span class="n">_flat</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span>
+            <span class="n">threshold_attrs</span><span class="p">[</span><span class="s2">"qc_flat_line_suspect_count"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+                <span class="n">fl_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"suspect_n"</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">threshold_attrs</span><span class="p">[</span><span class="s2">"qc_flat_line_fail_count"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fl_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"fail_n"</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+        <span class="n">ds</span><span class="p">[</span><span class="n">qc_varname</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span>
+            <span class="n">new_flags</span><span class="p">,</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">"long_name"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"quality flag for </span><span class="si">{</span><span class="n">varname</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">threshold_attrs</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ds</span></div>
+
+
+
+<div class="viewcode-block" id="apply_enu_velocity_qc">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.qc.apply_enu_velocity_qc">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_enu_velocity_qc</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">gr_cfg</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Apply QARTOD gross-range QC to ENU velocity vars and propagate w flags.</span>
+
+<span class="sd">    Must be called after apply_beam_to_enu (east/north/up_velocity must exist).</span>
+<span class="sd">    No spike test is applied to velocity (burst-mode Aquadopps generate false</span>
+<span class="sd">    positives at every burst boundary).</span>
+
+<span class="sd">    Propagates up_velocity_qc (flag 3 or 4) to east_velocity_qc and</span>
+<span class="sd">    north_velocity_qc: if vertical velocity is implausibly large the whole</span>
+<span class="sd">    3-D velocity measurement is suspect/bad.  Full bidirectional unification</span>
+<span class="sd">    (large east/north flags → up_velocity_qc) is done by unify_velocity_qc,</span>
+<span class="sd">    which must be called after apply_tilt_qc.</span>
+<span class="sd">    """</span>
+    <span class="n">enu_gr</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">k</span><span class="p">:</span> <span class="n">v</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">gr_cfg</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"east_velocity"</span><span class="p">,</span> <span class="s2">"north_velocity"</span><span class="p">,</span> <span class="s2">"up_velocity"</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">enu_gr</span><span class="p">:</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">apply_qc_tests</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">enu_gr</span><span class="p">,</span> <span class="p">{})</span>
+
+    <span class="k">if</span> <span class="s2">"up_velocity_qc"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">up_flags</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"up_velocity_qc"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">vel_var</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"east_velocity"</span><span class="p">,</span> <span class="s2">"north_velocity"</span><span class="p">):</span>
+            <span class="n">qc_varname</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">vel_var</span><span class="si">}</span><span class="s2">_qc"</span>
+            <span class="k">if</span> <span class="n">qc_varname</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+                <span class="n">existing</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">qc_varname</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+                <span class="n">merged</span> <span class="o">=</span> <span class="n">_merge_flags</span><span class="p">(</span><span class="n">existing</span><span class="p">,</span> <span class="n">up_flags</span><span class="p">)</span>
+                <span class="n">ds</span><span class="p">[</span><span class="n">qc_varname</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                    <span class="n">ds</span><span class="p">[</span><span class="n">vel_var</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span> <span class="n">merged</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">qc_varname</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+                <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds</span></div>
+
+
+
+<div class="viewcode-block" id="unify_velocity_qc">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.qc.unify_velocity_qc">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">unify_velocity_qc</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Unify ENU velocity QC flags so all three components share the worst flag.</span>
+
+<span class="sd">    After gross-range, up-velocity propagation, and tilt QC, each component may</span>
+<span class="sd">    carry different flags.  A large east/north velocity flags only that component;</span>
+<span class="sd">    tilt flags all three; up-velocity flags east and north but not itself from the</span>
+<span class="sd">    east/north gross-range test.  This function computes the element-wise worst flag</span>
+<span class="sd">    across east_velocity_qc, north_velocity_qc, and up_velocity_qc, then writes</span>
+<span class="sd">    that combined flag back to all three.  The result: masking on any single</span>
+<span class="sd">    component produces an identical, consistent velocity mask.</span>
+<span class="sd">    """</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">v</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"east_velocity_qc"</span><span class="p">,</span> <span class="s2">"north_velocity_qc"</span><span class="p">,</span> <span class="s2">"up_velocity_qc"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ds</span>
+    <span class="n">combined</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="n">combined</span> <span class="o">=</span> <span class="n">_merge_flags</span><span class="p">(</span><span class="n">combined</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="n">ds</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span> <span class="n">combined</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">attrs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">ds</span></div>
+
+
+
+<div class="viewcode-block" id="derive_oxygen_saturation">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.qc.derive_oxygen_saturation">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">derive_oxygen_saturation</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Compute O2 % saturation and AOU from dissolved_oxygen, temperature, salinity, pressure.</span>
+
+<span class="sd">    Requires dissolved_oxygen, temperature (°C), salinity (PSU), and pressure (dbar)</span>
+<span class="sd">    all present in *ds*.  Returns *ds* unchanged when any variable is missing or when</span>
+<span class="sd">    gsw is unavailable.</span>
+
+<span class="sd">    The saturation reference ``gsw.O2sol_SP_pt`` is per mass (µmol kg⁻¹), so the</span>
+<span class="sd">    measured oxygen is compared in µmol kg⁻¹.  The measured value is taken by its</span>
+<span class="sd">    ``units`` attribute:</span>
+
+<span class="sd">    - ``umol kg-1`` (the canonical, per mass): used directly.</span>
+<span class="sd">    - ``umol L-1`` (a per-volume variable, if ever read): divided by in-situ</span>
+<span class="sd">      **seawater** density ``gsw.rho(SA, CT, p)/1000`` (kg L⁻¹) to convert to per mass.</span>
+<span class="sd">      Seawater density (~1025–1028 kg m⁻³) gives a ~2.5 % correction relative to</span>
+<span class="sd">      freshwater — oceanographically significant, not skippable.</span>
+<span class="sd">    - anything else: :class:`~oceanarray.pipeline.units.UnitsError` — the basis must</span>
+<span class="sd">      be known, never guessed.</span>
+
+<span class="sd">    lon/lat for ``gsw.SA_from_SP`` are taken from global attrs (default 0.0 if absent;</span>
+<span class="sd">    the SA error from a wrong position is typically &lt; 0.05 g kg⁻¹ at open-ocean sites).</span>
+
+<span class="sd">    Derived variables stored</span>
+<span class="sd">    ------------------------</span>
+<span class="sd">    oxygen_saturation_pct : %</span>
+<span class="sd">        100 × O2_measured(µmol kg⁻¹) / O2sol(µmol kg⁻¹)</span>
+<span class="sd">        where O2sol is from ``gsw.O2sol_SP_pt(SP, pt)``.</span>
+<span class="sd">    apparent_oxygen_utilization : µmol kg⁻¹</span>
+<span class="sd">        O2sol − O2_measured (positive = oxygen-depleted water).</span>
+<span class="sd">    """</span>
+    <span class="n">required</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"dissolved_oxygen"</span><span class="p">,</span> <span class="s2">"temperature"</span><span class="p">,</span> <span class="s2">"salinity"</span><span class="p">,</span> <span class="s2">"pressure"</span><span class="p">}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">required</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ds</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">gsw</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ds</span>
+
+    <span class="n">O2</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"dissolved_oxygen"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">o2_units</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"dissolved_oxygen"</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"units"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"temperature"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">SP</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"salinity"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">lon</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"longitude"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+        <span class="n">lon</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">lat</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"latitude"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+        <span class="n">lat</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="c1"># Mask already-flagged dissolved oxygen so bad values produce NaN saturation</span>
+    <span class="c1"># rather than spurious negative percentages that would then back-propagate.</span>
+    <span class="k">if</span> <span class="s2">"dissolved_oxygen_qc"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">_do_qc</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"dissolved_oxygen_qc"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+        <span class="n">O2</span> <span class="o">=</span> <span class="n">O2</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">O2</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">_do_qc</span><span class="p">,</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">9</span><span class="p">])]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="n">SA</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">SA_from_SP</span><span class="p">(</span><span class="n">SP</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+    <span class="n">CT</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">CT_from_t</span><span class="p">(</span><span class="n">SA</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+    <span class="n">pt</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">pt0_from_t</span><span class="p">(</span><span class="n">SA</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+
+    <span class="n">O2sol</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">O2sol_SP_pt</span><span class="p">(</span><span class="n">SP</span><span class="p">,</span> <span class="n">pt</span><span class="p">)</span>  <span class="c1"># µmol/kg at equilibrium</span>
+
+    <span class="c1"># Bring the measured oxygen to per mass (µmol/kg) to match O2sol, by its units.</span>
+    <span class="k">if</span> <span class="n">o2_units</span> <span class="o">==</span> <span class="s2">"umol kg-1"</span><span class="p">:</span>
+        <span class="n">O2_kg</span> <span class="o">=</span> <span class="n">O2</span>  <span class="c1"># already per mass</span>
+    <span class="k">elif</span> <span class="n">o2_units</span> <span class="o">==</span> <span class="s2">"umol L-1"</span><span class="p">:</span>
+        <span class="n">rho_sw</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">rho</span><span class="p">(</span><span class="n">SA</span><span class="p">,</span> <span class="n">CT</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>  <span class="c1"># kg/m³ in-situ seawater density</span>
+        <span class="n">O2_kg</span> <span class="o">=</span> <span class="n">O2</span> <span class="o">/</span> <span class="p">(</span><span class="n">rho_sw</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">)</span>  <span class="c1"># per volume -&gt; per mass (divide by kg/L)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">UnitsError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"dissolved_oxygen units </span><span class="si">{</span><span class="n">o2_units</span><span class="si">!r}</span><span class="s2"> is neither 'umol kg-1' nor "</span>
+            <span class="sa">f</span><span class="s2">"'umol L-1'; cannot derive saturation without a known mass/volume basis."</span>
+        <span class="p">)</span>
+
+    <span class="n">pct_sat</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">O2_kg</span> <span class="o">/</span> <span class="n">O2sol</span>
+    <span class="n">aou</span> <span class="o">=</span> <span class="n">O2sol</span> <span class="o">-</span> <span class="n">O2_kg</span>
+
+    <span class="c1"># Back-flag: pct_sat &lt; 0 is physically impossible (negative dissolved oxygen).</span>
+    <span class="c1"># Set saturation to NaN and flag the underlying dissolved_oxygen as bad (4).</span>
+    <span class="n">neg_sat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">pct_sat</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">pct_sat</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">n_neg</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">neg_sat</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">n_neg</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">pct_sat</span><span class="p">[</span><span class="n">neg_sat</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">aou</span><span class="p">[</span><span class="n">neg_sat</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="k">if</span> <span class="s2">"dissolved_oxygen_qc"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+            <span class="n">do_qc</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"dissolved_oxygen_qc"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">do_qc</span><span class="p">[</span><span class="n">neg_sat</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+            <span class="n">ds</span><span class="p">[</span><span class="s2">"dissolved_oxygen_qc"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                <span class="n">ds</span><span class="p">[</span><span class="s2">"dissolved_oxygen_qc"</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span>
+                <span class="n">do_qc</span><span class="p">,</span>
+                <span class="n">attrs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"dissolved_oxygen_qc"</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">),</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ds</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">oxygen_saturation_pct</span><span class="o">=</span><span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+            <span class="s2">"time"</span><span class="p">,</span>
+            <span class="n">pct_sat</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+            <span class="p">{</span>
+                <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"Dissolved Oxygen Percent Saturation"</span><span class="p">,</span>
+                <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"%"</span><span class="p">,</span>
+                <span class="s2">"comment"</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="s2">"100 × O2_meas / O2sol. O2_meas converted from µmol/L to µmol/kg "</span>
+                    <span class="s2">"using in-situ seawater density gsw.rho(SA,CT,p); "</span>
+                    <span class="s2">"O2sol = gsw.O2sol_SP_pt(SP, pt0). "</span>
+                    <span class="sa">f</span><span class="s2">"Back-flagged </span><span class="si">{</span><span class="n">n_neg</span><span class="si">}</span><span class="s2"> sample(s) where pct_sat &lt; 0 as bad (flag 4)."</span>
+                    <span class="k">if</span> <span class="n">n_neg</span>
+                    <span class="k">else</span> <span class="p">(</span>
+                        <span class="s2">"100 × O2_meas / O2sol. O2_meas converted from µmol/L to µmol/kg "</span>
+                        <span class="s2">"using in-situ seawater density gsw.rho(SA,CT,p); "</span>
+                        <span class="s2">"O2sol = gsw.O2sol_SP_pt(SP, pt0)."</span>
+                    <span class="p">)</span>
+                <span class="p">),</span>
+            <span class="p">},</span>
+        <span class="p">),</span>
+        <span class="n">apparent_oxygen_utilization</span><span class="o">=</span><span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+            <span class="s2">"time"</span><span class="p">,</span>
+            <span class="n">aou</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+            <span class="p">{</span>
+                <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"Apparent Oxygen Utilization"</span><span class="p">,</span>
+                <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"apparent_oxygen_utilization"</span><span class="p">,</span>
+                <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"umol kg-1"</span><span class="p">,</span>
+                <span class="s2">"comment"</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="s2">"AOU = O2sol - O2_meas (µmol/kg); positive = undersaturated "</span>
+                    <span class="s2">"(oxygen consumed). Uses in-situ seawater density for µmol/L → µmol/kg."</span>
+                <span class="p">),</span>
+            <span class="p">},</span>
+        <span class="p">),</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

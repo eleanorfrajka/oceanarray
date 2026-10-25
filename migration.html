@@ -1,0 +1,372 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Migrating from the --basedir Layout &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=20758594" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8b92e751"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Development Roadmap" href="roadmap.html" />
+    <link rel="prev" title="Legacy Modules" href="legacy.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            oceanarray
+              <img src="_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#upgrading-from-0-5-to-0-6">Upgrading from 0.5 to 0.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#upgrading-from-0-4-to-0-5">Upgrading from 0.4 to 0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-changed">What changed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-yaml-file-stays-where-it-was">The YAML file stays where it was</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-by-step-migration">Step-by-step migration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#basedir-has-been-removed"><code class="docutils literal notranslate"><span class="pre">--basedir</span></code> has been removed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verify-after-migration">Verify after migration</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/migration.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="migrating-from-the-basedir-layout">
+<span id="migration"></span><h1>Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout<a class="headerlink" href="#migrating-from-the-basedir-layout" title="Link to this heading"></a></h1>
+<section id="upgrading-from-0-5-to-0-6">
+<h2>Upgrading from 0.5 to 0.6<a class="headerlink" href="#upgrading-from-0-5-to-0-6" title="Link to this heading"></a></h2>
+<p>0.6.0 is a breaking release.  If you are upgrading an existing install:</p>
+<ul class="simple">
+<li><p><strong>The ``oceanarray.processors`` package is now ``oceanarray.pipeline``.</strong>  Update
+imports: <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">oceanarray.processors.stage1</span> <span class="pre">import</span> <span class="pre">...</span></code> becomes
+<code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">oceanarray.pipeline.stage1</span> <span class="pre">import</span> <span class="pre">...</span></code> (likewise <code class="docutils literal notranslate"><span class="pre">stage2</span></code>, <code class="docutils literal notranslate"><span class="pre">stage3</span></code>,
+<code class="docutils literal notranslate"><span class="pre">stack</span></code>, <code class="docutils literal notranslate"><span class="pre">grid</span></code>, <code class="docutils literal notranslate"><span class="pre">qc</span></code>, <code class="docutils literal notranslate"><span class="pre">coordinate</span></code>, <code class="docutils literal notranslate"><span class="pre">pressure</span></code>, <code class="docutils literal notranslate"><span class="pre">units</span></code>, <code class="docutils literal notranslate"><span class="pre">caldip</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">process</span></code> / <code class="docutils literal notranslate"><span class="pre">run</span></code>).  There is no compatibility shim.</p></li>
+<li><p><strong>``oceanarray.tools.readers`` is removed.</strong>  Its readers moved to the new
+<code class="docutils literal notranslate"><span class="pre">oceanarray.readers</span></code> package: <code class="docutils literal notranslate"><span class="pre">read_oceansites</span></code> and <code class="docutils literal notranslate"><span class="pre">read_rodb</span></code> are now
+<code class="docutils literal notranslate"><span class="pre">oceanarray.readers.read_oceansites</span></code> / <code class="docutils literal notranslate"><span class="pre">oceanarray.readers.read_rodb</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">load_nortek_csv</span></code> is <code class="docutils literal notranslate"><span class="pre">oceanarray.readers.load_nortek_csv</span></code>.  The unused
+<code class="docutils literal notranslate"><span class="pre">load_dataset</span></code> and <code class="docutils literal notranslate"><span class="pre">rodbload_old</span></code> are gone — use <code class="docutils literal notranslate"><span class="pre">oceanarray.readers.read(path)</span></code>,
+which picks the format from the file’s content, and <code class="docutils literal notranslate"><span class="pre">read_rodb</span></code>.</p></li>
+<li><p><strong>``oceanarray.writers.write`` no longer overwrites silently.</strong>  It refuses to
+replace an existing file unless you pass <code class="docutils literal notranslate"><span class="pre">overwrite=True</span></code> (the processing
+stages do), logs one INFO line when it does replace a file, and returns the
+written <code class="docutils literal notranslate"><span class="pre">Path</span></code> instead of <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>Output filenames come from the mooring’s ``name:`` field, not its directory
+name.</strong>  Every stage and product file is <code class="docutils literal notranslate"><span class="pre">{name}_{serial}_stage{N}.nc</span></code> /
+<code class="docutils literal notranslate"><span class="pre">{name}_stack.nc</span></code> / <code class="docutils literal notranslate"><span class="pre">{name}_grid.nc</span></code>.  Make sure each
+<code class="docutils literal notranslate"><span class="pre">*.mooring.yaml</span></code>’s <code class="docutils literal notranslate"><span class="pre">name:</span></code> is the mooring you intend: a directory whose
+basename differs from <code class="docutils literal notranslate"><span class="pre">name:</span></code> now produces a WARNING — most often a folder
+copied and not renamed, which would otherwise write its outputs under the
+original mooring’s name.</p></li>
+<li><p><strong>Stage files carry a ``processing_stage`` marker.</strong>  Files written by 0.6 record
+the stage that produced them, and reading a stage file checks it.  A file written
+before 0.6 has no marker: it is still read, with a WARNING, and its stage inferred
+from its filename.  0.7.0 will refuse unmarked files; mark existing ones once with
+<code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">stamp</span> <span class="pre">&lt;files&gt;</span> <span class="pre">--stage</span> <span class="pre">N</span></code> (it writes only the marker, and refuses a
+file whose name says another stage).</p></li>
+<li><p><strong>A stage file made under a different mooring name is refused.</strong>  Reading a stage
+file whose <code class="docutils literal notranslate"><span class="pre">mooring_name</span></code> differs from the description’s <code class="docutils literal notranslate"><span class="pre">name:</span></code> by more than
+case raises; reprocess it from stage 1.  A case-only difference is corrected.</p></li>
+<li><p><strong>Stacking no longer reads ``sample_interval_seconds``.</strong>  Each instrument’s
+sampling interval is detected from its time stamps.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="upgrading-from-0-4-to-0-5">
+<h2>Upgrading from 0.4 to 0.5<a class="headerlink" href="#upgrading-from-0-4-to-0-5" title="Link to this heading"></a></h2>
+<p>0.5.0 is a breaking release.  If you are upgrading an existing install:</p>
+<ul class="simple">
+<li><p><strong>Reprocess from stage 1 for files you distribute.</strong>  Old stage files still
+load — the canonical-units pass rewrites the reader spellings (<code class="docutils literal notranslate"><span class="pre">degC</span></code> →
+<code class="docutils literal notranslate"><span class="pre">degree_Celsius</span></code>, <code class="docutils literal notranslate"><span class="pre">mS/cm</span></code> → <code class="docutils literal notranslate"><span class="pre">mS</span> <span class="pre">cm-1</span></code>, …) on the way in and logs one line
+per variable — but files you <em>share</em> should be regenerated so they carry the
+canonical strings
+(<a class="reference external" href="https://github.com/ocean-uhh/oceanarray/pull/102">#102</a>).</p></li>
+<li><p><strong>``save_dataset`` / ``save_OS_instrument`` are gone.</strong>  Call
+<code class="docutils literal notranslate"><span class="pre">oceanarray.writers.write</span></code> instead
+(<a class="reference external" href="https://github.com/ocean-uhh/oceanarray/pull/99">#99</a>).</p></li>
+<li><p><strong>Time encoding is pinned</strong> to <code class="docutils literal notranslate"><span class="pre">seconds</span> <span class="pre">since</span> <span class="pre">1970-01-01</span></code> (float64).
+Re-encoding introduces at most 0.13 µs of rounding in the decoded instants
+(≤ 119 ns at the 2026 epoch), but the on-disk representation changes, so a
+reader using <code class="docutils literal notranslate"><span class="pre">decode_times=False</span></code> / <code class="docutils literal notranslate"><span class="pre">decode_cf=False</span></code> sees different raw
+units and numbers
+(<a class="reference external" href="https://github.com/ocean-uhh/oceanarray/pull/99">#99</a>).</p></li>
+<li><p><strong>``oceanarray process`` runs stages 1–3 by default.</strong>  Pass <code class="docutils literal notranslate"><span class="pre">--stage</span> <span class="pre">1</span> <span class="pre">2</span></code>
+for the old raw→trim-only behaviour
+(<a class="reference external" href="https://github.com/ocean-uhh/oceanarray/pull/102">#102</a>).</p></li>
+</ul>
+<hr class="docutils" />
+<p>This page describes how to move from the older instrument-first raw
+directory layout (used with the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> flag) to the current
+mooring-first layout (used with <code class="docutils literal notranslate"><span class="pre">--raw-dir</span></code> and <code class="docutils literal notranslate"><span class="pre">--proc-dir</span></code>).</p>
+</section>
+<hr class="docutils" />
+<section id="what-changed">
+<h2>What changed<a class="headerlink" href="#what-changed" title="Link to this heading"></a></h2>
+<p><strong>Raw directory layout</strong></p>
+<p>In the old layout, raw files were organised by instrument type first, with
+mooring subdirectories beneath:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>{basedir}/raw/
+└── microcat/
+    └── dsG3_1_2026/
+        ├── 5367_recovery.asc
+        └── 26261_recovery.asc
+</pre></div>
+</div>
+<p>In the new layout, mooring directories come first and instrument
+subdirectories appear beneath them:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>{raw_dir}/
+└── dsG3_1_2026/
+    ├── microcat/
+    │   ├── 5367_recovery.asc
+    │   └── 26261_recovery.asc
+    └── aquadopp/
+        └── A400115_dsG3.aqd
+</pre></div>
+</div>
+<p><strong>CLI flags</strong></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> flag is replaced by two separate flags:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--raw-dir</span></code> — points to the cruise-level directory that holds raw
+instrument data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--proc-dir</span></code> — points to the cruise-level directory that holds
+processed data and YAML files.</p></li>
+</ul>
+<p>For a cruise where <code class="docutils literal notranslate"><span class="pre">basedir</span></code> was <code class="docutils literal notranslate"><span class="pre">/data/cruise2026</span></code>, the equivalent
+new flags are:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Old</span>
+oceanarray<span class="w"> </span>process<span class="w"> </span>dsG3_1_2026<span class="w"> </span>--basedir<span class="w"> </span>/data/cruise2026
+
+<span class="c1"># New</span>
+oceanarray<span class="w"> </span>process<span class="w"> </span>dsG3_1_2026<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--raw-dir<span class="w"> </span>/data/cruise2026/raw<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--proc-dir<span class="w"> </span>/data/cruise2026/proc
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="the-yaml-file-stays-where-it-was">
+<h2>The YAML file stays where it was<a class="headerlink" href="#the-yaml-file-stays-where-it-was" title="Link to this heading"></a></h2>
+<p>The YAML was already on the processed side in the old layout:
+<code class="docutils literal notranslate"><span class="pre">{basedir}/proc/{mooring}/{mooring}.mooring.yaml</span></code>.  The new layout
+keeps it in the same relative location:
+<code class="docutils literal notranslate"><span class="pre">{proc_dir}/{mooring}/{mooring}.mooring.yaml</span></code>.</p>
+<p>No changes to the YAML file itself are needed for migration.</p>
+<p>If your YAML contains a <code class="docutils literal notranslate"><span class="pre">directory</span></code> key pointing to a raw-file override
+path under the old <code class="docutils literal notranslate"><span class="pre">{basedir}/raw/</span></code> tree, you may remove it — in the
+new layout the directory is determined automatically from
+<code class="docutils literal notranslate"><span class="pre">{raw_dir}/{mooring}/{instrument}/</span></code>.  If you leave the <code class="docutils literal notranslate"><span class="pre">directory</span></code>
+key in place and it points to a valid path, it will still be used as an
+absolute-path override.</p>
+</section>
+<hr class="docutils" />
+<section id="step-by-step-migration">
+<h2>Step-by-step migration<a class="headerlink" href="#step-by-step-migration" title="Link to this heading"></a></h2>
+<p>The steps below assume your old layout was:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">cruise2026</span><span class="o">/</span><span class="n">raw</span><span class="o">/</span><span class="p">{</span><span class="n">instrument</span><span class="p">}</span><span class="o">/</span><span class="p">{</span><span class="n">mooring</span><span class="p">}</span><span class="o">/</span><span class="n">filename</span>
+<span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">cruise2026</span><span class="o">/</span><span class="n">proc</span><span class="o">/</span><span class="p">{</span><span class="n">mooring</span><span class="p">}</span><span class="o">/</span><span class="p">{</span><span class="n">mooring</span><span class="p">}</span><span class="o">.</span><span class="n">mooring</span><span class="o">.</span><span class="n">yaml</span>
+</pre></div>
+</div>
+<p>and you want to migrate to:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>/data/cruise2026/raw/{mooring}/{instrument}/filename
+/data/cruise2026/proc/{mooring}/{mooring}.mooring.yaml    ← no change
+</pre></div>
+</div>
+<ol class="arabic">
+<li><p><strong>Create the new mooring directory inside raw:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>/data/cruise2026/raw/dsG3_1_2026
+</pre></div>
+</div>
+</li>
+<li><p><strong>Move raw files for each instrument:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>/data/cruise2026/raw/dsG3_1_2026/microcat
+mv<span class="w"> </span>/data/cruise2026/raw/microcat/dsG3_1_2026/*<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>/data/cruise2026/raw/dsG3_1_2026/microcat/
+
+mkdir<span class="w"> </span>-p<span class="w"> </span>/data/cruise2026/raw/dsG3_1_2026/aquadopp
+mv<span class="w"> </span>/data/cruise2026/raw/aquadopp/dsG3_1_2026/*<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>/data/cruise2026/raw/dsG3_1_2026/aquadopp/
+</pre></div>
+</div>
+<p>Repeat for each instrument type present on the mooring.</p>
+</li>
+<li><p><strong>The YAML does not move</strong> — it stays in
+<code class="docutils literal notranslate"><span class="pre">/data/cruise2026/proc/dsG3_1_2026/</span></code>.</p></li>
+<li><p><strong>Update shell scripts</strong> to use <code class="docutils literal notranslate"><span class="pre">--raw-dir</span></code> and <code class="docutils literal notranslate"><span class="pre">--proc-dir</span></code>
+instead of <code class="docutils literal notranslate"><span class="pre">--basedir</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Replace</span>
+oceanarray<span class="w"> </span>run<span class="w"> </span>dsG3_1_2026<span class="w"> </span>--basedir<span class="w"> </span>/data/cruise2026
+
+<span class="c1"># With</span>
+oceanarray<span class="w"> </span>run<span class="w"> </span>dsG3_1_2026<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--raw-dir<span class="w"> </span>/data/cruise2026/raw<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--proc-dir<span class="w"> </span>/data/cruise2026/proc
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="basedir-has-been-removed">
+<h2><code class="docutils literal notranslate"><span class="pre">--basedir</span></code> has been removed<a class="headerlink" href="#basedir-has-been-removed" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> flag no longer runs.  Passing it prints a migration message
+naming the replacement and exits without processing, so existing scripts that
+use it must be updated to <code class="docutils literal notranslate"><span class="pre">--raw-dir</span></code> + <code class="docutils literal notranslate"><span class="pre">--proc-dir</span></code> and the raw data moved
+to the mooring-first layout (see the mapping above).</p>
+</section>
+<hr class="docutils" />
+<section id="verify-after-migration">
+<h2>Verify after migration<a class="headerlink" href="#verify-after-migration" title="Link to this heading"></a></h2>
+<p>After moving the files, confirm that the YAML is still valid and that stage
+1 can read the raw files in their new location:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>oceanarray<span class="w"> </span>validate<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>/data/cruise2026/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml
+
+oceanarray<span class="w"> </span>process<span class="w"> </span>dsG3_1_2026<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--raw-dir<span class="w"> </span>/data/cruise2026/raw<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--proc-dir<span class="w"> </span>/data/cruise2026/proc<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stage<span class="w"> </span><span class="m">1</span><span class="w"> </span>--serial<span class="w"> </span><span class="m">26261</span><span class="w"> </span>--force
+</pre></div>
+</div>
+<p>If stage 1 completes without errors, the migration was successful.  The
+output file is the same as before — the only change is where <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code>
+looked for the input.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="legacy.html" class="btn btn-neutral float-left" title="Legacy Modules" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="roadmap.html" class="btn btn-neutral float-right" title="Development Roadmap" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

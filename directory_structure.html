@@ -1,0 +1,285 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Directory Structure and File Layout &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=20758594" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8b92e751"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="File Naming Conventions" href="file_naming_conventions.html" />
+    <link rel="prev" title="HTML Reports" href="reports.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            oceanarray
+              <img src="_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">HTML Reports</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Directory Structure and File Layout</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#raw-directory-layout">Raw directory layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#processed-directory-layout">Processed directory layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-yaml-configuration-file">The YAML configuration file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#file-naming-conventions">File naming conventions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Directory Structure and File Layout</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/directory_structure.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="directory-structure-and-file-layout">
+<span id="directory-structure"></span><h1>Directory Structure and File Layout<a class="headerlink" href="#directory-structure-and-file-layout" title="Link to this heading"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>Oceanarray organises files in a <strong>mooring-first</strong> layout: the top-level
+directory for each data type (raw or processed) contains one subdirectory
+per mooring, and instrument-type subdirectories appear beneath that.  This
+contrasts with an older <strong>instrument-first</strong> layout (used with the legacy
+<code class="docutils literal notranslate"><span class="pre">--basedir</span></code> flag) where the raw directory grouped files by instrument type
+across all moorings.</p>
+<p>The mooring-first layout makes it easier to work on a single mooring at a
+time: all raw files, processed files, YAML configuration, and reports for
+one mooring live under a common directory that can be copied, backed up, or
+inspected without touching other moorings.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you are coming from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> layout, see <a class="reference internal" href="migration.html"><span class="doc">Migrating from the --basedir Layout</span></a>.</p>
+</div>
+</section>
+<hr class="docutils" />
+<section id="raw-directory-layout">
+<h2>Raw directory layout<a class="headerlink" href="#raw-directory-layout" title="Link to this heading"></a></h2>
+<p>The raw directory (supplied with <code class="docutils literal notranslate"><span class="pre">--raw-dir</span></code>) holds the instrument data
+files downloaded from the instruments at sea.  No processing is done in this
+directory; it is treated as read-only by <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code>.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>{raw_dir}/                          ← supplied with --raw-dir (cruise level)
+└── {mooring_name}/                 ← one directory per mooring
+    ├── microcat/                   ← instrument: value from the YAML clamp entry
+    │   ├── 5367_recovery.asc
+    │   └── 26261_recovery.asc
+    ├── aquadopp/
+    │   ├── A400115_dsG3.aqd
+    │   └── A400115_dsG3.hdr       ← header file for Nortek instruments
+    └── ADCP/
+        └── 12345_raw.000
+</pre></div>
+</div>
+<p>The subdirectory name under the mooring directory must exactly match the
+<code class="docutils literal notranslate"><span class="pre">instrument</span></code> field in the YAML configuration (e.g. <code class="docutils literal notranslate"><span class="pre">microcat</span></code>,
+<code class="docutils literal notranslate"><span class="pre">aquadopp</span></code>, <code class="docutils literal notranslate"><span class="pre">ADCP</span></code>).  The <code class="docutils literal notranslate"><span class="pre">filename</span></code> field in each YAML instrument
+entry is relative to that instrument subdirectory.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You may also store instrument setup and capture files alongside the data
+files in the instrument subdirectory.  These are not read by
+<code class="docutils literal notranslate"><span class="pre">oceanarray</span></code> but are useful for provenance:</p>
+<ul class="simple">
+<li><p><strong>SeaBird instruments</strong>: the <code class="docutils literal notranslate"><span class="pre">.cap</span></code> capture file and <code class="docutils literal notranslate"><span class="pre">.xmlcon</span></code>
+configuration file downloaded with the data.</p></li>
+<li><p><strong>RBR instruments</strong>: the <code class="docutils literal notranslate"><span class="pre">.log</span></code> file generated by Ruskin at download.</p></li>
+<li><p><strong>Nortek Aquadopps</strong>: the deployment configuration output (e.g.
+<code class="docutils literal notranslate"><span class="pre">A400115_dsG3.prf</span></code> or the Deployment Details summary).</p></li>
+<li><p><strong>RDI ADCPs</strong>: the command-log text file recording the instrument settings
+used during the deployment.</p></li>
+</ul>
+</div>
+</section>
+<hr class="docutils" />
+<section id="processed-directory-layout">
+<h2>Processed directory layout<a class="headerlink" href="#processed-directory-layout" title="Link to this heading"></a></h2>
+<p>The processed directory (<code class="docutils literal notranslate"><span class="pre">--proc-dir</span></code>) receives all outputs from
+<code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">process</span></code> (including its <code class="docutils literal notranslate"><span class="pre">stack</span></code> and <code class="docutils literal notranslate"><span class="pre">grid</span></code> stages) and
+<code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">report</span></code>.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>{proc_dir}/                             ← supplied with --proc-dir
+└── {mooring_name}/
+    ├── {mooring_name}.mooring.yaml     ← YAML configuration lives here
+    ├── microcat/
+    │   ├── {mooring}_{serial}_stage1.nc
+    │   ├── {mooring}_{serial}_stage2.nc
+    │   └── {mooring}_{serial}_stage3.nc
+    ├── aquadopp/
+    │   ├── {mooring}_{serial}_stage1.nc
+    │   ├── {mooring}_{serial}_stage2.nc
+    │   └── {mooring}_{serial}_stage3.nc
+    ├── ADCP/
+    │   └── ...
+    ├── {mooring}_stack.nc              ← all instruments on a common time grid
+    ├── {mooring}_grid.nc               ← vertically interpolated onto a pressure grid
+    ├── processing_logs/
+    │   └── {mooring}_{timestamp}_{stage}.mooring.log
+    └── report/
+        ├── {mooring}_report.html           ← mooring summary report
+        ├── {mooring}_stack_report.html
+        ├── {mooring}_grid_report.html
+        └── instrument/
+            └── {mooring}_{serial}_report.html
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="the-yaml-configuration-file">
+<h2>The YAML configuration file<a class="headerlink" href="#the-yaml-configuration-file" title="Link to this heading"></a></h2>
+<p>The mooring YAML file must be placed inside the processed directory for
+that mooring:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">proc_dir</span><span class="p">}</span><span class="o">/</span><span class="p">{</span><span class="n">mooring_name</span><span class="p">}</span><span class="o">/</span><span class="p">{</span><span class="n">mooring_name</span><span class="p">}</span><span class="o">.</span><span class="n">mooring</span><span class="o">.</span><span class="n">yaml</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">{mooring_name}</span></code> component is the value of the <code class="docutils literal notranslate"><span class="pre">name</span></code> field at the
+top of the YAML file (e.g. <code class="docutils literal notranslate"><span class="pre">name:</span> <span class="pre">dsG3_1_2026</span></code>).  The directory name,
+the YAML filename, and the <code class="docutils literal notranslate"><span class="pre">name</span></code> field must all match exactly.</p>
+<p>Oceanarray looks for the YAML in this location when you supply
+<code class="docutils literal notranslate"><span class="pre">--proc-dir</span></code>.  You do not need to place a copy in the raw directory.</p>
+<p>If you do not yet have a processed directory for a mooring, create one
+manually before running any <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code> command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">proc</span><span class="o">/</span><span class="n">dsG3_1_2026</span>
+</pre></div>
+</div>
+<p>Then copy or write the YAML into that directory.  See <a class="reference internal" href="yaml_configuration.html"><span class="doc">YAML Configuration Reference</span></a>
+for a full description of the YAML fields and a minimal working example.</p>
+</section>
+<hr class="docutils" />
+<section id="file-naming-conventions">
+<h2>File naming conventions<a class="headerlink" href="#file-naming-conventions" title="Link to this heading"></a></h2>
+<p>See <a class="reference internal" href="file_naming_conventions.html"><span class="doc">File Naming Conventions</span></a> for the full reference, including both raw
+instrument file names (mooring recovery vs calibration-dip conventions) and
+processed output file names (stage NC files, stack, grid, reports, logs).</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="reports.html" class="btn btn-neutral float-left" title="HTML Reports" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="file_naming_conventions.html" class="btn btn-neutral float-right" title="File Naming Conventions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

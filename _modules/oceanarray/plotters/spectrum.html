@@ -1,0 +1,1285 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.plotters.spectrum &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.plotters.spectrum</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.plotters.spectrum</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Tier-2 domain wrappers for spectral diagnostics.</span>
+
+<span class="sd">spectrum.py contains:</span>
+<span class="sd">  - ``wavelet_panel``: Tier-1 primitive for rendering a single wavelet scalogram.</span>
+<span class="sd">  - ``draw_spectrum``: Two-panel Welch PSD of gridded temperature (migrated from</span>
+<span class="sd">    ``report/_plots.py``).</span>
+<span class="sd">  - ``draw_wavelet``: Continuous wavelet transform scalogram for gridded temperature</span>
+<span class="sd">    (migrated from ``report/_plots.py``).</span>
+<span class="sd">  - ``draw_grid_rotary_spectrum``: Two-panel rotary velocity spectrum (migrated from</span>
+<span class="sd">    ``report/_plots.py``).</span>
+
+<span class="sd">Pairs with :mod:`oceanarray.analysis.spectral` for spectral computations.</span>
+
+<span class="sd">Post-OdB remaining migrations from report/_plots.py:</span>
+<span class="sd">  plot_grid_fig (was _make_grid_fig_b64), plot_grid_n2 (was _make_grid_n2_b64).</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mcolors</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.reports._vendored</span><span class="w"> </span><span class="kn">import</span> <span class="n">design_tokens</span> <span class="k">as</span> <span class="n">report_tokens</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">_nice_colorbar_bounds</span><span class="p">,</span> <span class="n">period_axis_ticks</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..analysis.spectral</span><span class="w"> </span><span class="kn">import</span> <span class="n">gonella_rotary_spectrum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..config.unit_tables</span><span class="w"> </span><span class="kn">import</span> <span class="n">unit_label</span><span class="p">,</span> <span class="n">warn_if_not_canonical</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">grid_despine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.primitives</span><span class="w"> </span><span class="kn">import</span> <span class="n">figure_title</span><span class="p">,</span> <span class="n">plot_title</span><span class="p">,</span> <span class="n">square_axes_grid</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_mark_frequency_line</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Draw a marked-frequency reference line (tidal/inertial) on a spectrum.</span>
+
+<span class="sd">    Uniform style across the temperature and rotary spectra: a thin dotted</span>
+<span class="sd">    vertical line (``pen("thinner")``), so both figures mark frequencies the</span>
+<span class="sd">    same way.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax : matplotlib.axes.Axes</span>
+<span class="sd">        Spectrum axes (period on the x-axis).</span>
+<span class="sd">    period : float</span>
+<span class="sd">        Period at which to draw the line (same x-units as the axes).</span>
+<span class="sd">    color : str</span>
+<span class="sd">        Line colour.</span>
+
+<span class="sd">    """</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">period</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="n">report_tokens</span><span class="o">.</span><span class="n">pen</span><span class="p">(</span><span class="s2">"thin"</span><span class="p">),</span> <span class="n">ls</span><span class="o">=</span><span class="s2">":"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.65</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.axes</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">xr</span>
+
+
+<div class="viewcode-block" id="wavelet_panel">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.spectrum.wavelet_panel">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">wavelet_panel</span><span class="p">(</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">Axes</span><span class="p">,</span>
+    <span class="n">times</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">periods</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">power</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">coi</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">signif</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Draw one wavelet scalogram panel onto *ax*.</span>
+
+<span class="sd">    Renders log10(power) as a filled contour plot with period on a log y-axis</span>
+<span class="sd">    (inverted so short periods are at the top), time on x.</span>
+
+<span class="sd">    The COI region (``period &gt; coi[t]``) is hatched with diagonal lines.</span>
+<span class="sd">    Callers should pass ``effective_coi`` from ``compute_cwt`` rather than the</span>
+<span class="sd">    raw pycwt COI — the effective COI already incorporates gap-edge wings so that</span>
+<span class="sd">    one hatching call covers record edges, gap columns, and the surrounding</span>
+<span class="sd">    unreliable region.</span>
+
+<span class="sd">    The y-axis is trimmed to ``coi.max()`` so entirely-hatched long-period rows</span>
+<span class="sd">    are not shown; gappier records automatically get a tighter period range.</span>
+
+<span class="sd">    An optional 95 % significance contour is drawn in black.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax:</span>
+<span class="sd">        Target axes object.</span>
+<span class="sd">    times:</span>
+<span class="sd">        1-D array of time values (any type accepted by matplotlib, e.g. numpy</span>
+<span class="sd">        datetime64 or float index).</span>
+<span class="sd">    periods:</span>
+<span class="sd">        1-D array of wavelet periods in days (length ``n_scales``).</span>
+<span class="sd">    power:</span>
+<span class="sd">        2-D array of real wavelet power, shape ``(n_scales, n_time)``.</span>
+<span class="sd">    coi:</span>
+<span class="sd">        1-D array of COI periods in days, length ``n_time``.  Pass</span>
+<span class="sd">        ``effective_coi`` from ``compute_cwt`` to include gap-edge wings.</span>
+<span class="sd">    signif:</span>
+<span class="sd">        Optional 1-D significance threshold array, length ``n_scales``.  Where</span>
+<span class="sd">        ``power[i, t] &gt; signif[i]`` the transform is significant at the chosen</span>
+<span class="sd">        confidence level.  If None, no significance contour is drawn.</span>
+<span class="sd">    title:</span>
+<span class="sd">        Axes title string (e.g. depth label).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    matplotlib.cm.ScalarMappable</span>
+<span class="sd">        Mappable suitable for passing to ``fig.colorbar()``.</span>
+
+<span class="sd">    """</span>
+    <span class="n">n_scales</span><span class="p">,</span> <span class="n">n_time</span> <span class="o">=</span> <span class="n">power</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">log_power</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">power</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">power</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">))</span>
+
+    <span class="n">vmin</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">log_power</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">vmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">log_power</span><span class="p">,</span> <span class="mi">98</span><span class="p">))</span>
+    <span class="n">bounds</span> <span class="o">=</span> <span class="n">_nice_colorbar_bounds</span><span class="p">(</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">BoundaryNorm</span><span class="p">(</span><span class="n">bounds</span><span class="p">,</span> <span class="n">ncolors</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s2">"RdYlBu_r"</span><span class="p">)</span>
+
+    <span class="n">cf</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span>
+        <span class="n">times</span><span class="p">,</span>
+        <span class="n">periods</span><span class="p">,</span>
+        <span class="n">log_power</span><span class="p">,</span>
+        <span class="n">levels</span><span class="o">=</span><span class="n">bounds</span><span class="p">,</span>
+        <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span>
+        <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+        <span class="n">extend</span><span class="o">=</span><span class="s2">"both"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># COI: hatch the entire unreliable region in one pass.  The caller passes</span>
+    <span class="c1"># effective_coi which already encodes both record edges and gap-edge wings,</span>
+    <span class="c1"># so gap columns and their COI halos are all covered by a single fill_between.</span>
+    <span class="c1"># No separate gap hatching is needed.</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
+        <span class="n">times</span><span class="p">,</span>
+        <span class="n">coi</span><span class="p">,</span>
+        <span class="n">periods</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+        <span class="n">facecolor</span><span class="o">=</span><span class="s2">"none"</span><span class="p">,</span>
+        <span class="n">hatch</span><span class="o">=</span><span class="s2">"////"</span><span class="p">,</span>
+        <span class="n">edgecolor</span><span class="o">=</span><span class="s2">"0.55"</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Significance contour</span>
+    <span class="k">if</span> <span class="n">signif</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sig2d</span> <span class="o">=</span> <span class="n">signif</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n_time</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span>
+            <span class="n">times</span><span class="p">,</span> <span class="n">periods</span><span class="p">,</span> <span class="n">power</span> <span class="o">/</span> <span class="n">sig2d</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="p">[</span><span class="mf">1.0</span><span class="p">],</span> <span class="n">colors</span><span class="o">=</span><span class="s2">"k"</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="mf">0.8</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Trim the y-axis to the longest period that is reliable at any time step.</span>
+    <span class="c1"># Entirely-hatched long-period rows are excluded; gappy records get a</span>
+    <span class="c1"># tighter limit automatically.</span>
+    <span class="n">_p_min</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">periods</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+    <span class="n">_p_max_reliable</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coi</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">_p_max_reliable</span> <span class="o">&lt;=</span> <span class="n">_p_min</span><span class="p">:</span>
+        <span class="n">_p_max_reliable</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">periods</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s2">"log"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">_p_min</span><span class="p">,</span> <span class="n">_p_max_reliable</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
+
+    <span class="c1"># Human-readable y-axis ticks filtered to the visible range (shared helper)</span>
+    <span class="n">_ytv</span><span class="p">,</span> <span class="n">_ytl</span> <span class="o">=</span> <span class="n">period_axis_ticks</span><span class="p">(</span><span class="n">_p_min</span><span class="p">,</span> <span class="n">_p_max_reliable</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">_ytv</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.ticker</span><span class="w"> </span><span class="kn">import</span> <span class="n">NullLocator</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">_ytv</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">_ytl</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">NullLocator</span><span class="p">())</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"Period"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">title</span><span class="p">:</span>
+        <span class="n">plot_title</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">cf</span></div>
+
+
+
+<div class="viewcode-block" id="draw_spectrum">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.spectrum.draw_spectrum">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">draw_spectrum</span><span class="p">(</span>
+    <span class="n">da_temp</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">dt_seconds</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">lat</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">hf_segment_days</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">hf_x_max_days</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">width_in</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">report_tokens</span><span class="o">.</span><span class="n">W_FULL</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Two-panel Welch PSD of gridded temperature, one line per depth level.</span>
+
+<span class="sd">    Left panel: low-frequency overview using 14-day Hann windows.</span>
+<span class="sd">    Right panel: high-frequency zoom using ``hf_segment_days`` Hann windows,</span>
+<span class="sd">    giving more (shorter) windows and a smoother estimate at tidal and inertial</span>
+<span class="sd">    frequencies.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    da_temp:</span>
+<span class="sd">        Gridded temperature DataArray with dimensions (pressure, time).</span>
+<span class="sd">    dt_seconds:</span>
+<span class="sd">        Uniform time step of the grid in seconds.</span>
+<span class="sd">    lat:</span>
+<span class="sd">        Mooring latitude in decimal degrees; used to compute the inertial</span>
+<span class="sd">        frequency marker.  Pass 0 to omit.</span>
+<span class="sd">    hf_segment_days:</span>
+<span class="sd">        Window length for the HF panel in days.  Default 2 days (~180 windows</span>
+<span class="sd">        per year, ~7x more than the LF panel).  Reduce to focus on higher</span>
+<span class="sd">        frequencies, e.g. ``hf_segment_days=1/24`` for 1-hour windows on</span>
+<span class="sd">        sub-hourly data.</span>
+<span class="sd">    hf_x_max_days:</span>
+<span class="sd">        Upper x-axis limit (longest period shown) for the HF panel in days.</span>
+<span class="sd">        When &lt;= 3 the HF x-axis is displayed in hours; otherwise in days.</span>
+<span class="sd">    width_in : float, optional</span>
+<span class="sd">        Figure width in inches -- the display-slot width the report builder</span>
+<span class="sd">        resolves; standalone callers get the full content width.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The LF panel uses gap-filled interpolation before calling ``welch_psd``</span>
+<span class="sd">    (current behaviour).  The HF panel uses ``welch_psd_gapaware``, which</span>
+<span class="sd">    operates only on contiguous finite runs and skips any window that straddles</span>
+<span class="sd">    a gap -- avoiding the low-pass bias that linear interpolation introduces at</span>
+<span class="sd">    high frequencies.</span>
+
+<span class="sd">    To switch the LF panel to gap-aware as well, replace the two lines in the</span>
+<span class="sd">    computation loop that read::</span>
+
+<span class="sd">        col_filled = col.copy()</span>
+<span class="sd">        if not good.all():</span>
+<span class="sd">            col_filled = np.interp(...)</span>
+<span class="sd">        f, p = welch_psd(col_filled, dt_days, segment_length_lf)</span>
+
+<span class="sd">    with the single line::</span>
+
+<span class="sd">        f, p, _ = welch_psd_gapaware(col, dt_days, segment_length_lf)</span>
+
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mcolors</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">blended_transform_factory</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">welch_psd</span><span class="p">,</span> <span class="n">welch_psd_gapaware</span>
+
+    <span class="c1"># The PSD axis is labelled °C² cpd⁻¹; the variance is in the temperature's unit².</span>
+    <span class="n">warn_if_not_canonical</span><span class="p">(</span>
+        <span class="n">da_temp</span><span class="p">,</span> <span class="s2">"degree_Celsius"</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="s2">"temperature PSD (°C² cpd⁻¹)"</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">da_temp</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">"pressure"</span><span class="p">:</span>
+        <span class="n">da_temp</span> <span class="o">=</span> <span class="n">da_temp</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s2">"pressure"</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+    <span class="n">arr</span> <span class="o">=</span> <span class="n">da_temp</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">press_vals</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">da_temp</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">"pressure"</span> <span class="ow">in</span> <span class="n">da_temp</span><span class="o">.</span><span class="n">coords</span>
+        <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">n_lev</span><span class="p">,</span> <span class="n">n_time</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">dt_days</span> <span class="o">=</span> <span class="n">dt_seconds</span> <span class="o">/</span> <span class="mf">86400.0</span>
+
+    <span class="c1"># LF: 14-day Hann windows</span>
+    <span class="n">seg_lf</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mf">14.0</span> <span class="o">/</span> <span class="n">dt_days</span><span class="p">))</span>
+    <span class="n">segment_length_lf</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">seg_lf</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">n_time</span> <span class="o">//</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">128</span><span class="p">))</span>
+
+    <span class="c1"># HF: hf_segment_days Hann windows (caller controls this)</span>
+    <span class="n">seg_hf</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">hf_segment_days</span> <span class="o">/</span> <span class="n">dt_days</span><span class="p">))</span>
+    <span class="n">segment_length_hf</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">seg_hf</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">n_time</span> <span class="o">//</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+    <span class="c1"># Level selection: pick levels near multiples of 100 dbar that have enough</span>
+    <span class="c1"># finite samples for at least one LF Welch window.  For each 100-dbar target</span>
+    <span class="c1"># the nearest valid level is used; targets with no level within 75 dbar are</span>
+    <span class="c1"># skipped.  Levels are kept in ascending pressure order so the colormap</span>
+    <span class="c1"># (light = shallow, dark = deep) matches the legend from top to bottom.</span>
+    <span class="n">_candidates</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">press_vals</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_lev</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:]))</span> <span class="o">&gt;=</span> <span class="n">segment_length_lf</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">_candidates</span><span class="p">:</span>
+        <span class="n">_cp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pv</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">pv</span> <span class="ow">in</span> <span class="n">_candidates</span><span class="p">])</span>
+        <span class="n">_lo100</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">_cp</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="mf">100.0</span><span class="p">))</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="n">_hi100</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">_cp</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">/</span> <span class="mf">100.0</span><span class="p">))</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="n">_seen_k</span><span class="p">:</span> <span class="nb">set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">valid_lev_idx</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_tgt</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">_lo100</span><span class="p">,</span> <span class="n">_hi100</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">):</span>
+            <span class="n">_bi</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">_cp</span> <span class="o">-</span> <span class="n">_tgt</span><span class="p">)))</span>
+            <span class="n">_k</span> <span class="o">=</span> <span class="n">_candidates</span><span class="p">[</span><span class="n">_bi</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">_k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_seen_k</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">_cp</span><span class="p">[</span><span class="n">_bi</span><span class="p">]</span> <span class="o">-</span> <span class="n">_tgt</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">75.0</span><span class="p">:</span>
+                <span class="n">_seen_k</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">_k</span><span class="p">)</span>
+                <span class="n">valid_lev_idx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_k</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">valid_lev_idx</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">freq_lf</span> <span class="o">=</span> <span class="n">freq_hf</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">psds_lf</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">press_plotted_lf</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">psds_hf</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">press_plotted_hf</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">hf_total_wins</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">valid_lev_idx</span><span class="p">:</span>
+        <span class="n">col</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">good</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+        <span class="c1"># LF: gap-fill then Welch.  To switch to gap-aware, replace these two</span>
+        <span class="c1"># lines with: f, p, _ = welch_psd_gapaware(col, dt_days, segment_length_lf)</span>
+        <span class="n">col_filled</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">good</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="n">col_filled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_time</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">good</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">col</span><span class="p">[</span><span class="n">good</span><span class="p">])</span>
+        <span class="n">f</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">welch_psd</span><span class="p">(</span><span class="n">col_filled</span><span class="p">,</span> <span class="n">dt_days</span><span class="p">,</span> <span class="n">segment_length_lf</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">freq_lf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">freq_lf</span> <span class="o">=</span> <span class="n">f</span>
+        <span class="n">psds_lf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">press_plotted_lf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">press_vals</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+
+        <span class="c1"># HF: gap-aware -- only windows within contiguous finite runs</span>
+        <span class="n">f_hf</span><span class="p">,</span> <span class="n">p_hf</span><span class="p">,</span> <span class="n">n_w</span> <span class="o">=</span> <span class="n">welch_psd_gapaware</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">dt_days</span><span class="p">,</span> <span class="n">segment_length_hf</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">f_hf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">freq_hf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">freq_hf</span> <span class="o">=</span> <span class="n">f_hf</span>
+            <span class="n">psds_hf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p_hf</span><span class="p">)</span>
+            <span class="n">press_plotted_hf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">press_vals</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+            <span class="n">hf_total_wins</span> <span class="o">+=</span> <span class="n">n_w</span>
+        <span class="c1"># else: no contiguous run long enough for an HF window at this level -- skip silently</span>
+
+    <span class="k">if</span> <span class="n">freq_lf</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">psds_lf</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">psds_hf</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"  NOTE: temperature spectrum HF -- no valid windows at any level "</span>
+            <span class="sa">f</span><span class="s2">"(segment=</span><span class="si">{</span><span class="n">segment_length_hf</span><span class="si">}</span><span class="s2"> samples = </span><span class="si">{</span><span class="n">hf_segment_days</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2"> d); "</span>
+            <span class="sa">f</span><span class="s2">"HF panel will be blank"</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Window counts for subplot titles</span>
+    <span class="n">n_win_lf</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">n_time</span> <span class="o">//</span> <span class="n">segment_length_lf</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># HF: actual windows used (gap-aware), averaged across contributing levels</span>
+    <span class="n">n_win_hf</span> <span class="o">=</span> <span class="n">hf_total_wins</span> <span class="o">//</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">psds_hf</span><span class="p">))</span> <span class="k">if</span> <span class="n">psds_hf</span> <span class="k">else</span> <span class="mi">0</span>
+
+    <span class="c1"># LF markers (periods in days)</span>
+    <span class="n">lf_markers</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">"M2"</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">1.9323</span><span class="p">,</span> <span class="s2">"#c0392b"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"K1"</span><span class="p">,</span> <span class="mf">23.9345</span> <span class="o">/</span> <span class="mf">24.0</span><span class="p">,</span> <span class="s2">"#e67e22"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"1.8d"</span><span class="p">,</span> <span class="mf">1.8</span><span class="p">,</span> <span class="s2">"#7f8c8d"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"4d"</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="s2">"#95a5a6"</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="c1"># HF markers -- tuples are (label, period_days, color, y_axes).</span>
+    <span class="c1"># M2 label is raised (y=0.15) so it clears the f label (y=0.03) at high</span>
+    <span class="c1"># latitudes where the inertial period approaches the M2 semidiurnal period.</span>
+    <span class="n">hf_markers</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">"M2"</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">1.9323</span><span class="p">,</span> <span class="s2">"#c0392b"</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"9min"</span><span class="p">,</span> <span class="mf">9.0</span> <span class="o">/</span> <span class="mf">1440.0</span><span class="p">,</span> <span class="s2">"#7f8c8d"</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">lat</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">gsw</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_gsw</span>
+
+        <span class="n">f_inert_cpd</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">_gsw</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">lat</span><span class="p">))</span> <span class="o">*</span> <span class="mf">86400.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        <span class="n">inert_period_d</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">f_inert_cpd</span>
+        <span class="n">lf_markers</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">"f"</span><span class="p">,</span> <span class="n">inert_period_d</span><span class="p">,</span> <span class="s2">"#27ae60"</span><span class="p">))</span>
+        <span class="n">hf_markers</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">"f"</span><span class="p">,</span> <span class="n">inert_period_d</span><span class="p">,</span> <span class="s2">"#27ae60"</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">))</span>
+
+    <span class="n">p_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">press_plotted_lf</span><span class="p">)</span>
+    <span class="n">p_min</span><span class="p">,</span> <span class="n">p_max</span> <span class="o">=</span> <span class="n">p_arr</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">p_arr</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">p_min</span> <span class="o">==</span> <span class="n">p_max</span><span class="p">:</span>
+        <span class="n">p_min</span> <span class="o">-=</span> <span class="mf">1.0</span>
+        <span class="n">p_max</span> <span class="o">+=</span> <span class="mf">1.0</span>
+    <span class="c1"># Blues (not reversed): shallow -&gt; light blue, deep -&gt; dark blue.</span>
+    <span class="c1"># Clip the lightest 25 % so shallow levels are never near-white.</span>
+    <span class="c1"># Adjust the 0.25 start value to taste: higher = all lines darker.</span>
+    <span class="n">_blues</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s2">"Blues"</span><span class="p">)</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span>
+        <span class="s2">"Blues_dark"</span><span class="p">,</span> <span class="n">_blues</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">256</span><span class="p">))</span>
+    <span class="p">)</span>
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">p_min</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">p_max</span><span class="p">)</span>
+
+    <span class="n">nyq_period</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">dt_days</span>
+
+    <span class="c1"># HF x-axis: switch to hours when the range is &lt;= 3 days (tidal focus)</span>
+    <span class="n">use_hours</span> <span class="o">=</span> <span class="n">hf_x_max_days</span> <span class="o">&lt;=</span> <span class="mf">3.0</span>
+    <span class="n">hf_scale</span> <span class="o">=</span> <span class="mf">24.0</span> <span class="k">if</span> <span class="n">use_hours</span> <span class="k">else</span> <span class="mf">1.0</span>
+    <span class="n">hf_unit</span> <span class="o">=</span> <span class="s2">"hours"</span> <span class="k">if</span> <span class="n">use_hours</span> <span class="k">else</span> <span class="s2">"days"</span>
+    <span class="n">hf_seg_hours</span> <span class="o">=</span> <span class="n">hf_segment_days</span> <span class="o">*</span> <span class="mf">24.0</span>
+    <span class="n">hf_seg_label</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">hf_seg_hours</span><span class="p">)</span><span class="si">}</span><span class="s2">-hour"</span>
+        <span class="k">if</span> <span class="n">hf_seg_hours</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">hf_seg_hours</span><span class="p">)</span>
+        <span class="k">else</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">hf_seg_hours</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">-hour"</span>
+    <span class="p">)</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.ticker</span><span class="w"> </span><span class="kn">import</span> <span class="n">NullLocator</span>
+
+    <span class="c1"># Square panels via the shared helper; bottom pad for the rotated HF ticks,</span>
+    <span class="c1"># top pad for the figure suptitle above the per-panel titles.</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">_axes</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">square_axes_grid</span><span class="p">(</span>
+        <span class="n">width_in</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bottom_pad_in</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">top_pad_in</span><span class="o">=</span><span class="mf">0.6</span>
+    <span class="p">)</span>
+    <span class="n">ax_lf</span><span class="p">,</span> <span class="n">ax_hf</span> <span class="o">=</span> <span class="n">_axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">_axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">x_min_lf</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">nyq_period</span><span class="p">,</span> <span class="mf">10.0</span> <span class="o">/</span> <span class="mf">1440.0</span><span class="p">)</span>  <span class="c1"># right edge: Nyquist or 10 min</span>
+    <span class="c1"># Left edge = longest period Welch can estimate = 1/min_freq = window length</span>
+    <span class="n">x_max_lf</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">freq_lf</span><span class="p">[</span><span class="n">freq_lf</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+    <span class="n">x_min_hf</span> <span class="o">=</span> <span class="n">nyq_period</span>
+    <span class="n">x_max_hf</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">hf_x_max_days</span><span class="p">,</span> <span class="n">hf_segment_days</span><span class="p">)</span>
+
+    <span class="n">fmask_lf</span> <span class="o">=</span> <span class="p">(</span><span class="n">freq_lf</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">freq_lf</span> <span class="o">&lt;=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">nyq_period</span><span class="p">)</span>
+    <span class="n">freq_plot_lf</span> <span class="o">=</span> <span class="n">freq_lf</span><span class="p">[</span><span class="n">fmask_lf</span><span class="p">]</span>
+    <span class="n">period_plot_lf</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">freq_plot_lf</span>
+
+    <span class="c1"># -- LF panel --</span>
+    <span class="k">for</span> <span class="n">psd</span><span class="p">,</span> <span class="n">pv</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">psds_lf</span><span class="p">,</span> <span class="n">press_plotted_lf</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">ax_lf</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
+            <span class="n">period_plot_lf</span><span class="p">,</span>
+            <span class="n">psd</span><span class="p">[</span><span class="n">fmask_lf</span><span class="p">],</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">cmap</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">pv</span><span class="p">)),</span>
+            <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pv</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> dbar"</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">idx_1d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">freq_plot_lf</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">))</span>
+    <span class="n">median_at_1d</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">([</span><span class="n">psd</span><span class="p">[</span><span class="n">fmask_lf</span><span class="p">][</span><span class="n">idx_1d</span><span class="p">]</span> <span class="k">for</span> <span class="n">psd</span> <span class="ow">in</span> <span class="n">psds_lf</span><span class="p">]))</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">median_at_1d</span><span class="p">)</span> <span class="ow">and</span> <span class="n">median_at_1d</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">ref_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x_min_lf</span><span class="p">,</span> <span class="n">x_max_lf</span><span class="p">])</span>
+        <span class="n">ax_lf</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
+            <span class="n">ref_p</span><span class="p">,</span>
+            <span class="n">median_at_1d</span> <span class="o">*</span> <span class="n">ref_p</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">"k"</span><span class="p">,</span>
+            <span class="n">lw</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+            <span class="n">ls</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">"-2 slope"</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">ax_lf</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">x_max_lf</span><span class="p">,</span> <span class="n">x_min_lf</span><span class="p">)</span>
+    <span class="n">ax_lf</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">,</span> <span class="mf">1e2</span><span class="p">)</span>
+    <span class="n">_lf_tv</span><span class="p">,</span> <span class="n">_lf_tl</span> <span class="o">=</span> <span class="n">period_axis_ticks</span><span class="p">(</span><span class="n">x_min_lf</span><span class="p">,</span> <span class="n">x_max_lf</span><span class="p">)</span>
+    <span class="n">ax_lf</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">_lf_tv</span><span class="p">)</span>
+    <span class="n">ax_lf</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">_lf_tl</span><span class="p">)</span>
+    <span class="n">ax_lf</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">NullLocator</span><span class="p">())</span>
+    <span class="n">trans_lf</span> <span class="o">=</span> <span class="n">blended_transform_factory</span><span class="p">(</span><span class="n">ax_lf</span><span class="o">.</span><span class="n">transData</span><span class="p">,</span> <span class="n">ax_lf</span><span class="o">.</span><span class="n">transAxes</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">lbl</span><span class="p">,</span> <span class="n">pd_d</span><span class="p">,</span> <span class="n">clr</span> <span class="ow">in</span> <span class="n">lf_markers</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">x_min_lf</span> <span class="o">&lt;=</span> <span class="n">pd_d</span> <span class="o">&lt;=</span> <span class="n">x_max_lf</span><span class="p">:</span>
+            <span class="n">_mark_frequency_line</span><span class="p">(</span><span class="n">ax_lf</span><span class="p">,</span> <span class="n">pd_d</span><span class="p">,</span> <span class="n">clr</span><span class="p">)</span>
+            <span class="n">ax_lf</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                <span class="n">pd_d</span><span class="p">,</span>
+                <span class="mf">0.03</span><span class="p">,</span>
+                <span class="n">lbl</span><span class="p">,</span>
+                <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>
+                <span class="n">va</span><span class="o">=</span><span class="s2">"bottom"</span><span class="p">,</span>
+                <span class="n">ha</span><span class="o">=</span><span class="s2">"center"</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">clr</span><span class="p">,</span>
+                <span class="n">transform</span><span class="o">=</span><span class="n">trans_lf</span><span class="p">,</span>
+                <span class="n">bbox</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">"boxstyle"</span><span class="p">:</span> <span class="s2">"round,pad=0.1"</span><span class="p">,</span>
+                    <span class="s2">"fc"</span><span class="p">:</span> <span class="s2">"white"</span><span class="p">,</span>
+                    <span class="s2">"ec"</span><span class="p">:</span> <span class="s2">"none"</span><span class="p">,</span>
+                    <span class="s2">"alpha"</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+
+    <span class="n">ax_lf</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"Period"</span><span class="p">)</span>
+    <span class="n">ax_lf</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"PSD (°C² cpd⁻¹)"</span><span class="p">)</span>
+    <span class="n">plot_title</span><span class="p">(</span><span class="n">ax_lf</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Low frequency</span><span class="se">\n</span><span class="s2">14-day windows (</span><span class="si">{</span><span class="n">n_win_lf</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+    <span class="c1"># Single shared legend -- depth labels from LF lines serve both panels</span>
+    <span class="n">ax_lf</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">"upper right"</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">"Depth"</span><span class="p">)</span>
+
+    <span class="c1"># -- HF panel --</span>
+    <span class="k">if</span> <span class="n">psds_hf</span> <span class="ow">and</span> <span class="n">freq_hf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fmask_hf</span> <span class="o">=</span> <span class="p">(</span><span class="n">freq_hf</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">freq_hf</span> <span class="o">&lt;=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">nyq_period</span><span class="p">)</span>
+        <span class="n">freq_plot_hf</span> <span class="o">=</span> <span class="n">freq_hf</span><span class="p">[</span><span class="n">fmask_hf</span><span class="p">]</span>
+        <span class="n">period_plot_hf</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">freq_plot_hf</span>
+
+        <span class="k">for</span> <span class="n">psd</span><span class="p">,</span> <span class="n">pv</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">psds_hf</span><span class="p">,</span> <span class="n">press_plotted_hf</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="n">ax_hf</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
+                <span class="n">period_plot_hf</span> <span class="o">*</span> <span class="n">hf_scale</span><span class="p">,</span>
+                <span class="n">psd</span><span class="p">[</span><span class="n">fmask_hf</span><span class="p">],</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">cmap</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">pv</span><span class="p">)),</span>
+                <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># -2 slope anchored at geometric midpoint of the HF x range</span>
+        <span class="n">_log_mid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x_min_hf</span> <span class="o">*</span> <span class="n">x_max_hf</span><span class="p">)</span>
+        <span class="n">_idx_mid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">period_plot_hf</span> <span class="o">-</span> <span class="n">_log_mid</span><span class="p">))</span>
+        <span class="n">_med_mid</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">([</span><span class="n">psd</span><span class="p">[</span><span class="n">fmask_hf</span><span class="p">][</span><span class="n">_idx_mid</span><span class="p">]</span> <span class="k">for</span> <span class="n">psd</span> <span class="ow">in</span> <span class="n">psds_hf</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">_med_mid</span><span class="p">)</span> <span class="ow">and</span> <span class="n">_med_mid</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ref_p_hf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x_min_hf</span><span class="p">,</span> <span class="n">x_max_hf</span><span class="p">])</span>
+            <span class="n">ax_hf</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
+                <span class="n">ref_p_hf</span> <span class="o">*</span> <span class="n">hf_scale</span><span class="p">,</span>
+                <span class="n">_med_mid</span> <span class="o">*</span> <span class="p">(</span><span class="n">ref_p_hf</span> <span class="o">/</span> <span class="n">_log_mid</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="s2">"k"</span><span class="p">,</span>
+                <span class="n">lw</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+                <span class="n">ls</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">"-2 slope"</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">trans_hf</span> <span class="o">=</span> <span class="n">blended_transform_factory</span><span class="p">(</span><span class="n">ax_hf</span><span class="o">.</span><span class="n">transData</span><span class="p">,</span> <span class="n">ax_hf</span><span class="o">.</span><span class="n">transAxes</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">lbl</span><span class="p">,</span> <span class="n">pd_d</span><span class="p">,</span> <span class="n">clr</span><span class="p">,</span> <span class="n">y_lbl</span> <span class="ow">in</span> <span class="n">hf_markers</span><span class="p">:</span>
+            <span class="n">pd_scaled</span> <span class="o">=</span> <span class="n">pd_d</span> <span class="o">*</span> <span class="n">hf_scale</span>
+            <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">x_min_hf</span> <span class="o">*</span> <span class="n">hf_scale</span><span class="p">,</span> <span class="n">x_max_hf</span> <span class="o">*</span> <span class="n">hf_scale</span>
+            <span class="k">if</span> <span class="n">lo</span> <span class="o">&lt;=</span> <span class="n">pd_scaled</span> <span class="o">&lt;=</span> <span class="n">hi</span><span class="p">:</span>
+                <span class="n">_mark_frequency_line</span><span class="p">(</span><span class="n">ax_hf</span><span class="p">,</span> <span class="n">pd_scaled</span><span class="p">,</span> <span class="n">clr</span><span class="p">)</span>
+                <span class="n">ax_hf</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                    <span class="n">pd_scaled</span><span class="p">,</span>
+                    <span class="n">y_lbl</span><span class="p">,</span>
+                    <span class="n">lbl</span><span class="p">,</span>
+                    <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>
+                    <span class="n">va</span><span class="o">=</span><span class="s2">"bottom"</span><span class="p">,</span>
+                    <span class="n">ha</span><span class="o">=</span><span class="s2">"center"</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">clr</span><span class="p">,</span>
+                    <span class="n">transform</span><span class="o">=</span><span class="n">trans_hf</span><span class="p">,</span>
+                    <span class="n">bbox</span><span class="o">=</span><span class="p">{</span>
+                        <span class="s2">"boxstyle"</span><span class="p">:</span> <span class="s2">"round,pad=0.1"</span><span class="p">,</span>
+                        <span class="s2">"fc"</span><span class="p">:</span> <span class="s2">"white"</span><span class="p">,</span>
+                        <span class="s2">"ec"</span><span class="p">:</span> <span class="s2">"none"</span><span class="p">,</span>
+                        <span class="s2">"alpha"</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
+                    <span class="p">},</span>
+                <span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ax_hf</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="s2">"No valid windows</span><span class="se">\n</span><span class="s2">(all data gapped)"</span><span class="p">,</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">ax_hf</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+            <span class="n">ha</span><span class="o">=</span><span class="s2">"center"</span><span class="p">,</span>
+            <span class="n">va</span><span class="o">=</span><span class="s2">"center"</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">"gray"</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">ax_hf</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">x_max_hf</span> <span class="o">*</span> <span class="n">hf_scale</span><span class="p">,</span> <span class="n">x_min_hf</span> <span class="o">*</span> <span class="n">hf_scale</span><span class="p">)</span>
+    <span class="n">ax_hf</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mf">1e-8</span><span class="p">,</span> <span class="mf">1e2</span><span class="p">)</span>
+    <span class="n">_hf_ticks_h</span> <span class="o">=</span> <span class="p">[</span>  <span class="c1"># (period_hours, label) -- edit here to adjust tick positions</span>
+        <span class="p">(</span><span class="mf">48.0</span><span class="p">,</span> <span class="s2">"2d"</span><span class="p">),</span>
+        <span class="p">(</span><span class="mf">24.0</span><span class="p">,</span> <span class="s2">"1d"</span><span class="p">),</span>
+        <span class="p">(</span><span class="mf">12.0</span><span class="p">,</span> <span class="s2">"12h"</span><span class="p">),</span>
+        <span class="p">(</span><span class="mf">6.0</span><span class="p">,</span> <span class="s2">"6h"</span><span class="p">),</span>
+        <span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="s2">"2h"</span><span class="p">),</span>
+        <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">"1h"</span><span class="p">),</span>
+        <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">"30min"</span><span class="p">),</span>
+        <span class="p">(</span><span class="mf">10.0</span> <span class="o">/</span> <span class="mi">60</span><span class="p">,</span> <span class="s2">"10min"</span><span class="p">),</span>
+        <span class="p">(</span><span class="mf">5.0</span> <span class="o">/</span> <span class="mi">60</span><span class="p">,</span> <span class="s2">"5min"</span><span class="p">),</span>
+        <span class="p">(</span><span class="mf">2.0</span> <span class="o">/</span> <span class="mi">60</span><span class="p">,</span> <span class="s2">"2min"</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">_lo_hf</span><span class="p">,</span> <span class="n">_hi_hf</span> <span class="o">=</span> <span class="n">x_min_hf</span> <span class="o">*</span> <span class="n">hf_scale</span><span class="p">,</span> <span class="n">x_max_hf</span> <span class="o">*</span> <span class="n">hf_scale</span>
+    <span class="n">_hf_t</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">ph</span> <span class="o">/</span> <span class="mf">24.0</span> <span class="o">*</span> <span class="n">hf_scale</span><span class="p">,</span> <span class="n">lbl</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ph</span><span class="p">,</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="n">_hf_ticks_h</span>
+        <span class="k">if</span> <span class="n">_lo_hf</span> <span class="o">&lt;=</span> <span class="n">ph</span> <span class="o">/</span> <span class="mf">24.0</span> <span class="o">*</span> <span class="n">hf_scale</span> <span class="o">&lt;=</span> <span class="n">_hi_hf</span>
+    <span class="p">]</span>
+    <span class="n">ax_hf</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">_hf_t</span><span class="p">])</span>
+    <span class="n">ax_hf</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="n">lbl</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="n">_hf_t</span><span class="p">],</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">"right"</span><span class="p">)</span>
+    <span class="n">ax_hf</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">NullLocator</span><span class="p">())</span>
+    <span class="n">ax_hf</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Period (</span><span class="si">{</span><span class="n">hf_unit</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+    <span class="n">ax_hf</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"PSD (°C² cpd⁻¹)"</span><span class="p">)</span>
+    <span class="n">n_win_hf_label</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">n_win_hf</span><span class="p">)</span> <span class="k">if</span> <span class="n">psds_hf</span> <span class="k">else</span> <span class="s2">"0"</span>
+    <span class="c1"># Two-line panel titles: heading + window detail, so the detail fits the</span>
+    <span class="c1"># narrow square panels without overflowing.</span>
+    <span class="n">plot_title</span><span class="p">(</span>
+        <span class="n">ax_hf</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"High frequency</span><span class="se">\n</span><span class="si">{</span><span class="n">hf_seg_label</span><span class="si">}</span><span class="s2"> windows (</span><span class="si">{</span><span class="n">n_win_hf_label</span><span class="si">}</span><span class="s2">, gap-aware)"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">figure_title</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">"Temperature power spectrum — Welch PSD per depth"</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+
+<div class="viewcode-block" id="draw_wavelet">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.spectrum.draw_wavelet">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">draw_wavelet</span><span class="p">(</span>
+    <span class="n">da_temp</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">dt_seconds</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">wavelet</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"morlet"</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">width_in</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">report_tokens</span><span class="o">.</span><span class="n">W_FULL</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Continuous wavelet transform scalogram for gridded temperature; return a Figure.</span>
+
+<span class="sd">    Produces three stacked wavelet + time-series panel pairs.  Depth levels are</span>
+<span class="sd">    selected from 100-dbar multiples that have **at least 75 % data coverage**</span>
+<span class="sd">    (sparse near-bottom levels are excluded).  Levels within 100 dbar of the</span>
+<span class="sd">    shallowest valid level are also excluded to avoid gappy near-surface data.</span>
+<span class="sd">    From the remaining candidates the deepest, an upper-middle, and a</span>
+<span class="sd">    lower-middle level are chosen (biased toward the deeper water column).</span>
+
+<span class="sd">    Each wavelet panel shows log10(Morlet power) as a filled contour plot; the</span>
+<span class="sd">    gap-aware cone of influence (COI) is hatched -- this covers both the record</span>
+<span class="sd">    edges and the COI wings that spread out from every data gap.  The y-axis is</span>
+<span class="sd">    trimmed per-panel to the longest period that is reliable at any time step, so</span>
+<span class="sd">    gappier levels automatically get a tighter period range.  A 95 % significance</span>
+<span class="sd">    contour is drawn in black (falls back to white-noise background if AR(1)</span>
+<span class="sd">    estimation fails).  Below each wavelet panel a short temperature time series</span>
+<span class="sd">    for that depth level shares the x-axis.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    da_temp:</span>
+<span class="sd">        Gridded temperature DataArray with dimensions ``(pressure, time)``.</span>
+<span class="sd">    dt_seconds:</span>
+<span class="sd">        Sample interval in seconds.</span>
+<span class="sd">    wavelet:</span>
+<span class="sd">        ``"morlet"`` (default, Morlet omega_0=6) or ``"mexican_hat"``.</span>
+<span class="sd">    width_in : float, optional</span>
+<span class="sd">        Figure width in inches -- the display-slot width the report builder</span>
+<span class="sd">        resolves; standalone callers get the full content width.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    plt.Figure or None</span>
+<span class="sd">        Figure, or None if the dataset has insufficient temperature data.</span>
+
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">pycwt</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_pycwt</span>  <span class="c1"># noqa: F401</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.plotters.spectrum</span><span class="w"> </span><span class="kn">import</span> <span class="n">wavelet_panel</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_cwt</span>
+
+    <span class="k">if</span> <span class="n">da_temp</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">"pressure"</span><span class="p">:</span>
+        <span class="n">da_temp</span> <span class="o">=</span> <span class="n">da_temp</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s2">"pressure"</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+    <span class="n">arr</span> <span class="o">=</span> <span class="n">da_temp</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">press_vals</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">da_temp</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">"pressure"</span> <span class="ow">in</span> <span class="n">da_temp</span><span class="o">.</span><span class="n">coords</span>
+        <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">n_lev</span><span class="p">,</span> <span class="n">_n_time</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="c1"># --- level selection: 100-dbar multiples with &gt;= 75 % data coverage ---</span>
+    <span class="c1"># The 75 % threshold is much stricter than "at least one window" so that</span>
+    <span class="c1"># sparse levels (e.g. a deep instrument with only a few days of data) are</span>
+    <span class="c1"># excluded.  Levels near the seabed often have patchy records; requiring</span>
+    <span class="c1"># 75 % coverage means the wavelet estimate is based on most of the deployment.</span>
+    <span class="n">_min_coverage</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.75</span> <span class="o">*</span> <span class="n">_n_time</span><span class="p">)</span>
+    <span class="n">_candidates</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">press_vals</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_lev</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:]))</span> <span class="o">&gt;=</span> <span class="n">_min_coverage</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_candidates</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">_cp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pv</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">pv</span> <span class="ow">in</span> <span class="n">_candidates</span><span class="p">])</span>
+    <span class="n">_lo100</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">_cp</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="mf">100.0</span><span class="p">))</span> <span class="o">*</span> <span class="mi">100</span>
+    <span class="n">_hi100</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">_cp</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">/</span> <span class="mf">100.0</span><span class="p">))</span> <span class="o">*</span> <span class="mi">100</span>
+    <span class="n">_seen_k</span><span class="p">:</span> <span class="nb">set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">_valid_idx</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">_tgt</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">_lo100</span><span class="p">,</span> <span class="n">_hi100</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">):</span>
+        <span class="n">_bi</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">_cp</span> <span class="o">-</span> <span class="n">_tgt</span><span class="p">)))</span>
+        <span class="n">_k</span> <span class="o">=</span> <span class="n">_candidates</span><span class="p">[</span><span class="n">_bi</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">_k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_seen_k</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">_cp</span><span class="p">[</span><span class="n">_bi</span><span class="p">]</span> <span class="o">-</span> <span class="n">_tgt</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">75.0</span><span class="p">:</span>
+            <span class="n">_seen_k</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">_k</span><span class="p">)</span>
+            <span class="n">_valid_idx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_k</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_valid_idx</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># Exclude levels within 100 dbar of the shallowest valid level --</span>
+    <span class="c1"># near-surface data tends to be gappy and the wavelet is unreliable there.</span>
+    <span class="n">_shallowest_p</span> <span class="o">=</span> <span class="n">press_vals</span><span class="p">[</span><span class="n">_valid_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">_deep_idx</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">_valid_idx</span> <span class="k">if</span> <span class="n">press_vals</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">_shallowest_p</span> <span class="o">+</span> <span class="mf">100.0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_deep_idx</span><span class="p">:</span>
+        <span class="n">_deep_idx</span> <span class="o">=</span> <span class="n">_valid_idx</span>  <span class="c1"># fall back if nothing passes the filter</span>
+
+    <span class="c1"># Pick 3 levels biased toward mid-to-deep water.</span>
+    <span class="c1"># Start from max(0, N-5) so that when there are many levels we skip</span>
+    <span class="c1"># the shallowest portion, e.g. [300..900] -&gt; pick 500, 700, 900.</span>
+    <span class="n">n_v</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">_deep_idx</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n_v</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">_start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_v</span> <span class="o">-</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">_start</span><span class="p">,</span> <span class="n">n_v</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">sel</span> <span class="o">=</span> <span class="p">[</span><span class="n">_deep_idx</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_idxs</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">n_v</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">sel</span> <span class="o">=</span> <span class="p">[</span><span class="n">_deep_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">_deep_idx</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sel</span> <span class="o">=</span> <span class="p">[</span><span class="n">_deep_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+    <span class="c1"># Time axis -- use coordinate if present, else integer index</span>
+    <span class="k">if</span> <span class="s2">"time"</span> <span class="ow">in</span> <span class="n">da_temp</span><span class="o">.</span><span class="n">coords</span><span class="p">:</span>
+        <span class="n">times</span> <span class="o">=</span> <span class="n">da_temp</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">_n_time</span><span class="p">)</span>
+
+    <span class="c1"># --- compute CWT for each selected level ---</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">sel</span><span class="p">:</span>
+        <span class="n">pv</span> <span class="o">=</span> <span class="n">press_vals</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="n">cwt_out</span> <span class="o">=</span> <span class="n">compute_cwt</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:],</span> <span class="n">dt_seconds</span><span class="p">,</span> <span class="n">wavelet</span><span class="o">=</span><span class="n">wavelet</span><span class="p">)</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">pv</span><span class="p">,</span> <span class="n">cwt_out</span><span class="p">))</span>
+
+    <span class="c1"># --- figure: short T time series above each tall wavelet panel ---</span>
+    <span class="c1"># The time series sits above so the high-frequency variability visible</span>
+    <span class="c1"># by eye can be compared directly to the top (short-period) rows of the</span>
+    <span class="c1"># scalogram below it.</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.gridspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">GridSpec</span>
+
+    <span class="n">n_panels</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+    <span class="c1"># height ratios: 1 part time series (top), 2.75 parts wavelet (bottom), per</span>
+    <span class="c1"># level.  The scalogram was too tall relative to its width, so it is trimmed</span>
+    <span class="c1"># ~17 % (3 -&gt; 2.75 of the ratio) and the whole pair shortened (4.5 -&gt; 3.8 in),</span>
+    <span class="c1"># which also takes the time series down ~10 %.</span>
+    <span class="n">hr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.75</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_panels</span>
+    <span class="c1"># constrained_layout crops the surrounding whitespace and places the spanning</span>
+    <span class="c1"># colorbar cleanly (the encoder skips tight_layout for constrained figures).</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">width_in</span><span class="p">,</span> <span class="mf">3.8</span> <span class="o">*</span> <span class="n">n_panels</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">)</span>
+    <span class="n">gs</span> <span class="o">=</span> <span class="n">GridSpec</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">n_panels</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figure</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">height_ratios</span><span class="o">=</span><span class="n">hr</span><span class="p">)</span>
+
+    <span class="n">tax</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># time series axes (top of each pair)</span>
+    <span class="n">wax</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># wavelet axes (bottom of each pair)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_panels</span><span class="p">):</span>
+        <span class="n">_sharex</span> <span class="o">=</span> <span class="n">tax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">tax</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">tax</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">sharex</span><span class="o">=</span><span class="n">_sharex</span><span class="p">))</span>
+        <span class="n">wax</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">sharex</span><span class="o">=</span><span class="n">tax</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+
+    <span class="n">mappable</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">pv</span><span class="p">,</span> <span class="n">cwt_out</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>
+        <span class="c1"># Temperature time series (top)</span>
+        <span class="n">ts</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">sel</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="p">:]</span>
+        <span class="n">tax</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">ts</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"0.3"</span><span class="p">)</span>
+        <span class="n">tax</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">"T (</span><span class="si">{</span><span class="n">unit_label</span><span class="p">(</span><span class="s1">'degree_Celsius'</span><span class="p">)</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+        <span class="n">grid_despine</span><span class="p">(</span><span class="n">tax</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="c1"># Pressure level in the bottom-left corner (was a title, which overlapped</span>
+        <span class="c1"># the scalogram of the pair above).</span>
+        <span class="n">tax</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+            <span class="mf">0.01</span><span class="p">,</span>
+            <span class="mf">0.08</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pv</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> dbar"</span><span class="p">,</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">tax</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+            <span class="n">ha</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+            <span class="n">va</span><span class="o">=</span><span class="s2">"bottom"</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="n">report_tokens</span><span class="o">.</span><span class="n">ANNOT_FS</span><span class="p">,</span>
+            <span class="n">bbox</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">"boxstyle"</span><span class="p">:</span> <span class="s2">"round,pad=0.15"</span><span class="p">,</span>
+                <span class="s2">"fc"</span><span class="p">:</span> <span class="s2">"white"</span><span class="p">,</span>
+                <span class="s2">"ec"</span><span class="p">:</span> <span class="s2">"none"</span><span class="p">,</span>
+                <span class="s2">"alpha"</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">tax</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">(),</span> <span class="n">visible</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Wavelet scalogram (bottom)</span>
+        <span class="n">mappable</span> <span class="o">=</span> <span class="n">wavelet_panel</span><span class="p">(</span>
+            <span class="n">wax</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="n">times</span><span class="p">,</span>
+            <span class="n">cwt_out</span><span class="p">[</span><span class="s2">"periods"</span><span class="p">],</span>
+            <span class="n">cwt_out</span><span class="p">[</span><span class="s2">"power"</span><span class="p">],</span>
+            <span class="n">cwt_out</span><span class="p">[</span><span class="s2">"effective_coi"</span><span class="p">],</span>
+            <span class="n">signif</span><span class="o">=</span><span class="n">cwt_out</span><span class="p">[</span><span class="s2">"signif"</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n_panels</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">wax</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">(),</span> <span class="n">visible</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">wax</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"Time"</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">mappable</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Pass all axes (wavelet + time series) so matplotlib shrinks them</span>
+        <span class="c1"># all equally, keeping each wavelet panel aligned with its T panel.</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mappable</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">wax</span> <span class="o">+</span> <span class="n">tax</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.04</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="sa">r</span><span class="s2">"$\log_</span><span class="si">{10}</span><span class="s2">$(power) (°C² d)"</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+
+<div class="viewcode-block" id="draw_grid_rotary_spectrum">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.spectrum.draw_grid_rotary_spectrum">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">draw_grid_rotary_spectrum</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">lat</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">width_in</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">report_tokens</span><span class="o">.</span><span class="n">W_FULL</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Two-panel rotary velocity spectrum for the grid report; return a Figure.</span>
+
+<span class="sd">    Left panel: CW (solid, reds) and CCW (dashed, blues) power spectra on the same axes,</span>
+<span class="sd">    one line per selected pressure level.  Right panel: rotary coefficient</span>
+<span class="sd">    r = (CCW - CW) / (CCW + CW) on a linear [-1, 1] scale.</span>
+<span class="sd">    Welch PSD with Hann window, 14-day segments, 50% overlap.</span>
+
+<span class="sd">    Level selection: min(4, max(1, n_valid_levels // 5)) evenly-spaced levels</span>
+<span class="sd">    from those with &gt;= 5% finite data in both east and north velocity.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xr.Dataset</span>
+<span class="sd">        Gridded dataset with ``east_velocity`` and ``north_velocity`` on</span>
+<span class="sd">        ``(time, pressure)`` dimensions.</span>
+<span class="sd">    lat : float</span>
+<span class="sd">        Mooring latitude (degrees, positive north) used for the inertial period marker.</span>
+<span class="sd">    width_in : float, optional</span>
+<span class="sd">        Figure width in inches -- the display-slot width the report builder</span>
+<span class="sd">        resolves; standalone callers get the full content width.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    plt.Figure or None</span>
+<span class="sd">        Figure, or None if insufficient velocity data.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mcolors</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.lines</span><span class="w"> </span><span class="kn">import</span> <span class="n">Line2D</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">blended_transform_factory</span>
+
+    <span class="k">if</span> <span class="s2">"east_velocity"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span> <span class="ow">or</span> <span class="s2">"north_velocity"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># Grid dims are (time, pressure) -- transpose to (pressure, time) for indexing</span>
+    <span class="n">east_da</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"east_velocity"</span><span class="p">]</span>
+    <span class="n">north_da</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"north_velocity"</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">east_da</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">"pressure"</span><span class="p">:</span>
+        <span class="n">east_da</span> <span class="o">=</span> <span class="n">east_da</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s2">"pressure"</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">)</span>
+        <span class="n">north_da</span> <span class="o">=</span> <span class="n">north_da</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s2">"pressure"</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">)</span>
+
+    <span class="n">arr_u</span> <span class="o">=</span> <span class="n">east_da</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># (pressure, time)</span>
+    <span class="n">arr_v</span> <span class="o">=</span> <span class="n">north_da</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># Apply QC flags (&gt;= 3 -&gt; NaN)</span>
+    <span class="k">for</span> <span class="n">_qc_var</span><span class="p">,</span> <span class="n">_arr</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">"east_velocity_qc"</span><span class="p">,</span> <span class="n">arr_u</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"north_velocity_qc"</span><span class="p">,</span> <span class="n">arr_v</span><span class="p">),</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">_qc_var</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+            <span class="n">_qc</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">_qc_var</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="k">if</span> <span class="n">_qc</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="n">arr_u</span><span class="o">.</span><span class="n">ndim</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ds</span><span class="p">[</span><span class="n">_qc_var</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">"pressure"</span><span class="p">:</span>
+                    <span class="n">_qc</span> <span class="o">=</span> <span class="n">_qc</span><span class="o">.</span><span class="n">T</span>
+                <span class="n">_arr</span><span class="p">[</span><span class="n">_qc</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="n">press_vals</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">n_lev</span><span class="p">,</span> <span class="n">n_time</span> <span class="o">=</span> <span class="n">arr_u</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">dt_s</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"dt_seconds"</span><span class="p">,</span> <span class="mi">3600</span><span class="p">))</span>
+    <span class="n">dt_days</span> <span class="o">=</span> <span class="n">dt_s</span> <span class="o">/</span> <span class="mf">86400.0</span>
+
+    <span class="n">seg_14d</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mf">14.0</span> <span class="o">/</span> <span class="n">dt_days</span><span class="p">))</span>
+    <span class="n">segment_length</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">seg_14d</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">n_time</span> <span class="o">//</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">128</span><span class="p">))</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">dt_days</span>
+    <span class="n">noverlap</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">segment_length</span><span class="p">)</span>
+
+    <span class="c1"># Valid levels: both u and v have &gt;= segment_length finite values</span>
+    <span class="n">valid_lev_idx</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">k</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_lev</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">arr_u</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:]))</span> <span class="o">&gt;=</span> <span class="n">segment_length</span>
+        <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">arr_v</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:]))</span> <span class="o">&gt;=</span> <span class="n">segment_length</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid_lev_idx</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># Subsample: min(4, max(1, n_valid // 5))</span>
+    <span class="n">n_select</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid_lev_idx</span><span class="p">)</span> <span class="o">//</span> <span class="mi">5</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid_lev_idx</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">n_select</span><span class="p">:</span>
+        <span class="n">sel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid_lev_idx</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_select</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">valid_lev_idx</span> <span class="o">=</span> <span class="p">[</span><span class="n">valid_lev_idx</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sel</span><span class="p">]</span>
+
+    <span class="n">freq_out</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">s_cw_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">s_ccw_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">r_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">press_plotted</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">valid_lev_idx</span><span class="p">:</span>
+        <span class="n">u_col</span> <span class="o">=</span> <span class="n">arr_u</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">v_col</span> <span class="o">=</span> <span class="n">arr_v</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># Gap-fill by linear interpolation before Welch</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">(</span><span class="n">u_col</span><span class="p">,</span> <span class="n">v_col</span><span class="p">):</span>
+            <span class="n">good</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">good</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">col</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_time</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">good</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">col</span><span class="p">[</span><span class="n">good</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">f_uu</span><span class="p">,</span> <span class="n">s_cw</span><span class="p">,</span> <span class="n">s_ccw</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="n">gonella_rotary_spectrum</span><span class="p">(</span>
+                <span class="n">u_col</span><span class="p">,</span> <span class="n">v_col</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">segment_length</span><span class="p">,</span> <span class="n">noverlap</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">freq_out</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">freq_out</span> <span class="o">=</span> <span class="n">f_uu</span>
+            <span class="n">s_cw_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s_cw</span><span class="p">)</span>
+            <span class="n">s_ccw_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s_ccw</span><span class="p">)</span>
+            <span class="n">r_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+            <span class="n">press_plotted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">press_vals</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+
+    <span class="k">if</span> <span class="n">freq_out</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">s_cw_list</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">nyq_period</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">dt_days</span>
+    <span class="n">x_min</span> <span class="o">=</span> <span class="n">nyq_period</span>
+    <span class="n">x_max</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mf">30.0</span><span class="p">,</span> <span class="n">n_time</span> <span class="o">*</span> <span class="n">dt_days</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+    <span class="n">fmask</span> <span class="o">=</span> <span class="p">(</span><span class="n">freq_out</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">freq_out</span> <span class="o">&lt;=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">nyq_period</span><span class="p">)</span>
+    <span class="n">period_plot</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">freq_out</span><span class="p">[</span><span class="n">fmask</span><span class="p">]</span>
+    <span class="n">freq_pm</span> <span class="o">=</span> <span class="n">freq_out</span><span class="p">[</span><span class="n">fmask</span><span class="p">]</span>
+
+    <span class="c1"># Effective DOF for the Welch estimate (Hann window, 50 % overlap ~= 1.5x segments)</span>
+    <span class="c1"># Used for the 95 % significance threshold on the rotary coefficient.</span>
+    <span class="n">n_segments</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="p">(</span><span class="n">n_time</span> <span class="o">-</span> <span class="n">noverlap</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">segment_length</span> <span class="o">-</span> <span class="n">noverlap</span><span class="p">))</span>
+    <span class="n">K_eff</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">n_segments</span><span class="p">)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">f</span> <span class="k">as</span> <span class="n">_f_dist</span>
+
+    <span class="n">_dof_half</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">K_eff</span><span class="p">)))</span>
+    <span class="n">_F_crit</span> <span class="o">=</span> <span class="n">_f_dist</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="mf">0.975</span><span class="p">,</span> <span class="n">_dof_half</span><span class="p">,</span> <span class="n">_dof_half</span><span class="p">)</span>
+    <span class="n">r_sig_95</span> <span class="o">=</span> <span class="p">(</span><span class="n">_F_crit</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">_F_crit</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="c1"># Log-band average of the rotary coefficient -- average S_CW and S_CCW</span>
+    <span class="c1"># within each band first, then compute r, to avoid ratio noise.</span>
+    <span class="n">n_bands</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">period_plot</span><span class="p">)</span> <span class="o">//</span> <span class="mi">5</span><span class="p">))</span>
+    <span class="n">_log_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">period_plot</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">period_plot</span><span class="o">.</span><span class="n">max</span><span class="p">()),</span> <span class="n">n_bands</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="p">)</span>
+    <span class="n">p_band_centers</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">_log_edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">_log_edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+    <span class="n">r_banded_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">_scw</span><span class="p">,</span> <span class="n">_sccw</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">s_cw_list</span><span class="p">,</span> <span class="n">s_ccw_list</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">_scw_f</span><span class="p">,</span> <span class="n">_sccw_f</span> <span class="o">=</span> <span class="n">_scw</span><span class="p">[</span><span class="n">fmask</span><span class="p">],</span> <span class="n">_sccw</span><span class="p">[</span><span class="n">fmask</span><span class="p">]</span>
+        <span class="n">_rb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n_bands</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_bands</span><span class="p">):</span>
+            <span class="c1"># band edges in frequency: small period -&gt; high freq</span>
+            <span class="n">_f_lo</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mi">10</span> <span class="o">**</span> <span class="n">_log_edges</span><span class="p">[</span><span class="n">_i</span><span class="p">]</span>
+            <span class="n">_f_hi</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mi">10</span> <span class="o">**</span> <span class="n">_log_edges</span><span class="p">[</span><span class="n">_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">_f_lo</span><span class="p">,</span> <span class="n">_f_hi</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">_f_lo</span><span class="p">,</span> <span class="n">_f_hi</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">_f_lo</span><span class="p">,</span> <span class="n">_f_hi</span><span class="p">)</span>
+            <span class="n">_mb</span> <span class="o">=</span> <span class="p">(</span><span class="n">freq_pm</span> <span class="o">&gt;=</span> <span class="n">_f_lo</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">freq_pm</span> <span class="o">&lt;=</span> <span class="n">_f_hi</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_mb</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">_cw_m</span> <span class="o">=</span> <span class="n">_scw_f</span><span class="p">[</span><span class="n">_mb</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+                <span class="n">_ccw_m</span> <span class="o">=</span> <span class="n">_sccw_f</span><span class="p">[</span><span class="n">_mb</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+                <span class="n">_d</span> <span class="o">=</span> <span class="n">_cw_m</span> <span class="o">+</span> <span class="n">_ccw_m</span>
+                <span class="k">if</span> <span class="n">_d</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">_rb</span><span class="p">[</span><span class="n">_i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">_ccw_m</span> <span class="o">-</span> <span class="n">_cw_m</span><span class="p">)</span> <span class="o">/</span> <span class="n">_d</span>
+        <span class="n">r_banded_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_rb</span><span class="p">)</span>
+
+    <span class="c1"># Tidal/inertial frequency markers</span>
+    <span class="n">markers</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">"M2"</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">1.9323</span><span class="p">,</span> <span class="s2">"#c0392b"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"K1"</span><span class="p">,</span> <span class="mf">23.93</span> <span class="o">/</span> <span class="mf">24.0</span><span class="p">,</span> <span class="s2">"#e67e22"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"1.8d"</span><span class="p">,</span> <span class="mf">1.8</span><span class="p">,</span> <span class="s2">"#7f8c8d"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"4d"</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="s2">"#95a5a6"</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">lat</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">gsw</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_gsw</span>
+
+        <span class="n">f_inert</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">_gsw</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">lat</span><span class="p">))</span>
+        <span class="n">f_inert_cpd</span> <span class="o">=</span> <span class="n">f_inert</span> <span class="o">*</span> <span class="mf">86400.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        <span class="n">markers</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">"f"</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">f_inert_cpd</span><span class="p">,</span> <span class="s2">"#27ae60"</span><span class="p">))</span>
+
+    <span class="c1"># Show at most 3 depth levels: the shallowest maps to the palest colour and is</span>
+    <span class="c1"># hard to see against white, so drop it and evenly subsample the rest.</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">press_plotted</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">_order</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">press_plotted</span><span class="p">))</span>  <span class="c1"># shallow -&gt; deep</span>
+        <span class="n">_keep</span> <span class="o">=</span> <span class="n">_order</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>  <span class="c1"># drop the shallowest</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">_keep</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">_pick</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">_keep</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="n">_keep</span> <span class="o">=</span> <span class="p">[</span><span class="n">_keep</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_pick</span><span class="p">]</span>
+        <span class="n">_keep</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">_keep</span><span class="p">)</span>
+        <span class="n">s_cw_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">s_cw_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_keep</span><span class="p">]</span>
+        <span class="n">s_ccw_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">s_ccw_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_keep</span><span class="p">]</span>
+        <span class="n">r_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">r_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_keep</span><span class="p">]</span>
+        <span class="n">r_banded_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">r_banded_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_keep</span><span class="p">]</span>
+        <span class="n">press_plotted</span> <span class="o">=</span> <span class="p">[</span><span class="n">press_plotted</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_keep</span><span class="p">]</span>
+
+    <span class="n">p_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">press_plotted</span><span class="p">)</span>
+    <span class="n">p_min</span><span class="p">,</span> <span class="n">p_max</span> <span class="o">=</span> <span class="n">p_arr</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">p_arr</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">p_min</span> <span class="o">==</span> <span class="n">p_max</span><span class="p">:</span>
+        <span class="n">p_min</span> <span class="o">-=</span> <span class="mf">1.0</span>
+        <span class="n">p_max</span> <span class="o">+=</span> <span class="mf">1.0</span>
+    <span class="c1"># Floor the colour scale part-way up the colormap so even the shallowest kept</span>
+    <span class="c1"># level is a visible shade (the pure-white end is invisible on white).</span>
+    <span class="n">_span</span> <span class="o">=</span> <span class="n">p_max</span> <span class="o">-</span> <span class="n">p_min</span>
+    <span class="n">norm_p</span> <span class="o">=</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">p_min</span> <span class="o">-</span> <span class="mf">0.54</span> <span class="o">*</span> <span class="n">_span</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">p_max</span><span class="p">)</span>
+    <span class="n">cmap_cw</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s2">"Reds"</span><span class="p">)</span>
+    <span class="n">cmap_ccw</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s2">"Blues"</span><span class="p">)</span>
+
+    <span class="c1"># Square panels via the shared helper; bottom pad for the rotated ticks.</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">_axes</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">square_axes_grid</span><span class="p">(</span><span class="n">width_in</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bottom_pad_in</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">ax_spec</span><span class="p">,</span> <span class="n">ax_rot</span> <span class="o">=</span> <span class="n">_axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">_axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># Panel 1: CW (solid, reds) + CCW (dashed, blues)</span>
+    <span class="k">for</span> <span class="n">s_cw</span><span class="p">,</span> <span class="n">s_ccw</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">s_cw_list</span><span class="p">,</span> <span class="n">s_ccw_list</span><span class="p">,</span> <span class="n">press_plotted</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">cw_col</span> <span class="o">=</span> <span class="n">cmap_cw</span><span class="p">(</span><span class="n">norm_p</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+        <span class="n">ccw_col</span> <span class="o">=</span> <span class="n">cmap_ccw</span><span class="p">(</span><span class="n">norm_p</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+        <span class="n">ax_spec</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">period_plot</span><span class="p">,</span> <span class="n">s_cw</span><span class="p">[</span><span class="n">fmask</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">cw_col</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.85</span><span class="p">)</span>
+        <span class="n">ax_spec</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
+            <span class="n">period_plot</span><span class="p">,</span> <span class="n">s_ccw</span><span class="p">[</span><span class="n">fmask</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">ccw_col</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.85</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">"--"</span>
+        <span class="p">)</span>
+
+    <span class="n">trans1</span> <span class="o">=</span> <span class="n">blended_transform_factory</span><span class="p">(</span><span class="n">ax_spec</span><span class="o">.</span><span class="n">transData</span><span class="p">,</span> <span class="n">ax_spec</span><span class="o">.</span><span class="n">transAxes</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">period_d</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">markers</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">x_min</span> <span class="o">&lt;=</span> <span class="n">period_d</span> <span class="o">&lt;=</span> <span class="n">x_max</span><span class="p">:</span>
+            <span class="n">_mark_frequency_line</span><span class="p">(</span><span class="n">ax_spec</span><span class="p">,</span> <span class="n">period_d</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span>
+            <span class="n">ax_spec</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                <span class="n">period_d</span><span class="p">,</span>
+                <span class="mf">0.97</span><span class="p">,</span>
+                <span class="n">label</span><span class="p">,</span>
+                <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>
+                <span class="n">va</span><span class="o">=</span><span class="s2">"top"</span><span class="p">,</span>
+                <span class="n">ha</span><span class="o">=</span><span class="s2">"center"</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                <span class="n">transform</span><span class="o">=</span><span class="n">trans1</span><span class="p">,</span>
+                <span class="n">bbox</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">"boxstyle"</span><span class="p">:</span> <span class="s2">"round,pad=0.1"</span><span class="p">,</span>
+                    <span class="s2">"fc"</span><span class="p">:</span> <span class="s2">"white"</span><span class="p">,</span>
+                    <span class="s2">"ec"</span><span class="p">:</span> <span class="s2">"none"</span><span class="p">,</span>
+                    <span class="s2">"alpha"</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+    <span class="n">ax_spec</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">x_max</span><span class="p">,</span> <span class="n">x_min</span><span class="p">)</span>
+    <span class="n">_rot_tv</span><span class="p">,</span> <span class="n">_rot_tl</span> <span class="o">=</span> <span class="n">period_axis_ticks</span><span class="p">(</span><span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.ticker</span><span class="w"> </span><span class="kn">import</span> <span class="n">NullLocator</span> <span class="k">as</span> <span class="n">_NL</span>
+
+    <span class="n">ax_spec</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">_rot_tv</span><span class="p">)</span>
+    <span class="n">ax_spec</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">_rot_tl</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">"right"</span><span class="p">)</span>
+    <span class="n">ax_spec</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">_NL</span><span class="p">())</span>
+    <span class="n">ax_spec</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"Period"</span><span class="p">)</span>
+    <span class="n">ax_spec</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"PSD (m² s⁻² cpd⁻¹)"</span><span class="p">)</span>
+    <span class="n">plot_title</span><span class="p">(</span><span class="n">ax_spec</span><span class="p">,</span> <span class="s2">"Rotary spectra"</span><span class="p">)</span>
+    <span class="c1"># Depth legend replaces the pressure colorbar (frees horizontal space so the</span>
+    <span class="c1"># panels can be square): one blue (CCW-shade) swatch per level, plus the</span>
+    <span class="c1"># CW/CCW line-style key.  Colour intensity = depth; red family = CW, blue = CCW.</span>
+    <span class="n">_style_handles</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#c0392b"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"CW (solid, red)"</span><span class="p">),</span>
+        <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#2c7fb8"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"CCW (dashed, blue)"</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">_depth_handles</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">cmap_ccw</span><span class="p">(</span><span class="n">norm_p</span><span class="p">(</span><span class="n">p</span><span class="p">)),</span> <span class="n">lw</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">p</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> dbar"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">press_plotted</span>
+    <span class="p">]</span>
+    <span class="n">ax_spec</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+        <span class="n">handles</span><span class="o">=</span><span class="n">_style_handles</span> <span class="o">+</span> <span class="n">_depth_handles</span><span class="p">,</span>
+        <span class="n">loc</span><span class="o">=</span><span class="s2">"lower left"</span><span class="p">,</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="n">report_tokens</span><span class="o">.</span><span class="n">ANNOT_FS</span><span class="p">,</span>
+        <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.85</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Panel 2: Rotary coefficient r -- raw (thin) + band-averaged (thick) + significance</span>
+    <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">r_banded</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">r_list</span><span class="p">,</span> <span class="n">r_banded_list</span><span class="p">,</span> <span class="n">press_plotted</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">col</span> <span class="o">=</span> <span class="n">cmap_ccw</span><span class="p">(</span><span class="n">norm_p</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+        <span class="c1"># Raw per-bin r: thin, semi-transparent</span>
+        <span class="n">ax_rot</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">period_plot</span><span class="p">,</span> <span class="n">r</span><span class="p">[</span><span class="n">fmask</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">col</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+        <span class="c1"># Log-band averaged r: thick main line</span>
+        <span class="n">valid_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">r_banded</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">valid_b</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="n">ax_rot</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span>
+                <span class="n">p_band_centers</span><span class="p">[</span><span class="n">valid_b</span><span class="p">],</span>
+                <span class="n">r_banded</span><span class="p">[</span><span class="n">valid_b</span><span class="p">],</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">col</span><span class="p">,</span>
+                <span class="n">lw</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+                <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span>
+                <span class="n">ms</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="c1"># 95 % significance band (grey shading + dashed lines)</span>
+    <span class="n">ax_rot</span><span class="o">.</span><span class="n">axhspan</span><span class="p">(</span><span class="o">-</span><span class="n">r_sig_95</span><span class="p">,</span> <span class="n">r_sig_95</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#7f8c8d"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.08</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">ax_rot</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">r_sig_95</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#7f8c8d"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+    <span class="n">ax_rot</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="o">-</span><span class="n">r_sig_95</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#7f8c8d"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+
+    <span class="n">trans2</span> <span class="o">=</span> <span class="n">blended_transform_factory</span><span class="p">(</span><span class="n">ax_rot</span><span class="o">.</span><span class="n">transData</span><span class="p">,</span> <span class="n">ax_rot</span><span class="o">.</span><span class="n">transAxes</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">period_d</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">markers</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">x_min</span> <span class="o">&lt;=</span> <span class="n">period_d</span> <span class="o">&lt;=</span> <span class="n">x_max</span><span class="p">:</span>
+            <span class="n">_mark_frequency_line</span><span class="p">(</span><span class="n">ax_rot</span><span class="p">,</span> <span class="n">period_d</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span>
+            <span class="n">ax_rot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                <span class="n">period_d</span><span class="p">,</span>
+                <span class="mf">0.03</span><span class="p">,</span>
+                <span class="n">label</span><span class="p">,</span>
+                <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>
+                <span class="n">va</span><span class="o">=</span><span class="s2">"bottom"</span><span class="p">,</span>
+                <span class="n">ha</span><span class="o">=</span><span class="s2">"center"</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                <span class="n">transform</span><span class="o">=</span><span class="n">trans2</span><span class="p">,</span>
+                <span class="n">bbox</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">"boxstyle"</span><span class="p">:</span> <span class="s2">"round,pad=0.1"</span><span class="p">,</span>
+                    <span class="s2">"fc"</span><span class="p">:</span> <span class="s2">"white"</span><span class="p">,</span>
+                    <span class="s2">"ec"</span><span class="p">:</span> <span class="s2">"none"</span><span class="p">,</span>
+                    <span class="s2">"alpha"</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+    <span class="n">ax_rot</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"k"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">"-"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+    <span class="n">ax_rot</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">x_max</span><span class="p">,</span> <span class="n">x_min</span><span class="p">)</span>
+    <span class="n">ax_rot</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">_rot_tv</span><span class="p">)</span>
+    <span class="n">ax_rot</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">_rot_tl</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">"right"</span><span class="p">)</span>
+    <span class="n">ax_rot</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">_NL</span><span class="p">())</span>
+    <span class="n">ax_rot</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">1.1</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">)</span>
+    <span class="n">ax_rot</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"Period"</span><span class="p">)</span>
+    <span class="n">ax_rot</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"Rotary coefficient r"</span><span class="p">)</span>
+    <span class="n">plot_title</span><span class="p">(</span><span class="n">ax_rot</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"r = (CCW - CW) / (CCW + CW)  [DOF ~= </span><span class="si">{</span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">_dof_half</span><span class="si">}</span><span class="s2">]"</span><span class="p">)</span>
+    <span class="n">ax_rot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+        <span class="mf">0.02</span><span class="p">,</span>
+        <span class="mf">0.97</span><span class="p">,</span>
+        <span class="s2">"CCW dominant (r &gt; 0)"</span><span class="p">,</span>
+        <span class="n">transform</span><span class="o">=</span><span class="n">ax_rot</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+        <span class="n">va</span><span class="o">=</span><span class="s2">"top"</span><span class="p">,</span>
+        <span class="n">ha</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">"steelblue"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ax_rot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+        <span class="mf">0.02</span><span class="p">,</span>
+        <span class="mf">0.05</span><span class="p">,</span>
+        <span class="s2">"CW dominant (r &lt; 0)"</span><span class="p">,</span>
+        <span class="n">transform</span><span class="o">=</span><span class="n">ax_rot</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+        <span class="n">va</span><span class="o">=</span><span class="s2">"bottom"</span><span class="p">,</span>
+        <span class="n">ha</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">"#c0392b"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ax_rot</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+        <span class="n">handles</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">Line2D</span><span class="p">(</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">color</span><span class="o">=</span><span class="s2">"#7f8c8d"</span><span class="p">,</span>
+                <span class="n">lw</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                <span class="n">ls</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">"95 % sig. (|r| &gt; </span><span class="si">{</span><span class="n">r_sig_95</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)"</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">],</span>
+        <span class="n">loc</span><span class="o">=</span><span class="s2">"upper right"</span><span class="p">,</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="n">report_tokens</span><span class="o">.</span><span class="n">ANNOT_FS</span><span class="p">,</span>
+        <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Depth is conveyed by the panel-1 legend; no pressure colorbar here (keeps</span>
+    <span class="c1"># the panel square and matches the "legend not colorbar" convention).</span>
+
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

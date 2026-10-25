@@ -1,0 +1,556 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.pipeline &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.pipeline</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.pipeline</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Pipeline stage registry and public ``process()`` entry point.</span>
+
+<span class="sd">The :data:`STAGES` tuple is the single source of truth for pipeline ordering,</span>
+<span class="sd">scope, and dispatch.  It is used by :func:`process`, the CLI, the re-run rule</span>
+<span class="sd">(plan §7), and the parametrised re-run tests (test plan §7d).</span>
+
+<span class="sd">Example usage::</span>
+
+<span class="sd">    import oceanarray</span>
+
+<span class="sd">    oceanarray.process("dsG3_1_2026", proc_dir="/data/proc")               # all five stages</span>
+<span class="sd">    oceanarray.process("dsG3_1_2026", stage=1, proc_dir="/data/proc",</span>
+<span class="sd">                       raw_dir="/data/raw")                                  # stage 1 only</span>
+<span class="sd">    oceanarray.process("dsG3_1_2026", stage="grid", proc_dir="/data/proc")  # grid only</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"Stage"</span><span class="p">,</span>
+    <span class="s2">"STAGES"</span><span class="p">,</span>
+    <span class="s2">"resolve_stage"</span><span class="p">,</span>
+    <span class="s2">"process"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">Scope</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"instrument"</span><span class="p">,</span> <span class="s2">"mooring"</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="Stage">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.pipeline.Stage">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Stage</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One pipeline stage.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Canonical stage name used on the CLI and in log messages.  For the</span>
+<span class="sd">        numbered stages this matches the output filename suffix</span>
+<span class="sd">        (``*_stage3.nc``); ``stack`` and ``grid`` write ``stack.nc`` and</span>
+<span class="sd">        ``grid.nc``.</span>
+<span class="sd">    number : int or None</span>
+<span class="sd">        Position for the numbered stages; ``None`` for ``stack`` and ``grid``.</span>
+<span class="sd">        This is what makes ``stage=1`` resolvable and ``stage=4`` a</span>
+<span class="sd">        ``ValueError`` rather than a silent wrong dispatch.</span>
+<span class="sd">    scope : Scope</span>
+<span class="sd">        Whether the stage runs once per instrument (``"instrument"``) or once</span>
+<span class="sd">        per mooring (``"mooring"``).  Drives which staleness sources the re-run</span>
+<span class="sd">        rule consults (plan §7).</span>
+<span class="sd">    run : Callable</span>
+<span class="sd">        Normalised entry point: ``run(mooring, proc_dir, *, force, **kw) -&gt; bool``.</span>
+
+<span class="sd">    """</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">number</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">scope</span><span class="p">:</span> <span class="n">Scope</span>
+    <span class="n">run</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span></div>
+
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Normalised wrappers — thin shims over the existing class-based API so that</span>
+<span class="c1"># STAGES can store a uniform (mooring, proc_dir, *, force, **kw) -&gt; bool signature.</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_run_stage1</span><span class="p">(</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">proc_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">raw_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">serials</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">_kw</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Run stage 1 (raw → CF-NetCDF) for *mooring*.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring : str</span>
+<span class="sd">        Mooring name.</span>
+<span class="sd">    proc_dir : Path</span>
+<span class="sd">        Processing root directory (parent that contains per-mooring subdirectories).</span>
+<span class="sd">    raw_dir : Path, optional</span>
+<span class="sd">        Raw-data root.  Required for stage 1.</span>
+<span class="sd">    force : bool</span>
+<span class="sd">        Re-run even when output is newer than inputs.</span>
+<span class="sd">    serials : list of str, optional</span>
+<span class="sd">        Restrict to these serial numbers.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">raw_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"stage1 requires raw_dir"</span><span class="p">)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.stage1</span><span class="w"> </span><span class="kn">import</span> <span class="n">MooringProcessor</span>
+
+    <span class="n">proc</span> <span class="o">=</span> <span class="n">MooringProcessor</span><span class="p">(</span><span class="n">raw_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">raw_dir</span><span class="p">),</span> <span class="n">proc_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">proc</span><span class="o">.</span><span class="n">process_mooring</span><span class="p">(</span><span class="n">mooring</span><span class="p">,</span> <span class="n">serials</span><span class="o">=</span><span class="n">serials</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_run_stage2</span><span class="p">(</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">proc_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">serials</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">_kw</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Run stage 2 (deployment trim + clock-drift correction) for *mooring*.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring : str</span>
+<span class="sd">        Mooring name.</span>
+<span class="sd">    proc_dir : Path</span>
+<span class="sd">        Processing root directory.</span>
+<span class="sd">    force : bool</span>
+<span class="sd">        Re-run even when output is newer than inputs.</span>
+<span class="sd">    serials : list of str, optional</span>
+<span class="sd">        Restrict to these serial numbers.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.stage2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Stage2Processor</span>
+
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span>
+        <span class="n">Stage2Processor</span><span class="p">(</span><span class="n">proc_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">))</span><span class="o">.</span><span class="n">process_mooring</span><span class="p">(</span>
+            <span class="n">mooring</span><span class="p">,</span> <span class="n">serials</span><span class="o">=</span><span class="n">serials</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_run_stage3</span><span class="p">(</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">proc_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">serials</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dry_run</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">_kw</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Run stage 3 (QC, coordinate rotation, derived vars) for *mooring*.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring : str</span>
+<span class="sd">        Mooring name.</span>
+<span class="sd">    proc_dir : Path</span>
+<span class="sd">        Processing root directory.</span>
+<span class="sd">    force : bool</span>
+<span class="sd">        Re-run even when output is newer than inputs.</span>
+<span class="sd">    serials : list of str, optional</span>
+<span class="sd">        Restrict to these serial numbers.</span>
+<span class="sd">    dry_run : bool</span>
+<span class="sd">        If True, log what would be done without writing output files.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.stage3</span><span class="w"> </span><span class="kn">import</span> <span class="n">Stage3Processor</span>
+
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span>
+        <span class="n">Stage3Processor</span><span class="p">(</span><span class="n">proc_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">))</span><span class="o">.</span><span class="n">process_mooring</span><span class="p">(</span>
+            <span class="n">mooring</span><span class="p">,</span> <span class="n">serials</span><span class="o">=</span><span class="n">serials</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">,</span> <span class="n">dry_run</span><span class="o">=</span><span class="n">dry_run</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_run_stack</span><span class="p">(</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">proc_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">dt_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">_kw</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Run the stack stage (multi-instrument → common time grid) for *mooring*.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring : str</span>
+<span class="sd">        Mooring name.</span>
+<span class="sd">    proc_dir : Path</span>
+<span class="sd">        Processing root directory.</span>
+<span class="sd">    force : bool</span>
+<span class="sd">        Re-run even when output is newer than inputs.</span>
+<span class="sd">    dt_seconds : int</span>
+<span class="sd">        Target sampling interval in seconds (default 60).</span>
+
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.stack</span><span class="w"> </span><span class="kn">import</span> <span class="n">MooringStacker</span>
+
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span>
+        <span class="n">MooringStacker</span><span class="p">(</span><span class="n">proc_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">))</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+            <span class="n">mooring</span><span class="p">,</span> <span class="n">dt_seconds</span><span class="o">=</span><span class="n">dt_seconds</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_run_grid</span><span class="p">(</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">proc_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">p_start</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">200.0</span><span class="p">,</span>
+    <span class="n">p_end</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1000.0</span><span class="p">,</span>
+    <span class="n">dp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.0</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">_kw</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Run the grid stage (pressure-level interpolation) for *mooring*.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring : str</span>
+<span class="sd">        Mooring name.</span>
+<span class="sd">    proc_dir : Path</span>
+<span class="sd">        Processing root directory.</span>
+<span class="sd">    force : bool</span>
+<span class="sd">        Re-run even when output is newer than inputs.</span>
+<span class="sd">    p_start : float</span>
+<span class="sd">        Shallowest pressure level in dbar.</span>
+<span class="sd">    p_end : float</span>
+<span class="sd">        Deepest pressure level in dbar.</span>
+<span class="sd">    dp : float</span>
+<span class="sd">        Pressure step in dbar.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.grid</span><span class="w"> </span><span class="kn">import</span> <span class="n">MooringGridder</span>
+
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span>
+        <span class="n">MooringGridder</span><span class="p">(</span><span class="n">proc_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
+            <span class="n">mooring</span><span class="p">,</span> <span class="n">p_start</span><span class="o">=</span><span class="n">p_start</span><span class="p">,</span> <span class="n">p_end</span><span class="o">=</span><span class="n">p_end</span><span class="p">,</span> <span class="n">dp</span><span class="o">=</span><span class="n">dp</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="c1">#: Pipeline stages in execution order.  Single source of truth for</span>
+<span class="c1">#: :func:`process`, the CLI, the re-run rule (plan §7), and the parametrised</span>
+<span class="c1">#: re-run tests (test plan §7d).</span>
+<span class="n">STAGES</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Stage</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">Stage</span><span class="p">(</span><span class="s2">"stage1"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"instrument"</span><span class="p">,</span> <span class="n">_run_stage1</span><span class="p">),</span>
+    <span class="n">Stage</span><span class="p">(</span><span class="s2">"stage2"</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"instrument"</span><span class="p">,</span> <span class="n">_run_stage2</span><span class="p">),</span>
+    <span class="n">Stage</span><span class="p">(</span><span class="s2">"stage3"</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">"instrument"</span><span class="p">,</span> <span class="n">_run_stage3</span><span class="p">),</span>
+    <span class="n">Stage</span><span class="p">(</span><span class="s2">"stack"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"mooring"</span><span class="p">,</span> <span class="n">_run_stack</span><span class="p">),</span>
+    <span class="n">Stage</span><span class="p">(</span><span class="s2">"grid"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"mooring"</span><span class="p">,</span> <span class="n">_run_grid</span><span class="p">),</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="resolve_stage">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.pipeline.resolve_stage">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_stage</span><span class="p">(</span><span class="n">stage</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Stage</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the :class:`Stage` named or numbered by *stage*.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    stage : int or str</span>
+<span class="sd">        ``1``, ``2``, or ``3``; or a canonical name — ``"stage1"``,</span>
+<span class="sd">        ``"stage2"``, ``"stage3"``, ``"stack"``, ``"grid"``.  Names are</span>
+<span class="sd">        matched case-insensitively.  Integer ``4`` is deliberately an error:</span>
+<span class="sd">        ``stack`` and ``grid`` have no number so there is no valid integer</span>
+<span class="sd">        shorthand for them.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Stage</span>
+<span class="sd">        The matching :class:`Stage` entry from :data:`STAGES`.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If *stage* matches no entry.  The message lists every valid value.</span>
+
+<span class="sd">    """</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">STAGES</span><span class="p">:</span>
+        <span class="c1"># Guard bool before int: True == 1 and False == 0 in Python, so without</span>
+        <span class="c1"># the isinstance check, resolve_stage(True) would silently return stage1.</span>
+        <span class="c1"># Guard None before comparing to s.number: stack/grid have number=None,</span>
+        <span class="c1"># so None == None would silently return the first un-numbered stage.</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="ow">or</span> <span class="n">stage</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="k">if</span> <span class="n">stage</span> <span class="o">==</span> <span class="n">s</span><span class="o">.</span><span class="n">number</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">stage</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">s</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">s</span>
+    <span class="n">valid_ints</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">number</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">STAGES</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">number</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">valid_names</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">STAGES</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"unknown stage </span><span class="si">{</span><span class="n">stage</span><span class="si">!r}</span><span class="s2">; expected one of: </span><span class="si">{</span><span class="n">valid_ints</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">valid_names</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="process">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.pipeline.process">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">stage</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">proc_dir</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span>
+    <span class="n">raw_dir</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kw</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Run one or more pipeline stages, or every stage in order, for *mooring*.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring : str</span>
+<span class="sd">        Mooring name (the subdirectory under *proc_dir*).</span>
+<span class="sd">    stage : int, str, list of int/str, or None</span>
+<span class="sd">        Which stage(s) to run — ``1``, ``2``, ``3``, ``"stage1"``, ``"stack"``,</span>
+<span class="sd">        ``"grid"``, etc.  Pass a list to run a specific subset; the subset is</span>
+<span class="sd">        always executed in :data:`STAGES` order regardless of the order of</span>
+<span class="sd">        elements in the list.  ``None`` (the default) runs all five stages in</span>
+<span class="sd">        :data:`STAGES` order.</span>
+<span class="sd">    proc_dir : path-like</span>
+<span class="sd">        Processing root directory (parent containing per-mooring subdirectories).</span>
+<span class="sd">    raw_dir : path-like, optional</span>
+<span class="sd">        Raw-data root.  Required only when *stage* includes stage 1.</span>
+<span class="sd">    force : bool, default False</span>
+<span class="sd">        Re-run even when the output is newer than its inputs.</span>
+<span class="sd">    **kw</span>
+<span class="sd">        Extra keyword arguments forwarded to the stage's ``run`` callable</span>
+<span class="sd">        (e.g. ``serials``, ``dt_seconds``, ``p_start``, ``p_end``, ``dp``).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        ``True`` if every requested stage succeeded, ``False`` if any failed.</span>
+
+<span class="sd">    """</span>
+    <span class="n">proc_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">)</span>
+    <span class="n">raw_dir_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">raw_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">raw_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="c1"># Data-integrity guard: refuse a mooring whose serials would make two</span>
+    <span class="c1"># instruments' stage/report files silently overwrite each other.  Runs before</span>
+    <span class="c1"># any stage writes, and `force` does not bypass it (force re-runs stale outputs,</span>
+    <span class="c1"># it does not license data loss).</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.config.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">serial_collision_errors</span>
+
+    <span class="n">_collisions</span> <span class="o">=</span> <span class="n">serial_collision_errors</span><span class="p">(</span>
+        <span class="n">proc_dir</span> <span class="o">/</span> <span class="n">mooring</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mooring</span><span class="si">}</span><span class="s2">.mooring.yaml"</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">_collisions</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Refusing to process '</span><span class="si">{</span><span class="n">mooring</span><span class="si">}</span><span class="s2">': serial collisions would silently "</span>
+            <span class="sa">f</span><span class="s2">"overwrite output files. Fix the mooring YAML:</span><span class="se">\n</span><span class="s2">  - "</span>
+            <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">  - "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_collisions</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">stage</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">stages_to_run</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Stage</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">STAGES</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="n">_requested</span> <span class="o">=</span> <span class="p">{</span><span class="n">resolve_stage</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">stage</span><span class="p">}</span>
+        <span class="n">stages_to_run</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">STAGES</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">_requested</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">stages_to_run</span> <span class="o">=</span> <span class="p">(</span><span class="n">resolve_stage</span><span class="p">(</span><span class="n">stage</span><span class="p">),)</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">paths</span>
+
+    <span class="n">stack_file</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">product_file</span><span class="p">(</span>
+        <span class="n">paths</span><span class="o">.</span><span class="n">mooring_proc_dir</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">,</span> <span class="n">mooring</span><span class="p">),</span> <span class="n">mooring</span><span class="p">,</span> <span class="s2">"stack"</span>
+    <span class="p">)</span>
+
+    <span class="n">overall</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">skip_grid</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">stages_to_run</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"grid"</span> <span class="ow">and</span> <span class="n">skip_grid</span><span class="p">:</span>
+            <span class="n">overall</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">continue</span>
+        <span class="c1"># Note the stack file's mtime before running the stack stage so a failure can</span>
+        <span class="c1"># be told from a stale file left by a previous run.</span>
+        <span class="n">stack_mtime_before</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">stack_file</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_mtime</span>
+            <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"stack"</span> <span class="ow">and</span> <span class="n">stack_file</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="n">ok</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="n">mooring</span><span class="p">,</span>
+            <span class="n">proc_dir</span><span class="p">,</span>
+            <span class="n">raw_dir</span><span class="o">=</span><span class="n">raw_dir_path</span><span class="p">,</span>
+            <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kw</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ok</span><span class="p">:</span>
+            <span class="n">overall</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="c1"># A stack returns False either because it wrote nothing (true failure →</span>
+            <span class="c1"># skip grid) or because it wrote a *partial* stack with some instruments</span>
+            <span class="c1"># omitted (file exists → grid still runs and inherits `instruments_omitted`).</span>
+            <span class="c1"># Gate on whether THIS run wrote the stack — a stale stack from a previous</span>
+            <span class="c1"># run (mtime unchanged) must not be gridded.</span>
+            <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"stack"</span><span class="p">:</span>
+                <span class="n">wrote_this_run</span> <span class="o">=</span> <span class="n">stack_file</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="p">(</span>
+                    <span class="n">stack_mtime_before</span> <span class="ow">is</span> <span class="kc">None</span>
+                    <span class="ow">or</span> <span class="n">stack_file</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_mtime</span> <span class="o">&gt;</span> <span class="n">stack_mtime_before</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">wrote_this_run</span><span class="p">:</span>
+                    <span class="n">skip_grid</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">overall</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

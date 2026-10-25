@@ -1,0 +1,921 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.plotters.primitives &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.plotters.primitives</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.plotters.primitives</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Tier-1 data-agnostic plotting primitives.</span>
+
+<span class="sd">These functions accept pre-processed arrays (not xarray Datasets) and have no</span>
+<span class="sd">knowledge of oceanographic variable naming conventions.  They are the lowest</span>
+<span class="sd">layer in the three-tier plotters architecture:</span>
+
+<span class="sd">  Tier 1: primitives.py    — generic, array-in / Figure-out</span>
+<span class="sd">  Tier 2: _current.py etc. — domain wrappers (xr.Dataset-in / Figure-out)</span>
+<span class="sd">  Tier 3: report/_plots.py — thin wrappers (path-in / base64-out)</span>
+
+<span class="sd">Post-OdB: add plot_vector_heatmap, plot_section, plot_spectrum,</span>
+<span class="sd">plot_polar_histogram, plot_timeseries.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mcolors</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.dates</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mdates</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.ticker</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mticker</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">LineCollection</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.reports._vendored</span><span class="w"> </span><span class="kn">import</span> <span class="n">design_tokens</span> <span class="k">as</span> <span class="n">report_tokens</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameters</span> <span class="k">as</span> <span class="n">params</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">_nice_colorbar_bounds</span><span class="p">,</span> <span class="n">nice_colorbar_ticks</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">grid_despine</span>
+
+
+<div class="viewcode-block" id="plot_title">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.primitives.plot_title">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_title</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">loc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"left"</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Set an axes (panel) title, left-aligned by default.</span>
+
+<span class="sd">    The single place panel-title alignment is decided for report figures, so the</span>
+<span class="sd">    left-vs-centre choice for every panel title can be switched here in one line.</span>
+<span class="sd">    Figure-level titles that span several panels use :func:`figure_title`</span>
+<span class="sd">    (centred) instead — do not route those through this helper.  Colorbar unit</span>
+<span class="sd">    labels (``cb.ax.set_title``) are not panel titles and must not use this</span>
+<span class="sd">    helper either.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax : matplotlib.axes.Axes</span>
+<span class="sd">        Axes whose title is set.</span>
+<span class="sd">    text : str</span>
+<span class="sd">        Title text.</span>
+<span class="sd">    loc : str, optional</span>
+<span class="sd">        Horizontal alignment passed to ``set_title`` (default ``"left"``).</span>
+<span class="sd">    **kwargs : Any</span>
+<span class="sd">        Forwarded to ``matplotlib.axes.Axes.set_title`` (e.g. ``fontsize``).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    matplotlib.text.Text</span>
+<span class="sd">        The created title artist.</span>
+
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">loc</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="figure_title">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.primitives.figure_title">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">figure_title</span><span class="p">(</span><span class="n">fig</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Set a figure-level title (``suptitle``), centred over all panels.</span>
+
+<span class="sd">    Use for a title that spans a multi-panel figure; per-panel titles use</span>
+<span class="sd">    :func:`plot_title` (left-aligned).  Keeping both in one module makes the</span>
+<span class="sd">    left-vs-centre policy a single switch point.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fig : matplotlib.figure.Figure</span>
+<span class="sd">        Figure whose suptitle is set.</span>
+<span class="sd">    text : str</span>
+<span class="sd">        Title text.</span>
+<span class="sd">    **kwargs : Any</span>
+<span class="sd">        Forwarded to ``matplotlib.figure.Figure.suptitle`` (e.g. ``y``, ``fontsize``).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    matplotlib.text.Text</span>
+<span class="sd">        The created suptitle artist.</span>
+
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="pcolormesh_panel">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.primitives.pcolormesh_panel">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pcolormesh_panel</span><span class="p">(</span>
+    <span class="n">fig</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">time</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">pressure</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">units</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"RdYlBu_r"</span><span class="p">,</span>
+    <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"pcolormesh"</span><span class="p">,</span>
+    <span class="n">vmin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">vmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="n">cb_label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">title_loc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"left"</span><span class="p">,</span>
+    <span class="n">date_fmt</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Draw one (pressure × time) field as a discrete-colorbar panel on *ax*.</span>
+
+<span class="sd">    A generic time–depth panel primitive.  Computes percentile colour limits</span>
+<span class="sd">    from *data* unless *vmin* / *vmax* are supplied.  Applies a discrete</span>
+<span class="sd">    ``BoundaryNorm`` colorbar, an inverted pressure axis, and (optionally) a</span>
+<span class="sd">    concise date axis.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fig, ax : matplotlib Figure and Axes</span>
+<span class="sd">        Target figure and axes to draw on.</span>
+<span class="sd">    data : numpy.ndarray</span>
+<span class="sd">        2-D field shaped ``(pressure, time)``.</span>
+<span class="sd">    time : numpy.ndarray</span>
+<span class="sd">        Time coordinate (length matching ``data``'s second axis).</span>
+<span class="sd">    pressure : numpy.ndarray</span>
+<span class="sd">        Pressure coordinate (length matching ``data``'s first axis).</span>
+<span class="sd">    title : str</span>
+<span class="sd">        Panel title.</span>
+<span class="sd">    units : str, optional</span>
+<span class="sd">        Units string appended to *cb_label* when *cb_label* is ``None``.</span>
+<span class="sd">    cmap : str, optional</span>
+<span class="sd">        Colormap name.  Default ``"RdYlBu_r"``.</span>
+<span class="sd">    style : str, optional</span>
+<span class="sd">        ``"pcolormesh"`` (default) or ``"contourf"``.</span>
+<span class="sd">    vmin, vmax : float, optional</span>
+<span class="sd">        Explicit colour limits.  Computed from data percentiles when omitted.</span>
+<span class="sd">    n : int, optional</span>
+<span class="sd">        Target number of colorbar levels.  Default 20.</span>
+<span class="sd">    cb_label : str, optional</span>
+<span class="sd">        Colorbar label.  Defaults to ``"{title} ({units})"`` or ``"{title}"``.</span>
+<span class="sd">    title_loc : str, optional</span>
+<span class="sd">        Horizontal alignment of the axes title.  Default ``"left"`` (the report</span>
+<span class="sd">        panel-title convention; pass ``"center"`` for a centred title).</span>
+<span class="sd">    date_fmt : bool, optional</span>
+<span class="sd">        When ``True`` (default), apply :func:`date_axis` to *ax*.  Pass</span>
+<span class="sd">        ``False`` for stacked panels where only the last axis needs the</span>
+<span class="sd">        formatter.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    matplotlib collection</span>
+<span class="sd">        The pcolormesh/contourf artist (useful for a shared colorbar).</span>
+
+<span class="sd">    """</span>
+    <span class="n">bounds</span><span class="p">,</span> <span class="n">norm</span> <span class="o">=</span> <span class="n">colorbar_norm</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">"contourf"</span><span class="p">:</span>
+        <span class="n">pc</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">pressure</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">bounds</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="s2">"both"</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pc</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span>
+            <span class="n">time</span><span class="p">,</span> <span class="n">pressure</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">shading</span><span class="o">=</span><span class="s2">"nearest"</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span>
+        <span class="p">)</span>
+    <span class="n">cb</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span>
+        <span class="n">pc</span><span class="p">,</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+        <span class="n">pad</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span>
+        <span class="n">ticks</span><span class="o">=</span><span class="n">nice_colorbar_ticks</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])),</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">cb_label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Explicit full label requested — keep it as a side label.</span>
+        <span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">cb_label</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">units</span><span class="p">:</span>
+        <span class="c1"># Units-only, above the bar (saves width, reads cleanly); the panel title</span>
+        <span class="c1"># already carries the variable name.</span>
+        <span class="n">cb</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">report_tokens</span><span class="o">.</span><span class="n">ANNOT_FS</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">pressure_axis</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">date_fmt</span><span class="p">:</span>
+        <span class="n">date_axis</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">plot_title</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">title_loc</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pc</span></div>
+
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Deterministic square-axes-plus-colorbar layout (spec §11; mirrors the</span>
+<span class="c1"># inch-based cruise-map layout in ctdcast plots.py::_map_layout).</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Fixed inch reservations, independent of figure width.  The lesson from the</span>
+<span class="c1"># maps work: matplotlib's auto-layout tools (`set_aspect`, `make_axes_locatable`,</span>
+<span class="c1"># `tight_layout`) fight each other and strand the colorbar (the recurring</span>
+<span class="c1"># "colorbar too tall" bug) — instead, size every square panel in inches and place</span>
+<span class="c1"># the axes and its colorbar by hand so the colorbar shares the panel's exact</span>
+<span class="c1"># pixel height by construction.</span>
+<span class="n">_SQ_LABEL_IN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.62</span>  <span class="c1"># y-tick labels + rotated y-axis label</span>
+<span class="n">_SQ_XTICK_IN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.52</span>  <span class="c1"># x-tick labels + x-axis label</span>
+<span class="n">_SQ_TITLE_IN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.30</span>  <span class="c1"># per-panel title row</span>
+<span class="n">_SQ_WGAP_IN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.78</span>  <span class="c1"># horizontal gap between columns (room for y-labels)</span>
+<span class="n">_SQ_HGAP_IN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.72</span>  <span class="c1"># vertical gap between rows (title + x-labels)</span>
+<span class="n">_SQ_CBAR_GAP_IN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.14</span>  <span class="c1"># gap between grid and shared colorbar</span>
+<span class="n">_SQ_CBAR_W_IN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.16</span>  <span class="c1"># colorbar bar width</span>
+<span class="n">_SQ_CBAR_TXT_IN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.52</span>  <span class="c1"># colorbar tick text + unit title width</span>
+<span class="c1"># Per-panel colorbars carry only short tick numbers (the unit is a title on top),</span>
+<span class="c1"># so they need far less text width than the shared bar — this keeps the squares</span>
+<span class="c1"># big.  The inter-cell gap is also tighter (each cell already reserves its own</span>
+<span class="c1"># left y-label + right colorbar).</span>
+<span class="n">_SQ_CBAR_TXT_PP_IN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.30</span>
+<span class="n">_SQ_WGAP_PP_IN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.34</span>
+<span class="c1"># Extra left-margin inches per y-tick-label character beyond the ~4 that the base</span>
+<span class="c1"># _SQ_LABEL_IN reserve already fits.  Sizes the adaptive left reserve for wide</span>
+<span class="c1"># labels (large trajectory displacements) so the rotated axis label stays</span>
+<span class="c1"># on-canvas without shrinking the square when labels are short.</span>
+<span class="n">_SQ_PER_CHAR_IN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.10</span>
+
+
+<div class="viewcode-block" id="ytick_reserve_in">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.primitives.ytick_reserve_in">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ytick_reserve_in</span><span class="p">(</span><span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Left-margin inches to fit the widest y-tick label plus rotated y-axis label.</span>
+
+<span class="sd">    Sizes the ``left_in`` reserve for :func:`square_axes_grid` from the y-data</span>
+<span class="sd">    range instead of a fixed shrink: the base reserve (``_SQ_LABEL_IN``) already</span>
+<span class="sd">    fits up to ~4-character tick labels, and each additional character (a larger</span>
+<span class="sd">    magnitude, or a leading minus) adds ``_SQ_PER_CHAR_IN``.  Returns the base</span>
+<span class="sd">    reserve unchanged for &lt;=4-character labels, so a small-displacement</span>
+<span class="sd">    trajectory keeps the full square (no 9% shrink) while a thousands-of-km one</span>
+<span class="sd">    reserves just enough.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    y : numpy.ndarray or float</span>
+<span class="sd">        The y values (or the maximum absolute y-limit) about to be plotted.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Left-margin reserve in inches, always &gt;= ``_SQ_LABEL_IN``.</span>
+
+<span class="sd">    """</span>
+    <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="n">finite</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">arr</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">finite</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_SQ_LABEL_IN</span>
+    <span class="n">n_digits</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">finite</span><span class="p">)))))))</span>
+    <span class="n">n_chars</span> <span class="o">=</span> <span class="n">n_digits</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">finite</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_SQ_LABEL_IN</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_chars</span> <span class="o">-</span> <span class="mi">4</span><span class="p">)</span> <span class="o">*</span> <span class="n">_SQ_PER_CHAR_IN</span></div>
+
+
+
+<div class="viewcode-block" id="square_axes_grid">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.primitives.square_axes_grid">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">square_axes_grid</span><span class="p">(</span>
+    <span class="n">fig_w</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">nrows</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">ncols</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">colorbar</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">per_panel_colorbar</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">top_pad_in</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">bottom_pad_in</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">wgap_in</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">cbar_txt_in</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">left_in</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Lay out an ``nrows × ncols`` grid of square axes deterministically in inches.</span>
+
+<span class="sd">    Every panel is an exact square whose side is computed from the usable width,</span>
+<span class="sd">    so an equal-aspect plot fills the panel without ``set_aspect`` having to</span>
+<span class="sd">    shrink the axes box — and a colorbar placed here shares each panel's exact</span>
+<span class="sd">    pixel height rather than the taller subplot cell.  A single shared colorbar</span>
+<span class="sd">    axes (spanning the full height of the panel stack) is reserved on the right</span>
+<span class="sd">    when *colorbar* is true.  ``fig._manual_layout`` is set so the base64 encoder</span>
+<span class="sd">    skips ``tight_layout`` (which would re-flow these hand-placed axes).</span>
+
+<span class="sd">    Callers must NOT call ``set_aspect('equal', adjustable='box')`` on the</span>
+<span class="sd">    returned axes: the box is already square and authoritative, so use symmetric</span>
+<span class="sd">    limits (or ``adjustable='datalim'``) instead, or the box would resize and</span>
+<span class="sd">    strand the shared colorbar again.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fig_w : float</span>
+<span class="sd">        Figure width in inches — must equal the display slot so the PNG is not</span>
+<span class="sd">        rescaled by the browser.</span>
+<span class="sd">    nrows, ncols : int</span>
+<span class="sd">        Grid shape (both &gt;= 1).</span>
+<span class="sd">    colorbar : bool</span>
+<span class="sd">        Reserve and return a single shared colorbar axes on the right.  Default</span>
+<span class="sd">        True.  Ignored when *per_panel_colorbar* is set.</span>
+<span class="sd">    per_panel_colorbar : bool</span>
+<span class="sd">        Give **each** panel its own height-matched colorbar axes to its right</span>
+<span class="sd">        (for figures where every panel encodes a different field, e.g. a T-S dot</span>
+<span class="sd">        plot + count heatmap + O₂ panel).  The third return value is then an</span>
+<span class="sd">        ``(nrows, ncols)`` object array of colorbar axes instead of a single one.</span>
+<span class="sd">    top_pad_in : float</span>
+<span class="sd">        Extra inches reserved above the panel-title strip, e.g. for a figure</span>
+<span class="sd">        ``suptitle``.  Default 0.</span>
+<span class="sd">    bottom_pad_in : float</span>
+<span class="sd">        Extra inches reserved below the x-tick strip, e.g. for rotated tick</span>
+<span class="sd">        labels or a second x-axis label line.  Default 0.</span>
+<span class="sd">    wgap_in : float, optional</span>
+<span class="sd">        Override the inter-column gap (inches).  Default (``None``) uses the</span>
+<span class="sd">        standard gap, which reserves room for each column's y-labels; a caller</span>
+<span class="sd">        whose panels share a y-axis (right panel hides its y-labels) can pass a</span>
+<span class="sd">        smaller value to close the gap.</span>
+<span class="sd">    cbar_txt_in : float, optional</span>
+<span class="sd">        Override the reserved width (inches) for the shared colorbar's tick</span>
+<span class="sd">        labels and axis label.  Default (``None``) uses the standard reserve;</span>
+<span class="sd">        pass a larger value for a long colorbar label so it stays on-canvas.</span>
+<span class="sd">    left_in : float, optional</span>
+<span class="sd">        Override the reserved left-margin width (inches) for the y-tick labels</span>
+<span class="sd">        plus rotated y-axis label.  Default (``None``) uses the standard reserve</span>
+<span class="sd">        (``_SQ_LABEL_IN``), which fits up to ~4-character tick labels; pass a</span>
+<span class="sd">        larger value when the y-tick labels are wide (e.g. thousands-of-km</span>
+<span class="sd">        trajectory displacements) so the axis label stays on-canvas.  Applies to</span>
+<span class="sd">        the standard (non ``per_panel_colorbar``) layout.  Use</span>
+<span class="sd">        :func:`ytick_reserve_in` to size it from the data range.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple of (matplotlib.figure.Figure, numpy.ndarray, object)</span>
+<span class="sd">        The figure; an ``(nrows, ncols)`` object array of panel axes; and the</span>
+<span class="sd">        colorbar axes — a single shared ``Axes`` (or None) normally, or an</span>
+<span class="sd">        ``(nrows, ncols)`` object array when *per_panel_colorbar* is set.</span>
+
+<span class="sd">    """</span>
+    <span class="c1"># Optional overrides: a caller with a shared y-axis (right panel hides its</span>
+    <span class="c1"># y-labels) can pass a smaller *wgap_in*; a long shared-colorbar label needs a</span>
+    <span class="c1"># wider *cbar_txt_in* reserve so it stays on-canvas.</span>
+    <span class="n">_cbar_txt</span> <span class="o">=</span> <span class="n">cbar_txt_in</span> <span class="k">if</span> <span class="n">cbar_txt_in</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_SQ_CBAR_TXT_IN</span>
+    <span class="n">_cbar_reserve</span> <span class="o">=</span> <span class="n">_SQ_CBAR_GAP_IN</span> <span class="o">+</span> <span class="n">_SQ_CBAR_W_IN</span> <span class="o">+</span> <span class="n">_cbar_txt</span>
+    <span class="n">_left</span> <span class="o">=</span> <span class="n">left_in</span> <span class="k">if</span> <span class="n">left_in</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_SQ_LABEL_IN</span>
+    <span class="k">if</span> <span class="n">per_panel_colorbar</span><span class="p">:</span>
+        <span class="c1"># Each cell = y-labels + square panel + its own (tight) colorbar.</span>
+        <span class="n">per_cell_fixed</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">_SQ_LABEL_IN</span> <span class="o">+</span> <span class="n">_SQ_CBAR_GAP_IN</span> <span class="o">+</span> <span class="n">_SQ_CBAR_W_IN</span> <span class="o">+</span> <span class="n">_SQ_CBAR_TXT_PP_IN</span>
+        <span class="p">)</span>
+        <span class="n">_wgap</span> <span class="o">=</span> <span class="n">wgap_in</span> <span class="k">if</span> <span class="n">wgap_in</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_SQ_WGAP_PP_IN</span>
+        <span class="n">avail_w</span> <span class="o">=</span> <span class="n">fig_w</span> <span class="o">-</span> <span class="n">ncols</span> <span class="o">*</span> <span class="n">per_cell_fixed</span> <span class="o">-</span> <span class="p">(</span><span class="n">ncols</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">_wgap</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_wgap</span> <span class="o">=</span> <span class="n">wgap_in</span> <span class="k">if</span> <span class="n">wgap_in</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_SQ_WGAP_IN</span>
+        <span class="n">right_in</span> <span class="o">=</span> <span class="n">_cbar_reserve</span> <span class="k">if</span> <span class="n">colorbar</span> <span class="k">else</span> <span class="n">_SQ_LABEL_IN</span>
+        <span class="n">avail_w</span> <span class="o">=</span> <span class="n">fig_w</span> <span class="o">-</span> <span class="n">_left</span> <span class="o">-</span> <span class="n">right_in</span> <span class="o">-</span> <span class="p">(</span><span class="n">ncols</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">_wgap</span>
+    <span class="n">side</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">avail_w</span> <span class="o">/</span> <span class="n">ncols</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>  <span class="c1"># square panel side (inches)</span>
+    <span class="n">grid_h</span> <span class="o">=</span> <span class="n">nrows</span> <span class="o">*</span> <span class="n">side</span> <span class="o">+</span> <span class="p">(</span><span class="n">nrows</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">_SQ_HGAP_IN</span>
+    <span class="n">bottom_in</span> <span class="o">=</span> <span class="n">_SQ_XTICK_IN</span> <span class="o">+</span> <span class="n">bottom_pad_in</span>
+    <span class="n">fig_h</span> <span class="o">=</span> <span class="n">_SQ_TITLE_IN</span> <span class="o">+</span> <span class="n">grid_h</span> <span class="o">+</span> <span class="n">bottom_in</span> <span class="o">+</span> <span class="n">top_pad_in</span>
+
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">fig_w</span><span class="p">,</span> <span class="n">fig_h</span><span class="p">))</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">_manual_layout</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">axes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+    <span class="n">caxes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span> <span class="k">if</span> <span class="n">per_panel_colorbar</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrows</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncols</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">per_panel_colorbar</span><span class="p">:</span>
+                <span class="n">x0</span> <span class="o">=</span> <span class="n">c</span> <span class="o">*</span> <span class="p">(</span><span class="n">side</span> <span class="o">+</span> <span class="n">per_cell_fixed</span> <span class="o">+</span> <span class="n">_wgap</span><span class="p">)</span> <span class="o">+</span> <span class="n">_SQ_LABEL_IN</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">x0</span> <span class="o">=</span> <span class="n">_left</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="p">(</span><span class="n">side</span> <span class="o">+</span> <span class="n">_wgap</span><span class="p">)</span>
+            <span class="c1"># Row 0 at the top; y measured from the figure bottom.</span>
+            <span class="n">y0</span> <span class="o">=</span> <span class="n">bottom_in</span> <span class="o">+</span> <span class="p">(</span><span class="n">nrows</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">r</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">side</span> <span class="o">+</span> <span class="n">_SQ_HGAP_IN</span><span class="p">)</span>
+            <span class="n">axes</span><span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">x0</span> <span class="o">/</span> <span class="n">fig_w</span><span class="p">,</span> <span class="n">y0</span> <span class="o">/</span> <span class="n">fig_h</span><span class="p">,</span> <span class="n">side</span> <span class="o">/</span> <span class="n">fig_w</span><span class="p">,</span> <span class="n">side</span> <span class="o">/</span> <span class="n">fig_h</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">per_panel_colorbar</span><span class="p">:</span>
+                <span class="c1"># Colorbar height == this panel's side (matched by construction).</span>
+                <span class="n">_pcx0</span> <span class="o">=</span> <span class="n">x0</span> <span class="o">+</span> <span class="n">side</span> <span class="o">+</span> <span class="n">_SQ_CBAR_GAP_IN</span>
+                <span class="n">caxes</span><span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">_pcx0</span> <span class="o">/</span> <span class="n">fig_w</span><span class="p">,</span> <span class="n">y0</span> <span class="o">/</span> <span class="n">fig_h</span><span class="p">,</span> <span class="n">_SQ_CBAR_W_IN</span> <span class="o">/</span> <span class="n">fig_w</span><span class="p">,</span> <span class="n">side</span> <span class="o">/</span> <span class="n">fig_h</span><span class="p">]</span>
+                <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">per_panel_colorbar</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">caxes</span>
+
+    <span class="n">cax</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">colorbar</span><span class="p">:</span>
+        <span class="n">cx0</span> <span class="o">=</span> <span class="n">_SQ_LABEL_IN</span> <span class="o">+</span> <span class="n">ncols</span> <span class="o">*</span> <span class="n">side</span> <span class="o">+</span> <span class="p">(</span><span class="n">ncols</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">_wgap</span> <span class="o">+</span> <span class="n">_SQ_CBAR_GAP_IN</span>
+        <span class="c1"># If the panels were floored to 0.5" (a too-small fig_w), cx0 can run past</span>
+        <span class="c1"># the figure edge — clamp so the colorbar stays on-canvas rather than</span>
+        <span class="c1"># rendering clipped/invisible.</span>
+        <span class="n">cx0</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">cx0</span><span class="p">,</span> <span class="n">fig_w</span> <span class="o">-</span> <span class="n">_SQ_CBAR_W_IN</span> <span class="o">-</span> <span class="n">_cbar_txt</span><span class="p">)</span>
+        <span class="n">cax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">cx0</span> <span class="o">/</span> <span class="n">fig_w</span><span class="p">,</span> <span class="n">bottom_in</span> <span class="o">/</span> <span class="n">fig_h</span><span class="p">,</span> <span class="n">_SQ_CBAR_W_IN</span> <span class="o">/</span> <span class="n">fig_w</span><span class="p">,</span> <span class="n">grid_h</span> <span class="o">/</span> <span class="n">fig_h</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">cax</span></div>
+
+
+
+<div class="viewcode-block" id="square_limits">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.primitives.square_limits">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">square_limits</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">pad_frac</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Return ``(xlim, ylim)`` framing *x*, *y* as an equal-extent square.</span>
+
+<span class="sd">    The larger of the x and y data ranges is applied to both axes (each centred</span>
+<span class="sd">    on its own data midpoint), so an equal-aspect plot of the data is square and</span>
+<span class="sd">    neither axis is a thin strip.  Non-finite values are ignored; a degenerate</span>
+<span class="sd">    (zero-extent) input falls back to a unit square.  Choose the limits with this</span>
+<span class="sd">    helper *before* placing a square axes so the colorbar sizing stays exact.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x, y : numpy.ndarray</span>
+<span class="sd">        Data coordinates (any shape; flattened, non-finite dropped).</span>
+<span class="sd">    pad_frac : float</span>
+<span class="sd">        Fractional padding added to the half-extent on all sides.  Default 0.05.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple of (tuple of float, tuple of float)</span>
+<span class="sd">        ``((x0, x1), (y0, y1))``.</span>
+
+<span class="sd">    """</span>
+    <span class="n">xf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">x</span><span class="p">)]</span>
+    <span class="n">yf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">xf</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">yf</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">xmid</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">xf</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">xf</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
+    <span class="n">ymid</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">yf</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">yf</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
+    <span class="n">half</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">xf</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">xf</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span> <span class="nb">float</span><span class="p">(</span><span class="n">yf</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">yf</span><span class="o">.</span><span class="n">min</span><span class="p">()))</span>
+    <span class="n">half</span> <span class="o">=</span> <span class="n">half</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">pad_frac</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">half</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">half</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">xmid</span> <span class="o">-</span> <span class="n">half</span><span class="p">,</span> <span class="n">xmid</span> <span class="o">+</span> <span class="n">half</span><span class="p">),</span> <span class="p">(</span><span class="n">ymid</span> <span class="o">-</span> <span class="n">half</span><span class="p">,</span> <span class="n">ymid</span> <span class="o">+</span> <span class="n">half</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="unit_colorbar">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.primitives.unit_colorbar">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">unit_colorbar</span><span class="p">(</span>
+    <span class="n">cax</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">mappable</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+    <span class="n">ticks</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">ticklabels</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Draw *mappable*'s colorbar into the pre-placed *cax* with the unit on top.</span>
+
+<span class="sd">    The unit is rendered as a title above the bar (``cax.set_title``) rather than</span>
+<span class="sd">    a rotated side label, which saves horizontal width and reads cleanly — the</span>
+<span class="sd">    same convention as the cruise-map depth colorbar.  *cax* is expected to come</span>
+<span class="sd">    from :func:`square_axes_grid` so its height already matches the plotted</span>
+<span class="sd">    square.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cax : matplotlib Axes</span>
+<span class="sd">        Pre-placed colorbar axes.</span>
+<span class="sd">    mappable : matplotlib ScalarMappable</span>
+<span class="sd">        The artist (LineCollection, pcolormesh, ScalarMappable, ...) to map.</span>
+<span class="sd">    unit : str</span>
+<span class="sd">        Unit string placed above the bar (e.g. ``"m s⁻¹"``).  Empty renders no</span>
+<span class="sd">        title.</span>
+<span class="sd">    ticks : numpy.ndarray, optional</span>
+<span class="sd">        Explicit colorbar tick positions.</span>
+<span class="sd">    ticklabels : list of str, optional</span>
+<span class="sd">        Explicit tick labels (same length as *ticks*), e.g.</span>
+<span class="sd">        ``["start", "end"]`` for a fractional-time bar.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    matplotlib.colorbar.Colorbar</span>
+
+<span class="sd">    """</span>
+    <span class="n">cb</span> <span class="o">=</span> <span class="n">cax</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mappable</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cax</span><span class="p">,</span> <span class="n">ticks</span><span class="o">=</span><span class="n">ticks</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ticklabels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ticks</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">ticklabels</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ticks</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ticklabels must match ticks in length"</span><span class="p">)</span>
+        <span class="c1"># Pin the locator to the given ticks so the labels can't drift onto</span>
+        <span class="c1"># auto-placed positions (FixedLocator/FixedFormatter must agree).</span>
+        <span class="n">cax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">mticker</span><span class="o">.</span><span class="n">FixedLocator</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">ticks</span><span class="p">)))</span>
+        <span class="n">cax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">ticklabels</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">unit</span><span class="p">:</span>
+        <span class="n">cax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">report_tokens</span><span class="o">.</span><span class="n">ANNOT_FS</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cb</span></div>
+
+
+
+<div class="viewcode-block" id="plot_trajectory">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.primitives.plot_trajectory">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_trajectory</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">color_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"coolwarm"</span><span class="p">,</span>
+    <span class="n">xlabel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"East displacement (m)"</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"North displacement (m)"</span><span class="p">,</span>
+    <span class="n">colorbar_label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+    <span class="n">colorbar_unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">width_in</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">report_tokens</span><span class="o">.</span><span class="n">W_HALF</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Plot a 2D trajectory, optionally coloured per-segment by a scalar field.</span>
+
+<span class="sd">    When *color_data* is provided, segments are drawn as a LineCollection with</span>
+<span class="sd">    colours mapped through *cmap* and a height-matched colorbar (unit as a title</span>
+<span class="sd">    on top).  When omitted, a plain line is drawn.  Start and end are marked with</span>
+<span class="sd">    green and red markers.  The axes are laid out as an exact square via</span>
+<span class="sd">    :func:`square_axes_grid` with :func:`square_limits`, so the colorbar height</span>
+<span class="sd">    always matches the plotted square.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x, y : ndarray</span>
+<span class="sd">        Trajectory coordinates (same length).</span>
+<span class="sd">    color_data : ndarray, optional</span>
+<span class="sd">        Scalar values to map onto the line (same length as x/y).</span>
+<span class="sd">    cmap : str</span>
+<span class="sd">        Matplotlib colormap name used when color_data is provided.</span>
+<span class="sd">    xlabel, ylabel : str</span>
+<span class="sd">        Axis labels.</span>
+<span class="sd">    colorbar_label : str</span>
+<span class="sd">        Fallback colorbar label placed on top when *colorbar_unit* is empty.</span>
+<span class="sd">    colorbar_unit : str</span>
+<span class="sd">        Unit string placed above the colorbar (units-only on top, saves width).</span>
+<span class="sd">    title : str</span>
+<span class="sd">        Figure title.</span>
+<span class="sd">    width_in : float, optional</span>
+<span class="sd">        Figure width in inches -- the display-slot width the report builder</span>
+<span class="sd">        resolves; standalone callers get the full content width.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    matplotlib.figure.Figure</span>
+
+<span class="sd">    """</span>
+    <span class="c1"># Reserve left margin for wide y-tick labels (thousands-of-km displacements)</span>
+    <span class="c1"># so the rotated y-axis label is not clipped; short labels keep the full</span>
+    <span class="c1"># square (see ytick_reserve_in).</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">cax</span> <span class="o">=</span> <span class="n">square_axes_grid</span><span class="p">(</span>
+        <span class="n">width_in</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">colorbar</span><span class="o">=</span><span class="n">color_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">left_in</span><span class="o">=</span><span class="n">ytick_reserve_in</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">color_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">segments</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">points</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">:]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">bounds</span><span class="p">,</span> <span class="n">norm</span> <span class="o">=</span> <span class="n">colorbar_norm</span><span class="p">(</span>
+            <span class="n">vmin</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">color_data</span><span class="p">)),</span> <span class="n">vmax</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">color_data</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="n">lc</span> <span class="o">=</span> <span class="n">LineCollection</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+        <span class="n">lc</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">color_data</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">lc</span><span class="p">)</span>
+        <span class="n">unit_colorbar</span><span class="p">(</span><span class="n">cax</span><span class="p">,</span> <span class="n">lc</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">colorbar_unit</span> <span class="ow">or</span> <span class="n">colorbar_label</span><span class="p">,</span> <span class="n">ticks</span><span class="o">=</span><span class="n">bounds</span><span class="p">[::</span><span class="mi">2</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"steelblue"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+
+    <span class="n">xlim</span><span class="p">,</span> <span class="n">ylim</span> <span class="o">=</span> <span class="n">square_limits</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">*</span><span class="n">xlim</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">*</span><span class="n">ylim</span><span class="p">)</span>
+
+    <span class="c1"># Start/end markers</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"o"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"green"</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Start"</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s2">"s"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"red"</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"End"</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">title</span><span class="p">:</span>
+        <span class="n">plot_title</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"k"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"k"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+    <span class="c1"># datalim keeps the square box (from square_axes_grid) authoritative so the</span>
+    <span class="c1"># colorbar's matched height is never invalidated.</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">"equal"</span><span class="p">,</span> <span class="n">adjustable</span><span class="o">=</span><span class="s2">"datalim"</span><span class="p">)</span>
+    <span class="n">grid_despine</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+
+<div class="viewcode-block" id="hodograph_panel">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.primitives.hodograph_panel">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">hodograph_panel</span><span class="p">(</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">e_v</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">n_v</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">t_frac</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">units</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Draw a single velocity hodograph on a pre-squared *ax*; return its mappable.</span>
+
+<span class="sd">    Renders a time-coloured ``LineCollection`` trajectory (downsampled to</span>
+<span class="sd">    &lt;= 2 000 segments for performance) with start/end markers, symmetric</span>
+<span class="sd">    ``-lim..lim`` limits, and a subtle grid.  The panel does NOT draw its own</span>
+<span class="sd">    colorbar — the caller owns one shared colorbar (all panels use the same 0-&gt;1</span>
+<span class="sd">    plasma time mapping); pass the returned ``ScalarMappable`` to</span>
+<span class="sd">    :func:`unit_colorbar` on a shared ``cax`` from :func:`square_axes_grid`.</span>
+
+<span class="sd">    *e_v*, *n_v*, and *t_frac* must already be filtered to the same finite-valid</span>
+<span class="sd">    indices (no NaN, same length).  *ax* is expected to be an exact square from</span>
+<span class="sd">    :func:`square_axes_grid`; equal aspect is enforced with</span>
+<span class="sd">    ``adjustable='datalim'`` so the box is never resized (which would strand the</span>
+<span class="sd">    shared colorbar).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax : matplotlib Axes</span>
+<span class="sd">        Pre-squared target axes to draw on.</span>
+<span class="sd">    e_v, n_v : np.ndarray</span>
+<span class="sd">        East and north velocity (finite values only, same length).</span>
+<span class="sd">    t_frac : np.ndarray</span>
+<span class="sd">        Fractional deployment time 0 -&gt; 1, same length as *e_v*.</span>
+<span class="sd">    title : str</span>
+<span class="sd">        Axes title.</span>
+<span class="sd">    units : str</span>
+<span class="sd">        Velocity unit string appended to axis labels, e.g. ``"m s^-1"``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    matplotlib.cm.ScalarMappable</span>
+<span class="sd">        The 0-&gt;1 plasma time mapping, for a shared colorbar.</span>
+
+<span class="sd">    """</span>
+    <span class="n">lim</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">e_v</span><span class="p">))),</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">n_v</span><span class="p">))),</span> <span class="mf">1e-9</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.1</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">e_v</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2000</span><span class="p">)</span>
+    <span class="n">pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">e_v</span><span class="p">[::</span><span class="n">step</span><span class="p">],</span> <span class="n">n_v</span><span class="p">[::</span><span class="n">step</span><span class="p">]])</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">segs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">pts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">pts</span><span class="p">[</span><span class="mi">1</span><span class="p">:]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">_bounds_lc</span><span class="p">,</span> <span class="n">norm_lc</span> <span class="o">=</span> <span class="n">colorbar_norm</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">lc</span> <span class="o">=</span> <span class="n">LineCollection</span><span class="p">(</span><span class="n">segs</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">"plasma"</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm_lc</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.85</span><span class="p">)</span>
+    <span class="n">lc</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">t_frac</span><span class="p">[::</span><span class="n">step</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">lc</span><span class="p">)</span>
+
+    <span class="n">sm</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">cmap</span><span class="o">=</span><span class="s2">"plasma"</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm_lc</span><span class="p">)</span>
+    <span class="n">sm</span><span class="o">.</span><span class="n">set_array</span><span class="p">([])</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+        <span class="n">e_v</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">n_v</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">s</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+        <span class="n">c</span><span class="o">=</span><span class="s2">"lime"</span><span class="p">,</span>
+        <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span>
+        <span class="n">edgecolors</span><span class="o">=</span><span class="s2">"black"</span><span class="p">,</span>
+        <span class="n">linewidths</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+        <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+        <span class="n">e_v</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+        <span class="n">n_v</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+        <span class="n">s</span><span class="o">=</span><span class="mi">55</span><span class="p">,</span>
+        <span class="n">c</span><span class="o">=</span><span class="s2">"red"</span><span class="p">,</span>
+        <span class="n">marker</span><span class="o">=</span><span class="s2">"s"</span><span class="p">,</span>
+        <span class="n">edgecolors</span><span class="o">=</span><span class="s2">"black"</span><span class="p">,</span>
+        <span class="n">linewidths</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+        <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">-</span><span class="n">lim</span><span class="p">,</span> <span class="n">lim</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="n">lim</span><span class="p">,</span> <span class="n">lim</span><span class="p">)</span>
+    <span class="c1"># datalim (not the default 'box'): keep the square box authoritative so the</span>
+    <span class="c1"># shared colorbar's matched height is never invalidated by an aspect resize.</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">"equal"</span><span class="p">,</span> <span class="n">adjustable</span><span class="o">=</span><span class="s2">"datalim"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#888"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#888"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">"East (</span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">"North (</span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+    <span class="n">plot_title</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+    <span class="n">grid_despine</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sm</span></div>
+
+
+
+<div class="viewcode-block" id="date_offset_left">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.primitives.date_offset_left">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">date_offset_left</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Move the x-axis date offset label (e.g. ``2026-Jul``) to the bottom-left.</span>
+
+<span class="sd">    matplotlib's ``ConciseDateFormatter`` draws the year/month offset at the</span>
+<span class="sd">    bottom-right.  Only the offset's vertical position is updated on each draw, so</span>
+<span class="sd">    the left x-position set here persists.  Call after setting the date formatter.</span>
+<span class="sd">    """</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">get_offset_text</span><span class="p">()</span>
+    <span class="n">offset</span><span class="o">.</span><span class="n">set_horizontalalignment</span><span class="p">(</span><span class="s2">"left"</span><span class="p">)</span>
+    <span class="n">offset</span><span class="o">.</span><span class="n">set_position</span><span class="p">((</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="date_axis">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.primitives.date_axis">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">date_axis</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Apply a concise auto-scaled date formatter to *ax*'s x-axis (offset left)."""</span>
+    <span class="n">locator</span> <span class="o">=</span> <span class="n">mdates</span><span class="o">.</span><span class="n">AutoDateLocator</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">locator</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">mdates</span><span class="o">.</span><span class="n">ConciseDateFormatter</span><span class="p">(</span><span class="n">locator</span><span class="p">))</span>
+    <span class="n">date_offset_left</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="pressure_axis">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.primitives.pressure_axis">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pressure_axis</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Configure *ax* as a standard pressure Y-axis: inverted, labelled, gridded."""</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">vlabel</span><span class="p">(</span><span class="s2">"pressure"</span><span class="p">))</span>
+    <span class="n">grid_despine</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="colorbar_norm">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.primitives.colorbar_norm">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">colorbar_norm</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">vmin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">vmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="n">symmetric</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">BoundaryNorm</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return ``(bounds, norm)`` for a discrete pcolormesh colorbar.</span>
+
+<span class="sd">    Computes percentile limits from *data* when *vmin* / *vmax* are not given.</span>
+<span class="sd">    Explicit *vmin* / *vmax* override the percentile calculation.  Pass</span>
+<span class="sd">    ``symmetric=True`` to force the range symmetric about zero.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : np.ndarray, optional</span>
+<span class="sd">        Source array used for percentile-based limit computation.  Ignored when</span>
+<span class="sd">        both *vmin* and *vmax* are given.</span>
+<span class="sd">    vmin, vmax : float, optional</span>
+<span class="sd">        Explicit color limits.  Either one or both may be supplied; the other</span>
+<span class="sd">        falls back to the percentile of *data*.</span>
+<span class="sd">    n : int</span>
+<span class="sd">        Target number of colorbar levels (default 20).</span>
+<span class="sd">    symmetric : bool</span>
+<span class="sd">        If ``True``, expand [vmin, vmax] to [-max, +max] before computing</span>
+<span class="sd">        bounds.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bounds : np.ndarray</span>
+<span class="sd">        Boundary array for ``BoundaryNorm`` and colorbar ticks.</span>
+<span class="sd">    norm : matplotlib.colors.BoundaryNorm</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If neither *data* nor both *vmin* and *vmax* are provided.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">vmin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">vmax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Provide either data or both vmin and vmax."</span><span class="p">)</span>
+        <span class="n">finite</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">data</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">finite</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">vmin</span> <span class="o">=</span> <span class="n">vmin</span> <span class="k">if</span> <span class="n">vmin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">0.0</span>
+            <span class="n">vmax</span> <span class="o">=</span> <span class="n">vmax</span> <span class="k">if</span> <span class="n">vmax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">1.0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">vmin</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">vmin</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">finite</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">COLORBAR_PLOW</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">vmax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">vmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">finite</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">COLORBAR_PHIGH</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">symmetric</span><span class="p">:</span>
+        <span class="n">abs_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">vmin</span><span class="p">)),</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">vmax</span><span class="p">)),</span> <span class="mf">1e-9</span><span class="p">)</span>
+        <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span> <span class="o">=</span> <span class="o">-</span><span class="n">abs_max</span><span class="p">,</span> <span class="n">abs_max</span>
+    <span class="n">bounds</span> <span class="o">=</span> <span class="n">_nice_colorbar_bounds</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">vmin</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">vmax</span><span class="p">),</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">BoundaryNorm</span><span class="p">(</span><span class="n">bounds</span><span class="p">,</span> <span class="n">ncolors</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">norm</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,384 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.analysis.temporal &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.analysis.temporal</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.analysis.temporal</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Time-series analysis utilities for oceanographic data.</span>
+
+<span class="sd">temporal.py provides filtering, lag correlation, histogram-based splitting,</span>
+<span class="sd">and sparse downsampling operations used across instrument processing and reporting.</span>
+
+<span class="sd">Pairs with :mod:`oceanarray.plotters.timeseries` for figure output.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_peaks</span>
+
+
+<div class="viewcode-block" id="filter_sigma_tukey">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.temporal.filter_sigma_tukey">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_sigma_tukey</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">window_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Apply a Tukey moving-average filter along axis=1 (time), NaN-aware.</span>
+
+<span class="sd">    Uses a finite-weight convolution: each output point is the weighted mean</span>
+<span class="sd">    of the finite values within the window, so NaN gaps never contaminate</span>
+<span class="sd">    adjacent points.  Output is set to NaN where fewer than 10 % of the</span>
+<span class="sd">    window weights are finite (edges of large data gaps).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : np.ndarray</span>
+<span class="sd">        2-D array with shape ``(n_pressure, n_time)``.  NaN marks missing</span>
+<span class="sd">        values.</span>
+<span class="sd">    window_samples : int</span>
+<span class="sd">        Length of the Tukey window in samples.  Values &lt; 3 or ≥ n_time</span>
+<span class="sd">        return a copy of *data* unchanged.</span>
+<span class="sd">    alpha : float, optional</span>
+<span class="sd">        Shape parameter of the Tukey window in ``[0, 1]`` (default 0.5).</span>
+<span class="sd">        ``alpha=0`` is a rectangular window; ``alpha=1`` is a Hann window.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        Smoothed array with the same shape as *data*.  Rows that are entirely</span>
+<span class="sd">        NaN are returned unchanged.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">convolve</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal.windows</span><span class="w"> </span><span class="kn">import</span> <span class="n">tukey</span>
+
+    <span class="k">if</span> <span class="n">window_samples</span> <span class="o">&lt;</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">window_samples</span> <span class="o">&gt;=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">tukey</span><span class="p">(</span><span class="n">window_samples</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">w</span> <span class="o">/=</span> <span class="n">w</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">n_p</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_p</span><span class="p">):</span>
+        <span class="n">col</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">finite</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">finite</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="n">smoothed</span> <span class="o">=</span> <span class="n">convolve</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">finite</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">w</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"same"</span><span class="p">)</span>
+        <span class="n">wsum</span> <span class="o">=</span> <span class="n">convolve</span><span class="p">(</span><span class="n">finite</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span> <span class="n">w</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"same"</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">):</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">wsum</span> <span class="o">&gt;</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">smoothed</span> <span class="o">/</span> <span class="n">wsum</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="lag_correlation">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.temporal.lag_correlation">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">lag_correlation</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">max_lag</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">min_overlap</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Pearson correlation at integer lags in ``[-max_lag, max_lag]``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x, y : np.ndarray</span>
+<span class="sd">        1-D arrays of the same length.  NaN values are excluded pairwise</span>
+<span class="sd">        at each lag.</span>
+<span class="sd">    max_lag : int</span>
+<span class="sd">        Maximum lag (in samples) to compute.  Output has length</span>
+<span class="sd">        ``2 * max_lag + 1``.</span>
+<span class="sd">    min_overlap : int, optional</span>
+<span class="sd">        Minimum number of finite pairs required to compute a correlation</span>
+<span class="sd">        at a given lag.  Lags with fewer pairs return NaN (default 10).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        Correlation coefficients, shape ``(2 * max_lag + 1,)``.  Positive</span>
+<span class="sd">        lags mean *x* leads *y*; NaN where overlap is insufficient.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If *x* and *y* do not have the same shape.</span>
+
+<span class="sd">    """</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"x and y must have same length (subsample both)."</span><span class="p">)</span>
+    <span class="n">corrs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">max_lag</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">lag</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">max_lag</span><span class="p">,</span> <span class="n">max_lag</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">lag</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">xs</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:</span><span class="n">lag</span><span class="p">]</span>  <span class="c1"># up to last |lag|</span>
+            <span class="n">ys</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="n">lag</span><span class="p">:]</span>  <span class="c1"># from |lag| to end</span>
+        <span class="k">elif</span> <span class="n">lag</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">xs</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">lag</span><span class="p">:]</span>  <span class="c1"># from lag to end</span>
+            <span class="n">ys</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:</span><span class="o">-</span><span class="n">lag</span><span class="p">]</span>  <span class="c1"># up to n-lag</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span> <span class="o">=</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
+
+        <span class="n">m</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">min_overlap</span><span class="p">:</span>
+            <span class="n">xc</span> <span class="o">=</span> <span class="n">xs</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">xs</span><span class="p">[</span><span class="n">m</span><span class="p">])</span>
+            <span class="n">yc</span> <span class="o">=</span> <span class="n">ys</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">ys</span><span class="p">[</span><span class="n">m</span><span class="p">])</span>
+            <span class="n">denom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">xc</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">yc</span><span class="p">)</span>
+            <span class="n">corrs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">xc</span> <span class="o">*</span> <span class="n">yc</span><span class="p">)</span> <span class="o">/</span> <span class="n">denom</span><span class="p">)</span> <span class="k">if</span> <span class="n">denom</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">return</span> <span class="n">corrs</span></div>
+
+
+
+<div class="viewcode-block" id="split_value">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.temporal.split_value">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">split_value</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">nbins</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Find the histogram-based threshold between two data modes.</span>
+
+<span class="sd">    Computes a ``nbins``-bin histogram, locates the two highest peaks, and</span>
+<span class="sd">    returns the left edge of the minimum-count bin between them.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : np.ndarray</span>
+<span class="sd">        1-D array (NaNs are removed before binning).</span>
+<span class="sd">    nbins : int, optional</span>
+<span class="sd">        Number of histogram bins (default 30).  Increase if the two modes</span>
+<span class="sd">        are not resolved.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Left edge of the minimum-count bin between the two dominant peaks.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If fewer than two histogram peaks are detected.  This occurs when</span>
+<span class="sd">        the data are unimodal or when *nbins* is too coarse to resolve the</span>
+<span class="sd">        two modes.</span>
+
+<span class="sd">    """</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">data</span><span class="p">)]</span>  <span class="c1"># Remove NaNs for histogram</span>
+    <span class="c1"># Step 1: Create histogram</span>
+    <span class="n">counts</span><span class="p">,</span> <span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">)</span>
+
+    <span class="c1"># Step 2: Find peaks</span>
+    <span class="n">peaks</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">find_peaks</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
+
+    <span class="c1"># Step 3: Find minimum between first two major peaks</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">peaks</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"split_value: fewer than 2 histogram peaks found in data "</span>
+            <span class="sa">f</span><span class="s2">"(found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">peaks</span><span class="p">)</span><span class="si">}</span><span class="s2">). Data may be unimodal or nbins=</span><span class="si">{</span><span class="n">nbins</span><span class="si">}</span><span class="s2"> too coarse."</span>
+        <span class="p">)</span>
+    <span class="n">i1</span><span class="p">,</span> <span class="n">i2</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">peaks</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">split_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">counts</span><span class="p">[</span><span class="n">i1</span><span class="p">:</span><span class="n">i2</span><span class="p">])</span> <span class="o">+</span> <span class="n">i1</span>
+    <span class="k">return</span> <span class="n">bins</span><span class="p">[</span><span class="n">split_index</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="downsample_to_sparse">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.temporal.downsample_to_sparse">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">downsample_to_sparse</span><span class="p">(</span>
+    <span class="n">temp_profiles</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">salt_profiles</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">full_pressures</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">sparse_pressures</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Downsample full T/S profiles to sparse pressure levels.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    temp_profiles : np.ndarray</span>
+<span class="sd">        Full temperature profiles, shape (n_profiles, n_pressures_full).</span>
+<span class="sd">    salt_profiles : np.ndarray</span>
+<span class="sd">        Full salinity profiles, shape (n_profiles, n_pressures_full).</span>
+<span class="sd">    full_pressures : np.ndarray</span>
+<span class="sd">        Full pressure levels corresponding to temp_profiles and salt_profiles, shape (n_pressures_full,).</span>
+<span class="sd">    sparse_pressures : np.ndarray</span>
+<span class="sd">        Target sparse pressure levels to sample, shape (n_pressures_sparse,).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    temp_sparse : np.ndarray</span>
+<span class="sd">        Sparse temperature profiles, shape ``(n_profiles, n_pressures_sparse)``.</span>
+<span class="sd">        NaN where the target pressure is outside ``full_pressures``.</span>
+<span class="sd">    salt_sparse : np.ndarray</span>
+<span class="sd">        Sparse salinity profiles, same shape.  NaN at the same out-of-range</span>
+<span class="sd">        levels.</span>
+
+<span class="sd">    """</span>
+    <span class="n">n_profiles</span> <span class="o">=</span> <span class="n">temp_profiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">all_temp</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">all_salt</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_profiles</span><span class="p">):</span>
+        <span class="n">temp_sparse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span>
+            <span class="n">sparse_pressures</span><span class="p">,</span>
+            <span class="n">full_pressures</span><span class="p">,</span>
+            <span class="n">temp_profiles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="n">left</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+            <span class="n">right</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">salt_sparse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span>
+            <span class="n">sparse_pressures</span><span class="p">,</span>
+            <span class="n">full_pressures</span><span class="p">,</span>
+            <span class="n">salt_profiles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="n">left</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+            <span class="n">right</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">all_temp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp_sparse</span><span class="p">)</span>
+        <span class="n">all_salt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">salt_sparse</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">all_temp</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">all_salt</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

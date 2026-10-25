@@ -1,0 +1,1002 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.pipeline.stack &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../pipeline.html">oceanarray.pipeline</a></li>
+      <li class="breadcrumb-item active">oceanarray.pipeline.stack</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.pipeline.stack</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""MooringStacker: interpolate all instruments on a mooring onto a common time grid."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">mooring</span> <span class="k">as</span> <span class="n">_mooring</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameters</span> <span class="k">as</span> <span class="n">params</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">paths</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MooringError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">STACK_VARS</span><span class="p">,</span>
+    <span class="n">_detect_interval_s</span><span class="p">,</span>
+    <span class="n">_linear_interp</span><span class="p">,</span>
+    <span class="n">_make_adcp_bin_ds</span><span class="p">,</span>
+    <span class="n">_make_adcp_head_ds</span><span class="p">,</span>
+    <span class="n">_nearest_subsample</span><span class="p">,</span>
+    <span class="n">_safe_serial</span><span class="p">,</span>
+    <span class="n">_worst_flag</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.read_mooring</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_mooring</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.units</span><span class="w"> </span><span class="kn">import</span> <span class="n">UnitsError</span><span class="p">,</span> <span class="n">to_canonical_units</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_status</span><span class="p">,</span>
+    <span class="n">drop_all_zero_vars</span><span class="p">,</span>
+    <span class="n">instrument_entries</span><span class="p">,</span>
+    <span class="n">parse_latlon</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.writers</span><span class="w"> </span><span class="kn">import</span> <span class="n">write</span>
+
+<span class="n">KNOWN_INSTRUMENT_TYPES</span><span class="p">:</span> <span class="nb">frozenset</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">KNOWN_INSTRUMENT_TYPES</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_LowPassedError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A low-passed instrument file reached the stack without ``stack: false``."""</span>
+
+
+<span class="n">_SIGMA_META</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">0</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"sigma0"</span><span class="p">,</span>
+        <span class="s2">"Potential density anomaly referenced to surface (sigma-0)"</span><span class="p">,</span>
+        <span class="s2">"sea_water_sigma_t"</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="mi">1000</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"sigma1"</span><span class="p">,</span>
+        <span class="s2">"Potential density anomaly referenced to 1000 dbar (sigma-1)"</span><span class="p">,</span>
+        <span class="s2">"sea_water_sigma_1"</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="mi">2000</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"sigma2"</span><span class="p">,</span>
+        <span class="s2">"Potential density anomaly referenced to 2000 dbar (sigma-2)"</span><span class="p">,</span>
+        <span class="s2">"sea_water_sigma_2"</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="mi">3000</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"sigma3"</span><span class="p">,</span>
+        <span class="s2">"Potential density anomaly referenced to 3000 dbar (sigma-3)"</span><span class="p">,</span>
+        <span class="s2">"sea_water_sigma_3"</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="mi">4000</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"sigma4"</span><span class="p">,</span>
+        <span class="s2">"Potential density anomaly referenced to 4000 dbar (sigma-4)"</span><span class="p">,</span>
+        <span class="s2">"sea_water_sigma_4"</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="stack">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.stack.stack">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">stack</span><span class="p">(</span>
+    <span class="n">datasets</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">dt_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span>
+    <span class="n">omitted</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Stack a mooring's instruments onto a common time axis.</span>
+
+<span class="sd">    Pure function over datasets: no file I/O. Each instrument is subsampled</span>
+<span class="sd">    (nearest neighbour) when it samples at least as fast as *dt_seconds*, else</span>
+<span class="sd">    interpolated linearly in time; ADCPs expand into one level per bin plus a head</span>
+<span class="sd">    level. Instruments marked ``stack: false`` are left out and named in</span>
+<span class="sd">    ``instruments_excluded``; instruments that cannot be stacked (non-canonical</span>
+<span class="sd">    units, low-passed data) are left out and named in ``instruments_omitted``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    datasets : dict of str to xarray.Dataset</span>
+<span class="sd">        Stage-3 (or stage-2) datasets keyed by cleaned serial.</span>
+<span class="sd">    mooring : dict</span>
+<span class="sd">        The loaded mooring description: the deployment window is the time axis, and</span>
+<span class="sd">        each entry's ``hab`` and ``stack`` flag are used. Each instrument's sampling</span>
+<span class="sd">        interval is detected from its time axis.</span>
+<span class="sd">    dt_seconds : int, optional</span>
+<span class="sd">        Spacing of the common time axis, in seconds.</span>
+<span class="sd">    omitted : list of str or None, optional</span>
+<span class="sd">        Instruments the caller already dropped (e.g. unreadable files), recorded</span>
+<span class="sd">        in ``instruments_omitted`` with the ones dropped here.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        The stack on ``(time, N_LEVELS)``, deepest level first.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    oceanarray.exceptions.MooringError</span>
+<span class="sd">        If the description has no deployment window, or no instrument can be stacked.</span>
+<span class="sd">    """</span>
+    <span class="n">mooring_config</span> <span class="o">=</span> <span class="n">mooring</span>
+    <span class="n">mooring_name</span> <span class="o">=</span> <span class="n">mooring</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span>
+    <span class="n">omitted</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">omitted</span> <span class="ow">or</span> <span class="p">[])</span>
+
+    <span class="c1"># The common time axis IS the deployment window, so stacking needs it.</span>
+    <span class="c1"># Stage 2 writing a window detected from the records (when the YAML omits</span>
+    <span class="c1"># it) is later work; until then a window-less config fails loud here</span>
+    <span class="c1"># rather than with a bare KeyError.</span>
+    <span class="k">if</span> <span class="s2">"deployment_time"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mooring_config</span> <span class="ow">or</span> <span class="p">(</span>
+        <span class="s2">"recovery_time"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mooring_config</span>
+    <span class="p">):</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Cannot stack </span><span class="si">{</span><span class="n">mooring_name</span><span class="si">}</span><span class="s2">: the mooring config has no "</span>
+            <span class="sa">f</span><span class="s2">"'deployment_time'/'recovery_time' (the common time axis is the "</span>
+            <span class="sa">f</span><span class="s2">"deployment window). A window detected from the records is not yet "</span>
+            <span class="sa">f</span><span class="s2">"implemented — add both to the YAML."</span>
+        <span class="p">)</span>
+    <span class="n">deploy_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="n">mooring_config</span><span class="p">[</span><span class="s2">"deployment_time"</span><span class="p">],</span> <span class="s2">"ns"</span><span class="p">)</span>
+    <span class="n">recover_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="n">mooring_config</span><span class="p">[</span><span class="s2">"recovery_time"</span><span class="p">],</span> <span class="s2">"ns"</span><span class="p">)</span>
+
+    <span class="n">common_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
+        <span class="n">deploy_time</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"datetime64[s]"</span><span class="p">),</span>
+        <span class="n">recover_time</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"datetime64[s]"</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"s"</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="n">dt_seconds</span><span class="p">,</span> <span class="s2">"s"</span><span class="p">),</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"datetime64[ns]"</span><span class="p">)</span>
+    <span class="n">n_time</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">common_time</span><span class="p">)</span>
+
+    <span class="n">instrument_list</span> <span class="o">=</span> <span class="n">instrument_entries</span><span class="p">(</span><span class="n">mooring_config</span><span class="p">)</span>
+
+    <span class="c1"># Collect instruments with known hab and an available stage2/stage3 file.</span>
+    <span class="c1"># An instrument marked ``stack: false`` in the mooring YAML is processed</span>
+    <span class="c1"># through stages 1-3 (reference data) but kept out of the stack, and named</span>
+    <span class="c1"># in ``instruments_excluded`` — distinct from an error omission.</span>
+    <span class="n">instruments</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">excluded</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">instrument_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">serial</span> <span class="o">=</span> <span class="n">_safe_serial</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"serial"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+        <span class="n">instr_type</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"instrument"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">instr_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">KNOWN_INSTRUMENT_TYPES</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"  WARNING: instrument '</span><span class="si">{</span><span class="n">instr_type</span><span class="si">}</span><span class="s2">' (s/n </span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2">) is not in "</span>
+                <span class="sa">f</span><span class="s2">"KNOWN_INSTRUMENT_TYPES </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">KNOWN_INSTRUMENT_TYPES</span><span class="p">)</span><span class="si">}</span><span class="s2">; "</span>
+                <span class="s2">"it will be stacked as a generic instrument (Aquadopp/ADCP-specific "</span>
+                <span class="s2">"handling skipped)."</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"stack"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">excluded</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">instr_type</span><span class="si">}</span><span class="s2"> s/n </span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  EXCLUDE </span><span class="si">{</span><span class="n">instr_type</span><span class="si">}</span><span class="s2"> s/n </span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2">: stack: false in the YAML"</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">hab</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"hab"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hab</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">serial</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  SKIP </span><span class="si">{</span><span class="n">instr_type</span><span class="si">}</span><span class="s2"> s/n </span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2">: no stage2/stage3 file"</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">ds_in</span> <span class="o">=</span> <span class="n">datasets</span><span class="p">[</span><span class="n">serial</span><span class="p">]</span>
+        <span class="n">instruments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"serial"</span><span class="p">:</span> <span class="n">serial</span><span class="p">,</span>
+                <span class="s2">"instrument"</span><span class="p">:</span> <span class="n">instr_type</span><span class="p">,</span>
+                <span class="s2">"hab"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">hab</span><span class="p">),</span>
+                <span class="s2">"ds"</span><span class="p">:</span> <span class="n">ds_in</span><span class="p">,</span>
+                <span class="s2">"stage_label"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"stage</span><span class="si">{</span><span class="n">ds_in</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'processing_stage'</span><span class="p">,</span><span class="w"> </span><span class="s1">''</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">instruments</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mooring_name</span><span class="si">}</span><span class="s2">: no instruments with a stage-2/stage-3 dataset and a hab value"</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Sort deep-first (ascending hab: smallest hab = nearest bottom = deepest)</span>
+    <span class="n">instruments</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">"hab"</span><span class="p">])</span>
+
+    <span class="c1"># ── Expand ADCP instruments into per-bin pseudo-instruments ───────</span>
+    <span class="c1"># Each ADCP bin becomes a separate row in the stack, with its own</span>
+    <span class="c1"># bin_pressure, velocity, and QC time series sliced from the 2-D</span>
+    <span class="c1"># (time, N_BINS) arrays in the parent stage3 file.</span>
+    <span class="c1"># The parent file is loaded once and cached; _make_adcp_bin_ds slices it.</span>
+    <span class="n">_adcp_parent_datasets</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">expanded</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">instruments</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">info</span><span class="p">[</span><span class="s2">"instrument"</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">"adcp"</span><span class="p">:</span>
+            <span class="n">expanded</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">nc_key</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">"serial"</span><span class="p">]</span>
+        <span class="n">_adcp_parent_datasets</span><span class="p">[</span><span class="n">nc_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">"ds"</span><span class="p">]</span>
+        <span class="n">ds_adcp</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">"ds"</span><span class="p">]</span>
+        <span class="n">bin_dim</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">ADCP_BIN_DIM</span>
+        <span class="k">if</span> <span class="n">bin_dim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_adcp</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"  WARNING: ADCP s/n </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">'serial'</span><span class="p">]</span><span class="si">}</span><span class="s2"> has no </span><span class="si">{</span><span class="n">bin_dim</span><span class="si">}</span><span class="s2"> dim "</span>
+                <span class="s2">"— treating as point instrument"</span>
+            <span class="p">)</span>
+            <span class="n">expanded</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">n_bins</span> <span class="o">=</span> <span class="n">ds_adcp</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="n">bin_dim</span><span class="p">]</span>
+        <span class="n">range_vals</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">ds_adcp</span><span class="p">[</span><span class="s2">"range"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="k">if</span> <span class="s2">"range"</span> <span class="ow">in</span> <span class="n">ds_adcp</span><span class="o">.</span><span class="n">coords</span>
+            <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_bins</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">orientation</span> <span class="o">=</span> <span class="n">ds_adcp</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"orientation_yaml"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ds_adcp</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s2">"orientation_instrument"</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">orientation</span><span class="p">:</span>
+            <span class="n">orientation</span> <span class="o">=</span> <span class="s2">"down"</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"  WARNING: ADCP </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">'serial'</span><span class="p">]</span><span class="si">}</span><span class="s2"> has no orientation attr — "</span>
+                <span class="s2">"assuming downward-looking. HAB offsets may be wrong for "</span>
+                <span class="s2">"upward-looking instruments."</span>
+            <span class="p">)</span>
+        <span class="n">looking_down</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">orientation</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"down"</span>
+        <span class="c1"># Pre-compute seabed mask so always-submerged bins can be skipped.</span>
+        <span class="c1"># seabed_qc has dims (time, N_BINS); a bin is permanently below the</span>
+        <span class="c1"># seabed when every time step is flagged suspect or worse (&gt;= 3).</span>
+        <span class="n">_seabed_qc_vals</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">ds_adcp</span><span class="p">[</span><span class="s2">"seabed_qc"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="k">if</span> <span class="s2">"seabed_qc"</span> <span class="ow">in</span> <span class="n">ds_adcp</span><span class="o">.</span><span class="n">data_vars</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+
+        <span class="n">n_skipped</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">valid_bins</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_bins</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">_seabed_qc_vals</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">_seabed_qc_vals</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">):</span>
+                <span class="n">n_skipped</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">valid_bins</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"  ADCP s/n </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">'serial'</span><span class="p">]</span><span class="si">}</span><span class="s2">: expanding </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">valid_bins</span><span class="p">)</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="n">n_bins</span><span class="si">}</span><span class="s2"> bins "</span>
+            <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">orientation</span><span class="si">}</span><span class="s2">-looking) into stack + head entry"</span>
+            <span class="o">+</span> <span class="p">(</span><span class="sa">f</span><span class="s2">" [</span><span class="si">{</span><span class="n">n_skipped</span><span class="si">}</span><span class="s2"> bins always below seabed, skipped]"</span> <span class="k">if</span> <span class="n">n_skipped</span> <span class="k">else</span> <span class="s2">""</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Head entry — transducer location carries temperature and orientation.</span>
+        <span class="c1"># Uses the instrument HAB directly (range = 0 from the transducer).</span>
+        <span class="n">expanded</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="o">**</span><span class="n">info</span><span class="p">,</span>
+                <span class="s2">"serial"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">'serial'</span><span class="p">]</span><span class="si">}</span><span class="s2">_hd"</span><span class="p">,</span>
+                <span class="s2">"hab"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s2">"hab"</span><span class="p">]),</span>
+                <span class="s2">"_adcp_head"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s2">"_adcp_nc_key"</span><span class="p">:</span> <span class="n">nc_key</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">valid_bins</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">range_vals</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">bin_hab</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s2">"hab"</span><span class="p">])</span> <span class="o">-</span> <span class="n">r</span> <span class="k">if</span> <span class="n">looking_down</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s2">"hab"</span><span class="p">])</span> <span class="o">+</span> <span class="n">r</span>
+            <span class="n">expanded</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="o">**</span><span class="n">info</span><span class="p">,</span>
+                    <span class="s2">"serial"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">'serial'</span><span class="p">]</span><span class="si">}</span><span class="s2">_b</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                    <span class="s2">"hab"</span><span class="p">:</span> <span class="n">bin_hab</span><span class="p">,</span>
+                    <span class="s2">"_adcp_bin_idx"</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span>
+                    <span class="s2">"_adcp_nc_key"</span><span class="p">:</span> <span class="n">nc_key</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+    <span class="n">instruments</span> <span class="o">=</span> <span class="n">expanded</span>
+    <span class="c1"># Re-sort after expansion so ADCP bins interleave with other instruments by depth</span>
+    <span class="n">instruments</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">"hab"</span><span class="p">])</span>
+
+    <span class="n">n_instr</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">instruments</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Merging </span><span class="si">{</span><span class="n">n_instr</span><span class="si">}</span><span class="s2"> instruments onto </span><span class="si">{</span><span class="n">n_time</span><span class="si">}</span><span class="s2">-point </span><span class="si">{</span><span class="n">dt_seconds</span><span class="si">}</span><span class="s2">s time grid "</span>
+        <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">mooring_name</span><span class="si">}</span><span class="s2">)"</span>
+    <span class="p">)</span>
+
+    <span class="n">stacked</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">v</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_instr</span><span class="p">,</span> <span class="n">n_time</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">STACK_VARS</span>
+    <span class="p">}</span>
+    <span class="n">var_attrs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="p">{}</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">STACK_VARS</span><span class="p">}</span>
+    <span class="n">serials</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">habs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">instr_types</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">stage_labels</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># Per-instrument scalar metadata: {varname: [value_for_instr0, value_for_instr1, ...]}</span>
+    <span class="n">scalar_meta</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># populated during loop</span>
+    <span class="n">scalar_attrs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c1"># Stage-3 time-series variables not in STACK_VARS are dropped here; collect</span>
+    <span class="c1"># them so the operator is told rather than losing data silently (D2).</span>
+    <span class="n">dropped_ts_vars</span><span class="p">:</span> <span class="nb">set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="c1"># Instruments dropped from the stack (bad units or unreadable file).  The</span>
+    <span class="c1"># stack still builds (partial stacks are useful operationally), but each</span>
+    <span class="c1"># omission is recorded loudly: in the summary, in an `instruments_omitted`</span>
+    <span class="c1"># global attribute the grid inherits, and in the exit code.</span>
+    <span class="n">omitted_idx</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># enumerate positions of omitted instruments</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">instruments</span><span class="p">):</span>
+        <span class="n">serials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s2">"serial"</span><span class="p">])</span>
+        <span class="n">habs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s2">"hab"</span><span class="p">])</span>
+        <span class="n">instr_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s2">"instrument"</span><span class="p">])</span>
+        <span class="n">stage_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s2">"stage_label"</span><span class="p">])</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"_adcp_bin_idx"</span> <span class="ow">in</span> <span class="n">info</span><span class="p">:</span>
+                <span class="n">ds_parent</span> <span class="o">=</span> <span class="n">_adcp_parent_datasets</span><span class="p">[</span><span class="n">info</span><span class="p">[</span><span class="s2">"_adcp_nc_key"</span><span class="p">]]</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="n">_make_adcp_bin_ds</span><span class="p">(</span><span class="n">ds_parent</span><span class="p">,</span> <span class="n">info</span><span class="p">[</span><span class="s2">"_adcp_bin_idx"</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="s2">"_adcp_head"</span> <span class="ow">in</span> <span class="n">info</span><span class="p">:</span>
+                <span class="n">ds_parent</span> <span class="o">=</span> <span class="n">_adcp_parent_datasets</span><span class="p">[</span><span class="n">info</span><span class="p">[</span><span class="s2">"_adcp_nc_key"</span><span class="p">]]</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="n">_make_adcp_head_ds</span><span class="p">(</span><span class="n">ds_parent</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">"ds"</span><span class="p">]</span>
+            <span class="c1"># Canonicalise each instrument's units before stacking, so a</span>
+            <span class="c1"># pre-0.5.0 input (degC, S/m, …) joins the stack already canonical.</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">to_canonical_units</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">log_fn</span><span class="o">=</span><span class="nb">print</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="s2">"stack"</span><span class="p">)</span>
+            <span class="c1"># A low-passed file (e.g. RODB .lowedt) on a coarse step would be</span>
+            <span class="c1"># interpolated onto the stack grid as if it were full-rate data.</span>
+            <span class="k">if</span> <span class="s2">"originator_low_passed"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">_LowPassedError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"low-passed reference data "</span>
+                    <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'originator_low_passed'</span><span class="p">]</span><span class="si">}</span><span class="s2">); set stack: false "</span>
+                    <span class="sa">f</span><span class="s2">"on this instrument in the mooring YAML"</span>
+                <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: BLE001  — one bad instrument must not abort the stack</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">UnitsError</span><span class="p">):</span>
+                <span class="n">reason</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"units error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">_LowPassedError</span><span class="p">):</span>
+                <span class="n">reason</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">reason</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"could not stack it: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"  ERROR: omitting </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">'instrument'</span><span class="p">]</span><span class="si">}</span><span class="s2"> s/n </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">'serial'</span><span class="p">]</span><span class="si">}</span><span class="s2"> — </span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+            <span class="n">omitted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">'instrument'</span><span class="p">]</span><span class="si">}</span><span class="s2"> s/n </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">'serial'</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+            <span class="n">omitted_idx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="c1"># Ensure scalar_meta lists stay length-consistent</span>
+            <span class="k">for</span> <span class="n">lst</span> <span class="ow">in</span> <span class="n">scalar_meta</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">lst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="n">interval_s</span> <span class="o">=</span> <span class="n">_detect_interval_s</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"  [</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s2">2d</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">'instrument'</span><span class="p">]</span><span class="si">:</span><span class="s2">10s</span><span class="si">}</span><span class="s2"> s/n </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">'serial'</span><span class="p">]</span><span class="si">:</span><span class="s2">&lt;8</span><span class="si">}</span><span class="s2">  "</span>
+            <span class="sa">f</span><span class="s2">"hab=</span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">'hab'</span><span class="p">]</span><span class="si">:</span><span class="s2">6.1f</span><span class="si">}</span><span class="s2"> m  dt=</span><span class="si">{</span><span class="n">interval_s</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">s  "</span>
+            <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">stage_labels</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">)"</span>
+        <span class="p">)</span>
+
+        <span class="n">half_window</span> <span class="o">=</span> <span class="n">dt_seconds</span> <span class="o">/</span> <span class="mf">2.0</span>
+        <span class="k">if</span> <span class="n">interval_s</span> <span class="o">&lt;=</span> <span class="n">dt_seconds</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">_nearest_subsample</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">common_time</span><span class="p">,</span> <span class="n">half_window</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">_linear_interp</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">common_time</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">STACK_VARS</span><span class="p">:</span>
+            <span class="n">arr</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="p">),</span> <span class="n">n_time</span><span class="p">)</span>
+            <span class="n">stacked</span><span class="p">[</span><span class="n">vname</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="p">:</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[:</span><span class="n">n</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">var_attrs</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="ow">and</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+                <span class="n">var_attrs</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+
+        <span class="c1"># Track any time-series stage-3 variables that STACK_VARS omits.</span>
+        <span class="n">dropped_ts_vars</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="n">v</span>
+            <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">da</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s2">"time"</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">STACK_VARS</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Collect scalar (0-D) metadata variables — keep all instruments consistent</span>
+        <span class="k">for</span> <span class="n">vname</span><span class="p">,</span> <span class="n">da</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>  <span class="c1"># skip time-series variables</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">vname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">scalar_meta</span><span class="p">:</span>
+                <span class="c1"># Back-fill with None for instruments processed before this variable appeared</span>
+                <span class="n">scalar_meta</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">i</span>
+                <span class="n">scalar_attrs</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+            <span class="n">scalar_meta</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+
+        <span class="c1"># Collect magnetic_declination from global attrs (set by stage3 BEAM→ENU).</span>
+        <span class="c1"># Must come BEFORE the fill-None loop so the length is already i+1 when</span>
+        <span class="c1"># the loop checks.</span>
+        <span class="k">if</span> <span class="s2">"magnetic_declination"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">scalar_meta</span><span class="p">:</span>
+            <span class="n">scalar_meta</span><span class="p">[</span><span class="s2">"magnetic_declination"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span> <span class="o">*</span> <span class="n">i</span>
+            <span class="n">scalar_attrs</span><span class="p">[</span><span class="s2">"magnetic_declination"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"degrees_east"</span><span class="p">,</span>
+                <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"Magnetic declination (IGRF)"</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="n">decl_val</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"magnetic_declination"</span><span class="p">)</span>
+        <span class="n">scalar_meta</span><span class="p">[</span><span class="s2">"magnetic_declination"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">decl_val</span><span class="p">)</span> <span class="k">if</span> <span class="n">decl_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Fill None for variables not present in this instrument</span>
+        <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">scalar_meta</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">scalar_meta</span><span class="p">[</span><span class="n">vname</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">scalar_meta</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">dropped_ts_vars</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"  NOTE: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dropped_ts_vars</span><span class="p">)</span><span class="si">}</span><span class="s2"> stage-3 time-series variable(s) not in "</span>
+            <span class="sa">f</span><span class="s2">"STACK_VARS were dropped from the stack: "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">dropped_ts_vars</span><span class="p">))</span><span class="si">}</span><span class="s2">. "</span>
+            <span class="sa">f</span><span class="s2">"Add them to STACK_VARS in mooring/helpers.py to retain them."</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Drop omitted instruments from every per-level array/list so the written</span>
+    <span class="c1"># stack has no phantom all-NaN level — N_LEVELS and `instruments_omitted`</span>
+    <span class="c1"># must agree.  The loop indexes `stacked`/`scalar_meta` by enumerate position,</span>
+    <span class="c1"># so slice all of them to the kept positions here rather than restructuring it.</span>
+    <span class="n">_omitted_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">omitted_idx</span><span class="p">)</span>
+    <span class="n">kept</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_instr</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_omitted_set</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">kept</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"every instrument was omitted — no stack (</span><span class="si">{</span><span class="n">mooring_name</span><span class="si">}</span><span class="s2">): "</span>
+            <span class="o">+</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">omitted</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kept</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">n_instr</span><span class="p">:</span>
+        <span class="n">serials</span> <span class="o">=</span> <span class="p">[</span><span class="n">serials</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">kept</span><span class="p">]</span>
+        <span class="n">habs</span> <span class="o">=</span> <span class="p">[</span><span class="n">habs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">kept</span><span class="p">]</span>
+        <span class="n">instr_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">instr_types</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">kept</span><span class="p">]</span>
+        <span class="n">stage_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">stage_labels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">kept</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">_v</span> <span class="ow">in</span> <span class="n">stacked</span><span class="p">:</span>
+            <span class="n">stacked</span><span class="p">[</span><span class="n">_v</span><span class="p">]</span> <span class="o">=</span> <span class="n">stacked</span><span class="p">[</span><span class="n">_v</span><span class="p">][</span><span class="n">kept</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="k">for</span> <span class="n">_k</span> <span class="ow">in</span> <span class="n">scalar_meta</span><span class="p">:</span>
+            <span class="n">scalar_meta</span><span class="p">[</span><span class="n">_k</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">scalar_meta</span><span class="p">[</span><span class="n">_k</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">kept</span><span class="p">]</span>
+        <span class="n">n_instr</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">kept</span><span class="p">)</span>
+
+    <span class="c1"># Build output dataset; skip physics variables that are entirely NaN</span>
+    <span class="n">data_vars</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">STACK_VARS</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">stacked</span><span class="p">[</span><span class="n">vname</span><span class="p">])):</span>
+            <span class="n">data_vars</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                <span class="p">(</span><span class="s2">"N_LEVELS"</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">),</span> <span class="n">stacked</span><span class="p">[</span><span class="n">vname</span><span class="p">],</span> <span class="n">attrs</span><span class="o">=</span><span class="n">var_attrs</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Compute potential density from stacked T, S, P</span>
+    <span class="n">ref_p</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">mooring_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"density_reference"</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">DENSITY_REFERENCE</span><span class="p">))</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="s2">"temperature"</span> <span class="ow">in</span> <span class="n">data_vars</span>
+        <span class="ow">and</span> <span class="s2">"salinity"</span> <span class="ow">in</span> <span class="n">data_vars</span>
+        <span class="ow">and</span> <span class="s2">"pressure"</span> <span class="ow">in</span> <span class="n">data_vars</span>
+    <span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">gsw</span>
+
+            <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="n">parse_latlon</span><span class="p">(</span><span class="n">mooring_config</span><span class="p">)</span>
+            <span class="n">T_arr</span> <span class="o">=</span> <span class="n">stacked</span><span class="p">[</span><span class="s2">"temperature"</span><span class="p">]</span>
+            <span class="n">SP_arr</span> <span class="o">=</span> <span class="n">stacked</span><span class="p">[</span><span class="s2">"salinity"</span><span class="p">]</span>
+            <span class="n">P_arr</span> <span class="o">=</span> <span class="n">stacked</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span>
+            <span class="n">SA</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">SA_from_SP</span><span class="p">(</span><span class="n">SP_arr</span><span class="p">,</span> <span class="n">P_arr</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+            <span class="n">CT</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">CT_from_t</span><span class="p">(</span><span class="n">SA</span><span class="p">,</span> <span class="n">T_arr</span><span class="p">,</span> <span class="n">P_arr</span><span class="p">)</span>
+            <span class="n">_sigma_fn</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="mi">0</span><span class="p">:</span> <span class="n">gsw</span><span class="o">.</span><span class="n">sigma0</span><span class="p">,</span>
+                <span class="mi">1000</span><span class="p">:</span> <span class="n">gsw</span><span class="o">.</span><span class="n">sigma1</span><span class="p">,</span>
+                <span class="mi">2000</span><span class="p">:</span> <span class="n">gsw</span><span class="o">.</span><span class="n">sigma2</span><span class="p">,</span>
+                <span class="mi">3000</span><span class="p">:</span> <span class="n">gsw</span><span class="o">.</span><span class="n">sigma3</span><span class="p">,</span>
+                <span class="mi">4000</span><span class="p">:</span> <span class="n">gsw</span><span class="o">.</span><span class="n">sigma4</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="n">ref_p</span> <span class="ow">in</span> <span class="n">_sigma_fn</span><span class="p">:</span>
+                <span class="n">sigma_vals</span> <span class="o">=</span> <span class="n">_sigma_fn</span><span class="p">[</span><span class="n">ref_p</span><span class="p">](</span><span class="n">SA</span><span class="p">,</span> <span class="n">CT</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sigma_vals</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">pot_rho_t_exact</span><span class="p">(</span><span class="n">SA</span><span class="p">,</span> <span class="n">T_arr</span><span class="p">,</span> <span class="n">P_arr</span><span class="p">,</span> <span class="n">ref_p</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1000.0</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">sigma_vals</span><span class="p">)):</span>
+                <span class="n">vname</span><span class="p">,</span> <span class="n">long_name</span><span class="p">,</span> <span class="n">std_name</span> <span class="o">=</span> <span class="n">_SIGMA_META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="n">ref_p</span><span class="p">,</span>
+                    <span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">"sigma_</span><span class="si">{</span><span class="n">ref_p</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                        <span class="sa">f</span><span class="s2">"Potential density anomaly referenced to </span><span class="si">{</span><span class="n">ref_p</span><span class="si">}</span><span class="s2"> dbar"</span><span class="p">,</span>
+                        <span class="s2">""</span><span class="p">,</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+                <span class="n">data_vars</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                    <span class="p">(</span><span class="s2">"N_LEVELS"</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">),</span>
+                    <span class="n">sigma_vals</span><span class="p">,</span>
+                    <span class="p">{</span>
+                        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"kg m-3"</span><span class="p">,</span>
+                        <span class="s2">"long_name"</span><span class="p">:</span> <span class="n">long_name</span><span class="p">,</span>
+                        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="n">std_name</span><span class="p">,</span>
+                        <span class="s2">"reference_pressure_dbar"</span><span class="p">:</span> <span class="n">ref_p</span><span class="p">,</span>
+                    <span class="p">},</span>
+                <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># noqa: BLE001  — gsw failure must not abort stack</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  WARNING: could not compute potential density: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="c1"># velocity_flag: element-wise worst QC flag across east/north/up velocity.</span>
+    <span class="c1"># Velocity is stored unmasked in the stack; this combined flag is what the</span>
+    <span class="c1"># grid step (and users) should apply before using velocity values.</span>
+    <span class="n">_vel_qc_keys</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">v</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"east_velocity_qc"</span><span class="p">,</span> <span class="s2">"north_velocity_qc"</span><span class="p">,</span> <span class="s2">"up_velocity_qc"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data_vars</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">_vel_qc_keys</span><span class="p">:</span>
+        <span class="n">n_lev_v</span><span class="p">,</span> <span class="n">n_t_v</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">stacked</span><span class="p">[</span><span class="s2">"east_velocity_qc"</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+            <span class="k">if</span> <span class="s2">"east_velocity_qc"</span> <span class="ow">in</span> <span class="n">stacked</span>
+            <span class="k">else</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">n_lev_v</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># int8 so flag_values (also int8) matches the variable dtype (CF).</span>
+            <span class="n">vel_flag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">n_lev_v</span><span class="p">,</span> <span class="n">n_t_v</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>  <span class="c1"># 1 = good</span>
+            <span class="k">for</span> <span class="n">_qk</span> <span class="ow">in</span> <span class="n">_vel_qc_keys</span><span class="p">:</span>
+                <span class="n">vel_flag</span> <span class="o">=</span> <span class="n">_worst_flag</span><span class="p">(</span><span class="n">vel_flag</span><span class="p">,</span> <span class="n">stacked</span><span class="p">[</span><span class="n">_qk</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+            <span class="n">data_vars</span><span class="p">[</span><span class="s2">"velocity_flag"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                <span class="p">(</span><span class="s2">"N_LEVELS"</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">),</span>
+                <span class="n">vel_flag</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"Combined velocity QC flag (worst of east/north/up)"</span><span class="p">,</span>
+                    <span class="s2">"comment"</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="s2">"Worst OceanSITES flag across east/north/up_velocity; "</span>
+                        <span class="s2">"apply to the velocity components before use."</span>
+                    <span class="p">),</span>
+                    <span class="s2">"flag_values"</span><span class="p">:</span> <span class="n">params</span><span class="o">.</span><span class="n">QC_FLAG_VALUES_I8</span><span class="p">,</span>
+                    <span class="s2">"flag_meanings"</span><span class="p">:</span> <span class="n">params</span><span class="o">.</span><span class="n">QC_FLAG_MEANINGS</span><span class="p">,</span>
+                    <span class="s2">"conventions"</span><span class="p">:</span> <span class="n">params</span><span class="o">.</span><span class="n">QC_CONVENTION</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Tilt estimated from pressure difference between two instrument levels.</span>
+    <span class="c1"># For each level i, find the nearest level j above it that is ≥10 m away</span>
+    <span class="c1"># in hab AND has at least some finite pressure data.  Instruments close</span>
+    <span class="c1"># together (e.g. a microcat strapped to an Aquadopp frame) are skipped.</span>
+    <span class="c1">#   rope_length = hab[j] - hab[i]            (m, from YAML)</span>
+    <span class="c1">#   ΔP          = pressure[i,:] - pressure[j,:]   (dbar ≈ m, &gt;0 when upright)</span>
+    <span class="c1">#   tilt        = arccos(ΔP / rope_length)   (degrees from vertical; 0 = upright)</span>
+    <span class="n">_MIN_HAB_SEP</span> <span class="o">=</span> <span class="mf">10.0</span>  <span class="c1"># minimum hab separation (m) to use as reference</span>
+    <span class="k">if</span> <span class="s2">"pressure"</span> <span class="ow">in</span> <span class="n">data_vars</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">habs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">p_arr</span> <span class="o">=</span> <span class="n">stacked</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span>  <span class="c1"># (N_LEVELS, time) numpy array</span>
+            <span class="n">n_lev</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">habs</span><span class="p">)</span>
+            <span class="n">tilt_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">p_arr</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+            <span class="n">ref_hab_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n_lev</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>  <span class="c1"># hab of the reference level</span>
+            <span class="n">ref_serial_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s2">""</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_lev</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+            <span class="c1"># pre-compute which levels have any valid pressure</span>
+            <span class="n">_has_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">p_arr</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:]))</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_lev</span><span class="p">)])</span>
+            <span class="n">_is_adcp</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"adcp"</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">instr_types</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_lev</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">_has_p</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">_is_adcp</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                    <span class="k">continue</span>  <span class="c1"># ADCP transducer pressure is not suitable for tilt</span>
+                <span class="c1"># Find nearest level above i that is ≥_MIN_HAB_SEP away with pressure,</span>
+                <span class="c1"># excluding ADCP levels as reference (their bin pressures shift with tilt).</span>
+                <span class="n">ref_j</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_lev</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">habs</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">habs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">_MIN_HAB_SEP</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">_has_p</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+                        <span class="k">continue</span>
+                    <span class="k">if</span> <span class="n">_is_adcp</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+                        <span class="k">continue</span>
+                    <span class="n">ref_j</span> <span class="o">=</span> <span class="n">j</span>
+                    <span class="k">break</span>  <span class="c1"># first valid j = nearest ≥10 m above</span>
+                <span class="k">if</span> <span class="n">ref_j</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">rope</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">habs</span><span class="p">[</span><span class="n">ref_j</span><span class="p">])</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">habs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">ref_hab_arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">habs</span><span class="p">[</span><span class="n">ref_j</span><span class="p">])</span>
+                <span class="n">ref_serial_arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">serials</span><span class="p">[</span><span class="n">ref_j</span><span class="p">])</span>
+                <span class="n">delta_p</span> <span class="o">=</span> <span class="n">p_arr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">p_arr</span><span class="p">[</span><span class="n">ref_j</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="n">ratio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">delta_p</span> <span class="o">/</span> <span class="n">rope</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+                <span class="n">tilt_p</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">ratio</span><span class="p">))</span>
+                <span class="n">tilt_p</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">delta_p</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"  tilt_from_pressure[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">] s/n </span><span class="si">{</span><span class="n">serials</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">habs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> m): "</span>
+                    <span class="sa">f</span><span class="s2">"ref s/n </span><span class="si">{</span><span class="n">serials</span><span class="p">[</span><span class="n">ref_j</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">habs</span><span class="p">[</span><span class="n">ref_j</span><span class="p">]</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> m, "</span>
+                    <span class="sa">f</span><span class="s2">"rope=</span><span class="si">{</span><span class="n">rope</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> m)"</span>
+                <span class="p">)</span>
+            <span class="n">data_vars</span><span class="p">[</span><span class="s2">"tilt_from_pressure"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                <span class="p">(</span><span class="s2">"N_LEVELS"</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">),</span>
+                <span class="n">tilt_p</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"degrees"</span><span class="p">,</span>
+                    <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"Tilt estimated from pressure difference"</span><span class="p">,</span>
+                    <span class="s2">"comment"</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="s2">"arccos(ΔP / rope_length) where ΔP = pressure[i] - pressure[ref] "</span>
+                        <span class="s2">"and rope_length = hab[ref] - hab[i] from mooring YAML; "</span>
+                        <span class="s2">"ref is the nearest instrument ≥10 m above i with valid pressure."</span>
+                    <span class="p">),</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+            <span class="n">data_vars</span><span class="p">[</span><span class="s2">"tilt_pressure_ref_hab"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                <span class="p">(</span><span class="s2">"N_LEVELS"</span><span class="p">,),</span>
+                <span class="n">ref_hab_arr</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"m"</span><span class="p">,</span>
+                    <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"Height above bottom of the pressure reference instrument used for tilt"</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+            <span class="n">data_vars</span><span class="p">[</span><span class="s2">"tilt_pressure_ref_serial"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                <span class="p">(</span><span class="s2">"N_LEVELS"</span><span class="p">,),</span>
+                <span class="n">ref_serial_arr</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"Serial number of the pressure reference instrument used for tilt"</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># noqa: BLE001  — optional derived var; must not abort stack</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  WARNING: could not compute tilt_from_pressure: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="c1"># Coordinate names — exclude these from scalar metadata to avoid name conflicts</span>
+    <span class="n">_coord_names</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"serial"</span><span class="p">,</span> <span class="s2">"hab"</span><span class="p">,</span> <span class="s2">"instrument_type"</span><span class="p">,</span> <span class="s2">"instrument"</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">}</span>
+
+    <span class="c1"># Add scalar metadata — collapse to 0-D when all non-NaN values are identical,</span>
+    <span class="c1"># otherwise store as (N_LEVELS,) with one entry per instrument.</span>
+    <span class="k">for</span> <span class="n">vname</span><span class="p">,</span> <span class="n">values_list</span> <span class="ow">in</span> <span class="n">scalar_meta</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">_coord_names</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">v</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values_list</span><span class="p">],</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">unique_finite</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">arr</span><span class="p">)])</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_finite</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">unique_finite</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_finite</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                <span class="n">data_vars</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">((),</span> <span class="n">val</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">scalar_attrs</span><span class="p">[</span><span class="n">vname</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data_vars</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                    <span class="p">(</span><span class="s2">"N_LEVELS"</span><span class="p">,),</span> <span class="n">arr</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">scalar_attrs</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span>
+                <span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+            <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">""</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values_list</span><span class="p">])</span>
+            <span class="n">unique_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_vals</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">data_vars</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                    <span class="p">(),</span> <span class="n">unique_vals</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">attrs</span><span class="o">=</span><span class="n">scalar_attrs</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data_vars</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                    <span class="p">(</span><span class="s2">"N_LEVELS"</span><span class="p">,),</span> <span class="n">arr</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">scalar_attrs</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span>
+                <span class="p">)</span>
+
+    <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+        <span class="n">data_vars</span><span class="p">,</span>
+        <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">"time"</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                <span class="s2">"time"</span><span class="p">,</span>
+                <span class="n">common_time</span><span class="p">,</span>
+                <span class="p">{</span><span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">,</span> <span class="s2">"axis"</span><span class="p">:</span> <span class="s2">"T"</span><span class="p">,</span> <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">},</span>
+            <span class="p">),</span>
+            <span class="s2">"serial"</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                <span class="s2">"N_LEVELS"</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">serials</span><span class="p">),</span>
+                <span class="p">{</span><span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"instrument serial number"</span><span class="p">},</span>
+            <span class="p">),</span>
+            <span class="s2">"hab"</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                <span class="s2">"N_LEVELS"</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">habs</span><span class="p">),</span>
+                <span class="p">{</span><span class="s2">"units"</span><span class="p">:</span> <span class="s2">"m"</span><span class="p">,</span> <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"height above bottom"</span><span class="p">},</span>
+            <span class="p">),</span>
+            <span class="s2">"instrument_type"</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                <span class="s2">"N_LEVELS"</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">instr_types</span><span class="p">),</span>
+                <span class="p">{</span><span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"instrument type"</span><span class="p">},</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">_lat_str</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">mooring_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"seabed_latitude"</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">mooring_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"deployment_latitude"</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">mooring_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"planned_latitude"</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">mooring_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"latitude"</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="s2">""</span>
+    <span class="p">)</span>
+    <span class="n">_lon_str</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">mooring_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"seabed_longitude"</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">mooring_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"deployment_longitude"</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">mooring_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"planned_longitude"</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">mooring_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"longitude"</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="s2">""</span>
+    <span class="p">)</span>
+    <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">"mooring_name"</span><span class="p">:</span> <span class="n">mooring_name</span><span class="p">,</span>
+            <span class="s2">"waterdepth"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">mooring_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"waterdepth"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)),</span>
+            <span class="s2">"latitude"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">_lat_str</span><span class="p">),</span>
+            <span class="s2">"longitude"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">_lon_str</span><span class="p">),</span>
+            <span class="s2">"deployment_time"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">deploy_time</span><span class="p">),</span>
+            <span class="s2">"recovery_time"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">recover_time</span><span class="p">),</span>
+            <span class="s2">"dt_seconds"</span><span class="p">:</span> <span class="n">dt_seconds</span><span class="p">,</span>
+            <span class="s2">"Conventions"</span><span class="p">:</span> <span class="s2">"CF-1.13"</span><span class="p">,</span>
+            <span class="s2">"history"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Step 1 stack: </span><span class="si">{</span><span class="n">n_instr</span><span class="si">}</span><span class="s2"> instruments onto </span><span class="si">{</span><span class="n">dt_seconds</span><span class="si">}</span><span class="s2">s grid; "</span>
+                <span class="sa">f</span><span class="s2">"fast instruments (dt&lt;=</span><span class="si">{</span><span class="n">dt_seconds</span><span class="si">}</span><span class="s2">s) subsampled (nearest-neighbour in time), "</span>
+                <span class="sa">f</span><span class="s2">"slow instruments interpolated (linear in time)"</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Beam velocities are superseded by ENU components in the stacked file.</span>
+    <span class="n">beam_vel_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">data_vars</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"velocity_beam"</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">beam_vel_vars</span><span class="p">:</span>
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">beam_vel_vars</span><span class="p">)</span>
+    <span class="n">ds_out</span> <span class="o">=</span> <span class="n">drop_all_zero_vars</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="p">[</span><span class="s2">"amplitude_beam"</span><span class="p">,</span> <span class="s2">"analog_input_"</span><span class="p">])</span>
+    <span class="c1"># OceanSITES convention: time is the unlimited (first) dimension.</span>
+    <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"N_LEVELS"</span><span class="p">)</span>
+    <span class="n">ds_out</span> <span class="o">=</span> <span class="n">to_canonical_units</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="n">log_fn</span><span class="o">=</span><span class="nb">print</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="s2">"stack"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">excluded</span><span class="p">:</span>
+        <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"instruments_excluded"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">excluded</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">omitted</span><span class="p">:</span>
+        <span class="c1"># Record the omission in the file so the stack report and the grid</span>
+        <span class="c1"># (which reads this file) inherit it, and summarise it loudly.</span>
+        <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"instruments_omitted"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">omitted</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"  WARNING: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">omitted</span><span class="p">)</span><span class="si">}</span><span class="s2"> instrument(s) omitted from the stack "</span>
+            <span class="sa">f</span><span class="s2">"(recorded in instruments_omitted):"</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">omitted</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    - </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds_out</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_best_stage</span><span class="p">(</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">proc_dir</span><span class="p">:</span> <span class="n">Path</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Read each stackable instrument at stage 3, falling back to stage 2.</span>
+
+<span class="sd">    Returns the datasets keyed by serial and an omission line for each instrument</span>
+<span class="sd">    whose file could not be read.</span>
+<span class="sd">    """</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">mooring</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span>
+    <span class="n">datasets</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">omitted</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">instrument_entries</span><span class="p">(</span><span class="n">mooring</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"stack"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">or</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"hab"</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">serial</span> <span class="o">=</span> <span class="n">_safe_serial</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"serial"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+        <span class="n">instr_type</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"instrument"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">stage_n</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">stage_file</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">instr_type</span><span class="p">,</span> <span class="n">serial</span><span class="p">,</span> <span class="n">stage_n</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">continue</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="n">read_mooring</span><span class="p">(</span>
+                    <span class="n">mooring</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="n">stage_n</span><span class="p">,</span> <span class="n">serials</span><span class="o">=</span><span class="p">[</span><span class="n">serial</span><span class="p">],</span> <span class="n">mooring_dir</span><span class="o">=</span><span class="n">proc_dir</span>
+                <span class="p">)[</span><span class="n">serial</span><span class="p">]</span>
+                <span class="n">datasets</span><span class="p">[</span><span class="n">serial</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: BLE001  — one bad file must not abort the stack</span>
+                <span class="n">reason</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"could not load </span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  ERROR: omitting </span><span class="si">{</span><span class="n">instr_type</span><span class="si">}</span><span class="s2"> s/n </span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2"> — </span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">omitted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">instr_type</span><span class="si">}</span><span class="s2"> s/n </span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+            <span class="k">break</span>
+    <span class="k">return</span> <span class="n">datasets</span><span class="p">,</span> <span class="n">omitted</span>
+
+
+<div class="viewcode-block" id="MooringStacker">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.stack.MooringStacker">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MooringStacker</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Step 1: stack all instruments onto a common time axis → ``_stack.nc``."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">proc_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Resample all instruments from a mooring onto a common time axis.</span>
+
+<span class="sd">        Reads ``{mooring}_{serial}_stage3.nc`` (or ``_stage2.nc`` as fallback) for</span>
+<span class="sd">        every instrument listed in the mooring YAML, resamples each to a uniform</span>
+<span class="sd">        sampling interval, and writes a single multi-instrument file</span>
+<span class="sd">        ``{mooring}_stack.nc`` in the mooring proc directory.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        proc_dir : str</span>
+<span class="sd">            Cruise-level processed output directory. The pipeline appends</span>
+<span class="sd">            ``/{mooring}/`` internally (see :func:`oceanarray.paths.mooring_proc_dir`).</span>
+
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_proc_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_proc_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mooring_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the mooring-level proc directory."""</span>
+        <span class="k">return</span> <span class="n">paths</span><span class="o">.</span><span class="n">mooring_proc_dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proc_dir</span><span class="p">,</span> <span class="n">mooring_name</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_rel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return a short display path relative to proc_dir."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proc_dir</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proc_dir</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
+
+<div class="viewcode-block" id="MooringStacker.stack">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.stack.MooringStacker.stack">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stack</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">mooring_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">dt_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span>
+        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Stack all processed instruments for *mooring_name* onto a common time grid.</span>
+
+<span class="sd">        Reads ``_stage3.nc`` (falling back to ``_stage2.nc``) for every instrument</span>
+<span class="sd">        listed in the mooring YAML, resamples each to *dt_seconds* resolution, and</span>
+<span class="sd">        writes ``{mooring}_stack.nc`` under the mooring proc directory.</span>
+
+<span class="sd">        Returns True on success; False if no instruments could be stacked, or if any</span>
+<span class="sd">        instrument was omitted (the partial stack is still written).</span>
+<span class="sd">        """</span>
+        <span class="n">proc_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_proc_dir</span><span class="p">(</span><span class="n">mooring_name</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">proc_dir_exists</span> <span class="o">=</span> <span class="n">proc_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TimeoutError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"ERROR: Cannot access data drive — is it connected?"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"       Path: </span><span class="si">{</span><span class="n">proc_dir</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"       (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">proc_dir_exists</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR: Processing directory not found: </span><span class="si">{</span><span class="n">proc_dir</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">output_path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">product_file</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">,</span> <span class="n">mooring_name</span><span class="p">,</span> <span class="s2">"stack"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">output_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force</span><span class="p">:</span>
+            <span class="n">_status</span><span class="p">(</span><span class="s2">"skip"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rel</span><span class="p">(</span><span class="n">output_path</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="n">config_file</span> <span class="o">=</span> <span class="n">proc_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mooring_name</span><span class="si">}</span><span class="s2">.mooring.yaml"</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">config_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR: Config not found: </span><span class="si">{</span><span class="n">config_file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">mooring_config</span> <span class="o">=</span> <span class="n">_mooring</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+        <span class="n">datasets</span><span class="p">,</span> <span class="n">read_omitted</span> <span class="o">=</span> <span class="n">_read_best_stage</span><span class="p">(</span><span class="n">mooring_config</span><span class="p">,</span> <span class="n">proc_dir</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ds_out</span> <span class="o">=</span> <span class="n">stack</span><span class="p">(</span>
+                <span class="n">datasets</span><span class="p">,</span> <span class="n">mooring_config</span><span class="p">,</span> <span class="n">dt_seconds</span><span class="o">=</span><span class="n">dt_seconds</span><span class="p">,</span> <span class="n">omitted</span><span class="o">=</span><span class="n">read_omitted</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">MooringError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"deployment_time"</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="k">raise</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">write</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">_status</span><span class="p">(</span><span class="s2">"file"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rel</span><span class="p">(</span><span class="n">output_path</span><span class="p">))</span>
+        <span class="c1"># Return False when anything was omitted so the CLI exits 1 ("something</span>
+        <span class="c1"># failed") even though the partial stack file was written; process() only</span>
+        <span class="c1"># skips the grid stage when no stack file exists, so the grid still runs.</span>
+        <span class="k">return</span> <span class="s2">"instruments_omitted"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

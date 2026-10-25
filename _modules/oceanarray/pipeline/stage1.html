@@ -1,0 +1,1080 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.pipeline.stage1 &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../pipeline.html">oceanarray.pipeline</a></li>
+      <li class="breadcrumb-item active">oceanarray.pipeline.stage1</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.pipeline.stage1</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Stage 1: raw instrument data → CF-NetCDF, faithful to the raw values.</span>
+
+<span class="sd">:func:`stage1` takes raw datasets as :func:`~oceanarray.pipeline.read_mooring.read_mooring`</span>
+<span class="sd">returns them (``stage=None``) and applies stage 1's transforms; it reads and writes no</span>
+<span class="sd">files. :class:`MooringProcessor` reads each instrument's raw file, calls</span>
+<span class="sd">:func:`stage1`, and writes ``&lt;name&gt;_&lt;serial&gt;_stage1.nc``.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">mooring</span> <span class="k">as</span> <span class="n">_mooring</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameters</span> <span class="k">as</span> <span class="n">params</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">paths</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MooringError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_info</span><span class="p">,</span> <span class="n">log_warning</span><span class="p">,</span> <span class="n">with_stage_handlers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_serial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">_stage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.raw_files</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_raw_file</span><span class="p">,</span> <span class="n">resolve_raw_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.read_mooring</span><span class="w"> </span><span class="kn">import</span> <span class="n">join_raw</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.units</span><span class="w"> </span><span class="kn">import</span> <span class="n">UnitsError</span><span class="p">,</span> <span class="n">to_canonical_units</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_status</span><span class="p">,</span>
+    <span class="n">extract_inline_instruments</span><span class="p">,</span>
+    <span class="n">instrument_entries</span><span class="p">,</span>
+    <span class="n">should_skip_regeneration</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.writers</span><span class="w"> </span><span class="kn">import</span> <span class="n">write</span>
+
+<span class="c1"># Suppress noisy INFO/WARNING messages from seasenselib/pycnv.</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">"seasenselib"</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">"seasenselib.pipeline.derivation"</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">"pycnv"</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+
+
+<span class="c1"># Re-export for backward compatibility; canonical definition is in parameters.py.</span>
+<span class="n">ADCP_BIN_DIM</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">ADCP_BIN_DIM</span>
+
+<span class="c1"># Variables and coordinates removed for specific file types.</span>
+<span class="n">VARS_TO_REMOVE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"sbe-cnv"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"potential_temperature"</span><span class="p">,</span> <span class="s2">"julian_days_offset"</span><span class="p">,</span> <span class="s2">"density"</span><span class="p">],</span>
+    <span class="s2">"sbe-ascii"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"potential_temperature"</span><span class="p">,</span> <span class="s2">"julian_days_offset"</span><span class="p">,</span> <span class="s2">"density"</span><span class="p">],</span>
+<span class="p">}</span>
+<span class="n">COORDS_TO_REMOVE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"sbe-cnv"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"depth"</span><span class="p">,</span> <span class="s2">"latitude"</span><span class="p">,</span> <span class="s2">"longitude"</span><span class="p">],</span>
+    <span class="s2">"sbe-ascii"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"depth"</span><span class="p">,</span> <span class="s2">"latitude"</span><span class="p">,</span> <span class="s2">"longitude"</span><span class="p">],</span>
+<span class="p">}</span>
+
+<span class="n">_NORTEK_TYPES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"nortek-raw"</span><span class="p">,</span> <span class="s2">"nortek-ascii"</span><span class="p">,</span> <span class="s2">"nortek-csv"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_log</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Log a stage-1 message, as a warning when it starts with ``WARNING``."""</span>
+    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">message</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"WARNING"</span><span class="p">):</span>
+        <span class="n">log_warning</span><span class="p">(</span><span class="s2">"</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">log_info</span><span class="p">(</span><span class="s2">"</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_conductivity</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Rename the raw SBE CNV conductivity column to ``conductivity``.</span>
+
+<span class="sd">    The raw column name encodes the unit (``cond0S/m`` or ``cond0mS/cm``);</span>
+<span class="sd">    both are NetCDF-illegal.  This fixes only the name and records the unit</span>
+<span class="sd">    in ``units`` (``S/m`` or ``mS/cm``) — the S/m → mS cm-1 ×10 conversion and</span>
+<span class="sd">    the canonical spelling are applied later by</span>
+<span class="sd">    :func:`oceanarray.pipeline.units.to_canonical_units`, the one place units</span>
+<span class="sd">    are normalised.</span>
+<span class="sd">    """</span>
+    <span class="k">for</span> <span class="n">raw_name</span><span class="p">,</span> <span class="n">raw_units</span> <span class="ow">in</span> <span class="p">((</span><span class="s2">"cond0S/m"</span><span class="p">,</span> <span class="s2">"S/m"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"cond0mS/cm"</span><span class="p">,</span> <span class="s2">"mS/cm"</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">raw_name</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">raw_name</span><span class="p">]</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"units"</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw_units</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">raw_name</span><span class="p">)</span>
+            <span class="n">dataset</span><span class="p">[</span><span class="s2">"conductivity"</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+            <span class="k">break</span>
+    <span class="k">return</span> <span class="n">dataset</span>
+
+
+<span class="c1"># Known SBE CNV variable names containing '/' and their CF-compatible replacements.</span>
+<span class="c1"># Keys that are already handled by _normalize_conductivity are excluded.</span>
+<span class="c1"># SBE's ``Mm/Kg`` suffix is *micro*moles per kg (umol kg-1), not millimoles — so</span>
+<span class="c1"># the ``Mm/Kg`` columns map to the per-mass ``dissolved_oxygen`` (canonical</span>
+<span class="c1"># umol kg-1) with no scaling, and the ``ML/L`` columns (mL/L, per volume) map to</span>
+<span class="c1"># the separate ``dissolved_oxygen_ml_l`` family (canonical mL L-1); routing mL/L</span>
+<span class="c1"># onto the per-mass variable would mix bases.  Verify the column meanings against</span>
+<span class="c1"># the SBE Data Processing manual before merge.</span>
+<span class="n">_CNV_SLASH_RENAMES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"sbeopoxMm/Kg"</span><span class="p">:</span> <span class="s2">"dissolved_oxygen"</span><span class="p">,</span>  <span class="c1"># SBE63 optode O2, umol/kg</span>
+    <span class="s2">"sbeox0Mm/Kg"</span><span class="p">:</span> <span class="s2">"dissolved_oxygen"</span><span class="p">,</span>  <span class="c1"># SBE43 electrochemical O2, umol/kg</span>
+    <span class="s2">"sbeox0ML/L"</span><span class="p">:</span> <span class="s2">"dissolved_oxygen_ml_l"</span><span class="p">,</span>  <span class="c1"># SBE43 electrochemical O2, mL/L</span>
+    <span class="s2">"sbeox1Mm/Kg"</span><span class="p">:</span> <span class="s2">"dissolved_oxygen_2"</span><span class="p">,</span>
+    <span class="s2">"sbeox1ML/L"</span><span class="p">:</span> <span class="s2">"dissolved_oxygen_ml_l_2"</span><span class="p">,</span>
+    <span class="s2">"oxsatMm/Kg"</span><span class="p">:</span> <span class="s2">"oxygen_saturation"</span><span class="p">,</span>
+    <span class="s2">"oxsatML/L"</span><span class="p">:</span> <span class="s2">"oxygen_saturation"</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_sanitize_slash_vars</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Rename known SBE slash-named variables and warn about any remaining ones."""</span>
+    <span class="n">rename_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">old</span><span class="p">,</span> <span class="n">new</span> <span class="ow">in</span> <span class="n">_CNV_SLASH_RENAMES</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">old</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+            <span class="c1"># Avoid clobbering a variable that already exists with the target name</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">new</span>
+            <span class="k">if</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+                <span class="n">target</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">new</span><span class="si">}</span><span class="s2">_raw"</span>
+            <span class="n">rename_map</span><span class="p">[</span><span class="n">old</span><span class="p">]</span> <span class="o">=</span> <span class="n">target</span>
+
+    <span class="k">if</span> <span class="n">rename_map</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">rename_vars</span><span class="p">(</span><span class="n">rename_map</span><span class="p">)</span>
+
+    <span class="c1"># Fallback: any remaining vars with '/' are not safe for NetCDF — replace with '_per_'</span>
+    <span class="n">remaining</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data_vars</span> <span class="k">if</span> <span class="s2">"/"</span> <span class="ow">in</span> <span class="n">v</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">remaining</span><span class="p">:</span>
+        <span class="n">fallback</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="s2">"_per_"</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">remaining</span><span class="p">}</span>
+        <span class="n">_log</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"WARNING: Unrecognised variable name(s) containing '/': "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">remaining</span><span class="p">)</span><span class="si">}</span><span class="s2"> — sanitising to: "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fallback</span><span class="o">.</span><span class="n">values</span><span class="p">())</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">rename_vars</span><span class="p">(</span><span class="n">fallback</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dataset</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_sensor_var_names</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">instrument_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Rename SENSOR_PRES_{sensor_serial} to SENSOR_PRES_{instrument_serial}.</span>
+
+<span class="sd">    seasenselib names the pressure sensor variable after the pressure sensor's</span>
+<span class="sd">    own serial number (e.g. SENSOR_PRES_2075203), which differs from the</span>
+<span class="sd">    instrument serial (e.g. 7507).  Rename so all three SENSOR_* variables</span>
+<span class="sd">    for one instrument share the same serial suffix.</span>
+<span class="sd">    """</span>
+    <span class="n">instr_serial</span> <span class="o">=</span> <span class="n">safe_serial</span><span class="p">(</span><span class="n">instrument_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"serial"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">instr_serial</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">dataset</span>
+    <span class="n">expected</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"SENSOR_PRES_</span><span class="si">{</span><span class="n">instr_serial</span><span class="si">}</span><span class="s2">"</span>
+    <span class="n">to_rename</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">v</span><span class="p">:</span> <span class="n">expected</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"SENSOR_PRES_"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">!=</span> <span class="n">expected</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">to_rename</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">rename_vars</span><span class="p">(</span><span class="n">to_rename</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dataset</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_apply_units_override</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">instrument_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Replace a variable's units attribute with the one given in the mooring YAML.</span>
+
+<span class="sd">    For a file whose ``units`` attribute is known to be wrong (e.g. conductivity</span>
+<span class="sd">    labelled ``S/m`` with values in mS/cm).  The YAML key is</span>
+<span class="sd">    ``units_override: {variable: units}`` on the instrument; the stated value is</span>
+<span class="sd">    kept in ``units_override_from`` so the correction is visible in the output.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataset : xarray.Dataset</span>
+<span class="sd">        The dataset as read.</span>
+<span class="sd">    instrument_config : dict</span>
+<span class="sd">        The instrument's entry from the mooring YAML.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        *dataset*, with the overridden units.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``units_override`` names a variable the file does not hold.</span>
+<span class="sd">    """</span>
+    <span class="n">overrides</span> <span class="o">=</span> <span class="n">instrument_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"units_override"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">units</span> <span class="ow">in</span> <span class="n">overrides</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"units_override names </span><span class="si">{</span><span class="n">var</span><span class="si">!r}</span><span class="s2">, which the file does not hold "</span>
+                <span class="sa">f</span><span class="s2">"(variables: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)</span><span class="si">}</span><span class="s2">)"</span>
+            <span class="p">)</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+        <span class="n">attrs</span><span class="p">[</span><span class="s2">"units_override_from"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"units"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+        <span class="n">attrs</span><span class="p">[</span><span class="s2">"units"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">units</span><span class="p">)</span>
+        <span class="n">dataset</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="n">attrs</span>
+        <span class="n">_log</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">: units overridden </span><span class="si">{</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units_override_from'</span><span class="p">]</span><span class="si">!r}</span><span class="s2"> -&gt; "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">units</span><span class="si">!r}</span><span class="s2"> (mooring YAML units_override)"</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">dataset</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_value_ranges</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">stated_units</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Refuse a variable whose values contradict its units.</span>
+
+<span class="sd">    After the units pass, the median of each registered variable with a</span>
+<span class="sd">    ``valid_min`` / ``valid_max`` in :data:`parameters.VARIABLES` must fall in</span>
+<span class="sd">    that range.  A median outside it means the stated units are wrong (a file</span>
+<span class="sd">    that says ``S/m`` but holds mS/cm becomes ten times too large).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataset : xarray.Dataset</span>
+<span class="sd">        The dataset after :func:`to_canonical_units`.</span>
+<span class="sd">    stated_units : dict</span>
+<span class="sd">        Each variable's units attribute as it was before the units pass.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    UnitsError</span>
+<span class="sd">        Naming the variable, its stated units and the remedy.</span>
+<span class="sd">    """</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">entry</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">VARIABLES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"valid_min"</span><span class="p">),</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"valid_max"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">lo</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">hi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="n">median</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">lo</span> <span class="o">&lt;=</span> <span class="n">median</span> <span class="o">&lt;=</span> <span class="n">hi</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnitsError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">var</span><span class="si">!r}</span><span class="s2">: median </span><span class="si">{</span><span class="n">median</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">dataset</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'units'</span><span class="p">)</span><span class="si">}</span><span class="s2"> is "</span>
+                <span class="sa">f</span><span class="s2">"outside the valid range [</span><span class="si">{</span><span class="n">lo</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">hi</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">]; the file's units "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">stated_units</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">var</span><span class="p">)</span><span class="si">!r}</span><span class="s2"> look wrong. Set units_override: "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="se">{{</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">: &lt;units&gt;</span><span class="se">}}</span><span class="s2"> on this instrument in the mooring YAML."</span>
+            <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_clean_dataset_variables</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">file_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Remove unwanted variables and coordinates for specific file types.</span>
+
+<span class="sd">    Removals are driven by ``VARS_TO_REMOVE`` and ``COORDS_TO_REMOVE``, which</span>
+<span class="sd">    are only populated for SBE file types (``sbe-cnv``, ``sbe-ascii``).</span>
+<span class="sd">    For Nortek, RBR, and RDI ADCP file types this method is a no-op.</span>
+<span class="sd">    """</span>
+    <span class="c1"># Remove variables</span>
+    <span class="n">vars_to_remove</span> <span class="o">=</span> <span class="n">VARS_TO_REMOVE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file_type</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">vars_to_remove</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+            <span class="n">_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Removing variable: </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+
+    <span class="c1"># Remove coordinates</span>
+    <span class="n">coords_to_remove</span> <span class="o">=</span> <span class="n">COORDS_TO_REMOVE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file_type</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">coords_to_remove</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">coords</span><span class="p">:</span>
+            <span class="n">_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Removing coordinate: </span><span class="si">{</span><span class="n">coord</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dataset</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_global_attributes</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">yaml_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Add global attributes from YAML configuration."""</span>
+    <span class="n">global_attrs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"mooring_name"</span><span class="p">:</span> <span class="n">yaml_data</span><span class="p">[</span><span class="s2">"name"</span><span class="p">],</span>
+        <span class="s2">"waterdepth"</span><span class="p">:</span> <span class="n">yaml_data</span><span class="p">[</span><span class="s2">"waterdepth"</span><span class="p">],</span>
+        <span class="s2">"longitude"</span><span class="p">:</span> <span class="n">yaml_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"longitude"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+        <span class="s2">"latitude"</span><span class="p">:</span> <span class="n">yaml_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"latitude"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+        <span class="s2">"deployment_latitude"</span><span class="p">:</span> <span class="n">yaml_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"deployment_latitude"</span><span class="p">,</span> <span class="s2">"00 00.000 N"</span><span class="p">),</span>
+        <span class="s2">"deployment_longitude"</span><span class="p">:</span> <span class="n">yaml_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"deployment_longitude"</span><span class="p">,</span> <span class="s2">"000 00.000 W"</span><span class="p">),</span>
+        <span class="s2">"deployment_time"</span><span class="p">:</span> <span class="n">yaml_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"deployment_time"</span><span class="p">,</span> <span class="s2">"YYYY-mm-ddTHH:MM:ss"</span><span class="p">),</span>
+        <span class="s2">"seabed_latitude"</span><span class="p">:</span> <span class="n">yaml_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"seabed_latitude"</span><span class="p">,</span> <span class="s2">"00 00.000 N"</span><span class="p">),</span>
+        <span class="s2">"seabed_longitude"</span><span class="p">:</span> <span class="n">yaml_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"seabed_longitude"</span><span class="p">,</span> <span class="s2">"000 00.000 W"</span><span class="p">),</span>
+        <span class="s2">"recovery_time"</span><span class="p">:</span> <span class="n">yaml_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"recovery_time"</span><span class="p">,</span> <span class="s2">"YYYY-mm-ddTHH:MM:ss"</span><span class="p">),</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">global_attrs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">return</span> <span class="n">dataset</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_instrument_metadata</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">instrument_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">yaml_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Add instrument-specific metadata to dataset."""</span>
+    <span class="n">dataset</span><span class="p">[</span><span class="s2">"serial_number"</span><span class="p">]</span> <span class="o">=</span> <span class="n">instrument_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"serial"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># Support both 'depth' (absolute) and 'hab' (height above bottom)</span>
+    <span class="k">if</span> <span class="s2">"depth"</span> <span class="ow">in</span> <span class="n">instrument_config</span><span class="p">:</span>
+        <span class="n">depth</span> <span class="o">=</span> <span class="n">instrument_config</span><span class="p">[</span><span class="s2">"depth"</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="s2">"hab"</span> <span class="ow">in</span> <span class="n">instrument_config</span><span class="p">:</span>
+        <span class="n">waterdepth</span> <span class="o">=</span> <span class="n">yaml_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"waterdepth"</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span>
+        <span class="n">depth</span> <span class="o">=</span> <span class="n">waterdepth</span> <span class="o">-</span> <span class="n">instrument_config</span><span class="p">[</span><span class="s2">"hab"</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">depth</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">dataset</span><span class="p">[</span><span class="s2">"InstrDepth"</span><span class="p">]</span> <span class="o">=</span> <span class="n">depth</span>
+    <span class="n">dataset</span><span class="p">[</span><span class="s2">"instrument"</span><span class="p">]</span> <span class="o">=</span> <span class="n">instrument_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"instrument"</span><span class="p">,</span> <span class="s2">"Unknown"</span><span class="p">)</span>
+    <span class="n">dataset</span><span class="p">[</span><span class="s2">"clock_offset"</span><span class="p">]</span> <span class="o">=</span> <span class="n">instrument_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"clock_offset"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">dataset</span><span class="p">[</span><span class="s2">"clock_offset"</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"units"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"s"</span>
+    <span class="n">dataset</span><span class="p">[</span><span class="s2">"start_time"</span><span class="p">]</span> <span class="o">=</span> <span class="n">instrument_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="s2">"start_time"</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"deployment_time"</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">dataset</span><span class="p">[</span><span class="s2">"end_time"</span><span class="p">]</span> <span class="o">=</span> <span class="n">instrument_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="s2">"end_time"</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"recovery_time"</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dataset</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_rdi_raw</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">instrument_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Normalise the dataset produced by the ``rdi-raw`` seasenselib reader.</span>
+
+<span class="sd">    The rdi-raw reader (via mhkit/dolfyn) returns:</span>
+
+<span class="sd">    - ``vel(dir, range, time)`` with ``dir=['E','N','U','err']`` — already in</span>
+<span class="sd">      Earth frame because ``coord_sys=earth`` was set in the RDI configuration.</span>
+<span class="sd">      However, ``magnetic_var_deg=0.0`` is common, meaning **no magnetic</span>
+<span class="sd">      declination was applied**; stage3 must apply the ppigrf correction.</span>
+<span class="sd">    - ``amp``, ``corr``, ``prcnt_gd`` with dims ``(beam, range, time)``.</span>
+<span class="sd">    - ``beam2inst_orientmat(x1, x2)`` — static beam→instrument rotation matrix.</span>
+
+<span class="sd">    Steps applied:</span>
+
+<span class="sd">    1. Rename the ``range`` spatial dimension to ``ADCP_BIN_DIM`` (``"N_BINS"``).</span>
+<span class="sd">       The ``range`` coordinate (metres above transducer) is preserved under the</span>
+<span class="sd">       new dimension name.</span>
+<span class="sd">    2. Split ``vel`` into ``east_velocity``, ``north_velocity``, ``up_velocity``,</span>
+<span class="sd">       and ``error_velocity``, each with dims ``(time, N_BINS)``.  Drops ``vel``</span>
+<span class="sd">       and the ``dir`` coordinate.</span>
+<span class="sd">    3. Transpose quality variables to ``(time, N_BINS, beam)``.</span>
+<span class="sd">    4. Flatten ``beam2inst_orientmat`` to global attrs ``beam2inst_M{i}{j}``</span>
+<span class="sd">       and drop the variable and its ``x1``/``x2`` dimension coordinates.</span>
+<span class="sd">    5. Transpose ``orientmat`` to ``(time, earth, inst)`` (time-first).</span>
+<span class="sd">    6. Extract instrument metadata from the ``raw_metadata`` JSON blob:</span>
+<span class="sd">       cell size, blanking distance, beam angle, pings per ensemble, and</span>
+<span class="sd">       ``instrument_magnetic_variation_deg``.</span>
+<span class="sd">    7. Set ``coordinate_system = "ENU"``.</span>
+<span class="sd">    8. Store ``orientation_instrument`` from the raw file and</span>
+<span class="sd">       ``orientation_yaml`` from the YAML ``orientation`` key (if present);</span>
+<span class="sd">       emit a WARNING if they disagree — a correction will be needed in stage3.</span>
+
+<span class="sd">    This method is faithful to the raw data: no values are modified or removed.</span>
+<span class="sd">    Pressure overflow values and other sensor artefacts are preserved as-is;</span>
+<span class="sd">    flagging is deferred to stage3.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dataset: Dataset as returned by ``seasenselib.read(..., file_type="rdi-raw")``.</span>
+<span class="sd">        instrument_config: Per-instrument YAML configuration dict.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        Normalised dataset ready for metadata attachment and NetCDF writing.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+    <span class="c1"># 1. Rename the spatial bin dimension: range → N_BINS</span>
+    <span class="k">if</span> <span class="s2">"range"</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">rename_dims</span><span class="p">({</span><span class="s2">"range"</span><span class="p">:</span> <span class="n">ADCP_BIN_DIM</span><span class="p">})</span>
+
+    <span class="c1"># 2. Split vel(dir, N_BINS, time) into named components (time, N_BINS)</span>
+    <span class="n">_DIR_MAP</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"E"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"east_velocity"</span><span class="p">,</span>
+            <span class="s2">"East velocity (magnetic ENU; declination correction not applied)"</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="s2">"N"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"north_velocity"</span><span class="p">,</span>
+            <span class="s2">"North velocity (magnetic ENU; declination correction not applied)"</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="s2">"U"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"up_velocity"</span><span class="p">,</span> <span class="s2">"Up velocity"</span><span class="p">),</span>
+        <span class="s2">"err"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"error_velocity"</span><span class="p">,</span> <span class="s2">"Error velocity"</span><span class="p">),</span>
+    <span class="p">}</span>
+    <span class="n">_enu_extracted</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="s2">"vel"</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">vel</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">"vel"</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">dir_label</span><span class="p">,</span> <span class="p">(</span><span class="n">var_name</span><span class="p">,</span> <span class="n">long_name</span><span class="p">)</span> <span class="ow">in</span> <span class="n">_DIR_MAP</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">dir_label</span> <span class="ow">in</span> <span class="n">vel</span><span class="o">.</span><span class="n">dir</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+                <span class="n">component</span> <span class="o">=</span> <span class="n">vel</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="n">dir_label</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">ADCP_BIN_DIM</span><span class="p">)</span>
+                <span class="n">component</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">"units"</span><span class="p">:</span> <span class="s2">"m s-1"</span><span class="p">,</span> <span class="s2">"long_name"</span><span class="p">:</span> <span class="n">long_name</span><span class="p">})</span>
+                <span class="n">dataset</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">component</span>
+                <span class="n">_enu_extracted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">var_name</span><span class="p">)</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="s2">"vel"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">"dir"</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">coords</span><span class="p">:</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="s2">"dir"</span><span class="p">)</span>
+
+    <span class="c1"># 3. Rename dolfyn quality variable names to oceanarray standard names,</span>
+    <span class="c1">#    transpose to (time, N_BINS, beam), and set long_name.</span>
+    <span class="n">_QUAL_RENAME</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"amp"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"amplitude"</span><span class="p">,</span> <span class="s2">"Acoustic signal amplitude"</span><span class="p">),</span>
+        <span class="s2">"corr"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"correlation"</span><span class="p">,</span> <span class="s2">"Acoustic signal correlation"</span><span class="p">),</span>
+        <span class="s2">"prcnt_gd"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"percent_good"</span><span class="p">,</span> <span class="s2">"Percent good"</span><span class="p">),</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">dolfyn_name</span><span class="p">,</span> <span class="p">(</span><span class="n">std_name</span><span class="p">,</span> <span class="n">long_name</span><span class="p">)</span> <span class="ow">in</span> <span class="n">_QUAL_RENAME</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">dolfyn_name</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+            <span class="n">da</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">dolfyn_name</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">ADCP_BIN_DIM</span><span class="p">,</span> <span class="s2">"beam"</span><span class="p">)</span>
+            <span class="n">da</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"long_name"</span><span class="p">,</span> <span class="n">long_name</span><span class="p">)</span>
+            <span class="n">dataset</span><span class="p">[</span><span class="n">std_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">da</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">dolfyn_name</span><span class="p">)</span>
+
+    <span class="c1"># Rename c_sound → speed_of_sound (matches Aquadopp convention)</span>
+    <span class="k">if</span> <span class="s2">"c_sound"</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">rename_vars</span><span class="p">({</span><span class="s2">"c_sound"</span><span class="p">:</span> <span class="s2">"speed_of_sound"</span><span class="p">})</span>
+
+    <span class="c1"># 4. Store beam2inst rotation matrix as global attrs; drop variable + dim coords</span>
+    <span class="k">if</span> <span class="s2">"beam2inst_orientmat"</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">mat</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">"beam2inst_orientmat"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">_j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="sa">f</span><span class="s2">"beam2inst_M</span><span class="si">{</span><span class="n">_i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}{</span><span class="n">_j</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">mat</span><span class="p">[</span><span class="n">_i</span><span class="p">,</span> <span class="n">_j</span><span class="p">])</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="s2">"beam2inst_orientmat"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_dim_coord</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"x1"</span><span class="p">,</span> <span class="s2">"x2"</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">_dim_coord</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">coords</span><span class="p">:</span>
+                <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">_dim_coord</span><span class="p">)</span>
+
+    <span class="c1"># 5. Transpose orientmat to (time, earth, inst)</span>
+    <span class="k">if</span> <span class="s2">"orientmat"</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">dataset</span><span class="p">[</span><span class="s2">"orientmat"</span><span class="p">]</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">"orientmat"</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"earth"</span><span class="p">,</span> <span class="s2">"inst"</span><span class="p">)</span>
+
+    <span class="c1"># 6. Extract instrument metadata from the raw_metadata JSON blob</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">_raw_meta</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"raw_metadata"</span><span class="p">,</span> <span class="s2">"</span><span class="si">{}</span><span class="s2">"</span><span class="p">))</span>
+        <span class="n">_ga</span> <span class="o">=</span> <span class="n">_raw_meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"blocks"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"other"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"global_attributes"</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">for</span> <span class="n">_raw_key</span><span class="p">,</span> <span class="n">_attr_name</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s2">"cell_size"</span><span class="p">,</span> <span class="s2">"cell_size_m"</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"blank_dist"</span><span class="p">,</span> <span class="s2">"blanking_distance_m"</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"beam_angle"</span><span class="p">,</span> <span class="s2">"beam_angle_deg"</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"n_cells"</span><span class="p">,</span> <span class="s2">"n_cells"</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"pings_per_ensemble"</span><span class="p">,</span> <span class="s2">"n_pings_per_ensemble"</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"carrier_freq"</span><span class="p">,</span> <span class="s2">"carrier_freq_khz"</span><span class="p">),</span>
+            <span class="c1"># Recording-time coordinate frame and tilt bin-mapping (RDI EX command).</span>
+            <span class="c1"># The Stage-3 ADCP bin-pressure tilt correction reads these: earth + bin</span>
+            <span class="c1"># mapping means the firmware already tilt-placed the bins, so it must NOT</span>
+            <span class="c1"># apply cos(tilt) again (see compute_adcp_bin_pressure).</span>
+            <span class="p">(</span><span class="s2">"coord_sys"</span><span class="p">,</span> <span class="s2">"firmware_coordinate_system"</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"bin_mapping"</span><span class="p">,</span> <span class="s2">"firmware_bin_mapping"</span><span class="p">),</span>
+        <span class="p">]:</span>
+            <span class="k">if</span> <span class="n">_raw_key</span> <span class="ow">in</span> <span class="n">_ga</span><span class="p">:</span>
+                <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">_attr_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_ga</span><span class="p">[</span><span class="n">_raw_key</span><span class="p">]</span>
+        <span class="n">_mag_var</span> <span class="o">=</span> <span class="n">_ga</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"magnetic_var_deg"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">_mag_var</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"instrument_magnetic_variation_deg"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">_mag_var</span><span class="p">)</span>
+        <span class="n">_orient_raw</span> <span class="o">=</span> <span class="n">_ga</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"orientation"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">_orient_raw</span><span class="p">:</span>
+            <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"orientation_instrument"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">_orient_raw</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 — raw_metadata absent or malformed; proceed without</span>
+        <span class="k">pass</span>
+
+    <span class="c1"># 7. Set coordinate system — only mark ENU if at least one ENU component was</span>
+    <span class="c1">#    extracted.  If the RDI was configured in beam or instrument coords dolfyn</span>
+    <span class="c1">#    uses different dir labels and _DIR_MAP matches nothing; calling the result</span>
+    <span class="c1">#    "ENU" would be wrong and would confuse stage3.</span>
+    <span class="k">if</span> <span class="n">_enu_extracted</span><span class="p">:</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"coordinate_system"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"ENU"</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"coordinate_system"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"UNK"</span>
+        <span class="n">_log</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"  WARNING: _normalize_rdi_raw extracted no ENU velocity components "</span>
+            <span class="sa">f</span><span class="s2">"for </span><span class="si">{</span><span class="n">instrument_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'serial'</span><span class="p">,</span><span class="w"> </span><span class="s1">'UNKNOWN'</span><span class="p">)</span><span class="si">}</span><span class="s2">.  "</span>
+            <span class="sa">f</span><span class="s2">"The RDI file may use beam or instrument coordinates rather than "</span>
+            <span class="sa">f</span><span class="s2">"earth frame.  'coordinate_system' set to 'UNK'; stage3 will not "</span>
+            <span class="sa">f</span><span class="s2">"apply beam→ENU rotation.  Re-process after converting to earth frame."</span>
+        <span class="p">)</span>
+
+    <span class="c1"># 8. Store YAML orientation and warn on mismatch with raw file</span>
+    <span class="n">orientation_yaml</span> <span class="o">=</span> <span class="n">instrument_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"orientation"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">orientation_yaml</span><span class="p">:</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"orientation_yaml"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">orientation_yaml</span><span class="p">)</span>
+    <span class="n">_orient_instrument</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"orientation_instrument"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">orientation_yaml</span>
+        <span class="ow">and</span> <span class="n">_orient_instrument</span>
+        <span class="ow">and</span> <span class="n">orientation_yaml</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="n">_orient_instrument</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="p">):</span>
+        <span class="n">_log</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"WARNING: ADCP orientation mismatch — raw file says "</span>
+            <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">_orient_instrument</span><span class="si">}</span><span class="s2">' but YAML says '</span><span class="si">{</span><span class="n">orientation_yaml</span><span class="si">}</span><span class="s2">'. "</span>
+            <span class="sa">f</span><span class="s2">"Velocity signs and beam geometry may be incorrect. "</span>
+            <span class="sa">f</span><span class="s2">"A correction must be applied in stage3."</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dataset</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_apply_nortek_xyz</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Rotate Nortek BEAM velocities to the instrument XYZ frame with the header's T matrix.</span>
+
+<span class="sd">    Applies when the raw read recorded a transformation matrix (``nortek_T_M11`` …)</span>
+<span class="sd">    and the instrument reports in BEAM coordinates. ``velocity_x/y/z`` are added and</span>
+<span class="sd">    the beam velocities kept for verification; stage 3 then skips BEAM→XYZ. A</span>
+<span class="sd">    downward-pointing instrument (``nortek_pointing_down``) flips rows 2 and 3.</span>
+<span class="sd">    """</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"nortek_T_M</span><span class="si">{</span><span class="n">r</span><span class="si">}{</span><span class="n">c</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">dataset</span>
+    <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"coordinate_system"</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">"BEAM"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">dataset</span>
+    <span class="k">if</span> <span class="s2">"velocity_beam1"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">dataset</span>
+    <span class="n">t_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="sa">f</span><span class="s2">"nortek_T_M</span><span class="si">{</span><span class="n">r</span><span class="si">}{</span><span class="n">c</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]</span>
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="p">],</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"nortek_pointing_down"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"True"</span><span class="p">:</span>
+        <span class="n">t_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="o">-</span><span class="n">t_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">t_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="o">-</span><span class="n">t_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">b1</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">"velocity_beam1"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">b2</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">"velocity_beam2"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">b3</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">"velocity_beam3"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">b1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">b2</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">b3</span><span class="p">)</span>
+    <span class="n">vx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">b1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">vy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">b1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">vz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">b1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">valid</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">xyz</span> <span class="o">=</span> <span class="n">t_matrix</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">b1</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span> <span class="n">b2</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span> <span class="n">b3</span><span class="p">[</span><span class="n">valid</span><span class="p">]])</span>
+        <span class="n">vx</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span> <span class="n">vy</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span> <span class="n">vz</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">xyz</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xyz</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">xyz</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">tdim</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">"velocity_beam1"</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">vel_attrs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"units"</span><span class="p">:</span> <span class="s2">"m s-1"</span><span class="p">}</span>
+    <span class="n">dataset</span><span class="p">[</span><span class="s2">"velocity_x"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+        <span class="n">tdim</span><span class="p">,</span> <span class="n">vx</span><span class="p">,</span> <span class="p">{</span><span class="o">**</span><span class="n">vel_attrs</span><span class="p">,</span> <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"X velocity (instrument XYZ frame)"</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">dataset</span><span class="p">[</span><span class="s2">"velocity_y"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+        <span class="n">tdim</span><span class="p">,</span> <span class="n">vy</span><span class="p">,</span> <span class="p">{</span><span class="o">**</span><span class="n">vel_attrs</span><span class="p">,</span> <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"Y velocity (instrument XYZ frame)"</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">dataset</span><span class="p">[</span><span class="s2">"velocity_z"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+        <span class="n">tdim</span><span class="p">,</span> <span class="n">vz</span><span class="p">,</span> <span class="p">{</span><span class="o">**</span><span class="n">vel_attrs</span><span class="p">,</span> <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"Z velocity (instrument XYZ frame)"</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"coordinate_system"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"XYZ"</span>
+    <span class="k">return</span> <span class="n">dataset</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_apply_analog_and_unit_hygiene</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">entry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Label analog channels from the entry, drop placeholder units, and drop duplicate attrs."""</span>
+    <span class="c1"># Enrich analog channel attributes from YAML analog_input_N / analog_input_N_units keys.</span>
+    <span class="c1"># seasenselib outputs these as "analog_input_1" / "analog_input_2".</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="n">vname</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"analog_input_</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">if</span> <span class="n">vname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">long_name</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"analog_input_</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"analog_input_</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">_units"</span><span class="p">)</span>
+        <span class="n">sn</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"analog_input_</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">_serial_number"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">long_name</span><span class="p">:</span>
+            <span class="n">dataset</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"long_name"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">long_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">units</span><span class="p">:</span>
+            <span class="n">dataset</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"units"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">units</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sn</span><span class="p">:</span>
+            <span class="n">dataset</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"sensor_serial_number"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">sn</span><span class="p">)</span>
+
+    <span class="c1"># Strip placeholder units written by the RSK reader when a channel's units</span>
+    <span class="c1"># field is absent from the instrument database; callers that need units must</span>
+    <span class="c1"># verify against the sensor spec.</span>
+    <span class="n">bad_units</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"MISSING"</span><span class="p">,</span> <span class="s2">"missing"</span><span class="p">,</span> <span class="s2">""</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">vname</span><span class="p">,</span> <span class="n">da</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"units"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">units</span> <span class="ow">in</span> <span class="n">bad_units</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">dataset</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"units"</span><span class="p">]</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Variable '</span><span class="si">{</span><span class="n">vname</span><span class="si">}</span><span class="s2">': units attr was '</span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s2">' (placeholder from "</span>
+                <span class="sa">f</span><span class="s2">"instrument file) and has been removed.  Verify the sensor "</span>
+                <span class="sa">f</span><span class="s2">"specification and set units manually if required."</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
+    <span class="c1"># Turbidity often has no units at all (Seapoint: no units in the RSK table).</span>
+    <span class="k">if</span> <span class="s2">"turbidity"</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data_vars</span> <span class="ow">and</span> <span class="s2">"units"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">"turbidity"</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">"Variable 'turbidity' has no units attribute.  Typical units are "</span>
+            <span class="s2">"'FTU' (Seapoint) or 'NTU' (WET Labs).  Verify the sensor spec and "</span>
+            <span class="s2">"add a units attribute to the output file if required."</span><span class="p">,</span>
+            <span class="ne">UserWarning</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># seasenselib attrs that duplicate our own provenance fields.</span>
+    <span class="k">for</span> <span class="n">redundant</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"processor_level"</span><span class="p">,</span> <span class="s2">"source_format_name"</span><span class="p">):</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">redundant</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dataset</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_stage1_instrument</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">entry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">mooring</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Apply stage 1's transforms to one instrument's raw dataset, in the order they run."""</span>
+    <span class="n">file_type</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"file_type"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"file_type"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s2">"rdi-raw"</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">_normalize_rdi_raw</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">file_type</span> <span class="ow">in</span> <span class="n">_NORTEK_TYPES</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">_apply_nortek_xyz</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">_normalize_conductivity</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">_sanitize_slash_vars</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+    <span class="c1"># The SBE hex reader outputs ODO oxygen as 'oxygen' (umol/L) and 'oxygen_ml_l'</span>
+    <span class="c1"># (mL/L); rename to the canonical names used by every file type.</span>
+    <span class="k">if</span> <span class="s2">"oxygen"</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">"oxygen"</span><span class="p">:</span> <span class="s2">"dissolved_oxygen"</span><span class="p">})</span>
+    <span class="k">if</span> <span class="s2">"oxygen_ml_l"</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">"oxygen_ml_l"</span><span class="p">:</span> <span class="s2">"dissolved_oxygen_ml_l"</span><span class="p">})</span>
+    <span class="c1"># SBE ascii/hex temperature is ITS-90; the ASCII reader does not record it.</span>
+    <span class="k">if</span> <span class="n">file_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"sbe-ascii"</span><span class="p">,</span> <span class="s2">"sbe-hex"</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">"temperature"</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">dataset</span><span class="p">[</span><span class="s2">"temperature"</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"scale"</span><span class="p">,</span> <span class="s2">"ITS-90"</span><span class="p">)</span>
+
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">_normalize_sensor_var_names</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">_clean_dataset_variables</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">file_type</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">_add_global_attributes</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">mooring</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">_add_instrument_metadata</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">mooring</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">_apply_analog_and_unit_hygiene</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+
+    <span class="c1"># A file whose units attribute is known to be wrong is corrected from the</span>
+    <span class="c1"># mooring YAML (``units_override``) before the units pass reads it.</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">_apply_units_override</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+    <span class="n">stated_units</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">dataset</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"units"</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
+    <span class="c1"># Raises UnitsError on an unknown or missing unit for a registered variable.</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">to_canonical_units</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">log_fn</span><span class="o">=</span><span class="n">_log</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># An imported file's units are the originator's word; check the values agree.</span>
+    <span class="k">if</span> <span class="n">file_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"oceansites"</span><span class="p">,</span> <span class="s2">"rodb"</span><span class="p">):</span>
+        <span class="n">_check_value_ranges</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">stated_units</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dataset</span>
+
+
+<div class="viewcode-block" id="stage1">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.stage1.stage1">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">stage1</span><span class="p">(</span>
+    <span class="n">datasets</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span> <span class="n">mooring</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Turn a mooring's raw datasets into stage-1 datasets.</span>
+
+<span class="sd">    Pure function over datasets: no file I/O. Normalises names and units, adds the</span>
+<span class="sd">    mooring and instrument metadata, rotates Nortek BEAM velocities to XYZ when the</span>
+<span class="sd">    header's matrix is known, and marks each result ``processing_stage = 1``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    datasets : dict of str to xarray.Dataset</span>
+<span class="sd">        Raw datasets keyed by cleaned serial, as ``read_mooring(mooring,</span>
+<span class="sd">        stage=None, raw_dir=...)`` returns them.</span>
+<span class="sd">    mooring : dict</span>
+<span class="sd">        The loaded mooring description.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict of str to xarray.Dataset</span>
+<span class="sd">        Stage-1 datasets keyed by serial.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    oceanarray.pipeline._stage.StageError</span>
+<span class="sd">        If a dataset already carries a ``processing_stage`` marker.</span>
+<span class="sd">    oceanarray.exceptions.MooringError</span>
+<span class="sd">        If a dataset's serial has no entry in the description.</span>
+<span class="sd">    oceanarray.pipeline.units.UnitsError</span>
+<span class="sd">        If a registered variable has an unknown or missing unit.</span>
+<span class="sd">    """</span>
+    <span class="n">by_serial</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">safe_serial</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"serial"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)):</span> <span class="n">e</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">instrument_entries</span><span class="p">(</span><span class="n">mooring</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">serial</span><span class="p">,</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">datasets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">marker</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_stage</span><span class="o">.</span><span class="n">STAGE_ATTR</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">marker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">_stage</span><span class="o">.</span><span class="n">StageError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"stage 1 expects raw datasets; </span><span class="si">{</span><span class="n">serial</span><span class="si">!r}</span><span class="s2"> is already stage "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">marker</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
+            <span class="p">)</span>
+        <span class="n">entry</span> <span class="o">=</span> <span class="n">by_serial</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">serial</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">entry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mooring</span><span class="p">[</span><span class="s1">'name'</span><span class="p">]</span><span class="si">}</span><span class="s2">: dataset </span><span class="si">{</span><span class="n">serial</span><span class="si">!r}</span><span class="s2"> has no entry in the mooring "</span>
+                <span class="s2">"description; stage 1 needs the entry's metadata."</span>
+            <span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">_stage1_instrument</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">entry</span><span class="p">,</span> <span class="n">mooring</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">serial</span><span class="p">]</span> <span class="o">=</span> <span class="n">_stage</span><span class="o">.</span><span class="n">stamp</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<div class="viewcode-block" id="MooringProcessor">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.stage1.MooringProcessor">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MooringProcessor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Stage 1 for a mooring: read each raw file, apply :func:`stage1`, write."""</span>
+
+    <span class="c1"># Supported format keys, single-sourced from ``parameters.ALL_FILE_TYPES`` so the</span>
+    <span class="c1"># stage1 gate and the YAML validator cannot drift.</span>
+    <span class="n">SUPPORTED_FILE_TYPES</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">ALL_FILE_TYPES</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">raw_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">proc_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Initialize the processor with cruise-level raw and proc directories.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        raw_dir : str</span>
+<span class="sd">            Cruise-level raw data directory. The pipeline appends ``/{mooring}/``</span>
+<span class="sd">            internally (see :func:`oceanarray.paths.raw_mooring_dir`).</span>
+<span class="sd">        proc_dir : str</span>
+<span class="sd">            Cruise-level processed output directory. The pipeline appends</span>
+<span class="sd">            ``/{mooring}/`` internally (see :func:`oceanarray.paths.mooring_proc_dir`).</span>
+
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_raw_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">raw_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_proc_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_logging</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mooring_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Set up the stage log, and send the readers' library logs to it only."""</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">attach_stage_handlers</span><span class="p">,</span> <span class="n">setup_stage_logging</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span> <span class="o">=</span> <span class="n">setup_stage_logging</span><span class="p">(</span><span class="n">mooring_name</span><span class="p">,</span> <span class="s2">"stage1"</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_handlers</span> <span class="o">=</span> <span class="n">attach_stage_handlers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_file</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">lib_logger_name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"seasenselib"</span><span class="p">,</span> <span class="s2">"pycnv"</span><span class="p">):</span>
+            <span class="n">lib_log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">lib_logger_name</span><span class="p">)</span>
+            <span class="n">lib_log</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+            <span class="n">lib_log</span><span class="o">.</span><span class="n">propagate</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
+                <span class="nb">isinstance</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">h</span><span class="o">.</span><span class="n">baseFilename</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_file</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">lib_log</span><span class="o">.</span><span class="n">handlers</span>
+            <span class="p">):</span>
+                <span class="n">fh</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"a"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span>
+                <span class="n">fh</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s2">"</span><span class="si">%(name)s</span><span class="s2"> </span><span class="si">%(levelname)s</span><span class="s2"> </span><span class="si">%(message)s</span><span class="s2">"</span><span class="p">))</span>
+                <span class="n">lib_log</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_log_print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Print to both console and log file."""</span>
+        <span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"a"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_rel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return a short display path relative to proc_dir or raw_dir."""</span>
+        <span class="n">roots</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proc_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">r</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">root</span> <span class="ow">in</span> <span class="n">roots</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">root</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">continue</span>
+        <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_instrument</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">entry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">mooring_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">mooring_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Read, transform and write one instrument; True on success or skip.</span>
+
+<span class="sd">        One failed instrument is logged and does not abort the mooring; a</span>
+<span class="sd">        ``RuntimeError`` (a registry inconsistency, a package bug) does.</span>
+<span class="sd">        """</span>
+        <span class="n">instrument</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"instrument"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">)</span>
+        <span class="n">serial</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"serial"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"skip"</span><span class="p">):</span>
+            <span class="n">reason</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"skip_reason"</span><span class="p">,</span> <span class="s2">"marked skip:true in YAML"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"SKIP </span><span class="si">{</span><span class="n">instrument</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">raw</span> <span class="o">=</span> <span class="n">resolve_raw_file</span><span class="p">(</span>
+                <span class="n">entry</span><span class="p">,</span> <span class="n">mooring_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_dir</span><span class="p">,</span> <span class="n">folder</span><span class="o">=</span><span class="n">mooring_name</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">MooringError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"FILENAME MISSING: Skipping </span><span class="si">{</span><span class="n">instrument</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2">. "</span>
+                <span class="sa">f</span><span class="s2">"YAML is missing 'filename' and no standard file was found."</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">_status</span><span class="p">(</span><span class="s2">"instr"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">instrument</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">output_path</span> <span class="o">/</span> <span class="n">raw</span><span class="o">.</span><span class="n">instrument_dir</span>
+        <span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">clean</span> <span class="o">=</span> <span class="n">safe_serial</span><span class="p">(</span><span class="n">serial</span><span class="p">)</span>
+        <span class="n">output_file</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">stage_file</span><span class="p">(</span>
+            <span class="n">output_path</span><span class="p">,</span>
+            <span class="n">mooring_config</span><span class="p">[</span><span class="s2">"name"</span><span class="p">],</span>
+            <span class="n">raw</span><span class="o">.</span><span class="n">instrument_dir</span><span class="p">,</span>
+            <span class="n">clean</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="n">tag</span><span class="o">=</span><span class="n">raw</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># Skip only if the output is present and newer than its raw input. The</span>
+        <span class="c1"># mooring YAML is deliberately not a staleness source; --force regenerates.</span>
+        <span class="k">if</span> <span class="n">should_skip_regeneration</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="n">force</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">raw</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
+            <span class="n">_status</span><span class="p">(</span><span class="s2">"skip"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rel</span><span class="p">(</span><span class="n">output_file</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">read_raw_file</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 — seasenselib wraps any load failure (corrupt file, missing header) in RuntimeError; one unreadable file must not abort the mooring</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"EXCEPT: Error reading file </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_rel</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">join_raw</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">raw</span><span class="o">.</span><span class="n">entry</span><span class="p">,</span> <span class="n">mooring_config</span><span class="p">)</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">stage1</span><span class="p">({</span><span class="n">clean</span><span class="p">:</span> <span class="n">dataset</span><span class="p">},</span> <span class="n">mooring_config</span><span class="p">)[</span><span class="n">clean</span><span class="p">]</span>
+            <span class="n">_status</span><span class="p">(</span><span class="s2">"file"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rel</span><span class="p">(</span><span class="n">output_file</span><span class="p">))</span>
+            <span class="n">write</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+            <span class="c1"># A registry inconsistency (to_canonical_units raises RuntimeError, not</span>
+            <span class="c1"># UnitsError) is a package bug, not a bad instrument — abort the run.</span>
+            <span class="k">raise</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 — UnitsError (bad units) and any seasenselib read error: log the file and skip this one instrument</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR: Failed to process </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_rel</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="MooringProcessor.process_mooring">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.stage1.MooringProcessor.process_mooring">[docs]</a>
+    <span class="nd">@with_stage_handlers</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_mooring</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">mooring_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">serials</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Process a single mooring's data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mooring_name: Name of the mooring to process</span>
+<span class="sd">            output_path: Optional custom output path. If None, uses default structure.</span>
+<span class="sd">            serials: Optional list of serial numbers to process; if None, process all.</span>
+<span class="sd">            force: Re-process even if output already exists.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            bool: True if processing completed successfully, False otherwise</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">output_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">mooring_proc_dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proc_dir</span><span class="p">,</span> <span class="n">mooring_name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span> <span class="o">/</span> <span class="n">mooring_name</span>
+        <span class="n">output_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_logging</span><span class="p">(</span><span class="n">mooring_name</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Processing mooring: </span><span class="si">{</span><span class="n">mooring_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="n">config_file</span> <span class="o">=</span> <span class="n">output_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mooring_name</span><span class="si">}</span><span class="s2">.mooring.yaml"</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">config_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR: Configuration file not found: </span><span class="si">{</span><span class="n">config_file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">mooring_config</span> <span class="o">=</span> <span class="n">_mooring</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR: Failed to load configuration: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># Raw root: {raw_dir}/{mooring}/; an absolute YAML 'directory:' overrides it.</span>
+        <span class="n">override</span> <span class="o">=</span> <span class="n">mooring_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"directory"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">override</span> <span class="ow">and</span> <span class="n">Path</span><span class="p">(</span><span class="n">override</span><span class="p">)</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"WARNING: using 'directory: </span><span class="si">{</span><span class="n">override</span><span class="si">}</span><span class="s2">' from YAML "</span>
+                <span class="sa">f</span><span class="s2">"as raw root override (ignoring --raw-dir)"</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">Path</span><span class="p">(</span><span class="n">override</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR: Input directory not found: </span><span class="si">{</span><span class="n">override</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">raw_mooring_dir</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">raw_mooring_dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_raw_dir</span><span class="p">,</span> <span class="n">mooring_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">raw_mooring_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"ERROR: Raw mooring directory not found: </span><span class="si">{</span><span class="n">raw_mooring_dir</span><span class="si">}</span><span class="s2">"</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">instrument_list</span> <span class="o">=</span> <span class="n">instrument_entries</span><span class="p">(</span><span class="n">mooring_config</span><span class="p">)</span>
+        <span class="n">inline_instruments</span> <span class="o">=</span> <span class="n">extract_inline_instruments</span><span class="p">(</span>
+            <span class="n">mooring_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"inline"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">inline_instruments</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">inline_instruments</span><span class="p">)</span><span class="si">}</span><span class="s2"> instrument(s) in 'inline' list: "</span>
+                <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ic</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"serial"</span><span class="p">,</span> <span class="s2">"?"</span><span class="p">))</span> <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="n">inline_instruments</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">serials</span><span class="p">:</span>
+            <span class="n">wanted</span> <span class="o">=</span> <span class="p">{</span><span class="n">safe_serial</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">serials</span><span class="p">}</span>
+            <span class="n">instrument_list</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">ic</span>
+                <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="n">instrument_list</span>
+                <span class="k">if</span> <span class="n">safe_serial</span><span class="p">(</span><span class="n">ic</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"serial"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span> <span class="ow">in</span> <span class="n">wanted</span>
+            <span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Filtered to </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">instrument_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> instrument(s) matching serial(s): "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">serials</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+
+        <span class="n">success_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">total_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">instrument_list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">instrument_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_instrument</span><span class="p">(</span>
+                <span class="n">entry</span><span class="p">,</span> <span class="n">mooring_config</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">mooring_name</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span>
+            <span class="p">):</span>
+                <span class="n">success_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Completed processing: </span><span class="si">{</span><span class="n">success_count</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total_count</span><span class="si">}</span><span class="s2"> instruments successful"</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">total_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="s2">"No instruments matched — nothing processed."</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="c1"># Partial success is still success: instruments that processed are written</span>
+        <span class="c1"># and the record summary reports which succeeded and which failed.</span>
+        <span class="k">return</span> <span class="n">success_count</span> <span class="o">&gt;</span> <span class="mi">0</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

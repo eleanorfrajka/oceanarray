@@ -1,0 +1,961 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.config.parameters &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.config.parameters</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.config.parameters</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Package-level defaults for oceanarray.</span>
+
+<span class="sd">Matplotlib appearance (font sizes, figure size, DPI, grid style) belongs in</span>
+<span class="sd">the vendored ``reports/_vendored/report.mplstyle`` — that is the right place for</span>
+<span class="sd">anything that maps to a matplotlib rcParam.  There is a single style file: it is</span>
+<span class="sd">applied both by the report encoder and by plotters that set their own style</span>
+<span class="sd">context (via :data:`MPLSTYLE` below), so the two can never diverge.</span>
+
+<span class="sd">This file holds the things the mplstyle *cannot* express: instrument</span>
+<span class="sd">abbreviations, colorbar percentile clipping, downsample interval, and</span>
+<span class="sd">figure sizes that differ from the per-plot mplstyle default.</span>
+
+<span class="sd">Import and reassign any value here to override it globally, e.g.::</span>
+
+<span class="sd">    import oceanarray.parameters as params</span>
+<span class="sd">    params.DOWNSAMPLE_SECONDS = 60</span>
+<span class="sd">    params.DEFAULT_COLORMAP = "viridis"</span>
+
+<span class="sd">These values are read at call time, so assignment before calling a function</span>
+<span class="sd">is sufficient.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.config.unit_tables</span><span class="w"> </span><span class="kn">import</span> <span class="n">unit_label</span>
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Package identity (shown as the report masthead wordmark)</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="n">PACKAGE_NAME</span> <span class="o">=</span> <span class="s2">"oceanarray"</span>
+
+<span class="c1">#: Height (inches) of one gridded-section / time-series panel row at full width.</span>
+<span class="c1">#: Matches the per-row height of the two-row "velocity at depth" figure (5" / 2),</span>
+<span class="c1">#: so stacked grid panels and single-row section figures share one scale and do</span>
+<span class="c1">#: not render over-tall.</span>
+<span class="n">GRID_PANEL_ROW_IN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.5</span>
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Matplotlib style path (used by plotters via plt.style.use).  The single source</span>
+<span class="c1"># of truth — the same vendored file the report encoder applies</span>
+<span class="c1"># (design_tokens.MPLSTYLE_PATH).</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="n">MPLSTYLE</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">"reports"</span> <span class="o">/</span> <span class="s2">"_vendored"</span> <span class="o">/</span> <span class="s2">"report.mplstyle"</span>
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Figure sizes for plot types that differ from the mplstyle default (8×4)</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="n">FIGURE_SIZE_WIDE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>  <span class="c1"># multi-instrument overview (scatter / line)</span>
+<span class="n">FIGURE_SIZE_TALL</span> <span class="o">=</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>  <span class="c1"># stacked single-instrument panels</span>
+
+<span class="c1"># Report figure slot widths (W_FULL / W_TWOTHIRDS / W_HALF / W_THIRD, inches) now</span>
+<span class="c1"># live in ``oceanarray.config.report_tokens`` as the single source of truth</span>
+<span class="c1"># (derived from SLOTS; spec §11).  Import them from there, not from here.</span>
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Resampling</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="n">DOWNSAMPLE_SECONDS</span> <span class="o">=</span> <span class="mi">120</span>  <span class="c1"># default resample interval for mooring plots</span>
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Colormaps and colorbar clipping</span>
+<span class="c1"># (these have no mplstyle equivalent)</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="n">DEFAULT_COLORMAP</span> <span class="o">=</span> <span class="s2">"RdBu_r"</span>  <span class="c1"># red (warm) → blue (cold); good for temperature</span>
+<span class="n">COLORBAR_PLOW</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># lower percentile for vmin</span>
+<span class="n">COLORBAR_PHIGH</span> <span class="o">=</span> <span class="mi">95</span>  <span class="c1"># upper percentile for vmax</span>
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Density reference pressure (dbar) for potential density anomaly at stack step.</span>
+<span class="c1"># 0 → sigma-0 (suitable for shallow moorings &lt; ~1000 m)</span>
+<span class="c1"># 2000 → sigma-2 (suitable for deep moorings)</span>
+<span class="c1"># Override per mooring in YAML: density_reference: 2000</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="n">DENSITY_REFERENCE</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">DENSITY_COLORMAP</span> <span class="o">=</span> <span class="s2">"BuPu"</span>  <span class="c1"># ColorBrewer sequential: light-cyan → dark-purple</span>
+<span class="c1"># Iso-density contour lines overlaid on sigma pcolormesh plots.</span>
+<span class="c1"># Set to [] to suppress.  Values are in kg m-3 (above 1000).</span>
+<span class="n">SIGMA_CONTOUR_LEVELS</span> <span class="o">=</span> <span class="p">[</span><span class="mf">27.7</span><span class="p">,</span> <span class="mf">27.8</span><span class="p">]</span>
+<span class="c1"># Isopycnal tracking: default σ₀ target values for the grid report</span>
+<span class="c1"># height-above-seabed time series.  Override via --sig-level on the CLI.</span>
+<span class="c1"># Values are σ₀ (potential density anomaly referenced to 0 dbar, kg m⁻³).</span>
+<span class="c1"># To track σ₂ surfaces instead, set sigma_var in the mooring YAML and supply</span>
+<span class="c1"># the corresponding density values here.  (Future: --sig-ref flag.)</span>
+<span class="n">SIGMA_GRID</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">27.7</span><span class="p">])</span>
+
+<span class="c1"># Colors for instrument types in stack-level time series plots.</span>
+<span class="c1"># Keys match the 'instrument' field in the mooring YAML.</span>
+<span class="n">INSTRUMENT_COLORS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"microcat"</span><span class="p">:</span> <span class="s2">"#1f77b4"</span><span class="p">,</span>  <span class="c1"># blue</span>
+    <span class="s2">"aquadopp"</span><span class="p">:</span> <span class="s2">"#d62728"</span><span class="p">,</span>  <span class="c1"># red</span>
+    <span class="s2">"rbr"</span><span class="p">:</span> <span class="s2">"#2ca02c"</span><span class="p">,</span>  <span class="c1"># green</span>
+    <span class="s2">"rbr-solo"</span><span class="p">:</span> <span class="s2">"#2ca02c"</span><span class="p">,</span>
+    <span class="s2">"rbr-duet"</span><span class="p">:</span> <span class="s2">"#17becf"</span><span class="p">,</span>  <span class="c1"># teal</span>
+    <span class="s2">"default"</span><span class="p">:</span> <span class="s2">"#7f7f7f"</span><span class="p">,</span>  <span class="c1"># gray for unknown types</span>
+<span class="p">}</span>
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Instrument abbreviations  (instrument directory name → short label prefix)</span>
+<span class="c1">#</span>
+<span class="c1"># Used to build labels like "MC2942 868m" in multi-instrument plots.</span>
+<span class="c1"># Add entries here to support new instrument types without editing plotters.</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># OceanSITES QC flag table (Reference Table 2)</span>
+<span class="c1"># Applied to *_qc companion variables in _stage2.nc and stage 3 output.</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="n">QC_CONVENTION</span> <span class="o">=</span> <span class="s2">"OceanSITES reference table 2"</span>
+<span class="c1"># Codes 5 (value_changed) and 6 are "not used" in OceanSITES table 2, so they are</span>
+<span class="c1"># omitted here — declaring them legal invites flags nothing downstream understands.</span>
+<span class="c1"># flag_meanings words correspond position-for-position with flag_values.</span>
+<span class="n">QC_FLAG_VALUES</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">]</span>
+<span class="n">QC_FLAG_MEANINGS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"unknown good_data probably_good_data potentially_correctable_bad_data "</span>
+    <span class="s2">"bad_data nominal_value interpolated_value missing_value"</span>
+<span class="p">)</span>
+
+<span class="c1"># Merge priority for combining two QC flags (worst wins). The single source of</span>
+<span class="c1"># truth for flag ordering — both instrument.qc._merge_flags and</span>
+<span class="c1"># mooring.helpers._worst_flag derive their lookup arrays from this dict.</span>
+<span class="c1"># Weakest to strongest:</span>
+<span class="c1">#   unknown(0) &lt; good(1) &lt; probably_good(2) &lt; nominal(7) &lt; interpolated(8)</span>
+<span class="c1">#   &lt; potentially_correctable_bad(3) &lt; bad(4) &lt; missing(9)</span>
+<span class="c1"># unknown(0) is the weakest (opposite of QARTOD, which ranks its UNKNOWN=2 above</span>
+<span class="c1"># GOOD): a point reads unknown only when nothing evaluated it. Unlisted codes</span>
+<span class="c1"># (5, 6 — not used in OceanSITES) fall back to priority 0.</span>
+<span class="n">QC_MERGE_PRIORITY</span> <span class="o">=</span> <span class="p">{</span><span class="mi">9</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+
+<span class="c1"># Precomputed lookup arrays (immutable; built once at import) so the merge</span>
+<span class="c1"># functions and flag-attr writers don't rebuild them on every call.</span>
+<span class="c1"># QC_MERGE_PRIORITY_LUT[flag] gives the merge priority for flags 0-9.</span>
+<span class="n">QC_MERGE_PRIORITY_LUT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">QC_MERGE_PRIORITY</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"int8"</span>
+<span class="p">)</span>
+<span class="c1"># flag_values as int8 (CF wants it to match the int8 flag variable dtype).</span>
+<span class="n">QC_FLAG_VALUES_I8</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">QC_FLAG_VALUES</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"int8"</span><span class="p">)</span>
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># QARTOD gross-range test thresholds (global ocean defaults).</span>
+<span class="c1">#</span>
+<span class="c1"># fail_span   : values outside this range are flagged 4 (bad).</span>
+<span class="c1"># suspect_span: values outside this but inside fail_span → flag 3 (suspect).</span>
+<span class="c1">#</span>
+<span class="c1"># Stage 3 normalises conductivity to mS/cm before applying QC, so thresholds</span>
+<span class="c1"># here are always interpreted in the units shown in the comments below.</span>
+<span class="c1"># Override per mooring in the YAML top-level key ``qc_ranges``, or per</span>
+<span class="c1"># instrument in each clamp entry's ``qc_ranges`` key.</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="n">QC_GROSS_RANGE</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"temperature"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"fail_span"</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">40.0</span><span class="p">),</span> <span class="s2">"suspect_span"</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">35.0</span><span class="p">)},</span>  <span class="c1"># degC</span>
+    <span class="s2">"conductivity"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"fail_span"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">75.0</span><span class="p">),</span>
+        <span class="s2">"suspect_span"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">65.0</span><span class="p">),</span>
+    <span class="p">},</span>  <span class="c1"># mS/cm  (ocean: 20–60)</span>
+    <span class="s2">"salinity"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"fail_span"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">40.0</span><span class="p">),</span>
+        <span class="s2">"suspect_span"</span><span class="p">:</span> <span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">40.0</span><span class="p">),</span>
+    <span class="p">},</span>  <span class="c1"># PSU    (ocean: 30–38)</span>
+    <span class="s2">"pressure"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"fail_span"</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">7000.0</span><span class="p">),</span> <span class="s2">"suspect_span"</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">7000.0</span><span class="p">)},</span>  <span class="c1"># dbar</span>
+    <span class="s2">"east_velocity"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"fail_span"</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">),</span> <span class="s2">"suspect_span"</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">)},</span>  <span class="c1"># m/s</span>
+    <span class="s2">"north_velocity"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"fail_span"</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">),</span> <span class="s2">"suspect_span"</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">)},</span>  <span class="c1"># m/s</span>
+    <span class="s2">"up_velocity"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"fail_span"</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="s2">"suspect_span"</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)},</span>  <span class="c1"># m/s</span>
+    <span class="c1"># Turbidity: negative values are physically impossible (no lower bound in nature).</span>
+    <span class="c1"># Upper bound is generous — coastal resuspension events can reach 1000 NTU.</span>
+    <span class="c1"># Override per mooring if the sensor range is known to be tighter.</span>
+    <span class="s2">"turbidity"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"fail_span"</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">4000.0</span><span class="p">),</span>
+        <span class="s2">"suspect_span"</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">1000.0</span><span class="p">),</span>
+    <span class="p">},</span>  <span class="c1"># NTU; lower bounds unverified — sensors can read slightly negative near zero</span>
+    <span class="c1"># Dissolved oxygen (SBE ODO sensor, µmol/L).  Deep North Atlantic: 200–320 µmol/L.</span>
+    <span class="c1"># Negative values are physically impossible → fail.  &gt;500 µmol/L is unrealistic</span>
+    <span class="c1"># even near the surface (photosynthetic supersaturation ~350–400 µmol/L).</span>
+    <span class="c1"># Override per mooring via qc_ranges YAML key.</span>
+    <span class="s2">"dissolved_oxygen"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"fail_span"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">500.0</span><span class="p">),</span>
+        <span class="s2">"suspect_span"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">450.0</span><span class="p">),</span>
+    <span class="p">},</span>  <span class="c1"># umol kg-1  (per-mass numbers differ from per-volume by ~2.5%, noise for a gross-range span)</span>
+    <span class="s2">"dissolved_oxygen_2"</span><span class="p">:</span> <span class="p">{</span>  <span class="c1"># second per-mass oxygen sensor — same span as dissolved_oxygen</span>
+        <span class="s2">"fail_span"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">500.0</span><span class="p">),</span>
+        <span class="s2">"suspect_span"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">450.0</span><span class="p">),</span>
+    <span class="p">},</span>  <span class="c1"># umol kg-1</span>
+    <span class="c1"># O2 % saturation: &gt;200 % would indicate severe bubble entrainment or sensor fault.</span>
+    <span class="s2">"oxygen_saturation_pct"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"fail_span"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">),</span> <span class="s2">"suspect_span"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">150.0</span><span class="p">)},</span>
+<span class="p">}</span>
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># QARTOD spike test thresholds (global ocean defaults).</span>
+<span class="c1">#</span>
+<span class="c1"># The spike test flags a point n if |x[n] - (x[n-2]+x[n+1])/2| exceeds the</span>
+<span class="c1"># threshold.  Thresholds therefore scale with the *typical* variability at the</span>
+<span class="c1"># sampling interval in use — these defaults assume a fixed mooring in the deep</span>
+<span class="c1"># ocean sampled at O(60–120 s).  Shallower or more energetic moorings may</span>
+<span class="c1"># need smaller suspect_threshold values set via YAML.</span>
+<span class="c1">#</span>
+<span class="c1"># Units match the NC variable units.</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="n">QC_SPIKE</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"temperature"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"suspect_threshold"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span> <span class="s2">"fail_threshold"</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">},</span>  <span class="c1"># degC</span>
+    <span class="s2">"conductivity"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"suspect_threshold"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="s2">"fail_threshold"</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span>
+    <span class="p">},</span>  <span class="c1"># mS/cm  (low spikes: biofouling)</span>
+    <span class="s2">"salinity"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"suspect_threshold"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">"fail_threshold"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+    <span class="p">},</span>  <span class="c1"># PSU    (timing issues on unpumped sensors)</span>
+    <span class="s2">"pressure"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"suspect_threshold"</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span> <span class="s2">"fail_threshold"</span><span class="p">:</span> <span class="mf">50.0</span><span class="p">},</span>  <span class="c1"># dbar</span>
+    <span class="c1"># Velocity spike test omitted: burst-mode Aquadopps generate false</span>
+    <span class="c1"># positives at every burst boundary, and real oceanic events can produce</span>
+    <span class="c1"># large velocity changes on short time scales.  Add per-instrument via</span>
+    <span class="c1"># qc_spike: YAML key if needed for a specific deployment.</span>
+<span class="p">}</span>
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># QARTOD flat-line (stuck-value) test thresholds.</span>
+<span class="c1">#</span>
+<span class="c1"># Applied to pressure only by default.  A value is considered "stuck" when it</span>
+<span class="c1"># does not change by more than ``tolerance`` over a contiguous window.</span>
+<span class="c1">#</span>
+<span class="c1"># suspect_n : flag SUSPECT when stuck for this many consecutive samples</span>
+<span class="c1"># fail_n    : flag FAIL when stuck for this many consecutive samples</span>
+<span class="c1"># tolerance : maximum allowed change that is still considered "flat" (default 0)</span>
+<span class="c1">#</span>
+<span class="c1"># In ``_apply_qc_tests`` (stage3.py), ``suspect_n`` / ``fail_n`` are multiplied</span>
+<span class="c1"># by the median inter-sample interval (seconds) before being passed to</span>
+<span class="c1"># ``ioos_qc.qartod.flat_line_test``, which takes its thresholds in seconds.</span>
+<span class="c1"># Override per mooring via ``qc_flat_line`` YAML key.</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="n">QC_FLAT_LINE</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># tolerance must be &gt; 0: ioos_qc flags when range &lt; tolerance over the</span>
+    <span class="c1"># window, so tolerance=0 means range &lt; 0 which is never true.</span>
+    <span class="c1"># 0.001 dbar is below any real mooring pressure variability and catches</span>
+    <span class="c1"># sensors returning the exact same value (e.g. 4959 stuck at 0 dbar).</span>
+    <span class="s2">"pressure"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"suspect_n"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">"fail_n"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">"tolerance"</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">},</span>
+<span class="p">}</span>
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Tilt QC thresholds for Aquadopp (applied to velocity variables when |roll|</span>
+<span class="c1"># exceeds these values; degrees).</span>
+<span class="c1">#</span>
+<span class="c1"># suspect_threshold : 3 (suspect/possibly bad)</span>
+<span class="c1"># fail_threshold    : 4 (bad/probably bad)</span>
+<span class="c1">#</span>
+<span class="c1"># Override per mooring in ``tilt_qc`` YAML key, or per instrument.</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="n">QC_TILT</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"suspect_threshold"</span><span class="p">:</span> <span class="mf">30.0</span><span class="p">,</span>
+    <span class="s2">"fail_threshold"</span><span class="p">:</span> <span class="mf">50.0</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># ADCP-specific QC thresholds.</span>
+<span class="c1">#</span>
+<span class="c1"># percent_good_bad     : bins where percent_good column 3 (fraction of 4-beam</span>
+<span class="c1">#                        solutions) falls below this threshold are flagged bad (4).</span>
+<span class="c1">#                        Column 3 is used — NOT the mean across beams — because</span>
+<span class="c1">#                        a cross-beam mean would give ~25 % even for perfect data.</span>
+<span class="c1"># percent_good_suspect : bins between percent_good_bad and this threshold</span>
+<span class="c1">#                        are flagged suspect (3).</span>
+<span class="c1"># error_velocity_threshold : bins where |error_velocity| exceeds this value</span>
+<span class="c1">#                        are flagged bad (4). m/s.</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="n">QC_ADCP</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"percent_good_bad"</span><span class="p">:</span> <span class="mf">25.0</span><span class="p">,</span>
+    <span class="s2">"percent_good_suspect"</span><span class="p">:</span> <span class="mf">50.0</span><span class="p">,</span>
+    <span class="s2">"error_velocity_threshold"</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># ADCP bin dimension name.</span>
+<span class="c1"># Never hard-code "N_BINS" — reference this constant everywhere so the</span>
+<span class="c1"># dimension can be renamed to "N_LEVELS" later by changing one line.</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="n">ADCP_BIN_DIM</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"N_BINS"</span>
+
+<span class="n">INSTRUMENT_ABBREV</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"microcat"</span><span class="p">:</span> <span class="s2">"MC"</span><span class="p">,</span>
+    <span class="s2">"aquadopp"</span><span class="p">:</span> <span class="s2">"AQ"</span><span class="p">,</span>
+    <span class="s2">"rbrsolo"</span><span class="p">:</span> <span class="s2">"RS"</span><span class="p">,</span>
+    <span class="s2">"rbrduet"</span><span class="p">:</span> <span class="s2">"RD"</span><span class="p">,</span>
+    <span class="s2">"sbe56"</span><span class="p">:</span> <span class="s2">"SB"</span><span class="p">,</span>
+    <span class="s2">"sbe16"</span><span class="p">:</span> <span class="s2">"SB"</span><span class="p">,</span>
+    <span class="s2">"tr1050"</span><span class="p">:</span> <span class="s2">"TR"</span><span class="p">,</span>
+    <span class="s2">"adcp"</span><span class="p">:</span> <span class="s2">"AD"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Instrument type → allowed file_type values for the mooring YAML.</span>
+<span class="c1">#</span>
+<span class="c1"># ``instrument:``  is the human-readable name stored in instrument_type</span>
+<span class="c1">#                  coordinates and used to dispatch Aquadopp-specific plots,</span>
+<span class="c1">#                  declination correction, tilt QC, etc.</span>
+<span class="c1">#</span>
+<span class="c1"># ``file_type:``   is the seasenselib reader key that controls how the raw</span>
+<span class="c1">#                  file is parsed.  Each instrument may have several variants.</span>
+<span class="c1">#                  ``oceansites`` and ``rodb`` are read by oceanarray's own</span>
+<span class="c1">#                  readers (``oceanarray.readers``): files already processed by</span>
+<span class="c1">#                  their originator (OceanSITES netCDF, RAPID/BODC RODB text).</span>
+<span class="c1">#</span>
+<span class="c1"># To add a new instrument class: add an entry here.  Everything that checks</span>
+<span class="c1"># instrument type (reports, mooring_level, plotters) reads KNOWN_INSTRUMENT_TYPES</span>
+<span class="c1"># from this dict.</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="n">INSTRUMENT_FILE_TYPES</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"microcat"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sbe-cnv"</span><span class="p">,</span> <span class="s2">"sbe-ascii"</span><span class="p">,</span> <span class="s2">"sbe-hex"</span><span class="p">,</span> <span class="s2">"oceansites"</span><span class="p">,</span> <span class="s2">"rodb"</span><span class="p">],</span>
+    <span class="s2">"sbe56"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sbe-cnv"</span><span class="p">,</span> <span class="s2">"sbe-ascii"</span><span class="p">],</span>  <span class="c1"># SeaBird SBE56 temperature logger</span>
+    <span class="s2">"sbe16"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sbe-cnv"</span><span class="p">,</span> <span class="s2">"sbe-hex"</span><span class="p">],</span>  <span class="c1"># SeaBird SBE16 CTD</span>
+    <span class="s2">"aquadopp"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"nortek-raw"</span><span class="p">,</span> <span class="s2">"nortek-ascii"</span><span class="p">,</span> <span class="s2">"nortek-csv"</span><span class="p">],</span>
+    <span class="c1"># A point current meter delivered already processed (velocities in geographic</span>
+    <span class="c1"># east/north), e.g. an Aanderaa RCM from an OceanSITES or RODB archive.  Read by</span>
+    <span class="c1"># oceanarray's own readers (oceanarray.readers), not seasenselib.</span>
+    <span class="s2">"currentmeter"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"oceansites"</span><span class="p">,</span> <span class="s2">"rodb"</span><span class="p">],</span>
+    <span class="s2">"tr1050"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rbr-hex"</span><span class="p">],</span>  <span class="c1"># RBR TR-1050 thermistor chain</span>
+    <span class="s2">"rbrsolo"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rbr-rsk"</span><span class="p">],</span>  <span class="c1"># RBR soloT — single-channel temperature</span>
+    <span class="s2">"rbrduet"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rbr-rsk"</span><span class="p">],</span>  <span class="c1"># RBR duet — temperature + pressure or T+C</span>
+    <span class="s2">"seapoint"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rbr-rsk"</span><span class="p">],</span>  <span class="c1"># Seapoint turbidity sensor via RBR logger</span>
+    <span class="s2">"ADCP"</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">"rdi-raw"</span><span class="p">,</span>  <span class="c1"># RDI Workhorse / Sentinel via dolfyn (mhkit[dolfyn] required)</span>
+        <span class="s2">"adcp-matlab"</span><span class="p">,</span>  <span class="c1"># seasenselib auto-detects RD-ADCP vs UHHDS Matlab exports</span>
+    <span class="p">],</span>  <span class="c1"># Generic ADCP (instrument: ADCP in YAML — note uppercase)</span>
+<span class="p">}</span>
+
+<span class="c1"># Derived: set of allowed ``instrument:`` values in mooring YAML files.</span>
+<span class="n">KNOWN_INSTRUMENT_TYPES</span><span class="p">:</span> <span class="nb">frozenset</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">INSTRUMENT_FILE_TYPES</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+<span class="c1"># File types that seasenselib accepts but are deprecated, experimental, or</span>
+<span class="c1"># not tied to a primary ``instrument:`` value above.  These remain valid in a</span>
+<span class="c1"># mooring YAML but are not the recommended key for any current instrument class.</span>
+<span class="n">EXTRA_FILE_TYPES</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"nortek-csv-oa"</span><span class="p">:</span> <span class="s2">"aquadopp (DEPRECATED internal reader; use nortek-csv)"</span><span class="p">,</span>
+    <span class="s2">"rbr-dat"</span><span class="p">:</span> <span class="s2">"RBR instruments (not in current seasenselib; use rbr-rsk)"</span><span class="p">,</span>
+    <span class="s2">"rbr-matlab"</span><span class="p">:</span> <span class="s2">"RBR instruments (seasenselib Matlab reader)"</span><span class="p">,</span>
+    <span class="s2">"rbr-matlab-legacy"</span><span class="p">:</span> <span class="s2">"RBR instruments (DEPRECATED legacy format)"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># Deprecated ``file_type:`` values that are silently remapped to a current type</span>
+<span class="c1"># at read time.  These are intentionally *not* part of ``ALL_FILE_TYPES`` so they</span>
+<span class="c1"># no longer appear in any public list (autodoc ``SUPPORTED_FILE_TYPES``, the</span>
+<span class="c1"># validator's "known types" message).  A YAML using one still loads: stage1</span>
+<span class="c1"># remaps it (with a DeprecationWarning) and the validator emits a deprecation</span>
+<span class="c1"># WARNING pointing to the canonical type.  ``rbr-hex-oa`` predates seasenselib's</span>
+<span class="c1"># ``rbr-hex`` support (its internal reader has been removed).</span>
+<span class="n">DEPRECATED_FILE_TYPE_ALIASES</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"rbr-hex-oa"</span><span class="p">:</span> <span class="s2">"rbr-hex"</span><span class="p">,</span>
+    <span class="s2">"sbe-asc"</span><span class="p">:</span> <span class="s2">"sbe-ascii"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># Single source of truth for valid ``file_type:`` values in a mooring YAML.</span>
+<span class="c1"># Union of every per-instrument reader key with the extra/deprecated keys above.</span>
+<span class="c1"># ``validation.VALID_FILE_TYPES`` and ``stage1.SUPPORTED_FILE_TYPES`` both derive</span>
+<span class="c1"># from this — add a new file type to ``INSTRUMENT_FILE_TYPES`` or</span>
+<span class="c1"># ``EXTRA_FILE_TYPES``, never to those consumers.  Deprecated aliases are</span>
+<span class="c1"># deliberately excluded (see ``DEPRECATED_FILE_TYPE_ALIASES``).</span>
+<span class="n">ALL_FILE_TYPES</span><span class="p">:</span> <span class="nb">frozenset</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="n">ft</span> <span class="k">for</span> <span class="n">fts</span> <span class="ow">in</span> <span class="n">INSTRUMENT_FILE_TYPES</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">for</span> <span class="n">ft</span> <span class="ow">in</span> <span class="n">fts</span>
+<span class="p">)</span> <span class="o">|</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">EXTRA_FILE_TYPES</span><span class="p">)</span>
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Variable display registry</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+<span class="c1">#: Display metadata for each physical variable.</span>
+<span class="c1">#:</span>
+<span class="c1">#: Each entry has:</span>
+<span class="c1">#:</span>
+<span class="c1">#: ``label``</span>
+<span class="c1">#:     human-readable name for plot titles and legends.</span>
+<span class="c1">#: ``units``</span>
+<span class="c1">#:     udunits-2 / CF-compliant ASCII units for NetCDF attributes (e.g.</span>
+<span class="c1">#:     ``"degree_Celsius"``).  The display unit for an axis label is derived from</span>
+<span class="c1">#:     this through :func:`vunit` / :func:`vlabel` (``degree_Celsius`` → ``°C``) —</span>
+<span class="c1">#:     there is no separate ``label_units`` column, so the display spelling cannot</span>
+<span class="c1">#:     drift from the stored one.</span>
+<span class="c1">#: ``standard_name``</span>
+<span class="c1">#:     CF standard name.  ``None`` when no standard name exists</span>
+<span class="c1">#:     (e.g. turbidity in NTU, which has no udunits-2 unit).</span>
+<span class="c1">#: ``cmap``</span>
+<span class="c1">#:     default matplotlib colormap name, or ``None`` for variables</span>
+<span class="c1">#:     without a natural diverging / sequential convention.</span>
+<span class="c1">#: ``valid_min`` / ``valid_max``</span>
+<span class="c1">#:     CF ``valid_min`` / ``valid_max`` attributes written to NetCDF output</span>
+<span class="c1">#:     (physically valid range).  Present only where</span>
+<span class="c1">#:     :file:`legacy/OS1_variable_attributes.yaml` provides an authoritative value;</span>
+<span class="c1">#:     absent for other variables.</span>
+<span class="n">VARIABLES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"temperature"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Temperature"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"degree_Celsius"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"sea_water_temperature"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="s2">"RdBu_r"</span><span class="p">,</span>
+        <span class="s2">"valid_min"</span><span class="p">:</span> <span class="o">-</span><span class="mf">5.0</span><span class="p">,</span>  <span class="c1"># legacy/OS1_variable_attributes.yaml TEMP</span>
+        <span class="s2">"valid_max"</span><span class="p">:</span> <span class="mf">42.0</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"conservative_temperature"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Conservative temperature"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"degree_Celsius"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"sea_water_conservative_temperature"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="s2">"RdBu_r"</span><span class="p">,</span>
+        <span class="s2">"valid_min"</span><span class="p">:</span> <span class="o">-</span><span class="mf">5.0</span><span class="p">,</span>  <span class="c1"># same physical range as temperature</span>
+        <span class="s2">"valid_max"</span><span class="p">:</span> <span class="mf">42.0</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"potential_temperature"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Potential temperature"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"degree_Celsius"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"sea_water_potential_temperature"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="s2">"RdBu_r"</span><span class="p">,</span>
+        <span class="s2">"valid_min"</span><span class="p">:</span> <span class="o">-</span><span class="mf">5.0</span><span class="p">,</span>  <span class="c1"># same physical range as temperature</span>
+        <span class="s2">"valid_max"</span><span class="p">:</span> <span class="mf">42.0</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"conductivity"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Conductivity"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"mS cm-1"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"sea_water_electrical_conductivity"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"valid_min"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># legacy/OS1_variable_attributes.yaml CNDC</span>
+        <span class="s2">"valid_max"</span><span class="p">:</span> <span class="mf">80.0</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"salinity"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Salinity"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"1"</span><span class="p">,</span>  <span class="c1"># PSS-78 is dimensionless per CF</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"sea_water_practical_salinity"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="s2">"YlGnBu_r"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"absolute_salinity"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Absolute salinity"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"g kg-1"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"sea_water_absolute_salinity"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="s2">"YlGnBu_r"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"pressure"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Pressure"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"dbar"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"sea_water_pressure"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"valid_min"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># legacy/OS1_variable_attributes.yaml PRES</span>
+        <span class="s2">"valid_max"</span><span class="p">:</span> <span class="mf">11000.0</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"depth"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Depth"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"m"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"depth"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"valid_min"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># legacy/OS1_variable_attributes.yaml DEPTH</span>
+        <span class="s2">"valid_max"</span><span class="p">:</span> <span class="mf">12000.0</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"potential_density"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"σ₀"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"kg m-3"</span><span class="p">,</span>
+        <span class="c1"># sea_water_sigma_theta = potential density anomaly referenced to 0 dbar</span>
+        <span class="c1"># (i.e. rho(T_potential, S, p=0) − 1000 kg m-3)</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"sea_water_sigma_theta"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="s2">"BuPu"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"u"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Eastward velocity"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"m s-1"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"eastward_sea_water_velocity"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="s2">"RdBu_r"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"v"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Northward velocity"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"m s-1"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"northward_sea_water_velocity"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="s2">"RdBu_r"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"w"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Vertical velocity"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"m s-1"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"upward_sea_water_velocity"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="s2">"RdBu_r"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"east_velocity"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Eastward velocity"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"m s-1"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"eastward_sea_water_velocity"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="s2">"RdBu_r"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"north_velocity"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Northward velocity"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"m s-1"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"northward_sea_water_velocity"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="s2">"RdBu_r"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"up_velocity"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Upward velocity"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"m s-1"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"upward_sea_water_velocity"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="s2">"RdBu_r"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"speed"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Speed"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"m s-1"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"sea_water_speed"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="s2">"plasma"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"dissolved_oxygen"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Dissolved oxygen"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"umol kg-1"</span><span class="p">,</span>
+        <span class="c1"># SBE 63/43 report dissolved oxygen per unit mass (…Mm/Kg columns); the</span>
+        <span class="c1"># standard name's canonical units are mol kg-1 (molality).  A per-volume</span>
+        <span class="c1"># oxygen, if ever read, is a different variable keeping the</span>
+        <span class="c1"># mole_concentration_… name — mass↔volume is never a scalar unit alias.</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"moles_of_oxygen_per_unit_mass_in_sea_water"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="s2">"RdYlGn"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"dissolved_oxygen_2"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="c1"># Second per-mass oxygen sensor (SBE ``sbeox1Mm/Kg``); same as</span>
+        <span class="c1"># dissolved_oxygen, registered so the units pass canonicalises it.</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Dissolved oxygen (sensor 2)"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"umol kg-1"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"moles_of_oxygen_per_unit_mass_in_sea_water"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="s2">"RdYlGn"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"dissolved_oxygen_ml_l"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Dissolved oxygen"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"mL L-1"</span><span class="p">,</span>
+        <span class="c1"># mL/L is a volume ratio, not a molar concentration; no exact CF standard_name.</span>
+        <span class="c1"># mole_concentration_* has canonical units mol m-3 and is dimensionally</span>
+        <span class="c1"># incompatible with mL/L.</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="s2">"RdYlGn"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"dissolved_oxygen_ml_l_2"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="c1"># Second oxygen sensor's mL/L reading (SBE ``sbeox1ML/L``); same units as</span>
+        <span class="c1"># dissolved_oxygen_ml_l, registered so the units pass canonicalises it</span>
+        <span class="c1"># instead of leaving it untouched.</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Dissolved oxygen (sensor 2)"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"mL L-1"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="s2">"RdYlGn"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"oxygen_saturation_pct"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"O₂ percent saturation"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"%"</span><span class="p">,</span>
+        <span class="c1"># CF "fractional_saturation_of_oxygen_in_sea_water" is 0–1, not 0–100; no</span>
+        <span class="c1"># unambiguous standard_name for the percent form.</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="s2">"RdYlGn"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"apparent_oxygen_utilization"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Apparent oxygen utilization"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"umol kg-1"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"apparent_oxygen_utilization"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"turbidity"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Turbidity"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"1"</span><span class="p">,</span>  <span class="c1"># CF-canonical dimensionless, as the FLNTU reader writes</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"sea_water_turbidity"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="s2">"YlOrBr"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"n2"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"N²"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"s-2"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"square_of_brunt_vaisala_frequency_in_sea_water"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="s2">"plasma"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="c1"># Attitude / engineering variables.  Canonical CF ``degree``; the readers write</span>
+    <span class="c1"># ``degrees`` (an alias in unit_tables.UNIT_ALIAS_EXTRAS, evidenced on dune2).</span>
+    <span class="c1"># Registered so the units pass canonicalises them and ``vunit`` labels them ``°``.</span>
+    <span class="s2">"pitch"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Pitch"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"degree"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"platform_pitch_angle"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"roll"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Roll"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"degree"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"platform_roll_angle"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"heading"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Heading"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"degree"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"platform_heading_angle"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"tilt"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="c1"># Derived from pitch/roll (arccos, in _plots._augment_tilt); no CF standard name.</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Tilt"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"degree"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"current_direction"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Current direction"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"degree"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"direction_of_sea_water_velocity"</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"bin_pressure"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="c1"># ADCP per-bin pressure (dbar).  Matched by name, so no standard_name:</span>
+        <span class="c1"># sea_water_pressure already maps to "pressure" — a second entry would clash</span>
+        <span class="c1"># in the standard-name → canonical map.</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Bin pressure"</span><span class="p">,</span>
+        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"dbar"</span><span class="p">,</span>
+        <span class="s2">"standard_name"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"cmap"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="c1">#: Colormap lookup derived from :data:`VARIABLES` — single source of truth so</span>
+<span class="c1">#: the two cannot drift.  Excludes entries where ``cmap`` is ``None``.</span>
+<span class="n">CMAPS_BY_VARIABLE</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="p">[</span><span class="s2">"cmap"</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"cmap"</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+<span class="p">}</span>
+
+<span class="c1">#: Colormaps for colouring *lines* (one per instrument, deep-first) — distinct</span>
+<span class="c1">#: from the pcolormesh field maps in :data:`CMAPS_BY_VARIABLE`, because a field</span>
+<span class="c1">#: map that is fine for a filled panel can be wrong for overlaid lines (e.g. a</span>
+<span class="c1">#: diverging map's pale midpoint washes lines out).  Sampled deep→shallow with</span>
+<span class="c1">#: washed-out colours skipped by luminance (see</span>
+<span class="c1">#: :func:`oceanarray.plotters.helpers.ordered_line_colors`).  Directions are</span>
+<span class="c1">#: chosen so the deepest instrument gets the darkest/most-saturated colour:</span>
+<span class="c1">#: temperature blue(cold/deep)→red(warm/shallow); pressure dark→lighter blue</span>
+<span class="c1">#: (bathymetry convention, deep = dark); salinity starts at the blue end.</span>
+<span class="n">LINE_CMAPS_BY_VARIABLE</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"temperature"</span><span class="p">:</span> <span class="s2">"RdBu_r"</span><span class="p">,</span>
+    <span class="s2">"pressure"</span><span class="p">:</span> <span class="s2">"Blues_r"</span><span class="p">,</span>
+    <span class="s2">"salinity"</span><span class="p">:</span> <span class="s2">"YlGnBu_r"</span><span class="p">,</span>
+    <span class="c1"># Velocity lines are ordered by depth, so shade them like pressure (dark =</span>
+    <span class="c1"># deep) — the field map's red/blue diverging scale means north/south, which is</span>
+    <span class="c1"># meaningless for a per-instrument line ordering.</span>
+    <span class="s2">"east_velocity"</span><span class="p">:</span> <span class="s2">"Blues_r"</span><span class="p">,</span>
+    <span class="s2">"north_velocity"</span><span class="p">:</span> <span class="s2">"Blues_r"</span><span class="p">,</span>
+    <span class="s2">"up_velocity"</span><span class="p">:</span> <span class="s2">"Blues_r"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1">#: One colourblind-safe colour per variable, for **single-instrument** panels</span>
+<span class="c1">#: where each variable is drawn as one line (not the multi-instrument stack, which</span>
+<span class="c1">#: uses :data:`LINE_CMAPS_BY_VARIABLE`).  Physics use the Okabe-Ito palette (Wong,</span>
+<span class="c1">#: Nature Methods 8:441, 2011); biogeochemistry uses the Paul Tol palette.  Look up</span>
+<span class="c1">#: with :func:`var_color` (single fallback, no scattered literals).  Mirrors</span>
+<span class="c1">#: ctdcast's ``VAR_COLORS``.</span>
+<span class="n">VAR_COLORS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># Physics — Okabe-Ito</span>
+    <span class="s2">"temperature"</span><span class="p">:</span> <span class="s2">"#56B4E9"</span><span class="p">,</span>  <span class="c1"># sky blue</span>
+    <span class="s2">"conservative_temperature"</span><span class="p">:</span> <span class="s2">"#56B4E9"</span><span class="p">,</span>
+    <span class="s2">"salinity"</span><span class="p">:</span> <span class="s2">"#E69F00"</span><span class="p">,</span>  <span class="c1"># orange</span>
+    <span class="s2">"absolute_salinity"</span><span class="p">:</span> <span class="s2">"#E69F00"</span><span class="p">,</span>
+    <span class="s2">"conductivity"</span><span class="p">:</span> <span class="s2">"#44AA99"</span><span class="p">,</span>  <span class="c1"># teal (Paul Tol) — readable stand-in</span>
+    <span class="s2">"potential_density"</span><span class="p">:</span> <span class="s2">"#009E73"</span><span class="p">,</span>  <span class="c1"># bluish green</span>
+    <span class="s2">"pressure"</span><span class="p">:</span> <span class="s2">"#000000"</span><span class="p">,</span>  <span class="c1"># black</span>
+    <span class="s2">"depth"</span><span class="p">:</span> <span class="s2">"#000000"</span><span class="p">,</span>
+    <span class="s2">"n2"</span><span class="p">:</span> <span class="s2">"#000000"</span><span class="p">,</span>
+    <span class="s2">"east_velocity"</span><span class="p">:</span> <span class="s2">"#D55E00"</span><span class="p">,</span>  <span class="c1"># vermillion (U)</span>
+    <span class="s2">"u"</span><span class="p">:</span> <span class="s2">"#D55E00"</span><span class="p">,</span>
+    <span class="s2">"north_velocity"</span><span class="p">:</span> <span class="s2">"#0072B2"</span><span class="p">,</span>  <span class="c1"># blue (V)</span>
+    <span class="s2">"v"</span><span class="p">:</span> <span class="s2">"#0072B2"</span><span class="p">,</span>
+    <span class="s2">"up_velocity"</span><span class="p">:</span> <span class="s2">"#CC79A7"</span><span class="p">,</span>  <span class="c1"># reddish purple (W)</span>
+    <span class="s2">"w"</span><span class="p">:</span> <span class="s2">"#CC79A7"</span><span class="p">,</span>
+    <span class="s2">"speed"</span><span class="p">:</span> <span class="s2">"#D55E00"</span><span class="p">,</span>
+    <span class="c1"># Biogeochemistry — Paul Tol</span>
+    <span class="s2">"dissolved_oxygen"</span><span class="p">:</span> <span class="s2">"#332288"</span><span class="p">,</span>  <span class="c1"># indigo</span>
+    <span class="s2">"dissolved_oxygen_2"</span><span class="p">:</span> <span class="s2">"#332288"</span><span class="p">,</span>
+    <span class="s2">"dissolved_oxygen_ml_l"</span><span class="p">:</span> <span class="s2">"#332288"</span><span class="p">,</span>
+    <span class="s2">"dissolved_oxygen_ml_l_2"</span><span class="p">:</span> <span class="s2">"#332288"</span><span class="p">,</span>
+    <span class="s2">"oxygen_saturation_pct"</span><span class="p">:</span> <span class="s2">"#332288"</span><span class="p">,</span>
+    <span class="s2">"turbidity"</span><span class="p">:</span> <span class="s2">"#661100"</span><span class="p">,</span>  <span class="c1"># dark red</span>
+<span class="p">}</span>
+
+<span class="c1">#: Colour for a variable with no :data:`VAR_COLORS` entry — one canonical fallback</span>
+<span class="c1">#: so callers don't scatter their own literal defaults (which drift).</span>
+<span class="n">VAR_COLOR_DEFAULT</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"#000000"</span>
+
+
+<div class="viewcode-block" id="var_color">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.config.parameters.var_color">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">var_color</span><span class="p">(</span><span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the line/marker colour for *var* from :data:`VAR_COLORS`.</span>
+
+<span class="sd">    Falls back to :data:`VAR_COLOR_DEFAULT` for an unregistered variable, so every</span>
+<span class="sd">    caller shares one default rather than hard-coding its own.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    var : str</span>
+<span class="sd">        Variable name (key in :data:`VARIABLES` / :data:`VAR_COLORS`).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        A hex colour string.</span>
+
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">VAR_COLORS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">VAR_COLOR_DEFAULT</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="vlabel">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.config.parameters.vlabel">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">vlabel</span><span class="p">(</span><span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a matplotlib axis label for *var* from the :data:`VARIABLES` registry.</span>
+
+<span class="sd">    Format is ``"{prefix}Label (units)"``, the units coming from :func:`vunit` (the</span>
+<span class="sd">    registry's canonical CF units formatted through the display pipeline), or</span>
+<span class="sd">    ``"{prefix}Label (1)"`` for a dimensionless quantity without a scale label — ``1``</span>
+<span class="sd">    is the CF / UDUNITS unit string for dimensionless, so the label matches the stored</span>
+<span class="sd">    metadata rather than leaving the reader to wonder whether a unit was forgotten.  The</span>
+<span class="sd">    ``prefix`` is prepended to the label component only, not the units, so</span>
+<span class="sd">    ``vlabel("temperature", prefix="Δ")`` produces ``"ΔTemperature (°C)"``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    var : str</span>
+<span class="sd">        Variable name (key in :data:`VARIABLES`).</span>
+<span class="sd">    prefix : str, optional</span>
+<span class="sd">        Text prepended to the label component — e.g. ``"Gridded "`` or ``"Δ"``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Ready-to-use axis label.  Falls back to ``"{prefix}{var}"`` when *var*</span>
+<span class="sd">        is not in the registry so callers always get something useful.</span>
+
+<span class="sd">    """</span>
+    <span class="n">entry</span> <span class="o">=</span> <span class="n">VARIABLES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">entry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Unknown variable: return the bare name.  Do NOT append "( )" — that</span>
+        <span class="c1"># would falsely assert the quantity is dimensionless when we simply have</span>
+        <span class="c1"># no registry entry for it.</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">var</span><span class="si">}</span><span class="s2">"</span>
+    <span class="n">lbl</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'label'</span><span class="p">,</span><span class="w"> </span><span class="n">var</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">vunit</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">lbl</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">u</span><span class="si">}</span><span class="s2">)"</span> <span class="k">if</span> <span class="n">u</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">lbl</span><span class="si">}</span><span class="s2"> (1)"</span></div>
+
+
+
+<div class="viewcode-block" id="vunit">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.config.parameters.vunit">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">vunit</span><span class="p">(</span><span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the display units for *var*, formatted through the units pipeline.</span>
+
+<span class="sd">    The registry's canonical CF ``units`` for *var* is formatted by</span>
+<span class="sd">    :func:`oceanarray.config.unit_tables.unit_label` (oceanarray's view of the family</span>
+<span class="sd">    tables), so a colorbar/axis unit is produced by the same rule as every other label</span>
+<span class="sd">    — ``degree_Celsius`` → ``°C``, ``dbar`` → ``dbar``, ``1`` with the salinity standard</span>
+<span class="sd">    name → ``PSU``.  Reading from the registry (not from a dataset) means the storage</span>
+<span class="sd">    pass is the single guarantee of unit correctness; a non-canonical stored unit is</span>
+<span class="sd">    refused on write, not silently relabelled here.  Returns an empty string for a</span>
+<span class="sd">    dimensionless-without-label or unknown variable.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    var : str</span>
+<span class="sd">        Variable name (key in :data:`VARIABLES`).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The display unit string, or ``""`` when none is registered.</span>
+
+<span class="sd">    """</span>
+    <span class="n">entry</span> <span class="o">=</span> <span class="n">VARIABLES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">entry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">""</span>
+    <span class="n">cf</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"units"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">unit_label</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"standard_name"</span><span class="p">))</span> <span class="k">if</span> <span class="n">cf</span> <span class="k">else</span> <span class="s2">""</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Serve the deprecated tables ``UNIT_ALIASES`` and ``VARIABLE_UNIT_ALIASES``.</span>
+
+<span class="sd">    Both moved to the shared units tables</span>
+<span class="sd">    (:data:`oceanarray.config.unit_tables.TABLES`) and are removed in 0.6.0.  Until then</span>
+<span class="sd">    each name warns and returns a copy built from those tables: ``UNIT_ALIASES`` as</span>
+<span class="sd">    ``{canonical: {spelling: factor}}``, and ``VARIABLE_UNIT_ALIASES`` as the scoped</span>
+<span class="sd">    spellings of each registry variable, keyed by variable name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Attribute looked up on this module.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict of str to dict of str to float</span>
+<span class="sd">        The table, rebuilt from :data:`oceanarray.config.unit_tables.TABLES`.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    AttributeError</span>
+<span class="sd">        For any other name.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"UNIT_ALIASES"</span><span class="p">,</span> <span class="s2">"VARIABLE_UNIT_ALIASES"</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"module </span><span class="si">{</span><span class="vm">__name__</span><span class="si">!r}</span><span class="s2"> has no attribute </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.config.unit_tables</span><span class="w"> </span><span class="kn">import</span> <span class="n">TABLES</span>
+
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"parameters.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is deprecated; use oceanarray.config.unit_tables.TABLES "</span>
+        <span class="sa">f</span><span class="s2">"(removed in 0.6.0)."</span><span class="p">,</span>
+        <span class="ne">DeprecationWarning</span><span class="p">,</span>
+        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">"UNIT_ALIASES"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">canonical</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">group</span><span class="p">)</span> <span class="k">for</span> <span class="n">canonical</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">TABLES</span><span class="o">.</span><span class="n">aliases</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">var</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">TABLES</span><span class="o">.</span><span class="n">scoped</span><span class="p">[</span><span class="n">entry</span><span class="p">[</span><span class="s2">"standard_name"</span><span class="p">]])</span>
+        <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"standard_name"</span><span class="p">)</span> <span class="ow">in</span> <span class="n">TABLES</span><span class="o">.</span><span class="n">scoped</span>
+    <span class="p">}</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

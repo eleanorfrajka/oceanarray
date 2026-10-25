@@ -1,0 +1,497 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.analysis.hydrographic &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.analysis.hydrographic</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.analysis.hydrographic</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Hydrographic analysis utilities for oceanographic mooring data.</span>
+
+<span class="sd">hydrographic.py provides salinity computation, isopycnal tracking, dataset</span>
+<span class="sd">differencing, and cold-regime detection functions extracted from the general</span>
+<span class="sd">science utilities.</span>
+
+<span class="sd">Pairs with :mod:`oceanarray.plotters.hydrography` for figure output.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">gsw</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+
+<div class="viewcode-block" id="calc_psal">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.hydrographic.calc_psal">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calc_psal</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Compute Practical Salinity from conductivity, temperature, and pressure.</span>
+
+<span class="sd">    Uses the Gibbs SeaWater (GSW) toolbox: ``gsw.SP_from_C`` applies the</span>
+<span class="sd">    PSS-78 equation to derive Practical Salinity (dimensionless, roughly PSU)</span>
+<span class="sd">    from conductivity (mS cm⁻¹), temperature (°C), and pressure (dbar).</span>
+
+<span class="sd">    If ``PSAL`` is already present in *ds* the function is a no-op.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        Dataset containing ``CNDC`` (conductivity, mS cm⁻¹), ``TEMP``</span>
+<span class="sd">        (temperature, °C), and ``PRES`` (pressure, dbar).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        Input dataset with ``PSAL`` added (same dimensions as ``CNDC``),</span>
+<span class="sd">        or unchanged if ``PSAL`` was already present.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s2">"PSAL"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="n">SP</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">SP_from_C</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"CNDC"</span><span class="p">],</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"TEMP"</span><span class="p">],</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"PRES"</span><span class="p">])</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s2">"PSAL"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"CNDC"</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span> <span class="n">SP</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"ds already contains variable PSAL"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds</span></div>
+
+
+
+<div class="viewcode-block" id="find_cold_entry_exit">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.hydrographic.find_cold_entry_exit">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_cold_entry_exit</span><span class="p">(</span>
+    <span class="n">time</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">temp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">quantile</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.95</span><span class="p">,</span>
+    <span class="n">dwell_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1800</span><span class="p">,</span>
+    <span class="n">smooth_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Identify first sustained entry into 'cold' regime and last sustained exit.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    time : array-like of datetime64</span>
+<span class="sd">        Time coordinate array.</span>
+<span class="sd">    temp : array-like of float</span>
+<span class="sd">        Temperature values aligned with *time*.</span>
+<span class="sd">    quantile : float</span>
+<span class="sd">        Percentile for threshold (e.g. 0.1 ~ 10th percentile).</span>
+<span class="sd">    dwell_seconds : int</span>
+<span class="sd">        Minimum time in cold regime for it to count (seconds).</span>
+<span class="sd">    smooth_window : int</span>
+<span class="sd">        Rolling median window length (samples).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    t_start, t_end, threshold : tuple of (Timestamp or None, Timestamp or None, float)</span>
+
+<span class="sd">    """</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">thr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanquantile</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="n">quantile</span><span class="p">)</span>
+
+    <span class="c1"># smooth with rolling median</span>
+    <span class="k">if</span> <span class="n">smooth_window</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">smooth_window</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">median</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">values</span>
+        <span class="p">)</span>
+
+    <span class="n">below</span> <span class="o">=</span> <span class="n">temp</span> <span class="o">&lt;=</span> <span class="n">thr</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">below</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">thr</span>
+
+    <span class="c1"># sampling interval (assume near-regular)</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"timedelta64[s]"</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span>
+    <span class="n">min_len</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">dwell_seconds</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))</span>
+
+    <span class="c1"># contiguous runs</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">below</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">gaps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+    <span class="n">starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">idx</span><span class="p">[</span><span class="mi">1</span><span class="p">:][</span><span class="n">gaps</span><span class="p">]]</span>
+    <span class="n">ends</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">idx</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">gaps</span><span class="p">],</span> <span class="n">idx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+
+    <span class="n">runs</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">starts</span><span class="p">,</span> <span class="n">ends</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">e</span> <span class="o">-</span> <span class="n">s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_len</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">runs</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">thr</span>
+
+    <span class="n">s0</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">runs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">eL</span> <span class="o">=</span> <span class="n">runs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">time</span><span class="p">[</span><span class="n">s0</span><span class="p">],</span> <span class="n">time</span><span class="p">[</span><span class="n">eL</span><span class="p">],</span> <span class="n">thr</span></div>
+
+
+
+<div class="viewcode-block" id="calc_ds_difference">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.hydrographic.calc_ds_difference">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calc_ds_difference</span><span class="p">(</span><span class="n">ds1</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">ds2</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Compute the variable-by-variable difference between two time-matched datasets."""</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">ds1</span><span class="p">[</span><span class="s2">"TIME"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds2</span><span class="p">[</span><span class="s2">"TIME"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"TIME grids do not match between datasets."</span><span class="p">)</span>
+
+    <span class="c1"># Variables to exclude from differencing</span>
+    <span class="n">exclude_vars</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"YY"</span><span class="p">,</span> <span class="s2">"MM"</span><span class="p">,</span> <span class="s2">"DD"</span><span class="p">,</span> <span class="s2">"HH"</span><span class="p">}</span>
+
+    <span class="c1"># Prepare a dict for new data variables</span>
+    <span class="n">diff_data</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds1</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="c1"># Only difference variables with dimension TIME and not in exclude list</span>
+        <span class="k">if</span> <span class="s2">"TIME"</span> <span class="ow">in</span> <span class="n">ds1</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclude_vars</span><span class="p">:</span>
+            <span class="n">diff_data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds1</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">-</span> <span class="n">ds2</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Copy over variables that are not differenced</span>
+            <span class="n">diff_data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds1</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+
+    <span class="c1"># Create a new dataset with the same coordinates and attributes</span>
+    <span class="n">ds_diff</span> <span class="o">=</span> <span class="n">ds1</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">diff_data</span><span class="p">:</span>
+        <span class="n">ds_diff</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">diff_data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">ds_diff</span></div>
+
+
+
+<div class="viewcode-block" id="isopycnal_pressure_series">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.hydrographic.isopycnal_pressure_series">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">isopycnal_pressure_series</span><span class="p">(</span>
+    <span class="n">sigma0_tp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">pressure</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">sigma_grid</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Find the pressure of each target density surface at every time step.</span>
+
+<span class="sd">    Uses a "first crossing from shallow" approach: for each target σ₀ value,</span>
+<span class="sd">    scans from the shallowest pressure downward and finds the first level where</span>
+<span class="sd">    sigma0 transitions from below to at-or-above the target, then linearly</span>
+<span class="sd">    interpolates between those two levels.  This is robust to non-monotonic</span>
+<span class="sd">    sigma0 columns (which occur in gridded fields during knockdowns) and always</span>
+<span class="sd">    returns the shallowest crossing — the physically meaningful pycnocline.</span>
+
+<span class="sd">    Returns NaN only when the target density is absent from the entire column</span>
+<span class="sd">    (too light or too dense for any observed level at that time step).</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        Operates on σ₀ (potential density referenced to 0 dbar).  If the</span>
+<span class="sd">        mooring was processed with a different reference pressure (e.g. σ₂ at</span>
+<span class="sd">        2000 dbar), pass the corresponding sigma variable.  A future option</span>
+<span class="sd">        ``--sig-ref`` / ``density_reference`` will generalise this; for now</span>
+<span class="sd">        the variable name in the dataset controls which reference is used.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sigma0_tp:</span>
+<span class="sd">        Shape ``(time, pressure)``.  NaN where missing.</span>
+<span class="sd">    pressure:</span>
+<span class="sd">        1-D array of pressure levels in dbar.  Need not be sorted — the</span>
+<span class="sd">        function sorts each time step's finite values by pressure before</span>
+<span class="sd">        scanning for crossings.</span>
+<span class="sd">    sigma_grid:</span>
+<span class="sd">        Target sigma0 values (kg m⁻³) at which to find the pressure.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        Shape ``(time, len(sigma_grid))``.  NaN where the target isopycnal is</span>
+<span class="sd">        absent from the observed column at that time step.</span>
+
+<span class="sd">    """</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">sigma0_tp</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pressure</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">sg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">sigma_grid</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">n_t</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">n_sg</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sg</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_t</span><span class="p">,</span> <span class="n">n_sg</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_t</span><span class="p">):</span>
+        <span class="n">col</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">finite_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">finite_mask</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">s_f</span> <span class="o">=</span> <span class="n">col</span><span class="p">[</span><span class="n">finite_mask</span><span class="p">]</span>
+        <span class="n">p_f</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="n">finite_mask</span><span class="p">]</span>
+        <span class="n">sort_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">p_f</span><span class="p">)</span>
+        <span class="n">s_f</span> <span class="o">=</span> <span class="n">s_f</span><span class="p">[</span><span class="n">sort_idx</span><span class="p">]</span>
+        <span class="n">p_f</span> <span class="o">=</span> <span class="n">p_f</span><span class="p">[</span><span class="n">sort_idx</span><span class="p">]</span>
+
+        <span class="c1"># Upward crossings: pairs (j, j+1) where s_f[j] &lt; target and</span>
+        <span class="c1"># s_f[j+1] &gt;= target.  This handles non-monotonic columns: isolated</span>
+        <span class="c1"># spikes (level above target then back below) do not produce an upward</span>
+        <span class="c1"># crossing, while genuine crossings of the pycnocline do.</span>
+        <span class="c1"># Shape: (n_p-1, n_sg)</span>
+        <span class="n">above</span> <span class="o">=</span> <span class="n">s_f</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">sg</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>  <span class="c1"># (n_p, n_sg)</span>
+        <span class="n">upward</span> <span class="o">=</span> <span class="o">~</span><span class="n">above</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">&amp;</span> <span class="n">above</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="p">:]</span>  <span class="c1"># first element of each crossing pair</span>
+
+        <span class="n">has_crossing</span> <span class="o">=</span> <span class="n">upward</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># (n_sg,)</span>
+        <span class="c1"># argmax on upward gives index j of the first crossing pair (j, j+1).</span>
+        <span class="c1"># When has_crossing is False argmax returns 0 — use safe fallback indices.</span>
+        <span class="n">j0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">upward</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># (n_sg,) index of lower bound</span>
+        <span class="n">i0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">has_crossing</span><span class="p">,</span> <span class="n">j0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">i1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">has_crossing</span><span class="p">,</span> <span class="n">j0</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">s0</span> <span class="o">=</span> <span class="n">s_f</span><span class="p">[</span><span class="n">i0</span><span class="p">]</span>
+        <span class="n">s1</span> <span class="o">=</span> <span class="n">s_f</span><span class="p">[</span><span class="n">i1</span><span class="p">]</span>
+        <span class="n">p0v</span> <span class="o">=</span> <span class="n">p_f</span><span class="p">[</span><span class="n">i0</span><span class="p">]</span>
+        <span class="n">p1v</span> <span class="o">=</span> <span class="n">p_f</span><span class="p">[</span><span class="n">i1</span><span class="p">]</span>
+        <span class="n">denom</span> <span class="o">=</span> <span class="n">s1</span> <span class="o">-</span> <span class="n">s0</span>
+        <span class="c1"># denom &gt; 0 guaranteed for valid crossings (s0 &lt; target &lt;= s1).</span>
+        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">):</span>
+            <span class="n">frac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">has_crossing</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">denom</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="n">sg</span> <span class="o">-</span> <span class="n">s0</span><span class="p">)</span> <span class="o">/</span> <span class="n">denom</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">has_crossing</span><span class="p">,</span> <span class="n">p0v</span> <span class="o">+</span> <span class="n">frac</span> <span class="o">*</span> <span class="p">(</span><span class="n">p1v</span> <span class="o">-</span> <span class="n">p0v</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+        <span class="c1"># To also track the *last* (deepest) upward crossing of each surface,</span>
+        <span class="c1"># flip upward along axis=0, argmax, then map back:</span>
+        <span class="c1">#   j0_last = (len(s_f) - 2) - np.argmax(upward[::-1, :], axis=0)</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="isopycnal_dataset">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.hydrographic.isopycnal_dataset">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">isopycnal_dataset</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">sigma_var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"sigma0"</span><span class="p">,</span>
+    <span class="n">sigma_grid</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Build an isopycnal-tracking dataset from a gridded mooring file.</span>
+
+<span class="sd">    Tracks the pressure (and height above seabed) of density surfaces through</span>
+<span class="sd">    time using the gridded sigma0 field.  Calls</span>
+<span class="sd">    :func:`isopycnal_pressure_series` column-by-column.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds:</span>
+<span class="sd">        Gridded mooring xr.Dataset with ``(pressure, time)`` dimensions and</span>
+<span class="sd">        a sigma variable.  A ``waterdepth`` global attribute (metres) is used</span>
+<span class="sd">        for the height-above-seabed conversion; if absent both ``_height``</span>
+<span class="sd">        variables are all-NaN.</span>
+<span class="sd">    sigma_var:</span>
+<span class="sd">        Name of the sigma variable in *ds* (default ``"sigma0"``).</span>
+<span class="sd">    sigma_grid:</span>
+<span class="sd">        Target sigma0 values to track.  If ``None``, a 0.1 kg m⁻³ grid is</span>
+<span class="sd">        computed from the observed data range.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.Dataset</span>
+<span class="sd">        Dimensions ``(sigma0_level, time)``.  Variables:</span>
+
+<span class="sd">        * ``isopycnal_pressure``  — dbar, NaN where absent.</span>
+<span class="sd">        * ``isopycnal_height``    — m above seabed, NaN where absent.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">sigma_var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"sigma variable '</span><span class="si">{</span><span class="n">sigma_var</span><span class="si">}</span><span class="s2">' not found in dataset"</span><span class="p">)</span>
+
+    <span class="n">da</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">sigma_var</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s2">"time"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span> <span class="ow">or</span> <span class="s2">"pressure"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">sigma_var</span><span class="si">}</span><span class="s2">' must have both 'time' and 'pressure' dimensions"</span>
+        <span class="p">)</span>
+    <span class="n">da_tp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"pressure"</span><span class="p">)</span>
+    <span class="n">pressure</span> <span class="o">=</span> <span class="n">da_tp</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="n">da_tp</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">sigma0_tp</span> <span class="o">=</span> <span class="n">da_tp</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="k">if</span> <span class="n">sigma_grid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">s_finite</span> <span class="o">=</span> <span class="n">sigma0_tp</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">sigma0_tp</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s_finite</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">sigma_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">26.5</span><span class="p">,</span> <span class="mf">28.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">smin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">s_finite</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">*</span> <span class="mi">10</span><span class="p">)</span> <span class="o">/</span> <span class="mi">10</span>
+            <span class="n">smax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">s_finite</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="mi">10</span><span class="p">)</span> <span class="o">/</span> <span class="mi">10</span>
+            <span class="n">sigma_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">smin</span><span class="p">,</span> <span class="n">smax</span> <span class="o">+</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+
+    <span class="n">iso_p</span> <span class="o">=</span> <span class="n">isopycnal_pressure_series</span><span class="p">(</span><span class="n">sigma0_tp</span><span class="p">,</span> <span class="n">pressure</span><span class="p">,</span> <span class="n">sigma_grid</span><span class="p">)</span>  <span class="c1"># (T, N)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">waterdepth</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"waterdepth"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+        <span class="n">waterdepth</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">waterdepth</span><span class="p">)</span> <span class="ow">and</span> <span class="n">waterdepth</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">iso_h</span> <span class="o">=</span> <span class="n">waterdepth</span> <span class="o">-</span> <span class="n">iso_p</span>
+        <span class="n">iso_h</span><span class="p">[</span><span class="n">iso_h</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">iso_h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">iso_p</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+    <span class="n">dim_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">sigma_var</span><span class="si">}</span><span class="s2">_level"</span>
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">"isopycnal_pressure"</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                <span class="n">iso_p</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="n">dim_name</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">],</span>
+                <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">"units"</span><span class="p">:</span> <span class="s2">"dbar"</span><span class="p">,</span> <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"Isopycnal pressure"</span><span class="p">},</span>
+            <span class="p">),</span>
+            <span class="s2">"isopycnal_height"</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                <span class="n">iso_h</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="n">dim_name</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">],</span>
+                <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"m"</span><span class="p">,</span>
+                    <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"Isopycnal height above seabed"</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
+            <span class="n">dim_name</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                <span class="n">sigma_grid</span><span class="p">,</span>
+                <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="n">dim_name</span><span class="p">],</span>
+                <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"kg m-3"</span><span class="p">,</span>
+                    <span class="s2">"long_name"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"Potential density anomaly (</span><span class="si">{</span><span class="n">sigma_var</span><span class="si">}</span><span class="s2">)"</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">),</span>
+            <span class="s2">"time"</span><span class="p">:</span> <span class="n">time</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

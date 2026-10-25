@@ -1,0 +1,594 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.plotters.hydrography &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.plotters.hydrography</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.plotters.hydrography</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Tier-2 domain wrappers for hydrographic section and isopycnal plots.</span>
+
+<span class="sd">hydrography.py contains:</span>
+<span class="sd">  - ``draw_isopycnal_ts_fig``: isopycnal height-above-seabed time series.</span>
+<span class="sd">  - ``draw_isopycnal_coverage``: three-panel isopycnal diagnostic.</span>
+<span class="sd">  - ``draw_overflow_temperature_fig``: temperature time series at ~100 m above seabed.</span>
+
+<span class="sd">Pairs with :mod:`oceanarray.analysis.hydrographic` for density computations.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.reports._vendored</span><span class="w"> </span><span class="kn">import</span> <span class="n">design_tokens</span> <span class="k">as</span> <span class="n">report_tokens</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameters</span> <span class="k">as</span> <span class="n">params</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..config.unit_tables</span><span class="w"> </span><span class="kn">import</span> <span class="n">unit_label</span><span class="p">,</span> <span class="n">warn_if_not_canonical</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">grid_despine</span><span class="p">,</span> <span class="n">ordered_line_colors</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.primitives</span><span class="w"> </span><span class="kn">import</span> <span class="n">colorbar_norm</span><span class="p">,</span> <span class="n">date_axis</span><span class="p">,</span> <span class="n">plot_title</span>
+
+
+<div class="viewcode-block" id="draw_isopycnal_ts_fig">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.hydrography.draw_isopycnal_ts_fig">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">draw_isopycnal_ts_fig</span><span class="p">(</span>
+    <span class="n">ds_iso</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">width_in</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">report_tokens</span><span class="o">.</span><span class="n">W_FULL</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Isopycnal height-above-seabed time series; return a Figure.</span>
+
+<span class="sd">    Plots a 1-hour running median of each σ₀ surface's height above seabed.</span>
+<span class="sd">    NaN gaps break the line naturally (pandas rolling preserves NaN boundaries).</span>
+<span class="sd">    Colormap: Blues — light blue = lower density (shallower), dark = denser (deeper).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_iso:</span>
+<span class="sd">        Output of :func:`~oceanarray.tools.isopycnal_dataset` — must contain</span>
+<span class="sd">        ``isopycnal_height`` ``(sigma0_level, time)`` and the ``sigma0_level``</span>
+<span class="sd">        coordinate.</span>
+<span class="sd">    width_in : float, optional</span>
+<span class="sd">        Figure width in inches -- the display-slot width the report builder</span>
+<span class="sd">        resolves; standalone callers get the full content width.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    plt.Figure or None</span>
+<span class="sd">        Figure, or ``None`` if required data are absent.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+    <span class="n">sigma_dim</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">ds_iso</span><span class="o">.</span><span class="n">coords</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s2">"time"</span> <span class="ow">and</span> <span class="s2">"level"</span> <span class="ow">in</span> <span class="n">c</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">"isopycnal_height"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_iso</span> <span class="ow">or</span> <span class="n">sigma_dim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">sigma_vals</span> <span class="o">=</span> <span class="n">ds_iso</span><span class="p">[</span><span class="n">sigma_dim</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">time_vals</span> <span class="o">=</span> <span class="n">ds_iso</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">height</span> <span class="o">=</span> <span class="n">ds_iso</span><span class="p">[</span><span class="s2">"isopycnal_height"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>  <span class="c1"># (n_sigma, time)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">height</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># 1-hour rolling window in samples</span>
+    <span class="n">dt_s</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">time_vals</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"timedelta64[s]"</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span>
+    <span class="p">)</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="mf">3600.0</span> <span class="o">/</span> <span class="n">dt_s</span><span class="p">)))</span>
+
+    <span class="n">n_levels</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sigma_vals</span><span class="p">)</span>
+    <span class="c1"># Density colormap, densest (darkest) → lightest, with too-pale colours</span>
+    <span class="c1"># dropped by luminance so every isopycnal line stays readable.</span>
+    <span class="n">_dens_cmap</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">CMAPS_BY_VARIABLE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"potential_density"</span><span class="p">,</span> <span class="s2">"Blues"</span><span class="p">)</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="n">ordered_line_colors</span><span class="p">(</span><span class="n">_dens_cmap</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">n_levels</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">width_in</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">GRID_PANEL_ROW_IN</span><span class="p">))</span>
+    <span class="n">grid_despine</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">sval</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">sigma_vals</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)):</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">height</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">h_med</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">window</span> <span class="o">//</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">median</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">values</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_vals</span><span class="p">,</span> <span class="n">h_med</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">col</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">"σ₀ = </span><span class="si">{</span><span class="n">sval</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">n_levels</span> <span class="o">&lt;=</span> <span class="mi">8</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">"upper right"</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">bounds</span><span class="p">,</span> <span class="n">norm</span> <span class="o">=</span> <span class="n">colorbar_norm</span><span class="p">(</span>
+            <span class="n">vmin</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">sigma_vals</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">sigma_vals</span><span class="o">.</span><span class="n">max</span><span class="p">()),</span>
+            <span class="n">n</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="n">n_levels</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">sm</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">cmap</span><span class="o">=</span><span class="n">_dens_cmap</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">)</span>
+        <span class="n">sm</span><span class="o">.</span><span class="n">set_array</span><span class="p">([])</span>
+        <span class="n">cb</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sm</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">ticks</span><span class="o">=</span><span class="n">bounds</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.85</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
+        <span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">vlabel</span><span class="p">(</span><span class="s2">"potential_density"</span><span class="p">))</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"Height above seabed (m)"</span><span class="p">)</span>
+    <span class="n">date_axis</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"Time"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+
+<div class="viewcode-block" id="draw_isopycnal_coverage">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.hydrography.draw_isopycnal_coverage">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">draw_isopycnal_coverage</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">width_in</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">report_tokens</span><span class="o">.</span><span class="n">W_FULL</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Three-panel isopycnal diagnostic; return a Figure.</span>
+
+<span class="sd">    **Panel 0 — Distribution**: horizontal histogram of all gridded σ₀ values</span>
+<span class="sd">    (all time steps × all pressure levels), binned at 0.1 kg m⁻³.  Shows how the</span>
+<span class="sd">    water column is distributed in density space.</span>
+
+<span class="sd">    **Panel 1 — Coverage**: for each σ₀ value at 0.1 kg m⁻³ spacing, the percentage</span>
+<span class="sd">    of valid time steps during which the target surface lies within the measured column</span>
+<span class="sd">    (``min(sigma0_column) ≤ target ≤ max(sigma0_column)``).  Colour-coded:</span>
+<span class="sd">    green ≥ 80 %, amber 50–80 %, red &lt; 50 %.  Dashed reference at 80 %.</span>
+
+<span class="sd">    **Panel 2 — Depth distribution**: for each target surface, the median height above</span>
+<span class="sd">    seabed (or pressure when ``waterdepth`` is unavailable), with the IQR</span>
+<span class="sd">    (25th–75th percentile) as a thick bar and the 5th–95th percentile as a thin whisker.</span>
+
+<span class="sd">    The shared y-axis (σ₀) is clipped to the 2.5th–99.99th percentile of the</span>
+<span class="sd">    distribution — this removes rare light-water outliers from the top while retaining</span>
+<span class="sd">    all of the dense water at the bottom.  Currently selected ``params.SIGMA_GRID`` targets</span>
+<span class="sd">    are marked with orange diamonds (panel 1) and dotted guide lines (panel 2).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds:</span>
+<span class="sd">        Gridded mooring xr.Dataset containing a variable whose name starts with</span>
+<span class="sd">        ``"sigma"`` and has ``pressure`` and ``time`` dimensions.</span>
+<span class="sd">    width_in : float, optional</span>
+<span class="sd">        Figure width in inches -- the display-slot width the report builder</span>
+<span class="sd">        resolves; standalone callers get the full content width.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    plt.Figure or None</span>
+<span class="sd">        Figure, or ``None`` if required sigma data are absent.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_warnings</span>
+
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.lines</span><span class="w"> </span><span class="kn">import</span> <span class="n">Line2D</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..analysis.hydrographic</span><span class="w"> </span><span class="kn">import</span> <span class="n">isopycnal_pressure_series</span>
+
+    <span class="c1"># Find the first sigma variable with pressure + time dims</span>
+    <span class="n">sv</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+        <span class="p">(</span>
+            <span class="n">v</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span>
+            <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"sigma"</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="s2">"pressure"</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span>
+            <span class="ow">and</span> <span class="s2">"time"</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span>
+        <span class="p">),</span>
+        <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">sv</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">da_tp</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">sv</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"pressure"</span><span class="p">)</span>
+    <span class="n">sigma0_tp</span> <span class="o">=</span> <span class="n">da_tp</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>  <span class="c1"># (n_time, n_p)</span>
+    <span class="n">pressure_arr</span> <span class="o">=</span> <span class="n">da_tp</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>  <span class="c1"># (n_p,)</span>
+
+    <span class="c1"># All finite sigma0 values (flattened) — used for the histogram and y limits</span>
+    <span class="n">all_sigma</span> <span class="o">=</span> <span class="n">sigma0_tp</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="n">all_sigma</span> <span class="o">=</span> <span class="n">all_sigma</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">all_sigma</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_sigma</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># Y-axis limits: 2.5th pct cuts rare light-water outliers; 99.99th keeps all</span>
+    <span class="c1"># dense water.  These limits are shared across all three panels via sharey.</span>
+    <span class="n">y_lo</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">all_sigma</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">))</span>
+    <span class="n">y_hi</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">all_sigma</span><span class="p">,</span> <span class="mf">99.99</span><span class="p">))</span>
+
+    <span class="c1"># Histogram bins aligned to round σ₀ multiples of 0.1 so that bar centres</span>
+    <span class="c1"># sit at 27.0, 27.1, 27.2 … rather than between them.</span>
+    <span class="n">c_lo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">y_lo</span> <span class="o">*</span> <span class="mi">10</span><span class="p">)</span> <span class="o">/</span> <span class="mi">10</span>  <span class="c1"># first centre ≥ y_lo</span>
+    <span class="n">c_hi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">y_hi</span> <span class="o">*</span> <span class="mi">10</span><span class="p">)</span> <span class="o">/</span> <span class="mi">10</span>  <span class="c1"># last  centre ≤ y_hi</span>
+    <span class="n">hist_centers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">c_lo</span><span class="p">,</span> <span class="n">c_hi</span> <span class="o">+</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">hist_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([[</span><span class="n">hist_centers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.05</span><span class="p">],</span> <span class="n">hist_centers</span> <span class="o">+</span> <span class="mf">0.05</span><span class="p">])</span>
+    <span class="n">hist_counts</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">all_sigma</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">hist_edges</span><span class="p">)</span>
+    <span class="n">hist_pct</span> <span class="o">=</span> <span class="n">hist_counts</span> <span class="o">/</span> <span class="n">hist_counts</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mf">100.0</span>
+
+    <span class="c1"># Column min/max per time step — All-NaN rows (knockdown) return NaN harmlessly</span>
+    <span class="k">with</span> <span class="n">_warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+        <span class="n">_warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
+        <span class="n">s_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">sigma0_tp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># (n_time,)</span>
+        <span class="n">s_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">sigma0_tp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">s_min</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">s_max</span><span class="p">)</span>
+    <span class="n">n_valid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">valid</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">n_valid</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">s_min_v</span> <span class="o">=</span> <span class="n">s_min</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span>
+    <span class="n">s_max_v</span> <span class="o">=</span> <span class="n">s_max</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span>
+
+    <span class="c1"># Coverage/distribution targets share the same round centres as the histogram</span>
+    <span class="n">targets</span> <span class="o">=</span> <span class="n">hist_centers</span>
+    <span class="n">pct</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="mf">100.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">s_min_v</span> <span class="o">&lt;=</span> <span class="n">tgt</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">s_max_v</span> <span class="o">&gt;=</span> <span class="n">tgt</span><span class="p">))</span> <span class="o">/</span> <span class="n">n_valid</span>
+            <span class="k">for</span> <span class="n">tgt</span> <span class="ow">in</span> <span class="n">targets</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Isopycnal depth distribution</span>
+    <span class="n">iso_p</span> <span class="o">=</span> <span class="n">isopycnal_pressure_series</span><span class="p">(</span>
+        <span class="n">sigma0_tp</span><span class="p">,</span> <span class="n">pressure_arr</span><span class="p">,</span> <span class="n">targets</span>
+    <span class="p">)</span>  <span class="c1"># (n_time, n_tgt)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">waterdepth</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"waterdepth"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+        <span class="n">waterdepth</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"nan"</span><span class="p">)</span>
+    <span class="n">use_hab</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">waterdepth</span><span class="p">)</span> <span class="ow">and</span> <span class="n">waterdepth</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="c1"># Both branches build the second axis from the pressure coordinate and label it dbar</span>
+    <span class="c1"># — HAB treats 1 dbar ≈ 1 m seawater; otherwise pressure is shown directly — so the</span>
+    <span class="c1"># guard runs before the branch, covering the else path's "Pressure (dbar)" label too.</span>
+    <span class="n">warn_if_not_canonical</span><span class="p">(</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">],</span> <span class="s2">"dbar"</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="s2">"isopycnal depth axis (dbar)"</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">use_hab</span><span class="p">:</span>
+        <span class="n">iso_z</span> <span class="o">=</span> <span class="n">waterdepth</span> <span class="o">-</span> <span class="n">iso_p</span>
+        <span class="n">iso_z</span><span class="p">[</span><span class="n">iso_z</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">xlbl2</span> <span class="o">=</span> <span class="s2">"Height above seabed (m)"</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">iso_z</span> <span class="o">=</span> <span class="n">iso_p</span>
+        <span class="n">xlbl2</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Pressure (</span><span class="si">{</span><span class="n">unit_label</span><span class="p">(</span><span class="s1">'dbar'</span><span class="p">)</span><span class="si">}</span><span class="s2">)"</span>
+
+    <span class="k">with</span> <span class="n">_warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+        <span class="n">_warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
+        <span class="n">med</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">iso_z</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">q25</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">iso_z</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">q75</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">iso_z</span><span class="p">,</span> <span class="mi">75</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">q05</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">iso_z</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">q95</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">iso_z</span><span class="p">,</span> <span class="mi">95</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_bar_color</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="o">&gt;=</span> <span class="mi">80</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">"#27ae60"</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="o">&gt;=</span> <span class="mi">50</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">"#f39c12"</span>
+        <span class="k">return</span> <span class="s2">"#e74c3c"</span>
+
+    <span class="n">bar_colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">_bar_color</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pct</span><span class="p">]</span>
+    <span class="n">selected</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">"SIGMA_GRID"</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]))</span>
+
+    <span class="n">fig_h</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.22</span><span class="p">)</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax0</span><span class="p">,</span> <span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">,</span>
+        <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">width_in</span><span class="p">,</span> <span class="n">fig_h</span><span class="p">),</span>
+        <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">"width_ratios"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">]},</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">_ax</span> <span class="ow">in</span> <span class="p">(</span><span class="n">ax0</span><span class="p">,</span> <span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">):</span>
+        <span class="n">grid_despine</span><span class="p">(</span><span class="n">_ax</span><span class="p">)</span>
+
+    <span class="c1"># ---- Panel 0: sigma0 histogram ----</span>
+    <span class="n">ax0</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">hist_centers</span><span class="p">,</span> <span class="n">hist_pct</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.09</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#7fb3d3"</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">"none"</span><span class="p">)</span>
+    <span class="c1"># Guide lines for selected targets</span>
+    <span class="k">for</span> <span class="n">tgt</span> <span class="ow">in</span> <span class="n">selected</span><span class="p">:</span>
+        <span class="n">ax0</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">tgt</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#e67e22"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">":"</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">ax0</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"Occurrence (%)"</span><span class="p">)</span>
+    <span class="n">ax0</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">"σ₀ (</span><span class="si">{</span><span class="n">unit_label</span><span class="p">(</span><span class="s1">'kg m-3'</span><span class="p">)</span><span class="si">}</span><span class="s2">)  [</span><span class="si">{</span><span class="n">sv</span><span class="si">}</span><span class="s2">]"</span><span class="p">)</span>
+    <span class="n">plot_title</span><span class="p">(</span><span class="n">ax0</span><span class="p">,</span> <span class="s2">"Distribution"</span><span class="p">)</span>
+    <span class="n">ax0</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">y_lo</span><span class="p">,</span> <span class="n">y_hi</span><span class="p">)</span>
+    <span class="n">ax0</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
+
+    <span class="c1"># ---- Panel 1: coverage bars ----</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">targets</span><span class="p">,</span> <span class="n">pct</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.08</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">bar_colors</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">"none"</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">80</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#7f8c8d"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"80 %"</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tgt</span> <span class="ow">in</span> <span class="n">selected</span><span class="p">:</span>
+        <span class="n">nearest_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">targets</span> <span class="o">-</span> <span class="n">tgt</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">targets</span><span class="p">[</span><span class="n">nearest_idx</span><span class="p">]</span> <span class="o">-</span> <span class="n">tgt</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.06</span><span class="p">:</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="n">pct</span><span class="p">[</span><span class="n">nearest_idx</span><span class="p">],</span>
+                <span class="n">targets</span><span class="p">[</span><span class="n">nearest_idx</span><span class="p">],</span>
+                <span class="n">marker</span><span class="o">=</span><span class="s2">"D"</span><span class="p">,</span>
+                <span class="n">ms</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="s2">"#e67e22"</span><span class="p">,</span>
+                <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">"σ₀=</span><span class="si">{</span><span class="n">tgt</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">tgt</span> <span class="o">==</span> <span class="n">selected</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">else</span> <span class="s2">"_"</span><span class="p">,</span>
+            <span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"Time present (%)"</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">105</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">"y"</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">"both"</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">"lower right"</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+    <span class="n">plot_title</span><span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="s2">"Coverage"</span><span class="p">)</span>
+
+    <span class="c1"># ---- Panel 2: depth distribution ----</span>
+    <span class="n">valid_med</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">med</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">valid_med</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span>
+            <span class="n">targets</span><span class="p">[</span><span class="n">valid_med</span><span class="p">],</span>
+            <span class="n">q05</span><span class="p">[</span><span class="n">valid_med</span><span class="p">],</span>
+            <span class="n">q95</span><span class="p">[</span><span class="n">valid_med</span><span class="p">],</span>
+            <span class="n">lw</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">"#95a5a6"</span><span class="p">,</span>
+            <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span>
+            <span class="n">targets</span><span class="p">[</span><span class="n">valid_med</span><span class="p">],</span>
+            <span class="n">q25</span><span class="p">[</span><span class="n">valid_med</span><span class="p">],</span>
+            <span class="n">q75</span><span class="p">[</span><span class="n">valid_med</span><span class="p">],</span>
+            <span class="n">lw</span><span class="o">=</span><span class="mf">3.5</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">"#2980b9"</span><span class="p">,</span>
+            <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">med</span><span class="p">[</span><span class="n">valid_med</span><span class="p">],</span>
+            <span class="n">targets</span><span class="p">[</span><span class="n">valid_med</span><span class="p">],</span>
+            <span class="s2">"o"</span><span class="p">,</span>
+            <span class="n">ms</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">"#1a5276"</span><span class="p">,</span>
+            <span class="n">zorder</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">tgt</span> <span class="ow">in</span> <span class="n">selected</span><span class="p">:</span>
+            <span class="n">nearest_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">targets</span> <span class="o">-</span> <span class="n">tgt</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">targets</span><span class="p">[</span><span class="n">nearest_idx</span><span class="p">]</span> <span class="o">-</span> <span class="n">tgt</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.06</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">med</span><span class="p">[</span><span class="n">nearest_idx</span><span class="p">]):</span>
+                <span class="n">ax2</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">tgt</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#e67e22"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">":"</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">xlbl2</span><span class="p">)</span>
+    <span class="n">plot_title</span><span class="p">(</span><span class="n">ax2</span><span class="p">,</span> <span class="s2">"Depth distribution"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">use_hab</span><span class="p">:</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">invert_xaxis</span><span class="p">()</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">"y"</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">"both"</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">legend_elems</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#1a5276"</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span> <span class="n">ms</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Median"</span><span class="p">),</span>
+        <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#2980b9"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">3.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"IQR (25–75 %)"</span><span class="p">),</span>
+        <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#95a5a6"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"5–95 %"</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">legend_elems</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"lower right"</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+
+<div class="viewcode-block" id="draw_overflow_temperature_fig">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.plotters.hydrography.draw_overflow_temperature_fig">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">draw_overflow_temperature_fig</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">width_in</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">report_tokens</span><span class="o">.</span><span class="n">W_FULL</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Temperature time series at ~100 m above the seabed; return a Figure.</span>
+
+<span class="sd">    Selects the grid pressure level nearest to ``waterdepth - 100`` dbar and</span>
+<span class="sd">    plots a 1-hour running median temperature time series.  Returns ``None``</span>
+<span class="sd">    if ``waterdepth`` is missing, temperature is absent, or all values are NaN.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds:</span>
+<span class="sd">        Gridded mooring xr.Dataset.  Must have a ``waterdepth`` global</span>
+<span class="sd">        attribute (metres) and a ``temperature`` variable with ``pressure``</span>
+<span class="sd">        and ``time`` dimensions.</span>
+<span class="sd">    width_in : float, optional</span>
+<span class="sd">        Figure width in inches -- the display-slot width the report builder</span>
+<span class="sd">        resolves; standalone callers get the full content width.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    plt.Figure or None</span>
+<span class="sd">        Figure, or ``None`` if required data are absent.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+    <span class="k">if</span> <span class="s2">"temperature"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">or</span> <span class="s2">"pressure"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">waterdepth</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"waterdepth"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+        <span class="n">waterdepth</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"nan"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">waterdepth</span><span class="p">)</span> <span class="ow">and</span> <span class="n">waterdepth</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">target_p</span> <span class="o">=</span> <span class="n">waterdepth</span> <span class="o">-</span> <span class="mf">100.0</span>
+    <span class="n">pressure_vals</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="c1"># Clamp to grid range if target is outside it</span>
+    <span class="n">target_p</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">target_p</span><span class="p">,</span> <span class="n">pressure_vals</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">pressure_vals</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
+    <span class="n">nearest_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">pressure_vals</span> <span class="o">-</span> <span class="n">target_p</span><span class="p">)))</span>
+    <span class="n">actual_p</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">pressure_vals</span><span class="p">[</span><span class="n">nearest_idx</span><span class="p">])</span>
+
+    <span class="n">da_temp</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"temperature"</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">pressure</span><span class="o">=</span><span class="n">nearest_idx</span><span class="p">)</span>
+    <span class="n">time_vals</span> <span class="o">=</span> <span class="n">da_temp</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">temp_vals</span> <span class="o">=</span> <span class="n">da_temp</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">temp_vals</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">dt_s</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">time_vals</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"timedelta64[s]"</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span>
+    <span class="p">)</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="mf">3600.0</span> <span class="o">/</span> <span class="n">dt_s</span><span class="p">)))</span>
+    <span class="n">temp_med</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">temp_vals</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">window</span> <span class="o">//</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">median</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">values</span>
+    <span class="p">)</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">width_in</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">GRID_PANEL_ROW_IN</span><span class="p">))</span>
+    <span class="n">grid_despine</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="n">time_vals</span><span class="p">,</span>
+        <span class="n">temp_med</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">var_color</span><span class="p">(</span><span class="s2">"temperature"</span><span class="p">),</span>
+        <span class="n">lw</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">vlabel</span><span class="p">(</span><span class="s2">"temperature"</span><span class="p">))</span>
+    <span class="n">hab</span> <span class="o">=</span> <span class="n">waterdepth</span> <span class="o">-</span> <span class="n">actual_p</span>
+    <span class="n">plot_title</span><span class="p">(</span>
+        <span class="n">ax</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">actual_p</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> dbar  (</span><span class="si">{</span><span class="n">hab</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> m above seabed)"</span><span class="p">,</span>
+        <span class="n">pad</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">date_axis</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"Time"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

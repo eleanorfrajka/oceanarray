@@ -1,0 +1,417 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.readers &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.readers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.readers</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Read one raw instrument file to a canonical dataset.</span>
+
+<span class="sd">:func:`read` is the single entry point: given a path it sniffs the file's</span>
+<span class="sd">content (never its suffix) to decide the format, finds the Nortek ``.hdr``</span>
+<span class="sd">beside a data file, and dispatches to the per-format module. An oceanarray</span>
+<span class="sd">netCDF is returned unchanged; an OceanSITES netCDF is read to oceanarray names.</span>
+<span class="sd">The format can be forced with ``file_type=`` when the content is not one the</span>
+<span class="sd">sniffer recognises.</span>
+
+<span class="sd">One module per format: :mod:`~oceanarray.readers.sbe`,</span>
+<span class="sd">:mod:`~oceanarray.readers.nortek`, :mod:`~oceanarray.readers.rodb`,</span>
+<span class="sd">:mod:`~oceanarray.readers.oceansites`, :mod:`~oceanarray.readers.netcdf`.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameters</span> <span class="k">as</span> <span class="n">params</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.readers</span><span class="w"> </span><span class="kn">import</span> <span class="n">nortek</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.readers.netcdf</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_netcdf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.readers.nortek</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_nortek_csv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.readers.oceansites</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_oceansites</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.readers.rodb</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_rodb</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"load_nortek_csv"</span><span class="p">,</span>
+    <span class="s2">"read"</span><span class="p">,</span>
+    <span class="s2">"read_netcdf"</span><span class="p">,</span>
+    <span class="s2">"read_oceansites"</span><span class="p">,</span>
+    <span class="s2">"read_rodb"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1">#: OceanSITES parameter codes used to recognise an OceanSITES netCDF by content.</span>
+<span class="n">_OCEANSITES_CODES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">"TEMP"</span><span class="p">,</span> <span class="s2">"PSAL"</span><span class="p">,</span> <span class="s2">"CNDC"</span><span class="p">,</span> <span class="s2">"PRES"</span><span class="p">,</span> <span class="s2">"UCUR"</span><span class="p">,</span> <span class="s2">"VCUR"</span><span class="p">,</span> <span class="s2">"WCUR"</span><span class="p">})</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_typed</span><span class="p">(</span>
+    <span class="n">file_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">header_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Read a raw instrument file of a known *file_type* and return a Dataset.</span>
+
+<span class="sd">    Deprecated aliases in ``parameters.DEPRECATED_FILE_TYPE_ALIASES`` (e.g.</span>
+<span class="sd">    ``rbr-hex-oa`` → ``rbr-hex``) are remapped to their current equivalent</span>
+<span class="sd">    first, with a deprecation warning. ``nortek-csv-oa`` then routes to the</span>
+<span class="sd">    deprecated internal reader (also with a warning); all other types go</span>
+<span class="sd">    straight to ``seasenselib.read``.</span>
+<span class="sd">    For Nortek formats the coordinate system is parsed from *header_path* and</span>
+<span class="sd">    ``nortek.normalize_nortek_variables`` is called.  For ``sbe-hex``, the</span>
+<span class="sd">    seasenselib output variable ``press`` is renamed to ``pressure``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file_type : str</span>
+<span class="sd">        One of ``parameters.ALL_FILE_TYPES`` (e.g. ``"nortek-raw"``, ``"sbe-cnv"``).</span>
+<span class="sd">    file_path : str</span>
+<span class="sd">        Path to the raw instrument file.</span>
+<span class="sd">    header_path : str or None, optional</span>
+<span class="sd">        Path to the companion header file (required for Nortek formats to read</span>
+<span class="sd">        the coordinate system and transformation matrix).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        The normalised dataset.</span>
+<span class="sd">    """</span>
+    <span class="c1"># Remap deprecated file_type aliases to their current equivalent before</span>
+    <span class="c1"># the membership check — aliases are intentionally excluded from</span>
+    <span class="c1"># ALL_FILE_TYPES so they no longer appear in any public list.</span>
+    <span class="k">if</span> <span class="n">file_type</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">DEPRECATED_FILE_TYPE_ALIASES</span><span class="p">:</span>
+        <span class="n">canonical</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">DEPRECATED_FILE_TYPE_ALIASES</span><span class="p">[</span><span class="n">file_type</span><span class="p">]</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"file_type '</span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s2">' is deprecated and remapped to "</span>
+            <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">canonical</span><span class="si">}</span><span class="s2">' automatically; update your mooring YAML to "</span>
+            <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">canonical</span><span class="si">}</span><span class="s2">'."</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">file_type</span> <span class="o">=</span> <span class="n">canonical</span>
+
+    <span class="k">if</span> <span class="n">file_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">ALL_FILE_TYPES</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Unknown file type: </span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">file_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"oceansites"</span><span class="p">,</span> <span class="s2">"rodb"</span><span class="p">):</span>
+        <span class="n">reader</span> <span class="o">=</span> <span class="n">read_oceansites</span> <span class="k">if</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s2">"oceansites"</span> <span class="k">else</span> <span class="n">read_rodb</span>
+        <span class="k">return</span> <span class="n">reader</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s2">"nortek-csv-oa"</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">"file_type 'nortek-csv-oa' is deprecated. "</span>
+            <span class="s2">"Use 'nortek-csv' once seasenselib supports Nortek CSV export files."</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">load_nortek_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">header_file</span><span class="o">=</span><span class="n">header_path</span><span class="p">)</span>
+        <span class="n">coord_system</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"coordinate_system"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">coord_system</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"WARNING: nortek-csv-oa file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> has no coordinate_system "</span>
+                <span class="s2">"attribute — coordinate system unknown (UNK); velocities not renamed."</span>
+            <span class="p">)</span>
+            <span class="n">coord_system</span> <span class="o">=</span> <span class="s2">"UNK"</span>
+        <span class="k">return</span> <span class="n">nortek</span><span class="o">.</span><span class="n">normalize_nortek_variables</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">coord_system</span><span class="o">=</span><span class="n">coord_system</span><span class="p">)</span>
+
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">file_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"nortek-raw"</span><span class="p">,</span> <span class="s2">"nortek-ascii"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">header_path</span><span class="p">:</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">"header_file"</span><span class="p">]</span> <span class="o">=</span> <span class="n">header_path</span>
+
+    <span class="c1"># Imported lazily: the netCDF / OceanSITES / RODB readers do not need</span>
+    <span class="c1"># seasenselib, so importing oceanarray.readers must not pull it (and its</span>
+    <span class="c1"># ~0.4 s / pycnv side effects) in for those consumers.</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">seasenselib</span>
+
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">seasenselib</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+        <span class="n">file_path</span><span class="p">,</span>
+        <span class="n">file_format</span><span class="o">=</span><span class="n">file_type</span><span class="p">,</span>
+        <span class="n">pipeline_skip_stages</span><span class="o">=</span><span class="p">[</span><span class="s2">"derivation"</span><span class="p">],</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">file_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"nortek-ascii"</span><span class="p">,</span> <span class="s2">"nortek-raw"</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">header_path</span><span class="p">:</span>
+            <span class="n">coord_system</span> <span class="o">=</span> <span class="n">nortek</span><span class="o">.</span><span class="n">_parse_nortek_coord_system</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">header_path</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"WARNING: no header file for </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> — "</span>
+                <span class="s2">"coordinate system unknown (UNK); velocities not renamed."</span>
+            <span class="p">)</span>
+            <span class="n">coord_system</span> <span class="o">=</span> <span class="s2">"UNK"</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">nortek</span><span class="o">.</span><span class="n">normalize_nortek_variables</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">coord_system</span><span class="o">=</span><span class="n">coord_system</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">file_type</span> <span class="o">==</span> <span class="s2">"sbe-hex"</span>
+        <span class="ow">and</span> <span class="s2">"press"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span>
+        <span class="ow">and</span> <span class="s2">"pressure"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span>
+    <span class="p">):</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">rename_vars</span><span class="p">({</span><span class="s2">"press"</span><span class="p">:</span> <span class="s2">"pressure"</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">ds</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_netcdf</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return True if *path* begins with a classic-netCDF or HDF5 magic number."""</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+            <span class="n">magic</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="n">magic</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">"CDF"</span> <span class="ow">or</span> <span class="n">magic</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">"</span><span class="se">\x89</span><span class="s2">HDF"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_nortek_header</span><span class="p">(</span><span class="n">hdr_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return True if *hdr_path* looks like a Nortek .hdr header file."""</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">head</span> <span class="o">=</span> <span class="n">hdr_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">errors</span><span class="o">=</span><span class="s2">"replace"</span><span class="p">)[:</span><span class="mi">2048</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="s2">"Number of measurements"</span> <span class="ow">in</span> <span class="n">head</span> <span class="ow">or</span> <span class="nb">bool</span><span class="p">(</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\.aqd\]"</span><span class="p">,</span> <span class="n">head</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_sniff_text</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the file_type of a text instrument file from its content, or None.</span>
+
+<span class="sd">    Recognises SBE (``sbe-cnv`` when the CNV ``# nquan`` marker is present, else</span>
+<span class="sd">    ``sbe-ascii``), RODB (``Key = value`` header with a ``Columns`` line), and</span>
+<span class="sd">    Nortek (an ASCII data file with a sibling ``.hdr`` that looks like a Nortek</span>
+<span class="sd">    header). The suffix is never consulted.</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">head</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">errors</span><span class="o">=</span><span class="s2">"replace"</span><span class="p">)[:</span><span class="mi">4096</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">ln</span> <span class="k">for</span> <span class="n">ln</span> <span class="ow">in</span> <span class="n">head</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span> <span class="k">if</span> <span class="n">ln</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">lines</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">first</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span>
+
+    <span class="c1"># SBE: header lines begin with "* Sea-Bird" / "* SBE".</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\*\s*(Sea-Bird|SBE)"</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="s2">"sbe-cnv"</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^#\s*nquan"</span><span class="p">,</span> <span class="n">head</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"sbe-ascii"</span>
+        <span class="p">)</span>
+
+    <span class="c1"># RODB: "Key = value" header lines, one of which is "Columns = ...".</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^\w[\w ]*="</span><span class="p">,</span> <span class="n">first</span><span class="p">)</span> <span class="ow">and</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+        <span class="sa">r</span><span class="s2">"^\s*Columns\s*="</span><span class="p">,</span> <span class="n">head</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span>
+    <span class="p">):</span>
+        <span class="k">return</span> <span class="s2">"rodb"</span>
+
+    <span class="c1"># Nortek: an ASCII data file with a sibling .hdr that is a Nortek header.</span>
+    <span class="n">hdr</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">".hdr"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">hdr</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">_is_nortek_header</span><span class="p">(</span><span class="n">hdr</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">"nortek-ascii"</span>
+
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="read">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.readers.read">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">file_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Read one raw instrument file and return a canonical dataset.</span>
+
+<span class="sd">    The format is taken from *file_type* when given, otherwise sniffed from the</span>
+<span class="sd">    file's content (the suffix is never used). A netCDF is read as an OceanSITES</span>
+<span class="sd">    time series when it carries a ``TIME`` dimension and an OceanSITES parameter</span>
+<span class="sd">    code, and returned unchanged otherwise. For Nortek data the companion</span>
+<span class="sd">    ``.hdr`` beside the data file supplies the coordinate system.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : str or pathlib.Path</span>
+<span class="sd">        The raw instrument file.</span>
+<span class="sd">    file_type : str or None, optional</span>
+<span class="sd">        Force a format from ``parameters.ALL_FILE_TYPES`` instead of sniffing.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        The canonical dataset.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If *file_type* is not a known type, or no *file_type* is given and the</span>
+<span class="sd">        content is not one the sniffer recognises.</span>
+<span class="sd">    """</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">_is_netcdf</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">file_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">"oceansites"</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">_read_typed</span><span class="p">(</span><span class="n">file_type</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+        <span class="c1"># Open once.  An OceanSITES file (a TIME dimension and an OceanSITES code)</span>
+        <span class="c1"># goes to read_oceansites, which re-opens with its own decode; our own</span>
+        <span class="c1"># netCDF is already canonical, so the open dataset is the result and</span>
+        <span class="c1"># read_netcdf is not re-opened.</span>
+        <span class="n">src</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">"netcdf4"</span><span class="p">)</span>
+        <span class="n">is_oceansites</span> <span class="o">=</span> <span class="s2">"TIME"</span> <span class="ow">in</span> <span class="n">src</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="nb">bool</span><span class="p">(</span>
+            <span class="n">_OCEANSITES_CODES</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s2">"oceansites"</span> <span class="ow">or</span> <span class="n">is_oceansites</span><span class="p">:</span>
+            <span class="n">src</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">read_oceansites</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">src</span>
+
+    <span class="k">if</span> <span class="n">file_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">file_type</span> <span class="o">=</span> <span class="n">_sniff_text</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">file_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: cannot determine the file type from its content; "</span>
+                <span class="sa">f</span><span class="s2">"pass file_type= (one of </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">ALL_FILE_TYPES</span><span class="p">)</span><span class="si">}</span><span class="s2">)."</span>
+            <span class="p">)</span>
+
+    <span class="n">header_path</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">file_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"nortek-raw"</span><span class="p">,</span> <span class="s2">"nortek-ascii"</span><span class="p">):</span>
+        <span class="n">hdr</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">".hdr"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hdr</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">header_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">hdr</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_read_typed</span><span class="p">(</span><span class="n">file_type</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">header_path</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

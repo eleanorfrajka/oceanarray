@@ -1,0 +1,341 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Development Roadmap &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=20758594" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8b92e751"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Project Style Guide" href="style_guide.html" />
+    <link rel="prev" title="Migrating from the --basedir Layout" href="migration.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            oceanarray
+              <img src="_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Development Roadmap</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#status-overview">Status Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#priority-1-near-term">Priority 1: Near-term</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#stage-3-additional-qc-tests">1. Stage 3: Additional QC tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#calibration-correction-caldip-front-of-stage-3-not-a-separate-stage">2. Calibration correction (caldip) — front of Stage 3, not a separate stage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-coverage">3. Test coverage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#priority-2-longer-term">Priority 2: Longer-term</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#stage-4-oceansites-conversion-and-deployment-concatenation">4. Stage 4: OceanSITES conversion and deployment concatenation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#multi-site-merging-for-boundary-profiles">5. Multi-site merging for boundary profiles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#deployment-concatenation">6. Deployment concatenation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Development Roadmap</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/roadmap.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="development-roadmap">
+<h1>Development Roadmap<a class="headerlink" href="#development-roadmap" title="Link to this heading"></a></h1>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#status-overview" id="id1">Status Overview</a></p></li>
+<li><p><a class="reference internal" href="#priority-1-near-term" id="id2">Priority 1: Near-term</a></p>
+<ul>
+<li><p><a class="reference internal" href="#stage-3-additional-qc-tests" id="id3">1. Stage 3: Additional QC tests</a></p></li>
+<li><p><a class="reference internal" href="#calibration-correction-caldip-front-of-stage-3-not-a-separate-stage" id="id4">2. Calibration correction (caldip) — front of Stage 3, not a separate stage</a></p></li>
+<li><p><a class="reference internal" href="#test-coverage" id="id5">3. Test coverage</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#priority-2-longer-term" id="id6">Priority 2: Longer-term</a></p>
+<ul>
+<li><p><a class="reference internal" href="#stage-4-oceansites-conversion-and-deployment-concatenation" id="id7">4. Stage 4: OceanSITES conversion and deployment concatenation</a></p></li>
+<li><p><a class="reference internal" href="#multi-site-merging-for-boundary-profiles" id="id8">5. Multi-site merging for boundary profiles</a></p></li>
+<li><p><a class="reference internal" href="#deployment-concatenation" id="id9">6. Deployment concatenation</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#dependencies" id="id10">Dependencies</a></p></li>
+</ul>
+</nav>
+<section id="status-overview">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Status Overview</a><a class="headerlink" href="#status-overview" title="Link to this heading"></a></h2>
+<p>✅ <strong>Implemented &amp; Working</strong></p>
+<ul class="simple">
+<li><p>Stage 1: Standardisation (<code class="docutils literal notranslate"><span class="pre">stage1.py</span></code>) — sbe-cnv, sbe-asc, sbe-ascii, nortek-ascii,
+nortek-csv, rbr-rsk, rbr-dat, rbr-hex, rdi-raw (via dolfyn)</p></li>
+<li><p>Stage 2: Clock correction + deployment trim (<code class="docutils literal notranslate"><span class="pre">stage2.py</span></code>)</p></li>
+<li><p>Stage 3: QARTOD gross-range + spike tests, tilt QC, ADCP seabed/surface QC,
+BEAM→ENU rotation (Aquadopp), magnetic declination correction, salinity + density
+(<code class="docutils literal notranslate"><span class="pre">stage3.py</span></code>)</p></li>
+<li><p>Stack: all instruments → common time axis → <code class="docutils literal notranslate"><span class="pre">(N_LEVELS,</span> <span class="pre">time)</span></code> NC (<code class="docutils literal notranslate"><span class="pre">mooring_level.py</span></code>)</p></li>
+<li><p>Grid: stacked data → regular pressure levels (<code class="docutils literal notranslate"><span class="pre">mooring_level.py</span></code>)</p></li>
+<li><p>HTML reports — mooring summary, per-instrument pages, stack report, grid report
+(<code class="docutils literal notranslate"><span class="pre">report/</span></code> package: <code class="docutils literal notranslate"><span class="pre">_mooring.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_instrument.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_stack.py</span></code>, <code class="docutils literal notranslate"><span class="pre">_grid.py</span></code>)</p></li>
+<li><p>Clock offset analysis (<code class="docutils literal notranslate"><span class="pre">clock_offset.py</span></code>)</p></li>
+<li><p>Multi-instrument overview plots (<code class="docutils literal notranslate"><span class="pre">plotters/</span></code> package)</p></li>
+<li><p>YAML validation (<code class="docutils literal notranslate"><span class="pre">validation.py</span></code>)</p></li>
+<li><p>Configurable logging system</p></li>
+</ul>
+<p>🟡 <strong>Partially Implemented</strong></p>
+<ul class="simple">
+<li><p>Caldip / calibration comparison: <code class="docutils literal notranslate"><span class="pre">castB1_detailed_statistics.csv</span></code> format confirmed
+(columns: serial, instrument_type, bl_press, temp_diff/std, cond_diff/std, press_diff/std,
+status, date, time_start/end, CTD and instrument values, N, label).
+Report integration and YAML linkage to cast files still needed — see Priority 1, item 3.</p></li>
+</ul>
+<p>❌ <strong>Not Yet Implemented</strong></p>
+<ul class="simple">
+<li><p>Calibration correction from caldip casts (optional step at the front of Stage 3)</p></li>
+<li><p>Stage 4: OceanSITES format conversion</p></li>
+<li><p>Concatenation of multiple deployments at a single location</p></li>
+<li><p>Multi-site merging for boundary profiles</p></li>
+</ul>
+<p>—</p>
+</section>
+<section id="priority-1-near-term">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Priority 1: Near-term</a><a class="headerlink" href="#priority-1-near-term" title="Link to this heading"></a></h2>
+<section id="stage-3-additional-qc-tests">
+<h3><a class="toc-backref" href="#id3" role="doc-backlink">1. Stage 3: Additional QC tests</a><a class="headerlink" href="#stage-3-additional-qc-tests" title="Link to this heading"></a></h3>
+<p><strong>Currently implemented</strong> (via <code class="docutils literal notranslate"><span class="pre">ioos_qc</span></code>): gross-range and spike tests on scalar
+variables; tilt QC, ADCP seabed/surface QC, and ENU velocity QC for multi-dimensional
+variables.</p>
+<p><strong>Planned additional tests:</strong></p>
+<ul class="simple">
+<li><p>Flat-line / stuck-sensor test</p></li>
+<li><p>Rate-of-change test</p></li>
+<li><p>Climatological range check (season-aware, e.g. from World Ocean Atlas)</p></li>
+<li><p>Spike threshold scaling by sampling interval</p></li>
+</ul>
+<p><strong>Post-OdB refactor note</strong>: as the number of QC functions in <code class="docutils literal notranslate"><span class="pre">stage3.py</span></code> grows,
+consider splitting into a <code class="docutils literal notranslate"><span class="pre">stage3/</span></code> sub-package with a dedicated <code class="docutils literal notranslate"><span class="pre">stage3/qc.py</span></code>
+(or <code class="docutils literal notranslate"><span class="pre">stage3/qc_scalar.py</span></code> + <code class="docutils literal notranslate"><span class="pre">stage3/qc_adcp.py</span></code>).  The public entry-point
+<code class="docutils literal notranslate"><span class="pre">process_stage3(mooring_yaml,</span> <span class="pre">proc_dir)</span></code> would remain in <code class="docutils literal notranslate"><span class="pre">stage3/__init__.py</span></code>.
+No change to the CLI or output format — purely an internal organisation change.</p>
+</section>
+<section id="calibration-correction-caldip-front-of-stage-3-not-a-separate-stage">
+<h3><a class="toc-backref" href="#id4" role="doc-backlink">2. Calibration correction (caldip) — front of Stage 3, not a separate stage</a><a class="headerlink" href="#calibration-correction-caldip-front-of-stage-3-not-a-separate-stage" title="Link to this heading"></a></h3>
+<p><strong>Status</strong>: planned — not yet implemented (<code class="docutils literal notranslate"><span class="pre">pipeline/caldip.py</span></code> is a stub).</p>
+<p><strong>Purpose</strong>: apply per-instrument temperature / conductivity / pressure corrections derived
+from caldip casts (pre/post-deployment CTD comparisons).</p>
+<p><strong>Design (decided 2026-09-05):</strong> not a separate stage.  When a mooring is configured with
+caldip casts, the per-instrument offsets are applied to the raw values at the <strong>front of
+Stage 3</strong>, before pressure interpolation, so every downstream step sees corrected data.
+There is one <code class="docutils literal notranslate"><span class="pre">_stage3.nc</span></code> — calibrated when caldip is configured, otherwise byte-identical
+to today’s output.  Stack and grid are unchanged.</p>
+<p><strong>Input</strong>: <code class="docutils literal notranslate"><span class="pre">--caldip-dir</span></code> gives the root directory only; the mooring YAML names the cast
+for each end, so a mooring whose two dips were processed on different cruises resolves
+correctly:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">caldip</span><span class="p">:</span>
+  <span class="n">deployment</span><span class="p">:</span> <span class="p">{</span><span class="n">cruise</span><span class="p">:</span> <span class="n">msm142_2026</span><span class="p">,</span> <span class="n">cast</span><span class="p">:</span> <span class="n">castM6</span><span class="p">}</span>
+  <span class="n">recovery</span><span class="p">:</span>   <span class="p">{</span><span class="n">cruise</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">later</span> <span class="n">cruise</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">cast</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">cast</span><span class="o">&gt;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>A mooring with a single dip is an ordinary case — the attributes record which end supplied
+the constant correction.</p>
+<p><strong>Current state</strong>: caldip produces <code class="docutils literal notranslate"><span class="pre">castXX_detailed_statistics.csv</span></code> (one per cast) with
+<code class="docutils literal notranslate"><span class="pre">serial</span></code>, <code class="docutils literal notranslate"><span class="pre">temp_diff</span></code>, <code class="docutils literal notranslate"><span class="pre">cond_diff</span></code>, <code class="docutils literal notranslate"><span class="pre">press_diff</span></code>, their <code class="docutils literal notranslate"><span class="pre">_std</span></code>, <code class="docutils literal notranslate"><span class="pre">*_status</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ctd_sensor_used</span></code>, window times, etc.  These files exist but are not yet read.</p>
+<p><strong>Remaining steps:</strong></p>
+<ul class="simple">
+<li><p>Reader; per-variable stop selection (pressure nearest deployment depth, temperature deepest
+stop, conductivity a low-noise stop near deployment conductivity or a slope across stops).</p></li>
+<li><p>Per-variable application threshold (pressure <code class="docutils literal notranslate"><span class="pre">&gt;</span> <span class="pre">5</span> <span class="pre">dbar</span></code> and low std; temperature a minimum
+threshold; conductivity by noise/range or fit quality).</p></li>
+<li><p>Pre/post-dip corrections applied as a linear time trend, with the linearity recorded as an
+assumption (a two-point fit cannot test it) — conductivity flagged as the case where a
+mid-deployment biofouling step is invisible to that fit.</p></li>
+<li><p>Sign/units guards: caldip <code class="docutils literal notranslate"><span class="pre">*_diff</span></code> is <em>instrument − CTD</em> (subtract to correct); <code class="docutils literal notranslate"><span class="pre">cond_diff</span></code>
+is mS/cm — reconcile against the stored conductivity unit; record both instrument and CTD
+values so the sign stays verifiable by eye.</p></li>
+<li><p>Provenance in the <code class="docutils literal notranslate"><span class="pre">_stage3.nc</span></code> attributes; <code class="docutils literal notranslate"><span class="pre">ctd_slope_adjusted</span></code> recorded <code class="docutils literal notranslate"><span class="pre">UNK</span></code> until
+caldip emits it.</p></li>
+<li><p>A per-instrument report figure showing the conductivity offset-vs-slope choice; display of
+applied corrections in the HTML report (later work).</p></li>
+</ul>
+</section>
+<section id="test-coverage">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">3. Test coverage</a><a class="headerlink" href="#test-coverage" title="Link to this heading"></a></h3>
+<p><strong>Current state</strong>: tests exist for <code class="docutils literal notranslate"><span class="pre">stage1</span></code>, <code class="docutils literal notranslate"><span class="pre">stage2</span></code>, <code class="docutils literal notranslate"><span class="pre">stage3</span></code>,
+<code class="docutils literal notranslate"><span class="pre">time_gridding</span></code>, <code class="docutils literal notranslate"><span class="pre">plotters</span></code>, <code class="docutils literal notranslate"><span class="pre">readers</span></code>, <code class="docutils literal notranslate"><span class="pre">writers</span></code>, <code class="docutils literal notranslate"><span class="pre">tools</span></code>,
+<code class="docutils literal notranslate"><span class="pre">utilities</span></code>, and <code class="docutils literal notranslate"><span class="pre">logger</span></code>.</p>
+<p><strong>Remaining gap</strong>: <code class="docutils literal notranslate"><span class="pre">test_report.py</span></code> — end-to-end tests for the HTML report
+generation pipeline.</p>
+<p>—</p>
+</section>
+</section>
+<section id="priority-2-longer-term">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Priority 2: Longer-term</a><a class="headerlink" href="#priority-2-longer-term" title="Link to this heading"></a></h2>
+<section id="stage-4-oceansites-conversion-and-deployment-concatenation">
+<h3><a class="toc-backref" href="#id7" role="doc-backlink">4. Stage 4: OceanSITES conversion and deployment concatenation</a><a class="headerlink" href="#stage-4-oceansites-conversion-and-deployment-concatenation" title="Link to this heading"></a></h3>
+<p>Lower priority.  The existing <code class="docutils literal notranslate"><span class="pre">_stack.nc</span></code> / <code class="docutils literal notranslate"><span class="pre">_grid.nc</span></code> outputs follow CF conventions
+and can be converted to OceanSITES with a relatively thin wrapper once the earlier stages
+are stable.</p>
+</section>
+<section id="multi-site-merging-for-boundary-profiles">
+<h3><a class="toc-backref" href="#id8" role="doc-backlink">5. Multi-site merging for boundary profiles</a><a class="headerlink" href="#multi-site-merging-for-boundary-profiles" title="Link to this heading"></a></h3>
+<p>Merge records from multiple mooring sites (e.g. WB2, WB3, WBH2) at each time step to
+construct a single merged boundary profile.  Requires static-stability checking and
+site-specific weighting strategies.</p>
+</section>
+<section id="deployment-concatenation">
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">6. Deployment concatenation</a><a class="headerlink" href="#deployment-concatenation" title="Link to this heading"></a></h3>
+<p>Join successive deployments at the same location into a continuous time series after
+clock corrections and QC are confirmed stable.</p>
+<p>—</p>
+</section>
+</section>
+<section id="dependencies">
+<h2><a class="toc-backref" href="#id10" role="doc-backlink">Dependencies</a><a class="headerlink" href="#dependencies" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">scipy</span></code>: Welch PSD for spectral figures in the grid report</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ioos_qc</span></code>: QARTOD gross-range and spike tests</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gsw</span></code> (TEOS-10): seawater property calculations</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xarray</span></code> / <code class="docutils literal notranslate"><span class="pre">netCDF4</span></code>: core data handling</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">jinja2</span></code>: HTML report generation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">matplotlib</span></code>: all figures</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ppigrf</span></code>: IGRF magnetic declination for BEAM→ENU rotation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">seasenselib</span></code>: raw instrument format readers (sbe-cnv, sbe-ascii, nortek-ascii,
+nortek-csv, rbr-rsk, rbr-dat, rbr-hex, rdi-raw); pulls in <code class="docutils literal notranslate"><span class="pre">mhkit[dolfyn]</span></code> for
+the RDI reader</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="migration.html" class="btn btn-neutral float-left" title="Migrating from the --basedir Layout" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="style_guide.html" class="btn btn-neutral float-right" title="Project Style Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

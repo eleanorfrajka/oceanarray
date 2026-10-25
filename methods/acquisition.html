@@ -1,0 +1,256 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Acquisition (Download in proprietary formats) &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="1. Standardisation (Internally-consistent format)" href="standardisation.html" />
+    <link rel="prev" title="File Naming Conventions" href="../file_naming_conventions.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">0. Data Acquisition</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#download">2. Download</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#instrument-data-acquisition">Instrument Data Acquisition</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#legacy-firmware-pre-3-0d">Legacy Firmware (pre-3.0d)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#modern-firmware-3-0d-and-above">Modern Firmware (3.0d and above)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Data Acquisition (Download in proprietary formats)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/methods/acquisition.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="data-acquisition-download-in-proprietary-formats">
+<h1>Data Acquisition (Download in proprietary formats)<a class="headerlink" href="#data-acquisition-download-in-proprietary-formats" title="Link to this heading"></a></h1>
+<p>This document describes the initial steps required to bring raw instrument data into a standardized processing pipeline. These steps correspond to <strong>Stage 0</strong> of the RAPID data processing and management.</p>
+<section id="overview">
+<h2>1. Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>Most mooring instruments output data in proprietary formats (e.g., SeaBird <cite>.cnv</cite>, ASCII logs, or binary files). The acquisition stage covers:</p>
+<ul class="simple">
+<li><p>Locating and organizing raw instrument files</p></li>
+<li><p>Extracting metadata from deployment records</p></li>
+<li><p>Converting proprietary formats into a structured and inspectable format</p></li>
+</ul>
+<p>This stage includes <em>no scientific processing</em>, and is typically done at sea as soon as a mooring is recovered and instruments are available.</p>
+</section>
+<section id="download">
+<h2>2. Download<a class="headerlink" href="#download" title="Link to this heading"></a></h2>
+<p>Raw instrument data are downloaded e.g. from MicroCATs using SeaBird’s SeaTerm software and saved as ASCII files.</p>
+<p>For the newer 6000 series of MicroCATs it was discovered that the older version of
+the SeaTerm software misses a line of data every time it completes a block of 220
+lines. The newer SeaTermV2 software downloads the data in .xml format, which is
+then converted to .cnv format using the ‘tools’ menu (see section 18.6).</p>
+<p><strong>Expected inputs:</strong></p>
+<ul class="simple">
+<li><p>One file per instrument (e.g., <cite>.cnv</cite>, <cite>.hex</cite>, <cite>.txt</cite>, <cite>.dat</cite>)</p></li>
+<li><p>Deployment metadata (e.g., <cite>info.yaml</cite>)</p></li>
+</ul>
+<p><strong>Reference:</strong>
+Cunningham, S.A. (2010) RRS Discovery Cruise D344, 21 Oct-18 Nov 2009. RAPID Mooring Cruise Report. Southampton, UK, National Oceanography Centre Southampton, 225pp. (National Oceanography Centre Southampton Cruise Report 51) <a class="reference external" href="https://nora.nerc.ac.uk/id/eprint/263915/1/nocscr051.pdf">https://nora.nerc.ac.uk/id/eprint/263915/1/nocscr051.pdf</a></p>
+</section>
+<section id="instrument-data-acquisition">
+<h2>Instrument Data Acquisition<a class="headerlink" href="#instrument-data-acquisition" title="Link to this heading"></a></h2>
+<p>This section outlines the procedures for downloading data from Seabird SBE37 SMP instruments, depending on firmware version.</p>
+<section id="legacy-firmware-pre-3-0d">
+<h3>Legacy Firmware (pre-3.0d)<a class="headerlink" href="#legacy-firmware-pre-3-0d" title="Link to this heading"></a></h3>
+<p>For most instruments with serial numbers below 6000, use <strong>SeaTerm</strong>:</p>
+<ol class="arabic">
+<li><p>Connect the instrument and launch <em>SeaTerm</em>.</p></li>
+<li><p>Under <em>Configure</em>, select <strong>SBE37</strong>.</p></li>
+<li><p>Choose the correct COM port and set baud rate to <strong>9600</strong>.</p></li>
+<li><p>On the <em>Upload Settings</em> tab, check <strong>Upload all data into a single file</strong>.</p></li>
+<li><p>On the <em>Header Information</em> tab, ensure <strong>Prompt for Header Information</strong> is checked.</p></li>
+<li><p>Open a capture file (e.g., <cite>5768_recovery.log</cite>).</p></li>
+<li><p>Press Return or click <em>Connect</em>—you should see:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SBE</span> <span class="mi">37</span><span class="o">-</span><span class="n">M</span>
+<span class="n">S</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>(Press return repeatedly if needed.)</p>
+</li>
+<li><p>Type <cite>Stop</cite> to halt logging. Record the time (UTC).</p></li>
+<li><p>Type <cite>DS</cite> and note the clock drift from UTC.</p></li>
+<li><p>Record the “Sample Number” (number of samples taken).</p></li>
+<li><p>Stop the capture file.</p></li>
+<li><p>Click <em>Upload</em>.</p></li>
+<li><p>When prompted, enter ship, cruise, and mooring details.</p></li>
+<li><p>Add additional comments (e.g., instrument fouling, damage).</p></li>
+<li><p>Save the file (e.g., <cite>5768_data.asc</cite> or <cite>5768_cal_dip_data.asc</cite>).</p></li>
+<li><p>Confirm upload completion and check contents of <cite>.asc</cite> file.</p></li>
+</ol>
+</section>
+<section id="modern-firmware-3-0d-and-above">
+<h3>Modern Firmware (3.0d and above)<a class="headerlink" href="#modern-firmware-3-0d-and-above" title="Link to this heading"></a></h3>
+<p>For instruments with serial numbers &gt;6000 or upgraded units, use <strong>SeaTermV2</strong>:</p>
+<ol class="arabic simple">
+<li><p>Connect instrument and launch <em>SeaTermV2</em> (not regular SeaTerm).</p></li>
+<li><p>Under <em>Configure</em>, choose <strong>SBE37</strong> → <em>SBE 37 RS232</em>.</p></li>
+<li><p>If auto-connect fails, manually configure baud rate (usually 9600 or 38400).</p></li>
+<li><p>Once connected, open a capture file (e.g., <cite>6338_recovery.log</cite>).</p></li>
+<li><p>Send <cite>DS</cite> to check clock drift relative to UTC.</p></li>
+<li><p>Send <cite>Stop</cite> to halt logging and note the UTC timestamp.</p></li>
+<li><p>(Optional) To increase transfer speed, type <cite>baudrate=38400</cite>.</p></li>
+<li><p>Switch baud rate in software and re-send the command to confirm.</p></li>
+<li><p>Turn off the capture file once response is complete.</p></li>
+<li><p>Click <em>Upload</em>, enter filename (e.g., <cite>6338_data.xml</cite>).</p></li>
+<li><p>In the upload dialog:
+- Check <strong>Text Upload</strong>
+- For mooring data, choose <strong>upload as a single file</strong>
+- For cal dips, select <strong>by scan number range</strong></p></li>
+<li><p>Click <em>Start</em> to upload data.</p></li>
+<li><p>After upload, go to <em>Tools</em> → <em>Convert .XML Data File</em>.</p></li>
+<li><p>Select the XML file and confirm output directory.</p></li>
+<li><p>Under <em>Output Optional Variables</em>, check <strong>Date and Time</strong>.</p></li>
+<li><p>Select <strong>Seconds since Jan 1, 2000</strong>.</p></li>
+<li><p>Click OK. This produces a <cite>.CNV</cite> file ready for use in the Stage 1 conversion routines.</p></li>
+</ol>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../file_naming_conventions.html" class="btn btn-neutral float-left" title="File Naming Conventions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="standardisation.html" class="btn btn-neutral float-right" title="1. Standardisation (Internally-consistent format)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

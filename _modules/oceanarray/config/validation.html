@@ -1,0 +1,752 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.config.validation &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.config.validation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.config.validation</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Validation utilities for oceanarray mooring YAML configuration files.</span>
+
+<span class="sd">The ``instrument`` field in each clamp/instruments entry is used as a</span>
+<span class="sd">subdirectory name when reading raw files and writing processed output::</span>
+
+<span class="sd">    &lt;raw-dir&gt;/&lt;mooring_name&gt;/&lt;instrument&gt;/&lt;filename&gt;</span>
+<span class="sd">    &lt;proc-dir&gt;/&lt;mooring_name&gt;/&lt;instrument&gt;/&lt;output&gt;.nc</span>
+
+<span class="sd">Valid instrument names and their typical file types</span>
+<span class="sd">----------------------------------------------------</span>
+
+<span class="sd">+------------+-------------------------------+--------------------------------------+</span>
+<span class="sd">| instrument | Description                   | Typical file_type                    |</span>
+<span class="sd">+============+===============================+======================================+</span>
+<span class="sd">| microcat   | SeaBird SBE37 CTD             | sbe-cnv, sbe-ascii, oceansites, rodb |</span>
+<span class="sd">| sbe56      | SeaBird SBE56 temperature     | sbe-cnv                              |</span>
+<span class="sd">| sbe16      | SeaBird SBE16 CTD             | sbe-cnv, sbe-hex                     |</span>
+<span class="sd">| rbrsolo    | RBR Solo temperature          | rbr-rsk, rbr-dat                     |</span>
+<span class="sd">| rbrduet    | RBR Duet CT                   | rbr-rsk, rbr-dat                     |</span>
+<span class="sd">| aquadopp   | Nortek Aquadopp current meter | nortek-raw, nortek-ascii, nortek-csv |</span>
+<span class="sd">| currentmeter | Processed point current meter | oceansites, rodb                     |</span>
+<span class="sd">| adcp       | Acoustic Doppler Current Prof | adcp-matlab                          |</span>
+<span class="sd">| tr1050     | Turner TR-1050 (via RBR)      | rbr-matlab                           |</span>
+<span class="sd">+------------+-------------------------------+--------------------------------------+</span>
+
+<span class="sd">Do NOT use hardware/model names as the instrument value:</span>
+<span class="sd">  - ``sbe37``  → use ``microcat``</span>
+<span class="sd">  - ``nortek`` → use ``aquadopp``</span>
+
+<span class="sd">Clock correction YAML fields (per-instrument, applied in Stage 2)</span>
+<span class="sd">-----------------------------------------------------------------</span>
+
+<span class="sd">Stage 2 applies corrections in this order:</span>
+
+<span class="sd">  1. **Constant offset** — applied uniformly across the entire record::</span>
+
+<span class="sd">       clock_offset: 15        # seconds; positive = instrument was slow (behind)</span>
+
+<span class="sd">  2. **Linear drift** — grows linearly from 0 at deployment to the full drift</span>
+<span class="sd">     at recovery.  Two equivalent ways to specify it:</span>
+
+<span class="sd">     **Option A** — direct::</span>
+
+<span class="sd">       clock_drift_seconds: 8   # positive = instrument was slow (behind at recovery)</span>
+
+<span class="sd">     **Option B** — two timestamps read off at recovery (preferred; no sign errors)::</span>
+
+<span class="sd">       clock_computer_at_recovery:    '2026-07-11T10:23:30'</span>
+<span class="sd">       clock_instrument_at_recovery:  '2026-07-11T10:23:22'</span>
+<span class="sd">       # drift = computer − instrument = +8 s  (instrument was 8 s behind)</span>
+
+<span class="sd">     If both Option A and Option B are present, Option B takes priority.</span>
+
+<span class="sd">  3. **Trimming** — data outside deployment_time … recovery_time is discarded</span>
+<span class="sd">     *after* all clock corrections, so corrections are applied to the full raw record.</span>
+
+<span class="sd">Sign convention — both values are amounts **added** to instrument time:</span>
+
+<span class="sd">  +--------------------------------+------------------+--------------------+</span>
+<span class="sd">  | Situation                      | clock_offset     | clock_drift_seconds|</span>
+<span class="sd">  +================================+==================+====================+</span>
+<span class="sd">  | Instrument clock was slow      | positive (+)     | positive (+)       |</span>
+<span class="sd">  | (behind real time)             |                  |                    |</span>
+<span class="sd">  +--------------------------------+------------------+--------------------+</span>
+<span class="sd">  | Instrument clock was fast      | negative (-)     | negative (-)       |</span>
+<span class="sd">  | (ahead of real time)           |                  |                    |</span>
+<span class="sd">  +--------------------------------+------------------+--------------------+</span>
+
+<span class="sd">The original, uncorrected time is always saved as ``time_orig`` in the output</span>
+<span class="sd">NetCDF alongside the corrected ``time`` coordinate.  The ``history`` attribute</span>
+<span class="sd">records what was applied and when.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NamedTuple</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameters</span> <span class="k">as</span> <span class="n">params</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">paths</span>
+
+<span class="c1"># Instrument-type validity is single-sourced from ``parameters.KNOWN_INSTRUMENT_TYPES``</span>
+<span class="c1"># (derived from ``INSTRUMENT_FILE_TYPES``).  This keeps ``oceanarray list`` and</span>
+<span class="c1"># ``oceanarray validate`` in agreement; add new instrument types there, not here.</span>
+
+<span class="n">KNOWN_ALIASES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"sbe37"</span><span class="p">:</span> <span class="s2">"microcat"</span><span class="p">,</span>
+    <span class="s2">"nortek"</span><span class="p">:</span> <span class="s2">"aquadopp"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># Valid ``file_type:`` values are single-sourced from ``parameters.ALL_FILE_TYPES``</span>
+<span class="c1"># (union of ``INSTRUMENT_FILE_TYPES`` readers and ``EXTRA_FILE_TYPES``).  Add new</span>
+<span class="c1"># file types there, not here — this keeps ``validate`` and stage1 in agreement.</span>
+<span class="n">VALID_FILE_TYPES</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">ALL_FILE_TYPES</span>
+
+<span class="n">UNSUPPORTED_FILE_TYPES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="c1"># Only what cannot be processed without is required; the deployment window is</span>
+<span class="c1"># recommended (Stage 2 can detect it from the records) — see RECOMMENDED_MOORING_KEYS.</span>
+<span class="n">REQUIRED_MOORING_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">"waterdepth"</span><span class="p">]</span>
+<span class="n">RECOMMENDED_MOORING_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"deployment_time"</span><span class="p">,</span> <span class="s2">"recovery_time"</span><span class="p">]</span>
+
+<span class="c1"># Safe serials reserved because a per-instrument report named for them would</span>
+<span class="c1"># overwrite a mooring page: ``{mooring}_stack_report.html`` / ``_grid_report.html``.</span>
+<span class="c1"># ``summary`` is NOT reserved — the summary page is ``{mooring}_report.html``, so a</span>
+<span class="c1"># ``summary`` serial writes a distinct ``{mooring}_summary_report.html`` and collides</span>
+<span class="c1"># with nothing (the nav current-key clash is already handled in ``reports/_navs.py``).</span>
+<span class="n">_RESERVED_SERIALS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">"stack"</span><span class="p">,</span> <span class="s2">"grid"</span><span class="p">})</span>
+
+
+<div class="viewcode-block" id="ValidationIssue">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.config.validation.ValidationIssue">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidationIssue</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A single validation finding with a severity level and human-readable message."""</span>
+
+    <span class="n">level</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># "ERROR" or "WARNING"</span>
+    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+
+<div class="viewcode-block" id="check_serials">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.config.validation.check_serials">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_serials</span><span class="p">(</span><span class="n">entries</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ValidationIssue</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return ERRORs for serials whose output files would silently overwrite.</span>
+
+<span class="sd">    Serials are compared on :func:`oceanarray.paths.safe_serial` — the exact token</span>
+<span class="sd">    the pipeline uses to build filenames — so ``9920``, ``9920*`` and ``9920, R01``</span>
+<span class="sd">    are the same instrument as far as files go (the trailing ``*`` diagram marker</span>
+<span class="sd">    never makes two serials distinct).  Flags a missing or empty-after-stripping</span>
+<span class="sd">    serial, a serial reserved for a report page (:data:`_RESERVED_SERIALS`), and two</span>
+<span class="sd">    entries sharing a safe serial (their per-instrument report pages always collide;</span>
+<span class="sd">    their stage NetCDF files also collide when the instrument types match).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    entries : list of dict</span>
+<span class="sd">        The mooring's instrument entries (``clamp`` + ``instruments`` + inline).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of ValidationIssue</span>
+<span class="sd">        One ERROR per problem; empty when every serial is unique and filename-safe.</span>
+<span class="sd">    """</span>
+    <span class="n">issues</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ValidationIssue</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">by_safe</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">entries</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">raw</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"serial"</span><span class="p">)</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"[serial </span><span class="si">{</span><span class="n">raw</span><span class="si">}</span><span class="s2">]"</span> <span class="k">if</span> <span class="n">raw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"[instrument index </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">]"</span>
+        <span class="n">safe</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">safe_serial</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span> <span class="k">if</span> <span class="n">raw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">""</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">safe</span><span class="p">:</span>
+            <span class="n">why</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">"missing"</span> <span class="k">if</span> <span class="n">raw</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">raw</span><span class="si">!r}</span><span class="s2">, which is empty after stripping"</span>
+            <span class="p">)</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ValidationIssue</span><span class="p">(</span>
+                    <span class="s2">"ERROR"</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> serial is </span><span class="si">{</span><span class="n">why</span><span class="si">}</span><span class="s2"> — every instrument needs a unique, "</span>
+                    <span class="sa">f</span><span class="s2">"filename-safe serial."</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">safe</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">_RESERVED_SERIALS</span><span class="p">:</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ValidationIssue</span><span class="p">(</span>
+                    <span class="s2">"ERROR"</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> serial </span><span class="si">{</span><span class="n">safe</span><span class="si">!r}</span><span class="s2"> is reserved — it would overwrite the "</span>
+                    <span class="sa">f</span><span class="s2">"mooring's </span><span class="se">{{</span><span class="s2">mooring</span><span class="se">}}</span><span class="s2">_</span><span class="si">{</span><span class="n">safe</span><span class="si">}</span><span class="s2">_report.html page. Rename it."</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="c1"># Key on the lower-cased serial: output filenames collide on a</span>
+        <span class="c1"># case-insensitive filesystem (macOS, Windows), so `Alpha` and `alpha`</span>
+        <span class="c1"># are a collision there even though they are distinct strings.</span>
+        <span class="n">by_safe</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">safe</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"instrument"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"unknown"</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        <span class="p">)</span>
+    <span class="k">for</span> <span class="n">safe</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">by_safe</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">group</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">labels</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lbl</span> <span class="k">for</span> <span class="n">lbl</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">group</span><span class="p">)</span>
+            <span class="n">types</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">group</span><span class="p">]</span>
+            <span class="n">stage_too</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">types</span><span class="p">))</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">types</span><span class="p">)</span>
+            <span class="n">what</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">"stage NetCDF files AND report pages"</span>
+                <span class="k">if</span> <span class="n">stage_too</span>
+                <span class="k">else</span> <span class="s2">"per-instrument report pages"</span>
+            <span class="p">)</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ValidationIssue</span><span class="p">(</span>
+                    <span class="s2">"ERROR"</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"Serial </span><span class="si">{</span><span class="n">safe</span><span class="si">!r}</span><span class="s2"> is used by </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">group</span><span class="p">)</span><span class="si">}</span><span class="s2"> instruments (</span><span class="si">{</span><span class="n">labels</span><span class="si">}</span><span class="s2">) — "</span>
+                    <span class="sa">f</span><span class="s2">"their </span><span class="si">{</span><span class="n">what</span><span class="si">}</span><span class="s2"> would collide and silently overwrite. Serials must be "</span>
+                    <span class="sa">f</span><span class="s2">"unique within a mooring (the `*` marker is ignored for this check)."</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">issues</span></div>
+
+
+
+<div class="viewcode-block" id="serial_collision_errors">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.config.validation.serial_collision_errors">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">serial_collision_errors</span><span class="p">(</span><span class="n">mooring_config</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">Mapping</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the serial-collision ERROR messages for a mooring config, or ``[]``.</span>
+
+<span class="sd">    The pre-flight guard the processing path runs before any stage writes: it</span>
+<span class="sd">    builds the combined instrument list (``clamp`` + ``instruments`` + inline, same</span>
+<span class="sd">    rule as :func:`validate_mooring`) and returns only the :func:`check_serials`</span>
+<span class="sd">    ERROR messages.  It parses leniently through :func:`oceanarray.mooring._parse`</span>
+<span class="sd">    — a missing or unparseable file returns ``[]`` (those are reported by the normal</span>
+<span class="sd">    validator, not this guard) — rather than :func:`oceanarray.mooring.load`, which</span>
+<span class="sd">    would raise on the very collision this guard reports and swallow it.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring_config : str or pathlib.Path or Mapping</span>
+<span class="sd">        A mooring YAML path, or an already-parsed mapping.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of str</span>
+<span class="sd">        One message per serial collision; empty when the serials are safe.</span>
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">mooring</span> <span class="k">as</span> <span class="n">_mooring</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_mooring</span><span class="o">.</span><span class="n">_parse</span><span class="p">(</span><span class="n">mooring_config</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">instrument_list</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"clamp"</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"instruments"</span><span class="p">,</span> <span class="p">[]))</span>
+    <span class="n">inline</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">e</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"inline"</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="s2">"instrument"</span> <span class="ow">in</span> <span class="n">e</span>
+        <span class="ow">and</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"filename"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">e</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"skip"</span><span class="p">))</span>
+    <span class="p">]</span>
+    <span class="n">combined</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">instrument_list</span><span class="p">)</span> <span class="o">+</span> <span class="n">inline</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">message</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">check_serials</span><span class="p">(</span><span class="n">combined</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="s2">"ERROR"</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="validate_mooring_yaml">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.config.validation.validate_mooring_yaml">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_mooring_yaml</span><span class="p">(</span><span class="n">yaml_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ValidationIssue</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Validate a mooring YAML configuration file by path.</span>
+
+<span class="sd">    .. deprecated::</span>
+<span class="sd">        Use :func:`oceanarray.mooring.check`, which reads the file once and adds</span>
+<span class="sd">        the unknown-key check. This wrapper delegates to it and will be removed in</span>
+<span class="sd">        a future release.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    yaml_path : str</span>
+<span class="sd">        Path to the mooring YAML.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of ValidationIssue</span>
+<span class="sd">        One issue per finding; an empty list means the file passed all checks.</span>
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">mooring</span> <span class="k">as</span> <span class="n">_mooring</span>
+
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="s2">"validate_mooring_yaml is deprecated; use oceanarray.mooring.check instead."</span><span class="p">,</span>
+        <span class="ne">DeprecationWarning</span><span class="p">,</span>
+        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_mooring</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">yaml_path</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="validate_mooring">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.config.validation.validate_mooring">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_mooring</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">dir_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ValidationIssue</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Validate a parsed mooring configuration mapping.</span>
+
+<span class="sd">    Checks:</span>
+<span class="sd">    - Required top-level keys are present</span>
+<span class="sd">    - The ``name`` matches *dir_name* when both are given (output filenames use</span>
+<span class="sd">      the directory name, so a mismatch loads zero files on a case-sensitive</span>
+<span class="sd">      filesystem)</span>
+<span class="sd">    - Each instrument entry uses a valid ``instrument`` name (not a model alias)</span>
+<span class="sd">    - Each instrument entry with a ``file_type`` uses a recognised value</span>
+<span class="sd">    - Instruments with ``filename`` also have ``file_type``</span>
+<span class="sd">    - Instruments without ``filename`` are flagged as warnings (not yet staged)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : object</span>
+<span class="sd">        The parsed YAML root; an ERROR is returned if it is not a mapping.</span>
+<span class="sd">    dir_name : str, optional</span>
+<span class="sd">        The name of the directory the config was read from. When given, the</span>
+<span class="sd">        ``name`` field is compared against it (case-sensitively).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of ValidationIssue</span>
+<span class="sd">        One issue per finding; an empty list means the config passed all checks.</span>
+<span class="sd">    """</span>
+    <span class="n">issues</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ValidationIssue</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">ValidationIssue</span><span class="p">(</span><span class="s2">"ERROR"</span><span class="p">,</span> <span class="s2">"YAML root must be a mapping"</span><span class="p">)]</span>
+
+    <span class="c1"># Check required mooring-level keys. Only what cannot be processed without is</span>
+    <span class="c1"># required (``name`` builds every filename; ``waterdepth`` is in no record).</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">REQUIRED_MOORING_KEYS</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ValidationIssue</span><span class="p">(</span><span class="s2">"ERROR"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Missing required key: '</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">'"</span><span class="p">))</span>
+
+    <span class="c1"># The deployment window is recommended, not required: Stage 2 can detect each</span>
+    <span class="c1"># instrument's in-water interval from the records and write the union, so an</span>
+    <span class="c1"># absent declared window is a WARNING (the detected window is recorded with</span>
+    <span class="c1"># ``deployment_window_source``), never an ERROR.</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">RECOMMENDED_MOORING_KEYS</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ValidationIssue</span><span class="p">(</span>
+                    <span class="s2">"WARNING"</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"No '</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">' — Stage 2 will use the window detected from the "</span>
+                    <span class="sa">f</span><span class="s2">"records (recorded as deployment_window_source='detected')."</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="c1"># A raw-data root in the description is a run-time fact, not part of the</span>
+    <span class="c1"># mooring; it belongs to raw_dir / --raw-dir. Deprecated: the stage-1</span>
+    <span class="c1"># absolute-path override is removed in 0.7.0.</span>
+    <span class="k">if</span> <span class="s2">"directory"</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">ValidationIssue</span><span class="p">(</span>
+                <span class="s2">"WARNING"</span><span class="p">,</span>
+                <span class="s2">"directory is ignored; pass the raw-data root as raw_dir "</span>
+                <span class="s2">"(--raw-dir), not the mooring YAML. Deprecated — the override is "</span>
+                <span class="s2">"removed in 0.7.0."</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="c1"># The directory name and the ``name:`` field should match.  They name output</span>
+    <span class="c1"># files on two code paths that are mid-migration: the processing stages still</span>
+    <span class="c1"># name from the directory, while read_mooring / write_mooring name from</span>
+    <span class="c1"># ``name:``; from 0.6.0 both use ``name:``.  A mismatch (most often a copied</span>
+    <span class="c1"># mooring folder left unrenamed) therefore writes outputs under different</span>
+    <span class="c1"># moorings depending on the path, so warn until they are identical.</span>
+    <span class="n">yaml_name</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">yaml_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">dir_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">yaml_name</span> <span class="o">!=</span> <span class="n">dir_name</span><span class="p">:</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">ValidationIssue</span><span class="p">(</span>
+                <span class="s2">"WARNING"</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"directory '</span><span class="si">{</span><span class="n">dir_name</span><span class="si">}</span><span class="s2">' differs from 'name: </span><span class="si">{</span><span class="n">yaml_name</span><span class="si">}</span><span class="s2">' "</span>
+                <span class="sa">f</span><span class="s2">"(compared case-sensitively). The processing stages name outputs "</span>
+                <span class="sa">f</span><span class="s2">"from the directory and read_mooring/write_mooring from 'name:' "</span>
+                <span class="sa">f</span><span class="s2">"(from 0.6.0 both use 'name:'); make the directory and 'name:' "</span>
+                <span class="sa">f</span><span class="s2">"identical so files land under the same mooring on either path."</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Validate instrument list (supports both 'clamp' and legacy 'instruments').</span>
+    <span class="c1"># Also validate inline hardware entries that carry instrument data.</span>
+    <span class="n">instrument_list</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"clamp"</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"instruments"</span><span class="p">,</span> <span class="p">[]))</span>
+    <span class="n">inline_list</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"inline"</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">inline_instruments</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">e</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">inline_list</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="s2">"instrument"</span> <span class="ow">in</span> <span class="n">e</span>
+        <span class="ow">and</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"filename"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">e</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"skip"</span><span class="p">))</span>
+    <span class="p">]</span>
+    <span class="n">combined_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">instrument_list</span><span class="p">)</span> <span class="o">+</span> <span class="n">inline_instruments</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">combined_list</span><span class="p">:</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">ValidationIssue</span><span class="p">(</span>
+                <span class="s2">"WARNING"</span><span class="p">,</span>
+                <span class="s2">"No instruments found under 'clamp', 'instruments', or 'inline'"</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">issues</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">combined_list</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="n">serial</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"serial"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"index </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"[serial </span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2">]"</span>
+
+        <span class="n">instrument</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"instrument"</span><span class="p">)</span>
+        <span class="n">file_type</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"file_type"</span><span class="p">)</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"filename"</span><span class="p">)</span>
+
+        <span class="n">serial_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">serial</span><span class="p">)</span>
+        <span class="n">illegal</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[^\w\-]"</span><span class="p">,</span> <span class="n">serial_str</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">illegal</span> <span class="o">==</span> <span class="p">{</span><span class="s2">"*"</span><span class="p">}:</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ValidationIssue</span><span class="p">(</span>
+                    <span class="s2">"WARNING"</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> serial='</span><span class="si">{</span><span class="n">serial_str</span><span class="si">}</span><span class="s2">' carries a `*` marker — it is kept in the "</span>
+                    <span class="sa">f</span><span class="s2">"mooring diagram and stripped from filenames and nav labels (as today)."</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">illegal</span><span class="p">:</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ValidationIssue</span><span class="p">(</span>
+                    <span class="s2">"WARNING"</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> serial='</span><span class="si">{</span><span class="n">serial_str</span><span class="si">}</span><span class="s2">' contains characters illegal in filenames "</span>
+                    <span class="sa">f</span><span class="s2">"(e.g. '*') — they will be stripped automatically when constructing output filenames"</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Fragile serial parsing for inline instruments with compound serials.</span>
+        <span class="c1"># extract_inline_instruments splits on the first comma and uses the first</span>
+        <span class="c1"># token as the instrument serial.  Warn so operators can verify the ordering.</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"source"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"inline"</span> <span class="ow">or</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">inline_instruments</span>
+        <span class="p">)</span> <span class="ow">and</span> <span class="s2">","</span> <span class="ow">in</span> <span class="n">serial_str</span><span class="p">:</span>
+            <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">serial_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)]</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ValidationIssue</span><span class="p">(</span>
+                    <span class="s2">"WARNING"</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> inline serial='</span><span class="si">{</span><span class="n">serial_str</span><span class="si">}</span><span class="s2">' contains a comma — "</span>
+                    <span class="sa">f</span><span class="s2">"the first token '</span><span class="si">{</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">' will be used as the instrument serial "</span>
+                    <span class="sa">f</span><span class="s2">"and '</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span><span class="si">}</span><span class="s2">' stored as beacon_id.  "</span>
+                    <span class="sa">f</span><span class="s2">"Confirm the instrument serial comes first."</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">instrument</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ValidationIssue</span><span class="p">(</span><span class="s2">"WARNING"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> Missing 'instrument' field"</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">instrument</span> <span class="ow">in</span> <span class="n">KNOWN_ALIASES</span><span class="p">:</span>
+            <span class="n">correct</span> <span class="o">=</span> <span class="n">KNOWN_ALIASES</span><span class="p">[</span><span class="n">instrument</span><span class="p">]</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ValidationIssue</span><span class="p">(</span>
+                    <span class="s2">"ERROR"</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> instrument='</span><span class="si">{</span><span class="n">instrument</span><span class="si">}</span><span class="s2">' is deprecated — use '</span><span class="si">{</span><span class="n">correct</span><span class="si">}</span><span class="s2">' instead"</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="n">instrument</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">KNOWN_INSTRUMENT_TYPES</span>
+            <span class="ow">and</span> <span class="n">instrument</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">"ADCP"</span>  <span class="c1"># accept both 'adcp' and 'ADCP'</span>
+        <span class="p">):</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ValidationIssue</span><span class="p">(</span>
+                    <span class="s2">"WARNING"</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> instrument='</span><span class="si">{</span><span class="n">instrument</span><span class="si">}</span><span class="s2">' is not in the known list: "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">KNOWN_INSTRUMENT_TYPES</span><span class="p">))</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">file_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">file_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">VALID_FILE_TYPES</span>
+            <span class="ow">and</span> <span class="n">file_type</span> <span class="o">!=</span> <span class="s2">"TBD"</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="n">file_type</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">DEPRECATED_FILE_TYPE_ALIASES</span><span class="p">:</span>
+                <span class="n">canonical</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">DEPRECATED_FILE_TYPE_ALIASES</span><span class="p">[</span><span class="n">file_type</span><span class="p">]</span>
+                <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">ValidationIssue</span><span class="p">(</span>
+                        <span class="s2">"WARNING"</span><span class="p">,</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> file_type='</span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s2">' is deprecated — use "</span>
+                        <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">canonical</span><span class="si">}</span><span class="s2">' instead (it is remapped automatically for now)"</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">file_type</span> <span class="ow">in</span> <span class="n">UNSUPPORTED_FILE_TYPES</span><span class="p">:</span>
+                <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">ValidationIssue</span><span class="p">(</span>
+                        <span class="s2">"ERROR"</span><span class="p">,</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> file_type='</span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s2">' is not supported: </span><span class="si">{</span><span class="n">UNSUPPORTED_FILE_TYPES</span><span class="p">[</span><span class="n">file_type</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">ValidationIssue</span><span class="p">(</span>
+                        <span class="s2">"WARNING"</span><span class="p">,</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> file_type='</span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s2">' is not recognised. "</span>
+                        <span class="sa">f</span><span class="s2">"Known types: </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">VALID_FILE_TYPES</span><span class="p">))</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">file_type</span><span class="p">:</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ValidationIssue</span><span class="p">(</span>
+                    <span class="s2">"ERROR"</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> has 'filename' but no 'file_type'"</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"skip"</span><span class="p">):</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ValidationIssue</span><span class="p">(</span>
+                    <span class="s2">"WARNING"</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> instrument='</span><span class="si">{</span><span class="n">instrument</span><span class="si">}</span><span class="s2">' has no 'filename' — not yet staged for processing"</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">"stack"</span> <span class="ow">in</span> <span class="n">entry</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">"stack"</span><span class="p">],</span> <span class="nb">bool</span><span class="p">):</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ValidationIssue</span><span class="p">(</span>
+                    <span class="s2">"ERROR"</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> stack=</span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="s1">'stack'</span><span class="p">]</span><span class="si">!r}</span><span class="s2"> must be true or false"</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Clock correction field checks</span>
+        <span class="n">has_comp</span> <span class="o">=</span> <span class="s2">"computer_clock_at_recovery"</span> <span class="ow">in</span> <span class="n">entry</span>
+        <span class="n">has_inst</span> <span class="o">=</span> <span class="s2">"instrument_clock_at_recovery"</span> <span class="ow">in</span> <span class="n">entry</span>
+        <span class="k">if</span> <span class="n">has_comp</span> <span class="o">!=</span> <span class="n">has_inst</span><span class="p">:</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ValidationIssue</span><span class="p">(</span>
+                    <span class="s2">"ERROR"</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> computer_clock_at_recovery and instrument_clock_at_recovery "</span>
+                    <span class="sa">f</span><span class="s2">"must both be present or both absent"</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">has_comp</span> <span class="ow">and</span> <span class="n">has_inst</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ts_key</span> <span class="ow">in</span> <span class="p">(</span>
+                <span class="s2">"computer_clock_at_recovery"</span><span class="p">,</span>
+                <span class="s2">"instrument_clock_at_recovery"</span><span class="p">,</span>
+            <span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_pd</span>
+
+                    <span class="n">_pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="n">ts_key</span><span class="p">])</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001  — report issue and continue; Timestamp parse errors vary</span>
+                    <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">ValidationIssue</span><span class="p">(</span>
+                            <span class="s2">"ERROR"</span><span class="p">,</span>
+                            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">ts_key</span><span class="si">}</span><span class="s2">='</span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="n">ts_key</span><span class="p">]</span><span class="si">}</span><span class="s2">' is not a valid timestamp"</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+            <span class="k">if</span> <span class="s2">"clock_drift_seconds"</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_pd</span>
+
+                    <span class="n">comp_t</span> <span class="o">=</span> <span class="n">_pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">"computer_clock_at_recovery"</span><span class="p">])</span>
+                    <span class="n">inst_t</span> <span class="o">=</span> <span class="n">_pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">"instrument_clock_at_recovery"</span><span class="p">])</span>
+                    <span class="n">computed_drift</span> <span class="o">=</span> <span class="p">(</span><span class="n">comp_t</span> <span class="o">-</span> <span class="n">inst_t</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+                    <span class="n">stated_drift</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">"clock_drift_seconds"</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">computed_drift</span> <span class="o">-</span> <span class="n">stated_drift</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1.0</span><span class="p">:</span>
+                        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">ValidationIssue</span><span class="p">(</span>
+                                <span class="s2">"ERROR"</span><span class="p">,</span>
+                                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> clock_drift_seconds=</span><span class="si">{</span><span class="n">stated_drift</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s conflicts with "</span>
+                                <span class="sa">f</span><span class="s2">"timestamp pair (computed drift=</span><span class="si">{</span><span class="n">computed_drift</span><span class="si">:</span><span class="s2">+.1f</span><span class="si">}</span><span class="s2">s); "</span>
+                                <span class="sa">f</span><span class="s2">"remove clock_drift_seconds or correct the timestamps"</span><span class="p">,</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">ValidationIssue</span><span class="p">(</span>
+                                <span class="s2">"WARNING"</span><span class="p">,</span>
+                                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> both clock_drift_seconds and timestamp pair are present; "</span>
+                                <span class="sa">f</span><span class="s2">"timestamp pair will be used (they agree to &lt;1 s)"</span><span class="p">,</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001  — parse errors already reported above; skip silently</span>
+                    <span class="k">pass</span>
+
+    <span class="n">issues</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">check_serials</span><span class="p">(</span><span class="n">combined_list</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">issues</span></div>
+
+
+
+<div class="viewcode-block" id="print_validation_report">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.config.validation.print_validation_report">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">print_validation_report</span><span class="p">(</span><span class="n">yaml_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Print a human-readable validation report. Returns True if no errors."""</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">mooring</span> <span class="k">as</span> <span class="n">_mooring</span>
+
+    <span class="n">issues</span> <span class="o">=</span> <span class="n">_mooring</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">yaml_path</span><span class="p">)</span>
+
+    <span class="n">errors</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="s2">"ERROR"</span><span class="p">]</span>
+    <span class="n">warnings</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="s2">"WARNING"</span><span class="p">]</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Validating: </span><span class="si">{</span><span class="n">yaml_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">issues</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"  OK — no issues found"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">for</span> <span class="n">issue</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">:</span>
+        <span class="n">marker</span> <span class="o">=</span> <span class="s2">"  ERROR  "</span> <span class="k">if</span> <span class="n">issue</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="s2">"ERROR"</span> <span class="k">else</span> <span class="s2">"  warn   "</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">marker</span><span class="si">}{</span><span class="n">issue</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="n">summary</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+        <span class="n">summary</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span><span class="si">}</span><span class="s2"> error(s)"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">warnings</span><span class="p">:</span>
+        <span class="n">summary</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">warnings</span><span class="p">)</span><span class="si">}</span><span class="s2"> warning(s)"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

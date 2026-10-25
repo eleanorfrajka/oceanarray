@@ -1,0 +1,728 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.pipeline.raw_files &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../pipeline.html">oceanarray.pipeline</a></li>
+      <li class="breadcrumb-item active">oceanarray.pipeline.raw_files</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.pipeline.raw_files</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Find and read one instrument's raw file, as stage 1 does.</span>
+
+<span class="sd">A mooring description names each instrument's raw file (``filename``, ``file_type``,</span>
+<span class="sd">``header_file``); when it does not, the file is found from the instrument type and</span>
+<span class="sd">serial by the recovery-file naming conventions. The raw read also takes what only the</span>
+<span class="sd">raw file holds: the calibration coefficients in an SBE header and the Nortek</span>
+<span class="sd">pressure calibration and transformation matrix. Everything after the read is stage 1's</span>
+<span class="sd">transform (:func:`oceanarray.pipeline.stage1.stage1`).</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">paths</span><span class="p">,</span> <span class="n">readers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MooringError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_info</span><span class="p">,</span> <span class="n">log_warning</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_serial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.readers</span><span class="w"> </span><span class="kn">import</span> <span class="n">sbe</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.readers.nortek</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_parse_nortek_pressure_cal</span><span class="p">,</span>
+    <span class="n">_parse_nortek_T_matrix_csv</span><span class="p">,</span>
+    <span class="n">_parse_nortek_T_matrix_hdr</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">_NORTEK_TYPES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"nortek-raw"</span><span class="p">,</span> <span class="s2">"nortek-ascii"</span><span class="p">,</span> <span class="s2">"nortek-csv"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_log</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Log a raw-file message, as a warning when it starts with ``WARNING``."""</span>
+    <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"WARNING"</span><span class="p">):</span>
+        <span class="n">log_warning</span><span class="p">(</span><span class="s2">"</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">log_info</span><span class="p">(</span><span class="s2">"</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="RawFile">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.raw_files.RawFile">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RawFile</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One instrument's raw file, as found from its description entry.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    entry : dict</span>
+<span class="sd">        The description entry, with ``filename``, ``file_type`` and ``header_file``</span>
+<span class="sd">        filled in when they were found by naming convention.</span>
+<span class="sd">    path : pathlib.Path</span>
+<span class="sd">        The raw data file.</span>
+<span class="sd">    header : pathlib.Path or None</span>
+<span class="sd">        The Nortek header file, when the instrument has one.</span>
+<span class="sd">    file_type : str</span>
+<span class="sd">        The reader format.</span>
+<span class="sd">    instrument_dir : str</span>
+<span class="sd">        The instrument subdirectory (``"aquadopp"`` for the deprecated ``"nortek"``).</span>
+<span class="sd">    tag : str</span>
+<span class="sd">        The ``adcp-matlab`` per-file tag carried into the output filename, else ``""``.</span>
+<span class="sd">    """</span>
+
+    <span class="n">entry</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="n">path</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">header</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">file_type</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">instrument_dir</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">tag</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+
+<div class="viewcode-block" id="find_file_tag">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.raw_files.find_file_tag">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_file_tag</span><span class="p">(</span>
+    <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tags</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"_000"</span><span class="p">,</span> <span class="s2">"_001"</span><span class="p">,</span> <span class="s2">"_002"</span><span class="p">)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the first of *tags* found in *filename*, or ``""``."""</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">tag</span>
+    <span class="k">return</span> <span class="s2">""</span></div>
+
+
+
+<div class="viewcode-block" id="guess_instrument_filename">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.raw_files.guess_instrument_filename">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">guess_instrument_filename</span><span class="p">(</span>
+    <span class="n">instrument_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">mooring_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">raw_mooring_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">input_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Try standard recovery-file naming conventions to locate a raw data file.</span>
+
+<span class="sd">    Used when ``filename`` is absent or ``null`` in the mooring YAML.</span>
+<span class="sd">    Searches ``{raw_mooring_dir}/{instrument}/`` then ``{raw_mooring_dir}/``.</span>
+
+<span class="sd">    Returns ``(filename, file_type, header_filename_or_None)`` when a</span>
+<span class="sd">    candidate is found on disk, or ``None`` if no match is found (in which</span>
+<span class="sd">    case a diagnostic message listing the paths tried is emitted via</span>
+<span class="sd">    the package logger).</span>
+
+<span class="sd">    Naming conventions applied (all use the ``{serial}_recovery.&lt;ext&gt;``</span>
+<span class="sd">    pattern except ADCP):</span>
+
+<span class="sd">    * ``microcat`` serial &lt; 6000  → ``.asc`` / ``sbe-ascii`` (older SBE 37)</span>
+<span class="sd">    * ``microcat`` serial ≥ 6000  → ``.hex`` / ``sbe-hex`` (newer SBE 37)</span>
+<span class="sd">    * ``rbrsolo`` / ``rbrduet`` / ``seapoint`` → ``.rsk`` / ``rbr-rsk``</span>
+<span class="sd">    * ``aquadopp`` / ``nortek`` serial &lt; 400000 → ``.dat`` / ``nortek-ascii``</span>
+<span class="sd">      + ``.hdr`` header file.  ``nortek`` is accepted but deprecated; a</span>
+<span class="sd">      warning is logged recommending ``aquadopp`` instead.</span>
+<span class="sd">    * ``aquadopp`` / ``nortek`` serial ≥ 400000 → globs for</span>
+<span class="sd">      ``converted_raw/A{serial}*/Average Velocity DF3.csv`` under the</span>
+<span class="sd">      instrument directory, returns ``nortek-csv`` with the corresponding</span>
+<span class="sd">      ``String Data.csv`` as the header path.</span>
+<span class="sd">    * ``ADCP`` → tries ``{serial}_{mooring_name}_recovery.000`` then</span>
+<span class="sd">      ``{serial}_{mooring_prefix}_recovery.000`` / ``rdi-raw``</span>
+
+<span class="sd">    A trailing ``*`` or other non-alphanumeric annotation in the serial</span>
+<span class="sd">    field is stripped before building the candidate filename.</span>
+<span class="sd">    """</span>
+    <span class="n">instr_type</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">instrument_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"instrument"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">raw_serial</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">instrument_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"serial"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">raw_serial</span> <span class="ow">or</span> <span class="n">raw_serial</span> <span class="o">==</span> <span class="s2">"unknown"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="c1"># Strip illegal filename chars (e.g. '*' used as a YAML annotation marker)</span>
+
+    <span class="n">raw_serial</span> <span class="o">=</span> <span class="n">safe_serial</span><span class="p">(</span><span class="n">raw_serial</span><span class="p">)</span>
+
+    <span class="n">candidates</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># list of (filename, file_type, header_or_None)</span>
+
+    <span class="k">if</span> <span class="n">instr_type</span> <span class="o">==</span> <span class="s2">"microcat"</span><span class="p">:</span>
+        <span class="n">serial_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">raw_serial</span><span class="p">)</span> <span class="k">if</span> <span class="n">raw_serial</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">serial_int</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">serial_int</span> <span class="o">&lt;</span> <span class="mi">6000</span><span class="p">:</span>
+            <span class="n">candidates</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">raw_serial</span><span class="si">}</span><span class="s2">_recovery.asc"</span><span class="p">,</span> <span class="s2">"sbe-ascii"</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">candidates</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">raw_serial</span><span class="si">}</span><span class="s2">_recovery.hex"</span><span class="p">,</span> <span class="s2">"sbe-hex"</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+
+    <span class="k">elif</span> <span class="n">instr_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"rbrsolo"</span><span class="p">,</span> <span class="s2">"rbrduet"</span><span class="p">,</span> <span class="s2">"seapoint"</span><span class="p">):</span>
+        <span class="n">candidates</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">raw_serial</span><span class="si">}</span><span class="s2">_recovery.rsk"</span><span class="p">,</span> <span class="s2">"rbr-rsk"</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+
+    <span class="k">elif</span> <span class="n">instr_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"aquadopp"</span><span class="p">,</span> <span class="s2">"nortek"</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">instr_type</span> <span class="o">==</span> <span class="s2">"nortek"</span><span class="p">:</span>
+            <span class="n">_log</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"AUTO-FILENAME: instrument type 'nortek' is deprecated — "</span>
+                <span class="sa">f</span><span class="s2">"use 'aquadopp' in the YAML for serial </span><span class="si">{</span><span class="n">raw_serial</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+        <span class="n">serial_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">raw_serial</span><span class="p">)</span> <span class="k">if</span> <span class="n">raw_serial</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">serial_int</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">serial_int</span> <span class="o">&gt;=</span> <span class="mi">400000</span><span class="p">:</span>
+            <span class="c1"># 400### series: data lives under converted_raw/A{serial}*/</span>
+            <span class="c1"># The full internal serial suffix varies, so we use glob.</span>
+            <span class="n">_search_400</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">raw_mooring_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">_search_400</span> <span class="o">+=</span> <span class="p">[</span><span class="n">raw_mooring_dir</span> <span class="o">/</span> <span class="s2">"aquadopp"</span><span class="p">,</span> <span class="n">raw_mooring_dir</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">input_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">_search_400</span> <span class="o">+=</span> <span class="p">[</span>
+                    <span class="n">input_dir</span> <span class="o">/</span> <span class="s2">"aquadopp"</span> <span class="o">/</span> <span class="n">mooring_name</span><span class="p">,</span>
+                    <span class="n">input_dir</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="n">_tried_400</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">_root</span> <span class="ow">in</span> <span class="n">_search_400</span><span class="p">:</span>
+                <span class="n">_conv</span> <span class="o">=</span> <span class="n">_root</span> <span class="o">/</span> <span class="s2">"converted_raw"</span>
+                <span class="n">_tried_400</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">_conv</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"A</span><span class="si">{</span><span class="n">raw_serial</span><span class="si">}</span><span class="s2">*"</span> <span class="o">/</span> <span class="s2">"Average Velocity DF3.csv"</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">_conv</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                    <span class="k">continue</span>
+                <span class="k">for</span> <span class="n">_sub</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">_conv</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">"A</span><span class="si">{</span><span class="n">raw_serial</span><span class="si">}</span><span class="s2">*"</span><span class="p">)):</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">_sub</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                        <span class="k">continue</span>
+                    <span class="k">for</span> <span class="n">_csv</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"Average Velocity DF3.csv"</span><span class="p">,</span> <span class="s2">"String Data.csv"</span><span class="p">):</span>
+                        <span class="n">_csv_path</span> <span class="o">=</span> <span class="n">_sub</span> <span class="o">/</span> <span class="n">_csv</span>
+                        <span class="k">if</span> <span class="n">_csv_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                            <span class="n">_hdr</span> <span class="o">=</span> <span class="n">_sub</span> <span class="o">/</span> <span class="s2">"String Data.csv"</span>
+                            <span class="n">_hdr_rel</span> <span class="o">=</span> <span class="p">(</span>
+                                <span class="nb">str</span><span class="p">(</span><span class="n">_hdr</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">_root</span><span class="p">))</span> <span class="k">if</span> <span class="n">_hdr</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
+                            <span class="p">)</span>
+                            <span class="k">return</span> <span class="p">(</span>
+                                <span class="nb">str</span><span class="p">(</span><span class="n">_csv_path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">_root</span><span class="p">)),</span>
+                                <span class="s2">"nortek-csv"</span><span class="p">,</span>
+                                <span class="n">_hdr_rel</span><span class="p">,</span>
+                            <span class="p">)</span>
+            <span class="c1"># Also try the .aqd binary directly (nortek-raw format).</span>
+            <span class="c1"># These may live in aquadopp/ OR legacy nortek/ subdirs.</span>
+            <span class="n">_aqd_roots</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="o">*</span><span class="p">[</span><span class="n">r</span> <span class="o">/</span> <span class="s2">"aquadopp"</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="p">[</span><span class="n">raw_mooring_dir</span><span class="p">]</span> <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">],</span>
+                <span class="o">*</span><span class="p">[</span><span class="n">r</span> <span class="o">/</span> <span class="s2">"nortek"</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="p">[</span><span class="n">raw_mooring_dir</span><span class="p">]</span> <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">],</span>
+                <span class="o">*</span><span class="p">([</span><span class="n">raw_mooring_dir</span><span class="p">]</span> <span class="k">if</span> <span class="n">raw_mooring_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
+            <span class="p">]</span>
+            <span class="k">for</span> <span class="n">_root</span> <span class="ow">in</span> <span class="n">_aqd_roots</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">_root</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">_root</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                    <span class="k">continue</span>
+                <span class="k">for</span> <span class="n">_aqd</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">_root</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">"A</span><span class="si">{</span><span class="n">raw_serial</span><span class="si">}</span><span class="s2">*.aqd"</span><span class="p">)):</span>
+                    <span class="n">_hdr</span> <span class="o">=</span> <span class="n">_aqd</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">".hdr"</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="p">(</span>
+                        <span class="n">_aqd</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="s2">"nortek-raw"</span><span class="p">,</span>
+                        <span class="n">_hdr</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">_hdr</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="n">_tried_400</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">_root</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"A</span><span class="si">{</span><span class="n">raw_serial</span><span class="si">}</span><span class="s2">*.aqd"</span><span class="p">))</span>
+            <span class="n">_log</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"AUTO-FILENAME: no converted_raw/A</span><span class="si">{</span><span class="n">raw_serial</span><span class="si">}</span><span class="s2">*/ or "</span>
+                <span class="sa">f</span><span class="s2">"A</span><span class="si">{</span><span class="n">raw_serial</span><span class="si">}</span><span class="s2">*.aqd found for "</span>
+                <span class="sa">f</span><span class="s2">"aquadopp </span><span class="si">{</span><span class="n">raw_serial</span><span class="si">}</span><span class="s2"> — tried:</span><span class="se">\n</span><span class="s2">  "</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">  "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_tried_400</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">candidates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">raw_serial</span><span class="si">}</span><span class="s2">_recovery.dat"</span><span class="p">,</span>
+                <span class="s2">"nortek-ascii"</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">raw_serial</span><span class="si">}</span><span class="s2">_recovery.hdr"</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">instr_type</span> <span class="o">==</span> <span class="s2">"tr1050"</span><span class="p">:</span>
+        <span class="n">candidates</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">raw_serial</span><span class="si">}</span><span class="s2">_recovery.hex"</span><span class="p">,</span> <span class="s2">"rbr-hex"</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+
+    <span class="k">elif</span> <span class="n">instr_type</span> <span class="o">==</span> <span class="s2">"adcp"</span><span class="p">:</span>
+        <span class="c1"># Try full mooring name first, then the mooring prefix (before first '_')</span>
+        <span class="c1"># since either naming convention may be in use.</span>
+        <span class="n">candidates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">raw_serial</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">mooring_name</span><span class="si">}</span><span class="s2">_recovery.000"</span><span class="p">,</span> <span class="s2">"rdi-raw"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">_pfx</span> <span class="o">=</span> <span class="n">mooring_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"_"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">_pfx</span> <span class="o">!=</span> <span class="n">mooring_name</span><span class="p">:</span>
+            <span class="n">candidates</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">raw_serial</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">_pfx</span><span class="si">}</span><span class="s2">_recovery.000"</span><span class="p">,</span> <span class="s2">"rdi-raw"</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">candidates</span><span class="p">:</span>
+        <span class="n">_log</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"AUTO-FILENAME: instrument type '</span><span class="si">{</span><span class="n">instr_type</span><span class="si">}</span><span class="s2">' not recognised "</span>
+            <span class="sa">f</span><span class="s2">"— add 'filename:' to YAML for </span><span class="si">{</span><span class="n">instr_type</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">raw_serial</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># Search directories: new layout (raw_mooring_dir/instrument/), then</span>
+    <span class="c1"># mooring subdir (raw_mooring_dir/), then legacy input_dir.</span>
+    <span class="n">search_roots</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">raw_mooring_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">search_roots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">raw_mooring_dir</span> <span class="o">/</span> <span class="n">instr_type</span><span class="p">)</span>
+        <span class="n">search_roots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">raw_mooring_dir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">input_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">search_roots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_dir</span> <span class="o">/</span> <span class="n">instr_type</span> <span class="o">/</span> <span class="n">mooring_name</span><span class="p">)</span>
+        <span class="n">search_roots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_dir</span><span class="p">)</span>
+
+    <span class="n">tried</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">fname</span><span class="p">,</span> <span class="n">ftype</span><span class="p">,</span> <span class="n">hdr</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">root</span> <span class="ow">in</span> <span class="n">search_roots</span><span class="p">:</span>
+            <span class="n">candidate_path</span> <span class="o">=</span> <span class="n">root</span> <span class="o">/</span> <span class="n">fname</span>
+            <span class="n">tried</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">candidate_path</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">candidate_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">fname</span><span class="p">,</span> <span class="n">ftype</span><span class="p">,</span> <span class="n">hdr</span>
+
+    <span class="n">_log</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"AUTO-FILENAME: no file found for </span><span class="si">{</span><span class="n">instr_type</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">raw_serial</span><span class="si">}</span><span class="s2"> — tried:</span><span class="se">\n</span><span class="s2">  "</span>
+        <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">  "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tried</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="resolve_raw_file">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.raw_files.resolve_raw_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_raw_file</span><span class="p">(</span>
+    <span class="n">entry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">raw_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RawFile</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Find one instrument's raw file (and Nortek header) from its description entry.</span>
+
+<span class="sd">    The file is ``&lt;raw_dir&gt;/&lt;name&gt;/&lt;instrument&gt;/&lt;filename&gt;``. A missing ``filename``</span>
+<span class="sd">    is found by naming convention (:func:`guess_instrument_filename`). An Aquadopp</span>
+<span class="sd">    file not in ``aquadopp/`` is looked for in the legacy ``nortek/`` folder. An</span>
+<span class="sd">    absolute ``directory:`` in the description (deprecated) replaces the raw root,</span>
+<span class="sd">    with the old ``&lt;directory&gt;/&lt;instrument&gt;/&lt;name&gt;/&lt;filename&gt;`` layout.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    entry : dict</span>
+<span class="sd">        The instrument's description entry.</span>
+<span class="sd">    mooring : dict</span>
+<span class="sd">        The loaded mooring description.</span>
+<span class="sd">    raw_dir : str or pathlib.Path or None</span>
+<span class="sd">        The cruise-level raw-data root.</span>
+<span class="sd">    folder : str or None, optional</span>
+<span class="sd">        The mooring's folder name under *raw_dir* (and under an absolute</span>
+<span class="sd">        ``directory:``); defaults to the description's ``name``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    RawFile</span>
+<span class="sd">        The resolved file.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    oceanarray.exceptions.MooringError</span>
+<span class="sd">        If the entry names no file and none is found by convention.</span>
+<span class="sd">    """</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">folder</span> <span class="ow">or</span> <span class="n">mooring</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span>
+    <span class="n">override</span> <span class="o">=</span> <span class="n">mooring</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"directory"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">override</span> <span class="ow">and</span> <span class="n">Path</span><span class="p">(</span><span class="n">override</span><span class="p">)</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">():</span>
+        <span class="n">input_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">override</span><span class="p">)</span>
+        <span class="n">raw_mooring_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">input_dir</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">raw_mooring_dir</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">raw_mooring_dir</span><span class="p">(</span><span class="n">raw_dir</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="n">entry</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+    <span class="n">instrument</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"instrument"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">)</span>
+    <span class="n">serial</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"serial"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"filename"</span><span class="p">):</span>
+        <span class="n">guess</span> <span class="o">=</span> <span class="n">guess_instrument_filename</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">raw_mooring_dir</span><span class="p">,</span> <span class="n">input_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">guess</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">instrument</span><span class="si">}</span><span class="s2"> s/n </span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2"> has no 'filename' and no file "</span>
+                <span class="s2">"matching the recovery-file naming convention was found."</span>
+            <span class="p">)</span>
+        <span class="n">found</span><span class="p">,</span> <span class="n">found_type</span><span class="p">,</span> <span class="n">found_header</span> <span class="o">=</span> <span class="n">guess</span>
+        <span class="n">_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">"AUTO-FILENAME: </span><span class="si">{</span><span class="n">instrument</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2"> → </span><span class="si">{</span><span class="n">found</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">found_type</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+        <span class="n">entry</span><span class="p">[</span><span class="s2">"filename"</span><span class="p">]</span> <span class="o">=</span> <span class="n">found</span>
+        <span class="k">if</span> <span class="n">found_type</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"file_type"</span><span class="p">):</span>
+            <span class="n">entry</span><span class="p">[</span><span class="s2">"file_type"</span><span class="p">]</span> <span class="o">=</span> <span class="n">found_type</span>
+        <span class="k">if</span> <span class="n">found_header</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"header_file"</span><span class="p">):</span>
+            <span class="n">entry</span><span class="p">[</span><span class="s2">"header_file"</span><span class="p">]</span> <span class="o">=</span> <span class="n">found_header</span>
+
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"filename"</span><span class="p">]</span>
+    <span class="n">file_type</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"file_type"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+    <span class="c1"># 'nortek' as an instrument directory name is deprecated — always use 'aquadopp'.</span>
+    <span class="n">instrument_dir</span> <span class="o">=</span> <span class="n">instrument</span>
+    <span class="k">if</span> <span class="n">instrument</span> <span class="o">==</span> <span class="s2">"nortek"</span><span class="p">:</span>
+        <span class="n">_log</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"WARNING: instrument='nortek' is deprecated (serial </span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2">); "</span>
+            <span class="sa">f</span><span class="s2">"update YAML to instrument='aquadopp'. Using 'aquadopp/' directory."</span>
+        <span class="p">)</span>
+        <span class="n">instrument_dir</span> <span class="o">=</span> <span class="s2">"aquadopp"</span>
+
+    <span class="k">if</span> <span class="n">raw_mooring_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">raw_mooring_dir</span> <span class="o">/</span> <span class="n">instrument_dir</span> <span class="o">/</span> <span class="n">filename</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">instrument_dir</span> <span class="o">==</span> <span class="s2">"aquadopp"</span><span class="p">:</span>
+            <span class="n">legacy</span> <span class="o">=</span> <span class="n">raw_mooring_dir</span> <span class="o">/</span> <span class="s2">"nortek"</span> <span class="o">/</span> <span class="n">filename</span>
+            <span class="k">if</span> <span class="n">legacy</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">_log</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"INFO: </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> found in legacy 'nortek/' subdir "</span>
+                    <span class="sa">f</span><span class="s2">"(serial </span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2">); consider renaming to 'aquadopp/'."</span>
+                <span class="p">)</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">legacy</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">input_dir</span> <span class="o">/</span> <span class="n">instrument_dir</span> <span class="o">/</span> <span class="n">name</span> <span class="o">/</span> <span class="n">filename</span>
+
+    <span class="n">header</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">header_key</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"header_file"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"header"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">file_type</span> <span class="ow">in</span> <span class="n">_NORTEK_TYPES</span> <span class="ow">and</span> <span class="n">header_key</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">raw_mooring_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="n">raw_mooring_dir</span> <span class="o">/</span> <span class="n">instrument_dir</span> <span class="o">/</span> <span class="n">header_key</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">header</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">legacy_header</span> <span class="o">=</span> <span class="n">raw_mooring_dir</span> <span class="o">/</span> <span class="s2">"nortek"</span> <span class="o">/</span> <span class="n">header_key</span>
+                <span class="k">if</span> <span class="n">legacy_header</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                    <span class="n">header</span> <span class="o">=</span> <span class="n">legacy_header</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="n">input_dir</span> <span class="o">/</span> <span class="n">instrument_dir</span> <span class="o">/</span> <span class="n">name</span> <span class="o">/</span> <span class="n">header_key</span>
+
+    <span class="n">tag</span> <span class="o">=</span> <span class="n">find_file_tag</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">if</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s2">"adcp-matlab"</span> <span class="k">else</span> <span class="s2">""</span>
+    <span class="k">return</span> <span class="n">RawFile</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">file_type</span><span class="p">,</span> <span class="n">instrument_dir</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="read_raw_file">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.raw_files.read_raw_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_raw_file</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="n">RawFile</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Read one raw file and the metadata only its header holds.</span>
+
+<span class="sd">    Adds the Nortek pressure calibration and transformation matrix as</span>
+<span class="sd">    ``nortek_pressure_cal_*`` / ``nortek_T_*`` attributes (and</span>
+<span class="sd">    ``nortek_pointing_down``), and the SBE calibration coefficients as</span>
+<span class="sd">    ``SENSOR_*`` variables, and records ``source_file`` and ``file_type``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    raw : RawFile</span>
+<span class="sd">        The resolved raw file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        The raw dataset, before stage 1's transforms.</span>
+<span class="sd">    """</span>
+    <span class="n">read_path</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">path</span>
+    <span class="k">if</span> <span class="n">raw</span><span class="o">.</span><span class="n">file_type</span> <span class="o">==</span> <span class="s2">"sbe-ascii"</span><span class="p">:</span>
+        <span class="n">read_path</span> <span class="o">=</span> <span class="n">sbe</span><span class="o">.</span><span class="n">normalize_sbe_ascii</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">header</span><span class="p">)</span> <span class="k">if</span> <span class="n">raw</span><span class="o">.</span><span class="n">header</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">readers</span><span class="o">.</span><span class="n">_read_typed</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">file_type</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">read_path</span><span class="p">),</span> <span class="n">header</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">raw</span><span class="o">.</span><span class="n">file_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"nortek-raw"</span><span class="p">,</span> <span class="s2">"nortek-ascii"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">header</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">_parse_nortek_pressure_cal</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">header</span><span class="p">))</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="sa">f</span><span class="s2">"nortek_pressure_cal_</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">if</span> <span class="n">raw</span><span class="o">.</span><span class="n">file_type</span> <span class="ow">in</span> <span class="n">_NORTEK_TYPES</span> <span class="ow">and</span> <span class="n">header</span><span class="p">:</span>
+        <span class="n">t_matrix</span> <span class="o">=</span> <span class="n">_parse_nortek_T_matrix_hdr</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">header</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">t_matrix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">t_matrix</span> <span class="o">=</span> <span class="n">_parse_nortek_T_matrix_csv</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">header</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="n">t_matrix</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="sa">f</span><span class="s2">"nortek_T_</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"nortek_pointing_down"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
+            <span class="nb">bool</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"pointing_down"</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">raw</span><span class="o">.</span><span class="n">file_type</span> <span class="o">==</span> <span class="s2">"sbe-ascii"</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">_add_sbe_ascii_sensor_vars</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">raw</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">raw</span><span class="o">.</span><span class="n">entry</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">raw</span><span class="o">.</span><span class="n">file_type</span> <span class="o">==</span> <span class="s2">"sbe-hex"</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">_add_sbe_hex_sensor_vars</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">raw</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">raw</span><span class="o">.</span><span class="n">entry</span><span class="p">)</span>
+
+    <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"source_file"</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">entry</span><span class="p">[</span><span class="s2">"filename"</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">raw</span><span class="o">.</span><span class="n">file_type</span><span class="p">:</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"file_type"</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">file_type</span>
+    <span class="k">return</span> <span class="n">dataset</span></div>
+
+
+
+<span class="c1">#: The SBE sensors stage 1 records, as (variable suffix, sensor type, sensor model).</span>
+<span class="n">_SBE_SENSORS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"temperature"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"TEMP"</span><span class="p">,</span> <span class="s2">"TEMPERATURE"</span><span class="p">,</span> <span class="s2">"Sea-Bird SBE temperature sensor"</span><span class="p">),</span>
+    <span class="s2">"conductivity"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"CNDC"</span><span class="p">,</span> <span class="s2">"CONDUCTIVITY"</span><span class="p">,</span> <span class="s2">"Sea-Bird SBE conductivity sensor"</span><span class="p">),</span>
+    <span class="s2">"pressure"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"PRES"</span><span class="p">,</span> <span class="s2">"PRESSURE"</span><span class="p">,</span> <span class="s2">"Sea-Bird pressure sensor"</span><span class="p">),</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_iso_date</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">formats</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return *raw* as ``YYYY-MM-DD`` when it parses with one of *formats*, else unchanged."""</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+
+    <span class="k">for</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="n">formats</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y-%m-</span><span class="si">%d</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">raw</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_sensor_var</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">sensor</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">instr_serial</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">sensor_serial</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">cal_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">coefficients</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Add one ``SENSOR_&lt;TEMP|CNDC|PRES&gt;_&lt;serial&gt;`` scalar variable carrying the calibration."""</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+    <span class="n">suffix</span><span class="p">,</span> <span class="n">sensor_type</span><span class="p">,</span> <span class="n">model</span> <span class="o">=</span> <span class="n">_SBE_SENSORS</span><span class="p">[</span><span class="n">sensor</span><span class="p">]</span>
+    <span class="n">dataset</span><span class="p">[</span><span class="sa">f</span><span class="s2">"SENSOR_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">instr_serial</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+        <span class="p">(),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="sa">b</span><span class="s2">""</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"|S1"</span><span class="p">),</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">"long_name"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2"> metadata"</span><span class="p">,</span>
+            <span class="s2">"sensor_type"</span><span class="p">:</span> <span class="n">sensor_type</span><span class="p">,</span>
+            <span class="s2">"sensor_serial_number"</span><span class="p">:</span> <span class="n">sensor_serial</span><span class="p">,</span>
+            <span class="s2">"sensor_model"</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span>
+            <span class="s2">"sensor_calibration_date"</span><span class="p">:</span> <span class="n">cal_date</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">sensor_type</span><span class="si">}</span><span class="s2">_calibration_coefficients"</span><span class="p">:</span> <span class="n">coefficients</span><span class="p">,</span>
+            <span class="s2">"cf_role"</span><span class="p">:</span> <span class="s2">"sensor_id"</span><span class="p">,</span>
+            <span class="s2">"coverage_content_type"</span><span class="p">:</span> <span class="s2">"auxiliaryInformation"</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_sbe_ascii_sensor_vars</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">instrument_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Parse calibration coefficients from an SBE ASCII header and add SENSOR_* vars.</span>
+
+<span class="sd">    seasenselib's sbe-ascii reader discards the ``* TA0 = …`` header lines. This</span>
+<span class="sd">    re-reads the raw file, extracts the same coefficients the CNV reader would</span>
+<span class="sd">    produce, and creates matching SENSOR_* scalar variables so the report</span>
+<span class="sd">    calibration table is populated for ASCII-format instruments.</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">errors</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">dataset</span>
+
+    <span class="n">instr_serial</span> <span class="o">=</span> <span class="n">safe_serial</span><span class="p">(</span><span class="n">instrument_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"serial"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+    <span class="c1"># The start of a new calibration section or an end-of-header marker.</span>
+    <span class="n">section_start</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+        <span class="sa">r</span><span class="s2">"^(temperature|conductivity|pressure|rtc|S&gt;|\*END\*)"</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_block</span><span class="p">(</span><span class="n">start_pat</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return ``KEY=VAL, …`` from a labelled block of ``*     KEY = VAL`` lines."""</span>
+        <span class="n">coeffs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">in_block</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+            <span class="n">stripped</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">"* "</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">start_pat</span><span class="p">,</span> <span class="n">stripped</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">):</span>
+                <span class="n">in_block</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">in_block</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">"([A-Za-z_]\w*)\s*=\s*(.+)"</span><span class="p">,</span> <span class="n">stripped</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                    <span class="n">coeffs</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">elif</span> <span class="n">stripped</span> <span class="ow">and</span> <span class="n">section_start</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">stripped</span><span class="p">):</span>
+                    <span class="k">break</span>
+        <span class="k">return</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">coeffs</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_date</span><span class="p">(</span><span class="n">pat</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pat</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_iso_date</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="p">(</span><span class="s2">"</span><span class="si">%d</span><span class="s2">-%b-%y"</span><span class="p">,))</span> <span class="k">if</span> <span class="n">m</span> <span class="k">else</span> <span class="s2">"—"</span>
+
+    <span class="c1"># Pressure header line: "* pressure S/N 2385215, range = 2900 psia: 10-nov-08".</span>
+    <span class="n">sn_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"pressure\s+S/N\s+(\d+)"</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="n">blocks</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"temperature"</span><span class="p">:</span> <span class="p">(</span><span class="sa">r</span><span class="s2">"temperature:"</span><span class="p">,</span> <span class="sa">r</span><span class="s2">"\* temperature:\s+(.+)"</span><span class="p">,</span> <span class="n">instr_serial</span><span class="p">),</span>
+        <span class="s2">"conductivity"</span><span class="p">:</span> <span class="p">(</span><span class="sa">r</span><span class="s2">"conductivity:"</span><span class="p">,</span> <span class="sa">r</span><span class="s2">"\* conductivity:\s+(.+)"</span><span class="p">,</span> <span class="n">instr_serial</span><span class="p">),</span>
+        <span class="s2">"pressure"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="sa">r</span><span class="s2">"pressure\s+S/N"</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">"\* pressure\s+S/N[^:]+:\s+(.+)"</span><span class="p">,</span>
+            <span class="n">sn_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">sn_match</span> <span class="k">else</span> <span class="n">instr_serial</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">sensor</span><span class="p">,</span> <span class="p">(</span><span class="n">start_pat</span><span class="p">,</span> <span class="n">date_pat</span><span class="p">,</span> <span class="n">sensor_serial</span><span class="p">)</span> <span class="ow">in</span> <span class="n">blocks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">coefficients</span> <span class="o">=</span> <span class="n">_block</span><span class="p">(</span><span class="n">start_pat</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">coefficients</span><span class="p">:</span>
+            <span class="n">_add_sensor_var</span><span class="p">(</span>
+                <span class="n">dataset</span><span class="p">,</span>
+                <span class="n">sensor</span><span class="p">,</span>
+                <span class="n">instr_serial</span><span class="p">,</span>
+                <span class="n">sensor_serial</span><span class="p">,</span>
+                <span class="n">_date</span><span class="p">(</span><span class="n">date_pat</span><span class="p">),</span>
+                <span class="n">coefficients</span><span class="p">,</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">dataset</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_sbe_hex_sensor_vars</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">instrument_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Parse calibration coefficients from an SBE hex header and add SENSOR_* vars.</span>
+
+<span class="sd">    Uses seasenselib's ``parse_hex_header_sensors``, which extracts the calibration</span>
+<span class="sd">    XML embedded in the hex file header, and creates the same SENSOR_* variables as</span>
+<span class="sd">    the ASCII header.</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">seasenselib.readers.sbe_hex_reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_hex_header_sensors</span>
+
+        <span class="n">sensor_info</span> <span class="o">=</span> <span class="n">parse_hex_header_sensors</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001  — optional; don't break stage1 if unavailable</span>
+        <span class="k">return</span> <span class="n">dataset</span>
+
+    <span class="n">cal_coeffs</span> <span class="o">=</span> <span class="n">sensor_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"calibration_coefficients"</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">cal_coeffs</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">dataset</span>
+
+    <span class="n">instr_serial</span> <span class="o">=</span> <span class="n">safe_serial</span><span class="p">(</span><span class="n">instrument_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"serial"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">sensor</span> <span class="ow">in</span> <span class="n">_SBE_SENSORS</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">sensor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cal_coeffs</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">coeffs</span> <span class="o">=</span> <span class="n">cal_coeffs</span><span class="p">[</span><span class="n">sensor</span><span class="p">][</span><span class="s2">"coefficients"</span><span class="p">]</span>
+        <span class="n">_add_sensor_var</span><span class="p">(</span>
+            <span class="n">dataset</span><span class="p">,</span>
+            <span class="n">sensor</span><span class="p">,</span>
+            <span class="n">instr_serial</span><span class="p">,</span>
+            <span class="n">coeffs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"serialnum"</span><span class="p">,</span> <span class="n">instr_serial</span><span class="p">),</span>
+            <span class="n">_iso_date</span><span class="p">(</span><span class="n">coeffs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"caldate"</span><span class="p">,</span> <span class="s2">"—"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"</span><span class="si">%d</span><span class="s2">-%b-%y"</span><span class="p">,</span> <span class="s2">"</span><span class="si">%d</span><span class="s2">-%b-%Y"</span><span class="p">)),</span>
+            <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">"</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">coeffs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"serialnum"</span><span class="p">,</span> <span class="s2">"caldate"</span><span class="p">)</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">dataset</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

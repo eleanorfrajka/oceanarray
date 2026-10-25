@@ -1,0 +1,1389 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.pipeline.grid &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../pipeline.html">oceanarray.pipeline</a></li>
+      <li class="breadcrumb-item active">oceanarray.pipeline.grid</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.pipeline.grid</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""MooringGridder and TimeGriddingProcessor: grid mooring data onto regular time/depth axes."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">mooring</span> <span class="k">as</span> <span class="n">_mooring</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">paths</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.units</span><span class="w"> </span><span class="kn">import</span> <span class="n">to_canonical_units</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">_status</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.writers</span><span class="w"> </span><span class="kn">import</span> <span class="n">write</span>
+
+<span class="c1"># Input-file tag of the time-gridding processor (stage-2 files, without ``.nc``).</span>
+<span class="n">_STAGE2_TAG</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">stage_suffix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">".nc"</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="grid">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.grid.grid">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">grid</span><span class="p">(</span>
+    <span class="n">ds_stack</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">p_start</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">200.0</span><span class="p">,</span>
+    <span class="n">p_end</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1000.0</span><span class="p">,</span>
+    <span class="n">dp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Interpolate a mooring stack onto a regular pressure grid.</span>
+
+<span class="sd">    Pure function: no file I/O. At each time step every variable is interpolated</span>
+<span class="sd">    linearly in pressure from the instruments with valid pressure and values onto</span>
+<span class="sd">    ``p_start:dp:p_end`` dbar, with no extrapolation. Velocity flagged suspect or</span>
+<span class="sd">    worse (``velocity_flag`` and the ADCP seabed, percent-good and error-velocity</span>
+<span class="sd">    flags) is masked first.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_stack : xarray.Dataset</span>
+<span class="sd">        The stack, as :func:`oceanarray.pipeline.stack.stack` returns it.</span>
+<span class="sd">    p_start, p_end, dp : float, optional</span>
+<span class="sd">        The pressure grid, in dbar.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        The gridded product on ``(time, pressure)``.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the stack has no ``pressure`` variable.</span>
+<span class="sd">    """</span>
+    <span class="n">p_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">p_start</span><span class="p">,</span> <span class="n">p_end</span> <span class="o">+</span> <span class="n">dp</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">dp</span><span class="p">)</span>
+    <span class="n">n_p</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">p_grid</span><span class="p">)</span>
+
+    <span class="c1"># Canonicalise the stack's units (idempotent on a 0.5.0 stack; rewrites a</span>
+    <span class="c1"># pre-0.5.0 one) so the grid inherits one spelling per quantity.</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">to_canonical_units</span><span class="p">(</span><span class="n">ds_stack</span><span class="p">,</span> <span class="n">log_fn</span><span class="o">=</span><span class="nb">print</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="s2">"grid"</span><span class="p">)</span>
+    <span class="n">n_time</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span>
+    <span class="n">n_instr</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"N_LEVELS"</span><span class="p">]</span>
+
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Gridding </span><span class="si">{</span><span class="n">n_instr</span><span class="si">}</span><span class="s2"> instruments → </span><span class="si">{</span><span class="n">n_p</span><span class="si">}</span><span class="s2"> pressure levels "</span>
+        <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">p_start</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">dp</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">p_end</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> dbar) × </span><span class="si">{</span><span class="n">n_time</span><span class="si">}</span><span class="s2"> time steps"</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">"pressure"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"'pressure' not found in the stack — cannot grid vertically"</span><span class="p">)</span>
+
+    <span class="n">pressure</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>  <span class="c1"># (time, N_LEVELS)</span>
+    <span class="c1"># Variables that are meaningful at the stacked per-instrument level but</span>
+    <span class="c1"># should not be interpolated onto the pressure grid.  Instrument-frame</span>
+    <span class="c1"># and beam-frame velocities are excluded because the XYZ→ENU rotation</span>
+    <span class="c1"># has already been applied; gridding the pre-rotation components would</span>
+    <span class="c1"># be misleading.  Diagnostic quantities (amplitude, correlation,</span>
+    <span class="c1"># battery) are per-sensor and do not have a physical meaning on a</span>
+    <span class="c1"># spatially-interpolated grid.</span>
+    <span class="n">_GRID_EXCLUDE</span><span class="p">:</span> <span class="nb">frozenset</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">"velocity_x"</span><span class="p">,</span>
+            <span class="s2">"velocity_y"</span><span class="p">,</span>
+            <span class="s2">"velocity_z"</span><span class="p">,</span>
+            <span class="s2">"velocity_beam1"</span><span class="p">,</span>
+            <span class="s2">"velocity_beam2"</span><span class="p">,</span>
+            <span class="s2">"velocity_beam3"</span><span class="p">,</span>
+            <span class="s2">"amplitude"</span><span class="p">,</span>
+            <span class="s2">"correlation"</span><span class="p">,</span>
+            <span class="s2">"battery_voltage"</span><span class="p">,</span>
+            <span class="s2">"velocity_flag"</span><span class="p">,</span>  <span class="c1"># flag array, not a gridded physics variable</span>
+            <span class="s2">"tilt_from_pressure"</span><span class="p">,</span>  <span class="c1"># per-instrument diagnostic, not gridded</span>
+            <span class="s2">"tilt_pressure_ref_hab"</span><span class="p">,</span>
+            <span class="s2">"heading"</span><span class="p">,</span>  <span class="c1"># instrument-frame orientation — not meaningful on a pressure grid</span>
+            <span class="s2">"pitch"</span><span class="p">,</span>
+            <span class="s2">"roll"</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="c1"># Variables eligible for gridding: physics vars on the (time, N_LEVELS)</span>
+    <span class="c1"># grid, excluding pressure and QC flags.  Compute once, then split into</span>
+    <span class="c1"># kept vs excluded so the two lists cannot drift (D2).</span>
+    <span class="n">_grid_candidates</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">v</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="o">!=</span> <span class="s2">"pressure"</span>
+        <span class="ow">and</span> <span class="n">ds</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span> <span class="o">==</span> <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"N_LEVELS"</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="ow">not</span> <span class="n">v</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"_qc"</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">grid_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_grid_candidates</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_GRID_EXCLUDE</span><span class="p">]</span>
+
+    <span class="c1"># Tell the operator which present physics variables were excluded from the</span>
+    <span class="c1"># grid rather than dropping them silently (D2).</span>
+    <span class="n">_excluded</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_grid_candidates</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_GRID_EXCLUDE</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">_excluded</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"  NOTE: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">_excluded</span><span class="p">)</span><span class="si">}</span><span class="s2"> variable(s) excluded from gridding "</span>
+            <span class="sa">f</span><span class="s2">"(listed in _GRID_EXCLUDE): </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_excluded</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+
+    <span class="n">stacked</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">v</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_p</span><span class="p">,</span> <span class="n">n_time</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">grid_vars</span>
+    <span class="p">}</span>
+    <span class="n">var_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">ds</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">grid_vars</span><span class="p">}</span>
+
+    <span class="c1"># QC masking before vertical interpolation.</span>
+    <span class="c1"># T/S/P: NaN any non-finite values (already masked at stack time).</span>
+    <span class="c1"># Velocity: use velocity_flag from the stack to NaN suspect/bad samples.</span>
+    <span class="c1">#   Flag 3 (suspect), 4 (bad), 9 (missing) → NaN before interpolation.</span>
+    <span class="n">_GRIDDER_TSQC</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"temperature"</span><span class="p">,</span> <span class="s2">"conductivity"</span><span class="p">,</span> <span class="s2">"salinity"</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">_v</span> <span class="ow">in</span> <span class="n">grid_vars</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">_v</span> <span class="ow">in</span> <span class="n">_GRIDDER_TSQC</span><span class="p">:</span>
+            <span class="n">var_data</span><span class="p">[</span><span class="n">_v</span><span class="p">][</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">var_data</span><span class="p">[</span><span class="n">_v</span><span class="p">])]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="n">_vel_vars</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"east_velocity"</span><span class="p">,</span>
+        <span class="s2">"north_velocity"</span><span class="p">,</span>
+        <span class="s2">"up_velocity"</span><span class="p">,</span>
+        <span class="s2">"current_speed"</span><span class="p">,</span>
+        <span class="s2">"current_direction"</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="s2">"velocity_flag"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">_vflag</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"velocity_flag"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">_bad_vel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">_vflag</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">),</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">_v</span> <span class="ow">in</span> <span class="n">_vel_vars</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_v</span> <span class="ow">in</span> <span class="n">var_data</span><span class="p">:</span>
+                <span class="n">var_data</span><span class="p">[</span><span class="n">_v</span><span class="p">][</span><span class="n">_bad_vel</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">_v</span> <span class="ow">in</span> <span class="n">_vel_vars</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_v</span> <span class="ow">in</span> <span class="n">var_data</span><span class="p">:</span>
+                <span class="n">var_data</span><span class="p">[</span><span class="n">_v</span><span class="p">][</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">var_data</span><span class="p">[</span><span class="n">_v</span><span class="p">])]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="c1"># ADCP standalone QC variables — mask velocity before gridding.</span>
+    <span class="c1"># seabed_qc removes bins at/below the seafloor; percent_good_qc and</span>
+    <span class="c1"># error_velocity_qc remove poor-quality pings.  All three use flag &gt;= 3</span>
+    <span class="c1"># (suspect or worse) as the NaN threshold, consistent with how the</span>
+    <span class="c1"># rose diagram and stack report mask these variables.</span>
+    <span class="k">for</span> <span class="n">_adcp_qc</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"seabed_qc"</span><span class="p">,</span> <span class="s2">"percent_good_qc"</span><span class="p">,</span> <span class="s2">"error_velocity_qc"</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">_adcp_qc</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">_qc</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">_adcp_qc</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>  <span class="c1"># (time, N_LEVELS) after stack transpose</span>
+        <span class="n">_bad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">_qc</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">),</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">_v</span> <span class="ow">in</span> <span class="n">_vel_vars</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_v</span> <span class="ow">in</span> <span class="n">var_data</span><span class="p">:</span>
+                <span class="n">var_data</span><span class="p">[</span><span class="n">_v</span><span class="p">][</span><span class="n">_bad</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_time</span><span class="p">):</span>
+        <span class="n">p_col</span> <span class="o">=</span> <span class="n">pressure</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">p_valid_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">p_col</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">p_valid_mask</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">grid_vars</span><span class="p">:</span>
+            <span class="n">v_col</span> <span class="o">=</span> <span class="n">var_data</span><span class="p">[</span><span class="n">vname</span><span class="p">][</span><span class="n">t</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">both_valid</span> <span class="o">=</span> <span class="n">p_valid_mask</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">v_col</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">both_valid</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">p_v</span> <span class="o">=</span> <span class="n">p_col</span><span class="p">[</span><span class="n">both_valid</span><span class="p">]</span>
+            <span class="n">v_v</span> <span class="o">=</span> <span class="n">v_col</span><span class="p">[</span><span class="n">both_valid</span><span class="p">]</span>
+            <span class="n">sort_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">p_v</span><span class="p">)</span>
+            <span class="n">stacked</span><span class="p">[</span><span class="n">vname</span><span class="p">][:,</span> <span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span>
+                <span class="n">p_grid</span><span class="p">,</span>
+                <span class="n">p_v</span><span class="p">[</span><span class="n">sort_idx</span><span class="p">],</span>
+                <span class="n">v_v</span><span class="p">[</span><span class="n">sort_idx</span><span class="p">],</span>
+                <span class="n">left</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                <span class="n">right</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Build output dataset; skip variables that are entirely NaN</span>
+    <span class="n">data_vars</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">grid_vars</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">stacked</span><span class="p">[</span><span class="n">vname</span><span class="p">])):</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+            <span class="n">a</span><span class="p">[</span><span class="s2">"vertical_interpolation"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"linear in pressure; no extrapolation outside </span><span class="si">{</span><span class="n">p_start</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">–</span><span class="si">{</span><span class="n">p_end</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> dbar"</span>
+            <span class="p">)</span>
+            <span class="n">data_vars</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"pressure"</span><span class="p">),</span> <span class="n">stacked</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">a</span>
+            <span class="p">)</span>
+
+    <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+        <span class="n">data_vars</span><span class="p">,</span>
+        <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">"time"</span><span class="p">:</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"time"</span><span class="p">],</span>
+            <span class="s2">"pressure"</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                <span class="s2">"pressure"</span><span class="p">,</span>
+                <span class="n">p_grid</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"dbar"</span><span class="p">,</span>
+                    <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"sea water pressure"</span><span class="p">,</span>
+                    <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"sea_water_pressure"</span><span class="p">,</span>
+                    <span class="s2">"axis"</span><span class="p">:</span> <span class="s2">"Z"</span><span class="p">,</span>
+                    <span class="s2">"positive"</span><span class="p">:</span> <span class="s2">"down"</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+
+    <span class="n">prior_history</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"history"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"history"</span><span class="p">,)},</span>
+            <span class="s2">"p_start_dbar"</span><span class="p">:</span> <span class="n">p_start</span><span class="p">,</span>
+            <span class="s2">"p_end_dbar"</span><span class="p">:</span> <span class="n">p_end</span><span class="p">,</span>
+            <span class="s2">"dp_dbar"</span><span class="p">:</span> <span class="n">dp</span><span class="p">,</span>
+            <span class="s2">"history"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="n">prior_history</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">"; Step 2 grid: linear interpolation in pressure onto </span><span class="si">{</span><span class="n">dp</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> dbar pressure grid "</span>
+                <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">p_start</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">–</span><span class="si">{</span><span class="n">p_end</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> dbar); no extrapolation"</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">to_canonical_units</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="n">log_fn</span><span class="o">=</span><span class="nb">print</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="s2">"grid"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="MooringGridder">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.grid.MooringGridder">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MooringGridder</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Step 2: vertically interpolate stacked instruments onto a pressure grid → ``_grid.nc``."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">proc_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Interpolate a mooring stack onto a regular pressure grid.</span>
+
+<span class="sd">        Reads ``{mooring}_stack.nc`` (produced by :class:`MooringStacker`) and</span>
+<span class="sd">        interpolates all scalar variables onto a uniform pressure axis defined by</span>
+<span class="sd">        ``p_start``, ``p_end``, and ``dp`` (in dbar).  Writes</span>
+<span class="sd">        ``{mooring}_grid.nc`` in the mooring proc directory.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        proc_dir : str</span>
+<span class="sd">            Cruise-level processed output directory. The pipeline appends</span>
+<span class="sd">            ``/{mooring}/`` internally (see :func:`oceanarray.paths.mooring_proc_dir`).</span>
+
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_proc_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_proc_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mooring_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the mooring-level proc directory."""</span>
+        <span class="k">return</span> <span class="n">paths</span><span class="o">.</span><span class="n">mooring_proc_dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proc_dir</span><span class="p">,</span> <span class="n">mooring_name</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_rel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return a short display path relative to proc_dir."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proc_dir</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proc_dir</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
+
+<div class="viewcode-block" id="MooringGridder.grid">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.grid.MooringGridder.grid">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">grid</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">mooring_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">p_start</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">200.0</span><span class="p">,</span>
+        <span class="n">p_end</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1000.0</span><span class="p">,</span>
+        <span class="n">dp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.0</span><span class="p">,</span>
+        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Interpolate the stacked mooring dataset onto a regular pressure grid.</span>
+
+<span class="sd">        Reads ``{mooring}_stack.nc``, interpolates all variables onto a pressure</span>
+<span class="sd">        axis from *p_start* to *p_end* in steps of *dp* dbar, and writes</span>
+<span class="sd">        ``{mooring}_grid.nc``.</span>
+
+<span class="sd">        Returns True on success, False on error.</span>
+<span class="sd">        """</span>
+        <span class="n">proc_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_proc_dir</span><span class="p">(</span><span class="n">mooring_name</span><span class="p">)</span>
+        <span class="n">merge_path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">product_file</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">,</span> <span class="n">mooring_name</span><span class="p">,</span> <span class="s2">"stack"</span><span class="p">)</span>
+        <span class="n">output_path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">product_file</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">,</span> <span class="n">mooring_name</span><span class="p">,</span> <span class="s2">"grid"</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">stack_found</span> <span class="o">=</span> <span class="n">merge_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+            <span class="n">output_found</span> <span class="o">=</span> <span class="n">output_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TimeoutError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"ERROR: Cannot access data drive — is it connected?"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"       Path: </span><span class="si">{</span><span class="n">merge_path</span><span class="o">.</span><span class="n">parent</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"       (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">stack_found</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR: Stack file not found: </span><span class="si">{</span><span class="n">merge_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"       Run 'oceanarray process MOORING --stage stack' first."</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">output_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force</span><span class="p">:</span>
+            <span class="n">_status</span><span class="p">(</span><span class="s2">"skip"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rel</span><span class="p">(</span><span class="n">output_path</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span>
+                <span class="n">merge_path</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">"netcdf4"</span><span class="p">,</span> <span class="n">decode_timedelta</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+                <span class="n">ds_stack</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TimeoutError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"ERROR: Cannot read stack file — is the data drive connected?"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"       (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ds_out</span> <span class="o">=</span> <span class="n">grid</span><span class="p">(</span><span class="n">ds_stack</span><span class="p">,</span> <span class="n">p_start</span><span class="o">=</span><span class="n">p_start</span><span class="p">,</span> <span class="n">p_end</span><span class="o">=</span><span class="n">p_end</span><span class="p">,</span> <span class="n">dp</span><span class="o">=</span><span class="n">dp</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="c1"># write() replaces atomically (temp file then rename), so the previous</span>
+        <span class="c1"># output survives a failed write; do not unlink it first.</span>
+        <span class="n">write</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">_status</span><span class="p">(</span><span class="s2">"file"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rel</span><span class="p">(</span><span class="n">output_path</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TimeGriddingProcessor">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.grid.TimeGriddingProcessor">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TimeGriddingProcessor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Handles Step 1 processing: time gridding and optional filtering of mooring instruments."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">proc_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Initialize the processor with the cruise-level proc directory.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        proc_dir : str</span>
+<span class="sd">            Cruise-level processed output directory. The pipeline appends</span>
+<span class="sd">            ``/{mooring}/`` internally (see :func:`oceanarray.paths.mooring_proc_dir`).</span>
+
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_proc_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_logging</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mooring_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Set up logging for the processing run using global config."""</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_stage_logging</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span> <span class="o">=</span> <span class="n">setup_stage_logging</span><span class="p">(</span><span class="n">mooring_name</span><span class="p">,</span> <span class="s2">"time_gridding"</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_log_print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Print to both console and log file."""</span>
+        <span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"a"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load_instrument_datasets</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">mooring_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">proc_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">file_suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_STAGE2_TAG</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Load all instrument datasets for a mooring."""</span>
+        <span class="n">datasets</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># Stage files are named from the mooring directory (the CLI/argument name,</span>
+        <span class="c1"># e.g. `dune2_1_2026`), which is what stage1/2/3 use to build their output</span>
+        <span class="c1"># filenames — not the YAML `name:` field (e.g. `Dune2_1_2026`).  Deriving</span>
+        <span class="c1"># the prefix from `mooring_config["name"]` found the files only on a</span>
+        <span class="c1"># case-insensitive filesystem (macOS) and silently loaded zero instruments</span>
+        <span class="c1"># on Linux.  Use the directory name so the prefix matches on every platform.</span>
+        <span class="n">mooring_name</span> <span class="o">=</span> <span class="n">proc_dir</span><span class="o">.</span><span class="n">name</span>
+        <span class="c1"># Read the modern `clamp:` key with the legacy `instruments:` fallback, as</span>
+        <span class="c1"># every other stage does (stage1/2/3, stack).  Without the fallback grid</span>
+        <span class="c1"># silently loaded zero instruments for clamp-format moorings and produced an</span>
+        <span class="c1"># empty grid.</span>
+        <span class="n">expected_instruments</span> <span class="o">=</span> <span class="n">mooring_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s2">"clamp"</span><span class="p">,</span> <span class="n">mooring_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"instruments"</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="p">)</span>
+        <span class="n">found_instruments</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">missing_instruments</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">instrument_config</span> <span class="ow">in</span> <span class="n">expected_instruments</span><span class="p">:</span>
+            <span class="n">instrument_type</span> <span class="o">=</span> <span class="n">instrument_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"instrument"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">)</span>
+            <span class="n">serial</span> <span class="o">=</span> <span class="n">instrument_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"serial"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="c1"># Construct file path.  Stage files are named with the filename-safe</span>
+            <span class="c1"># serial (paths.safe_serial), so a serial carrying a `*` marker (e.g.</span>
+            <span class="c1"># `9920*`) must be sanitised here too — otherwise the file is "not</span>
+            <span class="c1"># found" and the instrument is silently dropped from the grid.</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mooring_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">paths</span><span class="o">.</span><span class="n">safe_serial</span><span class="p">(</span><span class="n">serial</span><span class="p">)</span><span class="si">}{</span><span class="n">file_suffix</span><span class="si">}</span><span class="s2">.nc"</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="n">proc_dir</span> <span class="o">/</span> <span class="n">instrument_type</span> <span class="o">/</span> <span class="n">filename</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">filepath</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"WARNING: File not found: </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">missing_instruments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">instrument_type</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"Loading </span><span class="si">{</span><span class="n">instrument_type</span><span class="si">}</span><span class="s2"> serial </span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">"</span>
+                <span class="p">)</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">"netcdf4"</span><span class="p">,</span> <span class="n">decode_timedelta</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="n">to_canonical_units</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">log_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="s2">"grid"</span><span class="p">)</span>
+
+                <span class="c1"># Ensure required metadata is present</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_instrument_metadata</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">instrument_config</span><span class="p">)</span>
+
+                <span class="c1"># Clean unnecessary variables</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clean_dataset_variables</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+
+                <span class="n">datasets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+                <span class="n">found_instruments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">instrument_type</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: BLE001  — skip unreadable file; mooring continues</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR loading </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">missing_instruments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">instrument_type</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+        <span class="c1"># Report on missing instruments</span>
+        <span class="k">if</span> <span class="n">missing_instruments</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+                <span class="s2">"WARNING: Missing instruments compared to YAML configuration:"</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">missing</span> <span class="ow">in</span> <span class="n">missing_instruments</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"   - </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"   Expected </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">expected_instruments</span><span class="p">)</span><span class="si">}</span><span class="s2">, found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">found_instruments</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"All </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">expected_instruments</span><span class="p">)</span><span class="si">}</span><span class="s2"> instruments from YAML found and loaded"</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">datasets</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_ensure_instrument_metadata</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">instrument_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Ensure all required metadata is present in dataset."""</span>
+        <span class="c1"># Add missing metadata from config</span>
+        <span class="k">if</span> <span class="s2">"InstrDepth"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">variables</span> <span class="ow">and</span> <span class="s2">"depth"</span> <span class="ow">in</span> <span class="n">instrument_config</span><span class="p">:</span>
+            <span class="n">dataset</span><span class="p">[</span><span class="s2">"InstrDepth"</span><span class="p">]</span> <span class="o">=</span> <span class="n">instrument_config</span><span class="p">[</span><span class="s2">"depth"</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="s2">"instrument"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">variables</span> <span class="ow">and</span> <span class="s2">"instrument"</span> <span class="ow">in</span> <span class="n">instrument_config</span><span class="p">:</span>
+            <span class="n">dataset</span><span class="p">[</span><span class="s2">"instrument"</span><span class="p">]</span> <span class="o">=</span> <span class="n">instrument_config</span><span class="p">[</span><span class="s2">"instrument"</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="s2">"serial_number"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">variables</span> <span class="ow">and</span> <span class="s2">"serial"</span> <span class="ow">in</span> <span class="n">instrument_config</span><span class="p">:</span>
+            <span class="n">dataset</span><span class="p">[</span><span class="s2">"serial_number"</span><span class="p">]</span> <span class="o">=</span> <span class="n">instrument_config</span><span class="p">[</span><span class="s2">"serial"</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">dataset</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_clean_dataset_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Remove unnecessary variables from dataset."""</span>
+        <span class="n">vars_to_remove</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">"timeS"</span><span class="p">,</span>
+            <span class="s2">"density"</span><span class="p">,</span>
+            <span class="s2">"potential_temperature"</span><span class="p">,</span>
+            <span class="s2">"julian_days_offset"</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">vars_to_remove</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+                <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">dataset</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_time_filtering_single</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">dataset</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+        <span class="n">filter_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">filter_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Apply time-domain filtering to a single instrument dataset.</span>
+
+<span class="sd">        This method applies filtering to the original instrument time grid</span>
+<span class="sd">        BEFORE interpolation to preserve data integrity.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dataset: Single instrument dataset on its native time grid</span>
+<span class="sd">            filter_type: Type of filtering ('lowpass', 'bandpass', 'detide', etc.)</span>
+<span class="sd">            filter_params: Filter parameters (cutoff frequencies, order, etc.)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            Filtered dataset on the same time grid</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">filter_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># No filtering requested</span>
+            <span class="k">return</span> <span class="n">dataset</span>
+
+        <span class="c1"># Get instrument info for logging</span>
+        <span class="n">instrument</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">dataset</span><span class="p">[</span><span class="s2">"instrument"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="k">if</span> <span class="s2">"instrument"</span> <span class="ow">in</span> <span class="n">dataset</span> <span class="k">else</span> <span class="s2">"unknown"</span>
+        <span class="p">)</span>
+        <span class="n">serial</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">dataset</span><span class="p">[</span><span class="s2">"serial_number"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="k">if</span> <span class="s2">"serial_number"</span> <span class="ow">in</span> <span class="n">dataset</span> <span class="k">else</span> <span class="s2">"unknown"</span>
+        <span class="p">)</span>
+        <span class="n">depth</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">"InstrDepth"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="k">if</span> <span class="s2">"InstrDepth"</span> <span class="ow">in</span> <span class="n">dataset</span> <span class="k">else</span> <span class="s2">"unknown"</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"  Applying </span><span class="si">{</span><span class="n">filter_type</span><span class="si">}</span><span class="s2"> filtering to </span><span class="si">{</span><span class="n">instrument</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2"> at </span><span class="si">{</span><span class="n">depth</span><span class="si">}</span><span class="s2">m"</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">filter_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"lowpass"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_lowpass_filter</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">filter_params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">filter_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"detide"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_detiding_filter</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">filter_params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">filter_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"bandpass"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_bandpass_filter</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">filter_params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    WARNING: Unknown filter type '</span><span class="si">{</span><span class="n">filter_type</span><span class="si">}</span><span class="s2">', skipping"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dataset</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_lowpass_filter</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">filter_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Apply low-pass Butterworth filter (e.g., for de-tiding).</span>
+
+<span class="sd">        Default parameters match RAPID array processing:</span>
+<span class="sd">        - Cutoff: 2 days (removes tidal and inertial signals)</span>
+<span class="sd">        - Order: 6th order Butterworth</span>
+<span class="sd">        """</span>
+        <span class="c1"># Default RAPID-style parameters</span>
+        <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"cutoff_days"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span> <span class="s2">"order"</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="s2">"method"</span><span class="p">:</span> <span class="s2">"butterworth"</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">filter_params</span><span class="p">:</span>
+            <span class="n">default_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">filter_params</span><span class="p">)</span>
+
+        <span class="n">cutoff_days</span> <span class="o">=</span> <span class="n">default_params</span><span class="p">[</span><span class="s2">"cutoff_days"</span><span class="p">]</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="n">default_params</span><span class="p">[</span><span class="s2">"order"</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    Low-pass filter: </span><span class="si">{</span><span class="n">cutoff_days</span><span class="si">}</span><span class="s2"> day cutoff, order </span><span class="si">{</span><span class="n">order</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="c1"># Check if we have sufficient data length</span>
+        <span class="k">if</span> <span class="s2">"time"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">sizes</span> <span class="ow">or</span> <span class="n">dataset</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"    WARNING: Insufficient data for filtering (n=</span><span class="si">{</span><span class="n">dataset</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'time'</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="si">}</span><span class="s2">)"</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">dataset</span>
+
+        <span class="c1"># Calculate sampling rate</span>
+        <span class="n">time_diffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"s"</span><span class="p">)</span>
+        <span class="n">dt_seconds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">time_diffs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">dt_seconds</span><span class="p">)</span> <span class="ow">or</span> <span class="n">dt_seconds</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="s2">"    WARNING: Invalid sampling rate, skipping filter"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">dataset</span>
+
+        <span class="c1"># Convert cutoff to frequency</span>
+        <span class="n">cutoff_seconds</span> <span class="o">=</span> <span class="n">cutoff_days</span> <span class="o">*</span> <span class="mi">24</span> <span class="o">*</span> <span class="mi">3600</span>
+        <span class="n">nyquist</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">dt_seconds</span><span class="p">)</span>
+        <span class="n">cutoff_freq</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">cutoff_seconds</span>
+
+        <span class="k">if</span> <span class="n">cutoff_freq</span> <span class="o">&gt;=</span> <span class="n">nyquist</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"    WARNING: Cutoff frequency (</span><span class="si">{</span><span class="n">cutoff_freq</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2"> Hz) &gt;= Nyquist (</span><span class="si">{</span><span class="n">nyquist</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2"> Hz)"</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="s2">"    Skipping filter to avoid artifacts"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">dataset</span>
+
+        <span class="c1"># Apply filter to each data variable</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">signal</span>
+
+            <span class="c1"># Design Butterworth filter</span>
+            <span class="n">sos</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">butter</span><span class="p">(</span>
+                <span class="n">order</span><span class="p">,</span> <span class="n">cutoff_freq</span><span class="p">,</span> <span class="n">btype</span><span class="o">=</span><span class="s2">"low"</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="n">dt_seconds</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">"sos"</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Create filtered dataset</span>
+            <span class="n">ds_filtered</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+            <span class="c1"># Variables to filter (skip coordinates and metadata)</span>
+            <span class="n">filter_vars</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s2">"temperature"</span><span class="p">,</span>
+                <span class="s2">"salinity"</span><span class="p">,</span>
+                <span class="s2">"conductivity"</span><span class="p">,</span>
+                <span class="s2">"pressure"</span><span class="p">,</span>
+                <span class="s2">"u_velocity"</span><span class="p">,</span>
+                <span class="s2">"v_velocity"</span><span class="p">,</span>
+                <span class="s2">"eastward_velocity"</span><span class="p">,</span>
+                <span class="s2">"northward_velocity"</span><span class="p">,</span>
+            <span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">filter_vars</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+                    <span class="c1"># Check for sufficient valid data</span>
+                    <span class="n">valid_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">valid_mask</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">"    WARNING: Too few valid points in </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">, skipping"</span>
+                        <span class="p">)</span>
+                        <span class="k">continue</span>
+
+                    <span class="c1"># Apply filter only to valid data segments</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">valid_mask</span><span class="p">):</span>
+                        <span class="c1"># No gaps, apply filter directly</span>
+                        <span class="n">filtered_data</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">sosfiltfilt</span><span class="p">(</span><span class="n">sos</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># Handle gaps by filtering continuous segments</span>
+                        <span class="n">filtered_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_with_gaps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sos</span><span class="p">,</span> <span class="n">valid_mask</span><span class="p">)</span>
+
+                    <span class="n">ds_filtered</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">dataset</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span>
+                        <span class="n">filtered_data</span><span class="p">,</span>
+                        <span class="n">dataset</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+            <span class="c1"># Update attributes to record filtering</span>
+            <span class="n">ds_filtered</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">"time_filtering_applied"</span><span class="p">:</span> <span class="n">filter_params</span> <span class="ow">or</span> <span class="n">default_params</span><span class="p">,</span>
+                    <span class="s2">"time_filtering_cutoff_days"</span><span class="p">:</span> <span class="n">cutoff_days</span><span class="p">,</span>
+                    <span class="s2">"time_filtering_order"</span><span class="p">:</span> <span class="n">order</span><span class="p">,</span>
+                    <span class="s2">"processing_step"</span><span class="p">:</span> <span class="s2">"time_filtered"</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="s2">"    Successfully applied low-pass filter"</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="s2">"    ERROR: scipy not available for filtering"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">dataset</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: BLE001  — filter failure must not abort processing</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    ERROR applying filter: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">dataset</span>
+        <span class="k">return</span> <span class="n">ds_filtered</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_filter_with_gaps</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">sos</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">valid_mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Apply filter to data with gaps by processing continuous segments."""</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">signal</span>
+
+        <span class="n">filtered_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+        <span class="c1"># Find continuous segments</span>
+        <span class="n">diff_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(([</span><span class="kc">False</span><span class="p">],</span> <span class="n">valid_mask</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">]))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+        <span class="n">starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">diff_mask</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ends</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">diff_mask</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">starts</span><span class="p">,</span> <span class="n">ends</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="n">segment_length</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span>
+
+            <span class="c1"># Only filter segments with sufficient length</span>
+            <span class="k">if</span> <span class="n">segment_length</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="p">:</span>  <span class="c1"># Minimum length for stable filtering</span>
+                <span class="n">segment_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">filtered_segment</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">sosfiltfilt</span><span class="p">(</span><span class="n">sos</span><span class="p">,</span> <span class="n">segment_data</span><span class="p">)</span>
+                    <span class="n">filtered_data</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="n">filtered_segment</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001  — segment filter failure; keep original</span>
+                    <span class="n">filtered_data</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="n">segment_data</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Keep short segments unfiltered</span>
+                <span class="n">filtered_data</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">filtered_data</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_detiding_filter</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">filter_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Apply harmonic analysis for tidal removal (future implementation)."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="s2">"    WARNING: Harmonic de-tiding not yet implemented"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="s2">"    Using low-pass filter as substitute"</span><span class="p">)</span>
+
+        <span class="c1"># Fall back to low-pass filtering for now</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_lowpass_filter</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">filter_params</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_bandpass_filter</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">dataset</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+        <span class="n">filter_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: ARG002</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Apply band-pass filter (future implementation)."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="s2">"    WARNING: Band-pass filtering not yet implemented"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dataset</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_analyze_timing_info</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">datasets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Analyze timing information across all datasets."""</span>
+        <span class="n">intervals_min</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">start_times</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">end_times</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">timing_details</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">ds</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">datasets</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s2">"time"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span> <span class="ow">or</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"WARNING: Dataset </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2"> has insufficient time data"</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="n">time</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span>
+            <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="c1"># Calculate time intervals (in minutes)</span>
+            <span class="n">time_diffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"m"</span><span class="p">)</span>
+            <span class="n">time_interval_median</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">time_diffs</span><span class="p">)</span>
+            <span class="n">time_interval_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">time_diffs</span><span class="p">)</span>
+            <span class="n">time_interval_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">time_diffs</span><span class="p">)</span>
+            <span class="n">time_interval_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">time_diffs</span><span class="p">)</span>
+
+            <span class="c1"># Format interval string</span>
+            <span class="k">if</span> <span class="n">time_interval_median</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">tstr</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">time_interval_median</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> min"</span>
+                <span class="n">tmin_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">time_interval_min</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> min"</span>
+                <span class="n">tmax_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">time_interval_max</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> min"</span>
+                <span class="n">tstd_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">time_interval_std</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> min"</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tstr</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">time_interval_median</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">60</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> sec"</span>
+                <span class="n">tmin_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">time_interval_min</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">60</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> sec"</span>
+                <span class="n">tmax_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">time_interval_max</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">60</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> sec"</span>
+                <span class="n">tstd_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">time_interval_std</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">60</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> sec"</span>
+
+            <span class="n">variables</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)</span>
+            <span class="n">depth</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"InstrDepth"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="k">if</span> <span class="s2">"InstrDepth"</span> <span class="ow">in</span> <span class="n">ds</span> <span class="k">else</span> <span class="s2">"unknown"</span>
+            <span class="n">instrument</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"instrument"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="k">if</span> <span class="s2">"instrument"</span> <span class="ow">in</span> <span class="n">ds</span> <span class="k">else</span> <span class="s2">"unknown"</span>
+            <span class="n">serial</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"serial_number"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="k">if</span> <span class="s2">"serial_number"</span> <span class="ow">in</span> <span class="n">ds</span> <span class="k">else</span> <span class="s2">"unknown"</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Dataset </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2"> depth </span><span class="si">{</span><span class="n">depth</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">instrument</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2">]:"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"  Start: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">start_time</span><span class="p">)[:</span><span class="mi">19</span><span class="p">]</span><span class="si">}</span><span class="s2">, End: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">end_time</span><span class="p">)[:</span><span class="mi">19</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"  Time interval - Median: </span><span class="si">{</span><span class="n">tstr</span><span class="si">}</span><span class="s2">, Range: </span><span class="si">{</span><span class="n">tmin_str</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">tmax_str</span><span class="si">}</span><span class="s2">, Std: </span><span class="si">{</span><span class="n">tstd_str</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Variables: </span><span class="si">{</span><span class="n">variables</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+            <span class="c1"># Store timing details for later analysis</span>
+            <span class="n">timing_details</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">"idx"</span><span class="p">:</span> <span class="n">idx</span><span class="p">,</span>
+                    <span class="s2">"instrument"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">instrument</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                    <span class="s2">"depth"</span><span class="p">:</span> <span class="n">depth</span><span class="p">,</span>
+                    <span class="s2">"median_interval_min"</span><span class="p">:</span> <span class="n">time_interval_median</span><span class="p">,</span>
+                    <span class="s2">"min_interval_min"</span><span class="p">:</span> <span class="n">time_interval_min</span><span class="p">,</span>
+                    <span class="s2">"max_interval_min"</span><span class="p">:</span> <span class="n">time_interval_max</span><span class="p">,</span>
+                    <span class="s2">"std_interval_min"</span><span class="p">:</span> <span class="n">time_interval_std</span><span class="p">,</span>
+                    <span class="s2">"n_points"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">time</span><span class="p">),</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+            <span class="n">intervals_min</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time_interval_median</span><span class="p">)</span>
+            <span class="n">start_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span>
+            <span class="n">end_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">end_time</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">start_times</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"No valid datasets with time information found"</span><span class="p">)</span>
+
+        <span class="n">earliest_start</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">start_times</span><span class="p">)</span>
+        <span class="n">latest_end</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">end_times</span><span class="p">)</span>
+        <span class="n">median_interval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">intervals_min</span><span class="p">)</span>
+
+        <span class="c1"># Analyze timing consistency and warn about issues</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="s2">"TIMING ANALYSIS:"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"   Overall median interval: </span><span class="si">{</span><span class="n">median_interval</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> min"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"   Range of median intervals: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">intervals_min</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">intervals_min</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> min"</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Check for large differences in sampling rates</span>
+        <span class="n">interval_ratio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">intervals_min</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">intervals_min</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">interval_ratio</span> <span class="o">&gt;</span> <span class="mf">2.0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="s2">"   WARNING: Large differences in sampling rates detected!"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"   WARNING: Ratio of slowest to fastest: </span><span class="si">{</span><span class="n">interval_ratio</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">x"</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+                <span class="s2">"   WARNING: This may cause significant interpolation artifacts"</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Check for irregular sampling within instruments</span>
+        <span class="k">for</span> <span class="n">detail</span> <span class="ow">in</span> <span class="n">timing_details</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">detail</span><span class="p">[</span><span class="s2">"std_interval_min"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">detail</span><span class="p">[</span><span class="s2">"median_interval_min"</span><span class="p">]</span>
+            <span class="p">):</span>  <span class="c1"># &gt;10% variation</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"   WARNING: Irregular sampling in </span><span class="si">{</span><span class="n">detail</span><span class="p">[</span><span class="s1">'instrument'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"       Std dev (</span><span class="si">{</span><span class="n">detail</span><span class="p">[</span><span class="s1">'std_interval_min'</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> min) &gt; 10% of median (</span><span class="si">{</span><span class="n">detail</span><span class="p">[</span><span class="s1">'median_interval_min'</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> min)"</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Report on interpolation target</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"   Common grid will use </span><span class="si">{</span><span class="n">median_interval</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> min intervals"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">detail</span> <span class="ow">in</span> <span class="n">timing_details</span><span class="p">:</span>
+            <span class="n">diff_pct</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">abs</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">"median_interval_min"</span><span class="p">]</span> <span class="o">-</span> <span class="n">median_interval</span><span class="p">)</span>
+                <span class="o">/</span> <span class="n">median_interval</span>
+                <span class="o">*</span> <span class="mi">100</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">diff_pct</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="s2">"SIGNIFICANT CHANGE"</span>
+            <span class="k">elif</span> <span class="n">diff_pct</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="s2">"MINOR CHANGE"</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="s2">"MINIMAL CHANGE"</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"       </span><span class="si">{</span><span class="n">detail</span><span class="p">[</span><span class="s1">'instrument'</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">detail</span><span class="p">[</span><span class="s1">'median_interval_min'</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> min -&gt; </span><span class="si">{</span><span class="n">median_interval</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> min (</span><span class="si">{</span><span class="n">diff_pct</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">% change) </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Create common time grid</span>
+        <span class="n">time_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
+            <span class="n">earliest_start</span><span class="p">,</span> <span class="n">latest_end</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">median_interval</span> <span class="o">*</span> <span class="mi">60</span><span class="p">),</span> <span class="s2">"s"</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"   Common time grid: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">time_grid</span><span class="p">)</span><span class="si">}</span><span class="s2"> points from </span><span class="si">{</span><span class="n">time_grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">time_grid</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">time_grid</span><span class="p">,</span> <span class="n">earliest_start</span><span class="p">,</span> <span class="n">latest_end</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_interpolate_datasets</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">datasets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span> <span class="n">time_grid</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Interpolate all datasets onto common time grid."""</span>
+        <span class="n">datasets_interp</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">keep_attrs</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">ds</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">datasets</span><span class="p">):</span>
+                <span class="k">if</span> <span class="s2">"time"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span> <span class="ow">or</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Skipping dataset </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">: insufficient time data"</span><span class="p">)</span>
+                    <span class="k">continue</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c1"># Interpolate the whole dataset at once</span>
+                    <span class="n">ds_i</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">time_grid</span><span class="p">)</span>
+
+                    <span class="c1"># Preserve global attributes (Dataset.interp can drop them)</span>
+                    <span class="n">ds_i</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+
+                    <span class="c1"># Keep coordinate attributes</span>
+                    <span class="k">if</span> <span class="s2">"time"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span> <span class="ow">and</span> <span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+                        <span class="n">ds_i</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+
+                    <span class="c1"># Add extra coordinates as needed</span>
+                    <span class="k">for</span> <span class="n">coord_name</span> <span class="ow">in</span> <span class="p">[</span>
+                        <span class="s2">"InstrDepth"</span><span class="p">,</span>
+                        <span class="s2">"clock_offset"</span><span class="p">,</span>
+                        <span class="s2">"serial_number"</span><span class="p">,</span>
+                        <span class="s2">"instrument"</span><span class="p">,</span>
+                    <span class="p">]:</span>
+                        <span class="k">if</span> <span class="n">coord_name</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+                            <span class="n">ds_i</span> <span class="o">=</span> <span class="n">ds_i</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">({</span><span class="n">coord_name</span><span class="p">:</span> <span class="n">ds</span><span class="p">[</span><span class="n">coord_name</span><span class="p">]})</span>
+
+                    <span class="n">datasets_interp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ds_i</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Successfully interpolated dataset </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: BLE001  — skip one bad instrument; interpolation continues</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR interpolating dataset </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                    <span class="k">continue</span>
+
+        <span class="k">return</span> <span class="n">datasets_interp</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_merge_global_attrs</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ds_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span> <span class="n">order</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"last"</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Union of all global attrs across datasets."""</span>
+        <span class="n">merged</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">it</span> <span class="o">=</span> <span class="n">ds_list</span> <span class="k">if</span> <span class="n">order</span> <span class="o">==</span> <span class="s2">"last"</span> <span class="k">else</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">ds_list</span><span class="p">)</span>  <span class="c1"># 'first'</span>
+        <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"attrs"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+                <span class="n">merged</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">merged</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_merge_var_attrs</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">varname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ds_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span> <span class="n">order</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"last"</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Union of attrs for a given variable across datasets."""</span>
+        <span class="n">merged</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">it</span> <span class="o">=</span> <span class="n">ds_list</span> <span class="k">if</span> <span class="n">order</span> <span class="o">==</span> <span class="s2">"last"</span> <span class="k">else</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">ds_list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">varname</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">varname</span><span class="p">],</span> <span class="s2">"attrs"</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="n">merged</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">merged</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_combined_dataset</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">datasets_interp</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span>
+        <span class="n">time_grid</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>  <span class="c1"># noqa: ARG002  — reserved for future use (currently inferred from datasets_interp)</span>
+        <span class="n">vars_to_keep</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Combine interpolated datasets into single dataset with N_LEVELS dimension."""</span>
+        <span class="k">if</span> <span class="n">vars_to_keep</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">vars_to_keep</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s2">"temperature"</span><span class="p">,</span>
+                <span class="s2">"salinity"</span><span class="p">,</span>
+                <span class="s2">"conductivity"</span><span class="p">,</span>
+                <span class="s2">"pressure"</span><span class="p">,</span>
+                <span class="s2">"u_velocity"</span><span class="p">,</span>
+                <span class="s2">"v_velocity"</span><span class="p">,</span>
+            <span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">datasets_interp</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"No interpolated datasets provided"</span><span class="p">)</span>
+
+        <span class="n">time_coord</span> <span class="o">=</span> <span class="n">datasets_interp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"time"</span><span class="p">]</span>
+        <span class="n">n_levels</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">datasets_interp</span><span class="p">)</span>
+
+        <span class="c1"># Helper functions</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">stacked_or_nan</span><span class="p">(</span><span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">"""Stack variable across all datasets, filling with NaN if missing."""</span>
+            <span class="n">arrs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">datasets_interp</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+                    <span class="n">arrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">arrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">time_coord</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">arrs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># (time, N_LEVELS)</span>
+
+        <span class="c1"># Create combined data variables</span>
+        <span class="n">combined_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">vars_to_keep</span><span class="p">:</span>
+            <span class="c1"># Check if any dataset has this variable</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span> <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">datasets_interp</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Variable '</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">' not found in any dataset, skipping"</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="n">stacked</span> <span class="o">=</span> <span class="n">stacked_or_nan</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+            <span class="n">var_attrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_merge_var_attrs</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">datasets_interp</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s2">"last"</span><span class="p">)</span>
+            <span class="n">combined_data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                <span class="n">stacked</span><span class="p">,</span>
+                <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"N_LEVELS"</span><span class="p">),</span>
+                <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="s2">"time"</span><span class="p">:</span> <span class="n">time_coord</span><span class="p">,</span> <span class="s2">"N_LEVELS"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_levels</span><span class="p">)},</span>
+                <span class="n">attrs</span><span class="o">=</span><span class="n">var_attrs</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Extract per-level metadata</span>
+        <span class="n">depths</span><span class="p">,</span> <span class="n">clock_offsets</span><span class="p">,</span> <span class="n">serial_nums</span><span class="p">,</span> <span class="n">instrument_types</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">datasets_interp</span><span class="p">:</span>
+            <span class="n">depths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="nb">float</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"InstrDepth"</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">())</span> <span class="k">if</span> <span class="s2">"InstrDepth"</span> <span class="ow">in</span> <span class="n">ds</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="p">)</span>
+            <span class="n">serial_nums</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ds</span><span class="p">[</span><span class="s2">"serial_number"</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">if</span> <span class="s2">"serial_number"</span> <span class="ow">in</span> <span class="n">ds</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="p">)</span>
+            <span class="n">instrument_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ds</span><span class="p">[</span><span class="s2">"instrument"</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">if</span> <span class="s2">"instrument"</span> <span class="ow">in</span> <span class="n">ds</span> <span class="k">else</span> <span class="s2">"unknown"</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Handle different clock offset variable names</span>
+            <span class="k">if</span> <span class="s2">"clock_offset"</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+                <span class="n">co</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"clock_offset"</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="s2">"seconds_offset"</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+                <span class="n">co</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"seconds_offset"</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">co</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">clock_offsets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">co</span><span class="p">))</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">co</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Create combined dataset</span>
+        <span class="n">combined_ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+            <span class="n">data_vars</span><span class="o">=</span><span class="n">combined_data</span><span class="p">,</span>
+            <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">"time"</span><span class="p">:</span> <span class="n">time_coord</span><span class="p">,</span>
+                <span class="s2">"N_LEVELS"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_levels</span><span class="p">),</span>
+                <span class="s2">"clock_offset"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"N_LEVELS"</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">clock_offsets</span><span class="p">)),</span>
+                <span class="s2">"serial_number"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"N_LEVELS"</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">serial_nums</span><span class="p">)),</span>
+                <span class="s2">"nominal_depth"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"N_LEVELS"</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">depths</span><span class="p">)),</span>
+                <span class="s2">"instrument"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"N_LEVELS"</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">instrument_types</span><span class="p">)),</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Apply merged global attributes</span>
+        <span class="n">combined_ds</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_merge_global_attrs</span><span class="p">(</span><span class="n">datasets_interp</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s2">"last"</span><span class="p">)</span>
+
+        <span class="c1"># Copy coordinate attributes</span>
+        <span class="k">if</span> <span class="s2">"time"</span> <span class="ow">in</span> <span class="n">datasets_interp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span> <span class="ow">and</span> <span class="n">datasets_interp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+            <span class="n">combined_ds</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">datasets_interp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">combined_ds</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_encode_instrument_as_flags</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+        <span class="n">var_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"instrument"</span><span class="p">,</span>
+        <span class="n">out_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"instrument_id"</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Encode instrument names as integer flags for NetCDF compatibility."""</span>
+        <span class="k">if</span> <span class="n">var_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ds</span>
+
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)]</span>
+        <span class="n">uniq</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">uniq</span><span class="p">:</span>
+                <span class="n">uniq</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+        <span class="n">codes</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">uniq</span><span class="p">)}</span>  <span class="c1"># start at 1</span>
+        <span class="n">id_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">codes</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span>
+
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">ds</span><span class="p">[</span><span class="n">out_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="s2">"N_LEVELS"</span><span class="p">,),</span> <span class="n">id_arr</span><span class="p">)</span>
+
+        <span class="c1"># CF style metadata</span>
+        <span class="n">ds</span><span class="p">[</span><span class="n">out_name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"instrument_id"</span><span class="p">,</span>
+                <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"Instrument identifier (encoded)"</span><span class="p">,</span>
+                <span class="s2">"flag_values"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">uniq</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+                <span class="s2">"flag_meanings"</span><span class="p">:</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">" "</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">uniq</span><span class="p">),</span>
+                <span class="s2">"comment"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"Mapping: </span><span class="si">{</span><span class="n">codes</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Keep readable list at global attrs</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"instrument_names"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">uniq</span><span class="p">)</span>
+
+        <span class="c1"># Drop the string variable</span>
+        <span class="k">return</span> <span class="n">ds</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">var_name</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TimeGriddingProcessor.process_mooring">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.grid.TimeGriddingProcessor.process_mooring">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_mooring</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">mooring_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">file_suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_STAGE2_TAG</span><span class="p">,</span>
+        <span class="n">vars_to_keep</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">filter_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">filter_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Process Step 1 for a single mooring: time gridding and optional filtering.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mooring_name: Name of the mooring to process</span>
+<span class="sd">            output_path: Optional custom output path</span>
+<span class="sd">            file_suffix: Suffix for input files ('_stage2' or '_raw')</span>
+<span class="sd">            vars_to_keep: List of variables to include in combined dataset</span>
+<span class="sd">            filter_type: Type of time filtering to apply ('lowpass', 'detide', 'bandpass')</span>
+<span class="sd">            filter_params: Parameters for filtering</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            bool: True if processing completed successfully</span>
+
+<span class="sd">        """</span>
+        <span class="c1"># Set up paths — {proc_dir}/{mooring}/</span>
+        <span class="k">if</span> <span class="n">output_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">proc_dir</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">mooring_proc_dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proc_dir</span><span class="p">,</span> <span class="n">mooring_name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">proc_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span> <span class="o">/</span> <span class="n">mooring_name</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">proc_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR: Processing directory not found: </span><span class="si">{</span><span class="n">proc_dir</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># Set up logging</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_logging</span><span class="p">(</span><span class="n">mooring_name</span><span class="p">,</span> <span class="n">proc_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Starting Step 1 (time gridding) processing for mooring: </span><span class="si">{</span><span class="n">mooring_name</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Using files with suffix: </span><span class="si">{</span><span class="n">file_suffix</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">filter_type</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Filtering requested: </span><span class="si">{</span><span class="n">filter_type</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">filter_params</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Filter parameters: </span><span class="si">{</span><span class="n">filter_params</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="c1"># Load configuration</span>
+        <span class="n">config_file</span> <span class="o">=</span> <span class="n">proc_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mooring_name</span><span class="si">}</span><span class="s2">.mooring.yaml"</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">config_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR: Configuration file not found: </span><span class="si">{</span><span class="n">config_file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">mooring_config</span> <span class="o">=</span> <span class="n">_mooring</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: BLE001  — config parse failure must not crash mooring</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR: Failed to load configuration: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># Load instrument datasets</span>
+        <span class="n">datasets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_instrument_datasets</span><span class="p">(</span><span class="n">mooring_config</span><span class="p">,</span> <span class="n">proc_dir</span><span class="p">,</span> <span class="n">file_suffix</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">datasets</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR: No valid datasets found for </span><span class="si">{</span><span class="n">mooring_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span><span class="si">}</span><span class="s2"> instrument datasets"</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># STEP 1: Apply filtering to individual instrument records (BEFORE interpolation)</span>
+            <span class="k">if</span> <span class="n">filter_type</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="s2">"APPLYING TIME FILTERING TO INDIVIDUAL INSTRUMENTS:"</span><span class="p">)</span>
+                <span class="n">datasets_filtered</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">:</span>
+                    <span class="n">ds_filtered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_time_filtering_single</span><span class="p">(</span>
+                        <span class="n">ds</span><span class="p">,</span> <span class="n">filter_type</span><span class="p">,</span> <span class="n">filter_params</span>
+                    <span class="p">)</span>
+                    <span class="n">datasets_filtered</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ds_filtered</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="s2">"Completed filtering for all instruments"</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">datasets_filtered</span> <span class="o">=</span> <span class="n">datasets</span>
+
+            <span class="c1"># STEP 2: Analyze timing and create common grid</span>
+            <span class="n">time_grid</span><span class="p">,</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analyze_timing_info</span><span class="p">(</span>
+                <span class="n">datasets_filtered</span>
+            <span class="p">)</span>
+
+            <span class="c1"># STEP 3: Interpolate filtered datasets onto common grid</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="s2">"INTERPOLATING FILTERED DATASETS ONTO COMMON GRID:"</span><span class="p">)</span>
+            <span class="n">datasets_interp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpolate_datasets</span><span class="p">(</span><span class="n">datasets_filtered</span><span class="p">,</span> <span class="n">time_grid</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">datasets_interp</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="s2">"ERROR: No datasets could be interpolated"</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+            <span class="c1"># STEP 4: Combine into single dataset</span>
+            <span class="n">combined_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_combined_dataset</span><span class="p">(</span>
+                <span class="n">datasets_interp</span><span class="p">,</span> <span class="n">time_grid</span><span class="p">,</span> <span class="n">vars_to_keep</span>
+            <span class="p">)</span>
+
+            <span class="c1"># STEP 5: Encode instrument names as flags</span>
+            <span class="n">ds_to_save</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encode_instrument_as_flags</span><span class="p">(</span><span class="n">combined_ds</span><span class="p">)</span>
+
+            <span class="c1"># Write output file</span>
+            <span class="n">filter_suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"_</span><span class="si">{</span><span class="n">filter_type</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">filter_type</span> <span class="k">else</span> <span class="s2">""</span>
+            <span class="n">output_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mooring_name</span><span class="si">}</span><span class="s2">_mooring</span><span class="si">{</span><span class="n">file_suffix</span><span class="si">}{</span><span class="n">filter_suffix</span><span class="si">}</span><span class="s2">.nc"</span>
+            <span class="n">output_filepath</span> <span class="o">=</span> <span class="n">proc_dir</span> <span class="o">/</span> <span class="n">output_filename</span>
+
+            <span class="n">ds_to_save</span> <span class="o">=</span> <span class="n">to_canonical_units</span><span class="p">(</span>
+                <span class="n">ds_to_save</span><span class="p">,</span> <span class="n">log_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="s2">"grid"</span>
+            <span class="p">)</span>
+            <span class="n">write</span><span class="p">(</span><span class="n">ds_to_save</span><span class="p">,</span> <span class="n">output_filepath</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Successfully wrote time-gridded dataset: </span><span class="si">{</span><span class="n">output_filepath</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Combined dataset shape: </span><span class="si">{</span><span class="nb">dict</span><span class="p">(</span><span class="n">ds_to_save</span><span class="o">.</span><span class="n">sizes</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Variables: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">ds_to_save</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: BLE001  — log and report False; mooring run continues</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR during time gridding processing: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="time_gridding_mooring">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.grid.time_gridding_mooring">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">time_gridding_mooring</span><span class="p">(</span>
+    <span class="n">mooring_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">proc_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">file_suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_STAGE2_TAG</span><span class="p">,</span>
+    <span class="n">filter_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">filter_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Process Step 1 for a single mooring (convenience function).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mooring_name: Name of the mooring to process</span>
+<span class="sd">        proc_dir: Cruise-level processed output directory (appends /{mooring}/)</span>
+<span class="sd">        output_path: Optional output path override</span>
+<span class="sd">        file_suffix: Suffix for input files ('_stage2' or '_raw')</span>
+<span class="sd">        filter_type: Optional time filtering to apply ('lowpass', 'detide', 'bandpass')</span>
+<span class="sd">        filter_params: Optional parameters for filtering</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        bool: True if processing completed successfully</span>
+
+<span class="sd">    """</span>
+    <span class="n">processor</span> <span class="o">=</span> <span class="n">TimeGriddingProcessor</span><span class="p">(</span><span class="n">proc_dir</span><span class="o">=</span><span class="n">proc_dir</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">processor</span><span class="o">.</span><span class="n">process_mooring</span><span class="p">(</span>
+        <span class="n">mooring_name</span><span class="p">,</span>
+        <span class="n">output_path</span><span class="p">,</span>
+        <span class="n">file_suffix</span><span class="p">,</span>
+        <span class="n">filter_type</span><span class="o">=</span><span class="n">filter_type</span><span class="p">,</span>
+        <span class="n">filter_params</span><span class="o">=</span><span class="n">filter_params</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="process_multiple_moorings_time_gridding">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.grid.process_multiple_moorings_time_gridding">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">process_multiple_moorings_time_gridding</span><span class="p">(</span>
+    <span class="n">mooring_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">proc_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">file_suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_STAGE2_TAG</span><span class="p">,</span>
+    <span class="n">filter_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">filter_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Process Step 1 for multiple moorings.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mooring_list: List of mooring names to process</span>
+<span class="sd">        proc_dir: Cruise-level processed output directory (appends /{mooring}/)</span>
+<span class="sd">        file_suffix: Suffix for input files ('_stage2' or '_raw')</span>
+<span class="sd">        filter_type: Optional time filtering to apply ('lowpass', 'detide', 'bandpass')</span>
+<span class="sd">        filter_params: Optional parameters for filtering</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        Dict mapping mooring names to success status</span>
+
+<span class="sd">    """</span>
+    <span class="n">processor</span> <span class="o">=</span> <span class="n">TimeGriddingProcessor</span><span class="p">(</span><span class="n">proc_dir</span><span class="o">=</span><span class="n">proc_dir</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">mooring_name</span> <span class="ow">in</span> <span class="n">mooring_list</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="si">{</span><span class="s1">'='</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">50</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Processing Step 1 (time gridding) for mooring </span><span class="si">{</span><span class="n">mooring_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'='</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">50</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="n">results</span><span class="p">[</span><span class="n">mooring_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">processor</span><span class="o">.</span><span class="n">process_mooring</span><span class="p">(</span>
+            <span class="n">mooring_name</span><span class="p">,</span>
+            <span class="n">file_suffix</span><span class="o">=</span><span class="n">file_suffix</span><span class="p">,</span>
+            <span class="n">filter_type</span><span class="o">=</span><span class="n">filter_type</span><span class="p">,</span>
+            <span class="n">filter_params</span><span class="o">=</span><span class="n">filter_params</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">results</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,320 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>File Naming Conventions &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=20758594" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8b92e751"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Data Acquisition (Download in proprietary formats)" href="methods/acquisition.html" />
+    <link rel="prev" title="Directory Structure and File Layout" href="directory_structure.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            oceanarray
+              <img src="_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">File Naming Conventions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#raw-instrument-files">Raw instrument files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#processed-output-files">Processed output files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">File Naming Conventions</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/file_naming_conventions.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="file-naming-conventions">
+<span id="id1"></span><h1>File Naming Conventions<a class="headerlink" href="#file-naming-conventions" title="Link to this heading"></a></h1>
+<p>This page covers two sets of naming conventions:</p>
+<ol class="arabic simple">
+<li><p><strong>Raw instrument files</strong> — files downloaded from the instruments at sea, whose
+names are fixed (or conventionally chosen) at the time of download.</p></li>
+<li><p><strong>Processed output files</strong> — NetCDF, log, and report files written by
+<code class="docutils literal notranslate"><span class="pre">oceanarray</span></code>.</p></li>
+</ol>
+<hr class="docutils" />
+<section id="raw-instrument-files">
+<h2>Raw instrument files<a class="headerlink" href="#raw-instrument-files" title="Link to this heading"></a></h2>
+<p>Instruments are downloaded twice per deployment cycle: once during a
+calibration-dip (caldip) cast and once at mooring recovery.  UHH uses the
+following filename conventions for the downloaded data files.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 35.0%" />
+<col style="width: 65.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Context</p></th>
+<th class="head"><p>Filename pattern</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Mooring recovery download</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{serial}_recovery.&lt;ext&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Caldip cast download</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{serial}_cal_dip_data.&lt;ext&gt;</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>where <code class="docutils literal notranslate"><span class="pre">{serial}</span></code> is the instrument serial number and <code class="docutils literal notranslate"><span class="pre">&lt;ext&gt;</span></code> depends on
+the instrument type and firmware:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Instrument</p></th>
+<th class="head"><p>Extension(s)</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>SBE MicroCAT (old Seaterm)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">.asc</span></code></p></td>
+<td><p>firmware below the <code class="docutils literal notranslate"><span class="pre">microcat_firmware_sentinel</span></code> in
+<code class="docutils literal notranslate"><span class="pre">logsheet_config.yaml</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>SBE MicroCAT (SeatermV2)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">.xml</span></code></p></td>
+<td><p>firmware at or above the sentinel, or any MicroCAT with dissolved oxygen</p></td>
+</tr>
+<tr class="row-even"><td><p>Nortek Aquadopp</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">.aqd</span></code>, <code class="docutils literal notranslate"><span class="pre">.hdr</span></code>, <code class="docutils literal notranslate"><span class="pre">.sen</span></code>, <code class="docutils literal notranslate"><span class="pre">.prf</span></code></p></td>
+<td><p>all four files are downloaded together; <code class="docutils literal notranslate"><span class="pre">filename:</span></code> in the YAML
+points to the <code class="docutils literal notranslate"><span class="pre">.aqd</span></code> file</p></td>
+</tr>
+<tr class="row-odd"><td><p>RBR soloT / RBRduet</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">.rsk</span></code></p></td>
+<td><p>RSK SQLite database downloaded via Ruskin</p></td>
+</tr>
+<tr class="row-even"><td><p>RBR TR-1050</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">.hex</span></code></p></td>
+<td><p>hex format</p></td>
+</tr>
+<tr class="row-odd"><td><p>RDI WorkHorse ADCP</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">.000</span></code>, <code class="docutils literal notranslate"><span class="pre">.001</span></code>, …</p></td>
+<td><p>binary raw files; <code class="docutils literal notranslate"><span class="pre">filename:</span></code> points to the first file</p></td>
+</tr>
+</tbody>
+</table>
+<p>These conventions are recorded in the <code class="docutils literal notranslate"><span class="pre">filename_conventions:</span></code> section of
+<code class="docutils literal notranslate"><span class="pre">logsheet_config.yaml</span></code> and are used by the standalone
+<a class="reference external" href="https://github.com/ocean-uhh/logsheet">logsheet</a> package to pre-fill
+expected filenames on the download logsheets.</p>
+</section>
+<hr class="docutils" />
+<section id="processed-output-files">
+<h2>Processed output files<a class="headerlink" href="#processed-output-files" title="Link to this heading"></a></h2>
+<p>All output files use the mooring name and, where applicable, the instrument
+serial number from the YAML.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 38.0%" />
+<col style="width: 62.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>File</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{mooring}_{serial}_stage1.nc</span></code></p></td>
+<td><p>Raw-faithful CF-NetCDF; no QC applied</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{mooring}_{serial}_stage2.nc</span></code></p></td>
+<td><p>Trimmed to deployment window; clock correction applied</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{mooring}_{serial}_stage3.nc</span></code></p></td>
+<td><p>QC flags added; derived variables (e.g. salinity); Aquadopp velocity in
+earth coordinates; magnetic declination correction applied</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{mooring}_stack.nc</span></code></p></td>
+<td><p>All instruments resampled onto a common time grid and stacked into a
+single file ordered by depth</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{mooring}_grid.nc</span></code></p></td>
+<td><p>Stack file interpolated onto a regular pressure grid</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{mooring}_{timestamp}_{stage}.mooring.log</span></code></p></td>
+<td><p>Processing log for one run of one stage; timestamp format is
+<code class="docutils literal notranslate"><span class="pre">YYYYMMDD_HHMMSS</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{mooring}_report.html</span></code></p></td>
+<td><p>HTML summary report for the whole mooring</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{mooring}_stack_report.html</span></code></p></td>
+<td><p>HTML report for the stacked dataset</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{mooring}_grid_report.html</span></code></p></td>
+<td><p>HTML report for the gridded dataset</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{mooring}_{serial}_report.html</span></code></p></td>
+<td><p>Per-instrument HTML report</p></td>
+</tr>
+</tbody>
+</table>
+<p>The <code class="docutils literal notranslate"><span class="pre">{serial}</span></code> component uses the value of the <code class="docutils literal notranslate"><span class="pre">serial</span></code> field in the
+YAML instrument entry.  If the serial contains a trailing <code class="docutils literal notranslate"><span class="pre">*</span></code> (used in
+some instrument identifiers), the <code class="docutils literal notranslate"><span class="pre">*</span></code> is stripped from the filename.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">{mooring}</span></code> component is the value of the <code class="docutils literal notranslate"><span class="pre">name</span></code> field at the top
+of the mooring YAML, which must also match the directory name under
+<code class="docutils literal notranslate"><span class="pre">{proc_dir}</span></code> and the YAML filename itself:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">proc_dir</span><span class="p">}</span><span class="o">/</span><span class="p">{</span><span class="n">mooring</span><span class="p">}</span><span class="o">/</span><span class="p">{</span><span class="n">mooring</span><span class="p">}</span><span class="o">.</span><span class="n">mooring</span><span class="o">.</span><span class="n">yaml</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="directory_structure.html"><span class="doc">Directory Structure and File Layout</span></a> — where these files live on disk</p></li>
+<li><p><a class="reference internal" href="yaml_configuration.html"><span class="doc">YAML Configuration Reference</span></a> — YAML fields that control filenames (<code class="docutils literal notranslate"><span class="pre">name:</span></code>,
+<code class="docutils literal notranslate"><span class="pre">serial:</span></code>, <code class="docutils literal notranslate"><span class="pre">filename:</span></code>)</p></li>
+<li><p><a class="reference external" href="https://github.com/ocean-uhh/logsheet">logsheet package</a> — how <code class="docutils literal notranslate"><span class="pre">logsheet_config.yaml</span></code>
+filename conventions connect raw-file naming to the logsheet workflow</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="directory_structure.html" class="btn btn-neutral float-left" title="Directory Structure and File Layout" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="methods/acquisition.html" class="btn btn-neutral float-right" title="Data Acquisition (Download in proprietary formats)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,584 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.mooring &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.mooring</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.mooring</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Load, validate and describe one mooring deployment from its YAML file.</span>
+
+<span class="sd">A *mooring* here means one deployed instance — ``dune2_1_2026``, from</span>
+<span class="sd">deployment to recovery — described by a ``*.mooring.yaml`` file (or the plain</span>
+<span class="sd">dict parsed from one). This module is the single seam for reading that</span>
+<span class="sd">description; every stage and report receives the loaded dict rather than</span>
+<span class="sd">re-reading the file.</span>
+
+<span class="sd">Inside the package the module is imported under an alias so a function whose</span>
+<span class="sd">parameter is ``mooring`` can still call the module's functions::</span>
+
+<span class="sd">    from oceanarray import mooring as _mooring</span>
+<span class="sd">    ...</span>
+<span class="sd">    cfg = _mooring.load(path)</span>
+
+<span class="sd">Users write ``oceanarray.mooring.load(...)``. This module handles the description</span>
+<span class="sd">*file* — ``load``, ``check``, ``template``, ``save``; interpreting the loaded dict</span>
+<span class="sd">(which entries to process, the position) is the caller's job, through</span>
+<span class="sd">:func:`oceanarray.utilities.instrument_entries` and</span>
+<span class="sd">:func:`oceanarray.utilities.parse_latlon_with_source`.</span>
+
+<span class="sd">The file shape is a cross-package contract (moordiag reads the same file), so</span>
+<span class="sd">``load`` keeps every key exactly as written and never rewrites a value.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">validation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.config.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationIssue</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MooringError</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># Keys the fixtures, ``cmd_init`` and real UHH configs are known to use. The</span>
+<span class="c1"># list is deliberately generous: ``cmd_init`` writes ``deployment_cruise`` /</span>
+<span class="c1"># ``recovery_ship`` etc. while older configs use ``cruise`` / ``ship`` /</span>
+<span class="c1"># ``status``, and both are valid. An unknown top-level key is a WARNING (not an</span>
+<span class="c1"># ERROR) for now so a real config carrying a key the fixtures never showed is</span>
+<span class="c1"># not rejected; promotion to ERROR is planned for a later release, once this list</span>
+<span class="c1"># has been checked against the configs on the drive (``scripts/survey_mooring_keys.py``).</span>
+<span class="n">KNOWN_KEYS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="c1"># identity / header</span>
+        <span class="s2">"name"</span><span class="p">,</span>
+        <span class="s2">"cleaname"</span><span class="p">,</span>
+        <span class="s2">"year"</span><span class="p">,</span>
+        <span class="s2">"waterdepth"</span><span class="p">,</span>
+        <span class="s2">"status"</span><span class="p">,</span>
+        <span class="c1"># cruise / ship (both vocabularies)</span>
+        <span class="s2">"cruise"</span><span class="p">,</span>
+        <span class="s2">"ship"</span><span class="p">,</span>
+        <span class="s2">"deployment_cruise"</span><span class="p">,</span>
+        <span class="s2">"deployment_ship"</span><span class="p">,</span>
+        <span class="s2">"recovery_cruise"</span><span class="p">,</span>
+        <span class="s2">"recovery_ship"</span><span class="p">,</span>
+        <span class="c1"># time</span>
+        <span class="s2">"deployment_time"</span><span class="p">,</span>
+        <span class="s2">"recovery_time"</span><span class="p">,</span>
+        <span class="c1"># position: the bare pair and the three graded tiers the position chain</span>
+        <span class="c1"># reads in order of preference (seabed → deployment → planned → latitude).</span>
+        <span class="s2">"latitude"</span><span class="p">,</span>
+        <span class="s2">"longitude"</span><span class="p">,</span>
+        <span class="s2">"seabed_latitude"</span><span class="p">,</span>
+        <span class="s2">"seabed_longitude"</span><span class="p">,</span>
+        <span class="s2">"deployment_latitude"</span><span class="p">,</span>
+        <span class="s2">"deployment_longitude"</span><span class="p">,</span>
+        <span class="s2">"planned_latitude"</span><span class="p">,</span>
+        <span class="s2">"planned_longitude"</span><span class="p">,</span>
+        <span class="c1"># QC thresholds (read by the QC pass).</span>
+        <span class="s2">"qc_ranges"</span><span class="p">,</span>
+        <span class="c1"># Deprecated: a raw-data root in the description is a run-time fact; use</span>
+        <span class="c1"># raw_dir / --raw-dir. check() WARNs; the override is removed in 0.7.0.</span>
+        <span class="s2">"directory"</span><span class="p">,</span>
+        <span class="c1"># instrument lists</span>
+        <span class="s2">"clamp"</span><span class="p">,</span>
+        <span class="s2">"instruments"</span><span class="p">,</span>
+        <span class="s2">"inline"</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="n">REQUIRED_KEYS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">validation</span><span class="o">.</span><span class="n">REQUIRED_MOORING_KEYS</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_path</span><span class="p">(</span><span class="n">mooring</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">proc_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Resolve a reference (a YAML path, or a bare name + *proc_dir*) to a YAML path."""</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">mooring</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">".yaml"</span><span class="p">,</span> <span class="s2">".yml"</span><span class="p">}</span> <span class="ow">or</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">path</span>
+    <span class="k">if</span> <span class="n">proc_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">mooring</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">name</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.mooring.yaml"</span>
+    <span class="k">return</span> <span class="n">path</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="n">Mapping</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Parse a config leniently to a mapping, or None if it cannot be read as one."""</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">data</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="load">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.mooring.load">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="n">Mapping</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">proc_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Load and validate one mooring's description.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring : str or os.PathLike or Mapping</span>
+<span class="sd">        A path to a ``*.mooring.yaml`` file, a bare mooring name resolved</span>
+<span class="sd">        against *proc_dir*, or an already-parsed mapping (returned as a shallow</span>
+<span class="sd">        copy, keys unchanged).</span>
+<span class="sd">    proc_dir : str or os.PathLike or None, optional</span>
+<span class="sd">        The processing directory a bare mooring name is resolved against.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        The parsed description, every key kept as written.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    MooringError</span>
+<span class="sd">        If the file is missing, is not a mapping, or fails validation with any</span>
+<span class="sd">        ERROR-level issue. WARNING-level issues are kept on the exception's</span>
+<span class="sd">        ``issues`` attribute but do not raise.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mooring</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">mooring</span><span class="p">)</span>
+        <span class="n">dir_name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">_resolve_path</span><span class="p">(</span><span class="n">mooring</span><span class="p">,</span> <span class="n">proc_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Mooring config not found: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"YAML parse error in </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+        <span class="n">dir_name</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span><span class="s2">"Mooring YAML root must be a mapping"</span><span class="p">)</span>
+
+    <span class="n">issues</span> <span class="o">=</span> <span class="n">check</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dir_name</span><span class="o">=</span><span class="n">dir_name</span><span class="p">)</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="s2">"ERROR"</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">message</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">errors</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid mooring config: </span><span class="si">{</span><span class="n">summary</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">issues</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+
+<div class="viewcode-block" id="check">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.mooring.check">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="n">Mapping</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">dir_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ValidationIssue</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Validate a mooring description without raising.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring : str or os.PathLike or Mapping</span>
+<span class="sd">        A path to a ``*.mooring.yaml`` file or an already-parsed mapping.</span>
+<span class="sd">    dir_name : str or None, optional</span>
+<span class="sd">        The directory name the ``name`` field is compared against. When</span>
+<span class="sd">        *mooring* is a path, the path's parent name is used and this is ignored.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of ValidationIssue</span>
+<span class="sd">        Every finding (ERROR and WARNING); an empty list means it passed. An</span>
+<span class="sd">        unknown top-level key is reported as a WARNING.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mooring</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+        <span class="n">data</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">mooring</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">mooring</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">ValidationIssue</span><span class="p">(</span><span class="s2">"ERROR"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"File not found: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">ValidationIssue</span><span class="p">(</span><span class="s2">"ERROR"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"YAML parse error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">dir_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dir_name</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="n">issues</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">validation</span><span class="o">.</span><span class="n">validate_mooring</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dir_name</span><span class="o">=</span><span class="n">dir_name</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">KNOWN_KEYS</span><span class="p">:</span>
+                <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">ValidationIssue</span><span class="p">(</span>
+                        <span class="s2">"WARNING"</span><span class="p">,</span>
+                        <span class="sa">f</span><span class="s2">"Unknown top-level key '</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">' — not one of the recognised "</span>
+                        <span class="sa">f</span><span class="s2">"mooring keys. Check the spelling; it is ignored by the "</span>
+                        <span class="sa">f</span><span class="s2">"pipeline."</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+    <span class="k">return</span> <span class="n">issues</span></div>
+
+
+
+<span class="c1"># The one source for the commented ``init`` template: key -&gt; inline description.</span>
+<span class="c1"># ``save`` writes these as end-of-line comments; keep in sync with KNOWN_KEYS.</span>
+<span class="n">_FIELD_COMMENTS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"mooring identifier (matches directory and filename)"</span><span class="p">,</span>
+    <span class="s2">"year"</span><span class="p">:</span> <span class="s2">"deployment year, e.g. 2026"</span><span class="p">,</span>
+    <span class="s2">"waterdepth"</span><span class="p">:</span> <span class="s2">"water depth at anchor in metres"</span><span class="p">,</span>
+    <span class="s2">"deployment_cruise"</span><span class="p">:</span> <span class="s2">"cruise ID, e.g. MSM142"</span><span class="p">,</span>
+    <span class="s2">"deployment_ship"</span><span class="p">:</span> <span class="s2">"ship name, e.g. MS Merian"</span><span class="p">,</span>
+    <span class="s2">"recovery_cruise"</span><span class="p">:</span> <span class="s2">"cruise ID at recovery (omit if same cruise)"</span><span class="p">,</span>
+    <span class="s2">"recovery_ship"</span><span class="p">:</span> <span class="s2">"ship name at recovery (omit if same ship)"</span><span class="p">,</span>
+    <span class="s2">"latitude"</span><span class="p">:</span> <span class="s2">"planned position, e.g. 65 29.840 N"</span><span class="p">,</span>
+    <span class="s2">"longitude"</span><span class="p">:</span> <span class="s2">"planned position, e.g. 029 24.600 W"</span><span class="p">,</span>
+    <span class="s2">"deployment_time"</span><span class="p">:</span> <span class="s2">"ISO-8601, e.g. '2026-05-07T17:06'"</span><span class="p">,</span>
+    <span class="s2">"recovery_time"</span><span class="p">:</span> <span class="s2">"ISO-8601, e.g. '2026-07-10T17:45'"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># Per-instrument field descriptions. ``save`` comments the first clamp entry that</span>
+<span class="c1"># carries each field, so the explanation appears once (as the hand-written stub did).</span>
+<span class="n">_INSTRUMENT_COMMENTS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"serial"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"if comma-separated (e.g. '16430, R01-024') the first token is the "</span>
+        <span class="s2">"primary serial used in filenames/output; the rest is beacon_id. "</span>
+        <span class="s2">"Characters illegal in filenames are stripped."</span>
+    <span class="p">),</span>
+    <span class="s2">"hab"</span><span class="p">:</span> <span class="s2">"height above bottom (m) of transducer"</span><span class="p">,</span>
+    <span class="s2">"header"</span><span class="p">:</span> <span class="s2">".hdr file for T-matrix (same base name if null)"</span><span class="p">,</span>
+    <span class="s2">"clock_offset"</span><span class="p">:</span> <span class="s2">"seconds; computer time minus instrument time at recovery"</span><span class="p">,</span>
+    <span class="s2">"hab_bottom"</span><span class="p">:</span> <span class="s2">"HAB of transducer face (downward-looking)"</span><span class="p">,</span>
+    <span class="s2">"hab_top"</span><span class="p">:</span> <span class="s2">"HAB of top of housing"</span><span class="p">,</span>
+    <span class="s2">"orientation"</span><span class="p">:</span> <span class="s2">"down or up"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># One example clamp block per instrument type; a user fills these in and deletes</span>
+<span class="c1"># the unused ones. Key order is the order written to the file.</span>
+<span class="n">_TEMPLATE_INSTRUMENTS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">"instrument"</span><span class="p">:</span> <span class="s2">"aquadopp"</span><span class="p">,</span>
+        <span class="s2">"serial"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"hab"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"sample_interval_seconds"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"filename"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"file_type"</span><span class="p">:</span> <span class="s2">"nortek-raw"</span><span class="p">,</span>
+        <span class="s2">"header"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"clock_offset"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">"computer_clock_at_recovery"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"instrument_clock_at_recovery"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">"instrument"</span><span class="p">:</span> <span class="s2">"microcat"</span><span class="p">,</span>
+        <span class="s2">"serial"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"hab"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"sample_interval_seconds"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"filename"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"file_type"</span><span class="p">:</span> <span class="s2">"sbe-cnv"</span><span class="p">,</span>
+        <span class="s2">"clock_offset"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">"computer_clock_at_recovery"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"instrument_clock_at_recovery"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">"instrument"</span><span class="p">:</span> <span class="s2">"rbrsolo"</span><span class="p">,</span>
+        <span class="s2">"serial"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"hab"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"sample_interval_seconds"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"filename"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"file_type"</span><span class="p">:</span> <span class="s2">"rbr-rsk"</span><span class="p">,</span>
+        <span class="s2">"clock_offset"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">"computer_clock_at_recovery"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"instrument_clock_at_recovery"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">"instrument"</span><span class="p">:</span> <span class="s2">"ADCP"</span><span class="p">,</span>
+        <span class="s2">"serial"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"hab_bottom"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"hab_top"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"sample_interval_seconds"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"filename"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"file_type"</span><span class="p">:</span> <span class="s2">"rdi-raw"</span><span class="p">,</span>
+        <span class="s2">"orientation"</span><span class="p">:</span> <span class="s2">"down"</span><span class="p">,</span>
+        <span class="s2">"clock_offset"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">"computer_clock_at_recovery"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"instrument_clock_at_recovery"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="template">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.mooring.template">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">template</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">instruments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a skeleton mooring description for *name*, as a plain dict.</span>
+
+<span class="sd">    The required and recommended keys are present with ``None`` values for a user</span>
+<span class="sd">    to fill in; ``clamp`` carries one example block per instrument type (or</span>
+<span class="sd">    *instruments* if given). :func:`save` renders it with the field comments.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The mooring name (becomes the ``name`` field; matches the directory).</span>
+<span class="sd">    instruments : list of dict or None, optional</span>
+<span class="sd">        Clamp entries to use instead of the one-per-type examples.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        The skeleton description, keys in write order.</span>
+<span class="sd">    """</span>
+    <span class="n">doc</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="n">name</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="s2">"year"</span><span class="p">,</span>
+        <span class="s2">"waterdepth"</span><span class="p">,</span>
+        <span class="s2">"deployment_cruise"</span><span class="p">,</span>
+        <span class="s2">"deployment_ship"</span><span class="p">,</span>
+        <span class="s2">"recovery_cruise"</span><span class="p">,</span>
+        <span class="s2">"recovery_ship"</span><span class="p">,</span>
+        <span class="s2">"latitude"</span><span class="p">,</span>
+        <span class="s2">"longitude"</span><span class="p">,</span>
+        <span class="s2">"deployment_time"</span><span class="p">,</span>
+        <span class="s2">"recovery_time"</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">doc</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">examples</span> <span class="o">=</span> <span class="n">_TEMPLATE_INSTRUMENTS</span> <span class="k">if</span> <span class="n">instruments</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">instruments</span>
+    <span class="n">doc</span><span class="p">[</span><span class="s2">"clamp"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">examples</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">doc</span></div>
+
+
+
+<div class="viewcode-block" id="save">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.mooring.save">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="n">mooring</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Write a mooring description to a YAML file with field comments.</span>
+
+<span class="sd">    Lenient by design — a description being drafted may be incomplete, so ``save``</span>
+<span class="sd">    runs :func:`check` and logs a warning on any ERROR but still writes (unlike</span>
+<span class="sd">    :func:`load`, which refuses an invalid description about to be processed). The</span>
+<span class="sd">    field comments come from the module's comment tables, so they cannot drift</span>
+<span class="sd">    from the validator.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring : Mapping</span>
+<span class="sd">        The description to write (e.g. from :func:`template`).</span>
+<span class="sd">    path : str or os.PathLike</span>
+<span class="sd">        Destination ``*.mooring.yaml`` path.</span>
+<span class="sd">    overwrite : bool, default False</span>
+<span class="sd">        Overwrite an existing file; otherwise a ``FileExistsError`` is raised.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pathlib.Path</span>
+<span class="sd">        The path written.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    FileExistsError</span>
+<span class="sd">        If *path* exists and *overwrite* is False.</span>
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">ruamel.yaml</span><span class="w"> </span><span class="kn">import</span> <span class="n">YAML</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">ruamel.yaml.comments</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommentedMap</span><span class="p">,</span> <span class="n">CommentedSeq</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> already exists"</span><span class="p">)</span>
+
+    <span class="n">errors</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">message</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">check</span><span class="p">(</span><span class="n">mooring</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="s2">"ERROR"</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">"saving an incomplete mooring description (</span><span class="si">%d</span><span class="s2"> issue(s) to resolve): </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">),</span>
+            <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">errors</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_block</span><span class="p">(</span>
+        <span class="n">items</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]],</span>
+        <span class="n">comments</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+        <span class="n">seen</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommentedMap</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""CommentedMap of *items*; comment keys in *comments* (first occurrence if *seen*)."""</span>
+        <span class="n">block</span> <span class="o">=</span> <span class="n">CommentedMap</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+            <span class="n">block</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">comments</span> <span class="ow">and</span> <span class="p">(</span><span class="n">seen</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">):</span>
+                <span class="n">block</span><span class="o">.</span><span class="n">yaml_add_eol_comment</span><span class="p">(</span><span class="n">comments</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">key</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">seen</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">block</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">mooring</span><span class="p">)</span>
+    <span class="n">clamp</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"clamp"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">_block</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">_FIELD_COMMENTS</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">clamp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">seen</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"clamp"</span><span class="p">]</span> <span class="o">=</span> <span class="n">CommentedSeq</span><span class="p">(</span>
+            <span class="n">_block</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">_INSTRUMENT_COMMENTS</span><span class="p">,</span> <span class="n">seen</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">clamp</span>
+        <span class="p">)</span>
+
+    <span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">writer</span> <span class="o">=</span> <span class="n">YAML</span><span class="p">()</span>
+    <span class="n">writer</span><span class="o">.</span><span class="n">default_flow_style</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">writer</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="mi">120</span>
+    <span class="c1"># newline="\n": deterministic LF on every platform — Windows text mode would</span>
+    <span class="c1"># otherwise write CRLF and break the byte-identical init-template golden.</span>
+    <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"w"</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">fh</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

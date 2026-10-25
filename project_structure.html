@@ -1,0 +1,417 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OceanArray Project Structure &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=20758594" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8b92e751"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="OceanArray Data Format Specification" href="oceanarray_format.html" />
+    <link rel="prev" title="YAML Configuration Reference" href="yaml_configuration.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            oceanarray
+              <img src="_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">OceanArray Project Structure</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#project-structure-overview">Project Structure Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#processing-stages">Processing Stages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#stage-1-standardisation-pipeline-stage1-py">Stage 1 — Standardisation (<code class="docutils literal notranslate"><span class="pre">pipeline/stage1.py</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#stage-2-clock-correction-trimming-pipeline-stage2-py">Stage 2 — Clock correction + trimming (<code class="docutils literal notranslate"><span class="pre">pipeline/stage2.py</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#stage-3-qc-rotation-derived-variables-pipeline-stage3-py">Stage 3 — QC, rotation, derived variables (<code class="docutils literal notranslate"><span class="pre">pipeline/stage3.py</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#stack-multi-instrument-coordination-pipeline-stack-py">Stack — multi-instrument coordination (<code class="docutils literal notranslate"><span class="pre">pipeline/stack.py</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#grid-vertical-gridding-pipeline-grid-py">Grid — vertical gridding (<code class="docutils literal notranslate"><span class="pre">pipeline/grid.py</span></code>)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#data-flow">Data Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#plotters-package-architecture">Plotters Package Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#report-package">Report Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#key-design-principles">Key Design Principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#legacy-modules">Legacy Modules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">OceanArray Project Structure</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/project_structure.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="oceanarray-project-structure">
+<h1>OceanArray Project Structure<a class="headerlink" href="#oceanarray-project-structure" title="Link to this heading"></a></h1>
+<p>This document provides an overview of the oceanarray codebase structure and organisation.</p>
+<hr class="docutils" />
+<section id="project-structure-overview">
+<h2>Project Structure Overview<a class="headerlink" href="#project-structure-overview" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>oceanarray/
+├── oceanarray/                    # Main Python package
+│   ├── __init__.py                # Public API: process(), STAGES, parameters
+│   ├── _version.py                # Package version (auto-generated by setuptools-scm)
+│   ├── cli.py                     # [core] Command-line interface (oceanarray init/process/run/report/validate/…)
+│   ├── utilities.py               # [core] Shared utility helpers used across the pipeline
+│   ├── inspect.py                 # [core] Quick dataset inspection helpers for interactive use
+│   ├── logger.py                  # [core] Logging configuration and helpers
+│   ├── paths.py                   # [core] Filesystem path and filename conventions
+│   │
+│   ├── pipeline/                # [core] Processing stages + pipeline registry
+│   │   ├── __init__.py            # Pipeline stage registry and public process() entry point
+│   │   ├── stage1.py              # Stage 1: raw data → CF-NetCDF (*_stage1.nc)
+│   │   ├── stage2.py              # Stage 2: clock correction + deployment trim (*_stage2.nc)
+│   │   ├── stage3.py              # Stage 3: pressure interpolation + QARTOD QC (*_stage3.nc)
+│   │   ├── pressure.py            # Pressure interpolation helpers for stage 3
+│   │   ├── qc.py                  # QARTOD QC tests and CTD derivations for stage 3
+│   │   ├── coordinate.py          # BEAM→ENU transforms and ADCP QC for stage 3
+│   │   ├── caldip.py              # CalDip calibration-dip corrections (not yet implemented)
+│   │   ├── stack.py               # MooringStacker: instruments → common time grid (*_stack.nc)
+│   │   ├── grid.py                # MooringGridder: stack → regular pressure grid (*_grid.nc)
+│   │   └── helpers.py             # Internal helpers for stack and grid operations
+│   │
+│   ├── analysis/                  # [analysis] Science utilities
+│   │   ├── clock.py               # Clock-offset analysis functions
+│   │   ├── hydrographic.py        # Hydrographic analysis utilities
+│   │   ├── science.py             # QC and dataset processing functions
+│   │   ├── spectral.py            # Spectral analysis of time series
+│   │   ├── temporal.py            # Time-series analysis utilities
+│   │   └── vector.py              # Vector rotation and progressive-vector utilities
+│   │
+│   ├── plotters/                  # [viz] Three-tier plotting package
+│   │   ├── __init__.py            # Public API
+│   │   ├── primitives.py          # Tier 1: data-agnostic plotting primitives
+│   │   ├── current.py             # Tier 2: current/velocity domain plots
+│   │   ├── diagnostic.py          # Tier 2: T-S, histogram, spectrum, QC diagnostic plots
+│   │   ├── hydrography.py         # Tier 2: hydrographic section and isopycnal plots
+│   │   ├── timeseries.py          # Tier 2: time-series and gridded-section plots
+│   │   ├── spectrum.py            # Tier 2: spectral diagnostics
+│   │   ├── ts.py                  # T-S diagram and thermohaline structure plots
+│   │   ├── animation.py           # Animated plot functions
+│   │   ├── helpers.py             # Shared colormap/style helpers
+│   │   └── _cli_legacy.py         # Legacy CLI plots (pending `oceanarray plot &lt;file&gt;` redesign)
+│   │
+│   ├── reports/                   # [report] HTML report generation
+│   │   ├── __init__.py            # Public entry-points (MooringReport, etc.)
+│   │   ├── _mooring.py            # Mooring summary template + MooringReport orchestrator
+│   │   ├── _instrument.py         # Per-instrument report ({mooring}_{serial}_report.html)
+│   │   ├── _stack.py              # Stack report (multi-instrument timeseries, tilt panels)
+│   │   ├── _grid.py               # Grid report (vertical section, spectra, N²)
+│   │   ├── _array.py              # Array-level multi-mooring summary report
+│   │   ├── _plots.py              # Tier 3: report-level figure wrappers (base64 PNGs)
+│   │   ├── _html_helpers.py       # HTML/QC constants, base64 helpers, NC metadata readers
+│   │   ├── _recovery_table.py     # Per-mooring cruise-report recovery table
+│   │   └── _pdf.py                # combine_mooring_pdf: HTML pages → single A4 PDF (WeasyPrint)
+│   │
+│   ├── tools/                     # [core] Shared I/O infrastructure
+│   │   ├── readers.py             # NetCDF and legacy-format instrument readers
+│   │   ├── writers.py             # NetCDF write helpers (OceanSITES-compliant)
+│   │   └── rapid_interp.py        # Physics-informed vertical interpolation for sparse profiles
+│   │
+│   ├── config/                    # Configuration
+│   │   ├── parameters.py          # Package-level defaults (VARIABLES, QC ranges, style)
+│   │   ├── validation.py          # Mooring YAML validation
+│   │   ├── unit_tables.py         # Units: oceanarray's overrides over the shared tables
+│   │   ├── logging.yaml           # Logging configuration
+│   │   └── legacy/                # Legacy RAPID/RODB configuration files
+│   │
+│   └── legacy/                    # Legacy RODB/RAPID processing (deprecated; excluded from lint)
+│
+├── tests/                         # pytest test suite
+│   ├── unit/                      # seasenselib-free unit tests
+│   ├── integration/               # Golden + pipeline tests (needs_seasenselib)
+│   ├── fixtures/                  # Committed raw + processed dune2_1_2026 fixtures
+│   └── legacy/                    # Tests for legacy RODB/RAPID processing
+│
+├── notebooks/                     # Demo notebooks
+├── docs/                          # Sphinx documentation
+│   └── source/
+│       ├── methods/               # Method documentation (one page per processing step)
+│       └── _static/               # Static files, code examples, CSS
+│
+├── CITATION.cff                   # Citation metadata
+├── CHANGELOG.md
+├── pyproject.toml                 # Build system, deps, and project metadata
+└── README.md
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="processing-stages">
+<h2>Processing Stages<a class="headerlink" href="#processing-stages" title="Link to this heading"></a></h2>
+<p>The pipeline processes raw instrument data through sequential stages, each
+producing a CF-NetCDF output file. <code class="docutils literal notranslate"><span class="pre">oceanarray.STAGES</span></code> is the registry of stages,
+and <code class="docutils literal notranslate"><span class="pre">oceanarray.process(mooring,</span> <span class="pre">stage=…,</span> <span class="pre">proc_dir=…,</span> <span class="pre">raw_dir=…)</span></code> runs any subset.</p>
+<section id="stage-1-standardisation-pipeline-stage1-py">
+<h3>Stage 1 — Standardisation (<code class="docutils literal notranslate"><span class="pre">pipeline/stage1.py</span></code>)<a class="headerlink" href="#stage-1-standardisation-pipeline-stage1-py" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Input</strong>: raw instrument files (<code class="docutils literal notranslate"><span class="pre">.cnv</span></code>, <code class="docutils literal notranslate"><span class="pre">.rsk</span></code>, <code class="docutils literal notranslate"><span class="pre">.dat</span></code>, <code class="docutils literal notranslate"><span class="pre">.hex</span></code>, RDI raw)</p></li>
+<li><p><strong>Output</strong>: <code class="docutils literal notranslate"><span class="pre">{proc_dir}/{mooring}/{mooring}_{serial}_stage1.nc</span></code></p></li>
+<li><p>Faithful to the raw data — no QC, no trimming. Stores the transformation matrix
+and coordinate system so later stages can rotate correctly.</p></li>
+</ul>
+</section>
+<section id="stage-2-clock-correction-trimming-pipeline-stage2-py">
+<h3>Stage 2 — Clock correction + trimming (<code class="docutils literal notranslate"><span class="pre">pipeline/stage2.py</span></code>)<a class="headerlink" href="#stage-2-clock-correction-trimming-pipeline-stage2-py" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Input</strong>: <code class="docutils literal notranslate"><span class="pre">*_stage1.nc</span></code> + mooring YAML (clock offsets, deployment window)</p></li>
+<li><p><strong>Output</strong>: <code class="docutils literal notranslate"><span class="pre">*_stage2.nc</span></code></p></li>
+<li><p>Applies linear clock-offset correction; trims to the deployment window.</p></li>
+</ul>
+</section>
+<section id="stage-3-qc-rotation-derived-variables-pipeline-stage3-py">
+<h3>Stage 3 — QC, rotation, derived variables (<code class="docutils literal notranslate"><span class="pre">pipeline/stage3.py</span></code>)<a class="headerlink" href="#stage-3-qc-rotation-derived-variables-pipeline-stage3-py" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Input</strong>: <code class="docutils literal notranslate"><span class="pre">*_stage2.nc</span></code></p></li>
+<li><p><strong>Output</strong>: <code class="docutils literal notranslate"><span class="pre">*_stage3.nc</span></code></p></li>
+<li><p>Gross-range and tilt QC flags, BEAM→ENU rotation (Aquadopp), magnetic declination
+correction, salinity, density.</p></li>
+</ul>
+</section>
+<section id="stack-multi-instrument-coordination-pipeline-stack-py">
+<h3>Stack — multi-instrument coordination (<code class="docutils literal notranslate"><span class="pre">pipeline/stack.py</span></code>)<a class="headerlink" href="#stack-multi-instrument-coordination-pipeline-stack-py" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Input</strong>: <code class="docutils literal notranslate"><span class="pre">*_stage3.nc</span></code> files for all instruments on a mooring</p></li>
+<li><p><strong>Output</strong>: <code class="docutils literal notranslate"><span class="pre">{mooring}_stack.nc</span></code>  — <code class="docutils literal notranslate"><span class="pre">(N_LEVELS,</span> <span class="pre">time)</span></code> Dataset</p></li>
+<li><p>Aligns instruments onto a common time axis; HAB-ordered deepest-first (index 0).</p></li>
+</ul>
+</section>
+<section id="grid-vertical-gridding-pipeline-grid-py">
+<h3>Grid — vertical gridding (<code class="docutils literal notranslate"><span class="pre">pipeline/grid.py</span></code>)<a class="headerlink" href="#grid-vertical-gridding-pipeline-grid-py" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Input</strong>: <code class="docutils literal notranslate"><span class="pre">*_stack.nc</span></code></p></li>
+<li><p><strong>Output</strong>: <code class="docutils literal notranslate"><span class="pre">{mooring}_grid.nc</span></code> — <code class="docutils literal notranslate"><span class="pre">(N_LEVELS,</span> <span class="pre">time)</span></code> on uniform pressure levels</p></li>
+<li><p>Simple 1-D linear interpolation at each time step (preliminary; no objective mapping).</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="data-flow">
+<h2>Data Flow<a class="headerlink" href="#data-flow" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Raw files
+   │
+   ▼ oceanarray process --stage 1
+*_stage1.nc   (faithful copy, CF-NetCDF)
+   │
+   ▼ oceanarray process --stage 2
+*_stage2.nc   (clock-corrected, trimmed)
+   │
+   ▼ oceanarray process --stage 3
+*_stage3.nc   (QC flagged, ENU velocities, salinity/density)
+   │
+   ▼ oceanarray process --stage stack
+{mooring}_stack.nc   (N_LEVELS × time)
+   │
+   ├──▶ oceanarray report  →  HTML reports
+   │
+   ▼ oceanarray process --stage grid
+{mooring}_grid.nc   (uniform pressure × time)
+   │
+   └──▶ oceanarray report  →  grid HTML report
+</pre></div>
+</div>
+<p>The full pipeline runs in one command: <code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">process</span> <span class="pre">MOORING</span> <span class="pre">--stage</span> <span class="pre">1</span> <span class="pre">2</span> <span class="pre">3</span> <span class="pre">stack</span> <span class="pre">grid</span></code>
+(or <code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">run</span> <span class="pre">MOORING</span></code>).</p>
+</section>
+<hr class="docutils" />
+<section id="plotters-package-architecture">
+<h2>Plotters Package Architecture<a class="headerlink" href="#plotters-package-architecture" title="Link to this heading"></a></h2>
+<p>Three-tier architecture:</p>
+<ul class="simple">
+<li><p><strong>Tier 1</strong> (<code class="docutils literal notranslate"><span class="pre">plotters/primitives.py</span></code>): low-level axes primitives, no domain knowledge</p></li>
+<li><p><strong>Tier 2</strong> (<code class="docutils literal notranslate"><span class="pre">plotters/current.py</span></code>, <code class="docutils literal notranslate"><span class="pre">timeseries.py</span></code>, <code class="docutils literal notranslate"><span class="pre">hydrography.py</span></code>, etc.): domain
+functions that know about oceanographic variables</p></li>
+<li><p><strong>Tier 3</strong> (<code class="docutils literal notranslate"><span class="pre">reports/_plots.py</span></code>): report wrappers that call Tier-2 functions and return
+base64 PNG strings for embedding in HTML</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="report-package">
+<h2>Report Package<a class="headerlink" href="#report-package" title="Link to this heading"></a></h2>
+<p>Report types, each in its own module:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Report</p></th>
+<th class="head"><p>Module</p></th>
+<th class="head"><p>Output file</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Mooring summary</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reports/_mooring.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{mooring}_report.html</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Per-instrument</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reports/_instrument.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{mooring}_{serial}_report.html</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Stack</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reports/_stack.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{mooring}_stack_report.html</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Grid</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reports/_grid.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{mooring}_grid_report.html</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Array</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reports/_array.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{array}_array_report.html</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>All figures are generated by <code class="docutils literal notranslate"><span class="pre">reports/_plots.py</span></code> (Tier 3) and embedded as base64 PNGs.</p>
+</section>
+<hr class="docutils" />
+<section id="key-design-principles">
+<h2>Key Design Principles<a class="headerlink" href="#key-design-principles" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Data provenance</strong>: never silently substitute defaults; store all processing
+parameters in NetCDF global attributes so treatment can be reconstructed from the file.</p></li>
+<li><p><strong>CF-compliant</strong>: CF conventions for metadata and variable naming throughout.</p></li>
+<li><p><strong>xarray-based</strong>: <code class="docutils literal notranslate"><span class="pre">xr.Dataset</span></code> is the primary data structure in all stages.</p></li>
+<li><p><strong>Discrete colorbars</strong>: all figures use <code class="docutils literal notranslate"><span class="pre">_nice_colorbar_bounds</span></code> + <code class="docutils literal notranslate"><span class="pre">BoundaryNorm</span></code>;
+continuous colorbars are not used.</p></li>
+<li><p><strong>Configurable</strong>: YAML-driven configuration for QC ranges, clock offsets, deployment
+windows, and instrument metadata.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="legacy-modules">
+<h2>Legacy Modules<a class="headerlink" href="#legacy-modules" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">legacy/</span></code> contains the RODB/RAPID-format processing path, kept for backward
+compatibility with older datasets.  New projects use the stage 1–3 pipeline above.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="yaml_configuration.html" class="btn btn-neutral float-left" title="YAML Configuration Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="oceanarray_format.html" class="btn btn-neutral float-right" title="OceanArray Data Format Specification" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

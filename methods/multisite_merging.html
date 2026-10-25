@@ -1,0 +1,244 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Multi-site Merging &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Concatenate Deployments" href="concatenation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vertical_gridding.html">Grid onto pressure</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanarray_format.html">OceanArray Data Format Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conversion.html">Convert to OceanSITES (Stage 4)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Multi-site Merging</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#rationale">Rationale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#input">Input</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#steps">Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#notes">Notes</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Multi-site Merging</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/methods/multisite_merging.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="multi-site-merging">
+<span id="multisite-merging"></span><h1>Multi-site Merging<a class="headerlink" href="#multi-site-merging" title="Link to this heading"></a></h1>
+<p>This step combines data from multiple mooring sites near an ocean boundary (east or west) to generate a unified, gridded profile over time and depth, along the continental slope.
+It is a crucial part of the RAPID-WB assembly process, ensuring that discontinuous deployments and separate instrument records from neighboring locations (e.g., WB2, WB3, WB4) are stitched into a consistent time–depth matrix.</p>
+<section id="rationale">
+<h2>Rationale<a class="headerlink" href="#rationale" title="Link to this heading"></a></h2>
+<p>In mooring arrays like RAPID, instruments are deployed and recovered at multiple sites “crawling” up a sloping sidewall.  To estimate transbasin transport, instruments from different zonal locations are merged together to provide a “boundary” profile of dynamic height for the overturning calculation.</p>
+<p>For example, in RAPID, the waterdepth at the WB2 mooring site is approximately 3800 dbar.  Data from WB2 are combined with WB3 (a mooring 25km to the east) and, when available, the WBH2 mooring between them.</p>
+</section>
+<section id="input">
+<h2>Input<a class="headerlink" href="#input" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Gridded mooring datasets from each site (e.g., <cite>wb1_8_201113_grid.mat</cite>, <cite>wb2_7_200907_grid.mat</cite>).</p></li>
+<li><p>Pressure grid: typically <cite>PG = [0, 20, …, 4820] dbar</cite>.</p></li>
+<li><p>Time axis: regular Julian day array, e.g., <cite>jg = 1-Apr-2004 to 11-Oct-2015</cite> in 0.5-day steps.</p></li>
+</ul>
+</section>
+<section id="steps">
+<h2>Steps<a class="headerlink" href="#steps" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Load gridded site data</strong>:
+Load the filtered instrument data from each mooring location and extract variables:
+- <cite>jd</cite>: time vector
+- <cite>Tfs</cite>, <cite>Sfs</cite>, <cite>Pfs</cite>: filtered temperature, salinity, and pressure records, and rename them for each deployment as e.g. <cite>Tfs1</cite>, <cite>Tfs2</cite>, etc.</p></li>
+<li><p><strong>Interpolate to common time grid</strong>:
+Multiple deployments are stacked together (e.g., <cite>Tfs     = [Tfs1;Tfs2;Tfs3a;Tfs3b;Tfs4;Tfs5;Tfs6a;Tfs6b;Tfs7;Tfs8;Tfs9]</cite>) and then sorted vertically for each time.</p></li>
+</ol>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% all the matrices for the deployments stacked together</span>
+<span class="n">Pfs</span><span class="w">     </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">Pfs1</span><span class="p">;</span><span class="n">Pfs2</span><span class="p">;</span><span class="n">Pfs3a</span><span class="p">;</span><span class="n">Pfs3b</span><span class="p">;</span><span class="n">Pfs4</span><span class="p">;</span><span class="n">Pfs5</span><span class="p">;</span><span class="n">Pfs6a</span><span class="p">;</span><span class="n">Pfs6b</span><span class="p">;</span><span class="n">Pfs7</span><span class="p">;</span><span class="n">Pfs8</span><span class="p">;</span><span class="n">Pfs9</span><span class="p">];</span>
+<span class="n">Sfs</span><span class="w">     </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">Sfs1</span><span class="p">;</span><span class="n">Sfs2</span><span class="p">;</span><span class="n">Sfs3a</span><span class="p">;</span><span class="n">Sfs3b</span><span class="p">;</span><span class="n">Sfs4</span><span class="p">;</span><span class="n">Sfs5</span><span class="p">;</span><span class="n">Sfs6a</span><span class="p">;</span><span class="n">Sfs6b</span><span class="p">;</span><span class="n">Sfs7</span><span class="p">;</span><span class="n">Sfs8</span><span class="p">;</span><span class="n">Sfs9</span><span class="p">];</span>
+<span class="n">Tfs</span><span class="w">     </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">Tfs1</span><span class="p">;</span><span class="n">Tfs2</span><span class="p">;</span><span class="n">Tfs3a</span><span class="p">;</span><span class="n">Tfs3b</span><span class="p">;</span><span class="n">Tfs4</span><span class="p">;</span><span class="n">Tfs5</span><span class="p">;</span><span class="n">Tfs6a</span><span class="p">;</span><span class="n">Tfs6b</span><span class="p">;</span><span class="n">Tfs7</span><span class="p">;</span><span class="n">Tfs8</span><span class="p">;</span><span class="n">Tfs9</span><span class="p">];</span>
+
+<span class="c">% order the matrices at every time step to avoid too many NaNs creeping in</span>
+<span class="c">% 2004 removed....</span>
+<span class="n">P_sort</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">NaN</span><span class="w"> </span><span class="o">.*</span><span class="w"> </span><span class="nb">ones</span><span class="p">(</span><span class="nb">size</span><span class="p">(</span><span class="n">Pfs</span><span class="p">));</span><span class="w"> </span><span class="n">T_sort</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">NaN</span><span class="w"> </span><span class="o">.*</span><span class="w"> </span><span class="nb">ones</span><span class="p">(</span><span class="nb">size</span><span class="p">(</span><span class="n">Tfs</span><span class="p">));</span><span class="w"> </span><span class="n">S_sort</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">NaN</span><span class="w"> </span><span class="o">.*</span><span class="w"> </span><span class="nb">ones</span><span class="p">(</span><span class="nb">size</span><span class="p">(</span><span class="n">Sfs</span><span class="p">));</span>
+<span class="nb">j</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="k">for</span><span class="w"> </span><span class="n">ii</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="nb">length</span><span class="p">(</span><span class="n">JG</span><span class="p">)</span>
+<span class="w">   </span><span class="p">[</span><span class="n">P_variable</span><span class="p">,</span><span class="w"> </span><span class="n">ix</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">sort</span><span class="p">(</span><span class="n">Pfs</span><span class="p">(:,</span><span class="w"> </span><span class="n">ii</span><span class="p">));</span>
+<span class="w">   </span><span class="n">P_sort</span><span class="p">(:,</span><span class="nb">j</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">Pfs</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span><span class="n">ii</span><span class="p">);</span>
+<span class="w">   </span><span class="n">T_sort</span><span class="p">(:,</span><span class="nb">j</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">Tfs</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span><span class="n">ii</span><span class="p">);</span>
+<span class="w">   </span><span class="n">S_sort</span><span class="p">(:,</span><span class="nb">j</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">Sfs</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span><span class="n">ii</span><span class="p">);</span>
+<span class="w">   </span><span class="nb">j</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">j</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="k">end</span>
+<span class="c">% removing unused rows of the sorted matrices</span>
+<span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="nb">j</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="nb">length</span><span class="p">(</span><span class="n">P_sort</span><span class="p">(:,</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">   </span><span class="n">ix</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">find</span><span class="p">(</span><span class="nb">isnan</span><span class="p">(</span><span class="n">P_sort</span><span class="p">(</span><span class="nb">i</span><span class="p">,:)));</span>
+<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="nb">size</span><span class="p">(</span><span class="n">ix</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nb">length</span><span class="p">(</span><span class="n">JG</span><span class="p">)</span>
+<span class="w">      </span><span class="n">Pfss</span><span class="p">(</span><span class="nb">j</span><span class="p">,:)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">P_sort</span><span class="p">(</span><span class="nb">i</span><span class="p">,</span><span class="w"> </span><span class="p">:);</span>
+<span class="w">      </span><span class="n">Tfss</span><span class="p">(</span><span class="nb">j</span><span class="p">,:)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">T_sort</span><span class="p">(</span><span class="nb">i</span><span class="p">,</span><span class="w"> </span><span class="p">:);</span>
+<span class="w">      </span><span class="n">Sfss</span><span class="p">(</span><span class="nb">j</span><span class="p">,:)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">S_sort</span><span class="p">(</span><span class="nb">i</span><span class="p">,</span><span class="w"> </span><span class="p">:);</span>
+<span class="w">      </span><span class="nb">j</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">j</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">   </span><span class="k">end</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<ol class="arabic" start="4">
+<li><p><strong>Regrid vertically</strong>:
+Since we now have moorings ending at different depths and from different moorings, they need to be vertically gridded over possible gaps. This re-applies the method from <a class="reference internal" href="vertical_gridding.html"><span class="doc">Grid: Vertical Pressure Grid</span></a> to concatenate all year-specific fragments into a single time–depth matrix and re-interpolate:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TG_wb2</span> <span class="o">=</span> <span class="n">interp1</span><span class="p">([</span><span class="n">jg_y1</span> <span class="n">jg_y2</span> <span class="o">...</span><span class="p">],</span> <span class="p">[</span><span class="n">TG_y1</span> <span class="n">TG_y2</span> <span class="o">...</span><span class="p">],</span> <span class="n">jg</span><span class="p">);</span>
+<span class="n">SG_wb2</span> <span class="o">=</span> <span class="n">interp1</span><span class="p">([</span><span class="n">jg_y1</span> <span class="n">jg_y2</span> <span class="o">...</span><span class="p">],</span> <span class="p">[</span><span class="n">SG_y1</span> <span class="n">SG_y2</span> <span class="o">...</span><span class="p">],</span> <span class="n">jg</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Note: I’m not sure this is what RAPID still does. This method has the possibility to create statically unstable profiles of temperature and salinity when merging data from two latitude/longitude positions.</p>
+</li>
+<li><p><strong>Save merged output</strong>:
+Store combined profiles in NetCDF or <cite>.mat</cite> format for use in dynamic height or MOC calculation:
+- <cite>TG_wb2</cite>, <cite>SG_wb2</cite>
+- Associated <cite>LATITUDE</cite>, <cite>LONGITUDE</cite>, and <cite>JG</cite></p></li>
+</ol>
+</section>
+<section id="notes">
+<h2>Notes<a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Different mooring lines may be merged (e.g., WB1–WB4) to form a composite boundary profile.</p></li>
+<li><p>Some scripts distinguish between upstream/downstream or boundary/interior groups before merging.</p></li>
+<li><p>Care should be taken when combining profiles with differing depth ranges or quality flags.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="concatenation.html" class="btn btn-neutral float-left" title="Concatenate Deployments" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
