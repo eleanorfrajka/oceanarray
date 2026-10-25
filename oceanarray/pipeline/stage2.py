@@ -38,6 +38,7 @@ All clock values are the amounts **added** to instrument time to obtain correcte
 """
 
 import re
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -58,6 +59,7 @@ from oceanarray.utilities import (
     drop_all_zero_vars,
     instrument_entries,
 )
+from oceanarray.writers.netcdf import as_stored
 
 
 def _parse_clock_str(s: str) -> pd.Timestamp | None:
@@ -642,7 +644,8 @@ def stage2(
 
     Pure function over datasets: no file I/O.  *datasets* is keyed by serial (as
     :func:`read_mooring` returns); *mooring* is the loaded description.  Returns the
-    stage-2 datasets, each marked ``processing_stage = 2``.
+    stage-2 datasets, each marked ``processing_stage = 2`` and holding the
+    values its file will hold, so each equals its file read back.
 
     Parameters
     ----------
@@ -668,7 +671,7 @@ def stage2(
     for serial, ds in datasets.items():
         entry = by_serial.get(serial, {})
         result = _stage2_instrument(ds, entry, mooring_name, deploy_time, recover_time)
-        out[serial] = _stage.stamp(result, 2)
+        out[serial] = _stage.stamp(as_stored(result), 2)
     return out
 
 
@@ -763,56 +766,69 @@ class Stage2Processor:
             self._log_print(f"ERROR: Failed to load configuration: {e}")
             return False
 
-        # read → stage2 → write, one instrument at a time: read_mooring joins the
-        # stage-1 file with the description (identity + facts + marker), stage2 is
-        # the pure transform, write_mooring lays the stage-2 file out from the
-        # dataset's stamped facts. One instrument's failure is logged and the rest
-        # of the mooring is still written.
-        wanted = {paths.safe_serial(s) for s in serials} if serials else None
-        success_count = 0
-        total_count = 0
-        for entry in instrument_entries(mooring_config):
-            if not isinstance(entry, dict):
-                continue
-            serial = paths.safe_serial(entry.get("serial", ""))
-            if wanted is not None and serial not in wanted:
-                continue
-            total_count += 1
-            instr_type = entry.get("instrument", "unknown")
-            if entry.get("skip"):
-                reason = entry.get("skip_reason", "marked skip:true in YAML")
-                self._log_print(f"SKIP {instr_type} {serial}: {reason}")
-                success_count += 1
-                continue
-            out_path = paths.stage_file(
-                proc_dir,
-                mooring_config.get("name", mooring_name),
-                instr_type,
-                serial,
-                2,
-            )
-            if out_path.exists() and not force:
-                self._log_print(f"SKIP (exists): {self._rel(out_path)}")
-                success_count += 1
-                continue
-            try:
-                datasets = read_mooring(
-                    mooring_config, stage=1, serials=[serial], mooring_dir=proc_dir
-                )
-                write_mooring(
-                    stage2(datasets, mooring_config), proc_dir, overwrite=True
-                )
-            except Exception as e:  # noqa: BLE001  — one instrument must not abort the mooring
-                self._log_print(f"ERROR: {instr_type} {serial}: {e}")
-                continue
-            success_count += 1
-
-        self._log_print(
-            f"Stage 2 completed: {success_count}/{total_count} instruments successful"
+        run = _stage2_files(
+            mooring_config,
+            proc_dir,
+            serials=serials,
+            force=force,
+            log=self._log_print,
+            rel=self._rel,
         )
-        if total_count == 0:
-            self._log_print("No instruments matched — nothing processed.")
-            return False
         # Partial success is still success: the instruments that processed are
         # written and the log names the ones that failed.
-        return success_count > 0
+        return run.matched > len(run.failed)
+
+
+def _stage2_files(
+    mooring: dict[str, Any],
+    mooring_dir: Path,
+    *,
+    serials: list[str] | None = None,
+    force: bool = False,
+    log: Callable[..., None] = print,
+    rel: Callable[[Path], str] = lambda p: p.name,
+) -> _stage.StageRun:
+    """Run stage 2 over one mooring's stage-1 files, one instrument at a time.
+
+    read_mooring joins the stage-1 file with the description (identity + facts +
+    marker), stage2 is the pure transform, write_mooring lays the stage-2 file out
+    from the dataset's stamped facts. One instrument's failure is logged and
+    recorded; the rest of the mooring is still written.
+    """
+    wanted = {paths.safe_serial(s) for s in serials} if serials else None
+    run = _stage.StageRun()
+    for entry in instrument_entries(mooring):
+        if not isinstance(entry, dict):
+            continue
+        serial = paths.safe_serial(entry.get("serial", ""))
+        if wanted is not None and serial not in wanted:
+            continue
+        run.matched += 1
+        instr_type = entry.get("instrument", "unknown")
+        if entry.get("skip"):
+            reason = entry.get("skip_reason", "marked skip:true in YAML")
+            log(f"SKIP {instr_type} {serial}: {reason}")
+            continue
+        out_path = paths.stage_file(mooring_dir, mooring["name"], instr_type, serial, 2)
+        if out_path.exists() and not force:
+            log(f"SKIP (exists): {rel(out_path)}")
+            run.files.append(out_path)
+            continue
+        try:
+            datasets = read_mooring(
+                mooring, stage=1, serials=[serial], mooring_dir=mooring_dir
+            )
+            new = write_mooring(stage2(datasets, mooring), mooring_dir, overwrite=True)
+            run.written += new
+            run.files += new
+        except Exception as e:  # noqa: BLE001  — one instrument must not abort the mooring
+            log(f"ERROR: {instr_type} {serial}: {e}")
+            run.failed.append(f"{instr_type} {serial}: {e}")
+
+    log(
+        f"Stage 2 completed: {run.matched - len(run.failed)}/{run.matched} "
+        "instruments successful"
+    )
+    if run.matched == 0:
+        log("No instruments matched — nothing processed.")
+    return run

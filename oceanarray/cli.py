@@ -168,7 +168,7 @@ def cmd_process(args: argparse.Namespace) -> int:
     - ``--plot``: save a PNG overview plot for each instrument alongside the
       stage2 NetCDF file in the proc directory.
     """
-    from .pipeline import process as _process
+    from .pipeline import _process_legacy as _process
 
     raw_dir, proc_root = _parse_dirs_checked(args)
 
@@ -531,7 +531,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     HTML tree) and ``--sig-level`` (grid isopycnal targets); when unset it writes
     to the default ``{proc-dir}/{mooring}/report/`` with the default σ₀ grid.
     """
-    from .pipeline import process as _process
+    from .pipeline import _process_legacy as _process
 
     raw_dir, proc_root = _parse_dirs_checked(args)
 

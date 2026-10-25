@@ -11,6 +11,8 @@ working.
 import datetime
 import warnings
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass, field
+from pathlib import Path
 
 import xarray as xr
 
@@ -21,6 +23,29 @@ STAGE_ATTR = "processing_stage"
 
 class StageError(MooringError):
     """Raised when a dataset is at the wrong processing stage for the step requested."""
+
+
+@dataclass
+class StageRun:
+    """What one stage did to a mooring's files.
+
+    Attributes
+    ----------
+    written : list of pathlib.Path
+        The stage files written.
+    files : list of pathlib.Path
+        Every stage file the instruments asked for now have, written or kept
+        because it was already there, in the description's order.
+    failed : list of str
+        One message per instrument that failed, naming it.
+    matched : int
+        The instruments the stage was asked to process (skipped ones included).
+    """
+
+    written: list[Path] = field(default_factory=list)
+    files: list[Path] = field(default_factory=list)
+    failed: list[str] = field(default_factory=list)
+    matched: int = 0
 
 
 def _history_stamp() -> str:

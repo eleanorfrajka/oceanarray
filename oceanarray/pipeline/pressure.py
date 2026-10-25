@@ -65,6 +65,7 @@ def interp_pressure_for_hab(
     target_time: np.ndarray,
     serial: str,
     log_fn: Any | None = None,
+    used: list[dict[str, Any]] | None = None,
 ) -> tuple[np.ndarray, str]:
     """Interpolate pressure for a single nominal HAB; return (p_array, method_str).
 
@@ -81,6 +82,8 @@ def interp_pressure_for_hab(
         Serial number of the target instrument (used in log messages only).
     log_fn : callable, optional
         Logging callback; falls back to print when None.
+    used : list of dict, optional
+        When given, the source dicts the interpolation drew on are appended to it.
 
     Returns
     -------
@@ -94,6 +97,8 @@ def interp_pressure_for_hab(
 
     if diffs[nearest_idx] <= HAB_THRESHOLD:
         src = sorted_sources[nearest_idx]
+        if used is not None:
+            used.append(src)
         hab_offset_dbar = src["hab"] - hab_t
         p = (
             interp_pressure(
@@ -120,6 +125,8 @@ def interp_pressure_for_hab(
 
         if below and above:
             src_below, h_below = below[-1]
+            if used is not None:
+                used += [src_below, above[0][0]]
             src_above, h_above = above[0]
             w_above = (hab_t - h_below) / (h_above - h_below)
             w_below = 1.0 - w_above
@@ -144,6 +151,8 @@ def interp_pressure_for_hab(
                 log_fn(f"  {serial} (hab={hab_t:.1f}m): {method}")
         else:
             src = below[-1][0] if below else above[0][0]
+            if used is not None:
+                used.append(src)
             hab_offset_dbar = src["hab"] - hab_t
             p = (
                 interp_pressure(
@@ -228,6 +237,7 @@ def interpolate_pressure(
         return ds, "no sources available"
 
     hab_segments = target_info.get("hab_segments", [])
+    used: list[dict[str, Any]] = []
 
     if hab_segments:
         # Build list of (start_ns, end_ns, hab) covering the full record.
@@ -251,7 +261,7 @@ def interpolate_pressure(
             if len(idx) == 0:
                 continue
             p_seg, meth = interp_pressure_for_hab(
-                hab_t, sorted_sources, T[idx], serial, log_fn=log_fn
+                hab_t, sorted_sources, T[idx], serial, log_fn=log_fn, used=used
             )
             p_interp[idx] = p_seg
             bp_str = str(seg_end_ns)[:16]
@@ -259,7 +269,12 @@ def interpolate_pressure(
         method = "; ".join(method_parts)
     else:
         p_interp, method = interp_pressure_for_hab(
-            target_info["hab"], sorted_sources, target_time, serial, log_fn=log_fn
+            target_info["hab"],
+            sorted_sources,
+            target_time,
+            serial,
+            log_fn=log_fn,
+            used=used,
         )
 
     # Preserve bad original pressure
@@ -289,6 +304,9 @@ def interpolate_pressure(
             "long_name": "sea water pressure",
             "standard_name": "sea_water_pressure",
             "pressure_source": method,
+            "pressure_source_serials": " ".join(
+                sorted({str(s["serial"]) for s in used})
+            ),
             "comment": "interpolated from neighbouring instrument(s)",
         },
     )

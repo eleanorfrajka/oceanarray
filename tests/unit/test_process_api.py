@@ -4,7 +4,8 @@ import dataclasses
 
 import pytest
 
-from oceanarray.pipeline import STAGES, Stage, process, resolve_stage
+from oceanarray.pipeline import STAGES, Stage, resolve_stage
+from oceanarray.pipeline import _process_legacy as process
 
 
 class TestStagesRegistry:

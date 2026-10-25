@@ -1,23 +1,23 @@
 """Pipeline stage registry and public ``process()`` entry point.
 
-The :data:`STAGES` tuple is the single source of truth for pipeline ordering,
-scope, and dispatch.  It is used by :func:`process`, the CLI, the re-run rule
-(plan §7), and the parametrised re-run tests (test plan §7d).
+:func:`process` runs stages 1–3 for one mooring from its description. The
+:data:`STAGES` tuple orders and dispatches all five stages for the form
+``process(name, stage, proc_dir=…)``, deprecated and removed in 0.7.0.
 
 Example usage::
 
     import oceanarray
 
-    oceanarray.process("dsG3_1_2026", proc_dir="/data/proc")               # all five stages
-    oceanarray.process("dsG3_1_2026", stage=1, proc_dir="/data/proc",
-                       raw_dir="/data/raw")                                  # stage 1 only
-    oceanarray.process("dsG3_1_2026", stage="grid", proc_dir="/data/proc")  # grid only
+    yaml_path = "/data/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml"
+    oceanarray.process(yaml_path, raw_dir="/data/raw")            # stages 1-3
+    oceanarray.process(yaml_path, stages=3, serials=["2941"])      # stage 3, one instrument
 
 """
 
 from __future__ import annotations
 
-from collections.abc import Callable
+import warnings
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 from os import PathLike
 from pathlib import Path
@@ -51,7 +51,7 @@ class Stage:
     scope : Scope
         Whether the stage runs once per instrument (``"instrument"``) or once
         per mooring (``"mooring"``).  Drives which staleness sources the re-run
-        rule consults (plan §7).
+        rule consults.
     run : Callable
         Normalised entry point: ``run(mooring, proc_dir, *, force, **kw) -> bool``.
 
@@ -236,8 +236,7 @@ def _run_grid(
 
 
 #: Pipeline stages in execution order.  Single source of truth for
-#: :func:`process`, the CLI, the re-run rule (plan §7), and the parametrised
-#: re-run tests (test plan §7d).
+#: the deprecated ``process(name, stage, proc_dir=…)`` form and the CLI.
 STAGES: tuple[Stage, ...] = (
     Stage("stage1", 1, "instrument", _run_stage1),
     Stage("stage2", 2, "instrument", _run_stage2),
@@ -285,7 +284,7 @@ def resolve_stage(stage: int | str) -> Stage:
     raise ValueError(msg)
 
 
-def process(
+def _process_legacy(
     mooring: str,
     stage: int | str | list[int | str] | None = None,
     *,
@@ -294,7 +293,7 @@ def process(
     force: bool = False,
     **kw: Any,
 ) -> bool:
-    """Run one or more pipeline stages, or every stage in order, for *mooring*.
+    """Run stages by name under *proc_dir*: the form :func:`process` had before 0.6.0.
 
     Parameters
     ----------
@@ -390,3 +389,208 @@ def process(
                 if not wrote_this_run:
                     skip_grid = True
     return overall
+
+
+_UNSET: Any = object()
+
+
+def process(
+    mooring: str | PathLike | Mapping[str, Any],
+    stage: Any = _UNSET,
+    *,
+    stages: int | str | Iterable[int] = (1, 2, 3),
+    serials: Iterable[str] | None = None,
+    force: bool = False,
+    mooring_dir: PathLike | None = None,
+    raw_dir: PathLike | None = None,
+    caldip_dir: PathLike | None = None,
+    proc_dir: PathLike | None = None,
+    **legacy_kw: Any,
+) -> Any:
+    """Run stages 1–3 for one mooring and write each stage's files.
+
+    Each stage reads the previous stage's files, applies the pure stage function
+    (:func:`~oceanarray.pipeline.stage1.stage1`, :func:`~oceanarray.pipeline.stage2.stage2`,
+    :func:`~oceanarray.pipeline.stage3.stage3`) and writes its own files beside
+    them, with a log per stage. Stacking and gridding are :func:`oceanarray.run`.
+
+    Parameters
+    ----------
+    mooring : str or os.PathLike or Mapping
+        A ``*.mooring.yaml`` path, a directory holding exactly one, or a loaded
+        description (then *mooring_dir* is required).
+    stages : int or "all" or iterable of int, optional
+        The stages to run, from ``1``, ``2`` and ``3``; always run in that order.
+        Default ``(1, 2, 3)``.
+    serials : iterable of str or None, optional
+        Process only these instruments.
+    force : bool, optional
+        Rewrite stage files that already exist (stage 1: that are newer than
+        their raw file). Default False keeps them.
+    mooring_dir : os.PathLike or None, optional
+        The mooring's own directory; taken from *mooring* when it is a path.
+    raw_dir : os.PathLike or None, optional
+        The cruise-level raw-data root, holding the mooring's folder (named as
+        *mooring_dir* is). Required for stage 1 unless the description gives an
+        absolute ``directory:``.
+    caldip_dir : os.PathLike or None, optional
+        Calibration-dip results for stage 3 (not yet applied: the stub records
+        ``caldip_applied``); its presence rewrites existing stage-3 files.
+    stage, proc_dir, **legacy_kw
+        The form before 0.6.0, ``process(name, stage, proc_dir=…)``, which also
+        runs stack and grid and returns a bool. Deprecated (a ``DeprecationWarning``)
+        and removed in 0.7.0; use :func:`oceanarray.run` for stages 1–3, stack and
+        grid.
+
+    Returns
+    -------
+    list of pathlib.Path
+        Every stage file of the stages run, in stage order: those written and
+        those kept because they were already there (each stage's log says which).
+        A failed or ``skip`` instrument has none.
+
+    Raises
+    ------
+    oceanarray.exceptions.MooringError
+        If the description is invalid, a directory is missing, no instrument
+        matched, or any instrument failed. A stage writes the instruments that
+        succeeded before raising, and the later stages do not run.
+    ValueError
+        If *stages* names anything but 1, 2 and 3.
+
+    Examples
+    --------
+    >>> import oceanarray as oa
+    >>> oa.process("proc/dune2_1_2026/dune2_1_2026.mooring.yaml", raw_dir="raw/")
+    >>> oa.process(mooring, stages=3, serials=["2941"], force=True)
+    """
+    if stage is not _UNSET or proc_dir is not None or legacy_kw:
+        warnings.warn(
+            "process(name, stage, proc_dir=...) is deprecated and will be removed in "
+            "0.7.0. Pass the mooring's *.mooring.yaml instead: "
+            "oceanarray.process(yaml_path, raw_dir=...) runs stages 1-3, and "
+            "oceanarray.run(yaml_path, ...) runs stages 1-3, stack and grid.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        if serials is not None:
+            legacy_kw["serials"] = serials
+        if caldip_dir is not None:
+            legacy_kw["caldip_dir"] = caldip_dir
+        return _process_legacy(
+            mooring,
+            None if stage is _UNSET else stage,
+            proc_dir=proc_dir,
+            raw_dir=raw_dir,
+            force=force,
+            **legacy_kw,
+        )
+
+    from oceanarray import mooring as _mooring
+    from oceanarray.exceptions import MooringError
+    from oceanarray.logger import StageLog
+    from oceanarray.pipeline.read_mooring import _resolve
+    from oceanarray.pipeline.stage1 import (
+        _attach_reader_logs,
+        _detach_reader_logs,
+        _stage1_files,
+    )
+    from oceanarray.pipeline.stage2 import _stage2_files
+    from oceanarray.pipeline.stage3 import _stage3_files
+
+    wanted = _stage_numbers(stages)
+    if isinstance(mooring, Mapping):
+        if mooring_dir is None:
+            raise MooringError(
+                "process was given a mooring dict but no mooring_dir=; a dict has "
+                "no location for the stage files — pass mooring_dir=."
+            )
+        cfg, moor_dir = _mooring.load(mooring), Path(mooring_dir)
+    else:
+        cfg, moor_dir = _resolve(mooring, mooring_dir, 1, caller="process")
+    if not moor_dir.is_dir():
+        raise MooringError(f"Mooring directory not found: {moor_dir}")
+    name = cfg["name"]
+    serial_list = list(serials) if serials is not None else None
+
+    files: list[Path] = []
+    for n in wanted:
+        with StageLog(name, f"stage{n}", moor_dir) as log:
+            log(f"Stage {n} for mooring: {name}")
+            if n == 1:
+                readers = _attach_reader_logs(log.file)
+                try:
+                    run = _stage1_files(
+                        cfg,
+                        moor_dir,
+                        Path(raw_dir) if raw_dir is not None else None,
+                        folder=moor_dir.name,
+                        serials=serial_list,
+                        force=force,
+                        log=log,
+                    )
+                finally:
+                    _detach_reader_logs(readers)
+            elif n == 2:
+                run = _stage2_files(
+                    cfg, moor_dir, serials=serial_list, force=force, log=log
+                )
+            else:
+                if caldip_dir is not None:
+                    log(
+                        "  WARNING: caldip correction requested but not implemented; "
+                        "Stage 3 science data is unchanged (see the caldip_applied "
+                        "attribute)."
+                    )
+                # Stage 3 runs over the whole mooring: any failure fails it.
+                try:
+                    run = _stage3_files(
+                        cfg,
+                        moor_dir,
+                        serials=serial_list,
+                        force=force,
+                        caldip_dir=caldip_dir,
+                        log=log,
+                    )
+                except MooringError as e:
+                    log(f"ERROR: {e}")
+                    raise
+                except Exception as e:
+                    log(f"ERROR: Stage 3 failed: {e}")
+                    raise MooringError(
+                        f"{name}: stage 3 failed (nothing written; see {log.file}): {e}"
+                    ) from e
+        log(
+            f"Stage {n}: {len(run.written)} file(s) written, "
+            f"{len(run.files) - len(run.written)} kept (already there; force=True "
+            "rewrites)"
+        )
+        files += run.files
+        if run.matched == 0:
+            which = f" matching {', '.join(serial_list)}" if serial_list else ""
+            raise MooringError(f"{name}: stage {n}: no instrument{which} to process.")
+        if run.failed:
+            raise MooringError(
+                f"{name}: stage {n} failed for {len(run.failed)} of {run.matched} "
+                f"instrument(s) (the rest were written; see {log.file}):\n  - "
+                + "\n  - ".join(run.failed)
+            )
+    return files
+
+
+def _stage_numbers(stages: int | str | Iterable[int]) -> list[int]:
+    """Return *stages* as a sorted list drawn from 1, 2, 3, or raise ValueError."""
+    if isinstance(stages, str):
+        if stages.lower() != "all":
+            raise ValueError(
+                f"stages={stages!r}: expected 1, 2, 3, a list of them, or 'all'"
+            )
+        return [1, 2, 3]
+    items = [stages] if isinstance(stages, int) else list(stages)
+    bad = [s for s in items if isinstance(s, bool) or s not in (1, 2, 3)]
+    if bad or not items:
+        raise ValueError(
+            f"stages={stages!r}: expected 1, 2, 3, a list of them, or 'all' "
+            "(stack and grid are oceanarray.run)"
+        )
+    return sorted(set(items))

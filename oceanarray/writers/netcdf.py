@@ -21,6 +21,7 @@ from pathlib import Path
 
 import numpy as np
 import xarray as xr
+from xarray.coding.times import CFDatetimeCoder
 
 from oceanarray.logger import log_info
 from oceanarray.utilities import cast_output_dtypes
@@ -326,6 +327,42 @@ def _prepare(ds: xr.Dataset, *, compress: bool = True) -> xr.Dataset:
             enc.update(_COMPRESSION)
         safe[name].encoding = enc
     return safe
+
+
+def as_stored(ds: xr.Dataset) -> xr.Dataset:
+    """Return *ds* holding the values its file will hold, so it equals the file read back.
+
+    Casts to the storage dtypes (:func:`~oceanarray.utilities.cast_output_dtypes`:
+    float64 to float32 but for time and position) and rounds every datetime to what
+    :data:`_TIME_ENCODING` (float64 seconds) can represent, by encoding and decoding
+    it with xarray's own time coder. A stage applies it to its output, so a dataset
+    passed on in memory and the same dataset written and read back agree exactly.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The dataset a stage is about to return.
+
+    Returns
+    -------
+    xarray.Dataset
+        A copy with storage dtypes and stored time values; attributes kept.
+    """
+    out = cast_output_dtypes(ds)
+    coder = CFDatetimeCoder()
+    for name in list(out.variables):
+        var = out[name].variable
+        if not _is_datetime(var):
+            continue
+        tmp = var.copy(deep=False)
+        tmp.encoding = dict(_TIME_ENCODING)
+        stored = np.asarray(coder.decode(coder.encode(tmp, name), name).values)
+        new = xr.Variable(var.dims, stored, attrs=var.attrs)
+        if name in out.coords:
+            out = out.assign_coords({name: new})
+        else:
+            out[name] = new
+    return out
 
 
 def write(ds: xr.Dataset, path: Path | str, *, overwrite: bool = False) -> Path:

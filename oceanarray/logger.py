@@ -88,6 +88,50 @@ def detach_handlers(handlers: list[logging.Handler]) -> None:
         handler.close()
 
 
+class StageLog:
+    """One stage's log, open for the length of a ``with`` block.
+
+    On entry the package handlers are attached (:func:`attach_stage_handlers`);
+    calling the instance prints to stdout and appends the same line to the log
+    file; on exit the handlers are detached.
+
+    Parameters
+    ----------
+    mooring_name : str
+        The mooring's name, used in the log filename.
+    stage_name : str
+        The stage, e.g. ``"stage2"``, used in the log filename.
+    mooring_dir : pathlib.Path
+        The mooring's own directory; the log goes under it.
+
+    Attributes
+    ----------
+    file : pathlib.Path
+        The log file.
+    """
+
+    def __init__(self, mooring_name: str, stage_name: str, mooring_dir: Path) -> None:
+        """Choose the log file; nothing is attached until the block is entered."""
+        self.file = setup_stage_logging(mooring_name, stage_name, mooring_dir)
+        self._handlers: list[logging.Handler] = []
+
+    def __enter__(self) -> "StageLog":
+        """Attach the package handlers."""
+        self._handlers = attach_stage_handlers(self.file)
+        return self
+
+    def __exit__(self, *exc: object) -> None:
+        """Detach the package handlers."""
+        detach_handlers(self._handlers)
+        self._handlers = []
+
+    def __call__(self, *args: Any, **kwargs: Any) -> None:
+        """Print to stdout and append to the log file."""
+        print(*args, **kwargs)
+        with self.file.open("a", encoding="utf-8") as f:
+            print(*args, **kwargs, file=f)
+
+
 def with_stage_handlers(method: Callable) -> Callable:
     """Detach a stage's log handlers (``self._log_handlers``) when *method* returns."""
 
@@ -189,7 +233,7 @@ def setup_stage_logging(mooring_name: str, stage_name: str, proc_dir: Path) -> P
     mooring_name : str
         Name of the mooring (e.g., 'dsE_1_2018')
     stage_name : str
-        Name of the processing stage (e.g., 'stage1', 'stage2', 'time_gridding')
+        Name of the processing stage (e.g., 'stage1', 'stage2', 'stack')
     proc_dir : Path
         Processing directory for the mooring
 

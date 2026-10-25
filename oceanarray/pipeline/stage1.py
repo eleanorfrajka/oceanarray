@@ -8,6 +8,7 @@ files. :class:`MooringProcessor` reads each instrument's raw file, calls
 
 import logging
 import warnings
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -31,6 +32,7 @@ from oceanarray.utilities import (
     should_skip_regeneration,
 )
 from oceanarray.writers import write
+from oceanarray.writers.netcdf import as_stored
 
 # Suppress noisy INFO/WARNING messages from seasenselib/pycnv.
 logging.getLogger("seasenselib").setLevel(logging.WARNING)
@@ -652,7 +654,8 @@ def stage1(
     Returns
     -------
     dict of str to xarray.Dataset
-        Stage-1 datasets keyed by serial.
+        Stage-1 datasets keyed by serial, as their file will hold them (storage
+        dtypes, time at the file's resolution), so each equals its file read back.
 
     Raises
     ------
@@ -683,7 +686,7 @@ def stage1(
                 "description; stage 1 needs the entry's metadata."
             )
         result = _stage1_instrument(ds.copy(deep=True), entry, mooring)
-        out[serial] = _stage.stamp(result, 1)
+        out[serial] = _stage.stamp(as_stored(result), 1)
     return out
 
 
@@ -717,19 +720,7 @@ class MooringProcessor:
 
         self.log_file = setup_stage_logging(mooring_name, "stage1", output_path)
         self._log_handlers = attach_stage_handlers(self.log_file)
-
-        for lib_logger_name in ("seasenselib", "pycnv"):
-            lib_log = logging.getLogger(lib_logger_name)
-            lib_log.setLevel(logging.INFO)
-            lib_log.propagate = False
-            if not any(
-                isinstance(h, logging.FileHandler)
-                and h.baseFilename == str(self.log_file)
-                for h in lib_log.handlers
-            ):
-                fh = logging.FileHandler(self.log_file, mode="a", encoding="utf-8")
-                fh.setFormatter(logging.Formatter("%(name)s %(levelname)s %(message)s"))
-                lib_log.addHandler(fh)
+        _attach_reader_logs(self.log_file)
 
     def _log_print(self, *args: Any, **kwargs: Any) -> None:
         """Print to both console and log file."""
@@ -747,75 +738,6 @@ class MooringProcessor:
             except ValueError:
                 continue
         return path.name
-
-    def _process_instrument(
-        self,
-        entry: dict[str, Any],
-        mooring_config: dict[str, Any],
-        output_path: Path,
-        mooring_name: str,
-        force: bool = False,
-    ) -> bool:
-        """Read, transform and write one instrument; True on success or skip.
-
-        One failed instrument is logged and does not abort the mooring; a
-        ``RuntimeError`` (a registry inconsistency, a package bug) does.
-        """
-        instrument = entry.get("instrument", "unknown")
-        serial = entry.get("serial", "unknown")
-        if entry.get("skip"):
-            reason = entry.get("skip_reason", "marked skip:true in YAML")
-            self._log_print(f"SKIP {instrument} {serial}: {reason}")
-            return True
-
-        try:
-            raw = resolve_raw_file(
-                entry, mooring_config, self._raw_dir, folder=mooring_name
-            )
-        except MooringError:
-            self._log_print(
-                f"FILENAME MISSING: Skipping {instrument}:{serial}. "
-                f"YAML is missing 'filename' and no standard file was found."
-            )
-            return False
-
-        _status("instr", f"{instrument} {serial}")
-        output_dir = output_path / raw.instrument_dir
-        output_dir.mkdir(parents=True, exist_ok=True)
-        clean = safe_serial(serial)
-        output_file = paths.stage_file(
-            output_path,
-            mooring_config["name"],
-            raw.instrument_dir,
-            clean,
-            1,
-            tag=raw.tag,
-        )
-        # Skip only if the output is present and newer than its raw input. The
-        # mooring YAML is deliberately not a staleness source; --force regenerates.
-        if should_skip_regeneration(output_file, force, False, raw.path):
-            _status("skip", self._rel(output_file))
-            return True
-
-        try:
-            dataset = read_raw_file(raw)
-        except Exception as e:  # noqa: BLE001 — seasenselib wraps any load failure (corrupt file, missing header) in RuntimeError; one unreadable file must not abort the mooring
-            self._log_print(f"EXCEPT: Error reading file {self._rel(raw.path)}: {e}")
-            return False
-
-        try:
-            dataset = join_raw(dataset, raw.entry, mooring_config)
-            dataset = stage1({clean: dataset}, mooring_config)[clean]
-            _status("file", self._rel(output_file))
-            write(dataset, output_file, overwrite=True)
-        except RuntimeError:
-            # A registry inconsistency (to_canonical_units raises RuntimeError, not
-            # UnitsError) is a package bug, not a bad instrument — abort the run.
-            raise
-        except Exception as e:  # noqa: BLE001 — UnitsError (bad units) and any seasenselib read error: log the file and skip this one instrument
-            self._log_print(f"ERROR: Failed to process {self._rel(raw.path)}: {e}")
-            return False
-        return True
 
     @with_stage_handlers
     def process_mooring(
@@ -857,59 +779,209 @@ class MooringProcessor:
             self._log_print(f"ERROR: Failed to load configuration: {e}")
             return False
 
-        # Raw root: {raw_dir}/{mooring}/; an absolute YAML 'directory:' overrides it.
-        override = mooring_config.get("directory")
-        if override and Path(override).is_absolute():
-            self._log_print(
-                f"WARNING: using 'directory: {override}' from YAML "
-                f"as raw root override (ignoring --raw-dir)"
+        try:
+            run = _stage1_files(
+                mooring_config,
+                output_path,
+                self._raw_dir,
+                folder=mooring_name,
+                serials=serials,
+                force=force,
+                log=self._log_print,
+                rel=self._rel,
             )
-            if not Path(override).exists():
-                self._log_print(f"ERROR: Input directory not found: {override}")
-                return False
-        else:
-            raw_mooring_dir = paths.raw_mooring_dir(self._raw_dir, mooring_name)
-            if not raw_mooring_dir.exists():
-                self._log_print(
-                    f"ERROR: Raw mooring directory not found: {raw_mooring_dir}"
-                )
-                return False
-
-        instrument_list = instrument_entries(mooring_config)
-        inline_instruments = extract_inline_instruments(
-            mooring_config.get("inline") or []
-        )
-        if inline_instruments:
-            self._log_print(
-                f"Found {len(inline_instruments)} instrument(s) in 'inline' list: "
-                + ", ".join(str(ic.get("serial", "?")) for ic in inline_instruments)
-            )
-        if serials:
-            wanted = {safe_serial(s) for s in serials}
-            instrument_list = [
-                ic
-                for ic in instrument_list
-                if safe_serial(ic.get("serial", "")) in wanted
-            ]
-            self._log_print(
-                f"Filtered to {len(instrument_list)} instrument(s) matching serial(s): "
-                f"{', '.join(serials)}"
-            )
-
-        success_count = 0
-        total_count = len(instrument_list)
-        for entry in instrument_list:
-            if self._process_instrument(
-                entry, mooring_config, output_path, mooring_name, force=force
-            ):
-                success_count += 1
-
-        self._log_print(
-            f"Completed processing: {success_count}/{total_count} instruments successful"
-        )
-        if total_count == 0:
-            self._log_print("No instruments matched — nothing processed.")
+        except MooringError as e:
+            self._log_print(f"ERROR: {e}")
             return False
         # Partial success is still success: instruments that processed are written
         # and the record summary reports which succeeded and which failed.
-        return success_count > 0
+        return run.matched > len(run.failed)
+
+
+_ReaderLogState = tuple[logging.Logger, int, bool, logging.Handler | None]
+
+
+def _attach_reader_logs(log_file: Path) -> list[_ReaderLogState]:
+    """Send the raw readers' library logs (seasenselib, pycnv) to *log_file* only.
+
+    Returns each logger's previous level and propagation and the handler added
+    (None when one was already there), for :func:`_detach_reader_logs`.
+    """
+    added: list[_ReaderLogState] = []
+    for lib_logger_name in ("seasenselib", "pycnv"):
+        lib_log = logging.getLogger(lib_logger_name)
+        state = (lib_log, lib_log.level, lib_log.propagate)
+        lib_log.setLevel(logging.INFO)
+        lib_log.propagate = False
+        if not any(
+            isinstance(h, logging.FileHandler) and h.baseFilename == str(log_file)
+            for h in lib_log.handlers
+        ):
+            fh = logging.FileHandler(log_file, mode="a", encoding="utf-8")
+            fh.setFormatter(logging.Formatter("%(name)s %(levelname)s %(message)s"))
+            lib_log.addHandler(fh)
+            added.append((*state, fh))
+        else:
+            added.append((*state, None))
+    return added
+
+
+def _detach_reader_logs(states: list[_ReaderLogState]) -> None:
+    """Undo :func:`_attach_reader_logs`: remove the handlers, restore level and propagation."""
+    for lib_log, level, propagate, handler in states:
+        if handler is not None:
+            lib_log.removeHandler(handler)
+            handler.close()
+        lib_log.setLevel(level)
+        lib_log.propagate = propagate
+
+
+def _stage1_file(
+    entry: dict[str, Any],
+    mooring: dict[str, Any],
+    mooring_dir: Path,
+    raw_dir: Path | None,
+    *,
+    folder: str,
+    force: bool,
+    log: Callable[..., None],
+    rel: Callable[[Path], str],
+) -> tuple[str, Any]:
+    """Read, transform and write one instrument; return ``(status, detail)``.
+
+    *status* is ``"written"`` or ``"kept"`` (detail: the path; kept means it was
+    already there and newer than its raw file), ``"skipped"`` (marked ``skip``) or
+    ``"failed"`` (detail: the message). One failed instrument is logged and does not abort the
+    mooring; a ``RuntimeError`` (a registry inconsistency, a package bug) does.
+    """
+    instrument = entry.get("instrument", "unknown")
+    serial = entry.get("serial", "unknown")
+    if entry.get("skip"):
+        reason = entry.get("skip_reason", "marked skip:true in YAML")
+        log(f"SKIP {instrument} {serial}: {reason}")
+        return "skipped", None
+
+    try:
+        raw = resolve_raw_file(entry, mooring, raw_dir, folder=folder)
+    except MooringError:
+        log(
+            f"FILENAME MISSING: Skipping {instrument}:{serial}. "
+            f"YAML is missing 'filename' and no standard file was found."
+        )
+        return "failed", f"{instrument} {serial}: no raw file named or found"
+
+    _status("instr", f"{instrument} {serial}")
+    output_dir = mooring_dir / raw.instrument_dir
+    output_dir.mkdir(parents=True, exist_ok=True)
+    clean = safe_serial(serial)
+    output_file = paths.stage_file(
+        mooring_dir, mooring["name"], raw.instrument_dir, clean, 1, tag=raw.tag
+    )
+    # Skip only if the output is present and newer than its raw input. The
+    # mooring YAML is deliberately not a staleness source; force regenerates.
+    if should_skip_regeneration(output_file, force, False, raw.path):
+        _status("skip", rel(output_file))
+        return "kept", output_file
+
+    try:
+        dataset = read_raw_file(raw)
+    except Exception as e:  # noqa: BLE001 — seasenselib wraps any load failure (corrupt file, missing header) in RuntimeError; one unreadable file must not abort the mooring
+        log(f"EXCEPT: Error reading file {rel(raw.path)}: {e}")
+        return "failed", f"{instrument} {serial}: {e}"
+
+    try:
+        dataset = join_raw(dataset, raw.entry, mooring)
+        dataset = stage1({clean: dataset}, mooring)[clean]
+        _status("file", rel(output_file))
+        return "written", write(dataset, output_file, overwrite=True)
+    except RuntimeError:
+        # A registry inconsistency (to_canonical_units raises RuntimeError, not
+        # UnitsError) is a package bug, not a bad instrument — abort the run.
+        raise
+    except Exception as e:  # noqa: BLE001 — UnitsError (bad units) and any seasenselib read error: log the file and skip this one instrument
+        log(f"ERROR: Failed to process {rel(raw.path)}: {e}")
+        return "failed", f"{instrument} {serial}: {e}"
+
+
+def _stage1_files(
+    mooring: dict[str, Any],
+    mooring_dir: Path,
+    raw_dir: Path | None,
+    *,
+    folder: str,
+    serials: list[str] | None = None,
+    force: bool = False,
+    log: Callable[..., None] = print,
+    rel: Callable[[Path], str] = lambda p: p.name,
+) -> _stage.StageRun:
+    """Run stage 1 over one mooring's raw files, writing each instrument's stage-1 file.
+
+    One instrument's failure is logged and recorded; the rest are still written.
+    *folder* is the mooring's folder under *raw_dir*.
+
+    Raises
+    ------
+    oceanarray.exceptions.MooringError
+        If the raw-data directory is not found.
+    """
+    # Raw root: {raw_dir}/{folder}/; an absolute YAML 'directory:' overrides it.
+    override = mooring.get("directory")
+    if override and Path(override).is_absolute():
+        log(
+            f"WARNING: using 'directory: {override}' from YAML "
+            f"as raw root override (ignoring --raw-dir)"
+        )
+        if not Path(override).exists():
+            raise MooringError(f"Input directory not found: {override}")
+    else:
+        if raw_dir is None:
+            raise MooringError("stage 1 needs raw_dir= to find the raw files.")
+        raw_mooring_dir = paths.raw_mooring_dir(raw_dir, folder)
+        if not raw_mooring_dir.exists():
+            raise MooringError(f"Raw mooring directory not found: {raw_mooring_dir}")
+
+    instrument_list = instrument_entries(mooring)
+    inline_instruments = extract_inline_instruments(mooring.get("inline") or [])
+    if inline_instruments:
+        log(
+            f"Found {len(inline_instruments)} instrument(s) in 'inline' list: "
+            + ", ".join(str(ic.get("serial", "?")) for ic in inline_instruments)
+        )
+    if serials:
+        wanted = {safe_serial(s) for s in serials}
+        instrument_list = [
+            ic for ic in instrument_list if safe_serial(ic.get("serial", "")) in wanted
+        ]
+        log(
+            f"Filtered to {len(instrument_list)} instrument(s) matching serial(s): "
+            f"{', '.join(serials)}"
+        )
+
+    run = _stage.StageRun()
+    for entry in instrument_list:
+        run.matched += 1
+        status, detail = _stage1_file(
+            entry,
+            mooring,
+            mooring_dir,
+            raw_dir,
+            folder=folder,
+            force=force,
+            log=log,
+            rel=rel,
+        )
+        if status == "written":
+            run.written.append(detail)
+            run.files.append(detail)
+        elif status == "kept":
+            run.files.append(detail)
+        elif status == "failed":
+            run.failed.append(detail)
+
+    log(
+        f"Completed processing: {run.matched - len(run.failed)}/{run.matched} "
+        "instruments successful"
+    )
+    if run.matched == 0:
+        log("No instruments matched — nothing processed.")
+    return run

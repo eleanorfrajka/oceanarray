@@ -50,6 +50,7 @@ from __future__ import annotations
 
 import datetime
 import hashlib
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -59,6 +60,7 @@ import xarray as xr
 from oceanarray import mooring as _mooring
 from oceanarray import parameters as params
 from oceanarray import paths
+from oceanarray.exceptions import MooringError
 from oceanarray.logger import log_info, log_warning, with_stage_handlers
 from oceanarray.paths import safe_serial
 from oceanarray.pipeline import _stage
@@ -93,6 +95,7 @@ from oceanarray.utilities import (
     instrument_entries,
     parse_latlon_with_source,
 )
+from oceanarray.writers.netcdf import as_stored
 
 _ENU_KEYS = {"east_velocity", "north_velocity", "up_velocity"}
 
@@ -530,7 +533,8 @@ def stage3(
     Returns
     -------
     dict of str to xarray.Dataset
-        Stage-3 datasets keyed by serial, each marked ``processing_stage = 3``.
+        Stage-3 datasets keyed by serial, each marked ``processing_stage = 3`` and
+        holding the values its file will hold, so each equals its file read back.
         Entries marked ``skip`` or without ``hab`` are left out.
 
     Raises
@@ -545,7 +549,10 @@ def stage3(
     sources, targets = _split_pressure_sources(instruments)
     return {
         info["serial"]: _stage.stamp(
-            _stage3_instrument(info, sources, targets, caldip_dir=caldip_dir), 3
+            as_stored(
+                _stage3_instrument(info, sources, targets, caldip_dir=caldip_dir)
+            ),
+            3,
         )
         for info in instruments
     }
@@ -646,28 +653,25 @@ class Stage3Processor:
             self._log(f"ERROR: Config not found: {config_file}")
             return False
 
-        # read → stage3 → write: read_mooring joins the stage-2 files with the
-        # description, stage3 is the pure transform, write_mooring lays the stage-3
-        # files out from each dataset's stamped facts.
         try:
             mooring_config = _mooring.load(config_file)
-            datasets = read_mooring(
-                mooring_config,
-                stage=2,
-                serials=serials,
-                allow_missing=True,
-                mooring_dir=proc_dir,
-            )
-            if not datasets:
-                if serials:
-                    self._log(
-                        f"  No instruments found matching serial(s): {', '.join(serials)}"
-                    )
-                    return True
-                self._log("ERROR: No _stage2 datasets found for this mooring")
-                return False
-
             if dry_run:
+                datasets = read_mooring(
+                    mooring_config,
+                    stage=2,
+                    serials=serials,
+                    allow_missing=True,
+                    mooring_dir=proc_dir,
+                )
+                if not datasets:
+                    if serials:
+                        self._log(
+                            "  No instruments found matching serial(s): "
+                            + ", ".join(serials)
+                        )
+                        return True
+                    self._log("ERROR: No _stage2 datasets found for this mooring")
+                    return False
                 instruments = _instrument_table(datasets, mooring_config)
                 _, targets = _split_pressure_sources(instruments)
                 for info in instruments:
@@ -679,32 +683,136 @@ class Stage3Processor:
                     self._log(f"    {info['serial']} ({info['instrument']}): {action}")
                 self._log("DRY RUN complete")
                 return True
-
-            results = stage3(datasets, mooring_config, caldip_dir=caldip_dir)
-            if not results:
-                self._log("ERROR: No stage-2 datasets with hab values")
-                return False
-            name = mooring_config["name"]
-            to_write: dict[str, xr.Dataset] = {}
-            for serial, ds in results.items():
-                instr_type = ds.attrs["instrument"]
-                out_path = paths.stage_file(proc_dir, name, instr_type, serial, 3)
-                # A caldip request invalidates an existing output like --force, so the
-                # (stub) marker reaches every output.
-                if out_path.exists() and not force and caldip_dir is None:
-                    self._log(
-                        f"  SKIP (exists): {out_path.name}  (--force to overwrite)"
-                    )
-                    continue
-                st2_path = paths.stage_file(proc_dir, name, instr_type, serial, 2)
-                ds.attrs.update(_source_provenance(st2_path))
-                to_write[serial] = ds
-            write_mooring(to_write, proc_dir, overwrite=True)
+            _stage3_files(
+                mooring_config,
+                proc_dir,
+                serials=serials,
+                force=force,
+                caldip_dir=caldip_dir,
+                log=self._log,
+            )
+        except MooringError as e:
+            self._log(f"ERROR: {e}")
+            return False
         except Exception as e:  # noqa: BLE001  — intentional broad catch at I/O boundary
             self._log(f"ERROR: Stage 3 failed: {e}")
             return False
-
-        self._log(
-            f"Stage 3 complete: {len(results)} instrument(s) processed, {len(to_write)} written"
-        )
         return True
+
+
+def _stage3_files(
+    mooring: dict[str, Any],
+    mooring_dir: Path,
+    *,
+    serials: list[str] | None = None,
+    force: bool = False,
+    caldip_dir: str | Path | None = None,
+    log: Callable[..., None] = print,
+) -> _stage.StageRun:
+    """Run stage 3 over one mooring's stage-2 files and write the stage-3 files.
+
+    Every stage-2 file is read, whatever *serials* asks for, because an instrument
+    without its own pressure takes it from the others; only the instruments in
+    *serials* (default: all) are written. An existing stage-3 file is kept unless
+    *force* or *caldip_dir* is given. A target's pressure records the stage-2 files
+    it was interpolated from (``pressure_source_files``); a kept target whose
+    sources have since changed is named in a WARNING.
+
+    Raises
+    ------
+    oceanarray.exceptions.MooringError
+        If no stage-2 file is found, or none of them has a height above bottom; any
+        failure of the transform also propagates — stage 3 runs over the whole
+        mooring.
+    """
+    run = _stage.StageRun()
+    datasets = read_mooring(
+        mooring, stage=2, allow_missing=True, mooring_dir=mooring_dir
+    )
+    if not datasets:
+        raise MooringError("No _stage2 datasets found for this mooring")
+
+    results = stage3(datasets, mooring, caldip_dir=caldip_dir)
+    if not results:
+        raise MooringError("No stage-2 datasets with hab values")
+    wanted = {safe_serial(s) for s in serials} if serials else set(results)
+    if not wanted & set(results):
+        log(f"  No instruments found matching serial(s): {', '.join(serials or [])}")
+        return run
+    name = mooring["name"]
+
+    def _stage2_path(serial: str) -> Path:
+        """Return *serial*'s stage-2 file."""
+        return paths.stage_file(
+            mooring_dir, name, results[serial].attrs["instrument"], serial, 2
+        )
+
+    to_write: dict[str, xr.Dataset] = {}
+    for serial, ds in results.items():
+        out_path = paths.stage_file(
+            mooring_dir, name, ds.attrs["instrument"], serial, 3
+        )
+        sources = _pressure_source_files(ds, _stage2_path)
+        if serial not in wanted:
+            _warn_if_sources_changed(out_path, sources, log)
+            continue
+        run.matched += 1
+        # A caldip request invalidates an existing output like force, so the
+        # (stub) marker reaches every output.
+        if out_path.exists() and not force and caldip_dir is None:
+            log(f"  SKIP (exists): {out_path.name}  (--force to overwrite)")
+            _warn_if_sources_changed(out_path, sources, log)
+            run.files.append(out_path)
+            continue
+        ds.attrs.update(_source_provenance(_stage2_path(serial)))
+        if sources:
+            ds["pressure"].attrs["pressure_source_files"] = sources
+        to_write[serial] = ds
+        run.files.append(out_path)
+    run.written = write_mooring(to_write, mooring_dir, overwrite=True)
+    log(
+        f"Stage 3 complete: {len(results)} instrument(s) processed, "
+        f"{len(to_write)} written"
+    )
+    return run
+
+
+def _pressure_source_files(ds: xr.Dataset, stage2_path: Callable[[str], Path]) -> str:
+    """Return the stage-2 files *ds*'s pressure was interpolated from, with their hashes.
+
+    One ``"<file> sha256=<hash> mtime=<time>"`` entry per source, joined by ``"; "``;
+    empty when the pressure is the instrument's own.
+    """
+    if "pressure" not in ds:
+        return ""
+    serials = ds["pressure"].attrs.get("pressure_source_serials", "").split()
+    entries = []
+    for serial in serials:
+        prov = _source_provenance(stage2_path(serial))
+        entries.append(
+            f"{prov['stage2_source_file']} sha256={prov['stage2_source_sha256']} "
+            f"mtime={prov['stage2_source_mtime']}"
+        )
+    return "; ".join(entries)
+
+
+def _warn_if_sources_changed(
+    out_path: Path, sources: str, log: Callable[..., None]
+) -> None:
+    """WARN when a kept stage-3 file's pressure came from sources other than today's."""
+    if not out_path.exists():
+        return
+    with xr.open_dataset(out_path, decode_times=False) as kept:
+        recorded = (
+            kept["pressure"].attrs.get("pressure_source_files", "")
+            if "pressure" in kept
+            else ""
+        )
+    if recorded == sources:
+        return
+    log(
+        f"  WARNING: {out_path.name}: its pressure was interpolated from "
+        f"{recorded or 'sources not recorded'}; today it would come from "
+        f"{sources or 'its own sensor'}. Re-run stage 3 for this instrument "
+        "(force) or the whole mooring."
+    )

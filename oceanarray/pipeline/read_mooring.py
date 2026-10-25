@@ -53,6 +53,7 @@ def _resolve(
     mooring: Mapping[str, Any] | str | Path,
     mooring_dir: str | Path | None,
     stage: int | None,
+    caller: str = "read_mooring",
 ) -> tuple[Mapping[str, Any], Path | None]:
     """Return the loaded description and its directory from *mooring*.
 
@@ -63,7 +64,7 @@ def _resolve(
     if isinstance(mooring, Mapping):
         if stage is not None and mooring_dir is None:
             raise MooringError(
-                "read_mooring was given a mooring dict with stage="
+                f"{caller} was given a mooring dict with stage="
                 f"{stage} but no mooring_dir=; a dict has no location to find "
                 "the stage files — pass mooring_dir=."
             )
@@ -75,7 +76,7 @@ def _resolve(
         if len(candidates) != 1:
             raise MooringError(
                 f"{path} holds {len(candidates)} '*.mooring.yaml' files; "
-                "read_mooring needs exactly one (or point at the file)."
+                f"{caller} needs exactly one (or point at the file)."
             )
         return _mooring.load(candidates[0]), Path(mooring_dir or path)
     return _mooring.load(path), Path(mooring_dir or path.parent)
