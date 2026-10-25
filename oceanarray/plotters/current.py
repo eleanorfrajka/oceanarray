@@ -910,7 +910,7 @@ def draw_rose_grid(
 
     # Split by instrument type: ADCP bins are capped at 4 per serial (top, 2 mid,
     # bottom by HAB), single-point instruments (Aquadopp, etc.) keep all.
-    # The variable may be "instrument_type" (mooring_level) or "instrument" (time_gridding).
+    # The variable may be "instrument_type" (mooring_level) or "instrument" (the stack).
     _type_var = (
         "instrument_type"
         if "instrument_type" in ds

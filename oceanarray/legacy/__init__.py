@@ -2,7 +2,7 @@
 
 This module contains legacy code for processing RAPID/RODB format data.
 For new projects, use the modern CF-compliant workflow:
-    Stage1 (stage1.py) -> Stage2 (stage2.py) -> Time Gridding (time_gridding.py)
+    oceanarray.process (stages 1-3) -> stack -> grid
 
 Legacy modules:
 - process_rodb: Individual instrument processing functions

@@ -43,6 +43,7 @@ All notable changes to oceanarray are documented here.
 
 ### Breaking changes
 
+- `TimeGriddingProcessor`, `time_gridding_mooring` and `process_multiple_moorings_time_gridding` are removed from `oceanarray.pipeline.grid`, with their optional low-pass/de-tiding/band-pass filters. No notebook or CLI verb used them; the stack (`oceanarray.pipeline.stack.stack`) is the one way to put a mooring on a common time axis.
 - `oceanarray.processors` is renamed to `oceanarray.pipeline` (the verbs' bodies). Old → new: every `oceanarray.processors.*` import becomes `oceanarray.pipeline.*` (`stage1`, `stage2`, `stage3`, `stack`, `grid`, `qc`, `coordinate`, `pressure`, `units`, `caldip`, `helpers`, `process`, `run`). No deprecation shim.
 - `oceanarray.writers.write(ds, path)` now refuses to replace an existing file by default — pass `overwrite=True` to replace one (the processing stages do). It logs an INFO line (`overwriting <path>`) when it replaces a file, and returns the `Path` written instead of `None`. Previously it overwrote silently.
 - Output filenames are built from the mooring's `name:` field, not its directory name. A directory whose basename differs from `name:` is a WARNING (previously framed as "name must match the directory"); the files are named from `name`.
