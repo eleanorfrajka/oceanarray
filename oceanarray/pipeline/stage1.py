@@ -977,6 +977,7 @@ def _stage1_files(
             run.files.append(detail)
         elif status == "failed":
             run.failed.append(detail)
+            run.failed_serials.append(safe_serial(entry.get("serial", "")))
 
     log(
         f"Completed processing: {run.matched - len(run.failed)}/{run.matched} "

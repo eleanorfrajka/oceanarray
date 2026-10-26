@@ -135,7 +135,7 @@ def test_process_raises_naming_the_instrument_whose_raw_file_is_missing(tmp_path
         f.unlink()
     yaml_path = _fresh_tree(tmp_path)
     with pytest.raises(MooringError, match=r"(?s)stage 1 failed for 1 of 2.*9920"):
-        oa.process(yaml_path, raw_dir=raw)
+        oa.process(yaml_path, raw_dir=raw, keep_going=False)
     moor = yaml_path.parent
     assert (moor / _rel("2941", 1)).exists()
     assert not list(moor.rglob(paths.stage_glob(2))), "stage 2 ran after stage 1 failed"
@@ -176,7 +176,7 @@ def test_process_turns_a_stage3_failure_into_a_logged_mooring_error(
     moor = tmp_path / _NAME
     shutil.copytree(yaml_path.parent, moor)
     with pytest.raises(MooringError, match="stage 3 failed.*boom"):
-        oa.process(moor / yaml_path.name, stages=3, force=True)
+        oa.process(moor / yaml_path.name, stages=3, force=True, keep_going=False)
     logs = list(moor.rglob("*stage3.log"))
     assert any("ERROR: Stage 3 failed: boom" in p.read_text() for p in logs)
 

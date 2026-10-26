@@ -501,6 +501,9 @@ def _stage3_instrument(
     if caldip_dir is not None:
         ds.attrs["caldip_applied"] = CALDIP_STUB_APPLIED
 
+    # OceanSITES data_mode: provisional until delayed mode is earned (caldip applied
+    # and final); nothing here earns it yet.
+    ds.attrs["data_mode"] = "P"
     ds = drop_all_zero_vars(ds, ["amplitude_beam", "analog_input_"])
     # Canonical units on everything stage 3 derived (salinity, ENU velocities, oxygen).
     ds = to_canonical_units(ds, log_fn=_log, stage=3)

@@ -9,6 +9,7 @@ from oceanarray import paths
 from oceanarray.pipeline.units import to_canonical_units
 from oceanarray.utilities import _status
 from oceanarray.writers import write
+from oceanarray.writers.netcdf import as_stored
 
 
 def grid(
@@ -210,6 +211,7 @@ def grid(
     ds_out.attrs.update(
         {
             **{k: v for k, v in ds.attrs.items() if k not in ("history",)},
+            "data_mode": "P",
             "p_start_dbar": p_start,
             "p_end_dbar": p_end,
             "dp_dbar": dp,
@@ -221,7 +223,23 @@ def grid(
         }
     )
 
-    return to_canonical_units(ds_out, log_fn=print, stage="grid")
+    return as_stored(to_canonical_units(ds_out, log_fn=print, stage="grid"))
+
+
+def _grid_file(
+    ds_stack: xr.Dataset,
+    mooring: dict,
+    mooring_dir: Path,
+    *,
+    p_start: float,
+    p_end: float,
+    dp: float,
+) -> Path:
+    """Grid *ds_stack* and write ``<name>_grid.nc``; return its path."""
+    ds = grid(ds_stack, p_start=p_start, p_end=p_end, dp=dp)
+    return write(
+        ds, paths.product_file(mooring_dir, mooring["name"], "grid"), overwrite=True
+    )
 
 
 class MooringGridder:

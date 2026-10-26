@@ -516,44 +516,51 @@ def cmd_report(args: argparse.Namespace) -> int:
 
 
 def cmd_run(args: argparse.Namespace) -> int:
-    """Run the complete processing pipeline for one mooring.
+    """Run stages 1-3, the stack, the grid and all reports for one mooring.
 
-    Executes in order: stage 1 (raw → CF-NetCDF), stage 2 (trim + clock
-    correction), stage 3 (QC + velocity rotation), stack (common time axis),
-    grid (pressure interpolation), and all reports (summary, per-instrument,
-    stack, grid).
-
-    Stage failures are non-fatal: each subsequent stage runs regardless, except
-    that a stack failure skips grid (grid reads stack.nc as its input).  The
-    command returns exit code 1 if any step fails.
+    Calls :func:`oceanarray.run`, then builds the reports (summary,
+    per-instrument, stack, grid). It carries on past failed instruments and a
+    failed stage 3, stacks what exists (stage 3, else stage 2, recorded in the
+    stack) and builds the reports; the failures are printed as warnings and
+    recorded in the products, which are provisional (``data_mode = "P"``).
+    ``--strict`` stops at the first failing stage with exit code 1 and builds no
+    report.
 
     The report step honours ``--output-dir``/``--report-dir`` (to redirect the
     HTML tree) and ``--sig-level`` (grid isopycnal targets); when unset it writes
     to the default ``{proc-dir}/{mooring}/report/`` with the default σ₀ grid.
     """
-    from .pipeline import _process_legacy as _process
+    from .exceptions import MooringError
+    from .pipeline import run as _run
 
     raw_dir, proc_root = _parse_dirs_checked(args)
-
-    if raw_dir is None:
-        raise SystemExit("ERROR: --raw-dir is required for stage 1.")
+    stages = tuple(sorted(set(args.stage))) if args.stage else (1, 2, 3)
+    if 1 in stages and raw_dir is None:
+        raise SystemExit(
+            "ERROR: --raw-dir is required for stage 1 (or pass --stage 2 3)."
+        )
 
     serials = args.serial or None
-
-    overall_ok = _process(
-        args.mooring,
-        stage=None,
-        proc_dir=proc_root,
-        raw_dir=raw_dir,
-        force=args.force,
-        serials=serials,
-        dt_seconds=args.dt,
-        p_start=args.pmin,
-        p_end=args.pmax,
-        dp=args.dp,
+    yaml_path = paths.mooring_proc_dir(proc_root, args.mooring) / (
+        f"{args.mooring}.mooring.yaml"
     )
+    try:
+        _run(
+            yaml_path,
+            stages=stages,
+            serials=serials,
+            force=args.force,
+            keep_going=args.keep_going,
+            raw_dir=raw_dir,
+            dt_seconds=args.dt,
+            p_start=args.pmin,
+            p_end=args.pmax,
+            dp=args.dp,
+        )
+    except MooringError as e:
+        print(f"ERROR: {e}")
+        return 1
 
-    paths.require_current_layout(proc_root, args.mooring)
     report_ok = _generate_mooring_report(
         args.mooring,
         proc_root=proc_root,
@@ -567,10 +574,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         grid=True,
         stack=True,
     )
-    if not report_ok:
-        overall_ok = False
-
-    return 0 if overall_ok else 1
+    return 0 if report_ok else 1
 
 
 def cmd_validate(args: argparse.Namespace) -> int:
@@ -840,46 +844,43 @@ def _add_dir_args(p: "argparse.ArgumentParser", raw_needed: bool = True) -> None
     )
 
 
-def _add_stack_grid_args(p: "argparse.ArgumentParser") -> None:
+def _add_stack_grid_args(
+    p: "argparse.ArgumentParser", *, from_description: bool = False
+) -> None:
     """Add the shared stack/grid tuning arguments (--dt, --dp, --pmin, --pmax).
-
-    Used by ``process`` and ``run``, which drive the mooring-level stack and grid
-    steps with identical defaults.
 
     Parameters
     ----------
     p : argparse.ArgumentParser
         The subparser to add arguments to.
-
+    from_description : bool, default False
+        Leave the defaults unset (``None``), so the mooring description's
+        ``stack:`` / ``grid:`` blocks apply when a flag is not given (``run``).
+        False keeps the fixed defaults (``process``).
     """
-    p.add_argument(
-        "--dt",
-        type=int,
-        default=60,
-        metavar="SECONDS",
-        help="Stack time-grid interval in seconds (default: 60)",
+    from .pipeline._run import DEFAULTS
+
+    flags = (
+        ("--dt", "dt_seconds", int, "SECONDS", "Stack time-grid interval in seconds"),
+        ("--dp", "dp", float, "DBAR", "Pressure grid spacing in dbar"),
+        ("--pmin", "p_start", float, "DBAR", "Shallowest pressure level for grid"),
+        ("--pmax", "p_end", float, "DBAR", "Deepest pressure level for grid"),
     )
-    p.add_argument(
-        "--dp",
-        type=float,
-        default=20.0,
-        metavar="DBAR",
-        help="Pressure grid spacing in dbar (default: 20)",
-    )
-    p.add_argument(
-        "--pmin",
-        type=float,
-        default=200.0,
-        metavar="DBAR",
-        help="Shallowest pressure level for grid (default: 200)",
-    )
-    p.add_argument(
-        "--pmax",
-        type=float,
-        default=1000.0,
-        metavar="DBAR",
-        help="Deepest pressure level for grid (default: 1000)",
-    )
+    for flag, key, kind, metavar, text in flags:
+        default = DEFAULTS["stack" if key == "dt_seconds" else "grid"][key]
+        where = (
+            f"the description's {'stack' if key == 'dt_seconds' else 'grid'}: "
+            f"block, else {default:g}"
+            if from_description
+            else f"{default:g}"
+        )
+        p.add_argument(
+            flag,
+            type=kind,
+            default=None if from_description else kind(default),
+            metavar=metavar,
+            help=f"{text} (default: {where})",
+        )
 
 
 def _add_shared_report_args(p: "argparse.ArgumentParser") -> None:
@@ -1166,7 +1167,26 @@ def build_parser() -> argparse.ArgumentParser:
         default=[],
         help="Restrict to these serial number(s) for processing and per-instrument reports",
     )
-    _add_stack_grid_args(p_run)
+    p_run.add_argument(
+        "--stage",
+        type=int,
+        nargs="+",
+        choices=[1, 2, 3],
+        default=None,
+        metavar="N",
+        help="Run only these of stages 1-3 before the stack and grid (default: all); "
+        "--stage 2 3 restacks without reading the raw files",
+    )
+    p_run.add_argument(
+        "--strict",
+        action="store_false",
+        dest="keep_going",
+        help="Stop at the first failing stage (exit 1, no report). Without it the "
+        "run carries on past failed instruments and a failed stage 3, stacks "
+        "stage-2 files where stage 3 is missing, and records what was left out; "
+        "the products are provisional (data_mode P) either way.",
+    )
+    _add_stack_grid_args(p_run, from_description=True)
     _add_shared_report_args(p_run)
     p_run.set_defaults(func=cmd_run)
 

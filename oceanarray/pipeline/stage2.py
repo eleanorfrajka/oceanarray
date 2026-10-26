@@ -824,6 +824,7 @@ def _stage2_files(
         except Exception as e:  # noqa: BLE001  — one instrument must not abort the mooring
             log(f"ERROR: {instr_type} {serial}: {e}")
             run.failed.append(f"{instr_type} {serial}: {e}")
+            run.failed_serials.append(serial)
 
     log(
         f"Stage 2 completed: {run.matched - len(run.failed)}/{run.matched} "

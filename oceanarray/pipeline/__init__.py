@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import warnings
 from collections.abc import Callable, Iterable, Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from os import PathLike
 from pathlib import Path
 from typing import Any, Literal
@@ -28,6 +28,7 @@ __all__ = [
     "STAGES",
     "resolve_stage",
     "process",
+    "run",
 ]
 
 Scope = Literal["instrument", "mooring"]
@@ -401,6 +402,7 @@ def process(
     stages: int | str | Iterable[int] = (1, 2, 3),
     serials: Iterable[str] | None = None,
     force: bool = False,
+    keep_going: bool | None = None,
     mooring_dir: PathLike | None = None,
     raw_dir: PathLike | None = None,
     caldip_dir: PathLike | None = None,
@@ -427,6 +429,12 @@ def process(
     force : bool, optional
         Rewrite stage files that already exist (stage 1: that are newer than
         their raw file). Default False keeps them.
+    keep_going : bool or None, optional
+        ``None`` (the default) means True: carry on past failures — a failed instrument is logged and
+        left out, the next stage runs on the instruments that have files, and a
+        stage-3 failure is logged instead of raised. Every stage-3 file is
+        ``data_mode = "P"`` either way. False (strict) raises once a stage has
+        written what worked, and runs nothing after it.
     mooring_dir : os.PathLike or None, optional
         The mooring's own directory; taken from *mooring* when it is a path.
     raw_dir : os.PathLike or None, optional
@@ -452,9 +460,10 @@ def process(
     Raises
     ------
     oceanarray.exceptions.MooringError
-        If the description is invalid, a directory is missing, no instrument
-        matched, or any instrument failed. A stage writes the instruments that
-        succeeded before raising, and the later stages do not run.
+        If the description is invalid, a directory is missing or no instrument
+        matched; with ``keep_going=False`` also if any instrument failed (a stage
+        writes the instruments that succeeded before raising, and the later stages
+        do not run).
     ValueError
         If *stages* names anything but 1, 2 and 3.
 
@@ -465,6 +474,8 @@ def process(
     >>> oa.process(mooring, stages=3, serials=["2941"], force=True)
     """
     if stage is not _UNSET or proc_dir is not None or legacy_kw:
+        if keep_going is not None:
+            raise TypeError("keep_going= needs the new form: process(yaml_path, ...)")
         warnings.warn(
             "process(name, stage, proc_dir=...) is deprecated and will be removed in "
             "0.7.0. Pass the mooring's *.mooring.yaml instead: "
@@ -486,10 +497,73 @@ def process(
             **legacy_kw,
         )
 
+    wanted = _stage_numbers(stages)
+    cfg, moor_dir = _resolve_mooring(mooring, mooring_dir, "process")
+    outcome = _Outcome()
+    _process_stages(
+        cfg,
+        moor_dir,
+        wanted,
+        outcome,
+        serial_list=list(serials) if serials is not None else None,
+        force=force,
+        keep_going=keep_going is not False,
+        raw_dir=raw_dir,
+        caldip_dir=caldip_dir,
+    )
+    return outcome.files
+
+
+@dataclass
+class _Outcome:
+    """What a run of stages 1–3 did, filled in as it goes (so a caller sees it after a raise)."""
+
+    files: list[Path] = field(default_factory=list)
+    written: list[Path] = field(default_factory=list)
+    failures: list[str] = field(default_factory=list)
+    failed_serials: dict[str, str] = field(default_factory=dict)
+    stage3_failed: bool = False
+
+
+def _resolve_mooring(
+    mooring: str | PathLike | Mapping[str, Any],
+    mooring_dir: PathLike | None,
+    caller: str,
+) -> tuple[dict, Path]:
+    """Return the loaded, validated description and the mooring's directory."""
     from oceanarray import mooring as _mooring
     from oceanarray.exceptions import MooringError
-    from oceanarray.logger import StageLog
     from oceanarray.pipeline.read_mooring import _resolve
+
+    if isinstance(mooring, Mapping):
+        if mooring_dir is None:
+            raise MooringError(
+                f"{caller} was given a mooring dict but no mooring_dir=; a dict has "
+                "no location for the stage files — pass mooring_dir=."
+            )
+        cfg, moor_dir = _mooring.load(mooring), Path(mooring_dir)
+    else:
+        cfg, moor_dir = _resolve(mooring, mooring_dir, 1, caller=caller)
+    if not moor_dir.is_dir():
+        raise MooringError(f"Mooring directory not found: {moor_dir}")
+    return cfg, moor_dir
+
+
+def _process_stages(
+    cfg: dict,
+    moor_dir: Path,
+    wanted: list[int],
+    outcome: _Outcome,
+    *,
+    serial_list: list[str] | None,
+    force: bool,
+    keep_going: bool,
+    raw_dir: PathLike | None,
+    caldip_dir: PathLike | None,
+) -> None:
+    """Run *wanted* of stages 1–3, filling *outcome*; raise on failure unless *keep_going*."""
+    from oceanarray.exceptions import MooringError
+    from oceanarray.logger import StageLog
     from oceanarray.pipeline.stage1 import (
         _attach_reader_logs,
         _detach_reader_logs,
@@ -498,22 +572,7 @@ def process(
     from oceanarray.pipeline.stage2 import _stage2_files
     from oceanarray.pipeline.stage3 import _stage3_files
 
-    wanted = _stage_numbers(stages)
-    if isinstance(mooring, Mapping):
-        if mooring_dir is None:
-            raise MooringError(
-                "process was given a mooring dict but no mooring_dir=; a dict has "
-                "no location for the stage files — pass mooring_dir=."
-            )
-        cfg, moor_dir = _mooring.load(mooring), Path(mooring_dir)
-    else:
-        cfg, moor_dir = _resolve(mooring, mooring_dir, 1, caller="process")
-    if not moor_dir.is_dir():
-        raise MooringError(f"Mooring directory not found: {moor_dir}")
     name = cfg["name"]
-    serial_list = list(serials) if serials is not None else None
-
-    files: list[Path] = []
     for n in wanted:
         with StageLog(name, f"stage{n}", moor_dir) as log:
             log(f"Stage {n} for mooring: {name}")
@@ -552,11 +611,19 @@ def process(
                         caldip_dir=caldip_dir,
                         log=log,
                     )
-                except MooringError as e:
-                    log(f"ERROR: {e}")
-                    raise
                 except Exception as e:
-                    log(f"ERROR: Stage 3 failed: {e}")
+                    log(
+                        f"ERROR: {e}"
+                        if isinstance(e, MooringError)
+                        else f"ERROR: Stage 3 failed: {e}"
+                    )
+                    if keep_going:
+                        log("  keep_going: no stage-3 files written; carrying on.")
+                        outcome.failures.append(f"stage 3: {e}")
+                        outcome.stage3_failed = True
+                        continue
+                    if isinstance(e, MooringError):
+                        raise
                     raise MooringError(
                         f"{name}: stage 3 failed (nothing written; see {log.file}): {e}"
                     ) from e
@@ -565,17 +632,31 @@ def process(
             f"{len(run.files) - len(run.written)} kept (already there; force=True "
             "rewrites)"
         )
-        files += run.files
+        outcome.files += run.files
+        outcome.written += run.written
         if run.matched == 0:
             which = f" matching {', '.join(serial_list)}" if serial_list else ""
             raise MooringError(f"{name}: stage {n}: no instrument{which} to process.")
-        if run.failed:
+        if run.failed and keep_going:
+            log(
+                f"  keep_going: stage {n} failed for {len(run.failed)} of "
+                f"{run.matched} instrument(s); carrying on without them:\n  - "
+                + "\n  - ".join(run.failed)
+            )
+            outcome.failures += [f"stage {n}: {f}" for f in run.failed]
+            for serial in run.failed_serials:
+                outcome.failed_serials.setdefault(serial, f"failed in stage {n}")
+        elif run.failed:
             raise MooringError(
                 f"{name}: stage {n} failed for {len(run.failed)} of {run.matched} "
                 f"instrument(s) (the rest were written; see {log.file}):\n  - "
                 + "\n  - ".join(run.failed)
             )
-    return files
+    if outcome.failures:
+        print(
+            f"WARNING: {name}: {len(outcome.failures)} failure(s) left behind by "
+            "keep_going (see the stage logs):\n  - " + "\n  - ".join(outcome.failures)
+        )
 
 
 def _stage_numbers(stages: int | str | Iterable[int]) -> list[int]:
@@ -594,3 +675,6 @@ def _stage_numbers(stages: int | str | Iterable[int]) -> list[int]:
             "(stack and grid are oceanarray.run)"
         )
     return sorted(set(items))
+
+
+from oceanarray.pipeline._run import run  # noqa: E402  — run composes process

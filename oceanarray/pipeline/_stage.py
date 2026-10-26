@@ -38,6 +38,8 @@ class StageRun:
         because it was already there, in the description's order.
     failed : list of str
         One message per instrument that failed, naming it.
+    failed_serials : list of str
+        The (cleaned) serials of those instruments.
     matched : int
         The instruments the stage was asked to process (skipped ones included).
     """
@@ -45,6 +47,7 @@ class StageRun:
     written: list[Path] = field(default_factory=list)
     files: list[Path] = field(default_factory=list)
     failed: list[str] = field(default_factory=list)
+    failed_serials: list[str] = field(default_factory=list)
     matched: int = 0
 
 

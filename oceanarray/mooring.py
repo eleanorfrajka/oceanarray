@@ -24,6 +24,7 @@ The file shape is a cross-package contract (moordiag reads the same file), so
 """
 
 import logging
+import math
 from collections.abc import Iterable, Mapping
 from os import PathLike
 from pathlib import Path
@@ -80,8 +81,18 @@ KNOWN_KEYS: frozenset[str] = frozenset(
         "clamp",
         "instruments",
         "inline",
+        # optional stack / grid settings for oceanarray.run (``_check_settings``)
+        "stack",
+        "grid",
     }
 )
+
+#: The keys each optional settings block may hold, and whether the value must be
+#: an integer.
+_SETTINGS_KEYS: dict[str, dict[str, bool]] = {
+    "stack": {"dt_seconds": True},
+    "grid": {"p_start": False, "p_end": False, "dp": False},
+}
 
 REQUIRED_KEYS: list[str] = validation.REQUIRED_MOORING_KEYS
 
@@ -203,6 +214,7 @@ def check(
     issues = list(validation.validate_mooring(data, dir_name=dir_name))
 
     if isinstance(data, Mapping):
+        issues += _check_settings(data)
         for key in data:
             if key not in KNOWN_KEYS:
                 issues.append(
@@ -211,6 +223,69 @@ def check(
                         f"Unknown top-level key '{key}' — not one of the recognised "
                         f"mooring keys. Check the spelling; it is ignored by the "
                         f"pipeline.",
+                    )
+                )
+    return issues
+
+
+def _check_settings(data: Mapping) -> list[ValidationIssue]:
+    """Return ERRORs for a malformed ``stack:`` or ``grid:`` block (both optional)."""
+    issues: list[ValidationIssue] = []
+    for block, allowed in _SETTINGS_KEYS.items():
+        if block not in data or data[block] is None:
+            continue
+        value = data[block]
+        if not isinstance(value, Mapping):
+            issues.append(
+                ValidationIssue(
+                    "ERROR",
+                    f"'{block}:' must be a mapping of {', '.join(allowed)}; "
+                    f"got {value!r}.",
+                )
+            )
+            continue
+        for key, setting in value.items():
+            if key not in allowed:
+                issues.append(
+                    ValidationIssue(
+                        "ERROR",
+                        f"'{block}: {key}' is not a {block} setting; expected one of "
+                        f"{', '.join(allowed)}.",
+                    )
+                )
+                continue
+            integer = allowed[key]
+            ok = (
+                isinstance(setting, int)
+                if integer
+                else isinstance(setting, int | float)
+            )
+            if (
+                isinstance(setting, bool)
+                or not ok
+                or not math.isfinite(setting)
+                or setting < 0
+            ):
+                kind = (
+                    "a non-negative integer"
+                    if integer
+                    else "a finite non-negative number"
+                )
+                issues.append(
+                    ValidationIssue(
+                        "ERROR", f"'{block}: {key}' must be {kind}; got {setting!r}."
+                    )
+                )
+        if block == "stack" and value.get("dt_seconds") == 0:
+            issues.append(ValidationIssue("ERROR", "'stack: dt_seconds' must be > 0."))
+        if block == "grid":
+            p0, p1, step = (value.get(k) for k in ("p_start", "p_end", "dp"))
+            if step == 0:
+                issues.append(ValidationIssue("ERROR", "'grid: dp' must be > 0."))
+            if isinstance(p0, int | float) and isinstance(p1, int | float) and p1 <= p0:
+                issues.append(
+                    ValidationIssue(
+                        "ERROR", f"'grid: p_end' ({p1}) must be above p_start ({p0})."
                     )
                 )
     return issues
