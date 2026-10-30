@@ -165,7 +165,10 @@ def interp_pressure_for_hab(
             method = (
                 f"extrapolated from {src['instrument']} {src['serial']} "
                 f"(hab={src['hab']:.1f}m, "
-                f"static offset={hab_offset_dbar:+.1f} dbar) — WARNING: out of range"
+                f"static offset={hab_offset_dbar:+.1f} dbar) — WARNING: out of range: "
+                f"hab {hab_t:.1f} m is {'above' if below else 'below'} every pressure "
+                f"source (hab {habs.min():.1f}–{habs.max():.1f} m): not bracketed; the "
+                "offset takes 1 m of hab as 1 dbar and assumes the line stays upright"
             )
             if log_fn:
                 log_fn(f"  WARNING: {serial} (hab={hab_t:.1f}m): {method}")

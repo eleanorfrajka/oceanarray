@@ -55,6 +55,8 @@ All notable changes to oceanarray are documented here.
 
 ### Fixed
 
+- The stack report's Hydrography and Velocity panels left out values flagged nominal (7) or interpolated (8), so a sensorless instrument's interpolated pressure was missing from the pressure row; they now leave out only flags 3, 4 and 9 (`parameters.QC_BAD_FLAGS`). Both panels now carry their `source:` caption.
+- An extrapolated pressure's `pressure_source` says what it is out of range of: the target's height above bottom against the range the pressure sources span.
 - The netCDF writer stores `bool` attributes as `int8` (0/1) instead of failing: netCDF has no boolean attribute type.
 - A Nortek header whose coordinate system cannot be read is now marked `coordinate_system = "UNK"` instead of being assumed `"ENU"`, and stage 3 refuses to rotate `UNK` velocities (with a WARNING) rather than passing them through as if geographic. Previously a BEAM/XYZ instrument with an unrecognised header was silently labelled ENU, skipping the BEAM→ENU transform and magnetic-declination correction — a silent physical error in the velocity output.
 

@@ -684,14 +684,14 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 <p class="caption">Pressure, temperature and salinity for the full deployment — one row each on a shared time axis. One colour per instrument (shared across rows, ordered by height) so a line can be followed through all three panels; the single legend spans the union of instruments. Values with QC flag ≥ 3 (suspect/bad) masked to NaN; ADCP excluded from pressure.</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig" src="data:image/png;base64,<PNG>" alt="hydro_pts">
-</details>
+</details><div class="fig-source">source: oceanarray/reports/_stack.py:generate_stack_page</div>
 
 <h2 id="velocity">(4) Velocity</h2>
 
 <p class="caption">Eastward (U), northward (V) and upward (W) velocity in the ENU frame — one row each on a shared time axis, one colour per instrument (shared across rows, ordered by height) with a single legend over the union of instruments. Values with velocity_flag ≥ 3 masked to NaN; instruments without velocity data omitted.</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig" src="data:image/png;base64,<PNG>" alt="vel_uvw">
-</details>
+</details><div class="fig-source">source: oceanarray/reports/_stack.py:generate_stack_page</div>
 
 <h2 id="trajectories">(5) Particle trajectories</h2>
 

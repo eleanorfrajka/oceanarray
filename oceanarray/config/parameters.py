@@ -136,6 +136,11 @@ QC_MERGE_PRIORITY_LUT = np.array(
 # flag_values as int8 (CF wants it to match the int8 flag variable dtype).
 QC_FLAG_VALUES_I8 = np.array(QC_FLAG_VALUES, dtype="int8")
 
+# Flags whose values a plot leaves out: potentially_correctable_bad (3), bad (4) and
+# missing (9). nominal (7) and interpolated (8) are kept — an interpolated pressure
+# is the instrument's pressure, and dropping it hides a sensorless instrument.
+QC_BAD_FLAGS = (3, 4, 9)
+
 # ---------------------------------------------------------------------------
 # QARTOD gross-range test thresholds (global ocean defaults).
 #

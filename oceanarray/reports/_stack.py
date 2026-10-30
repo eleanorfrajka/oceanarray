@@ -52,6 +52,7 @@ from ._plots import (
 )
 from ._slots import render as render_slot
 from ._vendored import design_tokens as report_tokens
+from ._vendored.figure_png import record_source, source_for
 from ._vendored.page_model import Panel, Profile, Section, resolve
 
 # ---------------------------------------------------------------------------
@@ -712,7 +713,7 @@ def generate_stack_page(
             qc_varname = f"{varname}_qc"
             if qc_varname in ds.data_vars:
                 qc = ds[qc_varname].values
-                arr[qc >= 3] = np.nan
+                arr[np.isin(qc, params.QC_BAD_FLAGS)] = np.nan
             _serial_colors, _serial_styles = _var_line_styling(varname)
             with plt.style.context(str(params.MPLSTYLE)):
                 fig, ax = plt.subplots(figsize=(report_tokens.W_FULL, 2.56))
@@ -782,6 +783,7 @@ def generate_stack_page(
                 # while the plot keeps its full height.
                 b64 = _fig_to_base64(fig)
                 _figdebug.record(b64, f"_ts_fig[{varname}]", fig)
+                record_source(b64, source_for(_ts_fig))
                 plt.close(fig)
                 return b64
 
@@ -816,7 +818,7 @@ def generate_stack_page(
                     _a = ds[_var].values.copy()
                     _qcv = f"{_var}_qc"
                     if _qcv in ds.data_vars:
-                        _a[ds[_qcv].values >= 3] = np.nan
+                        _a[np.isin(ds[_qcv].values, params.QC_BAD_FLAGS)] = np.nan
                     for _i in range(n_instr):
                         if _excl and instr_types[_i].lower() in _excl:
                             continue
@@ -875,6 +877,7 @@ def generate_stack_page(
                     )
                 b64 = _fig_to_base64(fig)
                 _figdebug.record(b64, f"_combined[{_color_var}]", fig)
+                record_source(b64, source_for(_combined_ts_fig))
                 plt.close(fig)
                 return b64
 
