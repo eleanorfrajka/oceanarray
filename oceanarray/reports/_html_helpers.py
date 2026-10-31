@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import base64
 import contextlib
-import io
 import re
 from collections.abc import Callable, Mapping
 from datetime import datetime
@@ -16,7 +15,6 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-from PIL import Image
 
 from oceanarray import paths
 
@@ -220,34 +218,6 @@ def _should_skip(
 ) -> bool:
     """Decide whether to skip regenerating *output* (see :func:`should_skip_regeneration`)."""
     return should_skip_regeneration(output, force, skip_existing, *sources)
-
-
-def _fig_to_base64(fig: Any) -> str:
-    """Return *fig* as a base64-encoded, palette-quantized PNG.
-
-    dpi is taken from the active mplstyle's ``savefig.dpi`` — there is no local
-    override, so the style file is the single source of truth for figure dpi.
-    (Displayed font size is independent of dpi anyway; it is fixed by the
-    figsize<->display-slot ratio, see ``parameters.W_FULL`` etc.  dpi is only a
-    size/crispness knob.)
-
-    The PNG is composited onto white (report backgrounds are white, so the alpha
-    channel carries nothing) and quantized to a 256-colour palette.  Report
-    figures are few-colour by construction — line art plus *discrete* colorbars
-    (``_nice_colorbar_bounds``, max 20 levels) — so indexed PNG is ~visually
-    lossless here and cuts figure bytes ~3x, the dominant lever on report/PDF
-    size.  A continuous colorbar would band; report style forbids those.
-    """
-    buf = io.BytesIO()
-    fig.savefig(buf, format="png", bbox_inches="tight")
-    buf.seek(0)
-    im = Image.open(buf).convert("RGBA")
-    background = Image.new("RGBA", im.size, (255, 255, 255, 255))
-    rgb = Image.alpha_composite(background, im).convert("RGB")
-    quantized = rgb.quantize(colors=256, method=Image.FASTOCTREE)
-    out = io.BytesIO()
-    quantized.save(out, "PNG", optimize=True)
-    return base64.b64encode(out.getvalue()).decode("ascii")
 
 
 def _load_pdf_b64(path: Path | None) -> str | None:

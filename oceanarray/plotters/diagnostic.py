@@ -1727,3 +1727,50 @@ def draw_velocity_iqr_profile(
         pass
 
     return fig
+
+
+def draw_instrument_spacing(
+    ds: xr.Dataset, *, width_in: float = report_tokens.W_THIRD
+) -> plt.Figure | None:
+    """Histogram of the pressure spacing between adjacent instrument levels.
+
+    Levels are ordered by their median pressure; at each time step the pressure
+    difference between each adjacent pair is counted. Pairs under 2 dbar apart
+    are left out as co-located.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A stack with ``pressure`` on ``(time, N_LEVELS)``.
+    width_in : float, optional
+        Figure width in inches -- the display-slot width the report builder
+        resolves; standalone callers get a third of the content width.
+
+    Returns
+    -------
+    matplotlib.figure.Figure or None
+        ``None`` when there is no pressure, fewer than two levels, or no pair
+        2 dbar or more apart.
+    """
+    import matplotlib.pyplot as plt
+
+    from ..config.unit_tables import warn_if_not_canonical
+
+    if "pressure" not in ds.data_vars or ds.sizes.get("N_LEVELS", 0) < 2:
+        return None
+    # The spacing axis is labelled dbar; it is a difference of pressures.
+    warn_if_not_canonical(ds["pressure"], "dbar", quantity="instrument spacing (dbar)")
+    pressure = ds["pressure"].values  # (time, N_LEVELS)
+    with np.errstate(all="ignore"):
+        median = np.nanmedian(pressure, axis=0)  # NaN when a level is fully gapped
+    ordered = pressure[:, np.argsort(median)]
+    spacing = np.diff(ordered, axis=1).ravel()
+    spacing = spacing[np.isfinite(spacing) & (spacing >= 2.0)]
+    if spacing.size == 0:
+        return None
+    fig, ax = plt.subplots(figsize=(width_in, 3))
+    ax.hist(spacing, bins=60, color="steelblue", edgecolor="white")
+    ax.set_xlabel("Instrument spacing (dbar)")
+    ax.set_ylabel("Count (instrument pair × time step)")
+    plot_title(ax, "Instrument spacing")
+    return fig

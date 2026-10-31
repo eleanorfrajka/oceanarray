@@ -3,13 +3,13 @@
 Provides colormap helpers and rose-diagram rendering used across multiple
 Tier-2 plotter modules.
 
-Note: _fig_to_base64 stays in reports/_html_helpers.py (called only by
-Tier-3 wrappers in reports/_plots.py; plotters/ never serialises to base64).
+plotters/ never serialises to base64: the Tier-3 wrappers in reports/_plots.py
+encode each figure through the shared report encoder.
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -89,6 +89,47 @@ def grid_despine(ax: plt.Axes, *, axis: str = "both") -> None:
     ax.grid(True, axis=axis)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
+
+
+def level_line_styles(
+    serials: list[str], varname: str
+) -> tuple[dict[str, Any], dict[str, str]]:
+    """Return per-serial ``(colours, linestyles)`` for one variable's level lines.
+
+    *serials* are in the order to colour them (deep-first on a stack). They are
+    mapped onto the variable's **line** colormap
+    (:data:`parameters.LINE_CMAPS_BY_VARIABLE`, falling back to the field map then
+    viridis), so temperature runs from the cold/deep (blue) end to the
+    warm/shallow (red) end and pressure from dark to lighter blue. Each colour is
+    shared by a consecutive **pair** of serials told apart by linestyle (solid,
+    then dashed), which halves the number of distinct colours so the ramp stays
+    legible for many instruments. Washed-out colours are skipped by luminance
+    (:func:`ordered_line_colors`).
+
+    Parameters
+    ----------
+    serials : list of str
+        Instrument serials, in colouring order.
+    varname : str
+        The variable whose line colormap is used.
+
+    Returns
+    -------
+    tuple of dict
+        ``{serial: colour}`` and ``{serial: linestyle}``.
+    """
+    from .. import parameters as params
+
+    cmap_name = (
+        params.LINE_CMAPS_BY_VARIABLE.get(varname)
+        or params.CMAPS_BY_VARIABLE.get(varname)
+        or "viridis"
+    )
+    ladder = ["-", "--"]
+    pair_colors = ordered_line_colors(cmap_name, max(1, (len(serials) + 1) // 2))
+    colors = {s: pair_colors[i // len(ladder)] for i, s in enumerate(serials)}
+    styles = {s: ladder[i % len(ladder)] for i, s in enumerate(serials)}
+    return colors, styles
 
 
 def ordered_line_colors(cmap_name: str, n: int, *, max_luminance: float = 0.72) -> list:

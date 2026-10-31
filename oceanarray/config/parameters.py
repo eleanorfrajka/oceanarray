@@ -37,6 +37,10 @@ PACKAGE_NAME = "oceanarray"
 #: not render over-tall.
 GRID_PANEL_ROW_IN: float = 2.5
 
+#: Height (inches) of one row of the stack report's time-series figures (one
+#: line per instrument level on a shared time axis).
+STACK_PANEL_ROW_IN: float = 2.56
+
 # ---------------------------------------------------------------------------
 # Matplotlib style path (used by plotters via plt.style.use).  The single source
 # of truth — the same vendored file the report encoder applies

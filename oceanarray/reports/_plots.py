@@ -31,6 +31,7 @@ from ..plotters.diagnostic import (
     _PANEL_HEIGHT,
     _instrument_panels,
     draw_data_histogram,
+    draw_instrument_spacing,
     draw_velocity_iqr_profile,
     draw_windows,
 )
@@ -61,6 +62,7 @@ from ..plotters.timeseries import (
     draw_grid_sigma,
     draw_grid_timeseries,
     draw_grid_velocity_stacked,
+    draw_stack_timeseries,
 )
 from ..plotters.ts import (
     draw_grid_ts_diagram,
@@ -71,6 +73,7 @@ from ._figdebug import render_b64
 from ._html_helpers import _QC_LABELS
 from ._slots import render as render_slot
 from ._vendored import design_tokens as report_tokens
+from ._vendored.figure_png import source_for
 
 log = logging.getLogger(__name__)
 
@@ -405,6 +408,7 @@ def _make_instrument_fig(
                     ds, instr_type, show_qc=show_qc, panels=c
                 ),
                 optional=True,
+                source=source_for(_build_fig_from_ds),
             )
             if b64:
                 images.append(b64)
@@ -577,7 +581,12 @@ def _make_grid_ts_diagram(ds: xr.Dataset, n_bins: int = 60) -> tuple[str | None,
     # Displayed at half width (template slot-half); rendering at that width keeps
     # the PNG px == display px.  With O₂ the diagram gains a panel but the page
     # still shows it at half — same as before U0.2, now without the oversample.
-    return render_slot(_draw, slot="half", optional=True), ts_bounds
+    return (
+        render_slot(
+            _draw, slot="half", optional=True, source=source_for(draw_grid_ts_diagram)
+        ),
+        ts_bounds,
+    )
 
 
 def _make_velocity_iqr_profile_b64(ds: xr.Dataset) -> str | None:
@@ -605,7 +614,7 @@ def _make_rose_grid_b64(
         fig, n_panels = result
         return fig
 
-    return render_b64(_draw, optional=True), n_panels
+    return render_b64(_draw, optional=True, source=source_for(draw_rose_grid)), n_panels
 
 
 def _make_grid_rose_b64(ds: xr.Dataset, max_roses: int = 4) -> str | None:
@@ -654,7 +663,9 @@ def _make_temperature_trajectory(nc_path: str) -> str | None:
         with xr.open_dataset(nc_path) as ds:
             return plot_temperature_trajectory(ds)
 
-    return render_b64(_draw, optional=True)
+    return render_b64(
+        _draw, optional=True, source=source_for(plot_temperature_trajectory)
+    )
 
 
 def _make_speed_boxplot(nc_path: str) -> str | None:
@@ -667,7 +678,9 @@ def _make_speed_boxplot(nc_path: str) -> str | None:
         with xr.open_dataset(nc_path) as ds:
             return plot_speed_boxplot(ds, width_in=width_in)
 
-    return render_slot(_draw, slot="quarter", optional=True)
+    return render_slot(
+        _draw, slot="quarter", optional=True, source=source_for(plot_speed_boxplot)
+    )
 
 
 def _make_hodograph_b64(nc_path: str) -> str | None:
@@ -685,7 +698,7 @@ def _make_hodograph_b64(nc_path: str) -> str | None:
         with xr.open_dataset(nc_path) as ds:
             return plot_hodograph(ds)
 
-    return render_b64(_draw)
+    return render_b64(_draw, source=source_for(plot_hodograph))
 
 
 def _make_multi_aquadopp_trajectories(ds: xr.Dataset) -> str | None:
@@ -697,6 +710,36 @@ def _make_multi_aquadopp_trajectories(ds: xr.Dataset) -> str | None:
     from oceanarray.plotters.current import plot_multi_aquadopp_trajectories
 
     return render_slot(plot_multi_aquadopp_trajectories, ds, slot="half", optional=True)
+
+
+def _make_stack_timeseries_b64(
+    ds: xr.Dataset,
+    rows: list[tuple[str, str, bool, set[str] | None]],
+    *,
+    color_var: str,
+    dot_overlay: bool = False,
+) -> str | None:
+    """Stack time series (one row per variable, one line per level), full width, for the stack page."""
+    return render_slot(
+        draw_stack_timeseries,
+        ds,
+        rows,
+        color_var=color_var,
+        dot_overlay=dot_overlay,
+        optional=True,
+    )
+
+
+def _make_aquadopp_tilt_panels(ds: xr.Dataset, step: int = 1) -> str | None:
+    """|pitch|, |roll| and pressure tilt per Aquadopp, full width, for the stack page."""
+    from oceanarray.plotters.current import draw_aquadopp_tilt_panels
+
+    return render_slot(draw_aquadopp_tilt_panels, ds, step=step, optional=True)
+
+
+def _make_instrument_spacing_b64(ds: xr.Dataset) -> str | None:
+    """Adjacent-instrument pressure spacing histogram, a third wide, for the stack page."""
+    return render_slot(draw_instrument_spacing, ds, slot="third", optional=True)
 
 
 def _make_aquadopp_speed_profile(ds: xr.Dataset) -> str | None:

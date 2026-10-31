@@ -26,6 +26,7 @@ import numpy as np
 from oceanarray.reports._vendored import design_tokens as report_tokens
 from oceanarray.utilities import _nice_colorbar_bounds, period_axis_ticks
 
+from .. import parameters as params
 from ..analysis.spectral import gonella_rotary_spectrum
 from ..config.unit_tables import unit_label, warn_if_not_canonical
 from .helpers import grid_despine
@@ -816,7 +817,7 @@ def draw_grid_rotary_spectrum(
     arr_u = east_da.values.copy()  # (pressure, time)
     arr_v = north_da.values.copy()
 
-    # Apply QC flags (>= 3 -> NaN)
+    # Apply QC flags (QC_BAD_FLAGS -> NaN)
     for _qc_var, _arr in (
         ("east_velocity_qc", arr_u),
         ("north_velocity_qc", arr_v),
@@ -826,7 +827,7 @@ def draw_grid_rotary_spectrum(
             if _qc.ndim == arr_u.ndim:
                 if ds[_qc_var].dims[0] != "pressure":
                     _qc = _qc.T
-                _arr[_qc >= 3] = np.nan
+                _arr[np.isin(_qc, params.QC_BAD_FLAGS)] = np.nan
 
     press_vals = ds.coords["pressure"].values.astype(float)
     n_lev, n_time = arr_u.shape

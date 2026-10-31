@@ -25,6 +25,7 @@ All notable changes to oceanarray are documented here.
 
 ### Changed
 
+- The stack page's figures are drawn by `plotters` functions instead of inside the page builder: `plotters.timeseries.draw_stack_timeseries` (the P/T/S and U/V/W panels, oxygen, turbidity), `plotters.diagnostic.draw_instrument_spacing` and `plotters.current.draw_aquadopp_tilt_panels`, with the shared per-level line colours in `plotters.helpers.level_line_styles`. The time-series figures now render at the full slot width with the legend inside the canvas (they were cropped to a tight box around an outside legend, so the page rescaled them), and every figure's `source:` caption names its draw function.
 - Stages 1, 2 and 3 return their datasets holding the values their files will hold — float64 stored as float32 (time and position excepted), time rounded to the file's float64-seconds encoding — so a dataset passed on in memory equals the same file read back, and a full run and a later single-stage re-run agree exactly. Written files are unchanged. `oceanarray.writers.netcdf.as_stored(ds)` does the conversion.
 - Stage 3 always reads the whole mooring's stage-2 files and writes only the instruments asked for (`serials=` / `--serials`). Before, a run for one sensorless instrument read only its own file, found no pressure source, and wrote it without pressure.
 - Required mooring-config keys are now `name` and `waterdepth` only; `deployment_time` and `recovery_time` are recommended — absent, they produce a WARNING (Stage 2 can detect the window from the records) rather than the ERROR `validate` used to report.
@@ -55,6 +56,8 @@ All notable changes to oceanarray are documented here.
 
 ### Fixed
 
+- On phones the report text no longer changes size between full-width and half-width sections: browser text autosizing is turned off (`text-size-adjust: 100%`), so every class renders at the size the stylesheet sets.
+- Every report plot now leaves out only QC flags 3, 4 and 9 (`parameters.QC_BAD_FLAGS`): ADCP/Aquadopp current plots, roses, spectra and the grid velocity panels hid nominal (7) and interpolated (8) values too; the instrument rose's "good" panel (flags ≤ 2) now takes every usable flag (0–2, 7, 8).
 - The stack report's Hydrography and Velocity panels left out values flagged nominal (7) or interpolated (8), so a sensorless instrument's interpolated pressure was missing from the pressure row; they now leave out only flags 3, 4 and 9 (`parameters.QC_BAD_FLAGS`). Both panels now carry their `source:` caption.
 - An extrapolated pressure's `pressure_source` says what it is out of range of: the target's height above bottom against the range the pressure sources span.
 - The netCDF writer stores `bool` attributes as `int8` (0/1) instead of failing: netCDF has no boolean attribute type.

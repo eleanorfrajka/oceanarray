@@ -87,8 +87,9 @@ INSTRUMENT_CAPTIONS: dict[str, str] = {
         "declination is applied at stage 3 only."
     ),
     "rose": (
-        "ENU panels split by QARTOD flag: good (flag ≤ 2, Blues), suspect "
-        "(flag 3, Oranges), fail (flag 4, Reds). Direction toward which the "
+        "ENU panels split by QC flag: usable (flags 0–2, 7 nominal, 8 "
+        "interpolated; Blues), suspect (flag 3, Oranges), fail (flag 4, Reds); "
+        "missing (9) not drawn. Direction toward which the "
         "current flows; 0° = N, clockwise."
     ),
     "trajectory": (

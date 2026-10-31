@@ -61,7 +61,7 @@ def record(b64: str | None, func: str, fig: Any) -> None:
         when falsy.
     func : str
         A label for the code that drew the figure (draw function name, or a
-        ``"_ts_fig[var]"``-style tag for the stack panels).
+        ``"_combined[var]"``-style tag).
     fig : matplotlib.figure.Figure
         The figure, read for its size in inches.
 

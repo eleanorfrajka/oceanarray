@@ -15,6 +15,7 @@ Public draw_* functions (migrated from report/_plots.py):
 - draw_adcp_rose: current rose panels for an ADCP per-instrument report.
 - draw_adcp_hodograph: two-depth hodograph for an ADCP per-instrument report.
 - draw_grid_hodograph: two-depth hodograph for the grid report.
+- draw_aquadopp_tilt_panels: |pitch|, |roll| and pressure tilt per Aquadopp for the stack report.
 """
 
 from __future__ import annotations
@@ -30,7 +31,11 @@ from matplotlib.collections import LineCollection
 
 from oceanarray import parameters as params
 from oceanarray.analysis.vector import progressive_vector, xyz_to_enu_2d
-from oceanarray.config.unit_tables import unit_label, warn_if_not_canonical
+from oceanarray.config.unit_tables import (
+    unit_label,
+    var_unit_label,
+    warn_if_not_canonical,
+)
 from oceanarray.plotters.helpers import (
     _rose_ax,
     _velocity_panel_style,
@@ -40,6 +45,7 @@ from oceanarray.plotters.helpers import (
 from oceanarray.plotters.primitives import (
     colorbar_norm,
     date_axis,
+    date_offset_left,
     figure_title,
     hodograph_panel,
     plot_title,
@@ -624,7 +630,7 @@ def plot_adcp_trajectories(
     """Lagrangian per-bin trajectories for ADCP data, coloured by HAB.
 
     Each depth bin integrated by Euler-forward from the origin.  Bins that are
-    entirely below the seabed (all seabed_qc >= 3) are silently omitted.  QC
+    entirely below the seabed (every seabed_qc flag bad) are silently omitted.  QC
     masking is applied before integration so bad pings are treated as zero
     velocity (do not accumulate spurious displacement).
 
@@ -638,9 +644,9 @@ def plot_adcp_trajectories(
     instr_type_var, hab_var : str
         Coordinate variable names.
     seabed_qc_var : str
-        QC variable for seabed proximity; bins with all values >= 3 are skipped.
+        QC variable for seabed proximity; bins with every flag bad (``QC_BAD_FLAGS``) are skipped.
     percent_good_qc_var : str
-        Ping-quality QC; timesteps flagged >= 3 are zeroed before integration.
+        Ping-quality QC; timesteps with a bad flag (``QC_BAD_FLAGS``) are zeroed before integration.
     width_in : float, optional
         Figure width in inches -- the display-slot width the report builder
         resolves; standalone callers get the full content width.
@@ -678,16 +684,16 @@ def plot_adcp_trajectories(
         if seabed_qc_var in ds.data_vars:
             sqc = ds[seabed_qc_var].values[:, i]
             # Skip bins that are always below the seabed
-            if np.all(sqc >= 3):
+            if np.all(np.isin(sqc, params.QC_BAD_FLAGS)):
                 continue
-            u[sqc >= 3] = np.nan
-            v[sqc >= 3] = np.nan
+            u[np.isin(sqc, params.QC_BAD_FLAGS)] = np.nan
+            v[np.isin(sqc, params.QC_BAD_FLAGS)] = np.nan
 
         # Mask by ping quality
         if percent_good_qc_var in ds.data_vars:
             pqc = ds[percent_good_qc_var].values[:, i]
-            u[pqc >= 3] = np.nan
-            v[pqc >= 3] = np.nan
+            u[np.isin(pqc, params.QC_BAD_FLAGS)] = np.nan
+            v[np.isin(pqc, params.QC_BAD_FLAGS)] = np.nan
 
         # NaN → 0 for integration (no displacement during missing pings)
         x = (
@@ -808,12 +814,14 @@ def draw_instrument_rose(
             n[~flag_mask] = np.nan
             return e, n
 
-        good_mask = qc <= 2
+        # Every flag but 3, 4 and 9 (params.QC_BAD_FLAGS) is usable: good (1),
+        # probably good (2), unknown (0), nominal (7) and interpolated (8).
+        good_mask = ~np.isin(qc, params.QC_BAD_FLAGS)
         susp_mask = qc == 3
         fail_mask = qc == 4
 
         decl_str = f"{float(decl):+.1f}°" if decl is not None else "?"
-        enu_title = f"ENU true (decl = {decl_str})\nflag ≤ 2 (good)"
+        enu_title = f"ENU true (decl = {decl_str})\nflags 0–2, 7, 8 (usable)"
         if np.any(np.isfinite(e_all[good_mask])):
             panels.append((*_masked(good_mask), enu_title, "Blues"))
         if np.any(np.isfinite(e_all[susp_mask])):
@@ -891,8 +899,8 @@ def draw_rose_grid(
 
     # Mask suspect/bad data from all available QC variables before plotting roses.
     # seabed_qc handles ADCP bins below the seafloor; percent_good_qc and
-    # error_velocity_qc handle low-quality ADCP pings.  Any flag >= 3
-    # (suspect or worse) is treated as invalid.
+    # error_velocity_qc handle low-quality ADCP pings.  A flag in QC_BAD_FLAGS (3, 4, 9) is
+    # treated as invalid; nominal (7) and interpolated (8) are kept.
     for _qc_var in (
         "east_velocity_qc",
         "seabed_qc",
@@ -902,8 +910,8 @@ def draw_rose_grid(
         if _qc_var in ds.data_vars:
             _qc = ds[_qc_var].values
             if _qc.shape == east_all.shape:
-                east_all[_qc >= 3] = np.nan
-                north_all[_qc >= 3] = np.nan
+                east_all[np.isin(_qc, params.QC_BAD_FLAGS)] = np.nan
+                north_all[np.isin(_qc, params.QC_BAD_FLAGS)] = np.nan
 
     has_vel = [np.any(np.isfinite(east_all[:, i])) for i in range(east_all.shape[1])]
     hab_vals = ds.coords["hab"].values if "hab" in ds.coords else None
@@ -1043,8 +1051,8 @@ def draw_grid_rose(
         if _qc_var in ds.data_vars:
             _qc = ds[_qc_var].values
             if _qc.shape == east_all.shape:
-                east_all[_qc >= 3] = np.nan
-                north_all[_qc >= 3] = np.nan
+                east_all[np.isin(_qc, params.QC_BAD_FLAGS)] = np.nan
+                north_all[np.isin(_qc, params.QC_BAD_FLAGS)] = np.nan
 
     pressure = ds["pressure"].values  # 1-D (n_levels,)
     valid_idx = [k for k in range(len(pressure)) if np.any(np.isfinite(east_all[:, k]))]
@@ -1128,7 +1136,7 @@ def draw_grid_trajectory(
     for _qv, _dv in (("east_velocity_qc", east), ("north_velocity_qc", north)):
         if _qv in ds.data_vars:
             _qc = ds[_qv].values
-            _dv[_qc >= 3] = np.nan
+            _dv[np.isin(_qc, params.QC_BAD_FLAGS)] = np.nan
 
     # Build one trajectory per pressure level; skip levels with all-NaN velocity
     trajs = progressive_vector(east, north, dt, pressure)
@@ -1206,7 +1214,7 @@ def draw_adcp_velocity(
     Diverging panels (east/north/up/error) share symmetric colormap bounds set to
     ±max(``|2nd pctile|``, ``|98th pctile|``) of all finite ENU velocity values.
 
-    Bins flagged at or below the seabed (``seabed_qc >= 3``) are masked to NaN.
+    Bins flagged at or below the seabed (``seabed_qc`` in ``QC_BAD_FLAGS``) are masked to NaN.
     Y-axis (range coordinate) is inverted for downward-looking instruments (pressure
     increases into the page); non-inverted for upward-looking.
 
@@ -1256,7 +1264,9 @@ def draw_adcp_velocity(
         # (time, N_BINS) arrays before plotting.  Done after speed/direction
         # are computed so they are masked consistently.
         if "seabed_qc" in ds.data_vars:
-            seabed_mask = ds["seabed_qc"].values >= 3  # (time, N_BINS)
+            seabed_mask = np.isin(
+                ds["seabed_qc"].values, params.QC_BAD_FLAGS
+            )  # (time, N_BINS)
             masked_arrays = {}
             for k, v in arrays.items():
                 arr = v if isinstance(v, np.ndarray) else v.values
@@ -1696,9 +1706,15 @@ def draw_grid_hodograph(
 
     # Apply QC masking where companion QC variables are present
     if "east_velocity_qc" in ds:
-        east_2d = np.where(ds["east_velocity_qc"].values >= 3, np.nan, east_2d)
+        east_2d = np.where(
+            np.isin(ds["east_velocity_qc"].values, params.QC_BAD_FLAGS), np.nan, east_2d
+        )
     if "north_velocity_qc" in ds:
-        north_2d = np.where(ds["north_velocity_qc"].values >= 3, np.nan, north_2d)
+        north_2d = np.where(
+            np.isin(ds["north_velocity_qc"].values, params.QC_BAD_FLAGS),
+            np.nan,
+            north_2d,
+        )
 
     if "pressure" in ds.coords:
         pressure = ds.coords["pressure"].values
@@ -1771,4 +1787,216 @@ def draw_grid_hodograph(
     elif cax is not None:
         cax.set_visible(False)
 
+    return fig
+
+
+def draw_aquadopp_tilt_panels(
+    ds: xr.Dataset, *, step: int = 1, width_in: float = report_tokens.W_FULL
+) -> plt.Figure | None:
+    """One subplot per Aquadopp showing pitch, roll, and tilt_from_pressure.
+
+    Within each row the time-series panel and its paired scatter panel share one
+    0–90° y-axis, so the pitch/roll time series and the pressure-tilt scatter read
+    on the same scale.  Gridlines are drawn on both panels.  Horizontal reference
+    lines are drawn at the suspect and fail thresholds read from ds.attrs (falling
+    back to 20° / 30° if absent).
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A stack with ``instrument_type``, ``serial`` and ``hab`` on ``N_LEVELS``
+        and any of ``pitch``, ``roll``, ``tilt_from_pressure``.
+    step : int, optional
+        Plot every *step*-th time sample.
+    width_in : float, optional
+        Figure width in inches -- the display-slot width the report builder
+        resolves; standalone callers get the full content width.
+
+    Returns
+    -------
+    matplotlib.figure.Figure or None
+        ``None`` if no Aquadopp level is found or none of the relevant variables
+        exists.
+    """
+    import matplotlib.dates as mdates
+
+    tilt_suspect = float(ds.attrs.get("tilt_suspect_threshold", 20.0))
+    tilt_fail = float(ds.attrs.get("tilt_fail_threshold", 30.0))
+
+    instr_types = ds["instrument_type"].values
+    serials = ds["serial"].values
+    habs = ds["hab"].values
+    ref_habs = (
+        ds["tilt_pressure_ref_hab"].values
+        if "tilt_pressure_ref_hab" in ds.data_vars
+        else None
+    )
+    ref_serials = (
+        ds["tilt_pressure_ref_serial"].values
+        if "tilt_pressure_ref_serial" in ds.data_vars
+        else None
+    )
+
+    aq_indices = [i for i, t in enumerate(instr_types) if str(t).lower() == "aquadopp"]
+    if not aq_indices:
+        return None
+
+    # Cap the number of stacked panels so the figure stays a sane height for PDF
+    # pagination (one panel is ~2.24 in; 5 → ~11 in).  Deep-first order is kept, so
+    # the deepest Aquadopps are shown; a note flags any that were dropped.
+    _MAX_TILT_ROWS = 5
+    _n_dropped = max(0, len(aq_indices) - _MAX_TILT_ROWS)
+    aq_indices = aq_indices[:_MAX_TILT_ROWS]
+
+    has_pitch = "pitch" in ds.data_vars
+    has_roll = "roll" in ds.data_vars
+    has_tilt_p = "tilt_from_pressure" in ds.data_vars
+    if not has_pitch and not has_roll and not has_tilt_p:
+        return None
+
+    # The angle unit for every axis on this figure, read from whichever stored angle
+    # variable is present (pitch/roll/tilt share it) so the label tracks the data: a
+    # file written in radians would relabel, not silently claim degrees.
+    _angle_var = (
+        "pitch" if has_pitch else ("roll" if has_roll else "tilt_from_pressure")
+    )
+    deg_u = var_unit_label(ds[_angle_var])
+
+    time_ds = ds["time"].values[::step]
+    n_panels = len(aq_indices)
+
+    fig = plt.figure(figsize=(width_in, 2.24 * n_panels), constrained_layout=True)
+    # Tighten the inter-row gap; upper rows drop their x tick labels/label so
+    # the rows can pack closer.
+    fig.get_layout_engine().set(h_pad=0.03, hspace=0.0)
+    gs = fig.add_gridspec(n_panels, 3, width_ratios=[2, 2, 1])
+
+    ax_ts_first = None
+    for row, i in enumerate(aq_indices):
+        serial = serials[i]
+        hab = habs[i]
+
+        ax_ts = fig.add_subplot(gs[row, :2], sharex=ax_ts_first)
+        if ax_ts_first is None:
+            ax_ts_first = ax_ts
+        # Scatter shares this row's y-axis so pitch/roll read on the same
+        # 0–90° scale as the time series.
+        ax_sc = fig.add_subplot(gs[row, 2], sharey=ax_ts)
+
+        p_data = r_data = tp_data = None
+        if has_pitch:
+            p_data = np.abs(ds["pitch"].values[::step, i].astype(float))
+            if np.any(np.isfinite(p_data)):
+                ax_ts.plot(time_ds, p_data, lw=0.7, color="#2980b9", label="|pitch|")
+        if has_roll:
+            r_data = np.abs(ds["roll"].values[::step, i].astype(float))
+            if np.any(np.isfinite(r_data)):
+                ax_ts.plot(time_ds, r_data, lw=0.7, color="#27ae60", label="|roll|")
+        if has_tilt_p:
+            tp_data = ds["tilt_from_pressure"].values[::step, i].astype(float)
+            if np.any(np.isfinite(tp_data)):
+                ax_ts.plot(
+                    time_ds,
+                    tp_data,
+                    lw=0.9,
+                    color="#e67e22",
+                    ls="--",
+                    label="tilt (pressure)",
+                )
+
+        ax_ts.axhline(tilt_suspect, color="tab:orange", lw=0.8, ls="--", zorder=0)
+        ax_ts.axhline(tilt_fail, color="tab:red", lw=0.8, ls=":", zorder=0)
+        ax_ts.set_ylim(0.0, 90.0)
+        ax_ts.set_ylabel(f"Degrees ({deg_u})" if deg_u else "Degrees")
+        grid_despine(ax_ts)
+
+        _ref_note = ""
+        if ref_habs is not None and np.isfinite(ref_habs[i]):
+            _ref_s = str(ref_serials[i]) if ref_serials is not None else "?"
+            _ref_note = f"  [ref: s/n {_ref_s} @ {ref_habs[i]:.0f} m]"
+        ax_ts.set_title(f"s/n {serial}  ({hab:.0f} m hab){_ref_note}")
+        if ax_ts.get_legend_handles_labels()[0]:
+            # Legend inside the time-series panel (was anchored outside at
+            # 1.01, which landed over the neighbouring scatter panel).
+            ax_ts.legend(loc="best", framealpha=0.8)
+
+        if row < n_panels - 1:
+            ax_ts.tick_params(labelbottom=False)
+        else:
+            loc = mdates.AutoDateLocator()
+            ax_ts.xaxis.set_major_locator(loc)
+            ax_ts.xaxis.set_major_formatter(mdates.ConciseDateFormatter(loc))
+            date_offset_left(ax_ts)
+            ax_ts.tick_params(axis="x")
+
+        if tp_data is not None and np.any(np.isfinite(tp_data)):
+            sc_kw = {"s": 3, "alpha": 0.25, "rasterized": True, "linewidths": 0}
+            if p_data is not None and np.any(np.isfinite(p_data)):
+                fin = np.isfinite(tp_data) & np.isfinite(p_data)
+                ax_sc.scatter(
+                    tp_data[fin],
+                    p_data[fin],
+                    color="#2980b9",
+                    label="|pitch|",
+                    **sc_kw,
+                )
+            if r_data is not None and np.any(np.isfinite(r_data)):
+                fin = np.isfinite(tp_data) & np.isfinite(r_data)
+                ax_sc.scatter(
+                    tp_data[fin],
+                    r_data[fin],
+                    color="#27ae60",
+                    label="|roll|",
+                    **sc_kw,
+                )
+            ax_sc.plot(
+                [0, 90],
+                [0, 90],
+                color="0.4",
+                lw=0.8,
+                ls="--",
+                label="1:1",
+                zorder=2,
+            )
+            ax_sc.axvline(tilt_suspect, color="tab:orange", lw=0.7, ls="--", zorder=0)
+            ax_sc.axvline(tilt_fail, color="tab:red", lw=0.7, ls=":", zorder=0)
+            ax_sc.axhline(tilt_suspect, color="tab:orange", lw=0.7, ls="--", zorder=0)
+            ax_sc.axhline(tilt_fail, color="tab:red", lw=0.7, ls=":", zorder=0)
+            ax_sc.set_xlim(0.0, 90.0)
+            ax_sc.set_ylim(0.0, 90.0)  # re-assert after scatter autoscale
+            # Match x/y ticks (both are 0–90° tilt); the shared y also sets the
+            # time-series panel's y-ticks.
+            ax_sc.set_xticks([0, 30, 60, 90])
+            ax_sc.set_yticks([0, 30, 60, 90])
+            ax_sc.set_ylabel(
+                f"|pitch|, |roll| [{deg_u}]" if deg_u else "|pitch|, |roll|"
+            )
+            if row == n_panels - 1:
+                ax_sc.set_xlabel(
+                    f"tilt (pressure) [{deg_u}]" if deg_u else "tilt (pressure)"
+                )
+            else:
+                ax_sc.tick_params(labelbottom=False)
+            grid_despine(ax_sc)
+            # No scatter legend — the time-series panel legend already names
+            # pitch/roll; a second legend here is a redundant repeat.
+        else:
+            ax_sc.text(
+                0.5,
+                0.5,
+                "no tilt data",
+                transform=ax_sc.transAxes,
+                ha="center",
+                va="center",
+                color="gray",
+            )
+            ax_sc.set_axis_off()
+
+    if _n_dropped:
+        # No explicit y: constrained_layout reserves space for the suptitle
+        # above the panels, so it no longer overprints the top panel's title.
+        fig.suptitle(
+            f"Showing {_MAX_TILT_ROWS} deepest Aquadopps ({_n_dropped} more not shown)",
+            fontsize=report_tokens.ANNOT_FS,
+        )
     return fig

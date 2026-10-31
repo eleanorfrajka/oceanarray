@@ -14,6 +14,11 @@ Pairs with :mod:`oceanarray.analysis.temporal` for time-series analysis.
 - :func:`draw_grid_n2` — buoyancy frequency squared N² computed via ``gsw``.
 - :func:`draw_grid_timeseries` — velocity time series at the depth of maximum mean speed.
 
+**Stack panels** (one line per instrument level on a common time axis):
+
+- :func:`draw_stack_timeseries` — one or more variables, one row each, sharing the
+  time axis and one instrument legend.
+
 **Instrument time-series panels**:
 
 - :func:`draw_analog_timeseries` — full-record time series for analog channel variables.
@@ -26,10 +31,12 @@ Post-OdB: migrate the following from plotter.py and report/_plots.py:
 
 from __future__ import annotations
 
+import contextlib
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
+import pandas as pd
 
 if TYPE_CHECKING:
     import matplotlib.pyplot as plt
@@ -40,7 +47,7 @@ from oceanarray.reports._vendored import design_tokens as report_tokens
 from .. import parameters as params
 from ..config.unit_tables import unit_label
 from ..utilities import nice_colorbar_ticks
-from .helpers import OKABE_ITO, grid_despine
+from .helpers import OKABE_ITO, grid_despine, level_line_styles
 from .primitives import (
     colorbar_norm,
     date_axis,
@@ -351,7 +358,12 @@ def draw_grid_velocity_stacked(
         for _qv in (f"{var}_qc", "east_velocity_qc"):
             if _qv in ds.data_vars:
                 data = data.copy()
-                data[ds[_qv].transpose("pressure", "time").values >= 3] = np.nan
+                data[
+                    np.isin(
+                        ds[_qv].transpose("pressure", "time").values,
+                        params.QC_BAD_FLAGS,
+                    )
+                ] = np.nan
                 break
         fv = data.ravel()
         fv = fv[np.isfinite(fv)]
@@ -685,3 +697,125 @@ def draw_analog_timeseries(
         return fig
     finally:
         ds.close()
+
+
+def draw_stack_timeseries(
+    ds: xr.Dataset,
+    rows: list[tuple[str, str, bool, set[str] | None]],
+    *,
+    color_var: str,
+    dot_overlay: bool = False,
+    width_in: float = report_tokens.W_FULL,
+) -> plt.Figure | None:
+    """Stack time series: one row per variable, one line per instrument level.
+
+    The rows share the time axis and one instrument colour scheme (that of
+    *color_var*, deep-first; see :func:`~oceanarray.plotters.helpers.level_line_styles`),
+    so a colour tracks an instrument through every row, and one legend on the
+    right lists the instruments plotted. Values whose QC flag is in
+    :data:`~oceanarray.config.parameters.QC_BAD_FLAGS` are left out; nominal (7)
+    and interpolated (8) values are kept. Long records are thinned to about 5000
+    points per line; the time axis spans ``time_coverage_start`` to
+    ``time_coverage_end`` when the stack records them.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A stack on ``(time, N_LEVELS)`` with ``serial`` and ``instrument_type``
+        on ``N_LEVELS``.
+    rows : list of tuple
+        ``(varname, ylabel, invert, exclude_types)`` per row; a variable not in
+        *ds* is skipped, and instruments whose type is in *exclude_types* are not
+        drawn in that row.
+    color_var : str
+        The variable whose line colormap colours the instruments.
+    dot_overlay : bool, optional
+        Also mark each sample with a dot (for sparse, spiky records).
+    width_in : float, optional
+        Figure width in inches -- the display-slot width the report builder
+        resolves; standalone callers get the full content width.
+
+    Returns
+    -------
+    matplotlib.figure.Figure or None
+        ``None`` when no row has an instrument with finite values.
+    """
+    import matplotlib.pyplot as plt
+
+    rows = [r for r in rows if r[0] in ds.data_vars]
+    if not rows:
+        return None
+    serials = [str(s) for s in ds["serial"].values]
+    types = [str(t).lower() for t in ds["instrument_type"].values]
+    step = max(1, ds.sizes["time"] // 5000)
+    time = ds["time"].values[::step]
+    colors, styles = level_line_styles(serials, color_var)
+
+    fig, axs = plt.subplots(
+        len(rows),
+        1,
+        figsize=(width_in, params.STACK_PANEL_ROW_IN * len(rows)),
+        sharex=True,
+        squeeze=False,
+        layout="constrained",
+    )
+    handles: dict = {}
+    for ax, (var, ylabel, invert, exclude) in zip(axs[:, 0], rows, strict=True):
+        values = ds[var].values.copy()
+        if f"{var}_qc" in ds.data_vars:
+            values[np.isin(ds[f"{var}_qc"].values, params.QC_BAD_FLAGS)] = np.nan
+        for i, serial in enumerate(serials):
+            if exclude and types[i] in exclude:
+                continue
+            y = values[::step, i]
+            if not np.any(np.isfinite(y)):
+                continue
+            (line,) = ax.plot(
+                time,
+                y,
+                color=colors[serial],
+                ls=styles[serial],
+                lw=0.7,
+                alpha=0.85,
+                label=serial,
+            )
+            if dot_overlay:
+                ax.plot(
+                    time,
+                    y,
+                    ".",
+                    color=colors[serial],
+                    markersize=2,
+                    linewidth=0,
+                    alpha=0.85,
+                )
+            handles.setdefault(serial, line)
+        if invert:
+            ax.invert_yaxis()
+        ax.set_ylabel(ylabel)
+        grid_despine(ax)
+        start, end = (
+            ds.attrs.get("time_coverage_start"),
+            ds.attrs.get("time_coverage_end"),
+        )
+        if start and end:
+            # A coverage attribute that does not parse leaves the data's own limits.
+            with contextlib.suppress(ValueError, TypeError):
+                ax.set_xlim(
+                    pd.Timestamp(start).tz_localize(None).to_datetime64(),
+                    pd.Timestamp(end).tz_localize(None).to_datetime64(),
+                )
+    if not handles:
+        plt.close(fig)
+        return None
+    date_axis(axs[-1, 0])
+    axs[-1, 0].set_xlabel("Time")
+    fig.align_ylabels(axs[:, 0])
+    ordered = [s for s in serials if s in handles]
+    fig.legend(
+        handles=[handles[s] for s in ordered],
+        labels=ordered,
+        loc="outside right center",
+        framealpha=0.8,
+    )
+    return fig

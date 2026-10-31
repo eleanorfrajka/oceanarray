@@ -324,6 +324,10 @@ footer a { color: var(--muted); }
 /* ── oceanarray-local report chrome: classes and vars the shared emit_css()
    sheet above does not provide.  Values reference emit_css token variables
    (U0.1 — the vendored _css.py is the single source of shared style). ── */
+/* Phone browsers enlarge text in wide blocks ("text autosizing"), so the same
+   class rendered at different sizes in a full-width section and in a half-width
+   cell.  Keep every size as the stylesheet sets it. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 :root { --accent:var(--ocean); --accent-link:#cfe3ff;
         --good:#27ae60; --bad:var(--error); --interp:#2980b9;
         --hl-amber:#fff3cd; --hl-orange:#fde3c0; }
@@ -681,17 +685,17 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 
 <h2 id="hydrography">(3) Hydrography</h2>
 
-<p class="caption">Pressure, temperature and salinity for the full deployment — one row each on a shared time axis. One colour per instrument (shared across rows, ordered by height) so a line can be followed through all three panels; the single legend spans the union of instruments. Values with QC flag ≥ 3 (suspect/bad) masked to NaN; ADCP excluded from pressure.</p>
+<p class="caption">Pressure, temperature and salinity for the full deployment — one row each on a shared time axis. One colour per instrument (shared across rows, ordered by height) so a line can be followed through all three panels; the single legend spans the union of instruments. Values flagged 3, 4 or 9 (correctable bad, bad, missing) are left out; interpolated (8) and nominal (7) values are drawn. ADCP excluded from pressure.</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig" src="data:image/png;base64,<PNG>" alt="hydro_pts">
-</details><div class="fig-source">source: oceanarray/reports/_stack.py:generate_stack_page</div>
+</details><div class="fig-source">source: oceanarray/plotters/timeseries.py:draw_stack_timeseries</div>
 
 <h2 id="velocity">(4) Velocity</h2>
 
-<p class="caption">Eastward (U), northward (V) and upward (W) velocity in the ENU frame — one row each on a shared time axis, one colour per instrument (shared across rows, ordered by height) with a single legend over the union of instruments. Values with velocity_flag ≥ 3 masked to NaN; instruments without velocity data omitted.</p>
+<p class="caption">Eastward (U), northward (V) and upward (W) velocity in the ENU frame — one row each on a shared time axis, one colour per instrument (shared across rows, ordered by height) with a single legend over the union of instruments. Values flagged 3, 4 or 9 left out; instruments without velocity data omitted.</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig" src="data:image/png;base64,<PNG>" alt="vel_uvw">
-</details><div class="fig-source">source: oceanarray/reports/_stack.py:generate_stack_page</div>
+</details><div class="fig-source">source: oceanarray/plotters/timeseries.py:draw_stack_timeseries</div>
 
 <h2 id="trajectories">(5) Particle trajectories</h2>
 
@@ -728,21 +732,21 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 <p class="caption">Direction the current flows toward (oceanographic convention, 0°=N). Speed coloured light→dark blue (slow→fast). QC-flagged samples excluded. Title shows serial number and height above bottom (m).</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig" src="data:image/png;base64,<PNG>" alt="roses">
-</details><div class="fig-source">source: oceanarray/reports/_plots.py:_make_rose_grid_b64</div>
+</details><div class="fig-source">source: oceanarray/plotters/current.py:draw_rose_grid</div>
 
 <h2 id="tilt">(9) Aquadopp tilt (|pitch| / |roll| / pressure estimate)</h2>
 
 <p class="caption">|pitch| / |roll| / pressure-estimate tilt per Aquadopp, sharing a y-axis. Horizontal lines mark the suspect and fail thresholds from the file attributes.</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig" src="data:image/png;base64,<PNG>" alt="tilt">
-</details><div class="fig-source">source: oceanarray/reports/_stack.py:_make_aquadopp_tilt_panels</div>
+</details><div class="fig-source">source: oceanarray/plotters/current.py:draw_aquadopp_tilt_panels</div>
 
 <h2 id="spacing">(10) Adjacent instrument spacing</h2>
 
 <p class="caption">Distribution of pressure differences between adjacent instrument pairs (pairs &lt; 2 dbar apart excluded as co-located).</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig slot-third" src="data:image/png;base64,<PNG>" alt="spacing">
-</details><div class="fig-source">source: oceanarray/reports/_stack.py:generate_stack_page</div>
+</details><div class="fig-source">source: oceanarray/plotters/diagnostic.py:draw_instrument_spacing</div>
 
 <h2 id="clock_check">(11) Clock alignment check</h2>
 

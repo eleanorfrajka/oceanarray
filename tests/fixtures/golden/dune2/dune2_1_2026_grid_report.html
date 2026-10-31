@@ -324,6 +324,10 @@ footer a { color: var(--muted); }
 /* ── oceanarray-local report chrome: classes and vars the shared emit_css()
    sheet above does not provide.  Values reference emit_css token variables
    (U0.1 — the vendored _css.py is the single source of shared style). ── */
+/* Phone browsers enlarge text in wide blocks ("text autosizing"), so the same
+   class rendered at different sizes in a full-width section and in a half-width
+   cell.  Keep every size as the stylesheet sets it. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 :root { --accent:var(--ocean); --accent-link:#cfe3ff;
         --good:#27ae60; --bad:var(--error); --interp:#2980b9;
         --hl-amber:#fff3cd; --hl-orange:#fde3c0; }
@@ -518,7 +522,7 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 <p class="caption">Left: log₁₀(count+1) per T-S bin. Right (when O₂ present): median O₂ saturation per T-S bin — bins with &lt;5 samples masked. Colour scale: BrBG (brown=low, teal=high).</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig slot-half" src="data:image/png;base64,<PNG>" alt="ts_diagram">
-</details><div class="fig-source">source: oceanarray/reports/_plots.py:_make_grid_ts_diagram</div>
+</details><div class="fig-source">source: oceanarray/plotters/ts.py:draw_grid_ts_diagram</div>
 
 <h2 id="velocity">(4) Velocity</h2>
 
