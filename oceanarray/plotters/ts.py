@@ -9,7 +9,7 @@ import numpy as np
 
 from oceanarray.reports._vendored import design_tokens as report_tokens
 
-from .. import parameters as params
+from ..config import parameters as params
 from ..utilities import nice_colorbar_ticks
 from .helpers import QC_MARKER as _QC_MARKER
 from .primitives import colorbar_norm, plot_title, square_axes_grid, unit_colorbar
@@ -333,8 +333,8 @@ def draw_stack_ts_diagram(
     ``apparent_oxygen_utilization`` is present in *ds* (written by stage3 for
     instruments with dissolved oxygen data).
 
-    QC masking: bad (flag 4) and missing (flag 9) excluded; interpolated
-    pressure (flag 8) is kept as usable colour data.
+    QC masking: values flagged 3, 4 or 9 (``parameters.QC_BAD_FLAGS``) are
+    excluded; nominal and interpolated values (flags 7, 8) are kept.
 
     Parameters
     ----------
@@ -356,22 +356,19 @@ def draw_stack_ts_diagram(
     T_all = ds["temperature"].values.copy().astype(float)
     S_all = ds["salinity"].values.copy().astype(float)
     if "temperature_qc" in ds.data_vars:
-        _tqc = ds["temperature_qc"].values.astype(float)
-        T_all[(_tqc == 4) | (_tqc == 9)] = np.nan
+        T_all[np.isin(ds["temperature_qc"].values, params.QC_BAD_FLAGS)] = np.nan
     if "salinity_qc" in ds.data_vars:
-        _sqc = ds["salinity_qc"].values.astype(float)
-        S_all[(_sqc == 4) | (_sqc == 9)] = np.nan
+        S_all[np.isin(ds["salinity_qc"].values, params.QC_BAD_FLAGS)] = np.nan
 
     T_flat = T_all.ravel()
     S_flat = S_all.ravel()
 
-    # Pressure: keep flag 8 (interpolated) — only bad (4) and missing (9) excluded.
+    # Pressure: keep flags 7/8 (nominal, interpolated); only QC_BAD_FLAGS excluded.
     P_flat: np.ndarray | None = None
     if "pressure" in ds.data_vars:
         P_arr = ds["pressure"].values.astype(float)
         if "pressure_qc" in ds.data_vars:
-            _pqc = ds["pressure_qc"].values.astype(float)
-            P_arr[(_pqc == 4) | (_pqc == 9)] = np.nan
+            P_arr[np.isin(ds["pressure_qc"].values, params.QC_BAD_FLAGS)] = np.nan
         P_flat = P_arr.ravel()
 
     finite = np.isfinite(T_flat) & np.isfinite(S_flat)

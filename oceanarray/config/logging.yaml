@@ -1,7 +1,7 @@
 # Global logging configuration for oceanarray processing stages
 #
 # This configuration file controls where and how log files are created
-# for all processing stages (stage1, stage2, time_gridding, etc.)
+# for all processing stages (stage1, stage2, stage3, stack, grid)
 
 logging:
   # Directory for log files
@@ -14,7 +14,7 @@ logging:
   # Available variables:
   #   {mooring_name} - Name of the mooring (e.g., dsE_1_2018)
   #   {timestamp}    - Formatted timestamp
-  #   {stage}        - Processing stage name (stage1, stage2, time_gridding)
+  #   {stage}        - Processing stage name (stage1, stage2, stage3, stack, grid)
   filename_pattern: "{mooring_name}_{timestamp}_{stage}.log"
 
   # Timestamp format for log filenames

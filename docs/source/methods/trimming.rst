@@ -70,7 +70,7 @@ Rerun after adjusting deployment times (single instrument):
 
 .. code-block:: bash
 
-   oceanarray process dsG3_1_2026 --raw-dir /data/raw --proc-dir /data/proc --stage 2 --serial 26261 --force
+   oceanarray process dsG3_1_2026 --raw-dir /data/raw --proc-dir /data/proc --stage 2 --only 26261 --force
 
 4. Output format
 ----------------

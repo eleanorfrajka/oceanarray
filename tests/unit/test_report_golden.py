@@ -197,3 +197,27 @@ def test_png_geometry_on_rendered_page(rendered_dir: pathlib.Path) -> None:
             )
             checked += 1
     assert checked > 0, "no slot-classed figures found; test is not exercising anything"
+
+
+@pytest.mark.parametrize("alt", ["hydro_pts", "vel_uvw"])
+def test_stack_timeseries_figures_render_at_full_width(
+    rendered_dir: pathlib.Path, alt: str
+) -> None:
+    """The stack's multi-row time series are drawn at the full slot width, legend inside.
+
+    They used to save with a tight bounding box around a legend placed outside the
+    canvas, so the PNG came out narrower or wider than the 9-inch slot and the page
+    rescaled it.
+    """
+    import base64
+    import io
+
+    from PIL import Image
+
+    from oceanarray.reports._vendored import design_tokens as tok
+
+    html = (rendered_dir / "dune2_1_2026_stack_report.html").read_text(encoding="utf-8")
+    match = re.search(rf'base64,([A-Za-z0-9+/=]+)" alt="{alt}"', html)
+    assert match, f"{alt} figure not found on the stack page"
+    width_px = Image.open(io.BytesIO(base64.b64decode(match.group(1)))).size[0]
+    assert width_px == round(tok.W_FULL * tok.FIG_DPI)

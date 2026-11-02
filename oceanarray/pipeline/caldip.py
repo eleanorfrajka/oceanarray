@@ -27,6 +27,7 @@ from typing import Any
 
 import xarray as xr
 
+from oceanarray import _deprecated
 from oceanarray.paths import safe_serial
 
 #: Filename suffix of the per-cast caldip netCDF (strict — excludes CSV exports and variants).
@@ -121,12 +122,12 @@ class Offsets:
     source_tracking_id: str
 
 
-def normalize_serial(serial: Any) -> str:
+def canonical_serial(serial: Any) -> str:
     """Return the join-key form of an instrument serial.
 
     The caldip↔oceanarray contract matches instruments on ``serial`` after making it
     filename-safe and stripping leading zeros, so ``013874`` and ``13874`` join and the
-    trailing YAML marker asterisk (``9920*``) is dropped. Both packages normalise on read,
+    trailing YAML marker asterisk (``9920*``) is dropped. Both packages apply it on read,
     so the join is symmetric. This is contract, not method, so it lives with the stub.
 
     Parameters
@@ -137,12 +138,17 @@ def normalize_serial(serial: Any) -> str:
     Returns
     -------
     str
-        Normalised serial: filename-safe with leading zeros removed. An all-zero token
+        The join-key serial: filename-safe with leading zeros removed. An all-zero token
         falls back to its filename-safe form rather than the empty string.
 
     """
     safe = safe_serial(serial)
     return safe.lstrip("0") or safe
+
+
+normalize_serial = _deprecated.alias(
+    "oceanarray.pipeline.caldip.normalize_serial", canonical_serial
+)
 
 
 def read_caldip_cast(path: Path) -> xr.Dataset:
@@ -151,7 +157,7 @@ def read_caldip_cast(path: Path) -> xr.Dataset:
     The implementation opens ``{cast}_caldip.nc``, checks ``schema_version`` equals
     :data:`SUPPORTED_SCHEMA_VERSION` and every :data:`REQUIRED_PROVENANCE_GLOBALS` is present
     (raising :class:`CaldipProvenanceError` otherwise), normalises the ``serial`` coordinate
-    with :func:`normalize_serial`, and warns when an ``instrument_type`` is outside
+    with :func:`canonical_serial`, and warns when an ``instrument_type`` is outside
     ``parameters.KNOWN_INSTRUMENT_TYPES`` or disagrees with the mooring YAML.
 
     Parameters
@@ -187,7 +193,7 @@ def find_caldip_casts(caldip_dir: Path, serial: Any) -> list[Path]:
     caldip_dir : Path
         Root directory of caldip per-cast output.
     serial : Any
-        Instrument serial, normalised with :func:`normalize_serial` before matching.
+        Instrument serial, normalised with :func:`canonical_serial` before matching.
 
     Returns
     -------

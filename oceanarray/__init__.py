@@ -1,8 +1,19 @@
-"""Oceanarray: Tools for processing oceanographic mooring data.
+"""oceanarray: processing oceanographic mooring data, from raw instrument files to gridded products.
 
-This package provides functions for processing, quality control, and analysis
-of oceanographic time series data from moorings and instruments.
+The public API is :data:`__all__`; every name in it resolves after
+``import oceanarray``. Names load on first use, so importing the package stays
+cheap.
+
+Examples
+--------
+>>> import oceanarray as oa
+>>> oa.run("proc/dune2_1_2026/dune2_1_2026.mooring.yaml", raw_dir="raw/", report=True)
 """
+
+from __future__ import annotations
+
+import importlib
+from typing import TYPE_CHECKING
 
 try:
     # Written by setuptools-scm at build time (gitignored); the live version.
@@ -16,30 +27,86 @@ except ImportError:  # pragma: no cover - source tree with no build artefact
     except _PNF:  # pragma: no cover
         __version__ = "0.0.0"
 
-from oceanarray.config import parameters  # noqa: I001  — binds ``parameters`` before modules that import it
-from oceanarray import mooring, writers
-from oceanarray.exceptions import MooringError
-from oceanarray.pipeline import process
+if TYPE_CHECKING:
+    from oceanarray import mooring
+    from oceanarray.exceptions import MooringError
+    from oceanarray.pipeline import process, run
+    from oceanarray.pipeline._stage import StageError
+    from oceanarray.pipeline.grid import grid
+    from oceanarray.pipeline.read_mooring import read_mooring
+    from oceanarray.pipeline.stack import stack
+    from oceanarray.pipeline.stage1 import stage1
+    from oceanarray.pipeline.stage2 import stage2
+    from oceanarray.pipeline.stage3 import stage3
+    from oceanarray.pipeline.write_mooring import write_mooring
+    from oceanarray.readers import read
+    from oceanarray.reports import report
+    from oceanarray.writers import write
 
-# Note: not every name in ``__all__`` resolves after a bare ``import oceanarray``.
-# ``config``, ``pipeline``, ``parameters``, ``process``, ``mooring`` and ``writers``
-# are imported here (directly or as a side effect); ``analysis``, ``tools``,
-# ``plotters`` and ``utilities`` are listed for discoverability but load only on
-# first explicit import.
 __all__ = [
-    "__version__",
-    # Subpackages (canonical locations)
-    "analysis",
-    "config",
-    "pipeline",
-    "tools",
-    "writers",
-    # Top-level modules
-    "mooring",
-    "parameters",
-    "plotters",
-    "utilities",
-    # Public API
     "MooringError",
+    "StageError",
+    "__version__",
+    "grid",
+    "mooring",
     "process",
+    "read",
+    "read_mooring",
+    "report",
+    "run",
+    "stack",
+    "stage1",
+    "stage2",
+    "stage3",
+    "write",
+    "write_mooring",
 ]
+
+#: Public name -> (module, attribute); attribute None means the module itself.
+_EXPORTS: dict[str, tuple[str, str | None]] = {
+    "MooringError": ("oceanarray.exceptions", "MooringError"),
+    "StageError": ("oceanarray.pipeline._stage", "StageError"),
+    "grid": ("oceanarray.pipeline.grid", "grid"),
+    "mooring": ("oceanarray.mooring", None),
+    "process": ("oceanarray.pipeline", "process"),
+    "read": ("oceanarray.readers", "read"),
+    "read_mooring": ("oceanarray.pipeline.read_mooring", "read_mooring"),
+    "report": ("oceanarray.reports", "report"),
+    "run": ("oceanarray.pipeline", "run"),
+    "stack": ("oceanarray.pipeline.stack", "stack"),
+    "stage1": ("oceanarray.pipeline.stage1", "stage1"),
+    "stage2": ("oceanarray.pipeline.stage2", "stage2"),
+    "stage3": ("oceanarray.pipeline.stage3", "stage3"),
+    "write": ("oceanarray.writers", "write"),
+    "write_mooring": ("oceanarray.pipeline.write_mooring", "write_mooring"),
+}
+
+#: Old top-level names kept for one release: name -> the module now holding it.
+_DEPRECATED: dict[str, str] = {"parameters": "oceanarray.config.parameters"}
+
+
+def __getattr__(name: str) -> object:
+    """Resolve a public name, a deprecated alias or a subpackage on first access."""
+    if name in _EXPORTS:
+        module, attr = _EXPORTS[name]
+        mod = importlib.import_module(module)
+        obj = mod if attr is None else getattr(mod, attr)
+        globals()[name] = obj  # later accesses are a plain attribute hit
+        return obj
+    if name in _DEPRECATED:
+        from oceanarray import _deprecated
+
+        _deprecated.warn(f"{__name__}.{name}")
+        return importlib.import_module(_DEPRECATED[name])
+    if not name.startswith("_"):
+        try:
+            return importlib.import_module(f"{__name__}.{name}")
+        except ModuleNotFoundError as e:
+            if e.name != f"{__name__}.{name}":
+                raise
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+def __dir__() -> list[str]:
+    """List the public names alongside the module's own."""
+    return sorted(set(globals()) | set(__all__))

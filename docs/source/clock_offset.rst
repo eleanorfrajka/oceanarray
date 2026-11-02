@@ -49,7 +49,7 @@ Core Functions
 ~~~~~~~~~~~~~~
 
 - ``load_mooring_instruments()``: Load instrument data and enrich with YAML metadata
-- ``analyze_deployment_timing()``: Perform temperature-based deployment period detection
+- ``deployment_timing()``: Perform temperature-based deployment period detection
 - ``calculate_timing_offsets()``: Calculate offsets using consensus grouping approach
 - ``perform_lag_correlation_analysis()``: Execute cross-correlation analysis
 - ``print_timing_offset_summary()``: Generate human-readable offset summary

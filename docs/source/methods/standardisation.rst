@@ -33,7 +33,7 @@ The standardisation process is implemented in the :mod:`oceanarray.pipeline.stag
 3.1. Input Formats Supported
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The :class:`oceanarray.pipeline.stage1.MooringProcessor` class supports multiple instrument formats:
+Stage 1 (:func:`oceanarray.stage1`, run by :func:`oceanarray.process`) supports multiple instrument formats:
 
 - **Sea-Bird CNV files** (`sbe-cnv`): Standard SBE 37 MicroCAT output
 - **Sea-Bird ASCII files** (`sbe-ascii`): Alternative SBE ASCII format
@@ -136,16 +136,15 @@ The ``instruments`` list contains one entry per instrument on the mooring, with:
 
 .. code-block:: python
 
-   import oceanarray
+   import oceanarray as oa
 
-   # Process a single mooring through Stage 1
-   oceanarray.process('mooring_name', stage=1,
-                      raw_dir='/path/to/raw/', proc_dir='/path/to/proc/')
+   # Stage 1 for one mooring, from its description
+   oa.process("/path/to/proc/mooring1/mooring1.mooring.yaml", stages=1,
+              raw_dir="/path/to/raw/")
 
-   # Process multiple moorings
-   for mooring in ['mooring1', 'mooring2', 'mooring3']:
-       oceanarray.process(mooring, stage=1,
-                          raw_dir='/path/to/raw/', proc_dir='/path/to/proc/')
+   # Several moorings, each from its own folder
+   for folder in ["mooring1", "mooring2", "mooring3"]:
+       oa.process(f"/path/to/proc/{folder}", stages=1, raw_dir="/path/to/raw/")
 
 4. Output Format
 ----------------

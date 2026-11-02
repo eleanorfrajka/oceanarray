@@ -32,8 +32,8 @@ from matplotlib.colors import LinearSegmentedColormap
 from scipy.integrate import cumulative_trapezoid
 from scipy.interpolate import interp1d
 
-from oceanarray import parameters as params
 from oceanarray import utilities
+from oceanarray.config import parameters as params
 from oceanarray.logger import log_info
 
 

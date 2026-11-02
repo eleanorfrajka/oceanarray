@@ -12,7 +12,7 @@ figure sizes that differ from the per-plot mplstyle default.
 
 Import and reassign any value here to override it globally, e.g.::
 
-    import oceanarray.parameters as params
+    from oceanarray.config import parameters as params
     params.DOWNSAMPLE_SECONDS = 60
     params.DEFAULT_COLORMAP = "viridis"
 
@@ -36,6 +36,10 @@ PACKAGE_NAME = "oceanarray"
 #: so stacked grid panels and single-row section figures share one scale and do
 #: not render over-tall.
 GRID_PANEL_ROW_IN: float = 2.5
+
+#: Height (inches) of one row of the stack report's time-series figures (one
+#: line per instrument level on a shared time axis).
+STACK_PANEL_ROW_IN: float = 2.56
 
 # ---------------------------------------------------------------------------
 # Matplotlib style path (used by plotters via plt.style.use).  The single source
@@ -135,6 +139,11 @@ QC_MERGE_PRIORITY_LUT = np.array(
 )
 # flag_values as int8 (CF wants it to match the int8 flag variable dtype).
 QC_FLAG_VALUES_I8 = np.array(QC_FLAG_VALUES, dtype="int8")
+
+# Flags whose values a plot leaves out: potentially_correctable_bad (3), bad (4) and
+# missing (9). nominal (7) and interpolated (8) are kept — an interpolated pressure
+# is the instrument's pressure, and dropping it hides a sensorless instrument.
+QC_BAD_FLAGS = (3, 4, 9)
 
 # ---------------------------------------------------------------------------
 # QARTOD gross-range test thresholds (global ocean defaults).
@@ -750,48 +759,3 @@ def vunit(var: str) -> str:
         return ""
     cf = entry.get("units", "")
     return unit_label(cf, entry.get("standard_name")) if cf else ""
-
-
-def __getattr__(name: str) -> dict[str, dict[str, float]]:
-    """Serve the deprecated tables ``UNIT_ALIASES`` and ``VARIABLE_UNIT_ALIASES``.
-
-    Both moved to the shared units tables
-    (:data:`oceanarray.config.unit_tables.TABLES`) and are removed in 0.6.0.  Until then
-    each name warns and returns a copy built from those tables: ``UNIT_ALIASES`` as
-    ``{canonical: {spelling: factor}}``, and ``VARIABLE_UNIT_ALIASES`` as the scoped
-    spellings of each registry variable, keyed by variable name.
-
-    Parameters
-    ----------
-    name : str
-        Attribute looked up on this module.
-
-    Returns
-    -------
-    dict of str to dict of str to float
-        The table, rebuilt from :data:`oceanarray.config.unit_tables.TABLES`.
-
-    Raises
-    ------
-    AttributeError
-        For any other name.
-    """
-    if name not in ("UNIT_ALIASES", "VARIABLE_UNIT_ALIASES"):
-        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
-    import warnings
-
-    from oceanarray.config.unit_tables import TABLES
-
-    warnings.warn(
-        f"parameters.{name} is deprecated; use oceanarray.config.unit_tables.TABLES "
-        f"(removed in 0.6.0).",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    if name == "UNIT_ALIASES":
-        return {canonical: dict(group) for canonical, group in TABLES.aliases.items()}
-    return {
-        var: dict(TABLES.scoped[entry["standard_name"]])
-        for var, entry in VARIABLES.items()
-        if entry.get("standard_name") in TABLES.scoped
-    }

@@ -82,6 +82,7 @@ Contents
    :maxdepth: 1
    :caption: Changelog / Migration
 
+   migrating_0_6_0
    migration
 
 .. toctree::

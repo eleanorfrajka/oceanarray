@@ -37,9 +37,9 @@ MOORING = "dune2_1_2026"
         ("16430, R01-024", "16430"),
     ],
 )
-def test_normalize_serial(raw, expected):
+def test_canonical_serial(raw, expected):
     """Leading zeros and the trailing marker asterisk are stripped; commas split."""
-    assert caldip.normalize_serial(raw) == expected
+    assert caldip.canonical_serial(raw) == expected
 
 
 # ── contract: the real fixture matches what the interface promises ──────────

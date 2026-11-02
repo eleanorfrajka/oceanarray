@@ -1,7 +1,7 @@
 """Canonicalise variable units on the way out of each processing stage.
 
 The canonical spelling per variable is the registry's
-(:data:`oceanarray.parameters.VARIABLES`). Which reader spellings convert to it, and
+(:data:`oceanarray.config.parameters.VARIABLES`). Which reader spellings convert to it, and
 with what factor, is the shared family data in
 :mod:`oceanarray.reports._vendored.units_tables`, read through
 :func:`oceanarray.reports._vendored.units.resolve_units`; oceanarray's view of it, with
@@ -16,18 +16,17 @@ canonical string by :func:`oceanarray.config.unit_tables.unit_label`; it is neve
 stored.
 """
 
-import warnings
 from collections.abc import Callable
 
 import numpy as np
 import xarray as xr
 
-from oceanarray import parameters as params
-from oceanarray.config.unit_tables import TABLES, UNIT_SPELLINGS_KEPT, unit_label
+from oceanarray.config import parameters as params
+from oceanarray.config.unit_tables import TABLES, UNIT_SPELLINGS_KEPT
 from oceanarray.reports._vendored.units import Tables, UnitsError, resolve_units
 
 # Re-exported so existing callers keep importing it from the processing layer.
-__all__ = ["UnitsError", "canonicalise_units", "format_units", "to_canonical_units"]
+__all__ = ["UnitsError", "to_canonical_units"]
 
 
 def _canonical_by_standard_name() -> dict[str, str]:
@@ -35,7 +34,7 @@ def _canonical_by_standard_name() -> dict[str, str]:
 
     Built on each call (not cached at import) so a runtime override of
     :data:`parameters.VARIABLES` is honoured, consistent with the rest of
-    :mod:`oceanarray.parameters`.  The build also guards the registry: two entries
+    :mod:`oceanarray.config.parameters`.  The build also guards the registry: two entries
     sharing a ``standard_name`` but declaring different canonical units would let the
     lookup pick one silently by dict order, so that is raised instead.
 
@@ -210,61 +209,3 @@ def to_canonical_units(
         if canonical == "degree_Celsius":
             ds[var].attrs["units_metadata"] = "temperature: on_scale"
     return ds
-
-
-def canonicalise_units(
-    ds: xr.Dataset,
-    log_fn: Callable[[str], None] | None = None,
-    stage: int | str | None = None,
-) -> xr.Dataset:
-    """Rewrite each registered variable's units to its canonical spelling (deprecated).
-
-    Deprecated alias of :func:`to_canonical_units`, the family name; removed in 0.6.0.
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        Dataset to canonicalise in place (also returned).
-    log_fn : callable, optional
-        Called with one message per variable whose units string changed.
-    stage : int or str, optional
-        Processing stage, used only to annotate the log and error messages.
-
-    Returns
-    -------
-    xarray.Dataset
-        The same dataset, with canonical units on every registered variable.
-    """
-    warnings.warn(
-        "canonicalise_units is deprecated; use to_canonical_units (removed in 0.6.0).",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    return to_canonical_units(ds, log_fn=log_fn, stage=stage)
-
-
-def format_units(units: str, standard_name: str | None = None) -> str:
-    """Return the plot label for a CF ``units`` string (deprecated).
-
-    Deprecated alias of :func:`oceanarray.config.unit_tables.unit_label`; removed in
-    0.6.0.
-
-    Parameters
-    ----------
-    units : str
-        CF/UDUNITS units string (e.g. ``"mS cm-1"``).
-    standard_name : str, optional
-        CF standard name, for the dimensionless salinity and turbidity labels.
-
-    Returns
-    -------
-    str
-        The display units string; ``""`` when *units* is empty.
-    """
-    warnings.warn(
-        "pipeline.units.format_units is deprecated; use "
-        "oceanarray.config.unit_tables.unit_label (removed in 0.6.0).",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    return unit_label(units, standard_name)

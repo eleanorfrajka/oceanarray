@@ -70,8 +70,8 @@ Processed directory layout
 --------------------------
 
 The processed directory (``--proc-dir``) receives all outputs from
-``oceanarray process`` (including its ``stack`` and ``grid`` stages) and
-``oceanarray report``.
+``oceanarray process`` (stages 1–3), ``oceanarray run`` (also the stack and
+grid) and ``oceanarray report``.
 
 .. code-block:: text
 

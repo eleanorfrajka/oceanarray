@@ -9,6 +9,10 @@
 /* ── oceanarray-local report chrome: classes and vars the shared emit_css()
    sheet above does not provide.  Values reference emit_css token variables
    (U0.1 — the vendored _css.py is the single source of shared style). ── */
+/* Phone browsers enlarge text in wide blocks ("text autosizing"), so the same
+   class rendered at different sizes in a full-width section and in a half-width
+   cell.  Keep every size as the stylesheet sets it. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 :root { --accent:var(--ocean); --accent-link:#cfe3ff;
         --good:#27ae60; --bad:var(--error); --interp:#2980b9;
         --hl-amber:#fff3cd; --hl-orange:#fde3c0; }

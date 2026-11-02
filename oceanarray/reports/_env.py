@@ -19,7 +19,7 @@ from jinja2 import ChoiceLoader, Environment, FileSystemLoader
 from markupsafe import escape
 
 from .. import __version__ as _oceanarray_version
-from .. import parameters as params
+from ..config import parameters as params
 from . import _figdebug
 from ._html_helpers import _history_tables
 from ._vendored.figure_png import source_of

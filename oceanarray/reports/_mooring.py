@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import contextlib
+from collections.abc import Mapping
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -393,42 +394,120 @@ class MooringReport:
         instruments: bool = False,
         grid: bool = False,
         stack: bool = False,
+        cfg: Mapping[str, Any] | None = None,
+        mooring_dir: str | Path | None = None,
+        yaml_path: str | Path | None = None,
     ) -> Path | None:
+        """Build the mooring's summary page and, when asked, its other pages.
+
+        Parameters
+        ----------
+        mooring_name : str
+            The description's ``name``; every page and the stage, stack and grid
+            files are named from it.
+        force, skip_existing : bool, optional
+            Rebuild pages newer than their inputs / keep any page that exists.
+        outdir : str or None, optional
+            Where the pages go; overrides the central report directory.
+        serials : list of str or None, optional
+            Build instrument pages for these serials only.
+        instruments, grid, stack : bool, optional
+            Also build these pages.
+        cfg : Mapping or None, optional
+            The loaded description; read from *yaml_path* when not given. When
+            given, the summary page is rebuilt whatever its age (the description
+            may differ from the file).
+        mooring_dir : str or pathlib.Path or None, optional
+            The mooring's folder, whatever it is called; default
+            ``<proc_dir>/<mooring_name>``.
+        yaml_path : str or pathlib.Path or None, optional
+            The description file (for staleness and display); default
+            ``<mooring folder>/<mooring_name>.mooring.yaml``.
+
+        Returns
+        -------
+        pathlib.Path or None
+            The summary page, or None when the folder or description is missing.
+        """
         # Reset the per-figure debug capture at the start of each report so a
         # long-lived process (a batch of moorings) does not accumulate it
         # unbounded.  (The b64->slot side registry is gone: the slot now travels
         # on the resolved panel.)
         _figdebug.clear()
-        proc_dir = self._resolve_proc_dir(mooring_name)
+        # The mooring's folder is where its description is (any name); the pages
+        # and the files they read are named from the description's name.
+        proc_dir = (
+            Path(mooring_dir)
+            if mooring_dir is not None
+            else self._resolve_proc_dir(mooring_name)
+        )
         if not proc_dir.exists():
             print(f"ERROR: Processing directory not found: {proc_dir}")
             return None
 
         out_dir = paths.resolve_report_dir(
-            mooring_name, outdir, self._report_dir, self._proc_dir
+            mooring_name,
+            outdir,
+            self._report_dir,
+            self._proc_dir,
+            mooring_dir=mooring_dir,
         )
         out_dir.mkdir(parents=True, exist_ok=True)
         output_path = out_dir / f"{mooring_name}_report.html"
-        yaml_path = proc_dir / f"{mooring_name}.mooring.yaml"
-        source_ncs = list(proc_dir.glob(f"*/{paths.stage_glob(3)}")) + list(
-            proc_dir.glob(f"*/{paths.stage_glob(2)}")
+        yaml_path = (
+            Path(yaml_path)
+            if yaml_path is not None
+            else proc_dir / f"{mooring_name}.mooring.yaml"
         )
-        if _should_skip(output_path, force, skip_existing, yaml_path, *source_ncs):
-            _status("skip", self._rel(output_path))
-            return output_path
-        if not yaml_path.exists():
+        given_cfg = cfg
+        if cfg is not None:
+            cfg = dict(cfg)
+        elif yaml_path.exists():
+            cfg = _mooring.load(yaml_path)
+        else:
             print(f"ERROR: Config not found: {yaml_path}")
             return None
-
-        cfg = _mooring.load(yaml_path)
+        # The summary's inputs are the description and its instruments' stage files,
+        # named from the description (not found by searching the folder).
+        source_ncs = [
+            path
+            for entry in instrument_entries(cfg)
+            if isinstance(entry, dict)
+            for n in (3, 2)
+            if (
+                path := paths.stage_file(
+                    proc_dir,
+                    cfg["name"],
+                    entry.get("instrument", "unknown"),
+                    paths.safe_serial(entry.get("serial", "")),
+                    n,
+                )
+            ).exists()
+        ]
+        # The summary also shows which instruments are in the stack and grid.
+        products = [
+            paths.product_file(proc_dir, mooring_name, p) for p in ("stack", "grid")
+        ]
+        # A description passed in may differ from the file on disk, whose time is
+        # all the freshness check can see: the summary is always rebuilt from it.
+        summary_fresh = given_cfg is None and _should_skip(
+            output_path, force, skip_existing, yaml_path, *source_ncs, *products
+        )
+        if summary_fresh and not (instruments or grid or stack):
+            _status("skip", self._rel(output_path))
+            return output_path
 
         # Display root for pretty-printing paths in the instrument/grid/stack pages.
         display_root = self._proc_dir or proc_dir.parent
 
         ctx = self._build_context(mooring_name, cfg, proc_dir, yaml_path, out_dir)
-        html = self._render(ctx)
-        output_path.write_text(html, encoding="utf-8")
-        _status("file", self._rel(output_path))
+        # A fresh summary is kept, but the stack, grid and instrument pages are
+        # still checked against their own inputs below (each skips when fresh).
+        if summary_fresh:
+            _status("skip", self._rel(output_path))
+        else:
+            output_path.write_text(self._render(ctx), encoding="utf-8")
+            _status("file", self._rel(output_path))
 
         if instruments:
             generate_instrument_pages(
@@ -443,14 +522,18 @@ class MooringReport:
                 skip_existing=skip_existing,
             )
             # Instrument pages are now on disk — re-check existence and re-render
-            # the mooring summary so serial-number links work on first run.
+            # the mooring summary so serial-number links work on first run.  A
+            # fresh summary whose links are unchanged is left as it is.
             if out_dir is not None:
+                linked = [i.get("report_exists") for i in ctx["instruments"]]
                 for instr in ctx["instruments"]:
                     instr["report_exists"] = _instrument_report_exists(
                         out_dir, mooring_name, instr["serial"]
                     )
-                html = self._render(ctx)
-                output_path.write_text(html, encoding="utf-8")
+                if not summary_fresh or linked != [
+                    i["report_exists"] for i in ctx["instruments"]
+                ]:
+                    output_path.write_text(self._render(ctx), encoding="utf-8")
 
         if grid:
             grid_path = paths.product_file(proc_dir, mooring_name, "grid")
@@ -465,9 +548,7 @@ class MooringReport:
                     skip_existing=skip_existing,
                 )
             else:
-                print(
-                    "  NOTE: no grid file found — run 'oceanarray process MOORING --stage grid' first"
-                )
+                print("  NOTE: no grid file found — run 'oceanarray run MOORING' first")
 
         if stack:
             stack_path = paths.product_file(proc_dir, mooring_name, "stack")
@@ -650,7 +731,7 @@ class MooringReport:
 
         instruments.sort(key=lambda x: x["hab"])
 
-        # Compute recommended --pmin / --pmax for `oceanarray process --stage grid`.
+        # Compute recommended --pmin / --pmax for `oceanarray run`.
         # Collect finite min/max pressure values from instruments that have real
         # pressure data (exclude stuck-at-zero sensors: p_max must be > 20 dbar).
         _all_pmin: list[float] = []

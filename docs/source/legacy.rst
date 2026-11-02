@@ -54,7 +54,6 @@ For all current processing use:
 
 .. code-block:: bash
 
-   oceanarray process <mooring> --raw-dir /path/to/data/raw --proc-dir /path/to/data/proc --stage 1 2 3 stack grid
-   oceanarray report  <mooring> --proc-dir /path/to/data/proc --instruments --stack --grid
+   oceanarray run /path/to/data/proc/<mooring> --raw-dir /path/to/data/raw
 
 See :doc:`processing_framework` for the full pipeline description.

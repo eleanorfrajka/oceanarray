@@ -424,7 +424,7 @@ def test_serial_collision_errors_reads_yaml(tmp_path):
 def test_process_refuses_colliding_serials_before_writing(tmp_path):
     import pytest
 
-    from oceanarray.pipeline import process
+    from oceanarray.pipeline import _process_legacy as process
 
     mooring = "dsTest_1_2026"
     mdir = tmp_path / mooring

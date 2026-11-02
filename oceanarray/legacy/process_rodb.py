@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 import xarray as xr
 
+from oceanarray import _deprecated
 from oceanarray.logger import log_debug, log_info, log_warning
 
 from . import rodb
@@ -86,8 +87,8 @@ def std_of_middle_percent(values, percent=95):
     return np.std(filtered)
 
 
-def normalize_by_middle_percent(values, percent=95):
-    """Normalize a data series by the mean and standard deviation
+def to_zscore(values, percent=95):
+    """Return the z-score of a data series, using the mean and standard deviation
     of its central `percent` range.
 
     Parameters
@@ -100,7 +101,7 @@ def normalize_by_middle_percent(values, percent=95):
     Returns
     -------
     array
-        Normalized array with the same shape as input.
+        z-scores, with the same shape as the input.
 
     """
     values = np.asarray(values)
@@ -125,9 +126,9 @@ def normalize_by_middle_percent(values, percent=95):
     return normalized
 
 
-def normalize_dataset_by_middle_percent(ds, percent=95):
-    """Normalize all 1D data variables in an xarray Dataset that match the length of TIME,
-    using the mean and std over the central `percent` of each variable.
+def to_zscore_dataset(ds, percent=95):
+    """Return the z-score of every 1D data variable in an xarray Dataset that matches the
+    length of TIME, using the mean and std over the central `percent` of each variable.
 
     Parameters
     ----------
@@ -139,7 +140,7 @@ def normalize_dataset_by_middle_percent(ds, percent=95):
     Returns
     -------
     xarray.Dataset
-        New dataset with normalized data variables.
+        New dataset holding the z-scores.
 
     """
     ds_norm = xr.Dataset(attrs=ds.attrs)
@@ -147,7 +148,7 @@ def normalize_dataset_by_middle_percent(ds, percent=95):
 
     for var in ds.data_vars:
         if ds[var].shape == time_shape:
-            norm_values = normalize_by_middle_percent(ds[var].values, percent)
+            norm_values = to_zscore(ds[var].values, percent)
             ds_norm[var] = xr.DataArray(
                 norm_values,
                 coords=ds[var].coords,
@@ -159,6 +160,15 @@ def normalize_dataset_by_middle_percent(ds, percent=95):
     ds_norm = ds_norm.assign_coords({"TIME": ds["TIME"]})
     return ds_norm
 
+
+
+normalize_by_middle_percent = _deprecated.alias(
+    "oceanarray.legacy.process_rodb.normalize_by_middle_percent", to_zscore
+)
+normalize_dataset_by_middle_percent = _deprecated.alias(
+    "oceanarray.legacy.process_rodb.normalize_dataset_by_middle_percent",
+    to_zscore_dataset,
+)
 
 def trim_suggestion(ds, percent=95, threshold=6, vars_to_check=["T", "C", "P"]):
     """Normalize dataset variables using the middle percentile and determine suggested
@@ -183,7 +193,7 @@ def trim_suggestion(ds, percent=95, threshold=6, vars_to_check=["T", "C", "P"]):
         Suggested deployment end time.
 
     """
-    ds_norm = normalize_dataset_by_middle_percent(ds, percent=percent)
+    ds_norm = to_zscore_dataset(ds, percent=percent)
 
     start_candidates = []
     end_candidates = []

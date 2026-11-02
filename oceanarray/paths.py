@@ -46,7 +46,9 @@ def resolve_report_dir(
     mooring: str,
     outdir: _PathLike | None,
     report_dir: _PathLike | None,
-    proc_root: _PathLike,
+    proc_root: _PathLike | None = None,
+    *,
+    mooring_dir: _PathLike | None = None,
 ) -> Path:
     """Return the directory a mooring's HTML report pages are written to.
 
@@ -54,7 +56,8 @@ def resolve_report_dir(
     :meth:`oceanarray.reports.MooringReport.generate` and the PDF combiner so the
     two never drift.  Priority: explicit *outdir* wins; otherwise a central
     *report_dir* nests each mooring under ``report_dir/<mooring>``; otherwise the
-    default ``proc_root/<mooring>/report``.
+    default ``<mooring_dir>/report`` (``proc_root/<mooring>/report`` when
+    *mooring_dir* is not given).
 
     Parameters
     ----------
@@ -64,8 +67,12 @@ def resolve_report_dir(
         Explicit output directory (``--output-dir``); takes precedence when set.
     report_dir : str or Path, optional
         Central report root (``--report-dir``); each mooring nests below it.
-    proc_root : str or Path
-        Cruise-level processed-data root, used for the default location.
+    proc_root : str or Path, optional
+        Cruise-level processed-data root, used for the default location when
+        *mooring_dir* is not given.
+    mooring_dir : str or Path, optional
+        The mooring's own folder (wherever its description is); the default
+        location is its ``report`` subfolder, whatever the folder is called.
 
     Returns
     -------
@@ -77,6 +84,8 @@ def resolve_report_dir(
         return Path(outdir)
     if report_dir:
         return Path(report_dir) / mooring
+    if mooring_dir is not None:
+        return Path(mooring_dir) / "report"
     return mooring_proc_dir(proc_root, mooring) / "report"
 
 
@@ -268,6 +277,26 @@ def product_glob(product: str) -> str:
             f"unknown product {product!r}; expected one of {sorted(PRODUCTS)}."
         )
     return f"*_{product}.nc"
+
+
+def stale_file(path: _PathLike) -> Path:
+    """Return where a product that no longer matches its stage files is kept.
+
+    ``<name>_stack.nc`` becomes ``<name>_stack.stale.nc``; the stack and grid
+    search patterns (:func:`product_glob`) do not match it.
+
+    Parameters
+    ----------
+    path : str or Path
+        A product file.
+
+    Returns
+    -------
+    Path
+        The stale copy's path, beside the product.
+    """
+    path = Path(path)
+    return path.with_suffix(".stale" + path.suffix)
 
 
 def product_file(mooring_dir: _PathLike, name: str, product: str) -> Path:

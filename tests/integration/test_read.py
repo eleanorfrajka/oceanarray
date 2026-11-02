@@ -11,8 +11,8 @@ from pathlib import Path
 import pytest
 import xarray as xr
 
-from oceanarray import parameters as params
 from oceanarray import readers
+from oceanarray.config import parameters as params
 
 _RAW = Path(__file__).parent.parent / "fixtures" / "raw"
 _DUNE2 = _RAW / "dune2_1_2026"

@@ -123,7 +123,7 @@ def test_merge_priority_single_source():
     Guards against the two merge paths drifting: both derive from
     parameters.QC_MERGE_PRIORITY, so they must agree on every combination.
     """
-    from oceanarray import parameters as params
+    from oceanarray.config import parameters as params
     from oceanarray.pipeline.helpers import _worst_flag
     from oceanarray.pipeline.qc import _QC_PRIORITY
 
@@ -237,7 +237,7 @@ def _make_pressure_dataset(n=50, stuck=False, out_of_range=False):
 def test_apply_qc_tests_good_data():
     """All-good pressure → all flags should be 1 (GOOD)."""
     ds = _make_pressure_dataset()
-    from oceanarray import parameters as params
+    from oceanarray.config import parameters as params
 
     gr = {"pressure": params.QC_GROSS_RANGE["pressure"]}
     result = _apply_qc_tests(ds, gr, {})
@@ -248,7 +248,7 @@ def test_apply_qc_tests_good_data():
 def test_apply_qc_tests_gross_range_flags_bad():
     """Single out-of-range spike → that sample is flagged 4 (BAD)."""
     ds = _make_pressure_dataset(out_of_range=True)
-    from oceanarray import parameters as params
+    from oceanarray.config import parameters as params
 
     gr = {"pressure": params.QC_GROSS_RANGE["pressure"]}
     result = _apply_qc_tests(ds, gr, {})
@@ -260,7 +260,7 @@ def test_apply_qc_tests_gross_range_flags_bad():
 def test_apply_qc_tests_threshold_attrs_stored():
     """Threshold values used must be stored as attrs on the _qc variable."""
     ds = _make_pressure_dataset()
-    from oceanarray import parameters as params
+    from oceanarray.config import parameters as params
 
     gr = {"pressure": params.QC_GROSS_RANGE["pressure"]}
     result = _apply_qc_tests(ds, gr, {})
@@ -279,7 +279,7 @@ def test_apply_qc_tests_flat_line_flags_fail():
     change by more than 1 mbar.
     """
     ds = _make_pressure_dataset(n=50, stuck=True)
-    from oceanarray import parameters as params
+    from oceanarray.config import parameters as params
 
     gr = {"pressure": params.QC_GROSS_RANGE["pressure"]}
     # Use package default tolerance (0.001), NOT 0.0 — see note above

@@ -12,6 +12,9 @@ from typing import Any
 log = logging.getLogger("oceanarray")
 log.setLevel(logging.DEBUG)  # capture everything; handlers filter later
 
+#: Level of the console handler a processing stage attaches (``oceanarray -v``: DEBUG).
+CONSOLE_LEVEL = logging.INFO
+
 # Global logging flag
 # Set to True to enable logging, False to disable
 LOGGING_ENABLED = True
@@ -56,6 +59,9 @@ def log_debug(message: str, *args: Any) -> None:
 def attach_stage_handlers(log_file: Path | None) -> list[logging.Handler]:
     """Send the package's INFO-and-above messages to stdout and *log_file*.
 
+    The console takes :data:`CONSOLE_LEVEL` and above (DEBUG with
+    ``oceanarray -v``).
+
     A processing stage calls this when it starts, so the messages its pure
     functions log reach the console and the stage log as they did when the stage
     printed them. Detach with :func:`detach_handlers`.
@@ -74,8 +80,10 @@ def attach_stage_handlers(log_file: Path | None) -> list[logging.Handler]:
     handlers: list[logging.Handler] = [logging.StreamHandler(sys.stdout)]
     if log_file is not None:
         handlers.append(logging.FileHandler(log_file, encoding="utf-8"))
-    for handler in handlers:
+    handlers[0].setLevel(CONSOLE_LEVEL)
+    for handler in handlers[1:]:
         handler.setLevel(logging.INFO)
+    for handler in handlers:
         handler.setFormatter(formatter)
         log.addHandler(handler)
     return handlers
@@ -86,6 +94,50 @@ def detach_handlers(handlers: list[logging.Handler]) -> None:
     for handler in handlers:
         log.removeHandler(handler)
         handler.close()
+
+
+class StageLog:
+    """One stage's log, open for the length of a ``with`` block.
+
+    On entry the package handlers are attached (:func:`attach_stage_handlers`);
+    calling the instance prints to stdout and appends the same line to the log
+    file; on exit the handlers are detached.
+
+    Parameters
+    ----------
+    mooring_name : str
+        The mooring's name, used in the log filename.
+    stage_name : str
+        The stage, e.g. ``"stage2"``, used in the log filename.
+    mooring_dir : pathlib.Path
+        The mooring's own directory; the log goes under it.
+
+    Attributes
+    ----------
+    file : pathlib.Path
+        The log file.
+    """
+
+    def __init__(self, mooring_name: str, stage_name: str, mooring_dir: Path) -> None:
+        """Choose the log file; nothing is attached until the block is entered."""
+        self.file = setup_stage_logging(mooring_name, stage_name, mooring_dir)
+        self._handlers: list[logging.Handler] = []
+
+    def __enter__(self) -> "StageLog":
+        """Attach the package handlers."""
+        self._handlers = attach_stage_handlers(self.file)
+        return self
+
+    def __exit__(self, *exc: object) -> None:
+        """Detach the package handlers."""
+        detach_handlers(self._handlers)
+        self._handlers = []
+
+    def __call__(self, *args: Any, **kwargs: Any) -> None:
+        """Print to stdout and append to the log file."""
+        print(*args, **kwargs)
+        with self.file.open("a", encoding="utf-8") as f:
+            print(*args, **kwargs, file=f)
 
 
 def with_stage_handlers(method: Callable) -> Callable:
@@ -189,7 +241,7 @@ def setup_stage_logging(mooring_name: str, stage_name: str, proc_dir: Path) -> P
     mooring_name : str
         Name of the mooring (e.g., 'dsE_1_2018')
     stage_name : str
-        Name of the processing stage (e.g., 'stage1', 'stage2', 'time_gridding')
+        Name of the processing stage (e.g., 'stage1', 'stage2', 'stack')
     proc_dir : Path
         Processing directory for the mooring
 

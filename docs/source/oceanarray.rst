@@ -4,14 +4,84 @@
 Load and process moored oceanographic time series data from raw instrument
 format to array-integrated products.
 
-Public entry point
--------------------
+Public API
+----------
+
+``import oceanarray as oa`` gives every name below (``oceanarray.__all__``); each
+loads on first use. A mooring is given as its ``*.mooring.yaml`` path, the folder
+holding it, or a loaded description with ``mooring_dir=``.
+
+.. code-block:: python
+
+   import oceanarray as oa
+
+   yaml_path = "proc/dune2_1_2026/dune2_1_2026.mooring.yaml"
+   oa.run(yaml_path, raw_dir="raw/", report=True)   # stages 1-3, stack, grid, report
+
+   # or step by step, on datasets
+   cfg = oa.mooring.load(yaml_path)
+   ds2 = oa.read_mooring(yaml_path, stage=2)
+   ds3 = oa.stage3(ds2, cfg)
+   stacked = oa.stack(ds3, cfg, dt_seconds=600)
+
+The verbs
+^^^^^^^^^
+
+.. autofunction:: oceanarray.run
+   :no-index:
+
+.. autofunction:: oceanarray.process
+   :no-index:
+
+.. autofunction:: oceanarray.report
+   :no-index:
+
+On datasets
+^^^^^^^^^^^
+
+.. autofunction:: oceanarray.read
+   :no-index:
+
+.. autofunction:: oceanarray.read_mooring
+   :no-index:
+
+.. autofunction:: oceanarray.stage1
+   :no-index:
+
+.. autofunction:: oceanarray.stage2
+   :no-index:
+
+.. autofunction:: oceanarray.stage3
+   :no-index:
+
+.. autofunction:: oceanarray.stack
+   :no-index:
+
+.. autofunction:: oceanarray.grid
+   :no-index:
+
+.. autofunction:: oceanarray.write
+   :no-index:
+
+.. autofunction:: oceanarray.write_mooring
+   :no-index:
+
+Errors
+^^^^^^
+
+.. autoexception:: oceanarray.MooringError
+   :no-index:
+
+.. autoexception:: oceanarray.StageError
+   :no-index:
+
+Pipeline internals
+------------------
 
 process
 ^^^^^^^
-Top-level ``process()`` function, ``STAGES`` registry, and ``resolve_stage()``
-dispatcher.  These are the primary public API for driving the pipeline from
-Python code.
+The ``pipeline`` package: ``process`` and ``run``, the ``STAGES`` registry and
+``resolve_stage()`` used by the pre-0.6 call form.
 
 .. automodule:: oceanarray.pipeline
    :members:
@@ -177,7 +247,7 @@ Mooring processing
 stack
 ^^^^^
 Interpolate multiple instruments onto a common time grid and stack into a
-single mooring dataset (``oceanarray process MOORING --stage stack``).
+single mooring dataset (``oceanarray run``, or :func:`oceanarray.stack` on datasets).
 
 .. automodule:: oceanarray.pipeline.stack
    :members:
@@ -186,7 +256,7 @@ single mooring dataset (``oceanarray process MOORING --stage stack``).
 grid
 ^^^^
 Interpolate stacked mooring data onto a regular pressure grid
-(``oceanarray process MOORING --stage grid``).
+(``oceanarray run MOORING``, or :func:`oceanarray.grid` on a stack).
 
 .. automodule:: oceanarray.pipeline.grid
    :members:

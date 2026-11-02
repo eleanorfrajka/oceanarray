@@ -132,3 +132,30 @@ def test_save_is_lenient_on_incomplete_draft(tmp_path: Path) -> None:
     # The template's serials are None — an ERROR for load, a warning for save.
     p = mooring.save(mooring.template("dsX_1_2026"), tmp_path / "x.mooring.yaml")
     assert p.exists()
+
+
+def test_init_writes_the_optional_blocks_commented_out(tmp_path: Path) -> None:
+    """The stub carries stack:/grid: commented out; uncommented, they are valid and the defaults."""
+    import yaml
+
+    from oceanarray.pipeline._run import DEFAULTS, _settings
+
+    out = mooring.save(
+        mooring.template("dsX_1_2026"),
+        tmp_path / "x.mooring.yaml",
+        optional_blocks=True,
+    )
+    text = out.read_text()
+    assert yaml.safe_load(text).keys().isdisjoint({"stack", "grid"})
+    lines = text.splitlines()
+    start = lines.index("# stack:")
+    uncommented = [
+        ln[2:] if i in range(start, start + 6) else ln for i, ln in enumerate(lines)
+    ]
+    doc = yaml.safe_load("\n".join(uncommented))
+    assert doc["stack"] == DEFAULTS["stack"]
+    assert doc["grid"] == DEFAULTS["grid"]
+    assert _settings(doc) == {**DEFAULTS["stack"], **DEFAULTS["grid"]}
+    assert not [
+        i for i in mooring.check(doc) if "stack" in i.message or "grid" in i.message
+    ]

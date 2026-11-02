@@ -9,19 +9,27 @@ subdirectory name when reading raw files and writing processed output::
 Valid instrument names and their typical file types
 ----------------------------------------------------
 
-+------------+-------------------------------+--------------------------------------+
-| instrument | Description                   | Typical file_type                    |
-+============+===============================+======================================+
-| microcat   | SeaBird SBE37 CTD             | sbe-cnv, sbe-ascii, oceansites, rodb |
-| sbe56      | SeaBird SBE56 temperature     | sbe-cnv                              |
-| sbe16      | SeaBird SBE16 CTD             | sbe-cnv, sbe-hex                     |
-| rbrsolo    | RBR Solo temperature          | rbr-rsk, rbr-dat                     |
-| rbrduet    | RBR Duet CT                   | rbr-rsk, rbr-dat                     |
-| aquadopp   | Nortek Aquadopp current meter | nortek-raw, nortek-ascii, nortek-csv |
++--------------+-------------------------------+--------------------------------------+
+| instrument   | Description                   | Typical file_type                    |
++==============+===============================+======================================+
+| microcat     | SeaBird SBE37 CTD             | sbe-cnv, sbe-ascii, oceansites, rodb |
++--------------+-------------------------------+--------------------------------------+
+| sbe56        | SeaBird SBE56 temperature     | sbe-cnv                              |
++--------------+-------------------------------+--------------------------------------+
+| sbe16        | SeaBird SBE16 CTD             | sbe-cnv, sbe-hex                     |
++--------------+-------------------------------+--------------------------------------+
+| rbrsolo      | RBR Solo temperature          | rbr-rsk, rbr-dat                     |
++--------------+-------------------------------+--------------------------------------+
+| rbrduet      | RBR Duet CT                   | rbr-rsk, rbr-dat                     |
++--------------+-------------------------------+--------------------------------------+
+| aquadopp     | Nortek Aquadopp current meter | nortek-raw, nortek-ascii, nortek-csv |
++--------------+-------------------------------+--------------------------------------+
 | currentmeter | Processed point current meter | oceansites, rodb                     |
-| adcp       | Acoustic Doppler Current Prof | adcp-matlab                          |
-| tr1050     | Turner TR-1050 (via RBR)      | rbr-matlab                           |
-+------------+-------------------------------+--------------------------------------+
++--------------+-------------------------------+--------------------------------------+
+| adcp         | Acoustic Doppler Current Prof | adcp-matlab                          |
++--------------+-------------------------------+--------------------------------------+
+| tr1050       | Turner TR-1050 (via RBR)      | rbr-matlab                           |
++--------------+-------------------------------+--------------------------------------+
 
 Do NOT use hardware/model names as the instrument value:
   - ``sbe37``  → use ``microcat``
@@ -76,8 +84,8 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import NamedTuple
 
-from oceanarray import parameters as params
 from oceanarray import paths
+from oceanarray.config import parameters as params
 
 # Instrument-type validity is single-sourced from ``parameters.KNOWN_INSTRUMENT_TYPES``
 # (derived from ``INSTRUMENT_FILE_TYPES``).  This keeps ``oceanarray list`` and
@@ -234,8 +242,8 @@ def validate_mooring_yaml(yaml_path: str) -> list[ValidationIssue]:
 
     .. deprecated::
         Use :func:`oceanarray.mooring.check`, which reads the file once and adds
-        the unknown-key check. This wrapper delegates to it and will be removed in
-        a future release.
+        the unknown-key check. This wrapper delegates to it and is removed in
+        0.7.0.
 
     Parameters
     ----------
@@ -247,15 +255,10 @@ def validate_mooring_yaml(yaml_path: str) -> list[ValidationIssue]:
     list of ValidationIssue
         One issue per finding; an empty list means the file passed all checks.
     """
-    import warnings
-
+    from oceanarray import _deprecated
     from oceanarray import mooring as _mooring
 
-    warnings.warn(
-        "validate_mooring_yaml is deprecated; use oceanarray.mooring.check instead.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
+    _deprecated.warn("oceanarray.config.validation.validate_mooring_yaml")
     return _mooring.check(yaml_path)
 
 
@@ -265,6 +268,7 @@ def validate_mooring(
     """Validate a parsed mooring configuration mapping.
 
     Checks:
+
     - Required top-level keys are present
     - The ``name`` matches *dir_name* when both are given (output filenames use
       the directory name, so a mismatch loads zero files on a case-sensitive

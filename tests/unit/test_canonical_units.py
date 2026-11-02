@@ -20,7 +20,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from oceanarray import parameters as params
+from oceanarray.config import parameters as params
 from oceanarray.config import unit_tables as ut
 from oceanarray.pipeline import units as pu
 
@@ -434,17 +434,6 @@ def test_missing_units_message_points_at_the_reader():
         pu.to_canonical_units(_ds(temperature=([10.0], "")))
 
 
-def test_deprecated_tables_warn_and_match_the_old_shape():
-    with pytest.warns(DeprecationWarning, match="UNIT_ALIASES"):
-        aliases = params.UNIT_ALIASES
-    assert aliases["mS cm-1"]["S/m"] == 10.0
-    with pytest.warns(DeprecationWarning, match="VARIABLE_UNIT_ALIASES"):
-        scoped = params.VARIABLE_UNIT_ALIASES
-    # rebuilt from the live tables: the old entries are still there
-    assert scoped["salinity"]["PSU"] == 1.0
-    assert scoped["turbidity"]["NTU"] == 1.0
-
-
 def test_units_layer_imports_no_plotting_or_templating():
     """The storage pass reaches into the vendored layer for its tables only."""
     code = (
@@ -456,15 +445,6 @@ def test_units_layer_imports_no_plotting_or_templating():
         [sys.executable, "-c", code], capture_output=True, text=True, check=True
     )
     assert out.stdout.strip() == "", f"pipeline.units imports {out.stdout.strip()}"
-
-
-def test_deprecated_names_warn_and_delegate():
-    ds = _ds(temperature=([10.0], "degC"))
-    with pytest.warns(DeprecationWarning, match="to_canonical_units"):
-        out = pu.canonicalise_units(ds)
-    assert out["temperature"].attrs["units"] == "degree_Celsius"
-    with pytest.warns(DeprecationWarning, match="unit_label"):
-        assert pu.format_units("mS cm-1") == "mS/cm"
 
 
 def test_degree_symbol_accepted_and_bare_deg_refused():

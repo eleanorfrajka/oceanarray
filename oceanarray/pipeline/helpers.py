@@ -6,7 +6,7 @@ from typing import Any
 import numpy as np
 import xarray as xr
 
-from oceanarray import parameters as params
+from oceanarray.config import parameters as params
 from oceanarray.paths import safe_serial, stage_file
 
 STACK_VARS = [

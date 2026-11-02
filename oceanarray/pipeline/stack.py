@@ -1,13 +1,14 @@
 """MooringStacker: interpolate all instruments on a mooring onto a common time grid."""
 
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 
 import numpy as np
 import xarray as xr
 
 from oceanarray import mooring as _mooring
-from oceanarray import parameters as params
 from oceanarray import paths
+from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
 from oceanarray.pipeline.helpers import (
     STACK_VARS,
@@ -28,6 +29,7 @@ from oceanarray.utilities import (
     parse_latlon,
 )
 from oceanarray.writers import write
+from oceanarray.writers.netcdf import as_stored
 
 KNOWN_INSTRUMENT_TYPES: frozenset = params.KNOWN_INSTRUMENT_TYPES
 
@@ -71,6 +73,7 @@ def stack(
     *,
     dt_seconds: int = 60,
     omitted: list[str] | None = None,
+    stage2_reason: str = "no stage-3 file",
 ) -> xr.Dataset:
     """Stack a mooring's instruments onto a common time axis.
 
@@ -94,6 +97,9 @@ def stack(
     omitted : list of str or None, optional
         Instruments the caller already dropped (e.g. unreadable files), recorded
         in ``instruments_omitted`` with the ones dropped here.
+    stage2_reason : str, optional
+        Why any stage-2 datasets were stacked, recorded in ``stage2_reason`` and
+        shown in the report's amber note (e.g. ``"stage 3 failed in this run"``).
 
     Returns
     -------
@@ -160,7 +166,14 @@ def stack(
         if hab is None:
             continue
         if serial not in datasets:
-            print(f"  SKIP {instr_type} s/n {serial}: no stage2/stage3 file")
+            why = next(
+                (o for o in omitted or () if f"s/n {serial} " in f"{o} "),
+                None,
+            )
+            print(
+                f"  SKIP {instr_type} s/n {serial}: "
+                + ("left out, see below" if why else "no stage2/stage3 file")
+            )
             continue
         ds_in = datasets[serial]
         instruments.append(
@@ -399,7 +412,7 @@ def stack(
             f"  NOTE: {len(dropped_ts_vars)} stage-3 time-series variable(s) not in "
             f"STACK_VARS were dropped from the stack: "
             f"{', '.join(sorted(dropped_ts_vars))}. "
-            f"Add them to STACK_VARS in mooring/helpers.py to retain them."
+            f"Add them to oceanarray.pipeline.helpers.STACK_VARS to retain them."
         )
 
     # Drop omitted instruments from every per-level array/list so the written
@@ -651,6 +664,20 @@ def stack(
                 np.array(instr_types),
                 {"long_name": "instrument type"},
             ),
+            "source_stage": xr.Variable(
+                "N_LEVELS",
+                np.array(
+                    [int(label.removeprefix("stage") or 0) for label in stage_labels],
+                    dtype=np.int8,
+                ),
+                {
+                    "long_name": "processing stage of the instrument file the level "
+                    "came from",
+                    "comment": "3 normally; 2 only in a keep-going run, where an "
+                    "instrument without a stage-3 file is stacked from its stage-2 "
+                    "file; 0 if unknown",
+                },
+            ),
         },
     )
     _lat_str = (
@@ -693,6 +720,56 @@ def stack(
     # OceanSITES convention: time is the unlimited (first) dimension.
     ds_out = ds_out.transpose("time", "N_LEVELS")
     ds_out = to_canonical_units(ds_out, log_fn=print, stage="stack")
+    ds_out.attrs["data_mode"] = "P"
+    at_stage2 = sorted(
+        {s for s, label in zip(serials, stage_labels, strict=True) if label == "stage2"}
+    )
+    if at_stage2:
+        ds_out.attrs["stage2_instruments"] = " ".join(at_stage2)
+        ds_out.attrs["stage2_reason"] = stage2_reason
+        # Stage 2 has no magnetic declination: name the levels whose east/north
+        # velocities are therefore referenced to magnetic north.
+        if "east_velocity" in ds_out:
+            magnetic = sorted(
+                {
+                    s
+                    for i, (s, label) in enumerate(
+                        zip(serials, stage_labels, strict=True)
+                    )
+                    if label == "stage2"
+                    and np.isfinite(ds_out["east_velocity"].isel(N_LEVELS=i)).any()
+                }
+            )
+            if magnetic:
+                ds_out.attrs["stage2_magnetic_north"] = " ".join(magnetic)
+        # Current meters whose stage-2 velocities are in instrument coordinates
+        # (beam or XYZ): stage 3 rotates them to east/north, so the stack has none.
+        if "instrument_type" in ds_out:
+            has_enu = "east_velocity" in ds_out
+            no_velocity = sorted(
+                {
+                    s
+                    for i, (s, label, itype) in enumerate(
+                        zip(
+                            serials,
+                            stage_labels,
+                            ds_out["instrument_type"].values,
+                            strict=True,
+                        )
+                    )
+                    if label == "stage2"
+                    and str(itype).lower() in ("aquadopp", "adcp")
+                    and not (
+                        has_enu
+                        and np.isfinite(ds_out["east_velocity"].isel(N_LEVELS=i)).any()
+                    )
+                }
+            )
+            if no_velocity:
+                ds_out.attrs["stage2_no_velocity"] = " ".join(no_velocity)
+        print(
+            f"  WARNING: stacked from stage 2 ({stage2_reason}): {' '.join(at_stage2)}"
+        )
     if excluded:
         ds_out.attrs["instruments_excluded"] = "; ".join(excluded)
     if omitted:
@@ -705,7 +782,7 @@ def stack(
         )
         for line in omitted:
             print(f"    - {line}")
-    return ds_out
+    return as_stored(ds_out)
 
 
 def _read_best_stage(
@@ -743,8 +820,130 @@ def _read_best_stage(
     return datasets, omitted
 
 
+def _stack_file(
+    mooring: dict,
+    mooring_dir: Path,
+    *,
+    dt_seconds: int = 60,
+    keep_going: bool = False,
+    failed: Mapping[str, str] | None = None,
+    from_stage2: bool = False,
+    stage2_reason: str | None = None,
+    failures: Sequence[str] = (),
+) -> tuple[Path, xr.Dataset]:
+    """Stack a mooring's stage-3 files and write the stack file; return its path and dataset.
+
+    Every instrument that is not marked ``skip`` or ``stack: false`` and has a
+    ``hab`` must have a stage-3 file. With *keep_going* an instrument without one
+    is stacked from its stage-2 file (recorded in ``source_stage`` and
+    ``stage2_instruments``), and one with neither, or whose file cannot be read,
+    is left out and named in ``instruments_omitted``.
+
+    Parameters
+    ----------
+    mooring : dict
+        The loaded mooring description.
+    mooring_dir : pathlib.Path
+        The mooring's own directory.
+    dt_seconds : int, optional
+        Spacing of the stack's time axis.
+    keep_going : bool, optional
+        Stack what exists instead of raising (see above).
+    failed : Mapping of str to str or None, optional
+        Serials that failed in stages 1–3 of this run, with the reason. Their files
+        on disk are older than this run, so they are left out and named in
+        ``instruments_omitted`` rather than stacked.
+    from_stage2 : bool, optional
+        Stack every instrument from its stage-2 file: stage 3 failed as a whole in
+        this run (any stage-3 file on disk is older than it), or the caller asked
+        for a stage-2 quick look (``run(stack_stage=2)``).
+    stage2_reason : str or None, optional
+        Why stage-2 files were stacked, recorded in ``stage2_reason``; None gives
+        ``"no stage-3 file"`` (the per-instrument fallback with ``keep_going``).
+    failures : sequence of str, optional
+        What failed in this run, recorded in the stack's ``keep_going_failures``
+        attribute (the grid inherits it).
+
+    Returns
+    -------
+    tuple of pathlib.Path and xarray.Dataset
+        The stack file written and the stack.
+
+    Raises
+    ------
+    oceanarray.exceptions.MooringError
+        Without *keep_going*: if an instrument has no readable stage-3 file. With
+        or without it: if nothing can be stacked.
+    """
+    name = mooring["name"]
+    failed = dict(failed or {})
+    if from_stage2:
+        stages: tuple[int, ...] = (2,)
+    else:
+        stages = (3, 2) if keep_going else (3,)
+    datasets: dict[str, xr.Dataset] = {}
+    missing: list[str] = []
+    omitted: list[str] = []
+    for entry in instrument_entries(mooring):
+        if not isinstance(entry, dict) or entry.get("skip"):
+            continue
+        if entry.get("stack", True) is False or entry.get("hab") is None:
+            continue
+        serial = _safe_serial(entry.get("serial", ""))
+        instr_type = entry.get("instrument", "unknown")
+        if serial in failed:
+            omitted.append(
+                f"{instr_type} s/n {serial} ({failed[serial]} this run; its older "
+                "files are not used)"
+            )
+            continue
+        found = [
+            (n, path)
+            for n in stages
+            if (
+                path := paths.stage_file(mooring_dir, name, instr_type, serial, n)
+            ).exists()
+        ]
+        if not found:
+            missing.append(f"{instr_type} s/n {serial}")
+            continue
+        stage_n, path = found[0]
+        try:
+            datasets[serial] = read_mooring(
+                mooring, stage=stage_n, serials=[serial], mooring_dir=mooring_dir
+            )[serial].load()
+        except Exception as e:
+            if not keep_going:
+                raise MooringError(f"{name}: could not read {path.name}: {e}") from e
+            omitted.append(
+                f"{instr_type} s/n {serial} (could not load {path.name}: {e})"
+            )
+    if missing and not keep_going:
+        raise MooringError(
+            f"{name}: no stage-3 file for {', '.join(missing)}. Run stage 3, mark "
+            "the instrument 'skip: true', or use keep_going=True to stack what exists."
+        )
+    omitted += [
+        f"{m} (no stage-{'2' if from_stage2 else '2 or stage-3'} file)" for m in missing
+    ]
+    ds = stack(
+        datasets,
+        mooring,
+        dt_seconds=dt_seconds,
+        omitted=omitted,
+        stage2_reason=stage2_reason or "no stage-3 file",
+    )
+    if failures:
+        ds.attrs["keep_going_failures"] = "; ".join(failures)
+    return write(ds, paths.product_file(mooring_dir, name, "stack"), overwrite=True), ds
+
+
 class MooringStacker:
-    """Step 1: stack all instruments onto a common time axis → ``_stack.nc``."""
+    """Step 1: stack all instruments onto a common time axis → ``_stack.nc``.
+
+    .. deprecated:: 0.6.0
+        Removed in 0.7.0; see the migration page.
+    """
 
     def __init__(
         self,
@@ -765,6 +964,9 @@ class MooringStacker:
             ``/{mooring}/`` internally (see :func:`oceanarray.paths.mooring_proc_dir`).
 
         """
+        from oceanarray import _deprecated
+
+        _deprecated.warn("oceanarray.pipeline.stack.MooringStacker")
         self._proc_dir = Path(proc_dir)
 
     def _resolve_proc_dir(self, mooring_name: str) -> Path:

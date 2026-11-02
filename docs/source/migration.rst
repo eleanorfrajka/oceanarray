@@ -7,6 +7,10 @@ Migrating from the ``--basedir`` Layout
 Upgrading from 0.5 to 0.6
 -------------------------
 
+See :doc:`migrating_0_6_0`.
+
+----
+
 0.6.0 is a breaking release.  If you are upgrading an existing install:
 
 - **The ``oceanarray.processors`` package is now ``oceanarray.pipeline``.**  Update
@@ -224,7 +228,7 @@ After moving the files, confirm that the YAML is still valid and that stage
    oceanarray process dsG3_1_2026 \
        --raw-dir /data/cruise2026/raw \
        --proc-dir /data/cruise2026/proc \
-       --stage 1 --serial 26261 --force
+       --stage 1 --only 26261 --force
 
 If stage 1 completes without errors, the migration was successful.  The
 output file is the same as before — the only change is where ``oceanarray``

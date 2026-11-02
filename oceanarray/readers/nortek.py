@@ -1,7 +1,7 @@
 """Nortek (Aquadopp / AquaPro) header parsers and variable normalisers.
 
 The ``.hdr`` parsers read the coordinate system, transformation matrix and
-pressure calibration from a Nortek header file; :func:`normalize_nortek_variables`
+pressure calibration from a Nortek header file; :func:`to_canonical_nortek`
 tidies the dataset seasenselib produces; :func:`load_nortek_csv` reads the
 AquaPro CSV export directly.
 """
@@ -156,9 +156,7 @@ def _parse_nortek_pressure_cal(hdr_path: Path) -> dict:
     return cal
 
 
-def normalize_nortek_variables(
-    dataset: xr.Dataset, coord_system: str = "ENU"
-) -> xr.Dataset:
+def to_canonical_nortek(dataset: xr.Dataset, coord_system: str = "ENU") -> xr.Dataset:
     """Normalise variable names produced by the seasenselib nortek readers.
 
     The Nortek .hdr file describes columns for both the main .dat file and the

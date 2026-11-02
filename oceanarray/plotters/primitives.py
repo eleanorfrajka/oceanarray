@@ -25,7 +25,7 @@ from matplotlib.collections import LineCollection
 
 from oceanarray.reports._vendored import design_tokens as report_tokens
 
-from .. import parameters as params
+from ..config import parameters as params
 from ..utilities import _nice_colorbar_bounds, nice_colorbar_ticks
 from .helpers import grid_despine
 
@@ -462,7 +462,7 @@ def unit_colorbar(
     return cb
 
 
-def plot_trajectory(
+def draw_trajectory(
     x: np.ndarray,
     y: np.ndarray,
     color_data: np.ndarray | None = None,

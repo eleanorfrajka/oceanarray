@@ -31,6 +31,7 @@ from ..plotters.diagnostic import (
     _PANEL_HEIGHT,
     _instrument_panels,
     draw_data_histogram,
+    draw_instrument_spacing,
     draw_velocity_iqr_profile,
     draw_windows,
 )
@@ -41,8 +42,8 @@ from ..plotters.helpers import (  # noqa: F401
 )
 from ..plotters.hydrography import (
     draw_isopycnal_coverage,
-    draw_isopycnal_ts_fig,
-    draw_overflow_temperature_fig,
+    draw_isopycnal_ts,
+    draw_overflow_temperature,
 )
 from ..plotters.primitives import (
     date_axis,
@@ -55,12 +56,13 @@ from ..plotters.spectrum import (
 )
 from ..plotters.timeseries import (
     draw_analog_timeseries,
-    draw_grid_fig,
+    draw_grid,
     draw_grid_hydro,
     draw_grid_n2,
     draw_grid_sigma,
     draw_grid_timeseries,
     draw_grid_velocity_stacked,
+    draw_stack_timeseries,
 )
 from ..plotters.ts import (
     draw_grid_ts_diagram,
@@ -71,6 +73,7 @@ from ._figdebug import render_b64
 from ._html_helpers import _QC_LABELS
 from ._slots import render as render_slot
 from ._vendored import design_tokens as report_tokens
+from ._vendored.figure_png import source_for
 
 log = logging.getLogger(__name__)
 
@@ -98,7 +101,7 @@ def _plot_aquadopp_quick(ds: xr.Dataset) -> plt.Figure:
     """Quick-look figure for Aquadopp; handles beam and ENU naming, lowercase attitude."""
     import matplotlib.pyplot as plt
 
-    from .. import parameters as params
+    from ..config import parameters as params
 
     panels: list[tuple] = []
 
@@ -229,7 +232,7 @@ def _build_fig_from_ds(
     """
     import matplotlib.pyplot as plt
 
-    from .. import parameters as params
+    from ..config import parameters as params
 
     ds = _augment_tilt(ds)
     if panels is None:
@@ -405,6 +408,7 @@ def _make_instrument_fig(
                     ds, instr_type, show_qc=show_qc, panels=c
                 ),
                 optional=True,
+                source=source_for(_build_fig_from_ds),
             )
             if b64:
                 images.append(b64)
@@ -480,7 +484,7 @@ def _make_grid_fig_b64(
 ) -> str | None:
     """Render a grid figure from *da* (dims time × pressure); return base64 PNG or None."""
     return render_slot(
-        draw_grid_fig,
+        draw_grid,
         da,
         title,
         units,
@@ -577,7 +581,12 @@ def _make_grid_ts_diagram(ds: xr.Dataset, n_bins: int = 60) -> tuple[str | None,
     # Displayed at half width (template slot-half); rendering at that width keeps
     # the PNG px == display px.  With O₂ the diagram gains a panel but the page
     # still shows it at half — same as before U0.2, now without the oversample.
-    return render_slot(_draw, slot="half", optional=True), ts_bounds
+    return (
+        render_slot(
+            _draw, slot="half", optional=True, source=source_for(draw_grid_ts_diagram)
+        ),
+        ts_bounds,
+    )
 
 
 def _make_velocity_iqr_profile_b64(ds: xr.Dataset) -> str | None:
@@ -605,7 +614,7 @@ def _make_rose_grid_b64(
         fig, n_panels = result
         return fig
 
-    return render_b64(_draw, optional=True), n_panels
+    return render_b64(_draw, optional=True, source=source_for(draw_rose_grid)), n_panels
 
 
 def _make_grid_rose_b64(ds: xr.Dataset, max_roses: int = 4) -> str | None:
@@ -625,7 +634,7 @@ def _make_grid_timeseries_b64(ds: xr.Dataset) -> str | None:
 
 def _make_isopycnal_ts_fig_b64(ds_iso: xr.Dataset) -> str | None:
     """Return base64 PNG: isopycnal height-above-seabed time series."""
-    return render_b64(draw_isopycnal_ts_fig, ds_iso, optional=True)
+    return render_b64(draw_isopycnal_ts, ds_iso, optional=True)
 
 
 def _make_isopycnal_coverage_fig_b64(ds: xr.Dataset) -> str | None:
@@ -635,7 +644,7 @@ def _make_isopycnal_coverage_fig_b64(ds: xr.Dataset) -> str | None:
 
 def _make_overflow_temperature_fig_b64(ds: xr.Dataset) -> str | None:
     """Return base64 PNG: temperature time series at ~100 m above the seabed."""
-    return render_b64(draw_overflow_temperature_fig, ds, optional=True)
+    return render_b64(draw_overflow_temperature, ds, optional=True)
 
 
 # ---------------------------------------------------------------------------
@@ -648,26 +657,30 @@ def _make_temperature_trajectory(nc_path: str) -> str | None:
     """Lagrangian trajectory coloured by temperature, for Aquadopp instrument page."""
     import xarray as xr
 
-    from oceanarray.plotters.current import plot_temperature_trajectory
+    from oceanarray.plotters.current import draw_temperature_trajectory
 
     def _draw() -> plt.Figure:
         with xr.open_dataset(nc_path) as ds:
-            return plot_temperature_trajectory(ds)
+            return draw_temperature_trajectory(ds)
 
-    return render_b64(_draw, optional=True)
+    return render_b64(
+        _draw, optional=True, source=source_for(draw_temperature_trajectory)
+    )
 
 
 def _make_speed_boxplot(nc_path: str) -> str | None:
     """Speed boxplot with percentile statistics, for Aquadopp instrument page."""
     import xarray as xr
 
-    from oceanarray.plotters.current import plot_speed_boxplot
+    from oceanarray.plotters.current import draw_speed_boxplot
 
     def _draw(*, width_in: float = report_tokens.W_QUARTER) -> plt.Figure:
         with xr.open_dataset(nc_path) as ds:
-            return plot_speed_boxplot(ds, width_in=width_in)
+            return draw_speed_boxplot(ds, width_in=width_in)
 
-    return render_slot(_draw, slot="quarter", optional=True)
+    return render_slot(
+        _draw, slot="quarter", optional=True, source=source_for(draw_speed_boxplot)
+    )
 
 
 def _make_hodograph_b64(nc_path: str) -> str | None:
@@ -679,13 +692,13 @@ def _make_hodograph_b64(nc_path: str) -> str | None:
     """
     import xarray as xr
 
-    from oceanarray.plotters.current import plot_hodograph
+    from oceanarray.plotters.current import draw_hodograph
 
     def _draw() -> plt.Figure:
         with xr.open_dataset(nc_path) as ds:
-            return plot_hodograph(ds)
+            return draw_hodograph(ds)
 
-    return render_b64(_draw)
+    return render_b64(_draw, source=source_for(draw_hodograph))
 
 
 def _make_multi_aquadopp_trajectories(ds: xr.Dataset) -> str | None:
@@ -694,9 +707,39 @@ def _make_multi_aquadopp_trajectories(ds: xr.Dataset) -> str | None:
     Takes an already-loaded xarray.Dataset (not a path) since the stack report
     has the dataset in memory when it calls this function.
     """
-    from oceanarray.plotters.current import plot_multi_aquadopp_trajectories
+    from oceanarray.plotters.current import draw_multi_aquadopp_trajectories
 
-    return render_slot(plot_multi_aquadopp_trajectories, ds, slot="half", optional=True)
+    return render_slot(draw_multi_aquadopp_trajectories, ds, slot="half", optional=True)
+
+
+def _make_stack_timeseries_b64(
+    ds: xr.Dataset,
+    rows: list[tuple[str, str, bool, set[str] | None]],
+    *,
+    color_var: str,
+    dot_overlay: bool = False,
+) -> str | None:
+    """Stack time series (one row per variable, one line per level), full width, for the stack page."""
+    return render_slot(
+        draw_stack_timeseries,
+        ds,
+        rows,
+        color_var=color_var,
+        dot_overlay=dot_overlay,
+        optional=True,
+    )
+
+
+def _make_aquadopp_tilt_panels(ds: xr.Dataset, step: int = 1) -> str | None:
+    """|pitch|, |roll| and pressure tilt per Aquadopp, full width, for the stack page."""
+    from oceanarray.plotters.current import draw_aquadopp_tilt_panels
+
+    return render_slot(draw_aquadopp_tilt_panels, ds, step=step, optional=True)
+
+
+def _make_instrument_spacing_b64(ds: xr.Dataset) -> str | None:
+    """Adjacent-instrument pressure spacing histogram, a third wide, for the stack page."""
+    return render_slot(draw_instrument_spacing, ds, slot="third", optional=True)
 
 
 def _make_aquadopp_speed_profile(ds: xr.Dataset) -> str | None:
@@ -704,9 +747,9 @@ def _make_aquadopp_speed_profile(ds: xr.Dataset) -> str | None:
 
     Takes an already-loaded xarray.Dataset (not a path).
     """
-    from oceanarray.plotters.current import plot_aquadopp_speed_profile
+    from oceanarray.plotters.current import draw_aquadopp_speed_profile
 
-    return render_slot(plot_aquadopp_speed_profile, ds, slot="half", optional=True)
+    return render_slot(draw_aquadopp_speed_profile, ds, slot="half", optional=True)
 
 
 def _make_adcp_trajectories_b64(ds: xr.Dataset) -> str | None:
@@ -714,9 +757,9 @@ def _make_adcp_trajectories_b64(ds: xr.Dataset) -> str | None:
 
     Takes an already-loaded xarray.Dataset (not a path).
     """
-    from oceanarray.plotters.current import plot_adcp_trajectories
+    from oceanarray.plotters.current import draw_adcp_trajectories
 
-    return render_slot(plot_adcp_trajectories, ds, slot="half", optional=True)
+    return render_slot(draw_adcp_trajectories, ds, slot="half", optional=True)
 
 
 def _make_adcp_velocity_b64(nc_path: str) -> str | None:
@@ -849,55 +892,55 @@ def _make_knockdown_pressure_b64(ds: xr.Dataset) -> str | None:
     """IQR of measured pressure vs. nominal pressure, for the stack report.
 
     Thin Tier-3 wrapper around
-    ``plotters.diagnostic.plot_knockdown_pressure``.  Takes an already-loaded
+    ``plotters.diagnostic.draw_knockdown_pressure``.  Takes an already-loaded
     xarray.Dataset (not a path).
 
     Returns a base64-encoded PNG string or None when no data are available.
     """
-    from oceanarray.plotters.diagnostic import plot_knockdown_pressure
+    from oceanarray.plotters.diagnostic import draw_knockdown_pressure
 
-    return render_b64(plot_knockdown_pressure, ds, optional=True)
+    return render_b64(draw_knockdown_pressure, ds, optional=True)
 
 
 def _make_knockdown_hab_b64(ds: xr.Dataset) -> str | None:
     """IQR of measured HAB vs. nominal HAB, for the stack report.
 
     Thin Tier-3 wrapper around
-    ``plotters.diagnostic.plot_knockdown_hab``.  Takes an already-loaded
+    ``plotters.diagnostic.draw_knockdown_hab``.  Takes an already-loaded
     xarray.Dataset (not a path).
 
     Returns a base64-encoded PNG string or None when no data are available.
     """
-    from oceanarray.plotters.diagnostic import plot_knockdown_hab
+    from oceanarray.plotters.diagnostic import draw_knockdown_hab
 
-    return render_slot(plot_knockdown_hab, ds, slot="half", optional=True)
+    return render_slot(draw_knockdown_hab, ds, slot="half", optional=True)
 
 
 def _make_knockdown_displacement_b64(ds: xr.Dataset) -> str | None:
     """Scatter of estimated horizontal displacement vs. measured pressure.
 
     Thin Tier-3 wrapper around
-    ``plotters.diagnostic.plot_knockdown_displacement``.
+    ``plotters.diagnostic.draw_knockdown_displacement``.
 
     Returns a base64-encoded PNG string or None when no data are available.
     """
-    from oceanarray.plotters.diagnostic import plot_knockdown_displacement
+    from oceanarray.plotters.diagnostic import draw_knockdown_displacement
 
-    return render_slot(plot_knockdown_displacement, ds, slot="full", optional=True)
+    return render_slot(draw_knockdown_displacement, ds, slot="full", optional=True)
 
 
 def _make_knockdown_anomaly_b64(ds: xr.Dataset) -> str | None:
     """IQR of pressure anomaly (measured − nominal) per instrument, for the stack report.
 
     Thin Tier-3 wrapper around
-    ``plotters.diagnostic.plot_knockdown_anomaly``.  Takes an already-loaded
+    ``plotters.diagnostic.draw_knockdown_anomaly``.  Takes an already-loaded
     xarray.Dataset (not a path).
 
     Returns a base64-encoded PNG string or None when no data are available.
     """
-    from oceanarray.plotters.diagnostic import plot_knockdown_anomaly
+    from oceanarray.plotters.diagnostic import draw_knockdown_anomaly
 
-    return render_slot(plot_knockdown_anomaly, ds, slot="half", optional=True)
+    return render_slot(draw_knockdown_anomaly, ds, slot="half", optional=True)
 
 
 def _make_clock_check_b64(
@@ -909,7 +952,7 @@ def _make_clock_check_b64(
     """Overlaid normalised-temperature comparison ±window around deploy/recover.
 
     Thin Tier-3 wrapper around
-    ``plotters.diagnostic.plot_clock_offset_check``.
+    ``plotters.diagnostic.draw_clock_offset_check``.
 
     Parameters
     ----------
@@ -928,10 +971,10 @@ def _make_clock_check_b64(
         Base64-encoded PNG for HTML embedding, or None.
 
     """
-    from oceanarray.plotters.diagnostic import plot_clock_offset_check
+    from oceanarray.plotters.diagnostic import draw_clock_offset_check
 
     return render_b64(
-        plot_clock_offset_check,
+        draw_clock_offset_check,
         nc_paths,
         deploy_dt,
         recover_dt,

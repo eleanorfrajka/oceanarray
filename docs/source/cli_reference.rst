@@ -9,12 +9,26 @@ stage (including the ``stack`` and ``grid`` stages), inspect with
 ``oceanarray report``, then use ``oceanarray run`` to reproduce the full pipeline
 in one command.
 
-All processing subcommands accept a mooring name as the first positional
-argument.  The mooring name is used to locate the YAML file at
-``{proc_dir}/{mooring}/{mooring}.mooring.yaml``.
+``process``, ``run``, ``report`` and ``animate`` take the mooring as the first
+positional argument, in either of two forms:
 
-Without ``--force``, every subcommand skips any output file that already
-exists.  Add ``--force`` to overwrite.
+- the path to its ``*.mooring.yaml``, or to the folder holding it — the folder can
+  have any name, and every file is named from the description's ``name:``;
+- with ``--proc-dir``, the mooring's name: the folder is ``{proc_dir}/{name}``.
+
+.. code-block:: bash
+
+   oceanarray run /data/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml --raw-dir /data/raw
+   oceanarray run dsG3_1_2026 --proc-dir /data/proc --raw-dir /data/raw   # the same
+
+``--only SERIAL ...`` restricts a command to those instruments (``--serial`` is the
+old spelling, accepted until 0.7.0).  ``-v`` also prints the processing stages'
+debug messages.
+
+Without ``--force``, the stages keep a file that already exists (stage 1 also
+rewrites one older than its raw file) and the report pages keep one newer than its
+inputs; add ``--force`` to rewrite.  ``oceanarray run``
+rebuilds the stack and grid every time.
 
 The flag lists below are generated from the argument parser
 (:func:`oceanarray.cli.build_parser`), so they cannot drift from the code.
@@ -133,11 +147,11 @@ The recommended sequence for a new mooring is:
   Aquadopp velocities to earth coordinates, and applies magnetic declination
   correction.  Writes ``{mooring}_{serial}_stage3.nc``.
 - **stack**: interpolates all instruments onto a common time axis and writes
-  ``{mooring}_stack.nc``.  Instruments sampling faster than ``--dt`` are
+  ``{mooring}_stack.nc``.  Instruments sampling faster than ``--dt-seconds`` are
   subsampled by nearest-neighbour; slower instruments are interpolated linearly.
   The 60-second default suits most mooring data; for high-frequency analysis
   (e.g. internal waves from fast thermistors) work from the ``_stage3.nc`` files
-  or build a finer stack with ``--dt``.
+  or build a finer stack with ``--dt-seconds``.
 - **grid**: interpolates the stack onto a regular pressure grid and writes
   ``{mooring}_grid.nc``.  Values outside the instrument depth range at each time
   step are set to NaN.  QC flags from stage 3 are not consulted — data flagged
@@ -160,19 +174,20 @@ Rerun stage 2 for a single instrument after updating the YAML:
 
 .. code-block:: bash
 
-   oceanarray process dsG3_1_2026 --raw-dir /data/raw --proc-dir /data/proc --stage 2 --serial 26261 --force
+   oceanarray process dsG3_1_2026 --raw-dir /data/raw --proc-dir /data/proc --stage 2 --only 26261 --force
 
-Full pipeline — all instrument stages plus stack and grid:
-
-.. code-block:: bash
-
-   oceanarray process dsG3_1_2026 --raw-dir /data/raw --proc-dir /data/proc --stage 1 2 3 stack grid
-
-Stack and grid only (after stages 1–3 already ran), non-default grid spacing:
+See what each stage would write, without writing anything:
 
 .. code-block:: bash
 
-   oceanarray process dsG3_1_2026 --proc-dir /data/proc --stage stack grid --dp 10 --pmin 100 --pmax 2000
+   oceanarray process /data/proc/dsG3_1_2026 --dry-run
+
+The stack and grid are built by ``oceanarray run`` (``process --stage stack grid``
+still works, with a note, until 0.7.0):
+
+.. code-block:: bash
+
+   oceanarray run dsG3_1_2026 --proc-dir /data/proc --stage 3 --dp 10 --pmin 100 --pmax 2000
 
 ----
 
@@ -306,7 +321,7 @@ Show an interactive overview plot of processed data, or save it to a file.
 
 .. code-block:: bash
 
-   oceanarray plot dsG3_1_2026 --proc-dir /data/proc --var_y pressure --var_color temperature --output overview.png
+   oceanarray plot dsG3_1_2026 --proc-dir /data/proc --var-y pressure --var-color temperature --output overview.png
 
 ----
 
@@ -329,7 +344,7 @@ be installed for GIF output.
 
 .. code-block:: bash
 
-   oceanarray animate dsG3_1_2026 --proc-dir /data/proc --serial 400115 -o dsG3_400115_hodograph.gif
+   oceanarray animate dsG3_1_2026 --proc-dir /data/proc --only 400115 --output dsG3_400115_hodograph.gif
 
 ----
 

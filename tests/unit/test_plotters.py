@@ -37,13 +37,13 @@ def test_show_variables_returns_styler():
         },
         coords={"TIME": pd.date_range("2021-01-01", periods=5)},
     )
-    result = inspect.vars(ds)
+    result = inspect.variables(ds)
     assert hasattr(result, "data") or hasattr(result, "render")
 
 
 def test_show_attributes_returns_dataframe():
     ds = xr.Dataset(attrs={"title": "Test Dataset", "institution": "Ocean Lab"})
-    df = inspect.attrs(ds)
+    df = inspect.attributes(ds)
     assert isinstance(df, pd.DataFrame)
     assert "Attribute" in df.columns
     assert "Value" in df.columns
@@ -64,7 +64,7 @@ def test_show_variables_on_xarray_dataset():
     ds["temperature"].attrs["comment"] = "Surface temperature"
     ds["temperature"].attrs["standard_name"] = "sea_water_temperature"
 
-    styled = inspect.vars(ds)
+    styled = inspect.variables(ds)
     html = styled.to_html()
     assert "<table" in html  # crude but effective confirmation
 
@@ -76,7 +76,7 @@ def test_show_attributes_from_dataset():
     ds.attrs["title"] = "Test Dataset"
     ds.attrs["institution"] = "Ocean Lab"
 
-    df = inspect.attrs(ds)
+    df = inspect.attributes(ds)
     assert "Attribute" in df.columns
     assert "Value" in df.columns
 
@@ -93,27 +93,27 @@ def _write_sample_nc(path):
 
 
 def test_inspect_vars_from_file_path(tmp_path):
-    """inspect.vars() opens a netCDF file path (regression: was xr.Dataset, now open_dataset)."""
+    """inspect.variables() opens a netCDF file path (regression: was xr.Dataset, now open_dataset)."""
     nc = tmp_path / "m.nc"
     _write_sample_nc(nc)
-    styled = inspect.vars(str(nc))
+    styled = inspect.variables(str(nc))
     assert "temperature" in styled.to_html()
     # File must be released so it can be reopened for writing afterwards.
     xr.open_dataset(nc).close()
 
 
 def test_inspect_attrs_from_file_path(tmp_path):
-    """inspect.attrs() reads a netCDF file path and does not leak the handle."""
+    """inspect.attributes() reads a netCDF file path and does not leak the handle."""
     nc = tmp_path / "m.nc"
     _write_sample_nc(nc)
-    df = inspect.attrs(str(nc))
+    df = inspect.attributes(str(nc))
     assert set(df["Attribute"]) >= {"title", "institution"}
     xr.open_dataset(nc).close()
 
 
 def test_inspect_vars_empty_dataset():
-    """inspect.vars() on a variable-less Dataset returns an empty table, not AttributeError."""
-    styled = inspect.vars(xr.Dataset())
+    """inspect.variables() on a variable-less Dataset returns an empty table, not AttributeError."""
+    styled = inspect.variables(xr.Dataset())
     assert len(styled.data) == 0
 
 
@@ -147,18 +147,18 @@ def test_pcolormesh_panel_returns_mappable():
     plt.close(fig)
 
 
-def test_plot_trajectory_lc_array_length():
+def test_draw_trajectory_lc_array_length():
     """LineCollection colour array must have N-1 entries for N trajectory points."""
     import matplotlib.pyplot as plt
     from matplotlib.collections import LineCollection
 
-    from oceanarray.plotters.primitives import plot_trajectory
+    from oceanarray.plotters.primitives import draw_trajectory
 
     x = np.array([0.0, 1.0, 2.0, 3.0, 4.0])
     y = np.array([0.0, 1.0, 0.0, -1.0, 0.0])
     color = np.linspace(5.0, 25.0, 5)  # N=5 values → N-1=4 segments
 
-    fig = plot_trajectory(x, y, color_data=color)
+    fig = draw_trajectory(x, y, color_data=color)
     ax = fig.axes[0]
     lcs = [c for c in ax.collections if isinstance(c, LineCollection)]
     assert lcs, "expected a LineCollection in the trajectory figure"

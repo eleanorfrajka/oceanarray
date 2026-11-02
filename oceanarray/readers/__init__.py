@@ -18,7 +18,7 @@ from pathlib import Path
 
 import xarray as xr
 
-from oceanarray import parameters as params
+from oceanarray.config import parameters as params
 from oceanarray.readers import nortek
 from oceanarray.readers.netcdf import read_netcdf
 from oceanarray.readers.nortek import load_nortek_csv
@@ -48,7 +48,7 @@ def _read_typed(
     deprecated internal reader (also with a warning); all other types go
     straight to ``seasenselib.read``.
     For Nortek formats the coordinate system is parsed from *header_path* and
-    ``nortek.normalize_nortek_variables`` is called.  For ``sbe-hex``, the
+    ``nortek.to_canonical_nortek`` is called.  For ``sbe-hex``, the
     seasenselib output variable ``press`` is renamed to ``pressure``.
 
     Parameters
@@ -103,7 +103,7 @@ def _read_typed(
                 "attribute — coordinate system unknown (UNK); velocities not renamed."
             )
             coord_system = "UNK"
-        return nortek.normalize_nortek_variables(ds, coord_system=coord_system)
+        return nortek.to_canonical_nortek(ds, coord_system=coord_system)
 
     kwargs = {}
     if file_type in ("nortek-raw", "nortek-ascii") and header_path:
@@ -129,7 +129,7 @@ def _read_typed(
                 "coordinate system unknown (UNK); velocities not renamed."
             )
             coord_system = "UNK"
-        ds = nortek.normalize_nortek_variables(ds, coord_system=coord_system)
+        ds = nortek.to_canonical_nortek(ds, coord_system=coord_system)
     if (
         file_type == "sbe-hex"
         and "press" in ds.data_vars

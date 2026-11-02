@@ -8,9 +8,9 @@ from oceanarray.legacy.mooring_rodb import auto_filt
 from oceanarray.legacy.process_rodb import (
     mean_of_middle_percent,
     middle_percent,
-    normalize_by_middle_percent,
-    normalize_dataset_by_middle_percent,
     std_of_middle_percent,
+    to_zscore,
+    to_zscore_dataset,
 )
 from oceanarray.tools import calc_ds_difference
 
@@ -107,17 +107,17 @@ def test_mean_std_middle_percent():
     assert std > 0
 
 
-def test_normalize_by_middle_percent():
+def test_to_zscore():
     data = np.random.normal(0, 1, 1000)
-    norm = normalize_by_middle_percent(data, 90)
+    norm = to_zscore(data, 90)
     mid_std = std_of_middle_percent(norm, 90)
     assert 0.9 < mid_std < 1.1
 
 
-def test_normalize_dataset_by_middle_percent():
+def test_to_zscore_dataset():
     time = np.arange(10)
     ds = xr.Dataset({"TEMP": ("TIME", np.random.rand(10) + 20)}, coords={"TIME": time})
-    ds_norm = normalize_dataset_by_middle_percent(ds)
+    ds_norm = to_zscore_dataset(ds)
     assert "TEMP" in ds_norm
     assert np.allclose(ds_norm.TIME, time)
 

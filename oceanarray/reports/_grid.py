@@ -11,7 +11,7 @@ import numpy as np
 
 from oceanarray import paths
 
-from .. import parameters as params
+from ..config import parameters as params
 from ..utilities import is_unknown_latlon_source, parse_latlon_with_source
 from ._env import (
     render_history,
@@ -372,7 +372,38 @@ def _isopycnal_ts_panel(sigma_var: str) -> Panel:
 #: panel (and, when a whole section drops out, names it in the not-applicable
 #: footer); ``n2``'s ``unavailable_if`` is the separate "applicable but a
 #: metadata precondition failed" channel (unresolved latitude → visible stub).
+def _stage2_serials(ctx: GridContext) -> list[str]:
+    """Return the instruments the stack took from their stage-2 files."""
+    return _attr(ctx, "stage2_instruments").split()
+
+
+def _attr(ctx: GridContext, key: str) -> str:
+    """Return a global attribute of the grid dataset, or "" (also with no dataset)."""
+    return str(getattr(ctx.ds, "attrs", {}).get(key, ""))
+
+
 GRID_PANELS: dict[str, Panel] = {
+    "stage2_note": Panel(
+        "stage2_note",
+        render=lambda c: render_template(
+            "_quicklook_note.html",
+            serials=_stage2_serials(c),
+            velocity=bool(_attr(c, "stage2_magnetic_north")),
+            current_meters=_attr(c, "stage2_no_velocity").split(),
+            reason=_attr(c, "stage2_reason"),
+        ),
+        kind="html",
+        applies_to=lambda c: bool(_stage2_serials(c)),
+    ),
+    "stage2_velocity_note": Panel(
+        "stage2_velocity_note",
+        render=lambda c: render_template(
+            "_magnetic_north_note.html",
+            serials=_attr(c, "stage2_magnetic_north").split(),
+        ),
+        kind="html",
+        applies_to=lambda c: bool(_attr(c, "stage2_magnetic_north")),
+    ),
     # non-figure appendix / history — payloads are markup from sub-templates
     "history": Panel(
         "history",
@@ -524,12 +555,14 @@ _OVERFLOW_ISOPYCNALS = PanelGroup(over=_sigma_vars, panel=_isopycnal_ts_panel)
 #: Grid sections (design §7).  8 content sections + one appendix.
 GRID_SECTIONS: dict[str, Section] = {
     "processing_history": Section(
-        "processing_history", "Processing history", ("history",)
+        "processing_history", "Processing history", ("stage2_note", "history")
     ),
     "hydrography": Section("hydrography", "Hydrography", ("hydro",)),
     "ts_diagram": Section("ts_diagram", "T-S diagram", ("ts_diagram",)),
     "velocity": Section(
-        "velocity", "Velocity", ("vel_stacked", "vel_iqr", "vel_timeseries")
+        "velocity",
+        "Velocity",
+        ("stage2_velocity_note", "vel_stacked", "vel_iqr", "vel_timeseries"),
     ),
     "velocity_structure": Section(
         "velocity_structure", "Velocity structure", ("roses", "hodograph", "trajectory")

@@ -6,7 +6,7 @@ import tempfile
 from pathlib import Path
 
 
-def normalize_sbe_ascii(file_path: Path) -> Path:
+def repair_sbe_ascii(file_path: Path) -> Path:
     """Return path to file with SBE ASCII format issues fixed.
 
     Fixes two issues produced by some SBE software versions:

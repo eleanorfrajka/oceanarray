@@ -8,8 +8,10 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from oceanarray.reports._mooring import MooringReport
     from oceanarray.reports._pdf import combine_mooring_pdf
+    from oceanarray.reports._summary import summary
+    from oceanarray.reports._verb import report, report_paths
 
-__all__ = ["MooringReport", "combine_mooring_pdf"]
+__all__ = ["MooringReport", "combine_mooring_pdf", "report", "report_paths", "summary"]
 
 #: Public name -> the submodule that defines it.  Resolved lazily (see
 #: :func:`__getattr__`) so importing this package — or any submodule, such as the
@@ -19,6 +21,9 @@ __all__ = ["MooringReport", "combine_mooring_pdf"]
 _EXPORTS = {
     "MooringReport": "_mooring",
     "combine_mooring_pdf": "_pdf",
+    "report": "_verb",
+    "report_paths": "_verb",
+    "summary": "_summary",
 }
 
 

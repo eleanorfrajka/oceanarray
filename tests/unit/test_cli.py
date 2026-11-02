@@ -64,7 +64,7 @@ def test_build_parser_version_action_present():
         ),
         (
             ["process", "mymoor", "--stage", "stack", "--proc-dir", "/tmp/p"],
-            "dt",
+            "dt_seconds",
             60,
         ),
         (

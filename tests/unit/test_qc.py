@@ -14,7 +14,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from oceanarray import parameters as params
+from oceanarray.config import parameters as params
 from oceanarray.pipeline import qc as Q
 
 

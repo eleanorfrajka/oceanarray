@@ -18,7 +18,7 @@ Generate reports with::
 
     # Regenerate one instrument without touching others
     oceanarray report MOORING --raw-dir $RAW --proc-dir $PROC \
-        --instruments --serial 16648
+        --instruments --only 16648
 
 Or generate all reports in one go with ``oceanarray run`` (see :doc:`cli_reference`).
 
@@ -95,7 +95,7 @@ Per-instrument report
 
 **File**: ``{proc_dir}/{mooring}/report/instrument/{mooring}_{serial}_report.html``
 
-Generated when ``--instruments`` is passed (or ``--serial SN``).  One page per
+Generated when ``--instruments`` is passed (or ``--only SN``).  One page per
 instrument.  Sections vary by instrument type:
 
 - **Files** — Raw, Stage 1, Stage 2, Stage 3 filenames with sizes and
@@ -129,7 +129,7 @@ Stack report
 **File**: ``{proc_dir}/{mooring}/report/{mooring}_stack_report.html``
 
 Generated when ``--stack`` is passed.  Requires ``{mooring}_stack.nc`` (run
-``oceanarray process MOORING --stage stack`` first).  Sections include:
+``oceanarray run MOORING`` first).  Sections include:
 
 - **Processing history** — how many instruments were stacked and the
   resampling method used (nearest-neighbour for fast instruments,
@@ -154,8 +154,8 @@ Grid report
 
 **File**: ``{proc_dir}/{mooring}/report/{mooring}_grid_report.html``
 
-Generated when ``--grid`` is passed.  Requires ``{mooring}_grid.nc`` (run
-``oceanarray process MOORING --stage grid`` first).  Sections include:
+Generated when ``--grid`` is passed.  Requires ``{mooring}_grid.nc`` (built by
+``oceanarray run MOORING``).  Sections include:
 
 - **Processing history** — stack parameters then grid interpolation method
   and pressure range.

@@ -17,7 +17,7 @@ import gsw
 import numpy as np
 import xarray as xr
 
-from oceanarray import parameters as params
+from oceanarray.config import parameters as params
 from oceanarray.pipeline import pressure as P
 
 #: Trimmed real dsG2 WH75 ADCP stage-3 file over a knock-down window (earth + firmware

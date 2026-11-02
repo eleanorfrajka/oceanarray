@@ -1,0 +1,6 @@
+{# Amber note above the velocity figures: instruments stacked from stage 2 whose
+   east/north velocities have no magnetic declination correction — the
+   `stage2_velocity_note` panel payload (kind="html"). #}
+<p style="font-size:0.82rem;background:var(--warn-bg);border-left:4px solid var(--warn);padding:0.5rem 0.8rem;margin-bottom:0.6rem;">
+  ⚠ Magnetic declination not applied to s/n&nbsp;{{ serials | join(', ') }}: stacked from stage 2 (declination is applied in stage 3), so their velocities are referenced to magnetic north, not true north.
+</p>

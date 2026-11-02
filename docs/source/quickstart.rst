@@ -227,7 +227,7 @@ output already exists.  To reprocess after updating the YAML times:
 
 Regenerate the instrument reports and check that the start and end of each
 record now match the expected deployment window.  If you need to adjust
-just one instrument, add ``--serial 26261`` to reprocess only that
+just one instrument, add ``--only 26261`` to reprocess only that
 instrument.
 
 ----
@@ -247,7 +247,41 @@ are confirmed, run all stages in one command:
 
 ``oceanarray run`` executes stages 1, 2, and 3, then stacks and grids the
 result, and generates all reports.  It continues past individual instrument
-failures — check the processing logs if something looks wrong.
+failures — check the processing logs if something looks wrong.  What it left
+out is recorded in the stack and grid (``instruments_omitted``,
+``keep_going_failures``), and every stage-3, stack and grid file is marked
+provisional (``data_mode = "P"``).  Add ``--strict`` to stop at the first
+failure instead.
+
+``--from 2`` re-runs stages 2 and 3 without the raw files (``--stage 2 3`` is the
+same); ``run`` always runs through stage 3, because it rebuilds the stack from
+those files.  To run one stage on its own, use ``oceanarray process --stage N``.
+``--dry-run`` lists what a run would write.  For a quick look at sea before stage 3 is
+trusted, ``--stack-stage 2`` stacks and grids the stage-2 files instead; the
+report marks those instruments in amber (no QC flags, no interpolated pressure,
+velocities referenced to magnetic north).
+
+The stack's time step and the grid's pressure levels come from ``--dt-seconds``,
+``--pmin``, ``--pmax`` and ``--dp``, else from optional ``stack:`` and ``grid:``
+blocks in the YAML (``oceanarray init`` writes them commented out), else 60 s
+and 200–1000 dbar every 20 dbar:
+
+.. code-block:: yaml
+
+   stack:
+     dt_seconds: 600
+   grid:
+     pmin: 200
+     pmax: 1000
+     dp: 20
+
+The mooring can also be given by path, with no ``--proc-dir``; the folder can
+have any name:
+
+.. code-block:: bash
+
+   oceanarray run /data/cruise2026/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml \
+       --raw-dir /data/cruise2026/raw
 
 Processing logs are written to::
 
@@ -274,6 +308,24 @@ report header.  Their paths follow the same convention:
    /data/cruise2026/proc/dsG3_1_2026/report/instrument/dsG3_1_2026_26261_report.html
 
 See :doc:`reports` for a description of what each report contains.
+
+----
+
+From Python
+-----------
+
+The same steps from Python:
+
+.. code-block:: python
+
+   import oceanarray as oa
+
+   yaml_path = "/data/cruise2026/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml"
+   oa.process(yaml_path, stages=1, raw_dir="/data/cruise2026/raw")  # stage 1
+   oa.run(yaml_path, raw_dir="/data/cruise2026/raw", report=True)   # everything
+
+See :doc:`oceanarray` for the full API and :doc:`migrating_0_6_0` when updating
+code written for 0.5.
 
 ----
 

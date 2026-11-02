@@ -12,7 +12,7 @@ from __future__ import annotations
 import numpy as np
 import xarray as xr
 
-from oceanarray import parameters as params
+from oceanarray.config import parameters as params
 from oceanarray.pipeline import helpers as H
 
 

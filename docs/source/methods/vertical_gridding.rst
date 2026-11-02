@@ -18,16 +18,20 @@ Command
 
 .. code-block:: bash
 
-   oceanarray process {mooring} --proc-dir /data/proc --stage grid [--pmin 200] [--pmax 1000] [--dp 20] [--force]
+   oceanarray run {mooring} --proc-dir /data/proc --stage 3 [--pmin 200] [--pmax 1000] [--dp 20]
 
 Python API
 ----------
 
 .. code-block:: python
 
-   from oceanarray.pipeline.grid import MooringGridder
+   import oceanarray as oa
 
-   MooringGridder(proc_dir=proc_dir).grid(mooring_name, p_start=200.0, p_end=1000.0, dp=20.0, force=False)
+   # stage 3 (kept where it exists), then the stack and grid
+   oa.run(yaml_path, stages=3, pmin=200.0, pmax=1000.0, dp=20.0)
+
+   # or on a stack dataset: the grid itself, no files written
+   gridded = oa.grid(stacked, pmin=200.0, pmax=1000.0, dp=20.0)
 
 Purpose
 -------
@@ -37,8 +41,8 @@ sparse instrument levels onto a uniform pressure axis. The result is a
 ``(time, pressure)`` dataset convenient for section plots, density cross-sections, and
 further analysis.
 
-Run ``oceanarray process {mooring} --stage stack`` first; the grid step requires a ``{mooring}_stack.nc`` file
-containing a ``pressure`` variable.
+``oceanarray run`` builds the stack and then grids it; the grid step requires the stack to
+contain a ``pressure`` variable.
 
 Input files
 -----------
@@ -67,7 +71,7 @@ Pressure grid axis
 
 .. code-block:: python
 
-   p_grid = numpy.arange(p_start, p_end + dp / 2, dp)   # dbar
+   p_grid = numpy.arange(pmin, pmax + dp / 2, dp)   # dbar
 
 Default: 200 to 1000 dbar in 20 dbar steps.
 

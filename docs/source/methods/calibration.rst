@@ -15,7 +15,7 @@ The interface to fill in
 The stub on ``main`` fixes the interface this specification implements.
 ``oceanarray/pipeline/caldip.py`` exports the shared contract — ``CALDIP_SUFFIX``,
 ``SUPPORTED_SCHEMA_VERSION``, ``CALDIP_FLAG_OK``, ``REQUIRED_PROVENANCE_GLOBALS``,
-``PROVENANCE_PASSTHROUGH_GLOBALS``, and ``normalize_serial`` (the shared join-key rule) — and
+``PROVENANCE_PASSTHROUGH_GLOBALS``, and ``canonical_serial`` (the shared join-key rule) — and
 five functions to implement, each currently raising ``NotImplementedError``:
 
 - ``read_caldip_cast(path)`` — open and validate one ``{cast}_caldip.nc``;
@@ -30,7 +30,7 @@ five functions to implement, each currently raising ``NotImplementedError``:
 Develop against the committed real cast ``tests/fixtures/caldip/castM4_caldip.nc`` (a
 ``.cnv``-input cast, so its ``ctd_*`` provenance is legitimately ``UNK``). Stage 3 already
 exposes a ``caldip_dir`` argument as a null action that stamps ``caldip_applied`` on each
-output; wiring these functions at the insertion point in ``Stage3Processor.process_mooring``
+output; wiring these functions at the insertion point in :func:`oceanarray.stage3`
 replaces the stub.
 
 Calibration applies post-deployment drift corrections to sensor data (temperature,
@@ -47,10 +47,10 @@ to the raw values *before* pressure interpolation, so every downstream step (int
 salinity, QC, derived variables) sees corrected data. With no caldip input, Stage 3 output is
 unchanged; there is a single ``_stage3.nc``.
 
-**Insertion point.** ``Stage3Processor.process_mooring`` is mooring-level: it opens every
-instrument's ``_stage2.nc`` and identifies each pressure variable *before* partitioning
+**Insertion point.** :func:`oceanarray.stage3` is mooring-level: it receives every
+instrument's stage-2 dataset and identifies each pressure variable *before* partitioning
 instruments into pressure *sources* and interpolation *targets*. Apply the caldip offsets
-**after each ``_stage2.nc`` is opened and before the sources/targets partition**, for every
+**to each stage-2 dataset before the sources/targets partition**, for every
 instrument. The correction is per-instrument, but it must run inside the mooring-level pass: a
 sensorless target's pressure is interpolated from its neighbours, so those neighbours must
 already be corrected. Applying per-instrument *after* the partition — or in a separate

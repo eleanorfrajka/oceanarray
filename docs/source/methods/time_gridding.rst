@@ -10,16 +10,21 @@ Command
 
 .. code-block:: bash
 
-   oceanarray process {mooring} --proc-dir /data/proc --stage stack [--dt 60] [--force]
+   oceanarray run {mooring} --proc-dir /data/proc --stage 3 [--dt-seconds 60]
 
 Python API
 ----------
 
 .. code-block:: python
 
-   from oceanarray.pipeline.stack import MooringStacker
+   import oceanarray as oa
 
-   MooringStacker(proc_dir=proc_dir).stack(mooring_name, dt_seconds=60, force=False)
+   # stage 3 (kept where it exists), then the stack and grid
+   oa.run(yaml_path, stages=3, dt_seconds=60)
+
+   # or on datasets: the stack itself, no files written
+   cfg = oa.mooring.load(yaml_path)
+   stacked = oa.stack(oa.read_mooring(yaml_path, stage=3), cfg, dt_seconds=60)
 
 Purpose
 -------

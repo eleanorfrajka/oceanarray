@@ -24,6 +24,7 @@ The file shape is a cross-package contract (moordiag reads the same file), so
 """
 
 import logging
+import math
 from collections.abc import Iterable, Mapping
 from os import PathLike
 from pathlib import Path
@@ -80,8 +81,18 @@ KNOWN_KEYS: frozenset[str] = frozenset(
         "clamp",
         "instruments",
         "inline",
+        # optional stack / grid settings for oceanarray.run (``_check_settings``)
+        "stack",
+        "grid",
     }
 )
+
+#: The keys each optional settings block may hold, and whether the value must be
+#: an integer.
+_SETTINGS_KEYS: dict[str, dict[str, bool]] = {
+    "stack": {"dt_seconds": True},
+    "grid": {"pmin": False, "pmax": False, "dp": False},
+}
 
 REQUIRED_KEYS: list[str] = validation.REQUIRED_MOORING_KEYS
 
@@ -203,6 +214,7 @@ def check(
     issues = list(validation.validate_mooring(data, dir_name=dir_name))
 
     if isinstance(data, Mapping):
+        issues += _check_settings(data)
         for key in data:
             if key not in KNOWN_KEYS:
                 issues.append(
@@ -216,10 +228,73 @@ def check(
     return issues
 
 
+def _check_settings(data: Mapping) -> list[ValidationIssue]:
+    """Return ERRORs for a malformed ``stack:`` or ``grid:`` block (both optional)."""
+    issues: list[ValidationIssue] = []
+    for block, allowed in _SETTINGS_KEYS.items():
+        if block not in data or data[block] is None:
+            continue
+        value = data[block]
+        if not isinstance(value, Mapping):
+            issues.append(
+                ValidationIssue(
+                    "ERROR",
+                    f"'{block}:' must be a mapping of {', '.join(allowed)}; "
+                    f"got {value!r}.",
+                )
+            )
+            continue
+        for key, setting in value.items():
+            if key not in allowed:
+                issues.append(
+                    ValidationIssue(
+                        "ERROR",
+                        f"'{block}: {key}' is not a {block} setting; expected one of "
+                        f"{', '.join(allowed)}.",
+                    )
+                )
+                continue
+            integer = allowed[key]
+            ok = (
+                isinstance(setting, int)
+                if integer
+                else isinstance(setting, int | float)
+            )
+            if (
+                isinstance(setting, bool)
+                or not ok
+                or not math.isfinite(setting)
+                or setting < 0
+            ):
+                kind = (
+                    "a non-negative integer"
+                    if integer
+                    else "a finite non-negative number"
+                )
+                issues.append(
+                    ValidationIssue(
+                        "ERROR", f"'{block}: {key}' must be {kind}; got {setting!r}."
+                    )
+                )
+        if block == "stack" and value.get("dt_seconds") == 0:
+            issues.append(ValidationIssue("ERROR", "'stack: dt_seconds' must be > 0."))
+        if block == "grid":
+            p0, p1, step = (value.get(k) for k in ("pmin", "pmax", "dp"))
+            if step == 0:
+                issues.append(ValidationIssue("ERROR", "'grid: dp' must be > 0."))
+            if isinstance(p0, int | float) and isinstance(p1, int | float) and p1 <= p0:
+                issues.append(
+                    ValidationIssue(
+                        "ERROR", f"'grid: pmax' ({p1}) must be above pmin ({p0})."
+                    )
+                )
+    return issues
+
+
 # The one source for the commented ``init`` template: key -> inline description.
 # ``save`` writes these as end-of-line comments; keep in sync with KNOWN_KEYS.
 _FIELD_COMMENTS: dict[str, str] = {
-    "name": "mooring identifier (matches directory and filename)",
+    "name": "mooring identifier; every output file is named from it",
     "year": "deployment year, e.g. 2026",
     "waterdepth": "water depth at anchor in metres",
     "deployment_cruise": "cruise ID, e.g. MSM142",
@@ -339,7 +414,31 @@ def template(name: str, *, instruments: list[dict] | None = None) -> dict:
     return doc
 
 
-def save(mooring: Mapping, path: str | PathLike, *, overwrite: bool = False) -> Path:
+def _optional_blocks_text() -> str:
+    """Return the commented-out ``stack:`` and ``grid:`` blocks, with their defaults."""
+    from oceanarray.pipeline._run import DEFAULTS
+
+    st, gr = DEFAULTS["stack"], DEFAULTS["grid"]
+    return "\n".join(
+        [
+            "optional: uncomment to change the stack and grid settings",
+            "stack:",
+            f"  dt_seconds: {st['dt_seconds']:g}  # time step of the stack, seconds",
+            "grid:",
+            f"  pmin: {gr['pmin']:g}  # shallowest grid level, dbar",
+            f"  pmax: {gr['pmax']:g}  # deepest grid level, dbar",
+            f"  dp: {gr['dp']:g}  # grid spacing, dbar",
+        ]
+    )
+
+
+def save(
+    mooring: Mapping,
+    path: str | PathLike,
+    *,
+    overwrite: bool = False,
+    optional_blocks: bool = False,
+) -> Path:
     """Write a mooring description to a YAML file with field comments.
 
     Lenient by design — a description being drafted may be incomplete, so ``save``
@@ -356,6 +455,9 @@ def save(mooring: Mapping, path: str | PathLike, *, overwrite: bool = False) -> 
         Destination ``*.mooring.yaml`` path.
     overwrite : bool, default False
         Overwrite an existing file; otherwise a ``FileExistsError`` is raised.
+    optional_blocks : bool, default False
+        Also write the optional ``stack:`` and ``grid:`` blocks, commented out with
+        their default values, before ``clamp`` (``oceanarray init`` does).
 
     Returns
     -------
@@ -405,6 +507,10 @@ def save(mooring: Mapping, path: str | PathLike, *, overwrite: bool = False) -> 
         doc["clamp"] = CommentedSeq(
             _block(entry.items(), _INSTRUMENT_COMMENTS, seen) for entry in clamp
         )
+        if optional_blocks:
+            doc.yaml_set_comment_before_after_key(
+                "clamp", before=_optional_blocks_text(), indent=0
+            )
 
     path.parent.mkdir(parents=True, exist_ok=True)
     writer = YAML()

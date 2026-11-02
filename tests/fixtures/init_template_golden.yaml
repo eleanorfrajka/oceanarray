@@ -1,4 +1,4 @@
-name: dsX_1_2026  # mooring identifier (matches directory and filename)
+name: dsX_1_2026  # mooring identifier; every output file is named from it
 year: # deployment year, e.g. 2026
 waterdepth: # water depth at anchor in metres
 deployment_cruise: # cruise ID, e.g. MSM142

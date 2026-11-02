@@ -8,7 +8,7 @@ from typing import Any
 import numpy as np
 import xarray as xr
 
-from oceanarray import parameters as params
+from oceanarray.config import parameters as params
 from oceanarray.pipeline.units import UnitsError
 
 # Merge priority for combining QC flags (higher priority wins = worse quality).
@@ -70,7 +70,7 @@ def set_qc_attrs(
 
     The single owner of QC-flag metadata: call this wherever a ``_qc`` variable
     is created or updated so the CF flag attributes cannot be forgotten. The flag
-    table is sourced from :mod:`oceanarray.parameters` (one source of truth) and
+    table is sourced from :mod:`oceanarray.config.parameters` (one source of truth) and
     the full legal set is declared, not only the values present. The status-flag
     ``standard_name`` (``"{parent} status_flag"``) is attached only when the parent
     variable has a ``standard_name`` — it is skipped, never fabricated, when the

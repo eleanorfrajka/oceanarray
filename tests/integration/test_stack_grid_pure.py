@@ -92,7 +92,7 @@ def test_stack_refuses_without_a_deployment_window(stage3, cfg):
 
 def test_grid_is_linear_interpolation_in_pressure(ds_stack):
     """Each gridded column is numpy.interp of the stack column, with no extrapolation."""
-    ds_grid = grid(ds_stack, p_start=100, p_end=800, dp=50)
+    ds_grid = grid(ds_stack, pmin=100, pmax=800, dp=50)
     p_grid = ds_grid["pressure"].values
     for k in (0, 100, 300):
         p = ds_stack["pressure"].values[k, :]

@@ -18,8 +18,8 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+from oceanarray import _deprecated, paths
 from oceanarray import mooring as _mooring
-from oceanarray import paths
 from oceanarray.analysis.temporal import lag_correlation
 from oceanarray.legacy import find_deployment
 from oceanarray.utilities import instrument_entries
@@ -264,8 +264,8 @@ def combine_interpolated_datasets(datasets_interp):
     )
 
 
-def analyze_deployment_timing(combined_ds):
-    """Analyze deployment timing using temperature-based detection of deployment periods.
+def deployment_timing(combined_ds):
+    """Detect the deployment period using temperature-based detection of deployment periods.
 
     Parameters
     ----------
@@ -281,6 +281,11 @@ def analyze_deployment_timing(combined_ds):
     return find_deployment.find_deployment(
         combined_ds, bottom_strategy="deployment_bounds"
     )
+
+
+analyze_deployment_timing = _deprecated.alias(
+    "oceanarray.analysis.clock.analyze_deployment_timing", deployment_timing
+)
 
 
 def calculate_timing_offsets(combined_ds, bin_width_sec=60):

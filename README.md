@@ -37,8 +37,7 @@ Create a skeleton YAML, fill in the deployment metadata, then process:
 oceanarray init dsG3_1_2026 --proc-dir /data/proc
 # edit /data/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml
 oceanarray validate /data/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml
-oceanarray process dsG3_1_2026 --raw-dir /data/raw --proc-dir /data/proc --stage 1 2 3 stack grid
-oceanarray report  dsG3_1_2026 --raw-dir /data/raw --proc-dir /data/proc --all
+oceanarray run     /data/proc/dsG3_1_2026 --raw-dir /data/raw     # stages 1-3, stack, grid, report
 ```
 
 See the [documentation](https://ocean-uhh.github.io/oceanarray/) for the recommended first-processing workflow, YAML reference, and CLI reference.
@@ -46,9 +45,11 @@ See the [documentation](https://ocean-uhh.github.io/oceanarray/) for the recomme
 ## Python API
 
 ```python
-import oceanarray
+import oceanarray as oa
 
-oceanarray.process("dsG3_1_2026", raw_dir="/data/raw", proc_dir="/data/proc")
+yaml_path = "/data/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml"
+oa.process(yaml_path, raw_dir="/data/raw")  # stages 1-3
+oa.run(yaml_path, from_stage=3, report=True)  # re-run stage 3, stack, grid, report
 ```
 
 See the [API reference](https://ocean-uhh.github.io/oceanarray/oceanarray.html) for the full interface.

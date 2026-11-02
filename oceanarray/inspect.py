@@ -1,14 +1,14 @@
 """Quick dataset inspection helpers for interactive use.
 
-``inspect.vars(ds)`` returns a styled table of an xarray Dataset's (or a netCDF
-file's) variables — dims, units, standard name, dtype — and ``inspect.attrs(ds)``
+``inspect.variables(ds)`` returns a styled table of an xarray Dataset's (or a netCDF
+file's) variables — dims, units, standard name, dtype — and ``inspect.attributes(ds)``
 returns its global attributes. Handy in notebooks; no plotting involved.
 
 Examples
 --------
 >>> from oceanarray import inspect
->>> inspect.vars(ds)     # styled variable table
->>> inspect.attrs(ds)    # global-attribute table
+>>> inspect.variables(ds)   # styled variable table
+>>> inspect.attributes(ds)  # global-attribute table
 
 """
 
@@ -17,10 +17,12 @@ from typing import Any
 import xarray as xr
 from pandas import DataFrame
 
+from oceanarray import _deprecated
+
 _Data = str | xr.Dataset
 
 
-def vars(data: _Data) -> Any:
+def variables(data: _Data) -> Any:
     """Return a styled table of the variables in *data*.
 
     Parameters
@@ -77,7 +79,7 @@ def vars(data: _Data) -> Any:
     )
 
 
-def attrs(data: _Data) -> Any:
+def attributes(data: _Data) -> Any:
     """Return a table of the global attributes of *data*.
 
     Parameters
@@ -115,3 +117,8 @@ def attrs(data: _Data) -> Any:
             dataset.close()
 
     return DataFrame(info).T
+
+
+#: Deprecated names (they shadow the builtin ``vars`` when imported by name).
+vars = _deprecated.alias("oceanarray.inspect.vars", variables)
+attrs = _deprecated.alias("oceanarray.inspect.attrs", attributes)

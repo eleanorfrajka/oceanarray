@@ -141,6 +141,22 @@ mooring as a whole.
      - Optional
      - Mooring-wide QC thresholds applied in stage 3 to all instruments
        unless overridden at the instrument level.  See `QC ranges`_ below.
+   * - ``stack``
+     - mapping
+     - Optional
+     - ``dt_seconds``: the stack's time step in whole seconds (default 60).
+       ``--dt-seconds`` / ``dt_seconds=`` override it.
+   * - ``grid``
+     - mapping
+     - Optional
+     - ``pmin``, ``pmax``, ``dp``: the grid's pressure levels in dbar
+       (default 200, 1000, 20). ``--pmin`` / ``--pmax`` / ``--dp`` override them.
+       ``pmax`` must be above ``pmin``.
+
+The ``stack:`` and ``grid:`` blocks configure ``oceanarray run`` (and
+``oceanarray.run``); the per-instrument ``stack: false`` flag one level down is a
+different key. From Python, ``oceanarray.mooring.load(path)`` returns the
+description as a dict, which every verb also accepts with ``mooring_dir=``.
 
 ----
 

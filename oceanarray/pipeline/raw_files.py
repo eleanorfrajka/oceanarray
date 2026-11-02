@@ -374,7 +374,7 @@ def read_raw_file(raw: RawFile) -> xr.Dataset:
     """
     read_path = raw.path
     if raw.file_type == "sbe-ascii":
-        read_path = sbe.normalize_sbe_ascii(raw.path)
+        read_path = sbe.repair_sbe_ascii(raw.path)
     header = str(raw.header) if raw.header is not None else None
     dataset = readers._read_typed(raw.file_type, str(read_path), header)
 
