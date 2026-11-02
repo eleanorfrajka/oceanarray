@@ -344,12 +344,12 @@ def test_strict_run_removes_a_grid_the_new_stack_no_longer_matches(
 
 def test_a_stale_product_keeps_one_copy(tmp_path, capsys):
     """Setting a product aside twice leaves one stale copy, the newer one."""
-    from oceanarray.pipeline._run import _remove_stale
+    from oceanarray.pipeline._run import _set_aside_stale
 
     grid = tmp_path / f"{_NAME}_grid.nc"
     for text in ("first", "second"):
         grid.write_text(text)
-        _remove_stale([grid], "a test")
+        _set_aside_stale([grid], "a test")
     assert sorted(p.name for p in tmp_path.iterdir()) == [f"{_NAME}_grid.stale.nc"]
     assert paths.stale_file(grid).read_text() == "second"
     assert f"to {_NAME}_grid.stale.nc" in capsys.readouterr().out
@@ -455,10 +455,10 @@ def test_any_error_after_the_stage_files_change_sets_the_products_aside(
 
 def test_run_stages_all_is_every_stage():
     """stages="all" is the default set, not a refusal."""
-    from oceanarray.pipeline._run import _run_stages
+    from oceanarray.pipeline._run import _resolve_stages
 
-    assert _run_stages("all", None, 3) == [1, 2, 3]
-    assert _run_stages("all", None, 2) == [1, 2]
+    assert _resolve_stages("all", None, 3) == [1, 2, 3]
+    assert _resolve_stages("all", None, 2) == [1, 2]
 
 
 def test_cli_run_dry_run_needs_no_raw_dir(ran, tmp_path, capsys):

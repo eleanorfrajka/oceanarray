@@ -269,42 +269,11 @@ def _velocity_panel_style(
     finite_vals: np.ndarray,
     div_abs_max: float,
 ) -> tuple:
-    """Return (bounds, norm, cmap, cb_label) for one velocity pcolormesh panel.
-
-    Centralises all velocity colormap decisions so that the per-instrument
-    ADCP report and the grid/stack report always produce visually identical
-    panels.  Call this helper from every function that renders a velocity
-    variable as a pcolormesh — do not duplicate the logic inline.
-
-    Panel types
-    -----------
-    div (diverging)  east/north/up/error_velocity  Spectral_r  ± div_abs_max
-    seq (sequential) current_speed                 plasma       0 → 98th pctile
-    seq              bin_pressure                  PuRd         2nd→98th pctile
-    cyc (cyclic)     current_direction             twilight     0–360°
-
-    Parameters
-    ----------
-    var : str
-        Variable name (e.g. ``"east_velocity"``, ``"current_direction"``).
-    finite_vals : np.ndarray
-        Finite values of *this* variable (used for seq bounds; pass ``[]``
-        for div/cyc panels where per-variable bounds are not needed).
-    div_abs_max : float
-        Pre-computed symmetric bound for diverging panels (ignored for seq/cyc).
-        Computed by the caller as the 2nd/98th percentile magnitude across all
-        ENU velocity components.
-
-    Returns
-    -------
-    tuple
-        ``(bounds, norm, cmap, cb_label)`` where *bounds* is a 1-D array of
-        colorbar tick/boundary values, *norm* is a ``BoundaryNorm``, *cmap*
-        is a colormap name string or a :class:`~matplotlib.colors.Colormap`
-        (cyclic panels return a resampled colormap), and *cb_label* is the
-        colorbar axis label.
-
-    """
+    """Return (bounds, norm, cmap, cb_label) for one velocity pcolormesh panel."""
+    # Single home for velocity colormap choices so the ADCP and grid/stack reports
+    # draw identical panels: every velocity pcolormesh calls this, never inline.
+    # div_abs_max is the caller's 2nd/98th-percentile magnitude across all ENU
+    # components; finite_vals sets the seq bounds only (pass [] for div/cyc).
     import matplotlib.colors as mcolors
 
     from .primitives import colorbar_norm
@@ -347,35 +316,9 @@ def _rose_ax(
     cmap: str = "Blues",
     max_speed: float | None = None,
 ) -> tuple | None:
-    """Draw a current rose on a polar Axes (compass convention, N up, CW).
-
-    Returns ``(spd_edges, colors)`` so callers can add a shared colorbar, or
-    ``None`` if the panel was hidden due to insufficient data.
-
-    Parameters
-    ----------
-    ax : plt.Axes
-        Polar axes to draw on.
-    east : np.ndarray
-        East velocity component (m s⁻¹).
-    north : np.ndarray
-        North velocity component (m s⁻¹).
-    title : str, optional
-        Axes title string.
-    n_dir : int, optional
-        Number of directional bins (default 16).
-    cmap : str, optional
-        Matplotlib colormap name for speed shading (default ``"Blues"``).
-    max_speed : float, optional
-        Upper speed limit.  If ``None``, the 99th percentile of the data is used.
-
-    Returns
-    -------
-    tuple or None
-        ``(spd_edges, colors)`` — 1-D arrays needed to build a shared colorbar —
-        or ``None`` if fewer than 2 finite values are present (panel is hidden).
-
-    """
+    """Draw a current rose on a polar Axes (compass convention, N up, CW)."""
+    # Returns (spd_edges, colors) for a shared colorbar, or None when the panel is
+    # hidden because fewer than 2 finite values are present.
     import matplotlib.pyplot as plt
 
     speed = np.sqrt(east**2 + north**2)

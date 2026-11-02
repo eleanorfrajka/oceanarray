@@ -30,33 +30,17 @@ __all__ = ["UnitsError", "to_canonical_units"]
 
 
 def _canonical_by_standard_name() -> dict[str, str]:
-    """Return the CF ``standard_name`` → canonical-units map, built from the registry.
-
-    Built on each call (not cached at import) so a runtime override of
-    :data:`parameters.VARIABLES` is honoured, consistent with the rest of
-    :mod:`oceanarray.config.parameters`.  The build also guards the registry: two entries
-    sharing a ``standard_name`` but declaring different canonical units would let the
-    lookup pick one silently by dict order, so that is raised instead.
-
-    Returns
-    -------
-    dict of str to str
-        Standard name mapped to the canonical units string.
-
-    Raises
-    ------
-    RuntimeError
-        If two registry entries share a ``standard_name`` with different ``units``.
-        This is a package bug in :data:`parameters.VARIABLES`, not a data problem, so
-        it is deliberately not a :class:`UnitsError` — a stage's per-instrument
-        ``UnitsError`` handler must not catch it and carry on.
-
-    """
+    """Return the CF ``standard_name`` → canonical-units map from the registry."""
+    # Built per call, not cached at import, so a runtime override of
+    # parameters.VARIABLES is honored.
     mapping: dict[str, str] = {}
     for entry in params.VARIABLES.values():
         sn, units = entry.get("standard_name"), entry.get("units")
         if not sn or not units:
             continue
+        # Two entries sharing a standard_name with different units would let the
+        # lookup pick one silently by dict order. This is a registry bug, not a
+        # data problem, so not a UnitsError: per-instrument handlers must not catch it.
         if mapping.setdefault(sn, units) != units:
             raise RuntimeError(
                 f"registry inconsistency: standard_name {sn!r} maps to both "
@@ -69,30 +53,10 @@ def _canonical_by_standard_name() -> dict[str, str]:
 def _canonical_units_for(
     var: str, ds: xr.Dataset, sn_map: dict[str, str] | None = None
 ) -> str | None:
-    """Return the canonical units for *var* in *ds*, or ``None`` if unregistered.
-
-    Matches on the variable name first, then on its ``standard_name`` attribute.
-
-    Parameters
-    ----------
-    var : str
-        Variable or coordinate name in *ds*.
-    ds : xarray.Dataset
-        Dataset holding *var* (its ``standard_name`` attribute is consulted).
-    sn_map : dict of str to str, optional
-        The ``standard_name`` → canonical-units map from
-        :func:`_canonical_by_standard_name`.  Pass the pre-built map when calling in
-        a loop to avoid rebuilding it per variable; built here when omitted.
-
-    Returns
-    -------
-    str or None
-        The registry canonical units string, or ``None`` when *var* is not a
-        registered physical variable.
-
-    """
+    """Return the canonical units for *var* in *ds*, or ``None`` if unregistered."""
     if var in params.VARIABLES:
         return params.VARIABLES[var].get("units")
+    # Fall back to standard_name; callers in a loop pass a pre-built sn_map.
     if sn_map is None:
         sn_map = _canonical_by_standard_name()
     sn = ds[var].attrs.get("standard_name")

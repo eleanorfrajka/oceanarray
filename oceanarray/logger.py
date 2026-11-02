@@ -44,6 +44,26 @@ def log_warning(message: str, *args: Any) -> None:
         log.warning(message, *args, stacklevel=2)
 
 
+def log_message(message: Any) -> None:
+    """Log a pipeline status line, as a warning when it starts with ``WARNING``.
+
+    Parameters
+    ----------
+    message : Any
+        The line to log; converted with ``str``.
+
+    Examples
+    --------
+    >>> log_message("  SKIP microcat 2941: marked skip")
+    >>> log_message("WARNING: serial 2941 has no 'hab'")
+    """
+    text = str(message)
+    if text.lstrip().startswith("WARNING"):
+        log_warning("%s", text)
+    else:
+        log_info("%s", text)
+
+
 def log_error(message: str, *args: Any) -> None:
     """Log an error message, if logging is enabled."""
     if LOGGING_ENABLED:

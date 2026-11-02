@@ -49,18 +49,13 @@ _INSTRUMENT_ATTRS = (
 )
 
 
-def _resolve(
+def _resolve_description(
     mooring: Mapping[str, Any] | str | Path,
     mooring_dir: str | Path | None,
     stage: int | None,
     caller: str = "read_mooring",
 ) -> tuple[Mapping[str, Any], Path | None]:
-    """Return the loaded description and its directory from *mooring*.
-
-    A path (a ``*.mooring.yaml`` or a directory holding exactly one) supplies its
-    own directory; a dict carries no location, so *mooring_dir* is required when a
-    stage file is to be read.
-    """
+    """Return the loaded description and its directory from *mooring*."""
     if isinstance(mooring, Mapping):
         if stage is not None and mooring_dir is None:
             raise MooringError(
@@ -83,13 +78,9 @@ def _resolve(
 
 
 def _mooring_attrs(cfg: Mapping[str, Any]) -> dict[str, Any]:
-    """Return the per-mooring header attributes, stamped on every instrument.
-
-    Position and the deployment window are always stamped (placeholder when
-    absent) with a ``*_source`` of ``"none"`` and a WARNING; other header values
-    are omitted when absent rather than defaulted. ``mooring_name`` is the
-    description's ``name`` (the mooring's identity).
-    """
+    """Return the per-mooring header attributes, stamped on every instrument."""
+    # Position and deployment window are always stamped (placeholder + *_source
+    # "none" when absent); other header values are omitted, never defaulted.
     name = cfg.get("name")
     if name is None:
         raise MooringError("the mooring description has no 'name'; it is required.")
@@ -191,7 +182,7 @@ def read_mooring(
     oceanarray.pipeline._stage.StageError
         If an opened stage file carries the wrong ``processing_stage`` marker.
     """
-    cfg, mooring_dir = _resolve(mooring, mooring_dir, stage)
+    cfg, mooring_dir = _resolve_description(mooring, mooring_dir, stage)
     if stage is None and raw_dir is None:
         raise ValueError("read_mooring(stage=None) needs raw_dir= to find raw files.")
 
@@ -289,37 +280,12 @@ def _join_description(
     instr_type: str,
     moor_attrs: dict[str, Any],
 ) -> xr.Dataset:
-    """Join a dataset with its mooring description — the stamping contract (ruling 1).
-
-    Reading a mooring means joining a file with the description it belongs to, so the
-    stamping-contract attributes travel on the dataset whatever path it came by (raw
-    or a stage file). ``mooring_name`` is the mooring's identity: a file whose
-    ``mooring_name`` differs from the description's ``name`` only by case is corrected
-    with a ``history`` line; one that differs otherwise was made under a different
-    description and raises :class:`MooringError` (reprocess it from stage 1). A
-    ``serial`` that differs from the entry's raises too (rule 11 — never mislabel).
-    Other contract attributes are filled when absent.
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        The dataset just read.
-    entry : dict
-        The instrument's description entry.
-    serial : str
-        The cleaned serial from the entry.
-    instr_type : str
-        The instrument type from the entry.
-    moor_attrs : dict
-        The per-mooring header attributes from :func:`_mooring_attrs`.
-
-    Returns
-    -------
-    xarray.Dataset
-        A copy carrying the stamping-contract attributes.
-    """
+    """Join a dataset with its mooring description (the stamping contract)."""
+    # The contract attributes must travel on the dataset whatever path it came by
+    # (raw or a stage file).
     ds = ds.copy()
     existing = ds.attrs.get("serial")
+    # A serial that differs from the entry's is refused: never mislabel.
     if existing is not None and paths.safe_serial(existing) != serial:
         raise MooringError(
             f"{moor_attrs['mooring_name']}: dataset serial {existing!r} contradicts "
@@ -327,6 +293,8 @@ def _join_description(
         )
     name = moor_attrs["mooring_name"]
     existing_name = ds.attrs.get("mooring_name")
+    # mooring_name is the identity: a case-only difference is corrected with a
+    # history line; any other means the file was made under another description.
     if existing_name is not None and existing_name != name:
         if str(existing_name).lower() != str(name).lower():
             raise MooringError(
@@ -359,14 +327,7 @@ def _read_stage(
     mooring_dir: Path | None,
     allow_missing: bool,
 ) -> xr.Dataset | None:
-    """Open one instrument's stage file, or refuse/skip when it is absent.
-
-    A file written before the ``processing_stage`` marker existed is stamped
-    in memory with the stage read off its filename (``inferred``) and a WARNING,
-    so the returned dataset always carries a marker — nothing is written to disk
-    by reading, and the read/write pair stays symmetric. Persist the marker with
-    ``stamp``.
-    """
+    """Open one instrument's stage file, or refuse/skip when it is absent."""
     stage_path = paths.stage_file(mooring_dir, name, instr_type, serial, stage)
     if not stage_path.exists():
         if allow_missing:
@@ -382,6 +343,8 @@ def _read_stage(
             f"(CLI --allow-mixed-stages)."
         )
     ds = readers.read(stage_path)
+    # A file older than the marker is stamped in memory only: reading never writes
+    # to disk, so the read/write pair stays symmetric. ``stamp`` persists it.
     if _stage.STAGE_ATTR not in ds.attrs:
         warnings.warn(
             f"{name}: {instr_type} s/n {serial} stage-{stage} file has no "

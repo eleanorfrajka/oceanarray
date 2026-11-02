@@ -414,7 +414,7 @@ def template(name: str, *, instruments: list[dict] | None = None) -> dict:
     return doc
 
 
-def _optional_blocks_text() -> str:
+def _format_optional_blocks() -> str:
     """Return the commented-out ``stack:`` and ``grid:`` blocks, with their defaults."""
     from oceanarray.pipeline._run import DEFAULTS
 
@@ -509,7 +509,7 @@ def save(
         )
         if optional_blocks:
             doc.yaml_set_comment_before_after_key(
-                "clamp", before=_optional_blocks_text(), indent=0
+                "clamp", before=_format_optional_blocks(), indent=0
             )
 
     path.parent.mkdir(parents=True, exist_ok=True)

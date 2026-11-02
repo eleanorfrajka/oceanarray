@@ -20,11 +20,11 @@ import yaml
 
 from oceanarray import paths
 
+from ..paths import safe_serial
 from ._env import render_template
 from ._html_helpers import (
     _parse_dt,
     _resolve_clock,
-    _safe_serial,
     _status,
 )
 
@@ -51,7 +51,7 @@ _NON_LOGGING = {"beacon", "release", "float", "swivel", "shackle"}
 # ---------------------------------------------------------------------------
 
 
-def _fmt_drift(offset_s: float | None) -> str:
+def _format_drift(offset_s: float | None) -> str:
     """Format a clock offset in seconds as ±HH:MM:SS."""
     if offset_s is None or offset_s == 0:
         return "+00:00:00"
@@ -123,7 +123,7 @@ def _instrument_label(instr_type: str, serial: str) -> str:
     return f"{label} {serial}" if serial else label
 
 
-def _interval_s(seconds: Any) -> str:
+def _format_interval(seconds: Any) -> str:
     """Return sample_interval_seconds as a plain integer string."""
     if seconds is None:
         return ""
@@ -143,17 +143,7 @@ def _build_rows(
     mooring_name: str,
     cfg: dict[str, Any],
 ) -> tuple:
-    """Build table rows and notes list from a mooring YAML config.
-
-    Returns
-    -------
-    tuple
-        ``(rows, comments)`` where *rows* is a list of row dicts sorted
-        descending by HAB and *comments* is a list of
-        ``{serial, instrument, depth_str, comment}`` dicts for the Notes
-        section below the table.
-
-    """
+    """Build ``(rows, comments)`` for the recovery table and its Notes section."""
     from ..utilities import instrument_entries
 
     waterdepth = cfg.get("waterdepth")
@@ -193,7 +183,7 @@ def _build_rows(
             )
             continue
 
-        serial = _safe_serial(entry.get("serial", ""))
+        serial = safe_serial(entry.get("serial", ""))
         skipped = bool(entry.get("skip"))
         comment = entry.get("comment", "") or ""
 
@@ -214,7 +204,7 @@ def _build_rows(
         drift_s = clock.get("drift_s")
         if drift_s is None:
             drift_s = clock.get("offset_s")
-        drift_str = _fmt_drift(drift_s)
+        drift_str = _format_drift(drift_s)
 
         start_stop = f"{s1_start}\n{s1_end}" if s1_start != "—" else "—"
         first_last = f"{s2_start}\n{s2_end}" if s2_start != "—" else "—"
@@ -228,7 +218,7 @@ def _build_rows(
                 "nonlog": False,
                 "instrument": _instrument_label(instr_type, serial),
                 "params": _TYPE_PARAMS.get(instr_type, ""),
-                "interval_s": _interval_s(entry.get("sample_interval_seconds")),
+                "interval_s": _format_interval(entry.get("sample_interval_seconds")),
                 "start_stop": start_stop,
                 "clock_drift": drift_str,
                 "first_last": first_last,
@@ -301,7 +291,7 @@ def generate_recovery_table(
         is_unknown_latlon_source,
         parse_latlon_with_source,
     )
-    from ._html_helpers import _duration_str
+    from ._html_helpers import _format_duration
 
     proc_dir = Path(proc_dir)
 
@@ -346,7 +336,7 @@ def generate_recovery_table(
         "recover_time": recover_dt.strftime("%Y-%m-%d %H:%M UTC")
         if recover_dt
         else "?",
-        "duration": _duration_str(deploy_dt, recover_dt),
+        "duration": _format_duration(deploy_dt, recover_dt),
         "rows": rows,
         "comments": comments,
         "generated": datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC"),

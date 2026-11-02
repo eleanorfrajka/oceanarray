@@ -17,20 +17,11 @@ from oceanarray.logger import log_info
 
 
 def _parse_nortek_coord_system(hdr_path: Path) -> str:
-    """Return the coordinate system string from a Nortek .hdr file (BEAM/XYZ/ENU).
-
-    Handles two header formats:
-
-    * Old text format — looks for ``Coordinate system   BEAM`` (2+ spaces separator)
-      in the instrument-settings block above the "Data file format" line.
-    * New CSV format — looks for ``CY="BEAM"`` in a ``GETAVG,`` line anywhere in
-      the file (e.g. ``GETAVG,...,CY="BEAM",...``).
-
-    Returns ``"UNK"`` if neither pattern is found: the coordinate system is
-    undeterminable from the header, so it is marked unknown rather than assumed
-    ENU — stage 3 then refuses to treat the velocities as geographic (see
-    :func:`oceanarray.pipeline.coordinate.apply_beam_to_enu`).
-    """
+    """Return the coordinate system from a Nortek .hdr file (BEAM/XYZ/ENU or UNK)."""
+    # Two header formats: old text ("Coordinate system   BEAM", 2+ spaces, above the
+    # "Data file format" line) and new CSV (CY="BEAM" in a GETAVG, line).
+    # Neither found -> "UNK", never assumed ENU, so stage 3 refuses to treat the
+    # velocities as geographic.
     try:
         with hdr_path.open(encoding="utf-8", errors="replace") as f:
             for line in f:
@@ -51,12 +42,9 @@ def _parse_nortek_coord_system(hdr_path: Path) -> str:
 
 
 def _parse_nortek_T_matrix_hdr(hdr_path: Path) -> dict[str, float] | None:
-    """Parse the 3×3 Nortek transformation matrix from a .hdr file.
-
-    Reads the "Transformation matrix" block (first line has 3 values, next two
-    continuation lines have 3 values each).  Returns a dict of M11..M33 floats,
-    or None if the block is not found or has fewer than 9 values.
-    """
+    """Parse the 3×3 Nortek transformation matrix from a .hdr file."""
+    # "Transformation matrix" line holds the first 3 values; two indented
+    # continuation lines hold 3 each. None if fewer than 9 values are found.
     try:
         floats: list = []
         in_matrix = False
@@ -92,12 +80,9 @@ def _parse_nortek_T_matrix_hdr(hdr_path: Path) -> dict[str, float] | None:
 
 
 def _parse_nortek_T_matrix_csv(csv_path: Path) -> dict[str, float] | None:
-    """Parse the 3×3 Nortek transformation matrix from a String Data.csv file.
-
-    Searches for a ``GETXFAVG`` or ``GETXFBURST`` command with
-    ``ROWS=3,COLS=3,M11=...,M33=...`` parameters (pipe-separated field format).
-    Returns a dict of M11..M33 floats, or None if not found.
-    """
+    """Parse the 3×3 Nortek transformation matrix from a String Data.csv file."""
+    # Looks for GETXFAVG or GETXFBURST with ROWS=3,COLS=3,M11=...,M33=... in the
+    # pipe-separated field format; None unless all nine entries are found.
     try:
         with csv_path.open(encoding="utf-8", errors="replace") as f:
             content = f.read()
@@ -125,12 +110,9 @@ def _parse_nortek_T_matrix_csv(csv_path: Path) -> dict[str, float] | None:
 
 
 def _parse_nortek_pressure_cal(hdr_path: Path) -> dict:
-    """Return pressure sensor calibration key-value pairs from a Nortek .hdr file.
-
-    Reads the block starting at a line matching "Pressure.*calibration" (case-insensitive)
-    and ending at the next blank line or top-level section header (line starting without
-    leading whitespace and not a key-value pair).  Returns an empty dict if not found.
-    """
+    """Return pressure sensor calibration key-value pairs from a Nortek .hdr file."""
+    # The block starts at a "Pressure ... calibration" line and ends at the next blank
+    # line; returns {} if not found.
     cal: dict = {}
     in_section = False
     try:
@@ -355,7 +337,7 @@ def to_canonical_nortek(dataset: xr.Dataset, coord_system: str = "ENU") -> xr.Da
     return dataset
 
 
-def _clean_nortek_var_name(col: str) -> str:
+def _canonical_nortek_var_name(col: str) -> str:
     """Convert a raw Nortek CSV column name to a valid NetCDF variable name."""
     name = col.lower().strip()
     name = re.sub(r"[^\w\s]", " ", name)  # special chars → spaces
@@ -364,24 +346,11 @@ def _clean_nortek_var_name(col: str) -> str:
 
 
 def _parse_nortek_csv_columns(df: pd.DataFrame) -> dict:
-    """Build a complete variable dict from all columns in a Nortek CSV DataFrame.
-
-    Nortek AquaPro exports mix two column-naming styles:
-    - camelCase (``velBeam1#1``, ``speedOfSound``) for the AquaPro velocity block
-    - Title Case (``Pressure``, ``Temperature``, ``Soundspeed``) for the
-      environmental summary block
-
-    Rules applied:
-    - Column matching for canonical names is case-insensitive.
-    - When the same name appears more than once (e.g. ``Pressure`` in dbar then
-      ``Pressure`` in m), the first occurrence maps to the canonical name and
-      all later occurrences are dropped — the second Pressure column is depth
-      (derived from pressure) and is not needed.
-    - All remaining columns are included with cleaned variable names so that
-      no data from the raw file is silently discarded.
-    - Time component columns (Year, Month, Day, Hour, Minute, Second) are
-      dropped because the ``time`` coordinate already captures this information.
-    """
+    """Build a variable dict from all columns in a Nortek CSV DataFrame."""
+    # AquaPro exports mix camelCase (velBeam1#1, speedOfSound) for the velocity block
+    # and Title Case (Pressure, Soundspeed) for the environmental block, so canonical
+    # matching is case-insensitive. Unmapped columns are kept under cleaned names so
+    # no raw data is silently discarded.
     # Build case-insensitive lookup: lower_name -> first df column name
     col_map: dict[str, str] = {}
     for col in df.columns:
@@ -419,9 +388,10 @@ def _parse_nortek_csv_columns(df: pd.DataFrame) -> dict:
             if df_col in df.columns:
                 canonical[df_col] = f"{prefix}_beam{i}"
 
-    # Columns to drop entirely
+    # Columns to drop entirely; the time coordinate already carries the components
     time_components = {"year", "month", "day", "hour", "minute", "second"}
-    # The second (and any further) occurrence of "pressure" is depth in metres
+    # The second (and any further) occurrence of "pressure" is depth in meters,
+    # derived from pressure and not needed: the first (dbar) is canonical
     first_pressure_col = col_map.get("pressure")
     duplicate_pressure = {
         col
@@ -442,7 +412,7 @@ def _parse_nortek_csv_columns(df: pd.DataFrame) -> dict:
             continue
         if df_col.lower().strip() in drop_cols or df_col in drop_cols:
             continue
-        var_name = _clean_nortek_var_name(df_col)
+        var_name = _canonical_nortek_var_name(df_col)
         if var_name and var_name not in data_vars:
             data_vars[var_name] = (["time"], df[df_col].values)
 

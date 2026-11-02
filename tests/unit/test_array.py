@@ -1,6 +1,6 @@
 """Unit tests for pure helper functions in oceanarray.reports._array.
 
-Tests cover _parse_decdeg, _lat_lon_from_cfg, _count_instruments, and
+Tests cover _parse_decdeg, _resolve_lat_lon, _count_instruments, and
 _build_type_summary — all functions with no I/O dependencies that can be
 exercised without fixtures or seasenselib.
 """
@@ -10,11 +10,11 @@ from pathlib import Path
 import pytest
 
 from oceanarray.reports._array import (
-    _array_masthead,
+    _build_array_masthead,
     _build_type_summary,
     _count_instruments,
-    _lat_lon_from_cfg,
     _parse_decdeg,
+    _resolve_lat_lon,
 )
 
 # ---------------------------------------------------------------------------
@@ -67,7 +67,7 @@ class TestParseDecdeg:
 
 
 # ---------------------------------------------------------------------------
-# _lat_lon_from_cfg
+# _resolve_lat_lon
 # ---------------------------------------------------------------------------
 
 
@@ -76,13 +76,13 @@ class TestLatLonFromCfg:
 
     def test_plain_float_lat_lon(self):
         cfg = {"latitude": 65.732, "longitude": -27.8}
-        lat, lon = _lat_lon_from_cfg(cfg)
+        lat, lon = _resolve_lat_lon(cfg)
         assert lat == pytest.approx(65.732)
         assert lon == pytest.approx(-27.8)
 
     def test_dms_string_lat_lon(self):
         cfg = {"latitude": "65 43.913", "longitude": "-27 48.000"}
-        lat, lon = _lat_lon_from_cfg(cfg)
+        lat, lon = _resolve_lat_lon(cfg)
         assert lat == pytest.approx(65.0 + 43.913 / 60.0, rel=1e-6)
         assert lon == pytest.approx(-(27.0 + 48.0 / 60.0), rel=1e-6)
 
@@ -92,7 +92,7 @@ class TestLatLonFromCfg:
             "seabed_latitude": "65 43.913",
             "longitude": -27.0,
         }
-        lat, lon = _lat_lon_from_cfg(cfg)
+        lat, lon = _resolve_lat_lon(cfg)
         assert lat == pytest.approx(65.0 + 43.913 / 60.0, rel=1e-6)
 
     def test_deployment_latitude_takes_priority_over_planned(self):
@@ -101,11 +101,11 @@ class TestLatLonFromCfg:
             "deployment_latitude": "65 34.004 N",
             "longitude": -27.0,
         }
-        lat, _ = _lat_lon_from_cfg(cfg)
+        lat, _ = _resolve_lat_lon(cfg)
         assert lat == pytest.approx(65.0 + 34.004 / 60.0, rel=1e-6)
 
     def test_missing_lat_lon_returns_none(self):
-        lat, lon = _lat_lon_from_cfg({})
+        lat, lon = _resolve_lat_lon({})
         assert lat is None
         assert lon is None
 
@@ -288,7 +288,7 @@ class TestArrayMastheadExtent:
 
     Regression guard: the extent once hard-coded ``°N``/``°E``, so a western
     longitude (MIXSED sits at ~29 °W) rendered as east.  It must read the
-    hemisphere from the sign, as ``position`` already does via ``_fmt_dm``.
+    hemisphere from the sign, as ``position`` already does via ``_format_deg_min``.
     """
 
     @staticmethod
@@ -307,7 +307,7 @@ class TestArrayMastheadExtent:
 
     def test_western_longitude_reads_west_not_east(self):
         rows = [self._row(65.0, -31.0), self._row(66.0, -27.0)]
-        masthead = _array_masthead(
+        masthead = _build_array_masthead(
             {"waterdepth_min": 700, "waterdepth_max": 1000},
             rows,
             [],

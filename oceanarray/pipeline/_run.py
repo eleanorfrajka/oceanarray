@@ -121,10 +121,12 @@ def run(
 
     if stack_stage not in (2, 3):
         raise ValueError(f"stack_stage={stack_stage!r}: expected 3 or 2")
-    wanted = _run_stages(stages, from_stage, stack_stage)
-    serial_list = _serial_list(serials)
+    wanted = _resolve_stages(stages, from_stage, stack_stage)
+    serial_list = _as_serial_list(serials)
     cfg, moor_dir = _resolve_mooring(mooring, mooring_dir, "run")
-    settings = _settings(cfg, dt_seconds=dt_seconds, pmin=pmin, pmax=pmax, dp=dp)
+    settings = _resolve_settings(
+        cfg, dt_seconds=dt_seconds, pmin=pmin, pmax=pmax, dp=dp
+    )
     name = cfg["name"]
     products = [paths.product_file(moor_dir, name, p) for p in ("stack", "grid")]
     outcome = _Outcome()
@@ -161,10 +163,10 @@ def run(
         # Whatever stopped the run, a product built from the old stage files no
         # longer matches the ones it rewrote.
         if outcome.written:
-            _remove_stale(products, "the stage files changed but the run stopped")
+            _set_aside_stale(products, "the stage files changed but the run stopped")
         raise
     if not keep_going and "instruments_omitted" in ds_stack.attrs:
-        _remove_stale(products[1:], "the new stack left instruments out")
+        _set_aside_stale(products[1:], "the new stack left instruments out")
         raise MooringError(
             f"{name}: the stack left instruments out "
             f"({ds_stack.attrs['instruments_omitted']}); {stack_path.name} is "
@@ -185,13 +187,13 @@ def run(
         )
     except ValueError as e:
         if not keep_going:
-            _remove_stale(products[1:], "the stack changed but could not be gridded")
+            _set_aside_stale(products[1:], "the stack changed but could not be gridded")
             raise MooringError(f"{name}: cannot grid the stack: {e}") from e
         print(f"WARNING: keep_going: no grid — {e}")
-        _remove_stale(products[1:], "the stack changed but could not be gridded")
+        _set_aside_stale(products[1:], "the stack changed but could not be gridded")
         files = [*outcome.files, stack_path]
     except Exception:
-        _remove_stale(products[1:], "the stack changed but could not be gridded")
+        _set_aside_stale(products[1:], "the stack changed but could not be gridded")
         raise
     else:
         files = [*outcome.files, stack_path, grid_path]
@@ -210,44 +212,20 @@ def run(
     return files
 
 
-def _run_stages(
+def _resolve_stages(
     stages: int | str | Iterable[int] | None,
     from_stage: int | None,
     stack_stage: int,
     *,
     cli: bool = False,
 ) -> list[int]:
-    """Return the stages ``run`` runs, refusing a set that would leave older files under the stack.
-
-    Parameters
-    ----------
-    stages : int, str, iterable of int or None
-        The stages asked for; None or ``"all"`` is stages 1 through *stack_stage*.
-    from_stage : int or None
-        Start at this stage and run through *stack_stage*.
-    stack_stage : int
-        The stage the stack is built from (2 or 3).
-    cli : bool, optional
-        Word the error messages with the command-line flags (``--stage``,
-        ``--from``, ``--stack-stage``) instead of the Python keywords.
-
-    Returns
-    -------
-    list of int
-        The stages to run, in order.
-
-    Raises
-    ------
-    ValueError
-        If both *stages* and *from_stage* are given, or the stages do not run from
-        the first one given through *stack_stage* without a gap.
-    """
-    from oceanarray.pipeline import _stage_numbers
+    """Return the stages ``run`` runs, refusing any that would stack older files."""
+    from oceanarray.pipeline import _canonical_stages
 
     if cli:
 
         def show(n: int | str | Iterable[int] | None) -> str:
-            return " ".join(str(v) for v in _stage_numbers(n))
+            return " ".join(str(v) for v in _canonical_stages(n))
 
         stage_kw, from_kw, stack_kw = "--stage ", "--from ", "--stack-stage "
         one_stage = "'oceanarray process --stage N'"
@@ -271,7 +249,7 @@ def _run_stages(
         return list(range(from_stage, stack_stage + 1))
     if stages is None:
         return list(range(1, stack_stage + 1))
-    wanted = _stage_numbers(stages)
+    wanted = _canonical_stages(stages)
     if wanted[0] > stack_stage:
         raise ValueError(
             f"{stage_kw}{show(stages)} with {stack_kw}{stack_stage}: the stack is "
@@ -292,36 +270,29 @@ def _run_stages(
     return wanted
 
 
-def _serial_list(serials: Iterable[str] | None) -> list[str] | None:
+def _as_serial_list(serials: Iterable[str] | None) -> list[str] | None:
     """Return *serials* as a list read once; a bare string is one serial."""
     if serials is None:
         return None
     return [serials] if isinstance(serials, str) else list(serials)
 
 
-def _remove_stale(paths_: list[Path], why: str) -> None:
-    """Rename product files that no longer match the stage files to ``*.stale.nc``, saying so.
-
-    Each product keeps one stale copy: a later rename replaces it.
-    """
+def _set_aside_stale(paths_: list[Path], why: str) -> None:
+    """Rename product files that no longer match the stage files to ``*.stale.nc``."""
     for path in paths_:
         if path.exists():
             stale = paths.stale_file(path)
+            # One stale copy per product: a later rename replaces it.
             path.replace(stale)
             print(
                 f"  renamed {path.name} to {stale.name}: {why}, so it no longer matched."
             )
 
 
-def _settings(cfg: Mapping[str, Any], **given: float | None) -> dict[str, float]:
-    """Return the checked stack and grid settings: the call's, else the description's, else :data:`DEFAULTS`.
-
-    Raises
-    ------
-    oceanarray.exceptions.MooringError
-        If a setting is not a finite number (``dt_seconds``: a whole number), is
-        not positive (``dt_seconds``, ``dp``), or ``pmax`` is not above ``pmin``.
-    """
+def _resolve_settings(
+    cfg: Mapping[str, Any], **given: float | None
+) -> dict[str, float]:
+    """Return checked stack/grid settings: call, else description, else DEFAULTS."""
     from oceanarray.exceptions import MooringError
 
     out: dict[str, float] = {}

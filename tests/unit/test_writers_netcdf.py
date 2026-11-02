@@ -18,9 +18,9 @@ from oceanarray.utilities import cast_output_dtypes
 from oceanarray.writers import write
 from oceanarray.writers.netcdf import (
     _DROP,
-    _clean_attr_value,
+    _netcdf_safe_attr_value,
+    _netcdf_safe_names,
     _prepare,
-    _sanitize_names,
 )
 
 #: Root of the committed real-data fixtures (trimmed dune2_1_2026 mooring).
@@ -184,7 +184,7 @@ def test_name_sanitization_is_noop_on_fixtures(key):
     """Real stage files carry canonical names, so sanitization renames nothing."""
     src = xr.open_dataset(_FIXTURES[key], engine="netcdf4")
     try:
-        assert _sanitize_names(src) is src
+        assert _netcdf_safe_names(src) is src
     finally:
         src.close()
 
@@ -210,7 +210,7 @@ def test_name_sanitization_collision_raises():
         coords={"x": np.arange(2)},
     )
     with pytest.raises(ValueError, match="sanitization would map"):
-        _sanitize_names(ds)
+        _netcdf_safe_names(ds)
 
 
 # ---------------------------------------------------------------------------
@@ -222,13 +222,13 @@ def test_clean_attr_value_branches():
     """dict -> JSON, None -> _DROP, lists and tuples pass through, scalars unchanged."""
     import json
 
-    assert _clean_attr_value({"a": 1}) == json.dumps({"a": 1})
-    assert _clean_attr_value(None) is _DROP
-    assert _clean_attr_value(["a", "b"]) == ["a", "b"]
-    assert _clean_attr_value((1, 2)) == (1, 2)
-    assert _clean_attr_value([]) == []
-    assert _clean_attr_value("s") == "s"
-    assert _clean_attr_value(3.5) == 3.5
+    assert _netcdf_safe_attr_value({"a": 1}) == json.dumps({"a": 1})
+    assert _netcdf_safe_attr_value(None) is _DROP
+    assert _netcdf_safe_attr_value(["a", "b"]) == ["a", "b"]
+    assert _netcdf_safe_attr_value((1, 2)) == (1, 2)
+    assert _netcdf_safe_attr_value([]) == []
+    assert _netcdf_safe_attr_value("s") == "s"
+    assert _netcdf_safe_attr_value(3.5) == 3.5
 
 
 def test_bool_attribute_is_stored_as_int8():
@@ -236,7 +236,7 @@ def test_bool_attribute_is_stored_as_int8():
     import numpy as np
 
     for value, expected in ((True, 1), (False, 0)):
-        out = _clean_attr_value(value)
+        out = _netcdf_safe_attr_value(value)
         assert out == expected
         assert isinstance(out, np.int8)
 

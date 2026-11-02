@@ -162,7 +162,7 @@ class TestMooringProcessor:
             },
         )
 
-        cleaned_ds = s1._clean_dataset_variables(ds, "sbe-cnv")
+        cleaned_ds = s1._drop_file_type_variables(ds, "sbe-cnv")
 
         assert "potential_temperature" not in cleaned_ds.variables
         assert "density" not in cleaned_ds.variables
@@ -189,7 +189,7 @@ class TestMooringProcessor:
             coords={"time": (["time"], np.arange(3))},
         )
 
-        out = s1._normalize_conductivity(ds)
+        out = s1._rename_conductivity(ds)
 
         assert "cond0S/m" not in out
         np.testing.assert_allclose(out["conductivity"].values, [0.0, 0.361, 3.61])
@@ -202,7 +202,7 @@ class TestMooringProcessor:
             coords={"time": (["time"], np.arange(1))},
         )
 
-        out = s1._normalize_conductivity(ds)
+        out = s1._rename_conductivity(ds)
 
         assert "cond0mS/cm" not in out
         np.testing.assert_allclose(out["conductivity"].values, [36.1])
@@ -218,7 +218,7 @@ class TestMooringProcessor:
             {"sbeox0ML/L": (["time"], np.array([5.1, 5.2]))},
             coords={"time": (["time"], np.arange(2))},
         )
-        out = s1._sanitize_slash_vars(ds)
+        out = s1._rename_slash_vars(ds)
         assert "sbeox0ML/L" not in out
         assert "dissolved_oxygen_ml_l" in out
         assert "dissolved_oxygen" not in out  # not the per-mass variable
@@ -233,7 +233,7 @@ class TestMooringProcessor:
         """
         from oceanarray.config import parameters as params
 
-        out = s1._sanitize_slash_vars(
+        out = s1._rename_slash_vars(
             xr.Dataset(
                 {"sbeox1ML/L": (["time"], np.array([5.3, 5.4]))},
                 coords={"time": (["time"], np.arange(2))},
@@ -243,7 +243,7 @@ class TestMooringProcessor:
         assert "dissolved_oxygen_ml_l_2" in out
         assert params.VARIABLES["dissolved_oxygen_ml_l_2"]["units"] == "mL L-1"
 
-        out = s1._sanitize_slash_vars(
+        out = s1._rename_slash_vars(
             xr.Dataset(
                 {"sbeox1Mm/Kg": (["time"], np.array([250.0, 260.0]))},
                 coords={"time": (["time"], np.arange(2))},
@@ -266,7 +266,7 @@ class TestMooringProcessor:
             },
         )
 
-        cleaned_ds = s1._clean_dataset_variables(ds, "unknown-type")
+        cleaned_ds = s1._drop_file_type_variables(ds, "unknown-type")
 
         assert "temperature" in cleaned_ds.variables
         assert "unwanted_var" in cleaned_ds.variables

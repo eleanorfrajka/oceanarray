@@ -12,7 +12,11 @@ import numpy as np
 from oceanarray import paths
 
 from ..config import parameters as params
-from ..utilities import is_unknown_latlon_source, parse_latlon_with_source
+from ..utilities import (
+    is_unknown_latlon_source,
+    parse_latlon_with_source,
+    should_skip_regeneration,
+)
 from ._env import (
     render_history,
     render_nc_coords,
@@ -23,11 +27,10 @@ from ._env import (
 )
 from ._figdebug import as_panel
 from ._html_helpers import (
-    _find_array_report_href,
+    _format_rel_path,
     _parse_history,
     _read_nc_metadata,
-    _safe_rel,
-    _should_skip,
+    _resolve_array_report_href,
     _status,
 )
 from ._navs import mooring_nav
@@ -40,14 +43,14 @@ from ._plots import (
     _make_grid_sigma_b64,
     _make_grid_timeseries_b64,
     _make_grid_trajectory_b64,
-    _make_grid_ts_diagram,
+    _make_grid_ts_diagram_b64,
     _make_grid_velocity_stacked_b64,
-    _make_isopycnal_coverage_fig_b64,
-    _make_isopycnal_ts_fig_b64,
-    _make_overflow_temperature_fig_b64,
-    _make_spectrum_fig_b64,
+    _make_isopycnal_coverage_b64,
+    _make_isopycnal_ts_b64,
+    _make_overflow_temperature_b64,
+    _make_spectrum_b64,
     _make_velocity_iqr_profile_b64,
-    _make_wavelet_fig_b64,
+    _make_wavelet_b64,
 )
 from ._vendored.page_model import Panel, PanelGroup, Profile, Section, resolve
 
@@ -157,7 +160,7 @@ GRID_CAPTIONS: dict[str, str] = {
         "hours. LF markers: M2, 1.8 d, 4 d, f. HF markers: M2 (12.4 h), f "
         "(inertial). Dashed black line: −2 spectral slope. Colour encodes "
         "pressure (light blue = shallow, dark blue = deep). Window length "
-        "controllable via hf_segment_days in _make_spectrum_fig_b64."
+        "controllable via hf_segment_days in _make_spectrum_b64."
     ),
     "wavelet": (
         "Temperature wavelet scalogram. Continuous wavelet transform (Morlet, "
@@ -202,7 +205,7 @@ class GridContext:
         defect: the N² panel stubs on it (via ``unavailable_if``), while the
         spectra still compute at ``lat=0`` as before.
     ts_bounds : dict
-        Shared T-S axis limits, from :func:`_make_grid_ts_diagram`.
+        Shared T-S axis limits, from :func:`_make_grid_ts_diagram_b64`.
     ts_b64 : str or None
         The rendered T-S diagram (base64 PNG), or ``None`` if it could not be
         drawn.  Cached here so the figure is drawn once, not once for the bounds
@@ -255,7 +258,7 @@ def build_grid_context(ds: Any, grid_path: Path) -> GridContext:
             stacklevel=2,
         )
         lat_v = 0.0
-    ts_b64, ts_bounds = _make_grid_ts_diagram(ds)
+    ts_b64, ts_bounds = _make_grid_ts_diagram_b64(ds)
     dt_s = float(ds.attrs.get("dt_seconds", 3600))
     return GridContext(
         ds=ds,
@@ -271,14 +274,10 @@ def build_grid_context(ds: Any, grid_path: Path) -> GridContext:
 
 
 def _has_temperature(ctx: GridContext) -> bool:
-    """Return True when the dataset carries a ``temperature`` variable.
-
-    Gates Hydrography and the temperature spectra.  Hydrography needs only
-    temperature — ``draw_grid_hydro`` renders whichever of T / S / O₂ is present
-    and returns ``None`` only when none are — so a temperature-only mooring still
-    gets a (temperature-only) Hydrography panel.  The T-S *diagram* is stricter
-    (it needs both T and S): see :func:`_has_hydro`.
-    """
+    """Return True when the dataset carries a ``temperature`` variable."""
+    # Gates Hydrography and temperature spectra: draw_grid_hydro renders whichever of
+    # T/S/O2 is present, so temperature alone suffices. The T-S diagram needs both
+    # T and S (see _has_hydro).
     return "temperature" in ctx.ds
 
 
@@ -292,23 +291,16 @@ def _sigma_vars(ctx: GridContext) -> list:
 
 
 def _has_velocity(ctx: GridContext) -> bool:
-    """Return True when eastward or northward velocity is present (velocity sections gate).
-
-    "Could this exist for this deployment?" — a mooring with no horizontal
-    velocity variables has no Velocity or Velocity-structure section, and it is
-    named in the not-applicable footer (design §9, Eleanor 2026-08-16).
-    """
+    """Return True when eastward or northward velocity is present."""
+    # Without horizontal velocity the Velocity sections are named in the
+    # not-applicable footer.
     return "east_velocity" in ctx.ds.data_vars or "north_velocity" in ctx.ds.data_vars
 
 
 def _has_hydro(ctx: GridContext) -> bool:
-    """Return True when temperature and salinity (or conductivity) are present.
-
-    Salinity is derivable from conductivity + temperature (``gsw.SP_from_C``), so
-    a deployment carrying conductivity but not stored salinity still *could* show
-    Hydrography and the T-S diagram — hence the ``or``.
-    """
+    """Return True when temperature and salinity (or conductivity) are present."""
     dv = ctx.ds.data_vars
+    # Conductivity counts: salinity is derivable via gsw.SP_from_C.
     return "temperature" in dv and ("salinity" in dv or "conductivity" in dv)
 
 
@@ -318,23 +310,13 @@ def _has_sigma(ctx: GridContext) -> bool:
 
 
 def _history_unavailable(ctx: GridContext) -> str | None:
-    """Reason the processing-history panel cannot render, or ``None`` to proceed.
-
-    Processing history is a provenance section that *always* belongs on a
-    processing report — it is not conditional on the deployment — so it is
-    surfaced through ``unavailable_if`` (a visible stub) rather than
-    ``applies_to`` (which would drop it into the "not applicable to this
-    deployment" footer, misstating a missing-metadata gap as a deployment
-    characteristic).
-    """
+    """Reason the processing-history panel cannot render, or ``None`` to proceed."""
+    # Provenance always belongs on the report, so missing history is a visible stub
+    # (unavailable_if), not a not-applicable footer entry (applies_to), which would
+    # misstate a missing-metadata gap as a deployment characteristic.
     if ctx.history_entries:
         return None
     return "No processing history recorded in the file attributes."
-
-
-def _has_scalar_vars(ctx: GridContext) -> bool:
-    """Return True when the NetCDF file exposes scalar-metadata variables."""
-    return bool(ctx.nc_meta.get("scalar_rows"))
 
 
 def _has_global_attrs(ctx: GridContext) -> bool:
@@ -352,7 +334,7 @@ def _isopycnal_ts_panel(sigma_var: str) -> Panel:
             ds_iso = _iso_ds(
                 ctx.ds, sigma_var=_sv, sigma_grid=getattr(params, "SIGMA_GRID", None)
             )
-            return _make_isopycnal_ts_fig_b64(ds_iso)
+            return _make_isopycnal_ts_b64(ds_iso)
         except Exception as exc:
             # Report stays partial, but say why instead of swallowing silently.
             warnings.warn(
@@ -426,7 +408,7 @@ GRID_PANELS: dict[str, Panel] = {
         "nc_scalars",
         render=lambda c: render_nc_scalars(c.nc_meta),
         kind="table",
-        applies_to=_has_scalar_vars,
+        applies_to=lambda c: bool(c.nc_meta.get("scalar_rows")),
     ),
     "nc_globals": Panel(
         "nc_globals",
@@ -511,13 +493,13 @@ GRID_PANELS: dict[str, Panel] = {
     # overflow
     "isopycnal_coverage": Panel(
         "isopycnal_coverage",
-        render=lambda c: as_panel(lambda: _make_isopycnal_coverage_fig_b64(c.ds)),
+        render=lambda c: as_panel(lambda: _make_isopycnal_coverage_b64(c.ds)),
         caption=GRID_CAPTIONS["isopycnal_coverage"],
         applies_to=_has_sigma,
     ),
     "overflow_temp": Panel(
         "overflow_temp",
-        render=lambda c: as_panel(lambda: _make_overflow_temperature_fig_b64(c.ds)),
+        render=lambda c: as_panel(lambda: _make_overflow_temperature_b64(c.ds)),
         caption=GRID_CAPTIONS["overflow_temp"],
         applies_to=_has_sigma,
     ),
@@ -525,7 +507,7 @@ GRID_PANELS: dict[str, Panel] = {
     "temp_spectrum": Panel(
         "temp_spectrum",
         render=lambda c: as_panel(
-            lambda: _make_spectrum_fig_b64(c.ds["temperature"], c.dt_s, lat=c.lat)
+            lambda: _make_spectrum_b64(c.ds["temperature"], c.dt_s, lat=c.lat)
         ),
         caption=GRID_CAPTIONS["temp_spectrum"],
         applies_to=_has_temperature,
@@ -533,7 +515,7 @@ GRID_PANELS: dict[str, Panel] = {
     "wavelet": Panel(
         "wavelet",
         render=lambda c: as_panel(
-            lambda: _make_wavelet_fig_b64(c.ds["temperature"], c.dt_s)
+            lambda: _make_wavelet_b64(c.ds["temperature"], c.dt_s)
         ),
         caption=GRID_CAPTIONS["wavelet"],
         applies_to=_has_temperature,
@@ -626,8 +608,8 @@ def generate_grid_page(
 ) -> None:
     """Generate a grid report HTML page with T/S pcolormesh figures."""
     out_path = out_dir / f"{mooring_name}_grid_report.html"
-    if _should_skip(out_path, force, skip_existing, grid_path):
-        _status("skip", _safe_rel(out_path, display_root))
+    if should_skip_regeneration(out_path, force, skip_existing, grid_path):
+        _status("skip", _format_rel_path(out_path, display_root))
         return
 
     try:
@@ -671,7 +653,7 @@ def generate_grid_page(
                 stack_exists=stack_exists,
                 grid_exists=True,
                 current="grid",
-                array_href=_find_array_report_href(out_dir),
+                array_href=_resolve_array_report_href(out_dir),
             ),
             report=report,
             cruise=ctx.get("cruise", "—"),
@@ -692,6 +674,6 @@ def generate_grid_page(
             generated=ctx["generated"],
         )
         out_path.write_text(html, encoding="utf-8")
-        _status("file", _safe_rel(out_path, display_root))
+        _status("file", _format_rel_path(out_path, display_root))
     except Exception as exc:
         print(f"  ERROR generating grid report: {exc}")

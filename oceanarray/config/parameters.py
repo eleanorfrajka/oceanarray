@@ -587,7 +587,7 @@ VARIABLES: dict[str, dict] = {
         "cmap": None,
     },
     "tilt": {
-        # Derived from pitch/roll (arccos, in _plots._augment_tilt); no CF standard name.
+        # Derived from pitch/roll (arccos, in _plots._add_tilt); no CF standard name.
         "label": "Tilt",
         "units": "degree",
         "standard_name": None,

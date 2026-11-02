@@ -145,24 +145,8 @@ p, li {
 
 
 def _ordered_report_files(report_dir: Path, mooring_name: str) -> list[Path]:
-    """Return the mooring's report HTML files in reading order.
-
-    Order is summary → per-instrument → stack → grid, matching the pipeline
-    data flow.  Only files that exist on disk are returned.
-
-    Parameters
-    ----------
-    report_dir : Path
-        Directory holding the mooring's report HTML files.
-    mooring_name : str
-        Mooring identifier used as the filename stem.
-
-    Returns
-    -------
-    list of Path
-        Existing report files, in reading order.
-
-    """
+    """Return the mooring's existing report HTML files in reading order."""
+    # Summary -> per-instrument -> stack -> grid, matching the pipeline data flow.
     files: list[Path] = []
     summary = report_dir / f"{mooring_name}_report.html"
     if summary.exists():
@@ -200,26 +184,7 @@ _BODY_RE = re.compile(r"<body[^>]*>(.*?)</body>", re.DOTALL | re.IGNORECASE)
 
 
 def _slug_for(path: Path, mooring_name: str) -> str:
-    """Return the in-document slug for a source report file.
-
-    ``{mooring}_report.html`` → ``summary``; ``..._stack_report.html`` →
-    ``stack``; ``..._grid_report.html`` → ``grid``; an instrument page
-    ``instrument/{mooring}_{serial}_report.html`` → ``instr-{serial}``; anything
-    else (e.g. a cover page) falls back to the sanitised file stem.
-
-    Parameters
-    ----------
-    path : Path
-        The source report HTML file.
-    mooring_name : str
-        Mooring identifier used as the filename stem.
-
-    Returns
-    -------
-    str
-        The slug used to namespace that page's ids in the merged document.
-
-    """
+    """Return the slug that namespaces a source report's ids in the merged document."""
     name = path.name
     if name == f"{mooring_name}_report.html":
         return "summary"
@@ -235,85 +200,36 @@ def _slug_for(path: Path, mooring_name: str) -> str:
         and name.endswith(suffix)
     ):
         return f"instr-{name[len(prefix) : -len(suffix)]}"
+    # Anything else (e.g. a cover page) falls back to the sanitized file stem.
     return re.sub(r"[^A-Za-z0-9]+", "-", path.stem).strip("-") or "page"
 
 
 def _namespace_page(slug: str, html: str) -> tuple[list[str], str]:
-    """Extract a page's ``<style>`` blocks and its namespaced ``<body>`` inner HTML.
-
-    Every ``id="x"`` becomes ``id="{slug}__x"`` and every same-page
-    ``href="#x"`` becomes ``href="#{slug}__x"``, so anchors from different source
-    pages cannot collide once concatenated.  Inter-page links (whole filenames)
-    are left for :func:`_rewrite_interpage_hrefs`, which runs after every page's
-    slug is known.
-
-    Parameters
-    ----------
-    slug : str
-        The page's slug (see :func:`_slug_for`).
-    html : str
-        The page's full HTML.
-
-    Returns
-    -------
-    tuple of (list of str, str)
-        The page's ``<style>`` block contents and its namespaced body inner HTML.
-
-    """
+    """Extract a page's ``<style>`` blocks and its namespaced ``<body>`` inner HTML."""
     styles = _STYLE_RE.findall(html)
     body_match = _BODY_RE.search(html)
     body = body_match.group(1) if body_match else html
+    # Prefix ids and same-page hrefs with the slug so anchors from different pages
+    # cannot collide once concatenated.  Inter-page links (whole filenames) are left
+    # for _rewrite_interpage_hrefs, which needs every page's slug first.
     body = _ID_ATTR_RE.sub(lambda m: f'id="{slug}__{m.group(1)}"', body)
     body = _LOCAL_HREF_RE.sub(lambda m: f'href="#{slug}__{m.group(1)}"', body)
     return styles, body
 
 
 def _rewrite_interpage_hrefs(body: str, target_anchors: dict[str, str]) -> str:
-    """Rewrite links to sibling report files into in-document anchors.
-
-    Parameters
-    ----------
-    body : str
-        A page's (already id-namespaced) body inner HTML.
-    target_anchors : dict of {str: str}
-        Maps a source filename as it appears in an ``href`` (e.g.
-        ``dune2_1_2026_stack_report.html``) to that page's in-document anchor
-        (e.g. ``#stack__top``).  A trailing ``#fragment`` on the link is dropped
-        (phase 1 is a whole-page jump).
-
-    Returns
-    -------
-    str
-        The body with inter-page links rewritten.
-
-    """
+    """Rewrite links to sibling report files into in-document anchors."""
+    # A trailing #fragment on the link is dropped: links are whole-page jumps.
     for filename, anchor in target_anchors.items():
         pattern = re.compile(r'href="[^"]*' + re.escape(filename) + r'(?:#[^"]*)?"')
         body = pattern.sub(f'href="{anchor}"', body)
     return body
 
 
-def _build_combined_html(pages: list[tuple[str, str, str]]) -> str:
-    """Assemble one HTML document from ordered ``(slug, filename, html)`` pages.
-
-    Each page's ids are namespaced by slug, inter-page links are rewritten to
-    in-document anchors, and each page is wrapped in a ``.pdf-page`` section so
-    the print stylesheet starts it on a fresh sheet.  The whole-page jump target
-    for a page is its masthead ``#{slug}__top`` (every page carries ``id="top"``
-    from ``base.html``).  Identical ``<style>`` blocks — the same report CSS on
-    every page — are de-duplicated.
-
-    Parameters
-    ----------
-    pages : list of (str, str, str)
-        Ordered ``(slug, filename, html)`` triples, one per source report.
-
-    Returns
-    -------
-    str
-        A single self-contained HTML document ready for one WeasyPrint render.
-
-    """
+def _render_combined_html(pages: list[tuple[str, str, str]]) -> str:
+    """Assemble one HTML document from ordered ``(slug, filename, html)`` pages."""
+    # Jump target is the masthead: every page carries id="top" from base.html.
+    # Each page is wrapped in .pdf-page so the print CSS starts it on a fresh sheet.
     target_anchors = {filename: f"#{slug}__top" for slug, filename, _ in pages}
     all_styles: list[str] = []
     sections: list[str] = []
@@ -405,7 +321,7 @@ def combine_mooring_pdf(
         (_slug_for(f, mooring_name), f.name, f.read_text(encoding="utf-8"))
         for f in sources
     ]
-    combined_html = _build_combined_html(pages)
+    combined_html = _render_combined_html(pages)
 
     if output_path is None:
         output_path = report_dir / f"{mooring_name}_report.pdf"

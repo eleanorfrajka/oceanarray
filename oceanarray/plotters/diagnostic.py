@@ -103,7 +103,7 @@ _CANONICAL_PANELS: list[tuple] = [
 _COMPACT_PANEL_VARS: frozenset = frozenset({"battery_voltage", "speed_of_sound"})
 _COMPACT_PANEL_HEIGHT: float = 1.5
 #: Height (relative units) of a normal, non-compact instrument panel row.  Shared
-#: by ``draw_windows`` here and ``_build_fig_from_ds`` in ``report/_plots.py`` so
+#: by ``draw_windows`` here and ``_draw_instrument_panels`` in ``report/_plots.py`` so
 #: the full time-series and start/end-window figures use the same row height.
 _PANEL_HEIGHT: float = 2.0
 
@@ -142,21 +142,9 @@ _QC_MARKER: dict[int, dict] = {
 
 
 def _instrument_panels(ds: xr.Dataset, combine_pitch_roll: bool = False) -> list[tuple]:
-    """Return panel list ``(varname, ylabel, line_color, invert_y)`` in canonical order.
-
-    Parameters
-    ----------
-    ds : xr.Dataset
-        Dataset whose ``data_vars`` are inspected.
-    combine_pitch_roll : bool
-        When True, replace separate pitch and roll rows with a single
-        ``_pitch_roll_combo`` panel.
-
-    Returns
-    -------
-    list of tuple
-
-    """
+    """Return ``(varname, ylabel, line_color, invert_y)`` panels in canonical order."""
+    # combine_pitch_roll swaps the pitch and roll rows for one synthetic
+    # _pitch_roll_combo panel.
     time_vars = {v for v in ds.data_vars if ds[v].dims == ("time",)}
 
     has_enu = any(
@@ -211,33 +199,13 @@ _KD_COLORS = [
 ]
 
 
-def _kd_color(magnitude_dbar: float) -> str:
-    """Return a colour string for the given knockdown magnitude in dbar."""
-    return next(c for thresh, c in _KD_COLORS if magnitude_dbar < thresh)
-
-
-def _collect_knockdown_records(
+def _build_knockdown_records(
     ds: xr.Dataset,
     waterdepth: float,
 ) -> list:
-    """Extract per-instrument knockdown arrays from a stack dataset.
-
-    Returns a list of ``(p_nom, serial, actual_pressure_array)`` tuples,
-    one per non-ADCP instrument with at least 10 valid pressure samples.
-    Interpolated pressure (QC flag 8) is excluded.
-
-    Parameters
-    ----------
-    ds : xr.Dataset
-        Stack dataset with dimensions ``(time, N_LEVELS)``.
-    waterdepth : float
-        Water depth in metres (1 dbar ≈ 1 m seawater).
-
-    Returns
-    -------
-    list of tuple
-
-    """
+    """Extract per-instrument knockdown arrays from a stack dataset."""
+    # Returns (p_nom, serial, actual_pressure) per non-ADCP instrument with at
+    # least 10 valid pressure samples.
     serials = ds["serial"].values
     habs = ds["hab"].values
     instr_types = ds["instrument_type"].values
@@ -249,8 +217,10 @@ def _collect_knockdown_records(
     for i in range(n_instr):
         if str(instr_types[i]).lower() == "adcp":
             continue
+        # Nominal pressure from depth in meters, taking 1 dbar ≈ 1 m in seawater.
         p_nom = waterdepth - float(habs[i])
         p_vals = pressure_arr[:, i].copy()
+        # Interpolated pressure (QC flag 8) is not a measurement: exclude it.
         if pqc_arr is not None:
             _qc = pqc_arr[:, i] if pqc_arr.ndim == 2 else pqc_arr
             p_vals[_qc == 8] = np.nan
@@ -310,7 +280,7 @@ def draw_knockdown_pressure(
     if waterdepth <= 0:
         return None
 
-    records = _collect_knockdown_records(ds, waterdepth)
+    records = _build_knockdown_records(ds, waterdepth)
     if not records:
         return None
 
@@ -421,7 +391,7 @@ def draw_knockdown_hab(
     if waterdepth <= 0:
         return None
 
-    records = _collect_knockdown_records(ds, waterdepth)
+    records = _build_knockdown_records(ds, waterdepth)
     if not records:
         return None
 
@@ -542,7 +512,7 @@ def draw_knockdown_anomaly(
     if waterdepth <= 0:
         return None
 
-    records = _collect_knockdown_records(ds, waterdepth)
+    records = _build_knockdown_records(ds, waterdepth)
     if not records:
         return None
 
@@ -557,7 +527,7 @@ def draw_knockdown_anomaly(
         for p_nom, _serial, actual_p in records:
             anomaly = actual_p - p_nom  # positive = knocked down deeper
             median_anom = float(np.median(anomaly))
-            color = _kd_color(abs(median_anom))
+            color = next(c for thresh, c in _KD_COLORS if abs(median_anom) < thresh)
 
             bp = ax.boxplot(
                 anomaly,
@@ -647,7 +617,7 @@ def draw_knockdown_displacement(
     if waterdepth <= 0:
         return None
 
-    records = _collect_knockdown_records(ds, waterdepth)
+    records = _build_knockdown_records(ds, waterdepth)
     if not records:
         return None
 
@@ -1192,17 +1162,10 @@ def draw_windows(
             vname: str,
             mask: np.ndarray,
         ) -> None:
-            """Plot stage1 reference data as light-grey background trace.
-
-            Skipped when the physical units differ between stage1 and stage2/3
-            (e.g. conductivity in mS/cm in stage1 vs S/m after normalisation)
-            because the values would be on an incompatible scale.
-
-            ``_pitch_roll_combo`` is a synthetic panel name; pitch and roll are
-            read directly from ds1 by their real variable names.
-            """
+            """Plot stage1 reference data as a light-grey background trace."""
             if ds1 is None or time1 is None:
                 return
+            # _pitch_roll_combo is synthetic: read pitch and roll from ds1 by name.
             if vname == "_pitch_roll_combo":
                 for _v in ("pitch", "roll"):
                     if _v not in ds1.data_vars:
@@ -1218,6 +1181,8 @@ def draw_windows(
                 return
             _u1 = ds1[vname].attrs.get("units", "").strip()
             _u2 = ds[vname].attrs.get("units", "").strip()
+            # Skip when units differ (e.g. raw S/m conductivity in stage 1 vs canonical
+            # mS cm-1 later): the grey trace would be on an incompatible scale.
             if _u1 and _u2 and _u1 != _u2:
                 return
             data1 = ds1[vname].values.astype(float)

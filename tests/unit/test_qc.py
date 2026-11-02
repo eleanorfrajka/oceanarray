@@ -49,25 +49,25 @@ def test_merge_flags_two_dimensional():
 
 
 # ---------------------------------------------------------------------------
-# _ingest_qartod  (QARTOD result -> OceanSITES; UNKNOWN(2) -> unknown(0))
+# _qartod_flags  (QARTOD result -> OceanSITES; UNKNOWN(2) -> unknown(0))
 # ---------------------------------------------------------------------------
 
 
 def test_ingest_qartod_remaps_unknown_2_to_0():
     """QARTOD 'could not evaluate' (2) must not assert probably_good; -> 0."""
-    out = Q._ingest_qartod(np.array([1, 2, 3, 4], dtype=float))
+    out = Q._qartod_flags(np.array([1, 2, 3, 4], dtype=float))
     np.testing.assert_array_equal(out, [1, 0, 3, 4])
     assert out.dtype == np.int8
 
 
 def test_ingest_qartod_nan_becomes_missing_9():
-    out = Q._ingest_qartod(np.array([1.0, np.nan, 3.0]))
+    out = Q._qartod_flags(np.array([1.0, np.nan, 3.0]))
     np.testing.assert_array_equal(out, [1, 9, 3])
 
 
 def test_ingest_qartod_masked_array_filled_with_9():
     masked = np.ma.array([1, 5, 3], mask=[False, True, False])
-    np.testing.assert_array_equal(Q._ingest_qartod(masked), [1, 9, 3])
+    np.testing.assert_array_equal(Q._qartod_flags(masked), [1, 9, 3])
 
 
 # ---------------------------------------------------------------------------

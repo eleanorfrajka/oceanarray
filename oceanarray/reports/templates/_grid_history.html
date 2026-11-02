@@ -2,7 +2,7 @@
    header items (processed-by, Reader, Format, Source file, Stages) render as a key/value
    properties table; the dated entries as a sortable Time/Event table, one row per event
    (a `|`-joined entry and the `name_qc=[…]` summaries each become their own same-time row).
-   Tables come from the vendored macros; rows are shaped by _html_helpers._history_tables. #}
+   Tables come from the vendored macros; rows are shaped by _html_helpers._build_history_tables. #}
 {% import "_nc_tables.html" as nc %}
 {{ nc.properties_table(header_rows) }}
 {%- if event_rows %}

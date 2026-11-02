@@ -63,20 +63,14 @@ def _ts_heatmap_panel(
     t_lim: tuple | None = None,
     cax: plt.Axes | None = None,
 ) -> None:
-    """Render a T-S 2-D count heatmap on *ax*.
-
-    When *s_lim* / *t_lim* are given they set the bin range and axis limits so the
-    heatmap shares the dot-plot's axes exactly; otherwise a percentile range is
-    used.  The colorbar uses ~6 nice ticks.  When *cax* is given (a height-matched
-    colorbar axes from :func:`square_axes_grid`) the colorbar is drawn there via
-    :func:`unit_colorbar`; otherwise a normal colorbar is added and the box is
-    squared with ``set_box_aspect``.
-    """
+    """Render a T-S 2-D count heatmap on *ax*."""
     import matplotlib.pyplot as plt
 
     from ..utilities import nice_colorbar_ticks
     from .primitives import unit_colorbar
 
+    # s_lim/t_lim, when given, set bins and limits so the heatmap shares the
+    # dot-plot's axes exactly; otherwise use a percentile range.
     s_lo, s_hi = (
         s_lim
         if s_lim is not None
@@ -102,6 +96,8 @@ def _ts_heatmap_panel(
         s_edges, t_edges, log_counts, cmap=cmap, norm=norm, shading="flat"
     )
     _ticks = nice_colorbar_ticks(float(bounds[0]), float(bounds[-1]))
+    # cax is a height-matched colorbar axes from square_axes_grid; without one,
+    # add a normal colorbar and square the box with set_box_aspect.
     if cax is not None:
         unit_colorbar(cax, pc, unit=r"$\log_{10}$(count)", ticks=_ticks)
     else:
@@ -288,30 +284,10 @@ def draw_ts_diagram(
 def _nice_axis_limits(
     x: np.ndarray, *, plow: float = 1.0, phigh: float = 99.0, pad_frac: float = 0.05
 ) -> tuple[float, float]:
-    """Return padded, outward-rounded axis limits from robust percentiles.
-
-    Takes the *plow*/*phigh* percentiles of *x* (default 1st/99th) so outliers do
-    not stretch the axis, pads by *pad_frac* of that percentile range on each side
-    (default 5%, i.e. 10% of the range total), then rounds the low bound down and
-    the high bound up to a clean step (one tenth of the range's order of
-    magnitude) so the axis ticks land on round values.
-
-    Parameters
-    ----------
-    x : numpy.ndarray
-        Finite data values for the axis.
-    plow, phigh : float, optional
-        Low/high percentiles bounding the data core.  Default 1 and 99.
-    pad_frac : float, optional
-        Fraction of the percentile range added as padding on each side.
-        Default 0.05.
-
-    Returns
-    -------
-    tuple of float
-        ``(lo, hi)`` axis limits.
-
-    """
+    """Return padded, outward-rounded axis limits from robust percentiles."""
+    # Percentiles (default 1st/99th) keep outliers from stretching the axis; pad each
+    # side by pad_frac of that range, then round outward to a tenth of the range's
+    # order of magnitude so ticks land on round values.
     p_lo = float(np.nanpercentile(x, plow))
     p_hi = float(np.nanpercentile(x, phigh))
     rng = p_hi - p_lo

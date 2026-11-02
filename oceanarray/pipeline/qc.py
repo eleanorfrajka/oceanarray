@@ -28,11 +28,7 @@ _VELOCITY_VARS = (
 
 
 def _merge_flags(*flag_arrays: np.ndarray) -> np.ndarray:
-    """Merge multiple int8 flag arrays using priority ordering.
-
-    Returns element-wise flag with highest priority (worst quality).
-    Works on arrays of any shape (1-D time series or 2-D time×N_BINS).
-    """
+    """Merge int8 flag arrays element-wise, keeping the highest-priority (worst)."""
     # priority[flag] for flags 0-9, from the shared single-source LUT.
     _priority = params.QC_MERGE_PRIORITY_LUT
     result = np.asarray(flag_arrays[0], dtype=np.int8).copy()
@@ -43,22 +39,19 @@ def _merge_flags(*flag_arrays: np.ndarray) -> np.ndarray:
     return result
 
 
-def _ingest_qartod(result: Any) -> np.ndarray:
-    """Normalise one ioos_qc test result onto the OceanSITES flag table.
-
-    Folds the three steps every QARTOD test needs into one place: fill missing
-    entries with 9 (handling both ioos_qc return types — a masked array or a
-    plain ndarray, depending on version), cast to int8, and remap QARTOD
-    ``UNKNOWN(2)`` — "could not evaluate", e.g. ``spike_test`` at a record edge or
-    beside a gap — to OceanSITES ``unknown(0)``. Applied *before* merging, so a
-    point a test could not evaluate never asserts ``probably_good_data(2)``.
-    """
+def _qartod_flags(result: Any) -> np.ndarray:
+    """Normalize one ioos_qc test result onto the OceanSITES flag table."""
+    # ioos_qc returns a masked array or a plain ndarray, depending on version;
+    # missing entries become 9 either way.
     if hasattr(result, "filled"):
         flags = result.filled(9)
     else:
         arr = np.asarray(result, dtype=float)
         flags = np.where(np.isnan(arr), 9, arr)
     flags = np.asarray(flags).astype(np.int8)
+    # QARTOD UNKNOWN(2) means "could not evaluate" (e.g. spike_test at a record edge
+    # or beside a gap): remap to OceanSITES unknown(0) before merging, so such a
+    # point never asserts probably_good_data(2).
     # np.where over an int8 array and an int8 scalar is already int8.
     return np.where(flags == 2, np.int8(0), flags)
 
@@ -121,15 +114,9 @@ def _deep_merge(base: dict, override: dict) -> dict:
 
 
 def _tilt_from_span(qc_ranges: dict[str, Any]) -> dict[str, float]:
-    """Extract tilt thresholds from a qc_ranges block if 'tilt' is present.
-
-    Converts the symmetric span format (matching all other variables) into the
-    threshold format used internally by apply_tilt_qc.  The upper bound of
-    each span is the threshold — tilt is always non-negative so the lower bound
-    is typically negative and only the upper bound matters:
-        suspect_span: [-20, 20]  →  suspect_threshold: 20
-        fail_span:    [-30, 30]  →  fail_threshold:    30
-    """
+    """Extract tilt thresholds from a qc_ranges block if 'tilt' is present."""
+    # Spans are symmetric like every other variable's, but tilt is non-negative,
+    # so the upper bound is the threshold: suspect_span [-20, 20] -> 20.
     out: dict[str, float] = {}
     tilt_cfg = qc_ranges.get("tilt", {})
     if "suspect_span" in tilt_cfg:
@@ -467,7 +454,7 @@ def apply_qc_tests(
         if varname in gross_range:
             cfg = gross_range[varname]
             flags_list.append(
-                _ingest_qartod(
+                _qartod_flags(
                     qartod.gross_range_test(
                         inp=data,
                         fail_span=tuple(cfg["fail_span"]),
@@ -479,7 +466,7 @@ def apply_qc_tests(
         if varname in spike:
             cfg = spike[varname]
             flags_list.append(
-                _ingest_qartod(
+                _qartod_flags(
                     qartod.spike_test(
                         inp=data,
                         suspect_threshold=cfg.get("suspect_threshold"),
@@ -525,7 +512,7 @@ def apply_qc_tests(
                     stacklevel=2,
                 )
                 continue
-            flags_list.append(_ingest_qartod(_fl_result))
+            flags_list.append(_qartod_flags(_fl_result))
 
         new_flags = _merge_flags(*flags_list)
 

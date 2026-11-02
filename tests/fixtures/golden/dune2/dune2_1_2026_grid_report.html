@@ -508,7 +508,7 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
   <tr><td>1</td><td></td><td>fast instruments (dt&lt;=3600s) subsampled (nearest-neighbour in time), slow instruments interpolated (linear in time)</td></tr>
   <tr><td>2</td><td></td><td>no extrapolation</td></tr>
 </tbody>
-</table><div class="fig-source">source: oceanarray/reports/_html_helpers.py:_history_tables</div>
+</table><div class="fig-source">source: oceanarray/reports/_html_helpers.py:_build_history_tables</div>
 
 <h2 id="hydrography">(2) Hydrography</h2>
 
@@ -589,7 +589,7 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 
 <h2 id="frequency_analysis">(8) Frequency analysis</h2>
 
-<p class="caption">Temperature power spectrum. Left: low-frequency overview — 14-day Hann windows, 50 % overlap. Right: high-frequency zoom — 1-day windows (~14× more windows, smoother tidal/inertial estimate); x-axis in hours. LF markers: M2, 1.8 d, 4 d, f. HF markers: M2 (12.4 h), f (inertial). Dashed black line: −2 spectral slope. Colour encodes pressure (light blue = shallow, dark blue = deep). Window length controllable via hf_segment_days in _make_spectrum_fig_b64.</p>
+<p class="caption">Temperature power spectrum. Left: low-frequency overview — 14-day Hann windows, 50 % overlap. Right: high-frequency zoom — 1-day windows (~14× more windows, smoother tidal/inertial estimate); x-axis in hours. LF markers: M2, 1.8 d, 4 d, f. HF markers: M2 (12.4 h), f (inertial). Dashed black line: −2 spectral slope. Colour encodes pressure (light blue = shallow, dark blue = deep). Window length controllable via hf_segment_days in _make_spectrum_b64.</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig slot-full" src="data:image/png;base64,<PNG>" alt="temp_spectrum">
 </details><div class="fig-source">source: oceanarray/plotters/spectrum.py:draw_spectrum</div>

@@ -43,39 +43,13 @@ _TYPE_LABELS: dict[str, str] = {
 
 
 def _type_label(itype: str) -> str:
-    """Return the display label for an instrument type, upper-casing the unknown.
-
-    Parameters
-    ----------
-    itype : str
-        The lower-cased instrument type (``"adcp"``, ``"sbe37"``, ...).
-
-    Returns
-    -------
-    str
-        The display label (``"ADCP"``, ``"SBE37"``, ...).
-    """
+    """Return the display label for an instrument type, upper-casing the unknown."""
     return _TYPE_LABELS.get(itype, itype.upper())
 
 
 def _state(*, is_current: bool, is_missing: bool) -> str:
-    """Return a pill state, with ``current`` outranking ``missing``.
-
-    The page being viewed always exists, so its pill is ``current`` even if the
-    equivalent product is otherwise flagged missing.
-
-    Parameters
-    ----------
-    is_current : bool
-        Whether this pill is the page being rendered.
-    is_missing : bool
-        Whether the product this pill links to has not been generated.
-
-    Returns
-    -------
-    str
-        One of ``"current"``, ``"missing"``, ``"link"``.
-    """
+    """Return a pill state, with ``current`` outranking ``missing``."""
+    # The page being viewed always exists, so it is "current" even if flagged missing.
     if is_current:
         return "current"
     return "missing" if is_missing else "link"

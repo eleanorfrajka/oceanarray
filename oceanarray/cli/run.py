@@ -33,12 +33,14 @@ def cmd_run(args: argparse.Namespace) -> int:
     """
     from ..exceptions import MooringError
     from ..pipeline import run as _run
-    from ..pipeline._run import _run_stages
+    from ..pipeline._run import _resolve_stages
 
     yaml_path = _mooring_location(args)
     raw_dir = _raw_dir(args)
     try:
-        wanted = _run_stages(args.stage, args.from_stage, args.stack_stage, cli=True)
+        wanted = _resolve_stages(
+            args.stage, args.from_stage, args.stack_stage, cli=True
+        )
     except ValueError as e:
         print(f"ERROR: {e}")
         return 1

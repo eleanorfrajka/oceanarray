@@ -63,14 +63,9 @@ from oceanarray.writers.netcdf import as_stored
 
 
 def _parse_clock_str(s: str) -> pd.Timestamp | None:
-    """Parse a clock timestamp in multiple formats; return None if unparseable.
-
-    Accepts:
-      - ``HH:MM:SS``             (time only — date is arbitrary; only differences matter)
-      - ``YYYYMMDDTHH:MM:SS``    (compact ISO, no dashes in date)
-      - ``YYYY-MM-DDTHH:MM:SS``  (standard ISO)
-      - ``unknown`` or any non-parseable string → None (no correction applied)
-    """
+    """Parse a clock timestamp in multiple formats; return None if unparseable."""
+    # Accepts HH:MM:SS, YYYYMMDDTHH:MM:SS and ISO; "unknown" or anything unparseable
+    # gives None, so no correction is applied.
     s = s.strip()
     if re.match(r"^\d{2}:\d{2}:\d{2}", s) and "T" not in s:
         # Time-only: anchor to an arbitrary date (only the difference is used)
@@ -85,12 +80,9 @@ def _parse_clock_str(s: str) -> pd.Timestamp | None:
 
 
 def _append_history(dataset: xr.Dataset, note: str) -> None:
-    """Append a timestamped note to dataset.attrs['history'] in place.
-
-    Delegates to :func:`oceanarray.pipeline._stage.append_history` so the
-    ``history`` timestamp format lives in one place (and uses the non-deprecated
-    UTC clock).
-    """
+    """Append a timestamped note to dataset.attrs['history'] in place."""
+    # Delegates so the history timestamp format (non-deprecated UTC clock) lives in
+    # one place.
     from oceanarray.pipeline._stage import append_history
 
     append_history(dataset, note)
@@ -223,29 +215,12 @@ def detect_deployment_window(
     return time[start_idx], time[end_idx], "pressure_pmin10dbar"
 
 
-def _find_nonnull_bounds(
+def _nonnull_time_bounds(
     dataset: xr.Dataset,
 ) -> tuple[np.datetime64, np.datetime64]:
-    """Return (first_nonnull_time, last_nonnull_time) using a variable priority hierarchy.
-
-    Priority: pressure > temperature > any variable with 'velocity' or 'turbidity' in
-    its name > any other 1-D time-dimension variable.  Falls back to the first/last
-    timestamps if no finite values are found.
-
-    .. important:: Returns times in whatever clock the dataset carries — for stage 1
-       input this is the **raw instrument clock** (uncorrected).
-
-    Parameters
-    ----------
-    dataset : xr.Dataset
-        Dataset whose ``"time"`` coordinate is used for indexing.
-
-    Returns
-    -------
-    tuple[np.datetime64, np.datetime64]
-        ``(first_nonnull, last_nonnull)`` timestamps from the chosen variable.
-
-    """
+    """Return the first and last non-null times of the highest-priority variable."""
+    # Times are in whatever clock the dataset carries: for stage-1 input, the raw
+    # (uncorrected) instrument clock.
     time = dataset["time"].values
     n = len(time)
 
@@ -285,7 +260,7 @@ def _find_nonnull_bounds(
     return time[first_idx], time[last_idx]
 
 
-def _read_yaml_time(data: dict[str, Any], key: str) -> np.datetime64:
+def _parse_yaml_time(data: dict[str, Any], key: str) -> np.datetime64:
     """Return ``datetime64[ns]`` for *key*, ``NaT`` if absent, raising if unparseable."""
     val = data.get(key)
     if val is None or (isinstance(val, str) and not val.strip()):
@@ -328,12 +303,10 @@ def _apply_clock_offset(dataset: xr.Dataset, clock_offset: float) -> xr.Dataset:
 
 
 def _resolve_clock_drift(instrument_config: dict[str, Any]) -> tuple:
-    """Return (drift_seconds, history_note) from the YAML config.
-
-    Convention: drift is the amount ADDED to instrument time at recovery to get
-    corrected time (positive = instrument was slow/behind).  Option B (two recovery
-    timestamps) takes priority over Option A (``clock_drift_seconds``).
-    """
+    """Return (drift_seconds, history_note) from the YAML config."""
+    # Drift is ADDED to instrument time at recovery to get corrected time (positive =
+    # instrument was slow). The two recovery timestamps take priority over
+    # clock_drift_seconds.
     comp_str = instrument_config.get("computer_clock_at_recovery")
     inst_str = instrument_config.get("instrument_clock_at_recovery")
     if comp_str and inst_str:
@@ -459,14 +432,11 @@ def _trim_to_deployment_window(
     deploy_time: np.datetime64,
     recover_time: np.datetime64,
 ) -> xr.Dataset:
-    """Trim to the deployment window, pre-filtering stray (clock-wrap) records first.
-
-    A stray-record pre-filter (boolean indexing, non-monotonic safe) drops any record
-    more than 31 days outside the window; the remainder is sliced to
-    ``[deploy_time, recover_time]`` (which requires a monotonic time index).
-    """
+    """Trim to the deployment window, pre-filtering stray (clock-wrap) records first."""
     original_size = len(dataset.time)
 
+    # The pre-filter is a boolean mask, safe on a non-monotonic index; the slices
+    # below need a monotonic time index.
     _one_month = np.timedelta64(31, "D")
     t_vals = dataset.time.values
     mask = np.ones(len(t_vals), dtype=bool)
@@ -515,11 +485,9 @@ def _trim_to_deployment_window(
 def _add_missing_metadata(
     dataset: xr.Dataset, instrument_config: dict[str, Any]
 ) -> xr.Dataset:
-    """Add the InstrDepth / instrument / serial_number scalar variables from the YAML.
-
-    The identity *attributes* are stamped by :func:`read_mooring`; this adds the scalar
-    *variables* the downstream report and stack expect, from the description entry.
-    """
+    """Add the InstrDepth, instrument and serial_number scalars from the YAML entry."""
+    # read_mooring stamps the identity attributes; the report and stack also expect
+    # these scalar variables.
     if "InstrDepth" not in dataset.variables:
         dataset["InstrDepth"] = instrument_config.get("depth", 0)
     instrument = instrument_config.get("instrument")
@@ -531,7 +499,7 @@ def _add_missing_metadata(
     return dataset
 
 
-def _clean_unnecessary_variables(dataset: xr.Dataset) -> xr.Dataset:
+def _drop_redundant_sbe_vars(dataset: xr.Dataset) -> xr.Dataset:
     """Drop redundant SeaBird CNV columns (timeS/timeQ; flag when all-zero)."""
     for var in ("timeS", "timeQ"):
         if var in dataset.variables:
@@ -561,12 +529,7 @@ def _stage2_instrument(
     deploy_time: np.datetime64,
     recover_time: np.datetime64,
 ) -> xr.Dataset:
-    """Apply clock corrections and deployment trimming to one instrument dataset.
-
-    The body of the old ``_process_instrument`` with the file I/O removed: canonicalise
-    units, resolve/apply the clock offset and linear drift, trim to the window, and
-    stamp the stage-1 bounds, the suggested window and the YAML window as attributes.
-    """
+    """Apply clock corrections and deployment trimming to one instrument dataset."""
     dataset = to_canonical_units(ds.copy(deep=True), log_fn=log_info, stage=2)
 
     _stage1_t0 = dataset["time"].values[0]
@@ -577,7 +540,7 @@ def _stage2_instrument(
     drift_ramp = (drift_s - clock_offset) if drift_s != 0 else 0
 
     sug_start, sug_end, sug_source = detect_deployment_window(dataset)
-    _nonnull_start, _nonnull_end = _find_nonnull_bounds(dataset)
+    _nonnull_start, _nonnull_end = _nonnull_time_bounds(dataset)
 
     serial = paths.safe_serial(entry.get("serial", "unknown"))
     instrument_type = entry.get("instrument", "unknown")
@@ -594,7 +557,7 @@ def _stage2_instrument(
         )
 
     dataset = _add_missing_metadata(dataset, entry)
-    dataset = _clean_unnecessary_variables(dataset)
+    dataset = _drop_redundant_sbe_vars(dataset)
 
     if clock_offset != 0 or drift_ramp != 0:
         dataset = _preserve_time_orig(dataset)
@@ -659,8 +622,8 @@ def stage2(
     dict of str to xarray.Dataset
         Stage-2 datasets keyed by serial.
     """
-    deploy_time = _read_yaml_time(mooring, "deployment_time")
-    recover_time = _read_yaml_time(mooring, "recovery_time")
+    deploy_time = _parse_yaml_time(mooring, "deployment_time")
+    recover_time = _parse_yaml_time(mooring, "recovery_time")
     mooring_name = mooring["name"]
     by_serial = {
         paths.safe_serial(e.get("serial", "")): e
@@ -796,15 +759,7 @@ def _stage2_files(
     log: Callable[..., None] = print,
     rel: Callable[[Path], str] = lambda p: p.name,
 ) -> _stage.StageRun:
-    """Run stage 2 over one mooring's stage-1 files, one instrument at a time.
-
-    read_mooring joins the stage-1 file with the description (identity + facts +
-    marker), stage2 is the pure transform, write_mooring lays the stage-2 file out
-    from the dataset's stamped facts. One instrument's failure is logged and
-    recorded; the rest of the mooring is still written. Serials in *exclude*
-    (failed earlier in the same run) are left out: their older stage-1 files are
-    not used.
-    """
+    """Run stage 2 over one mooring's stage-1 files, one instrument at a time."""
     wanted = {paths.safe_serial(s) for s in serials} if serials else None
     run = _stage.StageRun()
     n_skipped = n_excluded = 0
@@ -821,6 +776,7 @@ def _stage2_files(
             log(f"SKIP {instr_type} {serial}: {reason}")
             n_skipped += 1
             continue
+        # Failed earlier in this run: its older stage-1 file must not be used.
         if serial in exclude:
             log(f"SKIP {instr_type} {serial}: failed earlier in this run")
             n_excluded += 1

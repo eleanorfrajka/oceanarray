@@ -5,7 +5,7 @@ three functions the CLI still calls remain — ``draw_microcat_raw`` and
 ``draw_aquadopp_raw`` (``oceanarray process --plot``) and
 ``draw_mooring_timeseries`` (``oceanarray plot``). They are scheduled for
 replacement by a single file-oriented ``oceanarray plot <file>`` built on the
-report's ``_make_instrument_fig`` (§11); ``plotter.py`` is deleted then. Do not
+report's ``_make_instrument_b64s`` (§11); ``plotter.py`` is deleted then. Do not
 build new code on these functions or add to this module — new plotting belongs in
 the three-tier ``plotters/`` package.
 """

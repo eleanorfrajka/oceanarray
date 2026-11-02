@@ -12,7 +12,7 @@ import pytest
 
 from oceanarray import logger
 from oceanarray.readers.nortek import (
-    _clean_nortek_var_name,
+    _canonical_nortek_var_name,
     _parse_nortek_csv_columns,
     load_nortek_csv,
 )
@@ -107,7 +107,7 @@ class TestLoadNortekCsv:
 
 
 # ---------------------------------------------------------------------------
-# _clean_nortek_var_name
+# _canonical_nortek_var_name
 # ---------------------------------------------------------------------------
 
 
@@ -115,19 +115,19 @@ class TestCleanNortekVarName:
     """Tests for the internal column-name sanitiser."""
 
     def test_plain_lower(self):
-        assert _clean_nortek_var_name("temperature") == "temperature"
+        assert _canonical_nortek_var_name("temperature") == "temperature"
 
     def test_spaces_to_underscores(self):
-        assert _clean_nortek_var_name("Battery Voltage") == "battery_voltage"
+        assert _canonical_nortek_var_name("Battery Voltage") == "battery_voltage"
 
     def test_special_chars_stripped(self):
         # parens and dots should become underscores then be collapsed
-        result = _clean_nortek_var_name("Analog (V)")
+        result = _canonical_nortek_var_name("Analog (V)")
         assert " " not in result
         assert "(" not in result
 
     def test_leading_trailing_underscores_removed(self):
-        result = _clean_nortek_var_name("  heading  ")
+        result = _canonical_nortek_var_name("  heading  ")
         assert result == "heading"
 
 

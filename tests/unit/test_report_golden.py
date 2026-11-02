@@ -21,7 +21,7 @@ import re
 import pytest
 
 from oceanarray.reports import MooringReport
-from oceanarray.utilities import _safe_rel
+from oceanarray.utilities import _format_rel_path
 
 _FIXTURES = pathlib.Path(__file__).resolve().parents[1] / "fixtures"
 _PROC = _FIXTURES / "proc"
@@ -68,11 +68,11 @@ def _normalise(html: str) -> str:
 
 
 def test_safe_rel(tmp_path: pathlib.Path) -> None:
-    """`_safe_rel` returns a path under *root* relatively, else the bare name."""
+    """`_format_rel_path` returns a path under *root* relatively, else the bare name."""
     under = tmp_path / "sub" / "file.html"
-    assert _safe_rel(under, tmp_path) == str(pathlib.Path("sub") / "file.html")
+    assert _format_rel_path(under, tmp_path) == str(pathlib.Path("sub") / "file.html")
     outside = tmp_path.parent / "elsewhere.html"
-    assert _safe_rel(outside, tmp_path) == "elsewhere.html"
+    assert _format_rel_path(outside, tmp_path) == "elsewhere.html"
 
 
 @pytest.fixture(scope="module")

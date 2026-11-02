@@ -70,7 +70,7 @@ def summary(
             continue
         stage_n, best = found[0]
         try:
-            line = _instrument_line(
+            line = _format_instrument_line(
                 xr, best, stage_n, moor_dir, name, instr_type, serial
             )
         except Exception as e:  # noqa: BLE001  — a summary line must not stop the summary
@@ -85,7 +85,7 @@ def summary(
     return "\n".join(out)
 
 
-def _instrument_line(
+def _format_instrument_line(
     xr: Any,
     best: Path,
     stage_n: int,

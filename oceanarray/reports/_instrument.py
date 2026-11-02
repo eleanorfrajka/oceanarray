@@ -10,6 +10,8 @@ from typing import Any
 from oceanarray import paths
 
 from ..config import parameters as params
+from ..paths import safe_serial
+from ..utilities import should_skip_regeneration
 from ._env import (
     render_history,
     render_nc_coords,
@@ -20,16 +22,14 @@ from ._env import (
 )
 from ._figdebug import as_panel
 from ._html_helpers import (
-    _duration_str,
     _file_info,
-    _find_array_report_href,
+    _format_duration,
     _parse_dt,
     _parse_history,
     _read_nc_metadata,
     _read_qc_summary,
     _read_qc_thresholds,
-    _safe_serial,
-    _should_skip,
+    _resolve_array_report_href,
     _stage_file_details,
     make_fig_panel,
 )
@@ -38,15 +38,15 @@ from ._plots import (
     _make_adcp_hodograph_b64,
     _make_adcp_rose_b64,
     _make_adcp_velocity_b64,
-    _make_analog_timeseries,
-    _make_data_histogram,
+    _make_analog_timeseries_b64,
+    _make_data_histogram_b64,
     _make_hodograph_b64,
-    _make_instrument_fig,
+    _make_instrument_b64s,
     _make_instrument_rose_b64,
-    _make_speed_boxplot,
-    _make_temperature_trajectory,
-    _make_ts_diagram,
-    _make_windows_fig,
+    _make_speed_boxplot_b64,
+    _make_temperature_trajectory_b64,
+    _make_ts_diagram_b64,
+    _make_windows_b64s,
 )
 from ._vendored.page_model import Panel, PanelGroup, Profile, Section, resolve
 
@@ -124,24 +124,20 @@ def _has_fig(key: str) -> Callable:
 _fig_panel = make_fig_panel(INSTRUMENT_CAPTIONS)
 
 
-def _img_panel(pid: str, b64: str) -> Panel:
+def _image_panel(pid: str, b64: str) -> Panel:
     """Build a bare-``.fig`` panel rendering a fixed base64 image (paginated runs)."""
     return Panel(pid, render=lambda _c, _b=b64: _b, slot=None)
 
 
-def _instrument_history_unavailable(c: dict) -> str | None:
+def _history_unavailable(c: dict) -> str | None:
     """Reason the history panel cannot render, or None."""
     return None if c.get("history_entries") else "No history attribute found."
 
 
 def _empty_note(pid: str, reason: str, when_empty: Callable) -> Panel:
-    """Build a panel that shows *reason* as a stub only when *when_empty(ctx)* is True.
-
-    Used so a PanelGroup section (paginated time-series, start/end windows) keeps
-    its specific "nothing to show" message — e.g. "No plottable variables found."
-    — instead of falling to the resolver's generic empty-section stub.  It applies
-    only when the run is empty, so it adds nothing when there are figures.
-    """
+    """Build a panel showing *reason* as a stub only when *when_empty(ctx)* is True."""
+    # Keeps a PanelGroup section's specific "nothing to show" message instead of the
+    # resolver's generic empty-section stub; adds nothing when there are figures.
     return Panel(
         pid,
         render=lambda _c: None,
@@ -166,7 +162,7 @@ INSTRUMENT_PANELS: dict[str, Panel] = {
         "history",
         render=lambda c: render_history(c["history_entries"]),
         kind="html",
-        unavailable_if=_instrument_history_unavailable,
+        unavailable_if=_history_unavailable,
     ),
     "timeseries_empty": _empty_note(
         "timeseries_empty",
@@ -253,12 +249,12 @@ INSTRUMENT_PANELS: dict[str, Panel] = {
 #: Paginated time-series images — one bare-``.fig`` panel per PNG in the list.
 _TIMESERIES_IMGS = PanelGroup(
     over=lambda c: list(enumerate(c.get("fig_ts_b64") or [])),
-    panel=lambda pair: _img_panel(f"timeseries_{pair[0]}", pair[1]),
+    panel=lambda pair: _image_panel(f"timeseries_{pair[0]}", pair[1]),
 )
 #: Paginated start/end-window images.
 _WINDOWS_IMGS = PanelGroup(
     over=lambda c: list(enumerate(c.get("fig_windows_b64") or [])),
-    panel=lambda pair: _img_panel(f"windows_{pair[0]}", pair[1]),
+    panel=lambda pair: _image_panel(f"windows_{pair[0]}", pair[1]),
 )
 
 
@@ -396,7 +392,7 @@ def generate_instrument_pages(
     _d = cfg.get("deployment_cruise") or cfg.get("cruise", "—")
     _r = cfg.get("recovery_cruise") or cfg.get("cruise") or _d
     cruise = _d if _d == _r else f"{_d} / {_r}"
-    serial_filter = {_safe_serial(s) for s in serials} if serials else None
+    serial_filter = {safe_serial(s) for s in serials} if serials else None
 
     idx = 0
     for instr in instruments:
@@ -426,7 +422,7 @@ def generate_instrument_pages(
             ),
             None,
         )
-        if _should_skip(
+        if should_skip_regeneration(
             out_path, force, skip_existing, *([_source_nc] if _source_nc else [])
         ):
             print(f"{prefix}  {out_path.name}  [skip]")
@@ -453,7 +449,7 @@ def generate_instrument_pages(
         t_end = nc_info.get("t_end", "—")
         dt_s = nc_info.get("dt_s")
         median_dt = f"{dt_s:.0f} s" if dt_s and dt_s == dt_s else "—"
-        duration = _duration_str(_parse_dt(t_start), _parse_dt(t_end))
+        duration = _format_duration(_parse_dt(t_start), _parse_dt(t_end))
 
         history_entries: list[dict[str, str]] = []
         _sugg_deploy_utc: str | None = None
@@ -535,18 +531,20 @@ def generate_instrument_pages(
                 grid_exists=grid_exists,
                 current=serial,
                 in_instrument_subdir=True,
-                array_href=_find_array_report_href(out_dir, in_instrument_subdir=True),
+                array_href=_resolve_array_report_href(
+                    out_dir, in_instrument_subdir=True
+                ),
             ),
             "generated": generated,
             "history_entries": history_entries,
-            # _make_instrument_fig / _make_windows_fig return list[str] (paginated,
+            # _make_instrument_b64s / _make_windows_b64s return list[str] (paginated,
             # multiple render_b64 calls) — not as_panel's str|None single-figure
             # contract — so they are not wrapped (a Stub cannot stand in for a list).
             "fig_ts_b64": (
-                _make_instrument_fig(best_nc, instr_type) if best_nc else None
+                _make_instrument_b64s(best_nc, instr_type) if best_nc else None
             ),
             "fig_windows_b64": (
-                _make_windows_fig(
+                _make_windows_b64s(
                     best_nc,
                     instr_type,
                     vlines=_window_vlines,
@@ -556,7 +554,9 @@ def generate_instrument_pages(
                 else None
             ),
             "fig_tsd_b64": (
-                as_panel(lambda bn=best_nc: _make_ts_diagram(bn)) if best_nc else None
+                as_panel(lambda bn=best_nc: _make_ts_diagram_b64(bn))
+                if best_nc
+                else None
             ),
             "fig_rose_b64": (
                 as_panel(lambda bn=best_nc: _make_instrument_rose_b64(bn))
@@ -574,12 +574,12 @@ def generate_instrument_pages(
                 else None
             ),
             "fig_trajectory_b64": (
-                as_panel(lambda bn=best_nc: _make_temperature_trajectory(bn))
+                as_panel(lambda bn=best_nc: _make_temperature_trajectory_b64(bn))
                 if best_nc and instr_type.lower() == "aquadopp"
                 else None
             ),
             "fig_speed_boxplot_b64": (
-                as_panel(lambda bn=best_nc: _make_speed_boxplot(bn))
+                as_panel(lambda bn=best_nc: _make_speed_boxplot_b64(bn))
                 if best_nc and instr_type.lower() == "aquadopp"
                 else None
             ),
@@ -593,7 +593,7 @@ def generate_instrument_pages(
                 )
             ),
             "fig_dt_b64": (
-                as_panel(lambda bn=best_nc: _make_data_histogram(bn))
+                as_panel(lambda bn=best_nc: _make_data_histogram_b64(bn))
                 if best_nc
                 else None
             ),
@@ -604,13 +604,15 @@ def generate_instrument_pages(
         }
         analog_vars = ctx["nc_meta"].get("analog_vars", [])
         ctx["fig_analog_b64"] = (
-            as_panel(lambda bn=best_nc, av=analog_vars: _make_analog_timeseries(bn, av))
+            as_panel(
+                lambda bn=best_nc, av=analog_vars: _make_analog_timeseries_b64(bn, av)
+            )
             if best_nc and analog_vars
             else None
         )
         # Look up the per-instrument YAML entry for analog metadata.
         # Search both 'clamp' and 'inline' lists (the serial in inline entries
-        # may contain a comma; _safe_serial strips it to the first token).
+        # may contain a comma; safe_serial strips it to the first token).
         _instr_entries = list(cfg.get("clamp", cfg.get("instruments", []))) + [
             e
             for e in cfg.get("inline", [])
@@ -620,8 +622,7 @@ def generate_instrument_pages(
             (
                 e
                 for e in _instr_entries
-                if _safe_serial(str(e.get("serial", "")).split(",")[0].strip())
-                == serial
+                if safe_serial(str(e.get("serial", "")).split(",")[0].strip()) == serial
             ),
             {},
         )

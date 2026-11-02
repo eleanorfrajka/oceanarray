@@ -13,26 +13,25 @@ import numpy as np
 from oceanarray import mooring as _mooring
 from oceanarray import paths
 
-from ..utilities import instrument_entries
+from ..paths import safe_serial
+from ..utilities import instrument_entries, should_skip_regeneration
 from . import _figdebug
 from ._env import render_template
 from ._grid import generate_grid_page
 from ._html_helpers import (
     _check_readable,
-    _duration_str,
-    _find_array_report_href,
-    _fmt_dt,
+    _format_dt,
+    _format_duration,
     _instrument_report_exists,
-    _load_pdf_b64,
     _parse_dt,
     _read_instrument_info,
+    _read_pdf_b64,
     _read_qc_summary,
     _read_sensor_info,
     _read_timing_info,
+    _resolve_array_report_href,
     _resolve_clock,
     _resolve_diagram_pdf,
-    _safe_serial,
-    _should_skip,
     _stage_files,
     _status,
     make_fig_panel,
@@ -232,16 +231,8 @@ def _build_issues(
     instruments: list[dict[str, Any]],
     recover_dt: Any,
 ) -> dict[str, Any]:
-    """Build the issues dict for the 'Issues for cruise report' section.
-
-    Parameters
-    ----------
-    instruments : list of dict
-        Instrument dicts from ``_build_context`` (already computed).
-    recover_dt : datetime or None
-        YAML recovery time used to compute hours-short for stopped-early items.
-
-    """
+    """Build the issues dict for the 'Issues for cruise report' section."""
+    # recover_dt is the YAML recovery time, used for hours-short on stopped-early items.
     skipped_list = []
     stopped_list = []
     qc_list = []
@@ -313,16 +304,7 @@ def _build_issues(
 
 
 def _serials_in_nc(nc_path: Path) -> frozenset:
-    """Return the set of serial numbers present in a stack or grid NC file.
-
-    Reads the ``serial`` coordinate on the ``N_LEVELS`` dimension.  Returns an
-    empty frozenset if the file is missing, unreadable, or has no ``serial``
-    coordinate.
-
-    ADCP entries use suffixed serials (e.g. ``16430_hd``, ``16430_b03``).  The
-    returned set also includes the base serial (suffix stripped) so that the YAML
-    instrument serial matches correctly.
-    """
+    """Return the serials on the ``N_LEVELS`` dim of a stack/grid file, or empty."""
     import re
 
     try:
@@ -331,6 +313,8 @@ def _serials_in_nc(nc_path: Path) -> frozenset:
         ds = xr.open_dataset(nc_path, decode_timedelta=False)
         if "serial" in ds.coords:
             raw = frozenset(str(s) for s in ds["serial"].values)
+            # ADCP serials carry suffixes (16430_hd, 16430_b03); add the base serial
+            # so the YAML instrument serial matches.
             base = frozenset(re.sub(r"_(hd|b\d+)$", "", s) for s in raw)
             return raw | base
     except Exception:
@@ -370,10 +354,6 @@ class MooringReport:
         self._proc_dir = Path(proc_dir) if proc_dir else None
         self._raw_dir = Path(raw_dir) if raw_dir else None
         self._report_dir: Path | None = Path(report_dir) if report_dir else None
-
-    def _resolve_proc_dir(self, mooring_name: str) -> Path:
-        """Return the mooring-level proc directory."""
-        return paths.mooring_proc_dir(self._proc_dir, mooring_name)
 
     def _rel(self, path: Path) -> str:
         """Return a short display path relative to proc_dir."""
@@ -439,7 +419,7 @@ class MooringReport:
         proc_dir = (
             Path(mooring_dir)
             if mooring_dir is not None
-            else self._resolve_proc_dir(mooring_name)
+            else paths.mooring_proc_dir(self._proc_dir, mooring_name)
         )
         if not proc_dir.exists():
             print(f"ERROR: Processing directory not found: {proc_dir}")
@@ -490,7 +470,7 @@ class MooringReport:
         ]
         # A description passed in may differ from the file on disk, whose time is
         # all the freshness check can see: the summary is always rebuilt from it.
-        summary_fresh = given_cfg is None and _should_skip(
+        summary_fresh = given_cfg is None and should_skip_regeneration(
             output_path, force, skip_existing, yaml_path, *source_ncs, *products
         )
         if summary_fresh and not (instruments or grid or stack):
@@ -595,7 +575,7 @@ class MooringReport:
         for entry in instrument_list:
             if not isinstance(entry, dict):
                 continue
-            serial = _safe_serial(entry.get("serial", ""))
+            serial = safe_serial(entry.get("serial", ""))
             instr_type = entry.get("instrument", "unknown")
             hab = entry.get("hab")
             if hab is None:
@@ -874,9 +854,9 @@ class MooringReport:
             "mooring_name": mooring_name,
             "cruise": _combined("deployment_cruise", "recovery_cruise", "cruise"),
             "ship": _combined("deployment_ship", "recovery_ship", "ship"),
-            "deploy_time": _fmt_dt(deploy_dt),
-            "recover_time": _fmt_dt(recover_dt),
-            "duration": _duration_str(deploy_dt, recover_dt),
+            "deploy_time": _format_dt(deploy_dt),
+            "recover_time": _format_dt(recover_dt),
+            "duration": _format_duration(deploy_dt, recover_dt),
             "waterdepth": waterdepth if waterdepth is not None else "—",
             "latitude": (
                 cfg.get("seabed_latitude")
@@ -920,11 +900,11 @@ class MooringReport:
                 stack_exists=stack_exists,
                 grid_exists=grid_exists,
                 current="summary",
-                array_href=_find_array_report_href(out_dir),
+                array_href=_resolve_array_report_href(out_dir),
             ),
             "generated": datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC"),
             "yaml_path": self._rel(yaml_path),
-            "diagram_b64": _load_pdf_b64(_resolve_diagram_pdf(proc_dir, mooring_name)),
+            "diagram_b64": _read_pdf_b64(_resolve_diagram_pdf(proc_dir, mooring_name)),
             "issues": _build_issues(instruments, recover_dt),
         }
 

@@ -151,6 +151,25 @@ Co-authored-by: Name <email@example.com>
 - **Lint**: `ruff check .` must be clean. No bare `except:`. No suppressed warnings without a comment explaining why.
 - **Units**: every registered variable carries the registry's canonical spelling (`config/parameters.VARIABLES[var]["units"]`), and that spelling is identical in every file the package writes — except N², kept as `s-2` or `rad2 s-2` as it arrives (`config/unit_tables.UNIT_SPELLINGS_KEPT`). The pipeline rewrites known spellings through the shared units tables (`config/unit_tables.TABLES`) and refuses unknown ones. A new spelling is added **with evidence** — a reader that emits it — never from memory: to `config/unit_tables.UNIT_ALIAS_EXTRAS` if only oceanarray's readers emit it, or upstream in ctdcast's vendored `units_tables.py` if it belongs to the family. A mass↔volume conversion is never a scalar alias. Use `gsw` for all seawater property calculations.
 - **Plot style**: discrete colorbars (`BoundaryNorm`, ≤ 20 levels). Report figures are styled at one choke point — `reports/_encode.render_b64` applies the vendored `report.mplstyle` and `reports/_slots.render` draws each figure at its slot width — so a report plotter does not call `plt.style.use` itself.
+- **Private helpers**: a leading underscore keeps a helper out of the public API; it may be shared inside its own subpackage (`reports/`, `cli/`, `pipeline/`). Its docstring is **one line** plus a typed signature; a reason the code cannot show (a units or flag-table detail, a precedence order, an edge case) goes in a `#` comment at the line it explains. The name says what comes back, with one verb per job:
+
+  | verb | returns |
+  |---|---|
+  | `_read_<what>(path)` | an object read from a file |
+  | `_parse_<what>(text)` | a typed value from a string in hand, no I/O |
+  | `_resolve_<what>(…)` | the one value that applies, from several sources by precedence |
+  | `_format_<what>(value)` | a display string |
+  | `_build_<what>(…)` | rows, a dict or a dataset |
+  | `_render_<what>(…)` | an HTML fragment |
+  | `_draw_<what>(…)` | a matplotlib Figure (public: `draw_<what>`; no `_fig` suffix) |
+  | `_make_<what>_b64(…)` | a base64 PNG for a report slot (`_b64s` for a list) |
+  | `_has_<what>` / `_is_<what>` | a bool |
+  | `_apply_<what>(ds, …)` | the dataset after one processing step |
+  | `_add_<what>(…)` | the target with variables, attributes or flags added |
+  | `_rename_<what>(ds)` / `_to_canonical_<form>(ds)` | renamed variables / a foreign layout in ours |
+  | noun (`_time_axis_bounds`) | a computed result |
+
+  Words with a British/American variant are avoided where a neutral word exists (`_rename_`, not `_normalize_`); `color` is the exception. `tests/unit/test_private_names.py` fails on a retired prefix.
 - **Data provenance**: store all processing parameters (thresholds, coefficients) in NC output attributes so any file can be reprocessed exactly from itself.
 - **No silent defaults**: never substitute a default, guess, or approximation when the correct value cannot be determined. Raise, or warn loudly and record what was assumed in the output's metadata. A plausible wrong number is worse than an error, because nothing downstream can detect it.
 

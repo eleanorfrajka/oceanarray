@@ -431,19 +431,9 @@ def apply_defaults(default_source: str, default_files: list[str]) -> Callable:
 
 
 def _status(kind: str, msg: str, *, char: str = "=") -> None:
-    """Print a formatted status line to stdout.
-
-    kind     msg                        char (optional)
-    -------  -------------------------  ---------------
-    section  "Stage 1: dsG3_1_2026"    border char, default "="  → "=== Stage 1: dsG3_1_2026 ==="
-    instr    "<type> <serial>"          ignored  → "--- microcat 7507 ---"
-    file     relative path             ignored  → "Creating output file: proc/..."
-    skip     relative path             ignored  → "  OUTFILE EXISTS: proc/...  (use --force to overwrite)"
-    error    message                   ignored  → "ERROR: ..."
-
-    Pass ``char`` to ``section`` calls to distinguish mooring runs in a multi-mooring
-    script, e.g. ``char="*"`` gives ``"*** Stage 1: dsG3_2_2026 ***"``.
-    """
+    """Print a formatted status line (section, instr, file, skip or error) to stdout."""
+    # char only affects "section" borders: e.g. char="*" distinguishes mooring runs in
+    # a multi-mooring script ("*** Stage 1: dsG3_2_2026 ***").
     if kind == "section":
         border = char * 3
         print(f"\n{border} {msg} {border}")
@@ -457,14 +447,10 @@ def _status(kind: str, msg: str, *, char: str = "=") -> None:
         print(f"ERROR: {msg}")
 
 
-def _safe_rel(path: Path, root: Path) -> str:
-    """Return *path* relative to *root* as a string, or its bare name if unrelated.
-
-    A display helper for status lines.  Report output written outside the
-    processing tree (a custom ``--output-dir``) is not under *root*, so
-    ``Path.relative_to`` would raise ``ValueError`` — which must never abort
-    report generation from a logging call.  Fall back to the filename instead.
-    """
+def _format_rel_path(path: Path, root: Path) -> str:
+    """Return *path* relative to *root* as a string, or its bare name if unrelated."""
+    # Report output in a custom --output-dir is not under root; relative_to's
+    # ValueError must never abort report generation from a logging call.
     try:
         return str(path.relative_to(root))
     except ValueError:
@@ -472,21 +458,12 @@ def _safe_rel(path: Path, root: Path) -> str:
 
 
 def _nice_colorbar_bounds(vmin: float, vmax: float, n: int = 20) -> np.ndarray:
-    """Return a boundary array for a discrete colorbar with approximately *n* levels.
-
-    The step is snapped to the "nice" 1 / 2 / 2.5 / 5 family (the same set
-    :class:`matplotlib.ticker.MaxNLocator` uses), and the boundaries are aligned
-    to integer multiples of that step spanning ``[vmin, vmax]``.  This guarantees
-    that round labelled ticks (0.2, 100, …) land exactly on colour-step
-    boundaries instead of between them — otherwise a boundary step of, say, 0.03
-    or 30 leaves the labels sitting between the discrete colour changes.
-
-    Examples
-    --------
-    Temperature  vmin=0.87, vmax=7.23 → step=0.25, bounds 0.75–7.25
-    Salinity     vmin=34.782, vmax=35.139 → step=0.02, bounds 34.78–35.14
-
-    """
+    """Return a boundary array for a discrete colorbar with about *n* levels."""
+    # Snap the step to the 1/2/2.5/5 family (as MaxNLocator does) and align bounds to
+    # integer multiples of it spanning [vmin, vmax], so round tick labels (0.2, 100)
+    # land on color-step boundaries rather than between them (as a 0.03 or 30 step
+    # would). E.g. T 0.87-7.23 -> step 0.25, bounds 0.75-7.25; S 34.782-35.139 ->
+    # step 0.02, bounds 34.78-35.14.
     span = vmax - vmin
     if span <= 0:
         return np.linspace(vmin - 1, vmin + 1, n + 1)
@@ -708,14 +685,10 @@ def cast_output_dtypes(ds: xr.Dataset) -> xr.Dataset:
 # ---------------------------------------------------------------------------
 
 
-def _dms_to_deg(s: str) -> float:
-    """Parse 'DD MM.mmm N/S/E/W', signed 'DD MM.mmm', or a plain float to decimal degrees.
-
-    The sign of a coordinate applies to the whole magnitude, not just the degrees
-    field: ``"-27 48.000"`` is -(27 + 48/60) = -27.8, not -27 + 48/60.  A leading
-    minus on the degrees field and a trailing ``S``/``W`` hemisphere are equivalent
-    ways to mark a negative value; either one negates the summed magnitude.
-    """
+def _parse_dms(s: str) -> float:
+    """Parse 'DD MM.mmm N/S/E/W', signed 'DD MM.mmm' or a float to decimal degrees."""
+    # The sign applies to the whole magnitude: "-27 48.000" is -(27 + 48/60) = -27.8,
+    # not -27 + 48/60. A leading minus and a trailing S/W are equivalent markers.
     s = s.strip()
     try:
         return float(s)
@@ -818,9 +791,9 @@ def parse_latlon_with_source(cfg: dict) -> tuple[float, float, str]:
         lon_s = cfg.get(lon_key)
         if lat_s is not None and lon_s is not None:
             try:
-                lat_v = _dms_to_deg(str(lat_s))
-                lon_v = _dms_to_deg(str(lon_s))
-            except Exception:  # noqa: BLE001  — _dms_to_deg parse failure; try next key
+                lat_v = _parse_dms(str(lat_s))
+                lon_v = _parse_dms(str(lon_s))
+            except Exception:  # noqa: BLE001  — _parse_dms parse failure; try next key
                 continue
             if lat_v == 0.0 and lon_v == 0.0:
                 continue  # treat (0, 0) as an unfilled placeholder

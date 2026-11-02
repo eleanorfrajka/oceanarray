@@ -14,7 +14,7 @@ from oceanarray.cli._common import (
     _folder,
     _mooring_location,
     _OldFlag,
-    _parse_dirs,
+    _resolve_dirs,
 )
 from oceanarray.utilities import _status
 
@@ -33,7 +33,7 @@ def cmd_report(args: argparse.Namespace) -> int:
     from ..exceptions import MooringError
     from ..reports import report
 
-    raw_dir, proc_root = _parse_dirs(args, proc_required=False)
+    raw_dir, proc_root = _resolve_dirs(args, proc_required=False)
     report_dir = getattr(args, "report_dir", None)
     outdir = getattr(args, "outdir", None)
 
@@ -111,9 +111,9 @@ def cmd_report(args: argparse.Namespace) -> int:
         _status("error", str(e))
         return 1
     if want_pdf:
-        from ..reports._verb import _combine_pdf, _name_and_dir
+        from ..reports._verb import _combine_pdf, _resolve_name_and_dir
 
-        name, _ = _name_and_dir(moor_dir, None)
+        name, _ = _resolve_name_and_dir(moor_dir, None)
         try:
             _combine_pdf(name, page.parent, getattr(args, "pdf_dir", None))
         except MooringError as e:
@@ -139,9 +139,9 @@ def _report_dry_run(
     from oceanarray import mooring as _mooring
     from oceanarray.reports import report_paths
     from oceanarray.reports._verb import (
-        _description_file,
-        _name_and_dir,
         _recovery_path,
+        _resolve_description_file,
+        _resolve_name_and_dir,
     )
     from oceanarray.utilities import instrument_entries
 
@@ -149,7 +149,7 @@ def _report_dry_run(
 
     _status("section", f"Report (dry run): {args.mooring}")
     try:
-        name, _ = _name_and_dir(moor_dir, None)
+        name, _ = _resolve_name_and_dir(moor_dir, None)
     except MooringError as e:
         _status("error", str(e))
         return 1
@@ -169,7 +169,7 @@ def _report_dry_run(
         print(f"Stack:    {where['stack']}  ({_state(where['stack'])})")
     if do_grid:
         print(f"Grid:     {where['grid']}  ({_state(where['grid'])})")
-    yaml_path = _description_file(moor_dir, _folder(moor_dir), name)
+    yaml_path = _resolve_description_file(moor_dir, _folder(moor_dir), name)
     if do_instruments and yaml_path.exists():
         # A dry run is a preview — never raise on a half-filled config. Show the
         # validation issues (as `validate` would), then list whatever the file

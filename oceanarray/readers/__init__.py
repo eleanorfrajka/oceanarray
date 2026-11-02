@@ -40,32 +40,7 @@ _OCEANSITES_CODES = frozenset({"TEMP", "PSAL", "CNDC", "PRES", "UCUR", "VCUR", "
 def _read_typed(
     file_type: str, file_path: str, header_path: str | None = None
 ) -> xr.Dataset:
-    """Read a raw instrument file of a known *file_type* and return a Dataset.
-
-    Deprecated aliases in ``parameters.DEPRECATED_FILE_TYPE_ALIASES`` (e.g.
-    ``rbr-hex-oa`` → ``rbr-hex``) are remapped to their current equivalent
-    first, with a deprecation warning. ``nortek-csv-oa`` then routes to the
-    deprecated internal reader (also with a warning); all other types go
-    straight to ``seasenselib.read``.
-    For Nortek formats the coordinate system is parsed from *header_path* and
-    ``nortek.to_canonical_nortek`` is called.  For ``sbe-hex``, the
-    seasenselib output variable ``press`` is renamed to ``pressure``.
-
-    Parameters
-    ----------
-    file_type : str
-        One of ``parameters.ALL_FILE_TYPES`` (e.g. ``"nortek-raw"``, ``"sbe-cnv"``).
-    file_path : str
-        Path to the raw instrument file.
-    header_path : str or None, optional
-        Path to the companion header file (required for Nortek formats to read
-        the coordinate system and transformation matrix).
-
-    Returns
-    -------
-    xarray.Dataset
-        The normalised dataset.
-    """
+    """Read a raw instrument file of a known *file_type* and return a Dataset."""
     # Remap deprecated file_type aliases to their current equivalent before
     # the membership check — aliases are intentionally excluded from
     # ALL_FILE_TYPES so they no longer appear in any public list.
@@ -105,6 +80,8 @@ def _read_typed(
             coord_system = "UNK"
         return nortek.to_canonical_nortek(ds, coord_system=coord_system)
 
+    # Nortek formats need the companion header for the coordinate system and
+    # transformation matrix.
     kwargs = {}
     if file_type in ("nortek-raw", "nortek-ascii") and header_path:
         kwargs["header_file"] = header_path
@@ -161,13 +138,8 @@ def _is_nortek_header(hdr_path: Path) -> bool:
 
 
 def _sniff_text(path: Path) -> str | None:
-    """Return the file_type of a text instrument file from its content, or None.
-
-    Recognises SBE (``sbe-cnv`` when the CNV ``# nquan`` marker is present, else
-    ``sbe-ascii``), RODB (``Key = value`` header with a ``Columns`` line), and
-    Nortek (an ASCII data file with a sibling ``.hdr`` that looks like a Nortek
-    header). The suffix is never consulted.
-    """
+    """Return the file_type of a text instrument file from its content, or None."""
+    # Content only: the suffix is never consulted.
     try:
         head = path.read_text(errors="replace")[:4096]
     except OSError:

@@ -10,14 +10,14 @@ from oceanarray import mooring as _mooring
 from oceanarray import paths
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
+from oceanarray.paths import safe_serial
 from oceanarray.pipeline.helpers import (
     STACK_VARS,
-    _detect_interval_s,
+    _build_adcp_bin_ds,
+    _build_adcp_head_ds,
     _linear_interp,
-    _make_adcp_bin_ds,
-    _make_adcp_head_ds,
     _nearest_subsample,
-    _safe_serial,
+    _sample_interval_s,
     _worst_flag,
 )
 from oceanarray.pipeline.read_mooring import read_mooring
@@ -149,7 +149,7 @@ def stack(
     for entry in instrument_list:
         if not isinstance(entry, dict):
             continue
-        serial = _safe_serial(entry.get("serial", ""))
+        serial = safe_serial(entry.get("serial", ""))
         instr_type = entry.get("instrument", "unknown")
         if instr_type not in KNOWN_INSTRUMENT_TYPES:
             print(
@@ -198,7 +198,7 @@ def stack(
     # Each ADCP bin becomes a separate row in the stack, with its own
     # bin_pressure, velocity, and QC time series sliced from the 2-D
     # (time, N_BINS) arrays in the parent stage3 file.
-    # The parent file is loaded once and cached; _make_adcp_bin_ds slices it.
+    # The parent file is loaded once and cached; _build_adcp_bin_ds slices it.
     _adcp_parent_datasets: dict[str, xr.Dataset] = {}
     expanded: list[dict] = []
     for info in instruments:
@@ -317,10 +317,10 @@ def stack(
         try:
             if "_adcp_bin_idx" in info:
                 ds_parent = _adcp_parent_datasets[info["_adcp_nc_key"]]
-                ds = _make_adcp_bin_ds(ds_parent, info["_adcp_bin_idx"])
+                ds = _build_adcp_bin_ds(ds_parent, info["_adcp_bin_idx"])
             elif "_adcp_head" in info:
                 ds_parent = _adcp_parent_datasets[info["_adcp_nc_key"]]
-                ds = _make_adcp_head_ds(ds_parent)
+                ds = _build_adcp_head_ds(ds_parent)
             else:
                 ds = info["ds"]
             # Canonicalise each instrument's units before stacking, so a
@@ -351,7 +351,7 @@ def stack(
                 lst.append(None)
             continue
 
-        interval_s = _detect_interval_s(ds["time"].values)
+        interval_s = _sample_interval_s(ds["time"].values)
         print(
             f"  [{i:2d}] {info['instrument']:10s} s/n {info['serial']:<8}  "
             f"hab={info['hab']:6.1f} m  dt={interval_s:.0f}s  "
@@ -788,11 +788,7 @@ def stack(
 def _read_best_stage(
     mooring: dict, proc_dir: Path
 ) -> tuple[dict[str, xr.Dataset], list[str]]:
-    """Read each stackable instrument at stage 3, falling back to stage 2.
-
-    Returns the datasets keyed by serial and an omission line for each instrument
-    whose file could not be read.
-    """
+    """Read each stackable instrument at stage 3, falling back to stage 2."""
     name = mooring["name"]
     datasets: dict[str, xr.Dataset] = {}
     omitted: list[str] = []
@@ -801,7 +797,7 @@ def _read_best_stage(
             continue
         if entry.get("stack", True) is False or entry.get("hab") is None:
             continue
-        serial = _safe_serial(entry.get("serial", ""))
+        serial = safe_serial(entry.get("serial", ""))
         instr_type = entry.get("instrument", "unknown")
         for stage_n in (3, 2):
             path = paths.stage_file(proc_dir, name, instr_type, serial, stage_n)
@@ -831,52 +827,12 @@ def _stack_file(
     stage2_reason: str | None = None,
     failures: Sequence[str] = (),
 ) -> tuple[Path, xr.Dataset]:
-    """Stack a mooring's stage-3 files and write the stack file; return its path and dataset.
-
-    Every instrument that is not marked ``skip`` or ``stack: false`` and has a
-    ``hab`` must have a stage-3 file. With *keep_going* an instrument without one
-    is stacked from its stage-2 file (recorded in ``source_stage`` and
-    ``stage2_instruments``), and one with neither, or whose file cannot be read,
-    is left out and named in ``instruments_omitted``.
-
-    Parameters
-    ----------
-    mooring : dict
-        The loaded mooring description.
-    mooring_dir : pathlib.Path
-        The mooring's own directory.
-    dt_seconds : int, optional
-        Spacing of the stack's time axis.
-    keep_going : bool, optional
-        Stack what exists instead of raising (see above).
-    failed : Mapping of str to str or None, optional
-        Serials that failed in stages 1–3 of this run, with the reason. Their files
-        on disk are older than this run, so they are left out and named in
-        ``instruments_omitted`` rather than stacked.
-    from_stage2 : bool, optional
-        Stack every instrument from its stage-2 file: stage 3 failed as a whole in
-        this run (any stage-3 file on disk is older than it), or the caller asked
-        for a stage-2 quick look (``run(stack_stage=2)``).
-    stage2_reason : str or None, optional
-        Why stage-2 files were stacked, recorded in ``stage2_reason``; None gives
-        ``"no stage-3 file"`` (the per-instrument fallback with ``keep_going``).
-    failures : sequence of str, optional
-        What failed in this run, recorded in the stack's ``keep_going_failures``
-        attribute (the grid inherits it).
-
-    Returns
-    -------
-    tuple of pathlib.Path and xarray.Dataset
-        The stack file written and the stack.
-
-    Raises
-    ------
-    oceanarray.exceptions.MooringError
-        Without *keep_going*: if an instrument has no readable stage-3 file. With
-        or without it: if nothing can be stacked.
-    """
+    """Stack a mooring's stage-3 files, write the stack; return its path and dataset."""
     name = mooring["name"]
     failed = dict(failed or {})
+    # from_stage2: stage 3 failed as a whole this run (any stage-3 file on disk is
+    # older than it), or a stage-2 quick look (run(stack_stage=2)). keep_going
+    # falls back to stage 2 per instrument; source_stage records which was used.
     if from_stage2:
         stages: tuple[int, ...] = (2,)
     else:
@@ -889,8 +845,9 @@ def _stack_file(
             continue
         if entry.get("stack", True) is False or entry.get("hab") is None:
             continue
-        serial = _safe_serial(entry.get("serial", ""))
+        serial = safe_serial(entry.get("serial", ""))
         instr_type = entry.get("instrument", "unknown")
+        # Failed in stages 1-3 this run: its files on disk predate the run.
         if serial in failed:
             omitted.append(
                 f"{instr_type} s/n {serial} ({failed[serial]} this run; its older "
@@ -934,6 +891,7 @@ def _stack_file(
         stage2_reason=stage2_reason or "no stage-3 file",
     )
     if failures:
+        # The grid inherits this attribute from the stack.
         ds.attrs["keep_going_failures"] = "; ".join(failures)
     return write(ds, paths.product_file(mooring_dir, name, "stack"), overwrite=True), ds
 

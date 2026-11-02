@@ -17,9 +17,9 @@ from oceanarray.pipeline.stage2 import (
     Stage2Processor,
     _add_missing_metadata,
     _apply_clock_offset,
-    _clean_unnecessary_variables,
+    _drop_redundant_sbe_vars,
     _parse_clock_str,
-    _read_yaml_time,
+    _parse_yaml_time,
     _resolve_clock_drift,
     _trim_to_deployment_window,
     detect_deployment_window,
@@ -107,20 +107,20 @@ class TestStage2Processor:
     def test_read_yaml_time_valid(self):
         """Test reading valid time from YAML."""
         data = {"deployment_time": "2018-08-12T09:00:00"}
-        result = _read_yaml_time(data, "deployment_time")
+        result = _parse_yaml_time(data, "deployment_time")
         expected = pd.to_datetime("2018-08-12T09:00:00").to_datetime64()
         assert result == expected
 
     def test_read_yaml_time_missing(self):
         """Test reading missing time from YAML."""
         data = {}
-        result = _read_yaml_time(data, "deployment_time")
+        result = _parse_yaml_time(data, "deployment_time")
         assert pd.isna(result)
 
     def test_read_yaml_time_empty_string(self):
         """Test reading empty string time from YAML."""
         data = {"deployment_time": ""}
-        result = _read_yaml_time(data, "deployment_time")
+        result = _parse_yaml_time(data, "deployment_time")
         assert pd.isna(result)
 
     def test_read_yaml_time_invalid_raises(self):
@@ -129,7 +129,7 @@ class TestStage2Processor:
 
         data = {"deployment_time": "not-a-date"}
         with pytest.raises(MooringError, match="deployment_time"):
-            _read_yaml_time(data, "deployment_time")
+            _parse_yaml_time(data, "deployment_time")
 
     def test_apply_clock_offset_zero(self, sample_raw_dataset):
         """Test applying zero clock offset - Version 2.0 with proper array testing."""
@@ -275,7 +275,7 @@ class TestStage2Processor:
 
     def test_clean_unnecessary_variables(self, sample_raw_dataset):
         """Test removal of unnecessary variables."""
-        result = _clean_unnecessary_variables(sample_raw_dataset)
+        result = _drop_redundant_sbe_vars(sample_raw_dataset)
 
         assert "timeS" not in result.variables
         assert "temperature" in result.variables

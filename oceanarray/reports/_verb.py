@@ -110,16 +110,16 @@ def report(
 
     cfg, moor_dir = _resolve_mooring(mooring, mooring_dir, "report")
     name, proc_root = cfg["name"], moor_dir.parent
-    yaml_path = _description_file(mooring, moor_dir, name)
+    yaml_path = _resolve_description_file(mooring, moor_dir, name)
     if kind == "recovery":
-        return _recovery_table(
+        return _write_recovery_table(
             name, moor_dir, yaml_path, out_dir, report_dir, force=force
         )
 
-    from oceanarray.pipeline._run import _serial_list
+    from oceanarray.pipeline._run import _as_serial_list
     from oceanarray.reports import MooringReport
 
-    serial_list = _serial_list(serials)
+    serial_list = _as_serial_list(serials)
     with _sigma_grid(sig_level):
         _status("section", f"Report: {name}")
         page = MooringReport(
@@ -176,7 +176,7 @@ def report_paths(
         ``"summary"``, ``"stack"``, ``"grid"`` and ``"pdf"`` pages, and
         ``"instrument_dir"`` (where ``<name>_<serial>_report.html`` go).
     """
-    name, moor_dir = _name_and_dir(mooring, mooring_dir)
+    name, moor_dir = _resolve_name_and_dir(mooring, mooring_dir)
     html = paths.resolve_report_dir(name, out_dir, report_dir, mooring_dir=moor_dir)
     return {
         "summary": html / f"{name}_report.html",
@@ -187,7 +187,7 @@ def report_paths(
     }
 
 
-def _name_and_dir(
+def _resolve_name_and_dir(
     mooring: str | PathLike | Mapping[str, Any], mooring_dir: PathLike | None
 ) -> tuple[str, Path]:
     """Return the description's ``name`` and the mooring's folder, without checking it."""
@@ -212,7 +212,7 @@ def _name_and_dir(
     return str(cfg["name"]), moor_dir or path.parent
 
 
-def _description_file(
+def _resolve_description_file(
     mooring: str | PathLike | Mapping[str, Any], moor_dir: Path, name: str
 ) -> Path:
     """Return the description file: the path given, the one in the folder given, or ``<name>.mooring.yaml``."""
@@ -293,7 +293,7 @@ def _recovery_path(
     return where / f"{name}_recovery_table.html"
 
 
-def _recovery_table(
+def _write_recovery_table(
     name: str,
     moor_dir: Path,
     yaml_path: Path,

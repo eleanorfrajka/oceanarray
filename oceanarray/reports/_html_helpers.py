@@ -19,10 +19,9 @@ import numpy as np
 from oceanarray import paths
 
 from ..config import parameters as params
-from ..paths import safe_serial
 from ..utilities import (  # noqa: F401  (re-exported)
+    _format_rel_path,
     _nice_colorbar_bounds,
-    _safe_rel,
     _status,
     should_skip_regeneration,
 )
@@ -59,11 +58,6 @@ def make_fig_panel(
     return fig_panel
 
 
-def _safe_serial(serial: Any) -> str:
-    """Return a filename-safe serial token (see :func:`oceanarray.paths.safe_serial`)."""
-    return safe_serial(serial)
-
-
 def _parse_dt(s: str | None) -> datetime | None:
     """Parse clock timestamp: HH:MM:SS, YYYYMMDDTHH:MM:SS, or standard ISO."""
     if not s:
@@ -80,11 +74,11 @@ def _parse_dt(s: str | None) -> datetime | None:
         return None
 
 
-def _fmt_dt(dt: datetime | None, fmt: str = "%Y-%m-%d %H:%M UTC") -> str:
+def _format_dt(dt: datetime | None, fmt: str = "%Y-%m-%d %H:%M UTC") -> str:
     return dt.strftime(fmt) if dt else "—"
 
 
-def _duration_str(start: datetime | None, end: datetime | None) -> str:
+def _format_duration(start: datetime | None, end: datetime | None) -> str:
     if start is None or end is None:
         return "—"
     delta = end - start
@@ -93,21 +87,13 @@ def _duration_str(start: datetime | None, end: datetime | None) -> str:
     return f"{days}d {hours}h"
 
 
-def _fmt_clock_str(s: str | None) -> str | None:
-    """Reformat an ISO-8601 timestamp to 'YYYY-MM-DD HH:MM' (minute precision).
-
-    Handles both compact ISO (``20260710T21:03:00``) and spaced ISO
-    (``2026-07-10T21:03:00``) inputs.  Returns *None* if *s* is falsy.
-
-    The compact date form (``YYYYMMDD``) is normalised to extended
-    (``YYYY-MM-DD``) before parsing: Python 3.10's ``datetime.fromisoformat``
-    rejects the compact form (3.11+ accepts it), so without this, 3.10 fell
-    through to the raw ``str(s)[:16]`` fallback and rendered malformed
-    timestamps (e.g. ``20260725T13:13:2``) in reports.
-    """
+def _format_clock(s: str | None) -> str | None:
+    """Reformat an ISO-8601 timestamp to 'YYYY-MM-DD HH:MM' (minute precision)."""
     if not s:
         return None
     txt = str(s).replace("T", " ").strip()
+    # Normalize compact YYYYMMDD to YYYY-MM-DD: Python 3.10's fromisoformat rejects
+    # the compact form, and the [:16] fallback then rendered malformed timestamps.
     txt = re.sub(r"^(\d{4})(\d{2})(\d{2})(?=[ ]|$)", r"\1-\2-\3", txt)
     try:
         return datetime.fromisoformat(txt).strftime("%Y-%m-%d %H:%M")
@@ -137,8 +123,8 @@ def _resolve_clock(entry: dict[str, Any]) -> dict[str, Any]:
         "offset_s": offset_s,
         "drift_s": drift_s,
         "method": method,
-        "computer_time": _fmt_clock_str(str(comp_str)) if comp_str else None,
-        "instrument_time": _fmt_clock_str(str(inst_str)) if inst_str else None,
+        "computer_time": _format_clock(str(comp_str)) if comp_str else None,
+        "instrument_time": _format_clock(str(inst_str)) if inst_str else None,
         "has_correction": offset_s != 0 or (drift_s is not None and drift_s != 0),
     }
 
@@ -211,17 +197,7 @@ _QC_LABELS: dict[int, str] = {
 }
 
 
-def _should_skip(
-    output: Path,
-    force: bool,
-    skip_existing: bool,
-    *sources: Path,
-) -> bool:
-    """Decide whether to skip regenerating *output* (see :func:`should_skip_regeneration`)."""
-    return should_skip_regeneration(output, force, skip_existing, *sources)
-
-
-def _load_pdf_b64(path: Path | None) -> str | None:
+def _read_pdf_b64(path: Path | None) -> str | None:
     """Return base64-encoded PDF bytes if *path* exists, else None."""
     if path is not None and path.is_file():
         return base64.b64encode(path.read_bytes()).decode("ascii")
@@ -229,22 +205,15 @@ def _load_pdf_b64(path: Path | None) -> str | None:
 
 
 def _resolve_diagram_pdf(proc_dir: Path, mooring_name: str) -> Path | None:
-    """Locate the mooring-diagram PDF for a mooring in *proc_dir*.
-
-    Resolution order, first match wins:
-
-    1. The canonical ``{mooring}_diagram.pdf``.
-    2. Any ``*_single.pdf`` (single-mooring output of the ``mooring_diagram``
-       package, whose stem may use a short prefix, e.g. ``dsG1_single.pdf``).
-    3. Any ``*_hardware.pdf`` (hardware diagram output).
-
-    macOS AppleDouble sidecars (``._*``) are ignored.  Returns ``None`` when
-    no diagram is present.
-    """
+    """Locate the mooring-diagram PDF for a mooring in *proc_dir*, or None."""
+    # First match wins: canonical {mooring}_diagram.pdf, then *_single.pdf
+    # (mooring_diagram package output, whose stem may be a short prefix such as
+    # dsG1_single.pdf), then *_hardware.pdf.
     preferred = proc_dir / f"{mooring_name}_diagram.pdf"
     if preferred.is_file():
         return preferred
     for pattern in ("*_single.pdf", "*_hardware.pdf"):
+        # Skip macOS AppleDouble sidecars (._*).
         candidates = sorted(
             p for p in proc_dir.glob(pattern) if not p.name.startswith("._")
         )
@@ -281,30 +250,10 @@ _HISTORY_TS_RE = re.compile(r"^\d{4}-\d\d-\d\d")
 _HISTORY_HEADER_KEYS = ("Reader", "Format", "Source file", "Stages")
 
 
-def _history_tables(
+def _build_history_tables(
     entries: list[dict[str, str]],
 ) -> tuple[list[tuple[str, str, str]], list[tuple[int, str, str]]]:
-    """Split parsed history entries into a header key/value list and dated events.
-
-    Returns ``(header_rows, event_rows)``.  *header_rows* are ``(label, value, kind)``
-    triples for the vendored ``properties_table`` (the processed-by line, Reader, Format,
-    Source file, Stages).  *event_rows* are ``(n, time, event)`` triples for a three-column
-    #/Time/Event table: ``n`` is the row's 1-based position in the ``history`` attribute, so
-    the original sequence survives a sort by any column (events sharing one timestamp would
-    otherwise be unorderable).  A ``|``-joined dated entry becomes several rows with the same
-    time, and a ``name_qc=[...]`` summary that the ``;`` split left without a time carries the
-    time of the dated entry it follows, rather than an orphan row with no time.
-
-    Parameters
-    ----------
-    entries : list of dict
-        The ``{"timestamp", "text"}`` entries from :func:`_parse_history`.
-
-    Returns
-    -------
-    tuple of (list, list)
-        ``(header_rows, event_rows)``.
-    """
+    """Split parsed history entries into header ``(label, value, kind)`` and event rows."""
     header_rows: list[tuple[str, str, str]] = []
     events: list[tuple[str, str]] = []
     current_time = ""
@@ -313,6 +262,7 @@ def _history_tables(
         text = e.get("text", "")
         if _HISTORY_TS_RE.match(ts):  # a dated entry
             current_time = ts
+            # A |-joined dated entry becomes several rows sharing one time.
             for ev in text.split(" | "):
                 events.append((current_time, ev.strip()))
         elif ts in _HISTORY_HEADER_KEYS:
@@ -323,24 +273,16 @@ def _history_tables(
             events.append((current_time, text.strip()))
         else:  # any other "key: value" header item
             header_rows.append((ts, text, "text"))
+    # n is the 1-based position in `history`, so the original order survives a sort
+    # by any column (events sharing one timestamp would otherwise be unorderable).
     event_rows = [(n, t, ev) for n, (t, ev) in enumerate(events, start=1)]
     return header_rows, event_rows
 
 
 def _read_nc_metadata(nc_path: Path) -> dict[str, Any]:
-    """Return the vendored-builder inventory rows/groups for a NetCDF file.
-
-    Opens the dataset and runs the vendored :mod:`oceanarray.reports._vendored.nc_tables`
-    builders — coordinates, dimensioned variables grouped by dimension set, 0-d
-    scalars, grouped global attributes, and the summary counts — plus oceanarray's
-    own ``analog_vars`` list (analog channels carrying non-zero data).  Each builder
-    returns ``(rows_or_groups, source)``; the source is the caption shown under the
-    table when ``show_source`` is on.  QC companions and sensor variables are
-    classified by :func:`oceanarray.reports.design.is_qc` / ``is_sensor``, and
-    oceanarray's own global-attribute names are merged into the canonical groups via
-    :data:`~oceanarray.reports.design.ATTR_GROUP_EXTRAS`.  ``SENSOR_*`` variables stay
-    in the scalar table.  A malformed file returns the same keys empty plus ``error``.
-    """
+    """Return the vendored-builder inventory rows/groups for a NetCDF file."""
+    # SENSOR_* variables stay in the scalar table.  A malformed file returns the
+    # same keys empty plus "error".
     import xarray as xr
 
     from . import design
@@ -362,6 +304,7 @@ def _read_nc_metadata(nc_path: Path) -> dict[str, Any]:
             summary = nc_tables.summary_counts(
                 ds, is_qc=design.is_qc, is_sensor=design.is_sensor
             )
+            # Analog channels carrying non-zero data.
             analog_vars: list[str] = []
             for vname in sorted(ds.data_vars):
                 v = ds[vname]
@@ -398,21 +341,10 @@ def _read_nc_metadata(nc_path: Path) -> dict[str, Any]:
 
 
 def _read_qc_thresholds(nc_path: Path) -> list[dict[str, Any]]:
-    """Return the QC thresholds actually applied, as stored in the stage3 NC file.
-
-    Reads four types of threshold from the ``{var}_qc`` variable attrs and from
-    dataset-level attrs:
-
-    * ``qc_gross_range_*`` — gross-range fail/suspect min/max
-    * ``qc_spike_*`` — QARTOD spike-test suspect/fail thresholds
-    * ``qc_flat_line_*`` — QARTOD flat-line (stuck-value) suspect/fail sample counts
-    * ``tilt_suspect_threshold`` / ``tilt_fail_threshold`` — Aquadopp tilt QC
-
-    Returns one dict per (variable, test) combination, with the actual values
-    stored in the file — regardless of whether they came from package defaults,
-    mooring-level YAML, or per-instrument overrides.  Spike and flat-line rows only
-    appear for stage3 files produced after 2026-07-24.
-    """
+    """Return the QC thresholds actually applied, as stored in the stage3 NC file."""
+    # One row per (variable, test) with the values stored in the file, whatever
+    # their origin (package default, mooring YAML, per-instrument override).
+    # Spike and flat-line rows appear only for stage3 files produced after 2026-07-24.
     try:
         import xarray as xr
 
@@ -535,34 +467,10 @@ _PRIMARY_VARS = [
 def _read_instrument_info(
     proc_dir: Path, instr_type: str, mooring: str, serial: str
 ) -> dict[str, Any]:
-    """Read record statistics from the best available processed NetCDF file.
-
-    Prefers stage-3 output (QC and coordinate-transformed); falls back to
-    stage-2 (deployment-trimmed, clock-corrected) if stage-3 is absent.
-    Stage-1 (raw) files are never read here.
-
-    Returns a dict with keys:
-
-    * ``t_start`` / ``t_end``: first and last timestamp (ISO-8601 string,
-      truncated to the minute).
-    * ``t_end_raw``: last timestamp as ``numpy.datetime64`` (for arithmetic).
-    * ``n_records``: total number of time steps.
-    * ``dt_s``: 90th-percentile inter-sample interval in seconds (robust
-      against occasional data gaps).
-    * ``shorthands``: list of ``(label, bool)`` pairs indicating which of
-      T / C / P / U / V variables are present.
-    * ``pressure_interpolated``: True if any ``pressure_qc == 8``, meaning
-      pressure was filled by interpolation from neighbouring instruments.
-    * ``p_min`` / ``p_max``: minimum and maximum pressure (dbar) over the
-      trimmed record, excluding non-positive values (stuck-at-zero sensors,
-      pre-deployment bench readings) and QC-bad/missing samples where stage-3
-      flags are available.  ``None`` if no valid pressure data exist.
-
-    Returns ``{}`` if no processed file is found, or ``{"error": str}`` if
-    the file cannot be opened.
-    """
+    """Read record statistics from the best available processed NetCDF file."""
     base = proc_dir / instr_type / f"{mooring}_{serial}"
     nc_path = None
+    # Prefer stage 3, fall back to stage 2; raw stage-1 files are never read here.
     for suffix in (paths.stage_suffix(3), paths.stage_suffix(2)):
         p = Path(str(base) + suffix)
         if p.exists():
@@ -582,6 +490,7 @@ def _read_instrument_info(
         t_end = str(time[-1])[:16].replace("T", " ") if n > 0 else "—"
         t_end_raw = time[-1] if n > 0 else None
 
+        # 90th-percentile interval: robust against occasional data gaps.
         if n > 1:
             dt_arr = np.diff(time.astype("datetime64[s]").astype(float))
             dt_s = float(np.percentile(dt_arr, 90))
@@ -646,30 +555,8 @@ def _read_instrument_info(
 def _read_timing_info(
     proc_dir: Path, instr_type: str, mooring: str, serial: str
 ) -> dict[str, Any]:
-    """Read deployment-timing attrs from the stage 2 NC file.
-
-    Always reads from stage 2 (not stage 3) because timing metadata is written
-    during stage 2 processing.  Returns an empty dict if no stage 2 file exists.
-
-    The dict keys are:
-
-    stage1_start / stage1_end
-        First and last timestamps in the stage 1 record (raw instrument clock).
-    stage1_nonnull_start / stage1_nonnull_end
-        First/last non-NaN timestamps in the priority variable (raw clock).
-    sugg_start / sugg_end
-        Auto-detected deployment window in the raw instrument clock.
-    sugg_start_utc / sugg_end_utc
-        Clock-corrected suggested times (safe to paste into the YAML).
-    stage2_start / stage2_end
-        Actual first/last record in the stage 2 file (corrected, trimmed).
-    sugg_start_differs / sugg_end_differs
-        True when the suggested time differs from the YAML time by more than
-        2 × Δt (two sample intervals) — amber-highlight trigger in the timing
-        table.
-    dt_s
-        Median sample interval in seconds (p90 of first-differences).
-    """
+    """Read deployment-timing attrs from the stage 2 NC file."""
+    # Stage 2, not stage 3: the timing metadata is written during stage 2.
     nc_path = proc_dir / instr_type / f"{mooring}_{serial}{paths.stage_suffix(2)}"
     if not nc_path.exists():
         return {}
@@ -683,6 +570,7 @@ def _read_timing_info(
         stage2_start = str(time[0])[:16].replace("T", " ") if n > 0 else None
         stage2_end = str(time[-1])[:16].replace("T", " ") if n > 0 else None
 
+        # 90th-percentile interval: robust against occasional data gaps.
         if n > 1:
             dt_arr = np.diff(time.astype("datetime64[s]").astype(float))
             dt_s = float(np.percentile(dt_arr, 90))
@@ -695,6 +583,8 @@ def _read_timing_info(
         stage1_nonnull_end = ds.attrs.get("stage1_last_nonnull")
         sugg_start = ds.attrs.get("suggested_deployment_time")
         sugg_end = ds.attrs.get("suggested_recovery_time")
+        # sugg_* are in the raw instrument clock; the *_utc pair is clock-corrected
+        # and is what is safe to paste into the YAML.
         sugg_start_utc = ds.attrs.get("suggested_deployment_time_utc")
         sugg_end_utc = ds.attrs.get("suggested_recovery_time_utc")
         yaml_recovery = ds.attrs.get("yaml_recovery_time")
@@ -807,7 +697,7 @@ def _stage_files(
     }
 
 
-def _fmt_size(n_bytes: int) -> str:
+def _format_size(n_bytes: int) -> str:
     """Return a human-readable file size string."""
     for unit in ("B", "KB", "MB", "GB"):
         if n_bytes < 1024:
@@ -827,7 +717,7 @@ def _file_info(path: Path) -> dict[str, str]:
     return {
         "exists": True,
         "name": path.name,
-        "size": _fmt_size(st.st_size),
+        "size": _format_size(st.st_size),
         "mtime": mtime.strftime("%Y-%m-%d %H:%M UTC"),
     }
 
@@ -851,32 +741,11 @@ def _instrument_report_href(
     serial: str,
     in_instrument_subdir: bool = False,
 ) -> str:
-    """Return the relative href for a per-instrument HTML report.
-
-    Instrument reports live at ``report/instrument/{mooring}_{serial}_report.html``.
-    The prefix differs depending on which report is linking to them:
-
-    - Summary / Stack / Grid (in ``report/``): prefix is ``instrument/``
-    - Another instrument report (in ``report/instrument/``): no prefix needed
-
-    Parameters
-    ----------
-    mooring_name : str
-        Mooring identifier used in the report filename.
-    serial : str
-        Instrument serial number.
-    in_instrument_subdir : bool
-        ``True`` when linking from a per-instrument report.
-        ``False`` (default) when linking from summary, stack, or grid reports.
-
-    Returns
-    -------
-    str
-        Relative href string, e.g. ``"instrument/dsG3_1_2026_26261_report.html"``.
-
-    """
+    """Return the relative href for a per-instrument HTML report."""
     import html as _html
 
+    # Instrument reports live in report/instrument/: pages in report/ need the
+    # instrument/ prefix, sibling instrument pages need none.
     prefix = "" if in_instrument_subdir else "instrument/"
     return (
         f"{prefix}{_html.escape(mooring_name)}_{_html.escape(str(serial))}_report.html"
@@ -884,41 +753,16 @@ def _instrument_report_href(
 
 
 def _instrument_report_exists(out_dir: Path, mooring_name: str, serial: str) -> bool:
-    """Return True if the per-instrument report file already exists on disk.
-
-    Parameters
-    ----------
-    out_dir : Path
-        The report output directory (i.e. ``proc_dir / "report"``).
-    mooring_name : str
-        Mooring identifier used in the report filename.
-    serial : str
-        Instrument serial number.
-
-    """
+    """Return True if the per-instrument report file already exists on disk."""
     return (out_dir / "instrument" / f"{mooring_name}_{serial}_report.html").exists()
 
 
-def _find_array_report_href(
+def _resolve_array_report_href(
     out_dir: Path, in_instrument_subdir: bool = False
 ) -> str | None:
-    """Return a relative href to the array report if one exists in the top-level proc dir.
-
-    Parameters
-    ----------
-    out_dir : Path
-        Directory where the current report will be written.  Expected to be
-        ``{proc_dir}/{mooring}/report/`` (default) or ``{proc_dir}/{mooring}/``.
-    in_instrument_subdir : bool
-        True when the caller is a per-instrument report one level deeper.
-
-    Returns
-    -------
-    str or None
-        Relative href string (e.g. ``"../../dsG3_2026_array_report.html"``),
-        or None if no ``*_array_report.html`` exists.
-
-    """
+    """Return a relative href to the top-level array report, or None if absent."""
+    # out_dir is expected to be {proc_dir}/{mooring}/report/; a per-instrument
+    # report sits one level deeper.
     if out_dir is None:
         return None
     # Navigate up to the top-level proc dir (above the mooring dir)

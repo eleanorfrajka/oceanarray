@@ -78,34 +78,18 @@ _TIME_ENCODING = {
 }
 
 
-#: Sentinel returned by :func:`_clean_attr_value` for a ``None`` value; the caller
+#: Sentinel returned by :func:`_netcdf_safe_attr_value` for a ``None`` value; the caller
 #: drops the attribute instead of writing it.  None-valued attributes are dropped
 #: with a warning; nothing here verifies that required globals are present.
 _DROP = object()
 
 
-def _clean_attr_value(value: object) -> object:
-    """Return an attribute value in a form netCDF4 can store, or :data:`_DROP`.
-
-    A ``dict`` becomes a JSON string, a non-empty list or tuple is kept when it
-    renders as text and JSON-encoded otherwise, and everything else is returned
-    unchanged.  A ``None`` value returns :data:`_DROP`: the writer drops the
-    attribute (with a warning) rather than substituting ``""``, because an empty
-    string is a silent stand-in for a missing value.
-
-    Parameters
-    ----------
-    value : object
-        The raw attribute value.
-
-    Returns
-    -------
-    object
-        A netCDF4-compatible attribute value, or :data:`_DROP` for ``None``.
-    """
+def _netcdf_safe_attr_value(value: object) -> object:
+    """Return an attribute value in a form netCDF4 can store, or :data:`_DROP`."""
     if isinstance(value, dict):
         return json.dumps(value)
     if value is None:
+        # Drop rather than write "": an empty string silently stands in for missing.
         return _DROP
     if isinstance(value, bool):
         # netCDF4 has no boolean attribute type; store the CF-conventional 0/1.
@@ -120,28 +104,14 @@ def _clean_attr_value(value: object) -> object:
     return value
 
 
-def _clean_attr_dict(attrs: dict, scope: str, *, stacklevel: int) -> dict:
-    """Clean an attribute mapping, dropping ``None``-valued keys with a warning.
-
-    Parameters
-    ----------
-    attrs : dict
-        Raw attribute mapping (global or per-variable).
-    scope : str
-        Label used in the warning, e.g. ``"global"`` or ``"variable 'time'"``.
-    stacklevel : int
-        Frames from this call up to the user's :func:`write` call, so the warning
-        points at the caller's line rather than into the writer.
-
-    Returns
-    -------
-    dict
-        Cleaned mapping with every ``None``-valued key removed.
-    """
+def _netcdf_safe_attr_dict(attrs: dict, scope: str, *, stacklevel: int) -> dict:
+    """Clean an attribute mapping, dropping ``None``-valued keys with a warning."""
     cleaned: dict = {}
     for key, value in attrs.items():
-        result = _clean_attr_value(value)
+        result = _netcdf_safe_attr_value(value)
         if result is _DROP:
+            # stacklevel counts frames up to the user's write() call, so the
+            # warning points at the caller's line rather than into the writer.
             warnings.warn(
                 f"{scope}: dropping attribute {key!r} because its value is None",
                 stacklevel=stacklevel,
@@ -151,28 +121,10 @@ def _clean_attr_dict(attrs: dict, scope: str, *, stacklevel: int) -> dict:
     return cleaned
 
 
-def _sanitize_names(ds: xr.Dataset) -> xr.Dataset:
-    """Replace ``/`` in dimension, coordinate and variable names with ``_``.
-
-    NetCDF/HDF5 treats ``/`` as a group separator, so a name containing one
-    cannot be written.  Renamed variables gain an ``original_name`` attribute.
-    Reproduces seasenselib's name sanitization; a no-op once names are canonical.
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        Dataset whose names may contain slashes.
-
-    Returns
-    -------
-    xarray.Dataset
-        Dataset with slash-free names.
-
-    Raises
-    ------
-    ValueError
-        If two distinct names would collapse to the same sanitized name.
-    """
+def _netcdf_safe_names(ds: xr.Dataset) -> xr.Dataset:
+    """Replace ``/`` in dimension, coordinate and variable names with ``_``."""
+    # NetCDF/HDF5 reads "/" as a group separator. Mirrors seasenselib's name
+    # sanitization; a no-op once names are canonical.
     name_map: dict[str, str] = {}
     final: dict[str, str] = {}
     seen: set[str] = set()
@@ -206,32 +158,17 @@ def _sanitize_names(ds: xr.Dataset) -> xr.Dataset:
     return renamed
 
 
-def _clean_attrs(ds: xr.Dataset) -> xr.Dataset:
-    """Return a shallow copy of *ds* with netCDF-safe attributes and encoding.
+def _netcdf_safe_attrs(ds: xr.Dataset) -> xr.Dataset:
+    """Return a shallow copy of *ds* with netCDF-safe attributes and encoding."""
 
-    Cleans global and per-variable attributes with :func:`_clean_attr_dict`
-    (``None``-valued attributes are dropped with a warning), and moves
-    ``units``/``calendar`` from attributes to encoding on datetime variables (so a
-    decoded time coordinate that still carries a ``units`` attribute does not
-    collide with xarray's time encoding at write time).
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        Dataset to clean.
-
-    Returns
-    -------
-    xarray.Dataset
-        Shallow copy with cleaned attributes; the input is not modified.
-    """
-
-    # stacklevel to the user's write() call: warn -> _clean_attr_dict ->
-    # (clean_variable ->) _clean_attrs -> _prepare -> write -> caller. The
+    # stacklevel to the user's write() call: warn -> _netcdf_safe_attr_dict ->
+    # (clean_variable ->) _netcdf_safe_attrs -> _prepare -> write -> caller. The
     # per-variable path is one frame deeper than the global path.
     def clean_variable(name: str, var: xr.DataArray) -> tuple[dict, dict]:
-        attrs = _clean_attr_dict(var.attrs, f"variable {name!r}", stacklevel=6)
+        attrs = _netcdf_safe_attr_dict(var.attrs, f"variable {name!r}", stacklevel=6)
         encoding = dict(var.encoding)
+        # A decoded time coordinate still carrying a units attribute would collide
+        # with xarray's time encoding at write time, so move it to encoding.
         if _is_datetime(var):
             for attr in _DATETIME_ENCODING_ATTRS:
                 if attr in attrs:
@@ -239,7 +176,7 @@ def _clean_attrs(ds: xr.Dataset) -> xr.Dataset:
         return attrs, encoding
 
     safe = ds.copy(deep=False)
-    safe.attrs = _clean_attr_dict(ds.attrs, "global", stacklevel=5)
+    safe.attrs = _netcdf_safe_attr_dict(ds.attrs, "global", stacklevel=5)
     for name, var in ds.variables.items():
         attrs, encoding = clean_variable(name, var)
         safe[name].attrs = attrs
@@ -248,68 +185,22 @@ def _clean_attrs(ds: xr.Dataset) -> xr.Dataset:
 
 
 def _is_datetime(var: xr.Variable | xr.DataArray) -> bool:
-    """Return ``True`` if *var* holds numpy ``datetime64`` values.
-
-    Parameters
-    ----------
-    var : xarray.Variable or xarray.DataArray
-        The variable to test.
-
-    Returns
-    -------
-    bool
-        Whether *var* is a numpy ``datetime64`` variable.
-    """
+    """Return ``True`` if *var* holds numpy ``datetime64`` values."""
     return np.issubdtype(var.dtype, np.datetime64)
 
 
 def _has_cf_time_encoding(var: xr.Variable | xr.DataArray) -> bool:
-    """Return ``True`` for an object-dtype variable carrying CF time encoding.
-
-    A dataset decoded with ``use_cftime=True`` holds its time coordinate as ``object``
-    dtype (cftime objects) with ``units``/``calendar`` in encoding rather than numpy
-    ``datetime64``.  Such a variable must keep that encoding so its (possibly
-    non-standard) calendar and epoch are preserved on write rather than re-guessed by
-    xarray from the data, which can change the stored reference.
-
-    Parameters
-    ----------
-    var : xarray.Variable or xarray.DataArray
-        The variable to test.
-
-    Returns
-    -------
-    bool
-        Whether *var* is object dtype with ``units`` or ``calendar`` in encoding.
-    """
+    """Return ``True`` for an object-dtype variable carrying CF time encoding."""
+    # A use_cftime=True decode holds time as object-dtype cftime values with
+    # units/calendar in encoding, not as numpy datetime64.
     return var.dtype.kind == "O" and (
         "units" in var.encoding or "calendar" in var.encoding
     )
 
 
 def _prepare(ds: xr.Dataset, *, compress: bool = True) -> xr.Dataset:
-    """Return a copy of *ds* ready to write: cast, cleaned, per-variable encoding set.
-
-    Casts dtypes, cleans attributes and names, and sets per-variable encoding —
-    datetime variables pinned to :data:`_TIME_ENCODING`, others filtered to
-    :data:`_PRESERVED_ENCODING` — then applies :data:`_COMPRESSION` to every
-    dimensioned numeric variable unless *compress* is ``False``.  A caller passes
-    ``compress=False`` to produce an otherwise-identical uncompressed file, so a
-    compressed write can be diffed against it and show only the zlib filter.
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        Dataset to prepare.
-    compress : bool, default True
-        Apply the zlib + shuffle filter to dimensioned numeric variables.
-
-    Returns
-    -------
-    xarray.Dataset
-        Prepared copy; the input is not modified.
-    """
-    safe = _clean_attrs(_sanitize_names(cast_output_dtypes(ds)))
+    """Return a copy of *ds* ready to write: dtypes cast, cleaned, encoding set."""
+    safe = _netcdf_safe_attrs(_netcdf_safe_names(cast_output_dtypes(ds)))
     for name, var in safe.variables.items():
         if _is_datetime(var):
             # Pin datetime variables; do not inherit xarray's per-file guess.
@@ -323,6 +214,8 @@ def _prepare(ds: xr.Dataset, *, compress: bool = True) -> xr.Dataset:
             enc = {
                 k: v for k, v in safe[name].encoding.items() if k in _PRESERVED_ENCODING
             }
+        # compress=False gives an otherwise-identical file, so a diff against the
+        # compressed write shows only the zlib filter.
         if compress and var.ndim >= 1 and var.dtype.kind not in _UNCOMPRESSIBLE_KINDS:
             enc.update(_COMPRESSION)
         safe[name].encoding = enc

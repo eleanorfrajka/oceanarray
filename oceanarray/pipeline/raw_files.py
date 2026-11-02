@@ -17,7 +17,7 @@ import xarray as xr
 
 from oceanarray import paths, readers
 from oceanarray.exceptions import MooringError
-from oceanarray.logger import log_info, log_warning
+from oceanarray.logger import log_message
 from oceanarray.paths import safe_serial
 from oceanarray.readers import sbe
 from oceanarray.readers.nortek import (
@@ -27,14 +27,6 @@ from oceanarray.readers.nortek import (
 )
 
 _NORTEK_TYPES = ("nortek-raw", "nortek-ascii", "nortek-csv")
-
-
-def _log(message: str) -> None:
-    """Log a raw-file message, as a warning when it starts with ``WARNING``."""
-    if message.lstrip().startswith("WARNING"):
-        log_warning("%s", message)
-    else:
-        log_info("%s", message)
 
 
 @dataclass(frozen=True)
@@ -134,7 +126,7 @@ def guess_instrument_filename(
 
     elif instr_type in ("aquadopp", "nortek"):
         if instr_type == "nortek":
-            _log(
+            log_message(
                 f"AUTO-FILENAME: instrument type 'nortek' is deprecated — "
                 f"use 'aquadopp' in the YAML for serial {raw_serial}"
             )
@@ -191,7 +183,7 @@ def guess_instrument_filename(
                         _hdr.name if _hdr.exists() else None,
                     )
                 _tried_400.append(str(_root / f"A{raw_serial}*.aqd"))
-            _log(
+            log_message(
                 f"AUTO-FILENAME: no converted_raw/A{raw_serial}*/ or "
                 f"A{raw_serial}*.aqd found for "
                 f"aquadopp {raw_serial} — tried:\n  " + "\n  ".join(_tried_400)
@@ -219,7 +211,7 @@ def guess_instrument_filename(
             candidates.append((f"{raw_serial}_{_pfx}_recovery.000", "rdi-raw", None))
 
     if not candidates:
-        _log(
+        log_message(
             f"AUTO-FILENAME: instrument type '{instr_type}' not recognised "
             f"— add 'filename:' to YAML for {instr_type} {raw_serial}"
         )
@@ -243,7 +235,7 @@ def guess_instrument_filename(
             if candidate_path.exists():
                 return fname, ftype, hdr
 
-    _log(
+    log_message(
         f"AUTO-FILENAME: no file found for {instr_type} {raw_serial} — tried:\n  "
         + "\n  ".join(tried)
     )
@@ -307,7 +299,7 @@ def resolve_raw_file(
                 "matching the recovery-file naming convention was found."
             )
         found, found_type, found_header = guess
-        _log(f"AUTO-FILENAME: {instrument} {serial} → {found} ({found_type})")
+        log_message(f"AUTO-FILENAME: {instrument} {serial} → {found} ({found_type})")
         entry["filename"] = found
         if found_type and not entry.get("file_type"):
             entry["file_type"] = found_type
@@ -319,7 +311,7 @@ def resolve_raw_file(
     # 'nortek' as an instrument directory name is deprecated — always use 'aquadopp'.
     instrument_dir = instrument
     if instrument == "nortek":
-        _log(
+        log_message(
             f"WARNING: instrument='nortek' is deprecated (serial {serial}); "
             f"update YAML to instrument='aquadopp'. Using 'aquadopp/' directory."
         )
@@ -330,7 +322,7 @@ def resolve_raw_file(
         if not path.exists() and instrument_dir == "aquadopp":
             legacy = raw_mooring_dir / "nortek" / filename
             if legacy.exists():
-                _log(
+                log_message(
                     f"INFO: {filename} found in legacy 'nortek/' subdir "
                     f"(serial {serial}); consider renaming to 'aquadopp/'."
                 )
@@ -410,7 +402,7 @@ _SBE_SENSORS = {
 }
 
 
-def _iso_date(raw: str, formats: tuple[str, ...]) -> str:
+def _format_date_iso(raw: str, formats: tuple[str, ...]) -> str:
     """Return *raw* as ``YYYY-MM-DD`` when it parses with one of *formats*, else unchanged."""
     import datetime
 
@@ -453,13 +445,9 @@ def _add_sensor_var(
 def _add_sbe_ascii_sensor_vars(
     dataset: xr.Dataset, file_path: Path, instrument_config: dict[str, Any]
 ) -> xr.Dataset:
-    """Parse calibration coefficients from an SBE ASCII header and add SENSOR_* vars.
-
-    seasenselib's sbe-ascii reader discards the ``* TA0 = …`` header lines. This
-    re-reads the raw file, extracts the same coefficients the CNV reader would
-    produce, and creates matching SENSOR_* scalar variables so the report
-    calibration table is populated for ASCII-format instruments.
-    """
+    """Parse calibration coefficients from an SBE ASCII header and add SENSOR_* vars."""
+    # seasenselib's sbe-ascii reader discards the "* TA0 = ..." header lines, so
+    # re-read the raw file to populate the report calibration table.
     try:
         text = file_path.read_text(errors="ignore")
     except OSError:
@@ -490,7 +478,7 @@ def _add_sbe_ascii_sensor_vars(
 
     def _date(pat: str) -> str:
         m = re.search(pat, text, re.IGNORECASE)
-        return _iso_date(m.group(1).strip(), ("%d-%b-%y",)) if m else "—"
+        return _format_date_iso(m.group(1).strip(), ("%d-%b-%y",)) if m else "—"
 
     # Pressure header line: "* pressure S/N 2385215, range = 2900 psia: 10-nov-08".
     sn_match = re.search(r"pressure\s+S/N\s+(\d+)", text, re.IGNORECASE)
@@ -520,12 +508,7 @@ def _add_sbe_ascii_sensor_vars(
 def _add_sbe_hex_sensor_vars(
     dataset: xr.Dataset, file_path: Path, instrument_config: dict[str, Any]
 ) -> xr.Dataset:
-    """Parse calibration coefficients from an SBE hex header and add SENSOR_* vars.
-
-    Uses seasenselib's ``parse_hex_header_sensors``, which extracts the calibration
-    XML embedded in the hex file header, and creates the same SENSOR_* variables as
-    the ASCII header.
-    """
+    """Parse calibration coefficients from an SBE hex header and add SENSOR_* vars."""
     try:
         from seasenselib.readers.sbe_hex_reader import parse_hex_header_sensors
 
@@ -547,7 +530,7 @@ def _add_sbe_hex_sensor_vars(
             sensor,
             instr_serial,
             coeffs.get("serialnum", instr_serial),
-            _iso_date(coeffs.get("caldate", "—"), ("%d-%b-%y", "%d-%b-%Y")),
+            _format_date_iso(coeffs.get("caldate", "—"), ("%d-%b-%y", "%d-%b-%Y")),
             ", ".join(
                 f"{k}={v}"
                 for k, v in coeffs.items()

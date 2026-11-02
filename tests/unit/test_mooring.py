@@ -138,7 +138,7 @@ def test_init_writes_the_optional_blocks_commented_out(tmp_path: Path) -> None:
     """The stub carries stack:/grid: commented out; uncommented, they are valid and the defaults."""
     import yaml
 
-    from oceanarray.pipeline._run import DEFAULTS, _settings
+    from oceanarray.pipeline._run import DEFAULTS, _resolve_settings
 
     out = mooring.save(
         mooring.template("dsX_1_2026"),
@@ -155,7 +155,7 @@ def test_init_writes_the_optional_blocks_commented_out(tmp_path: Path) -> None:
     doc = yaml.safe_load("\n".join(uncommented))
     assert doc["stack"] == DEFAULTS["stack"]
     assert doc["grid"] == DEFAULTS["grid"]
-    assert _settings(doc) == {**DEFAULTS["stack"], **DEFAULTS["grid"]}
+    assert _resolve_settings(doc) == {**DEFAULTS["stack"], **DEFAULTS["grid"]}
     assert not [
         i for i in mooring.check(doc) if "stack" in i.message or "grid" in i.message
     ]

@@ -18,13 +18,9 @@ def _times_to_float(time_values: np.ndarray) -> np.ndarray:
 
 
 def _is_burst_mode(time_values: np.ndarray, burst_ratio: float = 5.0) -> bool:
-    """Return True when the time series has a bimodal Δt (burst sampling).
-
-    Burst-mode instruments (e.g. Nortek Aquadopp) take N pings at 1 Hz then
-    wait ~120 s.  The within-burst interval (p50) is << the burst interval
-    (p90).  The QARTOD spike test compares adjacent samples and generates false
-    positives at every burst boundary, so callers skip it when this is True.
-    """
+    """Return True when the time series has a bimodal Δt (burst sampling)."""
+    # e.g. Aquadopp: N pings at 1 Hz, then ~120 s, so within-burst p50 << p90. Callers
+    # skip the QARTOD spike test then: it false-flags every burst boundary.
     if len(time_values) < 10:
         return False
     dt = np.diff(time_values).astype("datetime64[s]").astype(float)

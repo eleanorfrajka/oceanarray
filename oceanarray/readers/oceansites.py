@@ -33,12 +33,7 @@ OCEANSITES_FLAG_MEANINGS: str = (
 
 
 def _originator_flags(da: xr.DataArray) -> xr.DataArray:
-    """Return an OceanSITES ``_QC`` variable as an originator flag variable.
-
-    Keeps the file's ``flag_values`` / ``flag_meanings`` when present.  Without
-    them the OceanSITES reference-table-2 meanings are attached and the attribute
-    ``flag_meanings_source`` says they were assumed, not read.
-    """
+    """Return an OceanSITES ``_QC`` variable as an originator flag variable."""
     vals = da.values
     flags = np.where(np.isfinite(vals), vals, 9).astype("int8")
     attrs = {"long_name": f"originator QC flag ({da.name})"}
@@ -46,6 +41,8 @@ def _originator_flags(da: xr.DataArray) -> xr.DataArray:
         attrs["flag_values"] = np.asarray(da.attrs["flag_values"]).astype("int8")
         attrs["flag_meanings"] = str(da.attrs["flag_meanings"])
     else:
+        # No flag meanings in the file: attach OceanSITES reference table 2 and
+        # record in flag_meanings_source that they were assumed, not read.
         attrs["flag_values"] = np.array(OCEANSITES_FLAG_VALUES, dtype="int8")
         attrs["flag_meanings"] = OCEANSITES_FLAG_MEANINGS
         attrs["flag_meanings_source"] = (
@@ -99,11 +96,9 @@ def read_oceansites(path: str | Path) -> xr.Dataset:
         )
 
     def _squeeze_non_time(v: xr.DataArray) -> xr.DataArray:
-        """Drop every size-1 dim except TIME, so a one-record file keeps its time axis.
-
-        A plain ``squeeze(drop=True)`` would also drop a length-1 TIME, leaving a scalar
-        that cannot be given ``dims="time"`` (data path) and has no ``dims[0]`` (QC path).
-        """
+        """Drop size-1 dims except TIME, so a one-record file keeps its time axis."""
+        # A plain squeeze(drop=True) would also drop a length-1 TIME, leaving a scalar
+        # that cannot take dims="time" (data path) and has no dims[0] (QC path).
         extra = [d for d in v.dims if d != "TIME" and v.sizes[d] == 1]
         return v.squeeze(dim=extra, drop=True) if extra else v
 

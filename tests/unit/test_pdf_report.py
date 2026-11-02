@@ -11,8 +11,8 @@ import yaml
 
 from oceanarray.reports import MooringReport, combine_mooring_pdf
 from oceanarray.reports._pdf import (
-    _build_combined_html,
     _ordered_report_files,
+    _render_combined_html,
     _slug_for,
 )
 
@@ -135,7 +135,7 @@ class TestBuildCombinedHtml:
             '<a href="#qc">qc</a><h2 id="qc">QC</h2>'
         )
         stack = _html_page('<div id="top">stack</div>')
-        out = _build_combined_html(
+        out = _render_combined_html(
             [
                 ("summary", "M1_report.html", summary),
                 ("stack", "M1_stack_report.html", stack),
@@ -167,7 +167,7 @@ class TestBuildCombinedHtml:
             "</body></html>"
         )
         instr = '<html><body><div id="top">i</div></body></html>'
-        out = _build_combined_html(
+        out = _render_combined_html(
             [
                 ("summary", "M1_report.html", summary),
                 ("instr-9920", "M1_9920_report.html", instr),
@@ -178,7 +178,7 @@ class TestBuildCombinedHtml:
 
     def test_identical_styles_deduplicated(self) -> None:
         css = ".masthead{color:red}"
-        out = _build_combined_html(
+        out = _render_combined_html(
             [
                 ("summary", "M1_report.html", _html_page("<p>1</p>", css)),
                 ("stack", "M1_stack_report.html", _html_page("<p>2</p>", css)),
@@ -188,7 +188,7 @@ class TestBuildCombinedHtml:
 
     def test_page_without_body_tag_uses_whole_html(self) -> None:
         """A page with no ``<body>`` falls back to using its full HTML (defensive)."""
-        out = _build_combined_html(
+        out = _render_combined_html(
             [("summary", "M1_report.html", '<div id="top">bare</div>')]
         )
         assert 'id="summary__top"' in out
@@ -197,7 +197,7 @@ class TestBuildCombinedHtml:
     def test_each_page_wrapped_in_pdf_page_section(self) -> None:
         one = "<html><body><p>a</p></body></html>"
         two = "<html><body><p>b</p></body></html>"
-        out = _build_combined_html(
+        out = _render_combined_html(
             [
                 ("summary", "M1_report.html", one),
                 ("stack", "M1_stack_report.html", two),

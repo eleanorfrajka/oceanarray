@@ -13,6 +13,7 @@ import numpy as np
 from oceanarray import paths
 
 from ..config import parameters as params
+from ..utilities import should_skip_regeneration
 from ._env import (
     render_history,
     render_nc_coords,
@@ -23,28 +24,27 @@ from ._env import (
 )
 from ._figdebug import as_panel
 from ._html_helpers import (
-    _find_array_report_href,
+    _format_rel_path,
     _instrument_report_exists,
     _instrument_report_href,
     _parse_dt,
     _parse_history,
     _read_nc_metadata,
-    _safe_rel,
-    _should_skip,
+    _resolve_array_report_href,
     _status,
 )
 from ._navs import mooring_nav
 from ._plots import (
     _make_adcp_trajectories_b64,
-    _make_analog_timeseries,
-    _make_aquadopp_speed_profile,
-    _make_aquadopp_tilt_panels,
+    _make_analog_timeseries_b64,
+    _make_aquadopp_speed_profile_b64,
+    _make_aquadopp_tilt_panels_b64,
     _make_clock_check_b64,
     _make_instrument_spacing_b64,
-    _make_multi_aquadopp_trajectories,
+    _make_multi_aquadopp_trajectories_b64,
     _make_rose_grid_b64,
     _make_stack_timeseries_b64,
-    _make_stack_ts_diagram,
+    _make_stack_ts_diagram_b64,
 )
 from ._vendored.page_model import Panel, Profile, Section, resolve
 
@@ -226,7 +226,7 @@ def _has_aquadopp(c: StackContext) -> bool:
     return "aquadopp" in c.instr_types
 
 
-def _stack_history_unavailable(c: StackContext) -> str | None:
+def _history_unavailable(c: StackContext) -> str | None:
     """Reason the history panel cannot render, or None (provenance always applies)."""
     if c.history_entries:
         return None
@@ -238,13 +238,9 @@ def _figure_panel(
     applies_to: Callable | None = None,
     slot: str | None = None,
 ) -> Panel:
-    """Build a stack figure panel from the registry.
-
-    The stack figures are pre-built by the ad-hoc closures in
-    :func:`generate_stack_page`.  Most fill the content column (``slot=None`` →
-    bare ``.fig``); the trajectory panels carry ``slot="half"`` so the row-layout
-    section places them side-by-side.
-    """
+    """Build a stack figure panel from the registry."""
+    # slot=None fills the content column; trajectory panels pass "half" so the
+    # row-layout section places them side by side.
     kwargs: dict = {
         "render": _fig(pid),
         "caption": STACK_CAPTIONS[pid],
@@ -264,7 +260,7 @@ STACK_PANELS: dict[str, Panel] = {
         "history",
         render=lambda c: render_history(c.history_entries),
         kind="html",
-        unavailable_if=_stack_history_unavailable,
+        unavailable_if=_history_unavailable,
     ),
     "stage2_note": Panel(
         "stage2_note",
@@ -453,8 +449,8 @@ def generate_stack_page(
 ) -> None:
     """Generate the stack report HTML page: lay out the figures and tables; the figures are drawn in ``plotters``."""
     out_path = out_dir / f"{mooring_name}_stack_report.html"
-    if _should_skip(out_path, force, skip_existing, stack_path):
-        _status("skip", _safe_rel(out_path, display_root))
+    if should_skip_regeneration(out_path, force, skip_existing, stack_path):
+        _status("skip", _format_rel_path(out_path, display_root))
         return
 
     try:
@@ -490,7 +486,7 @@ def generate_stack_page(
                 }
             )
 
-        _serial_list = list(serials)
+        _as_serial_list = list(serials)
 
         fig_hydro_pts_b64 = _make_stack_timeseries_b64(
             ds,
@@ -525,7 +521,7 @@ def generate_stack_page(
             dot_overlay=True,
         )
 
-        fig_rose_grid_b64, _n_rose = _make_rose_grid_b64(ds, _serial_list)
+        fig_rose_grid_b64, _n_rose = _make_rose_grid_b64(ds, _as_serial_list)
 
         _decl_vals: list = []
         _decl_missing = False
@@ -587,13 +583,15 @@ def generate_stack_page(
 
         # as_panel: a figure whose draw raises becomes a Stub naming the cause
         # (shown as a "warn" note) instead of silently vanishing.
-        fig_ts_stack_b64 = as_panel(lambda: _make_stack_ts_diagram(ds))
+        fig_ts_stack_b64 = as_panel(lambda: _make_stack_ts_diagram_b64(ds))
         fig_aquadopp_tilt_b64 = as_panel(
-            lambda: _make_aquadopp_tilt_panels(ds, step=step)
+            lambda: _make_aquadopp_tilt_panels_b64(ds, step=step)
         )
-        fig_trajectories_b64 = as_panel(lambda: _make_multi_aquadopp_trajectories(ds))
+        fig_trajectories_b64 = as_panel(
+            lambda: _make_multi_aquadopp_trajectories_b64(ds)
+        )
         fig_adcp_trajectories_b64 = as_panel(lambda: _make_adcp_trajectories_b64(ds))
-        fig_speed_profile_b64 = as_panel(lambda: _make_aquadopp_speed_profile(ds))
+        fig_speed_profile_b64 = as_panel(lambda: _make_aquadopp_speed_profile_b64(ds))
         # Clock alignment check: one temperature trace per instrument zoomed to
         # first/last 30 min.  Build {serial: path} preferring stage3 over stage2.
         proc_dir = stack_path.parent
@@ -623,7 +621,7 @@ def generate_stack_page(
         nc_meta = _read_nc_metadata(stack_path)
         analog_vars = nc_meta.get("analog_vars", [])
         fig_analog_b64 = (
-            as_panel(lambda: _make_analog_timeseries(stack_path, analog_vars))
+            as_panel(lambda: _make_analog_timeseries_b64(stack_path, analog_vars))
             if analog_vars
             else None
         )
@@ -678,7 +676,7 @@ def generate_stack_page(
                 stack_exists=True,
                 grid_exists=grid_exists,
                 current="stack",
-                array_href=_find_array_report_href(out_dir),
+                array_href=_resolve_array_report_href(out_dir),
             ),
             report=report,
             cruise=ctx.get("cruise", "—"),
@@ -697,6 +695,6 @@ def generate_stack_page(
             generated=ctx["generated"],
         )
         out_path.write_text(html, encoding="utf-8")
-        _status("file", _safe_rel(out_path, display_root))
+        _status("file", _format_rel_path(out_path, display_root))
     except Exception as exc:
         warnings.warn(f"stack report generation failed: {exc}", stacklevel=2)

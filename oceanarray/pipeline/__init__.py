@@ -82,22 +82,7 @@ def _run_stage1(
     serials: list[str] | None = None,
     **_kw: Any,
 ) -> bool:
-    """Run stage 1 (raw → CF-NetCDF) for *mooring*.
-
-    Parameters
-    ----------
-    mooring : str
-        Mooring name.
-    proc_dir : Path
-        Processing root directory (parent that contains per-mooring subdirectories).
-    raw_dir : Path, optional
-        Raw-data root.  Required for stage 1.
-    force : bool
-        Re-run even when output is newer than inputs.
-    serials : list of str, optional
-        Restrict to these serial numbers.
-
-    """
+    """Run stage 1 (raw → CF-NetCDF) for *mooring*."""
     if raw_dir is None:
         raise ValueError("stage1 requires raw_dir")
     from oceanarray.pipeline.stage1 import MooringProcessor
@@ -114,20 +99,7 @@ def _run_stage2(
     serials: list[str] | None = None,
     **_kw: Any,
 ) -> bool:
-    """Run stage 2 (deployment trim + clock-drift correction) for *mooring*.
-
-    Parameters
-    ----------
-    mooring : str
-        Mooring name.
-    proc_dir : Path
-        Processing root directory.
-    force : bool
-        Re-run even when output is newer than inputs.
-    serials : list of str, optional
-        Restrict to these serial numbers.
-
-    """
+    """Run stage 2 (deployment trim + clock-drift correction) for *mooring*."""
     from oceanarray.pipeline.stage2 import Stage2Processor
 
     return bool(
@@ -146,22 +118,7 @@ def _run_stage3(
     dry_run: bool = False,
     **_kw: Any,
 ) -> bool:
-    """Run stage 3 (QC, coordinate rotation, derived vars) for *mooring*.
-
-    Parameters
-    ----------
-    mooring : str
-        Mooring name.
-    proc_dir : Path
-        Processing root directory.
-    force : bool
-        Re-run even when output is newer than inputs.
-    serials : list of str, optional
-        Restrict to these serial numbers.
-    dry_run : bool
-        If True, log what would be done without writing output files.
-
-    """
+    """Run stage 3 (QC, coordinate rotation, derived vars) for *mooring*."""
     from oceanarray.pipeline.stage3 import Stage3Processor
 
     return bool(
@@ -179,20 +136,7 @@ def _run_stack(
     dt_seconds: int = 60,
     **_kw: Any,
 ) -> bool:
-    """Run the stack stage (multi-instrument → common time grid) for *mooring*.
-
-    Parameters
-    ----------
-    mooring : str
-        Mooring name.
-    proc_dir : Path
-        Processing root directory.
-    force : bool
-        Re-run even when output is newer than inputs.
-    dt_seconds : int
-        Target sampling interval in seconds (default 60).
-
-    """
+    """Run the stack stage (multi-instrument → common time grid) for *mooring*."""
     from oceanarray.pipeline.stack import MooringStacker
 
     return bool(
@@ -212,24 +156,8 @@ def _run_grid(
     dp: float = 20.0,
     **_kw: Any,
 ) -> bool:
-    """Run the grid stage (pressure-level interpolation) for *mooring*.
-
-    Parameters
-    ----------
-    mooring : str
-        Mooring name.
-    proc_dir : Path
-        Processing root directory.
-    force : bool
-        Re-run even when output is newer than inputs.
-    p_start : float
-        Shallowest pressure level in dbar.
-    p_end : float
-        Deepest pressure level in dbar.
-    dp : float
-        Pressure step in dbar.
-
-    """
+    """Run the grid stage (pressure-level interpolation) for *mooring*."""
+    # p_start (shallowest), p_end (deepest) and dp are in dbar.
     from oceanarray.pipeline.grid import MooringGridder
 
     return bool(
@@ -297,34 +225,7 @@ def _process_legacy(
     force: bool = False,
     **kw: Any,
 ) -> bool:
-    """Run stages by name under *proc_dir*: the form :func:`process` had before 0.6.0.
-
-    Parameters
-    ----------
-    mooring : str
-        Mooring name (the subdirectory under *proc_dir*).
-    stage : int, str, list of int/str, or None
-        Which stage(s) to run — ``1``, ``2``, ``3``, ``"stage1"``, ``"stack"``,
-        ``"grid"``, etc.  Pass a list to run a specific subset; the subset is
-        always executed in :data:`STAGES` order regardless of the order of
-        elements in the list.  ``None`` (the default) runs all five stages in
-        :data:`STAGES` order.
-    proc_dir : path-like
-        Processing root directory (parent containing per-mooring subdirectories).
-    raw_dir : path-like, optional
-        Raw-data root.  Required only when *stage* includes stage 1.
-    force : bool, default False
-        Re-run even when the output is newer than its inputs.
-    **kw
-        Extra keyword arguments forwarded to the stage's ``run`` callable
-        (e.g. ``serials``, ``dt_seconds``, ``p_start``, ``p_end``, ``dp``).
-
-    Returns
-    -------
-    bool
-        ``True`` if every requested stage succeeded, ``False`` if any failed.
-
-    """
+    """Run stages by name under *proc_dir*, as :func:`process` did before 0.6.0."""
     proc_dir = Path(proc_dir)
     raw_dir_path = Path(raw_dir) if raw_dir is not None else None
 
@@ -347,6 +248,7 @@ def _process_legacy(
     if stage is None:
         stages_to_run: tuple[Stage, ...] = STAGES
     elif isinstance(stage, (list, tuple)):
+        # A subset always runs in STAGES order, whatever the order of the list.
         _requested = {resolve_stage(s) for s in stage}
         stages_to_run = tuple(s for s in STAGES if s in _requested)
     else:
@@ -502,7 +404,7 @@ def process(
             **legacy_kw,
         )
 
-    wanted = _stage_numbers(stages)
+    wanted = _canonical_stages(stages)
     cfg, moor_dir = _resolve_mooring(mooring, mooring_dir, "process")
     outcome = _Outcome()
     _process_stages(
@@ -538,7 +440,7 @@ def _resolve_mooring(
     """Return the loaded, validated description and the mooring's directory."""
     from oceanarray import mooring as _mooring
     from oceanarray.exceptions import MooringError
-    from oceanarray.pipeline.read_mooring import _resolve
+    from oceanarray.pipeline.read_mooring import _resolve_description
 
     if isinstance(mooring, Mapping):
         if mooring_dir is None:
@@ -548,7 +450,7 @@ def _resolve_mooring(
             )
         cfg, moor_dir = _mooring.load(mooring), Path(mooring_dir)
     else:
-        cfg, moor_dir = _resolve(mooring, mooring_dir, 1, caller=caller)
+        cfg, moor_dir = _resolve_description(mooring, mooring_dir, 1, caller=caller)
     if not moor_dir.is_dir():
         raise MooringError(f"Mooring directory not found: {moor_dir}")
     return cfg, moor_dir
@@ -676,7 +578,7 @@ def _process_stages(
         )
 
 
-def _stage_numbers(stages: int | str | Iterable[int]) -> list[int]:
+def _canonical_stages(stages: int | str | Iterable[int]) -> list[int]:
     """Return *stages* as a sorted list drawn from 1, 2, 3, or raise ValueError."""
     if isinstance(stages, str):
         if stages.lower() != "all":

@@ -88,7 +88,7 @@ Implementation plan
 
 **Step 2 — new function ``_make_grid_rotary_spectrum_b64``**
 
-Signature (matches existing ``_make_spectrum_fig_b64``):
+Signature (matches existing ``_make_spectrum_b64``):
 
 .. code-block:: python
 
@@ -100,7 +100,7 @@ Signature (matches existing ``_make_spectrum_fig_b64``):
    ) -> Optional[str]:
        """Three-panel rotary spectrum (CW, CCW, rotary coefficient) for the grid report."""
 
-Location: insert immediately after ``_make_spectrum_fig_b64`` (currently line ~1124 in ``_plots.py``).
+Location: insert immediately after ``_make_spectrum_b64`` (currently line ~1124 in ``_plots.py``).
 
 **Step 3 — wire up in ``_grid.py``**
 

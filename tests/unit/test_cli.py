@@ -126,25 +126,25 @@ class TestStageToken:
         ],
     )
     def test_valid_values(self, value, expected):
-        from oceanarray.cli import _stage_token
+        from oceanarray.cli import _parse_stage_token
 
-        assert _stage_token(value) == expected
+        assert _parse_stage_token(value) == expected
 
     @pytest.mark.parametrize("value", ["4", "0", "bogus"])
     def test_unknown_values_raise_argument_type_error(self, value):
         import argparse
 
-        from oceanarray.cli import _stage_token
+        from oceanarray.cli import _parse_stage_token
 
         with pytest.raises(argparse.ArgumentTypeError):
-            _stage_token(value)
+            _parse_stage_token(value)
 
     def test_stage1_alias_passes_type_conversion(self):
-        """'stage1' is a valid resolve_stage target so _stage_token returns it
+        """'stage1' is a valid resolve_stage target so _parse_stage_token returns it
         as a string; argparse choices then rejects it (not in [1,2,3,'stack','grid'])."""
-        from oceanarray.cli import _stage_token
+        from oceanarray.cli import _parse_stage_token
 
-        assert _stage_token("stage1") == "stage1"
+        assert _parse_stage_token("stage1") == "stage1"
 
     def test_choices_derived_from_stages(self):
         """choices= for --stage is derived from STAGES, not a hardcoded list."""

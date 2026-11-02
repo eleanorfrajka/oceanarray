@@ -16,7 +16,7 @@ from oceanarray.cli import report as _report
 from oceanarray.cli import run as _run
 from oceanarray.cli import stamp as _stamp
 from oceanarray.cli import validate as _validate
-from oceanarray.cli._common import _stage_token  # noqa: F401  — used by the tests
+from oceanarray.cli._common import _parse_stage_token  # noqa: F401  — used by the tests
 from oceanarray.cli.animate import cmd_animate
 from oceanarray.cli.init import cmd_init
 from oceanarray.cli.list import cmd_list

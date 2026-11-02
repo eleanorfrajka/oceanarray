@@ -81,20 +81,19 @@ def test_safe_serial(raw, expected):
     assert safe_serial(raw) == expected
 
 
-def test_all_call_sites_agree():
-    """Every ``_safe_serial`` copy in the pipeline must delegate to the same rule.
+def test_no_private_copies_of_safe_serial():
+    """``safe_serial`` lives only in ``paths``: no module keeps a private wrapper of it."""
+    import pathlib
 
-    Locks in the consolidation: a comma-bearing serial must resolve identically
-    across stage3, the report layer, and the mooring helpers.  (stage1 is covered
-    separately because importing it requires the optional ``seasenselib`` package.)
-    """
-    from oceanarray.pipeline.helpers import _safe_serial as h
-    from oceanarray.pipeline.stage3 import _safe_serial as s3
-    from oceanarray.reports._html_helpers import _safe_serial as r
+    import oceanarray
 
-    raw = "16430, R01-024"
-    results = {safe_serial(raw), s3(raw), h(raw), r(raw)}
-    assert results == {"16430"}
+    root = pathlib.Path(oceanarray.__file__).parent
+    copies = [
+        str(f.relative_to(root))
+        for f in root.rglob("*.py")
+        if "def _safe_serial(" in f.read_text(encoding="utf-8")
+    ]
+    assert copies == []
 
 
 @pytest.mark.needs_seasenselib

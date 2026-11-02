@@ -14,8 +14,8 @@ from oceanarray.cli._common import (
     _add_stack_grid_args,
     _folder,
     _mooring_location,
+    _parse_stage_token,
     _raw_dir,
-    _stage_token,
 )
 from oceanarray.pipeline import STAGES
 from oceanarray.utilities import _status
@@ -92,7 +92,7 @@ def cmd_process(args: argparse.Namespace) -> int:
             return 1
 
     if args.plot:
-        _plot_stage2(_folder(location))
+        _save_stage2_plots(_folder(location))
     return 0 if ok else 1
 
 
@@ -128,7 +128,7 @@ def _process_with_classes(
     )
 
 
-def _plot_stage2(moor_dir: Path) -> None:
+def _save_stage2_plots(moor_dir: Path) -> None:
     """Save a PNG quick-look beside each microcat and aquadopp stage-2 file."""
     import matplotlib
 
@@ -166,7 +166,7 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
     _add_dir_args(p_process, raw_needed=True)
     p_process.add_argument(
         "--stage",
-        type=_stage_token,
+        type=_parse_stage_token,
         nargs="+",
         choices=[s.number if s.number is not None else s.name for s in STAGES],
         default=None,

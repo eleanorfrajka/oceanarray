@@ -19,7 +19,7 @@ from oceanarray.pipeline._stage import STAGE_ATTR, StageError, _history_stamp
 _STAGES = (1, 2, 3)
 
 
-def _stage_from_name(path: Path) -> int | None:
+def _parse_stage(path: Path) -> int | None:
     """Return the stage a filename states, or None if it is not a stage file."""
     for stage in _STAGES:
         if path.name.endswith(paths.stage_suffix(stage)):
@@ -49,7 +49,7 @@ def stamp_file(path: str | Path, stage: int) -> bool:
         already carries a different ``processing_stage``.
     """
     path = Path(path)
-    named = _stage_from_name(path)
+    named = _parse_stage(path)
     if named is None:
         raise StageError(
             f"{path.name} is not a stage file (<name>_<serial>_stage<N>.nc); "

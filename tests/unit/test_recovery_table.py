@@ -5,29 +5,29 @@ render path is exercised by the integration test).
 """
 
 from oceanarray.reports._recovery_table import (
-    _fmt_drift,
+    _format_drift,
+    _format_interval,
     _instrument_label,
-    _interval_s,
 )
 
 
 class TestFmtDrift:
-    """_fmt_drift formats a clock offset in seconds as ±HH:MM:SS."""
+    """_format_drift formats a clock offset in seconds as ±HH:MM:SS."""
 
     def test_none_is_zero(self):
-        assert _fmt_drift(None) == "+00:00:00"
+        assert _format_drift(None) == "+00:00:00"
 
     def test_zero_is_zero(self):
-        assert _fmt_drift(0) == "+00:00:00"
+        assert _format_drift(0) == "+00:00:00"
 
     def test_positive(self):
-        assert _fmt_drift(3661) == "+01:01:01"
+        assert _format_drift(3661) == "+01:01:01"
 
     def test_negative_sign(self):
-        assert _fmt_drift(-3661) == "-01:01:01"
+        assert _format_drift(-3661) == "-01:01:01"
 
     def test_rounds_to_nearest_second(self):
-        assert _fmt_drift(59.6) == "+00:01:00"
+        assert _format_drift(59.6) == "+00:01:00"
 
 
 class TestInstrumentLabel:
@@ -44,16 +44,16 @@ class TestInstrumentLabel:
 
 
 class TestIntervalS:
-    """_interval_s renders sample_interval_seconds as a plain integer string."""
+    """_format_interval renders sample_interval_seconds as a plain integer string."""
 
     def test_none_is_empty(self):
-        assert _interval_s(None) == ""
+        assert _format_interval(None) == ""
 
     def test_integer_seconds(self):
-        assert _interval_s(60) == "60"
+        assert _format_interval(60) == "60"
 
     def test_float_string_truncates(self):
-        assert _interval_s("30.0") == "30"
+        assert _format_interval("30.0") == "30"
 
     def test_non_numeric_is_empty(self):
-        assert _interval_s("abc") == ""
+        assert _format_interval("abc") == ""

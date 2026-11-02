@@ -21,7 +21,7 @@ from markupsafe import escape
 from .. import __version__ as _oceanarray_version
 from ..config import parameters as params
 from . import _figdebug
-from ._html_helpers import _history_tables
+from ._html_helpers import _build_history_tables
 from ._vendored.figure_png import source_of
 from .design import _JS_SORT_TABLES, FIGURE_SOURCE, SHARED_CSS
 
@@ -109,14 +109,14 @@ def render_history(history_entries: Any) -> str:
     The undated header items (processed-by, Reader, Format, Source file, Stages) render
     through the vendored ``properties_table``; the dated entries through a sortable
     Time/Event table, split from the parsed entries by
-    :func:`~oceanarray.reports._html_helpers._history_tables`.
+    :func:`~oceanarray.reports._html_helpers._build_history_tables`.
     """
-    header_rows, event_rows = _history_tables(history_entries)
+    header_rows, event_rows = _build_history_tables(history_entries)
     return render_template(
         "_grid_history.html",
         header_rows=header_rows,
         event_rows=event_rows,
-        history_source="oceanarray/reports/_html_helpers.py:_history_tables",
+        history_source="oceanarray/reports/_html_helpers.py:_build_history_tables",
     )
 
 

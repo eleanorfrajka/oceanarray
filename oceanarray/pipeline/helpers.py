@@ -1,13 +1,10 @@
 """Internal helper functions for mooring-level stack and grid operations."""
 
-from pathlib import Path
-from typing import Any
-
 import numpy as np
 import xarray as xr
 
 from oceanarray.config import parameters as params
-from oceanarray.paths import safe_serial, stage_file
+from oceanarray.pipeline.pressure import _times_to_float
 
 STACK_VARS = [
     "temperature",
@@ -75,25 +72,14 @@ _STACK_RAW: frozenset = frozenset(
 )
 
 
-def _safe_serial(serial: Any) -> str:
-    """Return a filename-safe serial token (see :func:`oceanarray.paths.safe_serial`)."""
-    return safe_serial(serial)
-
-
 def _apply_qc_mask(src_v: np.ndarray, ds: "xr.Dataset", vname: str) -> np.ndarray:
-    """Return src_v with flagged values replaced by NaN.
-
-    Flags kept as valid:
-      0 (no QC performed), 1 (good), 2 (probably good)
-      + flag 8 (interpolated) for pressure only.
-    Flags masked (→ NaN):
-      3 (suspect), 4 (bad), 9 (missing value).
-    If no companion *_qc* variable exists the array is returned unchanged.
-    """
+    """Return src_v with flagged values replaced by NaN."""
     qc_name = f"{vname}_qc"
     if qc_name not in ds.data_vars:
         return src_v
     qc = ds[qc_name].values
+    # Keep 0 (no QC), 1 (good), 2 (probably good), plus 8 (interpolated) for pressure
+    # only; 3 (suspect), 4 (bad) and 9 (missing) become NaN.
     keep = np.isin(qc, [0, 1, 2, 8]) if vname == "pressure" else np.isin(qc, [0, 1, 2])
     out = src_v.copy()
     out[~keep] = np.nan
@@ -101,17 +87,13 @@ def _apply_qc_mask(src_v: np.ndarray, ds: "xr.Dataset", vname: str) -> np.ndarra
 
 
 def _worst_flag(a: np.ndarray, b: np.ndarray) -> np.ndarray:
-    """Element-wise worst QC flag on the OceanSITES priority ordering.
-
-    Worst-wins using ``parameters.QC_MERGE_PRIORITY`` (weakest to strongest:
-    ``unknown(0) < good(1) < probably_good(2) < nominal(7) < interpolated(8)
-    < potentially_correctable_bad(3) < bad(4) < missing(9)``) — the same table
-    ``instrument.qc._merge_flags`` uses, so the two merge paths cannot drift.
-    NaN inputs are treated as flag 9 (missing value) so that levels with no
-    data are never silently promoted to flag 0 ("unknown").
-    """
-    # rank[flag_value] gives priority; higher rank = worse flag (shared LUT).
+    """Element-wise worst QC flag on the OceanSITES priority ordering."""
+    # rank[flag_value] gives priority; higher rank = worse flag. Weakest to strongest:
+    # unknown 0 < good 1 < probably_good 2 < nominal 7 < interpolated 8
+    # < potentially_correctable_bad 3 < bad 4 < missing 9. The LUT is shared with the
+    # qc module's flag merge so the two merge paths cannot drift.
     _rank = params.QC_MERGE_PRIORITY_LUT
+    # NaN -> 9 (missing) so levels with no data are never promoted to 0 (unknown).
     a = np.where(np.isfinite(a), a, 9.0)
     b = np.where(np.isfinite(b), b, 9.0)
     ai = np.clip(np.round(a).astype(np.int8), 0, 9)
@@ -122,22 +104,7 @@ def _worst_flag(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     return out
 
 
-def _times_to_float(t: np.ndarray) -> np.ndarray:
-    return t.astype("datetime64[ns]").astype(np.float64)
-
-
-def _best_nc(
-    proc_dir: Path, instr_type: str, mooring_name: str, serial: str
-) -> Path | None:
-    """Return best available stage3 or stage2 file for one instrument; None if only stage1."""
-    for stage in (3, 2):
-        p = stage_file(proc_dir, mooring_name, instr_type, serial, stage)
-        if p.exists():
-            return p
-    return None
-
-
-def _detect_interval_s(time_vals: np.ndarray) -> float:
+def _sample_interval_s(time_vals: np.ndarray) -> float:
     if len(time_vals) < 2:
         return 60.0
     dt = np.diff(time_vals.astype("datetime64[s]").astype(np.float64))
@@ -161,41 +128,19 @@ _ADCP_HEAD_VARS: frozenset = frozenset(
 )
 
 
-def _make_adcp_head_ds(ds_parent: xr.Dataset) -> xr.Dataset:
-    """Create a 1-D (time-only) view of the ADCP transducer head for stack insertion.
-
-    The ADCP transducer head is treated as a distinct instrument position in the mooring
-    stack.  It carries instrument-diagnostic variables that describe the sensor, not the
-    water column:
-
-    - ``temperature`` (°C) — internal electronics temperature; useful for diagnosing
-      warm-up drift but not a reliable water temperature measurement.
-    - ``heading``, ``pitch``, ``roll`` (°) — instrument orientation.
-    - ``pressure`` (dbar) — pressure at the transducer face, i.e. the instrument depth.
-
-    Per-bin velocity and ``bin_pressure`` are deliberately excluded.  Each velocity bin
-    gets its own stack entry at the pressure appropriate to that bin
-    (see ``_make_adcp_bin_ds``), rather than the transducer pressure.
-
-    Parameters
-    ----------
-    ds_parent : xr.Dataset
-        Full ADCP stage-3 dataset, including 2-D ``(time, N_BINS)`` variables.
-
-    Returns
-    -------
-    xr.Dataset
-        Dataset containing only time-series (1-D) variables from ``_ADCP_HEAD_VARS``
-        plus the transducer ``pressure``.  Suitable for merging into a point-instrument
-        stack.
-
-    """
+def _build_adcp_head_ds(ds_parent: xr.Dataset) -> xr.Dataset:
+    """Create a 1-D (time-only) view of the ADCP transducer head for stack insertion."""
+    # The head is its own stack position carrying sensor diagnostics, not water-column
+    # data: its temperature is electronics temperature (warm-up drift), not water
+    # temperature. Per-bin velocity and bin_pressure are excluded; each bin gets its
+    # own entry at its own pressure (_build_adcp_bin_ds).
     keep = [
         v
         for v in ds_parent.data_vars
         if v in _ADCP_HEAD_VARS and ds_parent[v].dims == ("time",)
     ]
-    # Also keep the instrument-head pressure if present (1-D, not bin_pressure)
+    # Also keep the instrument-head pressure if present (1-D, not bin_pressure):
+    # pressure at the transducer face, i.e. the instrument depth.
     if (
         "pressure" in ds_parent.data_vars
         and ds_parent["pressure"].dims == ("time",)
@@ -205,45 +150,9 @@ def _make_adcp_head_ds(ds_parent: xr.Dataset) -> xr.Dataset:
     return ds_parent[keep]
 
 
-def _make_adcp_bin_ds(ds_parent: xr.Dataset, bin_idx: int) -> xr.Dataset:
-    """Create a 1-D (time-only) point-instrument view of one ADCP range bin.
-
-    Slices the parent dataset at *bin_idx* along ``params.ADCP_BIN_DIM`` and replaces the
-    transducer ``pressure`` with ``bin_pressure[:, bin_idx]`` so that this entry sits at
-    the correct depth in the stack.  Computes derived scalar velocity quantities::
-
-        current_speed      = sqrt(east_velocity² + north_velocity²)  [m s⁻¹, always ≥ 0]
-        current_direction  = atan2(east, north) mod 360               [degrees, 0 = N CW]
-
-    **Direction convention**: the direction *toward which* the water flows, clockwise
-    from True North.  This is the oceanographic convention (opposite to meteorological
-    "wind from").  0° = northward flow, 90° = eastward flow.
-
-    Instrument-head variables (``temperature``, ``heading``, ``pitch``, ``roll`` — see
-    ``_ADCP_HEAD_VARS``) are dropped because they belong to the transducer location, not
-    to an individual velocity bin.  Variables retaining non-time dimensions (e.g.
-    beam-dimension arrays ``amplitude``, ``correlation``, ``percent_good``) are also
-    dropped; they cannot be represented as point-instrument time series without
-    ambiguity about which beam to keep.
-
-    The result is compatible with ``_nearest_subsample`` and ``_linear_interp`` because
-    every remaining data variable has dimension ``("time",)`` or is scalar.
-
-    Parameters
-    ----------
-    ds_parent : xr.Dataset
-        Full ADCP stage-3 dataset.
-    bin_idx : int
-        Zero-based index along the bin dimension (``params.ADCP_BIN_DIM``).  Index 0 is
-        the bin nearest the transducer face.
-
-    Returns
-    -------
-    xr.Dataset
-        Single-bin time-series dataset with ``pressure`` set to ``bin_pressure``
-        at this bin and ``current_speed`` / ``current_direction`` added.
-
-    """
+def _build_adcp_bin_ds(ds_parent: xr.Dataset, bin_idx: int) -> xr.Dataset:
+    """Create a 1-D (time-only) point-instrument view of one ADCP range bin."""
+    # bin_idx is zero-based; 0 is the bin nearest the transducer face.
     bin_dim = params.ADCP_BIN_DIM
     ds_bin = ds_parent.isel({bin_dim: bin_idx}, drop=True)
 
@@ -252,6 +161,8 @@ def _make_adcp_bin_ds(ds_parent: xr.Dataset, bin_idx: int) -> xr.Dataset:
     if head_to_drop:
         ds_bin = ds_bin.drop_vars(head_to_drop)
 
+    # The bin's own pressure replaces the transducer pressure so the entry sits at
+    # the correct depth in the stack.
     if "bin_pressure" in ds_bin.data_vars:
         ds_bin = ds_bin.assign(
             pressure=xr.Variable(
@@ -264,6 +175,9 @@ def _make_adcp_bin_ds(ds_parent: xr.Dataset, bin_idx: int) -> xr.Dataset:
     if "east_velocity" in ds_bin.data_vars and "north_velocity" in ds_bin.data_vars:
         e = ds_bin["east_velocity"].values.astype(float)
         n = ds_bin["north_velocity"].values.astype(float)
+        # Direction is oceanographic: toward which the water flows, clockwise from true
+        # north once stage 3 applied declination (magnetic north in a stage-2 stack);
+        # 0 = northward, 90 = eastward, the opposite of meteorological "from".
         ds_bin = ds_bin.assign(
             current_speed=xr.Variable(
                 "time",
@@ -280,6 +194,9 @@ def _make_adcp_bin_ds(ds_parent: xr.Dataset, bin_idx: int) -> xr.Dataset:
             ),
         )
 
+    # Beam-dimension arrays (amplitude, correlation, percent_good) cannot be a point
+    # time series without choosing a beam; dropping them leaves only ("time",) or
+    # scalar variables, as _nearest_subsample and _linear_interp need.
     to_drop = [v for v in ds_bin.data_vars if any(d != "time" for d in ds_bin[v].dims)]
     if to_drop:
         ds_bin = ds_bin.drop_vars(to_drop)
@@ -292,10 +209,8 @@ def _nearest_subsample(
     common_time: np.ndarray,
     half_window_s: float,
 ) -> dict[str, np.ndarray]:
-    """Return nearest-neighbour values on common_time within ±half_window_s seconds.
-
-    Returns a dict {varname: array} with NaN where no sample falls within the window.
-    """
+    """Return nearest-neighbor values on common_time within ±half_window_s seconds."""
+    # NaN where no sample falls within the window.
     src_t = _times_to_float(ds["time"].values)
     tgt_t = _times_to_float(common_time)
     n = len(common_time)

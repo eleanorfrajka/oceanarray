@@ -10,29 +10,12 @@ from oceanarray import paths
 from oceanarray.pipeline import resolve_stage
 
 
-def _parse_dirs(
+def _resolve_dirs(
     args: argparse.Namespace,
     *,
     proc_required: bool = True,
 ) -> tuple[Path | None, Path | None]:
-    """Resolve raw and proc directories from CLI args.
-
-    Returns
-    -------
-    raw_dir : Path or None
-        Cruise-level raw directory (``--raw-dir``). None when a command does not
-        read raw files (stack, grid, report).
-    proc_root : Path or None
-        Cruise-level processed output directory; None when not given and not
-        *proc_required*.
-
-    Raises
-    ------
-    SystemExit
-        If ``--basedir`` is supplied (removed; prints a migration message), or if
-        ``--proc-dir`` is not given and *proc_required*.
-
-    """
+    """Resolve raw and proc directories from CLI args."""
     basedir = getattr(args, "basedir", None)
     raw_dir = getattr(args, "raw_dir", None)
     proc_dir = getattr(args, "proc_dir", None)
@@ -55,23 +38,14 @@ def _parse_dirs(
 
 
 def _mooring_location(args: argparse.Namespace) -> Path:
-    """Return the mooring's folder or description from the positional argument.
-
-    With ``--proc-dir`` the positional is a mooring name and the folder is
-    ``<proc-dir>/<name>``. Without it the positional is a path: a
-    ``*.mooring.yaml`` or the folder holding one, under any name.
-
-    Raises
-    ------
-    SystemExit
-        If ``--basedir`` is given, the old layout is found, or the path does not
-        exist.
-    """
-    _parse_dirs(args, proc_required=False)
+    """Return the mooring's folder or description from the positional argument."""
+    _resolve_dirs(args, proc_required=False)
     if getattr(args, "proc_dir", None):
         proc_root = Path(args.proc_dir)
         paths.require_current_layout(proc_root, args.mooring)
         return paths.mooring_proc_dir(proc_root, args.mooring)
+    # Without --proc-dir the positional is a path: a *.mooring.yaml or the folder
+    # holding one, under any name.
     given = Path(args.mooring)
     if not given.exists():
         raise SystemExit(
@@ -92,25 +66,8 @@ def _folder(location: Path) -> Path:
     return location if location.is_dir() else location.parent
 
 
-def _stage_token(value: str) -> int | str:
-    """Convert a ``--stage`` CLI token to ``int`` or canonical ``str`` via :func:`resolve_stage`.
-
-    Parameters
-    ----------
-    value : str
-        Raw token from the command line.
-
-    Returns
-    -------
-    int | str
-        Integer stage number or the literal string ``'stack'`` / ``'grid'``.
-
-    Raises
-    ------
-    argparse.ArgumentTypeError
-        If *value* is not recognised by :func:`~oceanarray.pipeline.resolve_stage`.
-
-    """
+def _parse_stage_token(value: str) -> int | str:
+    """Convert a ``--stage`` CLI token to ``int`` or canonical ``str``."""
     coerced: int | str = int(value) if value.isdigit() else value
     try:
         resolve_stage(coerced)
@@ -120,27 +77,10 @@ def _stage_token(value: str) -> int | str:
 
 
 def _add_dir_args(p: argparse.ArgumentParser, raw_needed: bool = True) -> None:
-    """Add directory arguments to a subparser.
-
-    Adds ``--raw-dir`` / ``--proc-dir``, plus a hidden ``--basedir`` flag that
-    only exists to emit a migration message (see :func:`_parse_dirs`).  When
-    *raw_needed* is False (e.g. for ``plot``, ``animate`` which operate on
-    already-processed NetCDF files) ``--raw-dir`` is silently omitted and the
-    argument defaults to None.  Stage 1 processing requires raw instrument files
-    and therefore sets *raw_needed=True*.
-
-    Parameters
-    ----------
-    p : argparse.ArgumentParser
-        The subparser to add arguments to.
-    raw_needed : bool
-        Whether to add ``--raw-dir``.  Pass False for commands that do not
-        read raw instrument data files (plot, animate).
-
-    """
+    """Add ``--raw-dir``, ``--proc-dir`` and the hidden ``--basedir`` to *p*."""
     # --basedir is removed: it is accepted (undiscoverable in --help) only so we
     # can print a migration message instead of an argparse "unrecognized argument"
-    # error.  See _parse_dirs.  It is a plain suppressed argument -- a
+    # error.  See _resolve_dirs.  It is a plain suppressed argument -- a
     # single-member mutually-exclusive group added nothing and tripped a
     # usage-formatting assertion in the Python 3.11 argparse.
     p.add_argument(
@@ -159,6 +99,7 @@ def _add_dir_args(p: argparse.ArgumentParser, raw_needed: bool = True) -> None:
             "Required for stage 1.",
         )
     else:
+        # Commands that read only processed NetCDF (plot, animate) take no --raw-dir.
         p.set_defaults(raw_dir=None)
     p.add_argument(
         "--proc-dir",
@@ -195,15 +136,7 @@ class _OldFlag(argparse.Action):
 
 
 def _add_only(p: argparse.ArgumentParser, text: str) -> None:
-    """Add ``--only SERIAL...`` (and the old ``--serial`` spelling, hidden).
-
-    Parameters
-    ----------
-    p : argparse.ArgumentParser
-        The subparser to add the flag to.
-    text : str
-        Its help text.
-    """
+    """Add ``--only SERIAL...`` (and the old ``--serial`` spelling, hidden)."""
     p.add_argument(
         "--only", nargs="+", metavar="SERIAL", dest="serials", default=None, help=text
     )
@@ -220,23 +153,10 @@ def _add_only(p: argparse.ArgumentParser, text: str) -> None:
 def _add_stack_grid_args(
     p: argparse.ArgumentParser, *, from_description: bool = False
 ) -> None:
-    """Add the shared stack/grid tuning arguments (--dt-seconds, --dp, --pmin, --pmax).
-
-    The flags spell the Python keywords (``dt_seconds``, ``pmin``, ``pmax``, ``dp``);
-    the time step carries its unit, the pressures are in dbar. ``--dt`` is the old
-    spelling of ``--dt-seconds``, accepted until 0.7.0.
-
-    Parameters
-    ----------
-    p : argparse.ArgumentParser
-        The subparser to add arguments to.
-    from_description : bool, default False
-        Leave the defaults unset (``None``), so the mooring description's
-        ``stack:`` / ``grid:`` blocks apply when a flag is not given (``run``).
-        False keeps the fixed defaults (``process``).
-    """
+    """Add the shared stack/grid tuning flags (--dt-seconds, --dp, --pmin, --pmax)."""
     from ..pipeline._run import DEFAULTS
 
+    # The flags spell the Python keywords; the time step carries its unit.
     flags = (
         ("--dt-seconds", "dt_seconds", int, "SECONDS", "Stack time step, in seconds"),
         ("--dp", "dp", float, "DBAR", "Grid spacing, in dbar"),
@@ -255,6 +175,8 @@ def _add_stack_grid_args(
             flag,
             type=kind,
             dest=key,
+            # None (run) lets the description's stack:/grid: blocks apply; process
+            # keeps the fixed defaults.
             default=None if from_description else kind(default),
             metavar=metavar,
             help=f"{text} (default: {where})",
@@ -270,18 +192,7 @@ def _add_stack_grid_args(
 
 
 def _add_shared_report_args(p: argparse.ArgumentParser) -> None:
-    """Add the report-location and grid-isopycnal arguments shared by report/run.
-
-    ``-o/--output-dir``, ``--report-dir``, and ``--sig-level`` are honoured by
-    both the ``report`` and ``run`` subcommands to redirect the HTML report tree
-    and set the grid isopycnal targets.
-
-    Parameters
-    ----------
-    p : argparse.ArgumentParser
-        The subparser to add arguments to.
-
-    """
+    """Add the report-location and grid-isopycnal arguments shared by report/run."""
     p.add_argument(
         "-o",
         "--output-dir",
@@ -322,30 +233,24 @@ _MOORING_HELP = (
 def _print_stage_plan(
     args: argparse.Namespace, location: Path, wanted: list[int], title: str
 ) -> tuple[str, Path] | None:
-    """Print each stage file *wanted* stages would write, from the description; write nothing.
-
-    Each file is shown as ``new``, ``keep`` or ``rewrite`` (``--force``); stage 1
-    also rewrites a file older than its raw file. For stage 3 the instruments
-    whose pressure is interpolated from others are named, when the stage-2
-    files are there to tell.
-
-    Returns
-    -------
-    tuple of str and pathlib.Path, or None
-        The mooring's name and folder; None (after an ERROR line) if the
-        description cannot be read.
-    """
+    """Print each stage file *wanted* stages would write; write nothing."""
     from oceanarray import mooring as _mooring
     from oceanarray.exceptions import MooringError
-    from oceanarray.reports._verb import _description_file, _name_and_dir
+    from oceanarray.reports._verb import (
+        _resolve_description_file,
+        _resolve_name_and_dir,
+    )
     from oceanarray.utilities import _status, instrument_entries
 
     try:
-        name, moor_dir = _name_and_dir(location, None)
+        name, moor_dir = _resolve_name_and_dir(location, None)
     except MooringError as e:
         _status("error", str(e))
         return None
-    cfg = _mooring._parse(_description_file(location, _folder(location), name)) or {}
+    cfg = (
+        _mooring._parse(_resolve_description_file(location, _folder(location), name))
+        or {}
+    )
     only = {paths.safe_serial(s) for s in getattr(args, "serials", None) or []}
 
     def _state(path: Path, n: int) -> str:
@@ -357,6 +262,7 @@ def _print_stage_plan(
         return "keep, unless older than its raw file" if n == 1 else "keep"
 
     _status("section", f"{title} (dry run): {name}")
+    # Interpolated-pressure targets can be named only when the stage-2 files exist.
     targets = _pressure_targets(cfg, moor_dir) if 3 in wanted else set()
     for n in wanted:
         print(f"Stage {n}:")
@@ -377,11 +283,14 @@ def _print_stage_plan(
 def _pressure_targets(cfg: dict, moor_dir: Path) -> set[str]:
     """Return the serials stage 3 would give interpolated pressure, from the stage-2 files on disk."""
     from oceanarray.pipeline.read_mooring import read_mooring
-    from oceanarray.pipeline.stage3 import _instrument_table, _split_pressure_sources
+    from oceanarray.pipeline.stage3 import (
+        _build_instrument_table,
+        _split_pressure_sources,
+    )
 
     try:
         datasets = read_mooring(cfg, stage=2, allow_missing=True, mooring_dir=moor_dir)
-        _, targets = _split_pressure_sources(_instrument_table(datasets, cfg))
+        _, targets = _split_pressure_sources(_build_instrument_table(datasets, cfg))
     except Exception:  # noqa: BLE001  — a preview: no stage-2 files, or unreadable ones
         return set()
     return {str(t["serial"]) for t in targets}

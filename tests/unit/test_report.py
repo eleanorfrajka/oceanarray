@@ -14,17 +14,17 @@ import pytest
 import xarray as xr
 import yaml
 
+from oceanarray.paths import safe_serial
 from oceanarray.reports._html_helpers import (
-    _duration_str,
-    _fmt_dt,
-    _fmt_size,
+    _format_dt,
+    _format_duration,
+    _format_size,
     _parse_dt,
     _parse_history,
     _read_nc_metadata,
     _read_qc_summary,
     _resolve_clock,
     _resolve_diagram_pdf,
-    _safe_serial,
     _stage_files,
 )
 from oceanarray.reports._mooring import MooringReport
@@ -124,18 +124,18 @@ def _write_minimal_grid_nc(path: Path, n_pres: int = 5, n_time: int = 50) -> Non
 class TestHtmlHelpers:
     """Tests for pure functions in _html_helpers.py."""
 
-    # _safe_serial
+    # safe_serial
     def test_safe_serial_strips_slash_and_space(self):
-        assert _safe_serial("AB/CD 12") == "ABCD12"
+        assert safe_serial("AB/CD 12") == "ABCD12"
 
     def test_safe_serial_preserves_alnum_hyphen(self):
-        assert _safe_serial("SN-1234") == "SN-1234"
+        assert safe_serial("SN-1234") == "SN-1234"
 
     def test_safe_serial_int_input(self):
-        assert _safe_serial(7518) == "7518"
+        assert safe_serial(7518) == "7518"
 
     def test_safe_serial_dot_stripped(self):
-        assert _safe_serial("3.14") == "314"
+        assert safe_serial("3.14") == "314"
 
     # _parse_dt
     def test_parse_dt_iso(self):
@@ -157,33 +157,33 @@ class TestHtmlHelpers:
         assert _parse_dt("") is None
         assert _parse_dt(None) is None
 
-    # _fmt_dt
+    # _format_dt
     def test_fmt_dt_formats_correctly(self):
         from datetime import datetime
 
         dt = datetime(2024, 6, 1, 12, 30)
-        result = _fmt_dt(dt)
+        result = _format_dt(dt)
         assert "2024-06-01" in result
         assert "12:30" in result
         assert "UTC" in result
 
     def test_fmt_dt_none_returns_dash(self):
-        assert _fmt_dt(None) == "—"
+        assert _format_dt(None) == "—"
 
-    # _duration_str
+    # _format_duration
     def test_duration_str_two_days(self):
         from datetime import datetime
 
         s = datetime(2024, 1, 1)
         e = datetime(2024, 1, 3, 6)
-        result = _duration_str(s, e)
+        result = _format_duration(s, e)
         assert "2d" in result
 
     def test_duration_str_none_inputs(self):
-        assert _duration_str(None, None) == "—"
+        assert _format_duration(None, None) == "—"
         from datetime import datetime
 
-        assert _duration_str(datetime(2024, 1, 1), None) == "—"
+        assert _format_duration(datetime(2024, 1, 1), None) == "—"
 
     # _resolve_clock
     def test_resolve_clock_option_a_offset(self):
@@ -224,16 +224,16 @@ class TestHtmlHelpers:
         assert len(entries) == 1
         assert entries[0]["timestamp"] == ""
 
-    # _fmt_size
+    # _format_size
     def test_fmt_size_bytes(self):
-        assert _fmt_size(500) == "500 B"
+        assert _format_size(500) == "500 B"
 
     def test_fmt_size_kilobytes(self):
-        result = _fmt_size(2048)
+        result = _format_size(2048)
         assert "KB" in result
 
     def test_fmt_size_megabytes(self):
-        result = _fmt_size(5 * 1024 * 1024)
+        result = _format_size(5 * 1024 * 1024)
         assert "MB" in result
 
     # _read_nc_metadata

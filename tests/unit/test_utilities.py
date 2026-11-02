@@ -386,14 +386,14 @@ def test_should_skip_regeneration_up_to_date(tmp_path):
 
 def test_dms_to_deg_plain_float():
     """A plain decimal-degree string parses unchanged, sign preserved."""
-    assert utilities._dms_to_deg("-27.8") == pytest.approx(-27.8)
-    assert utilities._dms_to_deg("65.7319") == pytest.approx(65.7319)
+    assert utilities._parse_dms("-27.8") == pytest.approx(-27.8)
+    assert utilities._parse_dms("65.7319") == pytest.approx(65.7319)
 
 
 def test_dms_to_deg_hemisphere_suffix():
     """A trailing S/W hemisphere negates the summed magnitude."""
-    assert utilities._dms_to_deg("29 25.878 W") == pytest.approx(-29.4313, abs=1e-4)
-    assert utilities._dms_to_deg("65 34.004 N") == pytest.approx(65.56673, abs=1e-4)
+    assert utilities._parse_dms("29 25.878 W") == pytest.approx(-29.4313, abs=1e-4)
+    assert utilities._parse_dms("65 34.004 N") == pytest.approx(65.56673, abs=1e-4)
 
 
 def test_dms_to_deg_signed_degrees_negate_whole_value():
@@ -401,7 +401,7 @@ def test_dms_to_deg_signed_degrees_negate_whole_value():
 
     Regression: ``"-27 48.000"`` is -(27 + 48/60) = -27.8, not -27 + 48/60 = -26.2.
     """
-    assert utilities._dms_to_deg("-27 48.000") == pytest.approx(-27.8)
+    assert utilities._parse_dms("-27 48.000") == pytest.approx(-27.8)
 
 
 def test_format_latlon_hemisphere_from_sign():

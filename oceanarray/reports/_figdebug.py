@@ -83,16 +83,12 @@ def record(b64: str | None, func: str, fig: Any) -> None:
 
 
 def _draw_name(draw: Any) -> str:
-    """Return a readable name for a draw callable, resolving closures.
-
-    Many report figures are drawn by a nested ``_draw`` closure inside a
-    ``_make_*`` wrapper; ``__name__`` is just ``"_draw"`` for all of them, so use
-    ``__qualname__`` (``"_make_tilt_panels.<locals>._draw"``) and keep the
-    enclosing wrapper name, which identifies the figure.
-    """
+    """Return a readable name for a draw callable, resolving closures."""
     name = getattr(draw, "__qualname__", None) or getattr(draw, "__name__", None)
     if not name:
         return repr(draw)
+    # Nested ``_draw`` closures all share __name__; keep the enclosing
+    # ``_make_*`` wrapper name from __qualname__, which identifies the figure.
     if ".<locals>." in name:
         name = name.split(".<locals>.")[0]
     return name
