@@ -23,10 +23,9 @@ Pairs with :mod:`oceanarray.analysis.temporal` for time-series analysis.
 
 - :func:`draw_analog_timeseries` — full-record time series for analog channel variables.
 
-Post-OdB: migrate the following from plotter.py and report/_plots.py:
-  draw_microcat_raw, draw_aquadopp_raw, draw_mooring_timeseries (the three
-  kept plotter.py functions; §11), plot_aquadopp_quick,
-  build_instrument_fig (was _build_fig_from_ds), plot_instrument_windows.
+Still to move here: ``draw_microcat_raw``, ``draw_aquadopp_raw`` and
+``draw_mooring_timeseries`` from :mod:`oceanarray.plotters._cli_legacy`, and the instrument
+panel figures drawn in ``reports/_plots.py``.
 """
 
 from __future__ import annotations

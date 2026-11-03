@@ -56,7 +56,7 @@ from ._vendored.page_model import Panel, PanelGroup, Profile, Section, resolve
 
 
 # ---------------------------------------------------------------------------
-# Section manifest — instrument registry (rep/07)
+# Section manifest — instrument registry
 #
 # The context is the per-instrument ``ctx`` dict the generator already builds
 # (figures + tables + instrument type), so panels read it by key.  Figure panels

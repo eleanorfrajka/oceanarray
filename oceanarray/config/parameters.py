@@ -56,7 +56,7 @@ FIGURE_SIZE_TALL = (12, 8)  # stacked single-instrument panels
 
 # Report figure slot widths (W_FULL / W_TWOTHIRDS / W_HALF / W_THIRD, inches) now
 # live in ``oceanarray.config.report_tokens`` as the single source of truth
-# (derived from SLOTS; spec §11).  Import them from there, not from here.
+# (derived from SLOTS).  Import them from there, not from here.
 
 # ---------------------------------------------------------------------------
 # Resampling

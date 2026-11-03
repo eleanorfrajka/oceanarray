@@ -67,20 +67,6 @@ def test_is_iso8601_utc_invalid_format():
     assert not utilities.is_iso8601_utc("01-01-2020 00:00")
 
 
-def test_apply_defaults_decorator():
-    @utilities.apply_defaults("default_source", ["file1.txt"])
-    def mock_reader(source=None, file_list=None):
-        return source, file_list
-
-    source, files = mock_reader()
-    assert source == "default_source"
-    assert files == ["file1.txt"]
-
-    source2, files2 = mock_reader("http://example.com", ["real.nc"])
-    assert source2 == "http://example.com"
-    assert files2 == ["real.nc"]
-
-
 @pytest.mark.parametrize(
     "seconds,expected",
     [

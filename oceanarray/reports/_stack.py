@@ -59,7 +59,7 @@ from ._vendored.page_model import Panel, Profile, Section, resolve
 
 
 # ---------------------------------------------------------------------------
-# Section manifest — stack registry (rep/07)
+# Section manifest — stack registry
 #
 # Unlike grid (lazy adapters rendered during resolve), the stack figures are
 # built by closures over the open dataset in ``generate_stack_page``; the port
@@ -362,7 +362,7 @@ STACK_PANELS: dict[str, Panel] = {
     ),
 }
 
-#: Stack sections (design §7 grouping — Hydrography and Velocity folded).
+#: Stack sections (Hydrography and Velocity folded).
 STACK_SECTIONS: dict[str, Section] = {
     "processing_history": Section(
         "processing_history", "Processing history", ("history",)

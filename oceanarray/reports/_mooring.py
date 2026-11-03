@@ -48,7 +48,7 @@ from ._stack import generate_stack_page
 from ._vendored.page_model import Panel, Profile, Section, resolve
 
 # ---------------------------------------------------------------------------
-# Section manifest — mooring registry (rep/07)
+# Section manifest — mooring registry
 #
 # The context is the ``ctx`` dict ``_build_context`` already returns (instrument
 # records + figures + timing/QC fields), so panels read it by key — the same

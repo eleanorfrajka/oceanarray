@@ -1,9 +1,7 @@
 """Shared utility helpers used across the oceanarray processing pipeline."""
 
 import math
-from collections.abc import Callable
 from datetime import datetime
-from functools import wraps
 from pathlib import Path
 from typing import Any
 
@@ -392,42 +390,6 @@ def is_iso8601_utc(timestr: str) -> bool:
         except ValueError:
             return False
     return True
-
-
-def apply_defaults(default_source: str, default_files: list[str]) -> Callable:
-    """Decorate a function to apply default values for source and file_list parameters.
-
-    Parameters
-    ----------
-    default_source : str
-        Default source URL or path.
-    default_files : list of str
-        Default list of filenames.
-
-    Returns
-    -------
-    Callable
-        A wrapped function with defaults applied.
-
-    """
-
-    def decorator(func: Callable) -> Callable:
-        @wraps(func)
-        def wrapper(
-            source: str | None = None,
-            file_list: list[str] | None = None,
-            *args: Any,
-            **kwargs: Any,
-        ) -> Any:
-            if source is None:
-                source = default_source
-            if file_list is None:
-                file_list = default_files
-            return func(source=source, file_list=file_list, *args, **kwargs)  # noqa: B026
-
-        return wrapper
-
-    return decorator
 
 
 def _status(kind: str, msg: str, *, char: str = "=") -> None:

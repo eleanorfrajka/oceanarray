@@ -55,9 +55,9 @@ from ._plots import (
 from ._vendored.page_model import Panel, PanelGroup, Profile, Section, resolve
 
 # ---------------------------------------------------------------------------
-# Section manifest — grid registry (rep/06, design §9.2–§9.3, §7)
+# Section manifest — grid registry
 #
-# Declared here per design §9.7: each page's registry lives in its own module.
+# Each page's registry lives in its own module.
 # Panels wrap the unchanged ``_make_*`` adapters; sections/profiles are the
 # declarative layer.  ``GRID_CAPTIONS`` is kept as a panel-id-keyed dict so it
 # maps one-to-one onto the future ``oceanarray/config/default.yaml`` ``captions:``
@@ -68,8 +68,8 @@ from ._vendored.page_model import Panel, PanelGroup, Profile, Section, resolve
 # ---------------------------------------------------------------------------
 
 
-#: Panel captions, keyed by panel id (design §6.1: caption strings are a data
-#: field, not template prose).  Plain text with Unicode scientific notation — no
+#: Panel captions, keyed by panel id (caption strings are a data field, not
+#: template prose).  Plain text with Unicode scientific notation — no
 #: HTML markup — because a future override layer makes these user-editable YAML,
 #: where trusted markup would be an injection vector.  This dict is the in-Python
 #: form of ``default.yaml``'s ``captions:`` block; when that lands it is replaced
@@ -187,7 +187,7 @@ GRID_CAPTIONS: dict[str, str] = {
 
 @dataclass(frozen=True)
 class GridContext:
-    """Shared inputs for the grid page's panels, computed once (design §9.3).
+    """Shared inputs for the grid page's panels, computed once.
 
     The T-S diagram is drawn once, eagerly, by :func:`build_grid_context`: it
     both produces ``ts_bounds`` (consumed by Hydrography, independent of whether
@@ -347,7 +347,7 @@ def _isopycnal_ts_panel(sigma_var: str) -> Panel:
     return Panel(id=f"isopycnal_ts_{sigma_var}", render=_render, caption=caption)
 
 
-#: Grid panel registry (design §9.2).  Figure adapters are wrapped unchanged;
+#: Grid panel registry.  Figure adapters are wrapped unchanged;
 #: captions come from :data:`GRID_CAPTIONS` (keyed by id).  ``ts_diagram`` and
 #: ``trajectory`` are the only non-full slots (both ``"half"``).  ``applies_to``
 #: answers "could this exist for this deployment?" — a false predicate omits the
@@ -531,10 +531,10 @@ GRID_PANELS: dict[str, Panel] = {
 }
 
 #: The per-isopycnal run inside Overflow — a numeric expansion, so panels (not
-#: sections), per design §9.7 / the ``PanelGroup`` rule.
+#: sections), per the ``PanelGroup`` rule.
 _OVERFLOW_ISOPYCNALS = PanelGroup(over=_sigma_vars, panel=_isopycnal_ts_panel)
 
-#: Grid sections (design §7).  8 content sections + one appendix.
+#: Grid sections: 8 content sections + one appendix.
 GRID_SECTIONS: dict[str, Section] = {
     "processing_history": Section(
         "processing_history", "Processing history", ("stage2_note", "history")
@@ -574,7 +574,7 @@ GRID_SECTIONS: dict[str, Section] = {
     ),
 }
 
-#: Default grid profile: T-S its own §3, Velocity split 3+3 (design §7).
+#: Default grid profile: T-S its own section 3, Velocity split 3+3.
 GRID_DEFAULT = Profile(
     numbering="flat",
     entries=(

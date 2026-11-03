@@ -177,7 +177,7 @@ def pcolormesh_panel(
 
 
 # ---------------------------------------------------------------------------
-# Deterministic square-axes-plus-colorbar layout (spec §11; mirrors the
+# Deterministic square-axes-plus-colorbar layout (mirrors the
 # inch-based cruise-map layout in ctdcast plots.py::_map_layout).
 # ---------------------------------------------------------------------------
 # Fixed inch reservations, independent of figure width.  The lesson from the

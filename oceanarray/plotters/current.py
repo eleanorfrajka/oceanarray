@@ -29,13 +29,13 @@ import numpy as np
 import xarray as xr
 from matplotlib.collections import LineCollection
 
-from oceanarray.analysis.vector import progressive_vector, xyz_to_enu_2d
 from oceanarray.config import parameters as params
 from oceanarray.config.unit_tables import (
     unit_label,
     var_unit_label,
     warn_if_not_canonical,
 )
+from oceanarray.pipeline.coordinate import xyz_to_enu
 from oceanarray.plotters.helpers import (
     _rose_ax,
     _velocity_panel_style,
@@ -57,6 +57,54 @@ from oceanarray.plotters.primitives import (
 )
 from oceanarray.reports._vendored import design_tokens as report_tokens
 from oceanarray.utilities import _nice_colorbar_bounds
+
+
+def progressive_vector(
+    east_2d: np.ndarray,
+    north_2d: np.ndarray,
+    dt_s: np.ndarray,
+    pressure: np.ndarray,
+) -> list[tuple[float, np.ndarray, np.ndarray]]:
+    """Compute pseudo-Lagrangian progressive-vector trajectories by pressure level.
+
+    Integrates east and north velocity time series using the Euler forward
+    method to produce cumulative horizontal displacement from the origin.
+    Levels with all-NaN velocity are silently skipped.
+
+    Parameters
+    ----------
+    east_2d : np.ndarray
+        East velocity array, shape ``(n_time, n_pressure)`` in m s⁻¹.
+        NaN is treated as zero for the integration step in which it occurs.
+    north_2d : np.ndarray
+        North velocity array, shape ``(n_time, n_pressure)`` in m s⁻¹.
+        NaN is treated as zero for the integration step in which it occurs.
+    dt_s : np.ndarray
+        1-D array of time-step sizes in seconds, length ``n_time - 1``.
+    pressure : np.ndarray
+        1-D pressure array of length ``n_pressure`` in dbar.
+
+    Returns
+    -------
+    list of tuple[float, np.ndarray, np.ndarray]
+        One entry ``(p_val, x_km, y_km)`` per pressure level that has at least
+        one finite velocity sample.  ``p_val`` is the pressure in dbar;
+        ``x_km`` and ``y_km`` are 1-D arrays of cumulative east and north
+        displacement in km, length ``n_time``.
+
+    """
+    trajs: list[tuple[float, np.ndarray, np.ndarray]] = []
+    for k, p_val in enumerate(pressure):
+        e_col = east_2d[:, k]
+        n_col = north_2d[:, k]
+        if not np.any(np.isfinite(e_col)):
+            continue
+        u = np.nan_to_num(e_col, nan=0.0)
+        v = np.nan_to_num(n_col, nan=0.0)
+        x = np.concatenate([[0.0], np.cumsum(u[:-1] * dt_s)]) / 1000.0
+        y = np.concatenate([[0.0], np.cumsum(v[:-1] * dt_s)]) / 1000.0
+        trajs.append((float(p_val), x, y))
+    return trajs
 
 
 def draw_temperature_trajectory(
@@ -796,7 +844,7 @@ def draw_instrument_rose(
         hdg = ds["heading"].values.astype(float)
         pch = ds["pitch"].values.astype(float)
         rll = ds["roll"].values.astype(float)
-        e_mag, n_mag = xyz_to_enu_2d(vx_r, vy_r, vz_r, hdg, pch, rll, 0.0)
+        e_mag, n_mag, _ = xyz_to_enu(vx_r, vy_r, vz_r, hdg, pch, rll, 0.0)
         if np.any(np.isfinite(e_mag)):
             panels.append((e_mag, n_mag, "ENU magnetic\n(decl = 0°)", "Purples"))
 
