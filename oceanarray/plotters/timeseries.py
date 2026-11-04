@@ -3,11 +3,11 @@
 This module provides the ``draw_*`` functions used by the HTML report pipeline
 to render instrument time-series panels and mooring-grid section plots.
 
-Pairs with :mod:`oceanarray.analysis.temporal` for time-series analysis.
+Pairs with :mod:`oceanarray.pipeline.clock` for clock and lag analysis.
 
 **Grid section panels** (data on a pressure × time grid):
 
-- :func:`draw_grid` — generic pcolormesh / contourf wrapper for a single variable.
+- ``draw_grid`` — deprecated (removed in 0.7.0): use ``DataArray.plot.pcolormesh`` on the grid variable.
 - :func:`draw_grid_hydro` — stacked temperature / salinity (and optionally oxygen) panels.
 - :func:`draw_grid_velocity_stacked` — stacked east / north / up velocity panels.
 - :func:`draw_grid_sigma` — potential density (sigma) panels.
@@ -37,15 +37,17 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pandas as pd
 
+from oceanarray import _deprecated
+
 if TYPE_CHECKING:
     import matplotlib.pyplot as plt
     import xarray as xr
 
+from oceanarray.plotters.primitives import nice_colorbar_ticks
 from oceanarray.reports._vendored import design_tokens as report_tokens
 
 from ..config import parameters as params
 from ..config.unit_tables import unit_label
-from ..utilities import nice_colorbar_ticks
 from .helpers import OKABE_ITO, grid_despine, level_line_styles
 from .primitives import (
     colorbar_norm,
@@ -58,7 +60,7 @@ from .primitives import (
 )
 
 
-def draw_grid(
+def _draw_grid(
     da: xr.DataArray,
     title: str,
     units: str,
@@ -818,3 +820,6 @@ def draw_stack_timeseries(
         framealpha=0.8,
     )
     return fig
+
+
+draw_grid = _deprecated.alias("oceanarray.plotters.timeseries.draw_grid", _draw_grid)

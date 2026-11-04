@@ -22,7 +22,7 @@ import xarray as xr
 
 from oceanarray.config.unit_tables import unit_label
 from oceanarray.plotters.helpers import tukey_smooth
-from oceanarray.utilities import _nice_colorbar_bounds
+from oceanarray.plotters.primitives import nice_colorbar_bounds
 
 
 def animate_hodograph(
@@ -141,7 +141,7 @@ def animate_hodograph(
 
     # Time colour: permanent fraction 0→1 per sample
     t_frac = np.linspace(0.0, 1.0, N)
-    bounds = _nice_colorbar_bounds(0.0, 1.0, n=10)
+    bounds = nice_colorbar_bounds(0.0, 1.0, n=10)
     norm = mcolors.BoundaryNorm(bounds, ncolors=256)
     cmap = plt.get_cmap("viridis")
 

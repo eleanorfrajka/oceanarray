@@ -5,7 +5,7 @@ hydrography.py contains:
   - ``draw_isopycnal_coverage``: three-panel isopycnal diagnostic.
   - ``draw_overflow_temperature``: temperature time series at ~100 m above seabed.
 
-Pairs with :mod:`oceanarray.analysis.hydrographic` for density computations.
+Pairs with :mod:`oceanarray.analysis.hydrography` for density computations.
 """
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ def draw_isopycnal_ts(
     Parameters
     ----------
     ds_iso:
-        Output of :func:`~oceanarray.tools.isopycnal_dataset` — must contain
+        Output of :func:`~oceanarray.analysis.hydrography.isopycnal_dataset` — must contain
         ``isopycnal_height`` ``(sigma0_level, time)`` and the ``sigma0_level``
         coordinate.
     width_in : float, optional
@@ -152,7 +152,7 @@ def draw_isopycnal_coverage(
     import matplotlib.pyplot as plt
     from matplotlib.lines import Line2D
 
-    from ..analysis.hydrographic import isopycnal_pressure_series
+    from oceanarray.analysis.hydrography import isopycnal_pressure_series
 
     # Find the first sigma variable with pressure + time dims
     sv = next(

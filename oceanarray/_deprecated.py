@@ -18,6 +18,9 @@ REMOVED_IN = "0.7.0"
 
 #: Old dotted name -> what to use instead.
 RENAMED: dict[str, str] = {
+    "oceanarray.plotters.timeseries.draw_grid": (
+        "xarray's DataArray.plot.pcolormesh (or .plot.contourf) on the grid variable"
+    ),
     "oceanarray.parameters": "oceanarray.config.parameters",
     "oceanarray.config.validation.validate_mooring_yaml": "oceanarray.mooring.check",
     "oceanarray.pipeline.stage1.MooringProcessor": (
@@ -37,12 +40,6 @@ RENAMED: dict[str, str] = {
     ),
     "oceanarray.inspect.vars": "oceanarray.inspect.variables",
     "oceanarray.inspect.attrs": "oceanarray.inspect.attributes",
-    "oceanarray.pipeline.caldip.normalize_serial": (
-        "oceanarray.pipeline.caldip.canonical_serial"
-    ),
-    "oceanarray.analysis.clock.analyze_deployment_timing": (
-        "oceanarray.analysis.clock.deployment_timing"
-    ),
     "oceanarray.legacy.process_rodb.normalize_by_middle_percent": (
         "oceanarray.legacy.process_rodb.to_zscore"
     ),

@@ -64,10 +64,14 @@ def test_using_an_old_name_warns_with_its_replacement(old):
 
 def test_an_alias_returns_what_the_new_name_returns():
     """The alias calls the new function unchanged."""
-    from oceanarray.pipeline import caldip
+    import numpy as np
 
+    from oceanarray.legacy import process_rodb
+
+    values = np.arange(20.0)
     with pytest.warns(DeprecationWarning):
-        assert caldip.normalize_serial("013874") == caldip.canonical_serial("013874")
+        old = process_rodb.normalize_by_middle_percent(values)
+    np.testing.assert_array_equal(old, process_rodb.to_zscore(values))
 
 
 def test_top_level_parameters_warns_and_is_the_config_module():

@@ -114,7 +114,7 @@ The command ``oceanarray report {mooring} --grid`` generates
   configurable via ``parameters.SIGMA_CONTOUR_LEVELS``).
 
 All figures use 20 human-readable discrete colorbar levels computed by
-``utilities._nice_colorbar_bounds(vmin, vmax, n=20)``, which rounds the step to one
+``plotters.primitives.nice_colorbar_bounds(vmin, vmax, n=20)``, which rounds the step to one
 significant figure and centres the range on the data midpoint.
 
 See also

@@ -8,9 +8,9 @@ matplotlib.use("Agg")  # Use non-interactive backend for testing
 
 
 from oceanarray import inspect
+from oceanarray.pipeline.gridders.rapid_interp import plot_climatology
 from oceanarray.plotters.current import draw_instrument_rose
 from oceanarray.reports._vendored.design_tokens import W_FULL
-from oceanarray.tools.rapid_interp import plot_climatology
 
 
 def test_plot_climatology_runs():

@@ -608,7 +608,7 @@ def draw_knockdown_displacement(
     import matplotlib.pyplot as plt
 
     from oceanarray.config import parameters as params
-    from oceanarray.utilities import _nice_colorbar_bounds
+    from oceanarray.plotters.primitives import nice_colorbar_bounds
 
     try:
         waterdepth = float(ds.attrs.get("waterdepth", 0) or 0)
@@ -718,7 +718,7 @@ def draw_knockdown_displacement(
         if len(h_vals):
             # Start the scale at 0 and thin the tick labels to ~6 nice values
             # (was ~15 ticks like 0.015 / 0.045 / 0.075).
-            bounds = _nice_colorbar_bounds(
+            bounds = nice_colorbar_bounds(
                 0.0, float(np.nanpercentile(h_vals, 98)), n=15
             )
             norm = mcolors.BoundaryNorm(bounds, ncolors=256)

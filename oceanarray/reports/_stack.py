@@ -10,10 +10,10 @@ from typing import Any
 
 import numpy as np
 
-from oceanarray import paths
+from oceanarray import logger, paths
+from oceanarray.paths import should_skip_regeneration
 
 from ..config import parameters as params
-from ..utilities import should_skip_regeneration
 from ._env import (
     render_history,
     render_nc_coords,
@@ -24,14 +24,11 @@ from ._env import (
 )
 from ._figdebug import as_panel
 from ._html_helpers import (
-    _format_rel_path,
     _instrument_report_exists,
     _instrument_report_href,
     _parse_dt,
     _parse_history,
-    _read_nc_metadata,
     _resolve_array_report_href,
-    _status,
 )
 from ._navs import mooring_nav
 from ._plots import (
@@ -46,6 +43,7 @@ from ._plots import (
     _make_stack_timeseries_b64,
     _make_stack_ts_diagram_b64,
 )
+from ._read import _read_nc_metadata
 from ._vendored.page_model import Panel, Profile, Section, resolve
 
 # ---------------------------------------------------------------------------
@@ -450,7 +448,7 @@ def generate_stack_page(
     """Generate the stack report HTML page: lay out the figures and tables; the figures are drawn in ``plotters``."""
     out_path = out_dir / f"{mooring_name}_stack_report.html"
     if should_skip_regeneration(out_path, force, skip_existing, stack_path):
-        _status("skip", _format_rel_path(out_path, display_root))
+        logger.status("skip", logger.format_rel_path(out_path, display_root))
         return
 
     try:
@@ -695,6 +693,6 @@ def generate_stack_page(
             generated=ctx["generated"],
         )
         out_path.write_text(html, encoding="utf-8")
-        _status("file", _format_rel_path(out_path, display_root))
+        logger.status("file", logger.format_rel_path(out_path, display_root))
     except Exception as exc:
         warnings.warn(f"stack report generation failed: {exc}", stacklevel=2)

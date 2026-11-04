@@ -3,7 +3,11 @@ import pandas as pd
 import pytest
 import xarray as xr
 
-from oceanarray import tools
+from oceanarray.analysis.hydrography import (
+    calc_ds_difference,
+    calc_psal,
+    find_cold_entry_exit,
+)
 from oceanarray.legacy.mooring_rodb import auto_filt
 from oceanarray.legacy.process_rodb import (
     mean_of_middle_percent,
@@ -12,7 +16,14 @@ from oceanarray.legacy.process_rodb import (
     to_zscore,
     to_zscore_dataset,
 )
-from oceanarray.tools import calc_ds_difference
+from oceanarray.legacy.qc_rodb import (
+    flag_salinity_outliers,
+    flag_temporal_spikes,
+    flag_vertical_inconsistencies,
+    run_qc,
+)
+from oceanarray.pipeline.clock.offsets import lag_correlation, split_value
+from oceanarray.pipeline.gridders.climatology import downsample_to_sparse
 
 
 @pytest.fixture
@@ -33,32 +44,32 @@ def sample_dataset():
 
 
 def test_calc_psal(sample_dataset):
-    ds = tools.calc_psal(sample_dataset)
+    ds = calc_psal(sample_dataset)
     assert "PSAL" in ds
     assert ds["PSAL"].shape == ds["CNDC"].shape
 
 
 def test_flag_salinity_outliers(sample_dataset):
-    ds = tools.calc_psal(sample_dataset)
-    flag = tools.flag_salinity_outliers(ds)
+    ds = calc_psal(sample_dataset)
+    flag = flag_salinity_outliers(ds)
     assert flag.shape == ds["PSAL"].shape
     assert flag.dtype == bool
 
 
 def test_flag_temporal_spikes(sample_dataset):
-    flag = tools.flag_temporal_spikes(sample_dataset)
+    flag = flag_temporal_spikes(sample_dataset)
     assert flag.shape == sample_dataset["CNDC"].shape
     assert flag.dtype == bool
 
 
 def test_flag_vertical_inconsistencies(sample_dataset):
-    flag = tools.flag_vertical_inconsistencies(sample_dataset)
+    flag = flag_vertical_inconsistencies(sample_dataset)
     assert flag.shape == sample_dataset["CNDC"].shape
     assert flag.dtype == bool
 
 
 def test_run_qc(sample_dataset):
-    ds = tools.run_qc(tools.calc_psal(sample_dataset))
+    ds = run_qc(calc_psal(sample_dataset))
     assert "CNDC_QC" in ds
     assert ds["CNDC_QC"].dtype == int
 
@@ -68,7 +79,7 @@ def test_downsample_to_sparse_shapes():
     salt = np.random.rand(3, 8)
     full_p = np.linspace(0, 700, 8)
     sparse_p = np.array([0, 200, 400, 600])
-    out_temp, out_salt = tools.downsample_to_sparse(temp, salt, full_p, sparse_p)
+    out_temp, out_salt = downsample_to_sparse(temp, salt, full_p, sparse_p)
     assert out_temp.shape == (3, 4)
     assert out_salt.shape == (3, 4)
 
@@ -137,7 +148,7 @@ def test_calc_ds_difference_basic():
     val2 = np.random.rand(5)
     ds1 = xr.Dataset({"A": ("TIME", val1)}, coords={"TIME": time})
     ds2 = xr.Dataset({"A": ("TIME", val2)}, coords={"TIME": time})
-    diff = tools.calc_ds_difference(ds1, ds2)
+    diff = calc_ds_difference(ds1, ds2)
     np.testing.assert_allclose(diff["A"].values, val1 - val2)
 
 
@@ -171,7 +182,7 @@ def test_calc_ds_difference_time_mismatch():
     ds1 = xr.Dataset({"TEMP": ("TIME", np.ones(5))}, coords={"TIME": time1})
     ds2 = xr.Dataset({"TEMP": ("TIME", np.ones(5))}, coords={"TIME": time2})
     with pytest.raises(ValueError, match="TIME grids do not match"):
-        tools.calc_ds_difference(ds1, ds2)
+        calc_ds_difference(ds1, ds2)
 
 
 # ---------------------------------------------------------------------------
@@ -182,7 +193,7 @@ def test_calc_ds_difference_time_mismatch():
 def test_lag_correlation_peak_at_zero_for_identical():
     """Identical signals: peak correlation is at lag 0."""
     x = np.sin(np.linspace(0, 4 * np.pi, 100))
-    corrs = tools.lag_correlation(x, x, max_lag=10)
+    corrs = lag_correlation(x, x, max_lag=10)
     lags = np.arange(-10, 11)
     peak_lag = lags[np.nanargmax(corrs)]
     assert peak_lag == 0
@@ -200,7 +211,7 @@ def test_lag_correlation_y_lags_x():
     x = base.copy()
     y = np.roll(base, shift)  # y[i] = base[i-shift]: y is delayed
     y[:shift] = np.nan  # mask wrap-around
-    corrs = tools.lag_correlation(x, y, max_lag=10, min_overlap=20)
+    corrs = lag_correlation(x, y, max_lag=10, min_overlap=20)
     lags = np.arange(-10, 11)
     peak_lag = lags[np.nanargmax(corrs)]
     assert peak_lag == -shift, f"expected peak at {-shift}, got {peak_lag}"
@@ -216,7 +227,7 @@ def test_lag_correlation_y_leads_x():
     x = base.copy()
     y = np.roll(base, -shift)  # y[i] = base[i+shift]: y is advanced
     y[-shift:] = np.nan  # mask wrap-around
-    corrs = tools.lag_correlation(x, y, max_lag=10, min_overlap=20)
+    corrs = lag_correlation(x, y, max_lag=10, min_overlap=20)
     lags = np.arange(-10, 11)
     peak_lag = lags[np.nanargmax(corrs)]
     assert peak_lag == shift, f"expected peak at {shift}, got {peak_lag}"
@@ -224,12 +235,12 @@ def test_lag_correlation_y_leads_x():
 
 def test_lag_correlation_length_mismatch_raises():
     with pytest.raises(ValueError):
-        tools.lag_correlation(np.ones(10), np.ones(11), max_lag=3)
+        lag_correlation(np.ones(10), np.ones(11), max_lag=3)
 
 
 def test_lag_correlation_returns_correct_length():
     max_lag = 7
-    corrs = tools.lag_correlation(np.random.randn(50), np.random.randn(50), max_lag)
+    corrs = lag_correlation(np.random.randn(50), np.random.randn(50), max_lag)
     assert len(corrs) == 2 * max_lag + 1
 
 
@@ -257,7 +268,7 @@ def test_find_cold_entry_exit_detects_transition():
     """With clear bench→cold→bench structure the entry and exit are detected."""
     time, temp = _cold_time_series(n_bench=20, n_cold=60, n_warm=20)
     dwell = 30 * 60  # 30 min dwell threshold
-    t_start, t_end, thr = tools.find_cold_entry_exit(
+    t_start, t_end, thr = find_cold_entry_exit(
         time, temp, quantile=0.5, dwell_seconds=dwell
     )
     assert t_start is not None, "start should be detected"
@@ -271,7 +282,7 @@ def test_find_cold_entry_exit_no_cold_points():
     temp = np.full(50, 15.0)
     # quantile=0.05 → threshold ≈ 15.0; all points are AT threshold (≤ thr is True for all)
     # Use quantile=0.0 so threshold = min = 15 and all values equal thr but dwell is very short
-    t_start, t_end, _ = tools.find_cold_entry_exit(
+    t_start, t_end, _ = find_cold_entry_exit(
         time, temp, quantile=0.95, dwell_seconds=999999
     )
     # With an impossibly long dwell requirement no run qualifies
@@ -289,7 +300,7 @@ def test_find_cold_entry_exit_insufficient_dwell():
     time = pd.date_range("2026-01-01", periods=50, freq="10min")
     temp = np.concatenate([np.full(25, 10.0), np.full(2, 2.0), np.full(23, 10.0)])
     # Cold run = 2 samples × 10 min = 20 min; require 60 min dwell
-    t_start, t_end, _ = tools.find_cold_entry_exit(
+    t_start, t_end, _ = find_cold_entry_exit(
         time, temp, quantile=0.02, dwell_seconds=3600
     )
     assert t_start is None
@@ -307,7 +318,7 @@ def test_split_value_bimodal():
     low = rng.normal(2.0, 0.2, 200)
     high = rng.normal(8.0, 0.2, 200)
     data = np.concatenate([low, high])
-    val = tools.split_value(data)
+    val = split_value(data)
     # The split value must lie between the two modes (not necessarily at midpoint)
     assert 1.5 < val < 7.5, f"split_value={val} not between modes"
 
@@ -316,5 +327,5 @@ def test_split_value_returns_float():
     """split_value always returns a numeric value without crashing."""
     rng = np.random.default_rng(1)
     data = rng.normal(5.0, 1.0, 100)
-    val = tools.split_value(data)
+    val = split_value(data)
     assert np.isfinite(val)

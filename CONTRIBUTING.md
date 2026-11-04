@@ -39,7 +39,7 @@ Three separate things.
 
 **Citation authorship** is the author list in `CITATION.cff`, which propagates into the Zenodo DOI for every release and therefore into other people's bibliographies. It reflects *substantial* contribution to the software — its design, a significant body of its implementation, its test suite, or its documentation architecture — and is decided by the maintainer at release time. Funding or supervision alone does not qualify. There is no line count that guarantees it or excludes it. If you believe your contribution crosses that line and it has not been reflected, please say so in an issue — being asked is better than being resented.
 
-Where a contribution is adapted from someone else's work rather than written from scratch, we credit it **in the docstring of the code itself**, so the attribution travels with the code rather than living in a file nobody reads (see the existing examples in `utilities.py` and `plotters/current.py`).
+Where a contribution is adapted from someone else's work rather than written from scratch, we credit it **in the docstring of the code itself**, so the attribution travels with the code rather than living in a file nobody reads (see the existing examples in `pipeline/gridders/rapid_interp.py` and `plotters/current.py`).
 
 ---
 
@@ -87,11 +87,11 @@ oceanarray **processes moored-array observations**: raw instrument files from a 
 
 **Open — alternative methods welcome, as selectable options with the default unchanged:**
 
-- **Gridding.** The grid step is where the method choices are made — today linear interpolation in pressure onto a fixed `dp` grid, with σ₀ targets for isopycnal products. Alternatives: a **PCHIP spline**; the **RAPID climatological-gradient interpolation** (`tools/rapid_interp.py`, written but **not yet integrated** into `grid.py`); and bounds handling above the shallowest instrument — **extrapolate to the surface**, clip, or mask. All welcome as named methods the user picks in the config, each recording its name and parameters in the output.
+- **Gridding.** The grid step is where the method choices are made — today linear interpolation in pressure onto a fixed `dp` grid, with σ₀ targets for isopycnal products. Alternatives: a **PCHIP spline**; the **RAPID climatological-gradient interpolation** (`pipeline/gridders/rapid_interp.py`, written but **not yet integrated** into `grid.py`); and bounds handling above the shallowest instrument — **extrapolate to the surface**, clip, or mask. All welcome as named methods the user picks in the config, each recording its name and parameters in the output.
 - **Corrections to individual instruments.** How calibration-dip offsets and other per-instrument corrections (drift, pressure-sensor offset) are applied in stage 3 — constant, linear in time, pre/post weighted — is a method choice; the *derivation* of caldip offsets stays in `caldip`, oceanarray applies its output.
 - **QC tests.** New QARTOD-style tests or thresholds, as long as the flags land in the existing `_qc` companions with their thresholds recorded.
 - **Diagnostic figures and report panels.** New figures are welcome, and the report is meant to let a user choose their own selection of panels per page (a config-driven profile); contributions that make that selection easier are in scope.
-- **Readers.** Instrument readers live in `seasenselib`; oceanarray's stage 1 dispatches on the file type (`config/parameters.INSTRUMENT_FILE_TYPES`) and keeps only a small set of its own legacy readers (`tools/readers.py`: RODB and the old Nortek CSV). A reader for an instrument `seasenselib` does not cover is welcome — but write it in `seasenselib` first and add the file type here; a reader that only oceanarray would ever use can live in `tools/readers.py`. (Where exactly that line is drawn is not written down yet — ask.)
+- **Readers.** Instrument readers live in `seasenselib`; oceanarray's stage 1 dispatches on the file type (`config/parameters.INSTRUMENT_FILE_TYPES`) and keeps only a small set of its own readers (`readers/`: OceanSITES, RODB and the old Nortek CSV). A reader for an instrument `seasenselib` does not cover is welcome — but write it in `seasenselib` first and add the file type here; a reader that only oceanarray would ever use can live in `readers/`. (Where exactly that line is drawn is not written down yet — ask.)
 
 **Out of scope, because a sibling owns it:** shipboard CTD processing (`ctdcast`); deriving calibration-dip offsets (`caldip`); glider data (`glidertest`, `seagliderOG1`); transport and AMOC estimates from the gridded products (`AMOCatlas`); general-purpose plotting. Also out: features that need cruise-specific raw data in the repository, heavy new dependencies, or that break the CF-NetCDF contract. If you are unsure whether an idea fits, open an issue describing it rather than deciding alone.
 
@@ -103,11 +103,11 @@ oceanarray **processes moored-array observations**: raw instrument files from a 
 
 | Layer | Modules | Role |
 |-------|---------|------|
-| Tier 1 | `tools/`, `writers/`, `utilities.py`, `inspect.py` | Low-level I/O and pure functions — raw-file readers, the single netCDF writer, dataset inspection |
+| Tier 1 | `readers/`, `writers/`, `instruments.py`, `location.py`, `inspect.py` | Low-level I/O and pure functions — file readers, the single netCDF writer, description parsing, dataset inspection |
 | Tier 2 | `pipeline/stage1.py` … `pipeline/grid.py` | Processing orchestrators — read, transform, write CF-NetCDF |
-| Tier 3 | `cli.py` | Entry point — argument parsing, subcommand dispatch |
+| Tier 3 | `cli/` | Entry point — argument parsing, subcommand dispatch |
 | — | `plotters/`, `reports/` | Visualisation and HTML report generation |
-| — | `analysis/` | Science utilities (filtering, isopycnals, QC) |
+| — | `analysis/` | Science analysis (isopycnals, spectra) |
 | — | `config/` | Parameters, variable registry, YAML validation |
 
 Processing flows from raw files → Stage 1 (CF-NetCDF) → Stage 2 (trimming + clock) → Stage 3 (QC + ENU) → stack → grid.

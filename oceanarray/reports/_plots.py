@@ -46,7 +46,6 @@ from ..plotters.hydrography import (
 )
 from ..plotters.primitives import (
     date_axis,
-    hodograph_panel,
 )
 from ..plotters.spectrum import (
     draw_grid_rotary_spectrum,
@@ -68,7 +67,7 @@ from ..plotters.ts import (
     draw_ts_diagram,
 )
 from ._figdebug import render_b64
-from ._html_helpers import _QC_LABELS
+from ._read import _QC_LABELS
 from ._slots import render as render_slot
 from ._vendored import design_tokens as report_tokens
 from ._vendored.figure_png import source_for
@@ -642,66 +641,6 @@ def _make_adcp_trajectories_b64(ds: xr.Dataset) -> str | None:
 def _make_adcp_velocity_b64(nc_path: str) -> str | None:
     """Return base64 PNG: stacked colour panels for ADCP per-instrument report."""
     return render_b64(draw_adcp_velocity, nc_path, optional=True)
-
-
-def _draw_hodograph_pair(
-    ax_raw: Any,
-    ax_eddy: Any,
-    east_1d: np.ndarray,
-    north_1d: np.ndarray,
-    label: str,
-    smooth_hours: float,
-    lp_days: float,
-    units: str,
-    dt_s: float,
-) -> Any:
-    """Draw one row (raw + eddy panels) of a hodograph figure onto two Axes."""
-    # Raw: Tukey-smoothed east vs north density; eddy: low-pass rolling mean removed,
-    # then Tukey-smoothed. Returns the shared 0-1 plasma time mapping (one colorbar
-    # for the figure), or None if neither panel had enough finite data.
-    import pandas as pd
-
-    from oceanarray.plotters.helpers import tukey_smooth
-
-    smooth_n = max(3, int(round(smooth_hours * 3600.0 / dt_s)))
-    lp_n = max(3, int(round(lp_days * 86400.0 / dt_s)))
-
-    e_sm = tukey_smooth(east_1d, smooth_n)
-    n_sm = tukey_smooth(north_1d, smooth_n)
-
-    e_lp = (
-        pd.Series(east_1d)
-        .rolling(window=lp_n, min_periods=1, center=True)
-        .mean()
-        .values
-    )
-    n_lp = (
-        pd.Series(north_1d)
-        .rolling(window=lp_n, min_periods=1, center=True)
-        .mean()
-        .values
-    )
-    e_eddy = tukey_smooth(east_1d - e_lp, smooth_n)
-    n_eddy = tukey_smooth(north_1d - n_lp, smooth_n)
-
-    # Fractional time 0→1 for colour mapping; matches east_1d length
-    t_frac = np.linspace(0.0, 1.0, len(east_1d))
-
-    def _draw(ax: Any, e: np.ndarray, n: np.ndarray, title: str) -> Any:
-        mask = np.isfinite(e) & np.isfinite(n)
-        if mask.sum() < 2:
-            ax.text(
-                0.5, 0.5, "No data", transform=ax.transAxes, ha="center", va="center"
-            )
-            ax.set_title(title)
-            return None
-        return hodograph_panel(ax, e[mask], n[mask], t_frac[mask], title, units)
-
-    sm_raw = _draw(ax_raw, e_sm, n_sm, f"{label} — raw ({smooth_hours:.0f}-h smoothed)")
-    sm_eddy = _draw(
-        ax_eddy, e_eddy, n_eddy, f"{label} — eddy ({lp_days:.0f}-day LP removed)"
-    )
-    return sm_raw or sm_eddy
 
 
 def _make_adcp_rose_b64(nc_path: str) -> str | None:

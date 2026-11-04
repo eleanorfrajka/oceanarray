@@ -27,7 +27,6 @@ from typing import Any
 
 import xarray as xr
 
-from oceanarray import _deprecated
 from oceanarray.paths import safe_serial
 
 #: Filename suffix of the per-cast caldip netCDF (strict — excludes CSV exports and variants).
@@ -144,11 +143,6 @@ def canonical_serial(serial: Any) -> str:
     """
     safe = safe_serial(serial)
     return safe.lstrip("0") or safe
-
-
-normalize_serial = _deprecated.alias(
-    "oceanarray.pipeline.caldip.normalize_serial", canonical_serial
-)
 
 
 def read_caldip_cast(path: Path) -> xr.Dataset:

@@ -34,7 +34,7 @@ All notable changes to oceanarray are documented here.
 - `-v` / `--verbose` now does something: each stage names every file it wrote or kept (DEBUG).
 - Stack and grid pages carry an amber note when instruments were stacked from stage 2 (naming them, and that they have no QC flags or interpolated pressure), and a second one above the velocity figures when their velocities have no magnetic declination (magnetic north); the stack records those instruments in a new `stage2_magnetic_north` attribute (the grid inherits it).
 - `oceanarray init` writes the optional `stack:` and `grid:` blocks, commented out with their defaults (`mooring.save(..., optional_blocks=True)`); the `name:` comment no longer says it must match the directory.
-- `utilities.instrument_entries(mooring)` — the one place the `clamp`/legacy-`instruments` fallback and the inline merge live, used by every stage, report and the CLI; it treats a present-but-null `clamp:`/`inline:` as empty (previously a `TypeError`).
+- `oceanarray.instruments.instrument_entries(mooring)` — the one place the `clamp`/legacy-`instruments` fallback and the inline merge live, used by every stage, report and the CLI; it treats a present-but-null `clamp:`/`inline:` as empty (previously a `TypeError`).
 
 ### Changed
 
@@ -65,20 +65,57 @@ Every old name below still works, warns (`DeprecationWarning`, naming its replac
 - `oceanarray.parameters` — use `oceanarray.config.parameters`.
 - `MooringProcessor`, `Stage2Processor`, `Stage3Processor`, `MooringStacker`, `MooringGridder` — use `oceanarray.process` / `oceanarray.run`, or the pure `stage1`/`stage2`/`stage3`/`stack`/`grid` on datasets.
 - `oceanarray.inspect.vars` / `attrs` → `inspect.variables` / `inspect.attributes` (the old names shadow the builtin `vars`).
-- Names with a British/American variant spelling: `pipeline.caldip.normalize_serial` → `canonical_serial`; `analysis.clock.analyze_deployment_timing` → `deployment_timing`; `legacy.process_rodb.normalize_by_middle_percent` / `normalize_dataset_by_middle_percent` → `to_zscore` / `to_zscore_dataset` (they return z-scores over the central `percent`).
+- Names with a British/American variant spelling: `legacy.process_rodb.normalize_by_middle_percent` / `normalize_dataset_by_middle_percent` → `to_zscore` / `to_zscore_dataset` (they return z-scores over the central `percent`).
 - `oceanarray.process(name, stage, proc_dir=…)` — warns (`DeprecationWarning`) and is removed in 0.7.0. Pass the `*.mooring.yaml`: `oceanarray.process(yaml_path, raw_dir=…)` runs stages 1–3, `oceanarray.run(yaml_path, …)` runs stages 1–3, stack and grid.
+- `plotters.timeseries.draw_grid` — use xarray's `DataArray.plot.pcolormesh` (or `.plot.contourf`) on the grid variable; it had no caller in the package.
 - `config.validation.validate_mooring_yaml(path)` — use `oceanarray.mooring.check`, which reads the file once and adds the unknown-key check. The wrapper warns and is removed in 0.7.0.
 - Stage files without a `processing_stage` marker (written before 0.6) — read with a WARNING and their stage inferred from the filename; refused from 0.7.0. Mark them once with `oceanarray stamp`.
 - `directory:` in a mooring description — a raw-data root belongs to `raw_dir` / `--raw-dir`, not the YAML; `check` warns, and the stage-1 absolute-path override is removed in 0.7.0.
 
 ### Breaking changes
 
-- Plotting functions that return a Figure are `draw_<what>`, with no alias: `plotters.diagnostic.plot_knockdown_pressure` / `_hab` / `_anomaly` / `_displacement` / `plot_clock_offset_check`, `plotters.current.plot_temperature_trajectory` / `plot_speed_boxplot` / `plot_multi_aquadopp_trajectories` / `plot_hodograph` / `plot_aquadopp_speed_profile` / `plot_adcp_trajectories`, `plotters.primitives.plot_trajectory` and `plotters.plot_microcat_raw` / `plot_aquadopp_raw` / `plot_mooring_timeseries` → `draw_*`; `draw_isopycnal_ts_fig`, `draw_overflow_temperature_fig`, `draw_grid_fig` → `draw_isopycnal_ts`, `draw_overflow_temperature`, `draw_grid`. Report `source:` captions name the new functions.
+- Modules moved to the package layout (no aliases: nothing outside oceanarray imported them). Old → new:
+
+  | old | new |
+  |---|---|
+  | `oceanarray.utilities` (`instrument_entries`, `extract_inline_instruments`) | `oceanarray.instruments` |
+  | `oceanarray.utilities` (`parse_latlon`, `parse_latlon_with_source`, `format_latlon`, …) | `oceanarray.location` |
+  | `oceanarray.utilities` (`find_best_dtype`, `cast_output_dtypes`) | `oceanarray.writers.dtypes` |
+  | `oceanarray.utilities` (`should_skip_regeneration`) | `oceanarray.paths` |
+  | `oceanarray.utilities` (`drop_all_zero_vars`) | `oceanarray.pipeline.dataset` |
+  | `oceanarray.utilities` (`nice_colorbar_ticks`, `period_axis_ticks`; `_nice_colorbar_bounds` → `nice_colorbar_bounds`) | `oceanarray.plotters.primitives` |
+  | `oceanarray.utilities._status`, `_format_rel_path` | `oceanarray.logger.status`, `logger.format_rel_path` |
+  | `oceanarray.tools.rapid_interp` | `oceanarray.pipeline.gridders.rapid_interp` |
+  | `oceanarray.tools.process_dataset`, `analysis.science.process_dataset`, `analysis.temporal.downsample_to_sparse` | `oceanarray.pipeline.gridders.climatology` |
+  | `oceanarray.tools` / `analysis.science` re-exports `calc_psal`, `calc_ds_difference`, `find_cold_entry_exit`, `isopycnal_dataset`, `isopycnal_pressure_series` | `oceanarray.analysis.hydrography` |
+  | `oceanarray.tools` / `analysis.science` re-exports `welch_psd`, `welch_psd_gapaware`, `compute_cwt` | `oceanarray.analysis.spectral` |
+  | `oceanarray.tools` re-exports `lag_correlation`, `split_value`, `downsample_to_sparse` | `oceanarray.pipeline.clock.offsets` (`lag_correlation`, `split_value`), `oceanarray.pipeline.gridders.climatology` (`downsample_to_sparse`) |
+  | `oceanarray.tools` re-exports `flag_salinity_outliers`, `flag_temporal_spikes`, `flag_vertical_inconsistencies`, `run_qc` | `oceanarray.legacy.qc_rodb` |
+  | `oceanarray.pipeline.helpers` (was `processors.helpers`): `STACK_VARS` and the stack helpers | `oceanarray.pipeline.stack`; the QC mask and worst-flag merge → `oceanarray.pipeline.qc` |
+  | `oceanarray.analysis.temporal.filter_sigma_tukey` | `oceanarray.pipeline.gridders.filters` |
+  | `oceanarray.analysis.clock` (`analyze_deployment_timing` → `deployment_timing`; + `analysis.temporal.lag_correlation`, `split_value`) | `oceanarray.pipeline.clock.offsets` |
+  | `oceanarray.analysis.vector.progressive_vector` | `oceanarray.plotters.current.progressive_vector` |
+  | `oceanarray.utilities` (`get_dims`, `check_necessary_variables`, `get_time_key`) | `oceanarray.pipeline.gridders.rapid_interp` |
+  | `oceanarray.utilities` (`concat_with_scalar_vars`) | `oceanarray.legacy.mooring_rodb` |
+  | `oceanarray.utilities` (`iso8601_duration_from_seconds`, `is_iso8601_utc`) | `oceanarray.legacy.convertOS` |
+  | `oceanarray.config.validation.print_validation_report` | removed (`oceanarray validate` prints the report) |
+  | `oceanarray.legacy.find_deployment` | `oceanarray.pipeline.clock.deployment` |
+  | `oceanarray.pipeline.caldip` (`normalize_serial` → `canonical_serial`) | `oceanarray.pipeline.qc.calibration` |
+  | `oceanarray.pipeline.coordinate.apply_adcp_seabed_qc` / `_surface_qc` / `_velocity_qc` | `oceanarray.pipeline.qc.adcp` |
+  | `oceanarray.analysis.hydrographic` | `oceanarray.analysis.hydrography` |
+  | `oceanarray.analysis.science` QC flaggers (`flag_salinity_outliers`, `run_qc`, …) | `oceanarray.legacy.qc_rodb` |
+  | `oceanarray.analysis.vector.xyz_to_enu_2d` | `oceanarray.pipeline.coordinate.xyz_to_enu` (same values; returns `up` too) |
+  | `oceanarray.config.validation.serial_collision_errors` | `oceanarray.mooring.serial_collision_errors` |
+  | `oceanarray.pipeline._resolve_mooring` | `oceanarray.pipeline.resolve_mooring` (public) |
+
+  `oceanarray.tools`, `oceanarray.utilities`, `oceanarray.pipeline.helpers` and `oceanarray.legacy.tools` are gone.
+  `utilities.apply_defaults` is removed (no caller). `plotters.timeseries.draw_grid` is deprecated (see Deprecated).
+- Plotting functions that return a Figure are `draw_<what>`, with no alias: `plotters.diagnostic.plot_knockdown_pressure` / `_hab` / `_anomaly` / `_displacement` / `plot_clock_offset_check`, `plotters.current.plot_temperature_trajectory` / `plot_speed_boxplot` / `plot_multi_aquadopp_trajectories` / `plot_hodograph` / `plot_aquadopp_speed_profile` / `plot_adcp_trajectories`, `plotters.primitives.plot_trajectory` and `plotters.plot_microcat_raw` / `plot_aquadopp_raw` / `plot_mooring_timeseries` → `draw_*`; `draw_isopycnal_ts_fig`, `draw_overflow_temperature_fig`, `draw_grid_fig` → `draw_isopycnal_ts`, `draw_overflow_temperature`, `draw_grid` (itself deprecated, see above). Report `source:` captions name the new functions.
 - Removed, as their 0.5 deprecation warnings said: `pipeline.units.canonicalise_units` (use `to_canonical_units`), `pipeline.units.format_units` (use `config.unit_tables.unit_label`), `config.parameters.UNIT_ALIASES` and `VARIABLE_UNIT_ALIASES` (use `config.unit_tables.TABLES`).
 - `readers.nortek.normalize_nortek_variables` → `to_canonical_nortek`, `readers.sbe.normalize_sbe_ascii` → `repair_sbe_ascii` (no alias: the `readers` package is new in 0.6).
 - `TimeGriddingProcessor`, `time_gridding_mooring` and `process_multiple_moorings_time_gridding` are removed from `oceanarray.pipeline.grid`, with their optional low-pass/de-tiding/band-pass filters. No notebook or CLI verb used them; the stack (`oceanarray.pipeline.stack.stack`) is the one way to put a mooring on a common time axis.
 - `oceanarray run` now calls `oceanarray.run`. It still carries on past failures, as before, and now records what it left out in the products (`instruments_omitted`, `keep_going_failures`, `source_stage`). It exits 0 when it finishes, even with instruments left out (before: 1). `--strict` stops at the first failing stage with exit code 1 and builds no report; `--stage` lists the stages (they must run through stage 3: `--stage 2 3`), `--from N` starts at stage N (`--from 2` runs stages 2 and 3 from the stage-1 files without `--raw-dir`). `--dry-run` lists every stage, stack, grid and report file the run would write; `--skip-existing` keeps report pages that exist. `--dt-seconds` (was `--dt`, accepted until 0.7.0), `--pmin`, `--pmax` and `--dp` on `run` default to the description's `stack:`/`grid:` blocks, and `pmin` / `pmax` are also the Python keywords and YAML keys.
-- `oceanarray.processors` is renamed to `oceanarray.pipeline` (the verbs' bodies). Old → new: every `oceanarray.processors.*` import becomes `oceanarray.pipeline.*` (`stage1`, `stage2`, `stage3`, `stack`, `grid`, `qc`, `coordinate`, `pressure`, `units`, `caldip`, `helpers`, `process`, `run`). No deprecation shim.
+- `oceanarray.processors` is renamed to `oceanarray.pipeline` (the verbs' bodies). Old → new: every `oceanarray.processors.*` import becomes `oceanarray.pipeline.*` (`stage1`, `stage2`, `stage3`, `stack`, `grid`, `qc`, `coordinate`, `pressure`, `units`, `process`, `run`); `processors.caldip` and `processors.helpers` moved again, see the table above. No deprecation shim.
 - `oceanarray.writers.write(ds, path)` now refuses to replace an existing file by default — pass `overwrite=True` to replace one (the processing stages do). It logs an INFO line (`overwriting <path>`) when it replaces a file, and returns the `Path` written instead of `None`. Previously it overwrote silently.
 - Output filenames are built from the mooring's `name:` field, not its directory name. A directory whose basename differs from `name:` is a WARNING (previously framed as "name must match the directory"); the files are named from `name`.
 - `oceanarray.tools.readers` is removed; its readers moved to the `oceanarray.readers` package. Old → new: `oceanarray.tools.readers.read_oceansites` → `oceanarray.readers.read_oceansites` (or `oceanarray.readers.oceansites.read_oceansites`); `read_rodb` → `oceanarray.readers.read_rodb`; `load_nortek_csv` → `oceanarray.readers.load_nortek_csv`. The dead `load_dataset` and `rodbload_old` are removed with no replacement — use `oceanarray.readers.read` and `read_rodb`.

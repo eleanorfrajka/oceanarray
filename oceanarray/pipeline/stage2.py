@@ -50,15 +50,13 @@ from oceanarray import mooring as _mooring
 from oceanarray import paths
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
+from oceanarray.instruments import instrument_entries
 from oceanarray.logger import log_info, with_stage_handlers
 from oceanarray.pipeline import _stage
+from oceanarray.pipeline.dataset import drop_all_zero_vars
 from oceanarray.pipeline.read_mooring import read_mooring
 from oceanarray.pipeline.units import to_canonical_units
 from oceanarray.pipeline.write_mooring import write_mooring
-from oceanarray.utilities import (
-    drop_all_zero_vars,
-    instrument_entries,
-)
 from oceanarray.writers.netcdf import as_stored
 
 

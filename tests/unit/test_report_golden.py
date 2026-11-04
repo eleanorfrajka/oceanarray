@@ -20,8 +20,8 @@ import re
 
 import pytest
 
+from oceanarray import logger
 from oceanarray.reports import MooringReport
-from oceanarray.utilities import _format_rel_path
 
 _FIXTURES = pathlib.Path(__file__).resolve().parents[1] / "fixtures"
 _PROC = _FIXTURES / "proc"
@@ -68,11 +68,13 @@ def _normalise(html: str) -> str:
 
 
 def test_safe_rel(tmp_path: pathlib.Path) -> None:
-    """`_format_rel_path` returns a path under *root* relatively, else the bare name."""
+    """`logger.format_rel_path` returns a path under *root* relatively, else the bare name."""
     under = tmp_path / "sub" / "file.html"
-    assert _format_rel_path(under, tmp_path) == str(pathlib.Path("sub") / "file.html")
+    assert logger.format_rel_path(under, tmp_path) == str(
+        pathlib.Path("sub") / "file.html"
+    )
     outside = tmp_path.parent / "elsewhere.html"
-    assert _format_rel_path(outside, tmp_path) == "elsewhere.html"
+    assert logger.format_rel_path(outside, tmp_path) == "elsewhere.html"
 
 
 @pytest.fixture(scope="module")
@@ -156,8 +158,8 @@ def test_png_geometry_on_rendered_page(rendered_dir: pathlib.Path) -> None:
 
     The U0.2 slot system renders each figure at ``SLOTS[slot].inches`` wide and
     the template labels it ``class="fig slot-<name>"``, so the saved PNG is
-    ``round(SLOTS[slot].inches * FIG_DPI)`` pixels wide.  This pins that invariant
-    (spec §10.2): a figure can never again render at one width while the page
+    ``round(SLOTS[slot].inches * FIG_DPI)`` pixels wide.  This pins that invariant:
+    a figure can never again render at one width while the page
     displays it at another (the class-vs-``width:100%`` bug U0.2 fixed).  Only
     slot-classed figures are checked — bare ``class="fig"`` figures render
     full-canvas or in flex layouts and are covered by the golden HTML test.

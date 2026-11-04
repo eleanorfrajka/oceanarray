@@ -1,8 +1,5 @@
 """Clock offset analysis functions for oceanographic instrument data.
 
-Promoted from the top-level ``oceanarray/clock_offset.py``; backward-compatible
-re-exports live at ``oceanarray/clock_offset.py``.
-
 This module provides functions to analyze and detect clock offsets between
 different instruments on the same mooring by comparing deployment timing
 and performing lag correlation analysis.
@@ -17,12 +14,12 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import xarray as xr
+from scipy.signal import find_peaks
 
-from oceanarray import _deprecated, paths
 from oceanarray import mooring as _mooring
-from oceanarray.analysis.temporal import lag_correlation
-from oceanarray.legacy import find_deployment
-from oceanarray.utilities import instrument_entries
+from oceanarray import paths
+from oceanarray.instruments import instrument_entries
+from oceanarray.pipeline.clock import deployment as find_deployment
 
 _STAGE2_TAG = paths.stage_suffix(2).removesuffix(".nc")
 
@@ -281,11 +278,6 @@ def deployment_timing(combined_ds):
     return find_deployment.find_deployment(
         combined_ds, bottom_strategy="deployment_bounds"
     )
-
-
-analyze_deployment_timing = _deprecated.alias(
-    "oceanarray.analysis.clock.analyze_deployment_timing", deployment_timing
-)
 
 
 def calculate_timing_offsets(combined_ds, bin_width_sec=60):
@@ -696,3 +688,104 @@ def plot_deployment_boundaries(
 
         plt.tight_layout()
         plt.show()
+
+
+def lag_correlation(
+    x: np.ndarray,
+    y: np.ndarray,
+    max_lag: int,
+    min_overlap: int = 10,
+) -> np.ndarray:
+    """Pearson correlation at integer lags in ``[-max_lag, max_lag]``.
+
+    Parameters
+    ----------
+    x, y : np.ndarray
+        1-D arrays of the same length.  NaN values are excluded pairwise
+        at each lag.
+    max_lag : int
+        Maximum lag (in samples) to compute.  Output has length
+        ``2 * max_lag + 1``.
+    min_overlap : int, optional
+        Minimum number of finite pairs required to compute a correlation
+        at a given lag.  Lags with fewer pairs return NaN (default 10).
+
+    Returns
+    -------
+    np.ndarray
+        Correlation coefficients, shape ``(2 * max_lag + 1,)``.  Positive
+        lags mean *x* leads *y*; NaN where overlap is insufficient.
+
+    Raises
+    ------
+    ValueError
+        If *x* and *y* do not have the same shape.
+
+    """
+    x = np.asarray(x, float)
+    y = np.asarray(y, float)
+    if x.shape != y.shape:
+        raise ValueError("x and y must have same length (subsample both).")
+    corrs = np.full(2 * max_lag + 1, np.nan)
+    for k, lag in enumerate(range(-max_lag, max_lag + 1)):
+        if lag < 0:
+            xs = x[:lag]  # up to last |lag|
+            ys = y[-lag:]  # from |lag| to end
+        elif lag > 0:
+            xs = x[lag:]  # from lag to end
+            ys = y[:-lag]  # up to n-lag
+        else:
+            xs, ys = x, y
+
+        m = ~np.isnan(xs) & ~np.isnan(ys)
+        if m.sum() >= min_overlap:
+            xc = xs[m] - np.nanmean(xs[m])
+            yc = ys[m] - np.nanmean(ys[m])
+            denom = np.nanstd(xc) * np.nanstd(yc)
+            corrs[k] = (np.nanmean(xc * yc) / denom) if denom > 0 else np.nan
+    return corrs
+
+
+def split_value(data: np.ndarray, nbins: int = 30) -> float:
+    """Find the histogram-based threshold between two data modes.
+
+    Computes a ``nbins``-bin histogram, locates the two highest peaks, and
+    returns the left edge of the minimum-count bin between them.
+
+    Parameters
+    ----------
+    data : np.ndarray
+        1-D array (NaNs are removed before binning).
+    nbins : int, optional
+        Number of histogram bins (default 30).  Increase if the two modes
+        are not resolved.
+
+    Returns
+    -------
+    float
+        Left edge of the minimum-count bin between the two dominant peaks.
+
+    Raises
+    ------
+    ValueError
+        If fewer than two histogram peaks are detected.  This occurs when
+        the data are unimodal or when *nbins* is too coarse to resolve the
+        two modes.
+
+    """
+    data = data[~np.isnan(data)]  # Remove NaNs for histogram
+    # Step 1: Create histogram
+    counts, bins = np.histogram(data, bins=nbins)
+
+    # Step 2: Find peaks
+    peaks, _ = find_peaks(counts)
+
+    # Step 3: Find minimum between first two major peaks
+    if len(peaks) < 2:
+        raise ValueError(
+            f"split_value: fewer than 2 histogram peaks found in data "
+            f"(found {len(peaks)}). Data may be unimodal or nbins={nbins} too coarse."
+        )
+    i1, i2 = sorted(peaks[:2])
+    split_index = np.argmin(counts[i1:i2]) + i1
+    return bins[split_index]

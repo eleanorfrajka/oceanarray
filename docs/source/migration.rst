@@ -46,6 +46,15 @@ See :doc:`migrating_0_6_0`.
   case raises; reprocess it from stage 1.  A case-only difference is corrected.
 - **Stacking no longer reads ``sample_interval_seconds``.**  Each instrument's
   sampling interval is detected from its time stamps.
+- **``oceanarray.utilities``, ``oceanarray.tools`` and ``oceanarray.pipeline.helpers``
+  are gone; their functions moved to the module that owns their job.**  For
+  example ``utilities.instrument_entries`` is ``oceanarray.instruments.instrument_entries``,
+  ``utilities.parse_latlon`` is ``oceanarray.location.parse_latlon``,
+  ``tools.rapid_interp`` is ``oceanarray.pipeline.gridders.rapid_interp``,
+  ``analysis.clock`` is ``oceanarray.pipeline.clock.offsets``, ``pipeline.caldip`` is
+  ``oceanarray.pipeline.qc.calibration`` and ``analysis.hydrographic`` is
+  ``oceanarray.analysis.hydrography``.  The changelog lists every move.  There is no
+  compatibility shim.
 
 ----
 

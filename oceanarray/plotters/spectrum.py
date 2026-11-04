@@ -23,8 +23,8 @@ import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
 
+from oceanarray.plotters.primitives import nice_colorbar_bounds, period_axis_ticks
 from oceanarray.reports._vendored import design_tokens as report_tokens
-from oceanarray.utilities import _nice_colorbar_bounds, period_axis_ticks
 
 from ..analysis.spectral import gonella_rotary_spectrum
 from ..config import parameters as params
@@ -102,7 +102,7 @@ def wavelet_panel(
 
     vmin = float(np.nanpercentile(log_power, 2))
     vmax = float(np.nanpercentile(log_power, 98))
-    bounds = _nice_colorbar_bounds(vmin, vmax, n=20)
+    bounds = nice_colorbar_bounds(vmin, vmax, n=20)
     norm = mcolors.BoundaryNorm(bounds, ncolors=256)
     cmap = plt.get_cmap("RdYlBu_r")
 
@@ -226,7 +226,7 @@ def draw_spectrum(
     import matplotlib.pyplot as plt
     from matplotlib.transforms import blended_transform_factory
 
-    from ..tools import welch_psd, welch_psd_gapaware
+    from oceanarray.analysis.spectral import welch_psd, welch_psd_gapaware
 
     # The PSD axis is labelled °C² cpd⁻¹; the variance is in the temperature's unit².
     warn_if_not_canonical(
@@ -603,8 +603,8 @@ def draw_wavelet(
 
     import matplotlib.pyplot as plt
 
+    from oceanarray.analysis.spectral import compute_cwt
     from oceanarray.plotters.spectrum import wavelet_panel
-    from oceanarray.tools import compute_cwt
 
     if da_temp.dims[0] != "pressure":
         da_temp = da_temp.transpose("pressure", ...)

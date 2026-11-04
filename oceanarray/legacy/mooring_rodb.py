@@ -4,8 +4,6 @@ import xarray as xr
 from scipy.interpolate import interp1d
 from scipy.signal import butter, filtfilt
 
-from .. import utilities
-
 
 def find_time_vars(ds_list, time_key="TIME"):
     """Return all variable names that have (time_key,) dimensions in any dataset."""
@@ -173,7 +171,7 @@ def combine_mooring_OS(ds_list):
     if not ds_list:
         raise ValueError("Input list is empty. At least one dataset is required.")
 
-    ds_combined = utilities.concat_with_scalar_vars(ds_list, dim="DEPTH")
+    ds_combined = concat_with_scalar_vars(ds_list, dim="DEPTH")
     ds_combined = ds_combined.sortby("DEPTH")  # Ensure DEPTH is sorted
 
     # Start with a copy of attributes from the first dataset
@@ -427,3 +425,59 @@ def interp_to_12hour_grid(ds1):
             ds_interp = ds_interp.assign_coords({coord: ds1[coord]})
 
     return ds_interp
+
+
+def concat_with_scalar_vars(
+    datasets: list[xr.Dataset],
+    dim: str,
+    scalar_vars: list[str] | None = None,
+) -> xr.Dataset:
+    """Concatenate datasets along a dimension, preserving scalar variables.
+
+    Scalar (0-D) variables would normally be broadcast to the concatenation
+    dimension by ``xr.concat``; this helper strips them beforehand and
+    re-attaches the first occurrence after the concat so they remain 0-D.
+
+    Parameters
+    ----------
+    datasets : list of xarray.Dataset
+        Datasets to concatenate.
+    dim : str
+        Dimension along which to concatenate.
+    scalar_vars : list of str, optional
+        List of variable names to treat as scalars. If None, auto-detect
+        scalar variables (those with ndim == 0 in any dataset).
+
+    Returns
+    -------
+    xarray.Dataset
+        Concatenated dataset with scalar variables re-attached as 0-D DataArrays.
+
+    """
+    scalar_storage = {}
+
+    # Auto-detect scalar variables if not provided
+    if scalar_vars is None:
+        scalar_vars = set()
+        for ds in datasets:
+            scalar_vars.update([v for v in ds.data_vars if ds[v].ndim == 0])
+        scalar_vars = list(scalar_vars)
+
+    # Strip scalar variables and store them
+    cleaned = []
+    for _i, ds in enumerate(datasets):
+        ds_copy = ds.copy()
+        for var in scalar_vars:
+            if var in ds_copy and ds_copy[var].ndim == 0:
+                scalar_storage[(_i, var)] = ds_copy[var]
+                del ds_copy[var]
+        cleaned.append(ds_copy)
+
+    # Concatenate non-scalar parts
+    combined = xr.concat(cleaned, dim=dim)
+
+    # Re-attach scalar variables as 0-D DataArrays
+    for (_i, var), da in scalar_storage.items():
+        combined[var] = da  # safe: 0-D, no coords
+
+    return combined

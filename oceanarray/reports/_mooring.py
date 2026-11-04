@@ -10,11 +10,12 @@ from typing import Any
 
 import numpy as np
 
+from oceanarray import logger, paths
 from oceanarray import mooring as _mooring
-from oceanarray import paths
+from oceanarray.instruments import instrument_entries
+from oceanarray.paths import should_skip_regeneration
 
 from ..paths import safe_serial
-from ..utilities import instrument_entries, should_skip_regeneration
 from . import _figdebug
 from ._env import render_template
 from ._grid import generate_grid_page
@@ -24,16 +25,11 @@ from ._html_helpers import (
     _format_duration,
     _instrument_report_exists,
     _parse_dt,
-    _read_instrument_info,
     _read_pdf_b64,
-    _read_qc_summary,
-    _read_sensor_info,
-    _read_timing_info,
     _resolve_array_report_href,
     _resolve_clock,
     _resolve_diagram_pdf,
     _stage_files,
-    _status,
     make_fig_panel,
 )
 from ._instrument import generate_instrument_pages
@@ -43,6 +39,12 @@ from ._plots import (
     _make_knockdown_anomaly_b64,
     _make_knockdown_displacement_b64,
     _make_knockdown_hab_b64,
+)
+from ._read import (
+    _read_instrument_info,
+    _read_qc_summary,
+    _read_sensor_info,
+    _read_timing_info,
 )
 from ._stack import generate_stack_page
 from ._vendored.page_model import Panel, Profile, Section, resolve
@@ -474,7 +476,7 @@ class MooringReport:
             output_path, force, skip_existing, yaml_path, *source_ncs, *products
         )
         if summary_fresh and not (instruments or grid or stack):
-            _status("skip", self._rel(output_path))
+            logger.status("skip", self._rel(output_path))
             return output_path
 
         # Display root for pretty-printing paths in the instrument/grid/stack pages.
@@ -484,10 +486,10 @@ class MooringReport:
         # A fresh summary is kept, but the stack, grid and instrument pages are
         # still checked against their own inputs below (each skips when fresh).
         if summary_fresh:
-            _status("skip", self._rel(output_path))
+            logger.status("skip", self._rel(output_path))
         else:
             output_path.write_text(self._render(ctx), encoding="utf-8")
-            _status("file", self._rel(output_path))
+            logger.status("file", self._rel(output_path))
 
         if instruments:
             generate_instrument_pages(

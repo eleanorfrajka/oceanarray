@@ -1,10 +1,8 @@
-"""Unit tests for :mod:`oceanarray.pipeline.helpers`.
+"""Unit tests for :mod:`oceanarray.pipeline.stack` helpers (stack sampling, ADCP head/bin levels).
 
 Pure stack/grid helper functions — QC masking, worst-flag merge, time
 conversion, interval detection, nearest/linear resampling, and ADCP head/bin
 views — tested against hand-computed known answers on synthetic datasets.
-
-Milestone B of ``.claude/notes/2026-08-19-stage-coverage-plan.md``.
 """
 
 from __future__ import annotations
@@ -13,7 +11,7 @@ import numpy as np
 import xarray as xr
 
 from oceanarray.config import parameters as params
-from oceanarray.pipeline import helpers as H
+from oceanarray.pipeline import stack as H
 
 
 def _dt(seconds: list[float]) -> np.ndarray:

@@ -21,13 +21,12 @@ from oceanarray.reports._html_helpers import (
     _format_size,
     _parse_dt,
     _parse_history,
-    _read_nc_metadata,
-    _read_qc_summary,
     _resolve_clock,
     _resolve_diagram_pdf,
     _stage_files,
 )
 from oceanarray.reports._mooring import MooringReport
+from oceanarray.reports._read import _read_nc_metadata, _read_qc_summary
 
 # ---------------------------------------------------------------------------
 # NC helper factories (used by TestMooringReport and TestPageGenerators)
@@ -664,13 +663,14 @@ def test_isopycnal_panel_warns_and_stubs_on_failure(monkeypatch):
     """A failure inside the isopycnal renderer warns, naming the sigma variable,
     and returns None (the stub path) instead of swallowing the exception.
     """
-    import oceanarray.tools as tools
     from oceanarray.reports import _grid
 
     def _boom(*_args, **_kwargs):
         raise ValueError("sigma computation failed")
 
-    monkeypatch.setattr(tools, "isopycnal_dataset", _boom)
+    import oceanarray.analysis.hydrography as hydrography
+
+    monkeypatch.setattr(hydrography, "isopycnal_dataset", _boom)
     panel = _grid._isopycnal_ts_panel("sigma0")
     ctx = type("Ctx", (), {"ds": None})()
     with pytest.warns(UserWarning, match="sigma0"):

@@ -118,14 +118,13 @@ def test_merge_flags_oceansites_ordering():
 
 
 def test_merge_priority_single_source():
-    """qc._merge_flags and mooring.helpers._worst_flag share ONE priority table.
+    """qc._merge_flags and qc._worst_flag share ONE priority table.
 
     Guards against the two merge paths drifting: both derive from
     parameters.QC_MERGE_PRIORITY, so they must agree on every combination.
     """
     from oceanarray.config import parameters as params
-    from oceanarray.pipeline.helpers import _worst_flag
-    from oceanarray.pipeline.qc import _QC_PRIORITY
+    from oceanarray.pipeline.qc import _QC_PRIORITY, _worst_flag
 
     assert _QC_PRIORITY is params.QC_MERGE_PRIORITY
     a = np.array([1, 8, 0, 3], dtype=np.int8)

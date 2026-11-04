@@ -68,7 +68,7 @@ No change to the CLI or output format — purely an internal organisation change
 2. Calibration correction (caldip) — front of Stage 3, not a separate stage
 -----------------------------------------------------------------------------
 
-**Status**: planned — not yet implemented (``pipeline/caldip.py`` is a stub).
+**Status**: planned — not yet implemented (``pipeline/qc/calibration.py`` is a stub).
 
 **Purpose**: apply per-instrument temperature / conductivity / pressure corrections derived
 from caldip casts (pre/post-deployment CTD comparisons).
@@ -115,8 +115,8 @@ the constant correction.
 -----------------
 
 **Current state**: tests exist for ``stage1``, ``stage2``, ``stage3``,
-``time_gridding``, ``plotters``, ``readers``, ``writers``, ``tools``,
-``utilities``, and ``logger``.
+``stack``, ``grid``, ``plotters``, ``readers``, ``writers``, ``instruments``,
+``location``, and ``logger``.
 
 **Remaining gap**: ``test_report.py`` — end-to-end tests for the HTML report
 generation pipeline.

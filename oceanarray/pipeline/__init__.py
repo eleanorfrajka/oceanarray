@@ -1,4 +1,4 @@
-"""Pipeline stage registry and public ``process()`` entry point.
+"""The pipeline: the verbs' bodies (stages, stack, grid, process, run) and what they compose.
 
 :func:`process` runs stages 1–3 for one mooring from its description. The
 :data:`STAGES` tuple orders and dispatches all five stages for the form
@@ -28,6 +28,7 @@ __all__ = [
     "Stage",
     "STAGES",
     "resolve_stage",
+    "resolve_mooring",
     "process",
     "run",
 ]
@@ -233,7 +234,7 @@ def _process_legacy(
     # instruments' stage/report files silently overwrite each other.  Runs before
     # any stage writes, and `force` does not bypass it (force re-runs stale outputs,
     # it does not license data loss).
-    from oceanarray.config.validation import serial_collision_errors
+    from oceanarray.mooring import serial_collision_errors
 
     _collisions = serial_collision_errors(
         proc_dir / mooring / f"{mooring}.mooring.yaml"
@@ -405,7 +406,7 @@ def process(
         )
 
     wanted = _canonical_stages(stages)
-    cfg, moor_dir = _resolve_mooring(mooring, mooring_dir, "process")
+    cfg, moor_dir = resolve_mooring(mooring, mooring_dir, "process")
     outcome = _Outcome()
     _process_stages(
         cfg,
@@ -432,12 +433,39 @@ class _Outcome:
     stage3_failed: bool = False
 
 
-def _resolve_mooring(
+def resolve_mooring(
     mooring: str | PathLike | Mapping[str, Any],
     mooring_dir: PathLike | None,
-    caller: str,
+    caller: str = "resolve_mooring",
 ) -> tuple[dict, Path]:
-    """Return the loaded, validated description and the mooring's directory."""
+    """Return a mooring's loaded, validated description and its directory.
+
+    Parameters
+    ----------
+    mooring : str, os.PathLike or Mapping
+        The ``*.mooring.yaml`` path, the folder holding it, or an already-loaded
+        description (then *mooring_dir* is required).
+    mooring_dir : os.PathLike or None
+        The mooring's processed folder; needed with a dict, optional with a path.
+    caller : str, optional
+        Name used in error messages (the verb that asked).
+
+    Returns
+    -------
+    tuple of (dict, pathlib.Path)
+        The description (checked by :func:`oceanarray.mooring.load`) and the folder its
+        stage files live in.
+
+    Raises
+    ------
+    oceanarray.exceptions.MooringError
+        When a dict comes without *mooring_dir*, the description fails the checks, or
+        the folder does not exist.
+
+    Examples
+    --------
+    >>> cfg, folder = resolve_mooring("proc/dune2_1_2026/dune2_1_2026.mooring.yaml", None)
+    """
     from oceanarray import mooring as _mooring
     from oceanarray.exceptions import MooringError
     from oceanarray.pipeline.read_mooring import _resolve_description

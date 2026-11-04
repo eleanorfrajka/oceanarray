@@ -19,18 +19,15 @@ import numpy as np
 import yaml
 from markupsafe import escape
 
+from oceanarray import logger
+
 from ..config.unit_tables import unit_label
 from ..paths import safe_serial
 from ..plotters.helpers import grid_despine
 from ._env import render_template
-from ._html_helpers import (
-    _format_duration,
-    _parse_dt,
-    _read_instrument_info,
-    _stage_files,
-    _status,
-)
+from ._html_helpers import _format_duration, _parse_dt, _stage_files
 from ._plots import render_b64
+from ._read import _read_instrument_info
 from ._vendored import design_tokens as report_tokens
 from ._vendored.leaflet import coastline_geojson, load_leaflet, safe_json
 from .design import ARRAY_MAP_LEAFLET
@@ -298,7 +295,7 @@ def _build_mooring_instruments(
 ) -> list[dict[str, Any]]:
     """Return a lightweight instrument status list for array-level tables."""
     # proc_dir is the cruise-level processed dir; recover_dt is the YAML recovery time.
-    from ..utilities import instrument_entries
+    from oceanarray.instruments import instrument_entries
 
     mooring_proc = proc_dir / mooring_id
     waterdepth = mcfg.get("waterdepth")
@@ -517,7 +514,7 @@ def generate_array_report(
         out_path = _out_root / f"{array_name}_array_report.html"
 
     if out_path.exists() and not force:
-        _status("skip", str(out_path))
+        logger.status("skip", str(out_path))
         return out_path
 
     mooring_entries = array_cfg.get("moorings", [])
@@ -654,5 +651,5 @@ def generate_array_report(
 
     html = render_template("array.html", **ctx)
     out_path.write_text(html, encoding="utf-8")
-    _status("file", str(out_path))
+    logger.status("file", str(out_path))
     return out_path

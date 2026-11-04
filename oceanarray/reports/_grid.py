@@ -9,14 +9,11 @@ from typing import Any
 
 import numpy as np
 
-from oceanarray import paths
+from oceanarray import logger, paths
+from oceanarray.location import is_unknown_latlon_source, parse_latlon_with_source
+from oceanarray.paths import should_skip_regeneration
 
 from ..config import parameters as params
-from ..utilities import (
-    is_unknown_latlon_source,
-    parse_latlon_with_source,
-    should_skip_regeneration,
-)
 from ._env import (
     render_history,
     render_nc_coords,
@@ -26,13 +23,7 @@ from ._env import (
     render_template,
 )
 from ._figdebug import as_panel
-from ._html_helpers import (
-    _format_rel_path,
-    _parse_history,
-    _read_nc_metadata,
-    _resolve_array_report_href,
-    _status,
-)
+from ._html_helpers import _parse_history, _resolve_array_report_href
 from ._navs import mooring_nav
 from ._plots import (
     _make_grid_hodograph_b64,
@@ -52,6 +43,7 @@ from ._plots import (
     _make_velocity_iqr_profile_b64,
     _make_wavelet_b64,
 )
+from ._read import _read_nc_metadata
 from ._vendored.page_model import Panel, PanelGroup, Profile, Section, resolve
 
 # ---------------------------------------------------------------------------
@@ -329,7 +321,7 @@ def _isopycnal_ts_panel(sigma_var: str) -> Panel:
 
     def _render(ctx: GridContext, _sv: str = sigma_var) -> str | None:
         try:
-            from ..tools import isopycnal_dataset as _iso_ds
+            from oceanarray.analysis.hydrography import isopycnal_dataset as _iso_ds
 
             ds_iso = _iso_ds(
                 ctx.ds, sigma_var=_sv, sigma_grid=getattr(params, "SIGMA_GRID", None)
@@ -609,7 +601,7 @@ def generate_grid_page(
     """Generate a grid report HTML page with T/S pcolormesh figures."""
     out_path = out_dir / f"{mooring_name}_grid_report.html"
     if should_skip_regeneration(out_path, force, skip_existing, grid_path):
-        _status("skip", _format_rel_path(out_path, display_root))
+        logger.status("skip", logger.format_rel_path(out_path, display_root))
         return
 
     try:
@@ -674,6 +666,6 @@ def generate_grid_page(
             generated=ctx["generated"],
         )
         out_path.write_text(html, encoding="utf-8")
-        _status("file", _format_rel_path(out_path, display_root))
+        logger.status("file", logger.format_rel_path(out_path, display_root))
     except Exception as exc:
         print(f"  ERROR generating grid report: {exc}")

@@ -1,4 +1,4 @@
-"""Oceanarray plotting package.
+"""Figures: functions that draw a dataset and return a matplotlib Figure; no HTML, no files.
 
 Three-tier architecture
 -----------------------

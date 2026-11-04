@@ -32,7 +32,7 @@ from matplotlib.colors import LinearSegmentedColormap
 from scipy.integrate import cumulative_trapezoid
 from scipy.interpolate import interp1d
 
-from oceanarray import utilities
+from oceanarray import logger
 from oceanarray.config import parameters as params
 from oceanarray.logger import log_info
 
@@ -223,7 +223,7 @@ def build_climatology(
         temp_bins = np.arange(-2, 35.5, 0.5)  # typical ocean range
 
     # Step 1: Downsample each profile to standard pressures
-    pres_key, time_key, pres_dim, time_dim = utilities.get_dims(ds)
+    pres_key, time_key, pres_dim, time_dim = get_dims(ds)
     profile_dim = time_dim
     ntime = ds.sizes[profile_dim]
 
@@ -598,12 +598,10 @@ def interpolate_profiles(
 
     """
     # Check if the climatology dataset has the required variables
-    utilities.check_necessary_variables(clim_ds, vars=["dTdp", "dSdp"])
-    utilities.check_necessary_variables(
-        ds, vars=[temp_key, salt_key, "LATITUDE", "LONGITUDE"]
-    )
+    check_necessary_variables(clim_ds, vars=["dTdp", "dSdp"])
+    check_necessary_variables(ds, vars=[temp_key, salt_key, "LATITUDE", "LONGITUDE"])
 
-    pres_key, time_key1, pres_dim, time_dim = utilities.get_dims(ds)
+    pres_key, time_key1, pres_dim, time_dim = get_dims(ds)
     if time_key1 != time_key:
         raise ValueError(f"Time key mismatch: {time_key1} != {time_key}")
 
@@ -825,3 +823,151 @@ def plot_climatology(
         plt.tight_layout()
 
         return fig, ax
+
+
+def check_necessary_variables(ds: xr.Dataset, vars: list) -> None:
+    """Check that all required variables are present in a dataset.
+
+    Parameters
+    ----------
+    ds: xarray.Dataset
+        Dataset that should be checked
+    vars: list
+        List of variables
+
+    Raises
+    ------
+    KeyError:
+        Raises an error if all vars not present in ds
+
+    Notes
+    -----
+    Original Author: Callum Rollo
+
+    """
+    missing_vars = set(vars).difference(set(ds.variables))
+    if missing_vars:
+        msg = f"Required variables {list(missing_vars)} do not exist in the supplied dataset."
+        raise KeyError(msg)
+
+
+def get_dims(
+    ds_gridded: xr.Dataset,
+) -> tuple:
+    """Extract pressure key, time key, and their dimensions from a dataset.
+
+    Parameters
+    ----------
+    ds_gridded : xarray.Dataset
+        Dataset containing the variables and dimensions.
+
+    Returns
+    -------
+    pres_key : str or None
+        Key for the pressure (or depth) variable; None if not found.
+    time_key : str
+        Key for the time variable.
+    pres_dim : str or None
+        Dimension associated with the pressure variable; None if not found.
+    time_dim : str or None
+        Dimension associated with the time variable.
+
+    """
+    if isinstance(ds_gridded, xr.DataArray):
+        ds_gridded = ds_gridded.to_dataset()
+
+    # Determine pressure key
+    pressure_candidates = [
+        "PRES_ADJUSTED",
+        "PRESSURE",
+        "pressure",
+        "PRES",
+        "PRES_INTERPOLATED",
+    ]
+    pres_key = None
+    for name in pressure_candidates:
+        if name in ds_gridded.coords or name in ds_gridded.variables:
+            pres_key = name
+            break
+
+    # Fall back to depth if no pressure variable found
+    dpth_key = None
+    if pres_key is None:
+        depth_candidates = [
+            "DEPTH_ADJUSTED",
+            "DEPTH",
+            "depth",
+            "Depth",
+            "DEPTH_INTERPOLATED",
+        ]
+        for name in depth_candidates:
+            if name in ds_gridded.coords or name in ds_gridded.variables:
+                dpth_key = name
+                break
+
+    # Get time key using helper
+    time_key = get_time_key(ds_gridded)
+
+    # Determine dimensions
+    time_dim = ds_gridded[time_key].dims[0] if ds_gridded[time_key].dims else None
+    pres_dim = None
+    if pres_key is None and dpth_key is not None:
+        pres_dims = ds_gridded[dpth_key].dims
+        if len(pres_dims) > 1:
+            pres_dim = next(dim for dim in pres_dims if dim != time_dim)
+        else:
+            pres_dim = pres_dims[0]
+
+    elif pres_key is not None:
+        pres_dims = ds_gridded[pres_key].dims
+        if len(pres_dims) > 1:
+            pres_dim = next(dim for dim in pres_dims if dim != time_dim)
+        else:
+            pres_dim = pres_dims[0]
+
+    return pres_key or dpth_key, time_key, pres_dim, time_dim
+
+
+def get_time_key(ds: xr.Dataset) -> str:
+    """Return the name of the time coordinate or variable in an xarray.Dataset.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The dataset to inspect.
+
+    Returns
+    -------
+    str
+        The name of the time coordinate or variable.
+
+    Raises
+    ------
+    ValueError
+        If no time dimension or coordinate is found.
+
+    """
+    # Common time names to check
+    time_candidates = ["TIME", "time", "Time", "DATETIME", "datetime", "date"]
+    for name in time_candidates:
+        if name in ds.coords or name in ds.variables:
+            return name
+
+    # Fallback: look for any variable or coordinate with datetime dtype
+    for name in ds.coords:
+        if np.issubdtype(ds.coords[name].dtype, np.datetime64):
+            logger.log_warning(
+                "No standard time coordinate found. Using first datetime coordinate: %s",
+                name,
+            )
+            return name
+
+    for name in ds.variables:
+        if np.issubdtype(ds.variables[name].dtype, np.datetime64):
+            logger.log_warning(
+                "No standard time coordinate found. Using first datetime coordinate: %s",
+                name,
+            )
+            return name
+
+    raise ValueError("No valid time coordinate found in dataset.")

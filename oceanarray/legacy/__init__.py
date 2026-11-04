@@ -1,4 +1,4 @@
-"""Legacy RODB/RAPID format processing functions.
+"""Legacy RODB/RAPID-era code, kept as a reference; nothing outside ``legacy`` imports it.
 
 This module contains legacy code for processing RAPID/RODB format data.
 For new projects, use the modern CF-compliant workflow:

@@ -4,7 +4,7 @@ These functions accept xarray Datasets and delegate rendering to Tier-1
 primitives in _primitives.py.  They understand oceanarray variable naming
 conventions but do not serialise to base64 (that happens in report/_plots.py).
 
-Pairs with :mod:`oceanarray.analysis.vector` for coordinate transformations.
+Coordinate transformations come from :mod:`oceanarray.pipeline.coordinate`.
 
 Public draw_* functions (migrated from report/_plots.py):
 - draw_instrument_rose: rose diagram grid for a single Aquadopp instrument.
@@ -49,6 +49,7 @@ from oceanarray.plotters.primitives import (
     draw_trajectory,
     figure_title,
     hodograph_panel,
+    nice_colorbar_bounds,
     plot_title,
     square_axes_grid,
     square_limits,
@@ -56,7 +57,6 @@ from oceanarray.plotters.primitives import (
     ytick_reserve_in,
 )
 from oceanarray.reports._vendored import design_tokens as report_tokens
-from oceanarray.utilities import _nice_colorbar_bounds
 
 
 def progressive_vector(
@@ -124,7 +124,7 @@ def draw_temperature_trajectory(
     drift far from origin and should be interpreted as a pseudo-Lagrangian
     tracer, not a real particle path.
 
-    Note: the velocity integration step will move to ``oceanarray.tools``
+    Note: the velocity integration step will move to ``oceanarray.analysis``
     post-OdB so that it can be reused independently of plotting.
 
     Parameters
@@ -324,13 +324,13 @@ def draw_multi_aquadopp_trajectories(
         flat = np.concatenate(all_temps)
         _tmin = float(np.nanmin(flat))
         _tmax = float(np.nanmax(flat))
-        _bounds = _nice_colorbar_bounds(_tmin, _tmax, n=20)
+        _bounds = nice_colorbar_bounds(_tmin, _tmax, n=20)
         # Enforce minimum tick spacing of 0.5 °C so labels don't crowd
         if len(_bounds) > 1 and (_bounds[1] - _bounds[0]) < 0.5:
             _n_t = max(2, int((_tmax - _tmin) / 0.5))
-            _bounds = _nice_colorbar_bounds(_tmin, _tmax, n=_n_t)
+            _bounds = nice_colorbar_bounds(_tmin, _tmax, n=_n_t)
     else:
-        _bounds = _nice_colorbar_bounds(0.0, 1.0, n=20)
+        _bounds = nice_colorbar_bounds(0.0, 1.0, n=20)
     norm: mcolors.BoundaryNorm = mcolors.BoundaryNorm(_bounds, ncolors=256)
 
     _all_x = np.concatenate([x for _, x, _, _ in trajs])
@@ -762,11 +762,11 @@ def draw_adcp_trajectories(
 
     hab_min, hab_max = min(hab_all), max(hab_all)
     cmap = plt.get_cmap("viridis")
-    _bounds = _nice_colorbar_bounds(hab_min, hab_max, n=20)
+    _bounds = nice_colorbar_bounds(hab_min, hab_max, n=20)
     # Enforce minimum tick spacing of 50 m so labels don't crowd
     if len(_bounds) > 1 and (_bounds[1] - _bounds[0]) < 50.0:
         _n_hab = max(2, int((hab_max - hab_min) / 50.0))
-        _bounds = _nice_colorbar_bounds(hab_min, hab_max, n=_n_hab)
+        _bounds = nice_colorbar_bounds(hab_min, hab_max, n=_n_hab)
     norm: mcolors.BoundaryNorm = mcolors.BoundaryNorm(_bounds, ncolors=256)
 
     # Half width — shown in a 50% flex column beside the Aquadopp trajectory
@@ -1572,6 +1572,66 @@ def draw_adcp_rose(
     return fig
 
 
+def _draw_hodograph_pair(
+    ax_raw: Any,
+    ax_eddy: Any,
+    east_1d: np.ndarray,
+    north_1d: np.ndarray,
+    label: str,
+    smooth_hours: float,
+    lp_days: float,
+    units: str,
+    dt_s: float,
+) -> Any:
+    """Draw one row (raw + eddy panels) of a hodograph figure onto two Axes."""
+    # Raw: Tukey-smoothed east vs north density; eddy: low-pass rolling mean removed,
+    # then Tukey-smoothed. Returns the shared 0-1 plasma time mapping (one colorbar
+    # for the figure), or None if neither panel had enough finite data.
+    import pandas as pd
+
+    from oceanarray.plotters.helpers import tukey_smooth
+
+    smooth_n = max(3, int(round(smooth_hours * 3600.0 / dt_s)))
+    lp_n = max(3, int(round(lp_days * 86400.0 / dt_s)))
+
+    e_sm = tukey_smooth(east_1d, smooth_n)
+    n_sm = tukey_smooth(north_1d, smooth_n)
+
+    e_lp = (
+        pd.Series(east_1d)
+        .rolling(window=lp_n, min_periods=1, center=True)
+        .mean()
+        .values
+    )
+    n_lp = (
+        pd.Series(north_1d)
+        .rolling(window=lp_n, min_periods=1, center=True)
+        .mean()
+        .values
+    )
+    e_eddy = tukey_smooth(east_1d - e_lp, smooth_n)
+    n_eddy = tukey_smooth(north_1d - n_lp, smooth_n)
+
+    # Fractional time 0→1 for colour mapping; matches east_1d length
+    t_frac = np.linspace(0.0, 1.0, len(east_1d))
+
+    def _draw(ax: Any, e: np.ndarray, n: np.ndarray, title: str) -> Any:
+        mask = np.isfinite(e) & np.isfinite(n)
+        if mask.sum() < 2:
+            ax.text(
+                0.5, 0.5, "No data", transform=ax.transAxes, ha="center", va="center"
+            )
+            ax.set_title(title)
+            return None
+        return hodograph_panel(ax, e[mask], n[mask], t_frac[mask], title, units)
+
+    sm_raw = _draw(ax_raw, e_sm, n_sm, f"{label} — raw ({smooth_hours:.0f}-h smoothed)")
+    sm_eddy = _draw(
+        ax_eddy, e_eddy, n_eddy, f"{label} — eddy ({lp_days:.0f}-day LP removed)"
+    )
+    return sm_raw or sm_eddy
+
+
 def draw_adcp_hodograph(
     nc_path: str,
     lp_days: float = 4.0,
@@ -1674,8 +1734,6 @@ def draw_adcp_hodograph(
 
     label_far = f"{float(range_vals[i_far]):.0f} m range"
     label_near = f"{float(range_vals[i_near]):.0f} m range"
-
-    from oceanarray.reports._plots import _draw_hodograph_pair
 
     # Deterministic square-panel grid: each hodograph is an exact square so the
     # single shared time colorbar (right) matches the panel height exactly.

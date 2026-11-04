@@ -14,6 +14,7 @@ plot_polar_histogram, plot_timeseries.
 
 from __future__ import annotations
 
+import math
 from typing import Any
 
 import matplotlib.colors as mcolors
@@ -26,7 +27,6 @@ from matplotlib.collections import LineCollection
 from oceanarray.reports._vendored import design_tokens as report_tokens
 
 from ..config import parameters as params
-from ..utilities import _nice_colorbar_bounds, nice_colorbar_ticks
 from .helpers import grid_despine
 
 
@@ -722,6 +722,128 @@ def colorbar_norm(
     if symmetric:
         abs_max = max(abs(float(vmin)), abs(float(vmax)), 1e-9)
         vmin, vmax = -abs_max, abs_max
-    bounds = _nice_colorbar_bounds(float(vmin), float(vmax), n=n)
+    bounds = nice_colorbar_bounds(float(vmin), float(vmax), n=n)
     norm = mcolors.BoundaryNorm(bounds, ncolors=256)
     return bounds, norm
+
+
+def nice_colorbar_bounds(vmin: float, vmax: float, n: int = 20) -> np.ndarray:
+    """Return the boundaries of a discrete colorbar with about *n* levels.
+
+    Use with :class:`matplotlib.colors.BoundaryNorm`.
+
+    Parameters
+    ----------
+    vmin, vmax : float
+        Data range to cover.
+    n : int, optional
+        Target number of color levels.
+
+    Returns
+    -------
+    numpy.ndarray
+        Evenly spaced boundaries from a step at or below ``vmin`` to one at or above
+        ``vmax``; ``vmin ± 1`` in ``n`` steps when the range is empty.
+
+    Examples
+    --------
+    >>> nice_colorbar_bounds(0.87, 7.23)[[0, 1, -1]]
+    array([0.75, 1.  , 7.25])
+    """
+    # Snap the step to the 1/2/2.5/5 family (as MaxNLocator does) and align bounds to
+    # integer multiples of it spanning [vmin, vmax], so round tick labels (0.2, 100)
+    # land on color-step boundaries rather than between them (as a 0.03 or 30 step
+    # would). E.g. T 0.87-7.23 -> step 0.25, bounds 0.75-7.25; S 34.782-35.139 ->
+    # step 0.02, bounds 34.78-35.14.
+    span = vmax - vmin
+    if span <= 0:
+        return np.linspace(vmin - 1, vmin + 1, n + 1)
+    raw_step = span / n
+    mag = 10.0 ** math.floor(math.log10(raw_step))
+    frac = raw_step / mag  # in [1, 10)
+    nice_frac = min((1.0, 2.0, 2.5, 5.0, 10.0), key=lambda c: abs(c - frac))
+    nice_step = nice_frac * mag
+    lo = math.floor(vmin / nice_step) * nice_step
+    hi = math.ceil(vmax / nice_step) * nice_step
+    n_steps = int(round((hi - lo) / nice_step))
+    return lo + nice_step * np.arange(n_steps + 1)
+
+
+def nice_colorbar_ticks(vmin: float, vmax: float, *, max_ticks: int = 6) -> np.ndarray:
+    """Return at most *max_ticks* nicely-rounded tick positions in ``[vmin, vmax]``.
+
+    Decoupled from the colorbar's colour discretisation: a 20-level
+    ``BoundaryNorm`` bar can still show ~6 round labels (e.g. 34.8, 34.9, … 35.2)
+    instead of one label per boundary.  Uses :class:`matplotlib.ticker.MaxNLocator`
+    with round step multiples so labels land on clean values.
+
+    Parameters
+    ----------
+    vmin, vmax : float
+        Data range of the colorbar.
+    max_ticks : int
+        Maximum number of ticks (approximate; the locator may return a few
+        fewer).  Default 6.
+
+    Returns
+    -------
+    numpy.ndarray
+        Tick positions, clipped to ``[vmin, vmax]``.
+
+    """
+    import matplotlib.ticker as mticker
+
+    ticks = mticker.MaxNLocator(nbins=max_ticks, steps=[1, 2, 2.5, 5, 10]).tick_values(
+        vmin, vmax
+    )
+    return ticks[(ticks >= vmin) & (ticks <= vmax)]
+
+
+def period_axis_ticks(
+    p_min_days: float, p_max_days: float
+) -> tuple[list[float], list[str]]:
+    """Return human-readable period tick values and labels for a log-period axis.
+
+    Canonical tick list covers 1 min through 1 yr.  Only ticks within
+    ``[p_min_days, p_max_days]`` are returned.  Intended for spectral and
+    wavelet period axes (both x and y) so that all figures share the same tick
+    positions.
+
+    Parameters
+    ----------
+    p_min_days:
+        Minimum visible period in days (Nyquist end of the axis).
+    p_max_days:
+        Maximum visible period in days (long-period end of the axis).
+
+    Returns
+    -------
+    tuple[list[float], list[str]]
+        Pair of (values_in_days, labels) filtered to the visible range.
+
+    """
+    _candidates: list[tuple[float, str]] = [
+        (1.0 / 1440, "1min"),
+        (2.0 / 1440, "2min"),
+        (5.0 / 1440, "5min"),
+        (10.0 / 1440, "10min"),
+        (30.0 / 1440, "30min"),
+        (1.0 / 24, "1h"),
+        (2.0 / 24, "2h"),
+        (6.0 / 24, "6h"),
+        (12.0 / 24, "12h"),
+        (1.0, "1d"),
+        (2.0, "2d"),
+        (4.0, "4d"),
+        (7.0, "7d"),
+        (14.0, "14d"),
+        (20.0, "20d"),
+        (30.0, "30d"),
+        (90.0, "90d"),
+        (180.0, "180d"),
+        (365.0, "1yr"),
+    ]
+    filtered = [(v, lbl) for v, lbl in _candidates if p_min_days <= v <= p_max_days]
+    if not filtered:
+        return [], []
+    return [v for v, _ in filtered], [lbl for _, lbl in filtered]

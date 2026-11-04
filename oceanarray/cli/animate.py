@@ -6,14 +6,13 @@ import argparse
 import sys
 from pathlib import Path
 
-from oceanarray import paths
+from oceanarray import logger, paths
 from oceanarray.cli._common import (
     _MOORING_HELP,
     _add_dir_args,
     _add_only,
     _mooring_location,
 )
-from oceanarray.utilities import _status
 
 
 def cmd_animate(args: argparse.Namespace) -> int:
@@ -36,16 +35,17 @@ def cmd_animate(args: argparse.Namespace) -> int:
     matplotlib.use("Agg")
     import xarray as xr
 
+    from oceanarray.instruments import instrument_entries
+
     from ..exceptions import MooringError
-    from ..pipeline import _resolve_mooring
+    from ..pipeline import resolve_mooring
     from ..plotters import animate_hodograph
-    from ..utilities import instrument_entries
 
     location = _mooring_location(args)
     try:
-        cfg, proc_dir = _resolve_mooring(location, None, "animate")
+        cfg, proc_dir = resolve_mooring(location, None, "animate")
     except MooringError as e:
-        _status("error", str(e))
+        logger.status("error", str(e))
         return 1
     wanted = {paths.safe_serial(s) for s in args.serials} if args.serials else None
 
@@ -97,7 +97,7 @@ def cmd_animate(args: argparse.Namespace) -> int:
             where.mkdir(parents=True, exist_ok=True)
             out = where / f"{stem}_hodograph.gif"
 
-        _status("section", f"Animate: {nc.name}")
+        logger.status("section", f"Animate: {nc.name}")
         try:
             import numpy as np
             import pandas as pd

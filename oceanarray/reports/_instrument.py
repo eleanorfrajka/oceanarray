@@ -8,10 +8,10 @@ from pathlib import Path
 from typing import Any
 
 from oceanarray import paths
+from oceanarray.paths import should_skip_regeneration
 
 from ..config import parameters as params
 from ..paths import safe_serial
-from ..utilities import should_skip_regeneration
 from ._env import (
     render_history,
     render_nc_coords,
@@ -26,9 +26,6 @@ from ._html_helpers import (
     _format_duration,
     _parse_dt,
     _parse_history,
-    _read_nc_metadata,
-    _read_qc_summary,
-    _read_qc_thresholds,
     _resolve_array_report_href,
     _stage_file_details,
     make_fig_panel,
@@ -48,6 +45,7 @@ from ._plots import (
     _make_ts_diagram_b64,
     _make_windows_b64s,
 )
+from ._read import _read_nc_metadata, _read_qc_summary, _read_qc_thresholds
 from ._vendored.page_model import Panel, PanelGroup, Profile, Section, resolve
 
 # ---------------------------------------------------------------------------

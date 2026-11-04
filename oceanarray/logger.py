@@ -314,3 +314,69 @@ def setup_stage_logging(mooring_name: str, stage_name: str, proc_dir: Path) -> P
     )
 
     return log_dir / filename
+
+
+def status(kind: str, msg: str, *, char: str = "=") -> None:
+    """Print a formatted status line to stdout.
+
+    Parameters
+    ----------
+    kind : str
+        ``"section"`` (a bordered heading), ``"instr"`` (an instrument sub-heading),
+        ``"file"`` (an output file being created), ``"skip"`` (an output kept because it
+        exists) or ``"error"``.
+    msg : str
+        The text of the line.
+    char : str, optional
+        Border character for ``"section"`` lines; ``"*"`` tells mooring runs apart in a
+        multi-mooring script (``*** Stage 1: dsG3_2_2026 ***``).
+
+    Examples
+    --------
+    >>> status("section", "Stage 1: dsG3_2_2026")
+    <BLANKLINE>
+    === Stage 1: dsG3_2_2026 ===
+    """
+    if kind == "section":
+        border = char * 3
+        print(f"\n{border} {msg} {border}")
+    elif kind == "instr":
+        print(f"\n--- {msg} ---")
+    elif kind == "file":
+        print(f"Creating output file: {msg}")
+    elif kind == "skip":
+        print(f"  OUTFILE EXISTS: {msg}  (use --force to overwrite)")
+    elif kind == "error":
+        print(f"ERROR: {msg}")
+
+
+def format_rel_path(path: Path, root: Path) -> str:
+    """Return *path* relative to *root* for display, or its bare name if unrelated.
+
+    Report output written to a custom ``--output-dir`` is not under *root*; the
+    ``ValueError`` from ``Path.relative_to`` must never abort a run from a logging call.
+
+    Parameters
+    ----------
+    path : pathlib.Path
+        The path to show.
+    root : pathlib.Path
+        The folder it is shown relative to (usually the mooring's processed folder).
+
+    Returns
+    -------
+    str
+        ``path`` relative to ``root``, or ``path.name`` when it is not under ``root``.
+
+    Examples
+    --------
+    >>> from pathlib import Path
+    >>> format_rel_path(Path("/proc/m1/report/m1.html"), Path("/proc/m1"))
+    'report/m1.html'
+    >>> format_rel_path(Path("/elsewhere/m1.html"), Path("/proc/m1"))
+    'm1.html'
+    """
+    try:
+        return str(path.relative_to(root))
+    except ValueError:
+        return path.name

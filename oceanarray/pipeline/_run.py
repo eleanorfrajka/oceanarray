@@ -114,7 +114,7 @@ def run(
     from oceanarray.pipeline import (
         _Outcome,
         _process_stages,
-        _resolve_mooring,
+        resolve_mooring,
     )
     from oceanarray.pipeline.grid import _grid_file
     from oceanarray.pipeline.stack import _stack_file
@@ -123,7 +123,7 @@ def run(
         raise ValueError(f"stack_stage={stack_stage!r}: expected 3 or 2")
     wanted = _resolve_stages(stages, from_stage, stack_stage)
     serial_list = _as_serial_list(serials)
-    cfg, moor_dir = _resolve_mooring(mooring, mooring_dir, "run")
+    cfg, moor_dir = resolve_mooring(mooring, mooring_dir, "run")
     settings = _resolve_settings(
         cfg, dt_seconds=dt_seconds, pmin=pmin, pmax=pmax, dp=dp
     )

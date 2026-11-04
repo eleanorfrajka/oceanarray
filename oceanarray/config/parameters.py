@@ -121,8 +121,8 @@ QC_FLAG_MEANINGS = (
 )
 
 # Merge priority for combining two QC flags (worst wins). The single source of
-# truth for flag ordering — both instrument.qc._merge_flags and
-# mooring.helpers._worst_flag derive their lookup arrays from this dict.
+# truth for flag ordering — pipeline.qc._merge_flags and pipeline.qc._worst_flag
+# derive their lookup arrays from this dict.
 # Weakest to strongest:
 #   unknown(0) < good(1) < probably_good(2) < nominal(7) < interpolated(8)
 #   < potentially_correctable_bad(3) < bad(4) < missing(9)

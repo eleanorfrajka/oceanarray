@@ -15,22 +15,17 @@ from typing import Any
 import numpy as np
 import xarray as xr
 
+from oceanarray import logger, paths
 from oceanarray import mooring as _mooring
-from oceanarray import paths
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
+from oceanarray.instruments import extract_inline_instruments, instrument_entries
 from oceanarray.logger import log_message, with_stage_handlers
-from oceanarray.paths import safe_serial
+from oceanarray.paths import safe_serial, should_skip_regeneration
 from oceanarray.pipeline import _stage
 from oceanarray.pipeline.raw_files import read_raw_file, resolve_raw_file
 from oceanarray.pipeline.read_mooring import join_raw
 from oceanarray.pipeline.units import UnitsError, to_canonical_units
-from oceanarray.utilities import (
-    _status,
-    extract_inline_instruments,
-    instrument_entries,
-    should_skip_regeneration,
-)
 from oceanarray.writers import write
 from oceanarray.writers.netcdf import as_stored
 
@@ -772,7 +767,7 @@ def _stage1_file(
         )
         return "failed", f"{instrument} {serial}: no raw file named or found"
 
-    _status("instr", f"{instrument} {serial}")
+    logger.status("instr", f"{instrument} {serial}")
     output_dir = mooring_dir / raw.instrument_dir
     output_dir.mkdir(parents=True, exist_ok=True)
     clean = safe_serial(serial)
@@ -782,7 +777,7 @@ def _stage1_file(
     # Skip only if the output is present and newer than its raw input. The
     # mooring YAML is deliberately not a staleness source; force regenerates.
     if should_skip_regeneration(output_file, force, False, raw.path):
-        _status("skip", rel(output_file))
+        logger.status("skip", rel(output_file))
         return "kept", output_file
 
     try:
@@ -794,7 +789,7 @@ def _stage1_file(
     try:
         dataset = join_raw(dataset, raw.entry, mooring)
         dataset = stage1({clean: dataset}, mooring)[clean]
-        _status("file", rel(output_file))
+        logger.status("file", rel(output_file))
         return "written", write(dataset, output_file, overwrite=True)
     except RuntimeError:
         # A registry inconsistency (to_canonical_units raises RuntimeError, not

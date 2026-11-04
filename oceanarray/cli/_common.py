@@ -234,18 +234,19 @@ def _print_stage_plan(
     args: argparse.Namespace, location: Path, wanted: list[int], title: str
 ) -> tuple[str, Path] | None:
     """Print each stage file *wanted* stages would write; write nothing."""
+    from oceanarray import logger
     from oceanarray import mooring as _mooring
     from oceanarray.exceptions import MooringError
+    from oceanarray.instruments import instrument_entries
     from oceanarray.reports._verb import (
         _resolve_description_file,
         _resolve_name_and_dir,
     )
-    from oceanarray.utilities import _status, instrument_entries
 
     try:
         name, moor_dir = _resolve_name_and_dir(location, None)
     except MooringError as e:
-        _status("error", str(e))
+        logger.status("error", str(e))
         return None
     cfg = (
         _mooring._parse(_resolve_description_file(location, _folder(location), name))
@@ -261,7 +262,7 @@ def _print_stage_plan(
             return "rewrite"
         return "keep, unless older than its raw file" if n == 1 else "keep"
 
-    _status("section", f"{title} (dry run): {name}")
+    logger.status("section", f"{title} (dry run): {name}")
     # Interpolated-pressure targets can be named only when the stage-2 files exist.
     targets = _pressure_targets(cfg, moor_dir) if 3 in wanted else set()
     for n in wanted:

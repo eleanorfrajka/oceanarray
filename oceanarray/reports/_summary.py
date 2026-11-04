@@ -50,10 +50,10 @@ def summary(
     """
     import xarray as xr
 
-    from oceanarray.pipeline import _resolve_mooring
-    from oceanarray.utilities import instrument_entries
+    from oceanarray.instruments import instrument_entries
+    from oceanarray.pipeline import resolve_mooring
 
-    cfg, moor_dir = _resolve_mooring(mooring, mooring_dir, "summary")
+    cfg, moor_dir = resolve_mooring(mooring, mooring_dir, "summary")
     name = cfg["name"]
     by_type: dict[str, list[str]] = {}
     for entry in instrument_entries(cfg):

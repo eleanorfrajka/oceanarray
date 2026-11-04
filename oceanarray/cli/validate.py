@@ -7,11 +7,9 @@ import argparse
 
 def cmd_validate(args: argparse.Namespace) -> int:
     """Validate one or more mooring YAML files."""
-    from ..config.validation import print_validation_report
-
     all_ok = True
     for yaml_path in args.yaml:
-        ok = print_validation_report(yaml_path)
+        ok = _print_report(yaml_path)
         if not ok:
             all_ok = False
         print()
@@ -34,3 +32,32 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
     )
     p_validate.add_argument("yaml", nargs="+", help="Path(s) to .mooring.yaml file(s)")
     p_validate.set_defaults(func=cmd_validate)
+
+
+def _print_report(yaml_path: str) -> bool:
+    """Print a human-readable validation report; return True when there are no errors."""
+    from oceanarray import mooring as _mooring
+
+    issues = _mooring.check(yaml_path)
+
+    errors = [i for i in issues if i.level == "ERROR"]
+    warnings = [i for i in issues if i.level == "WARNING"]
+
+    print(f"Validating: {yaml_path}")
+
+    if not issues:
+        print("  OK — no issues found")
+        return True
+
+    for issue in issues:
+        marker = "  ERROR  " if issue.level == "ERROR" else "  warn   "
+        print(f"{marker}{issue.message}")
+
+    summary = []
+    if errors:
+        summary.append(f"{len(errors)} error(s)")
+    if warnings:
+        summary.append(f"{len(warnings)} warning(s)")
+    print(f"  {', '.join(summary)}")
+
+    return len(errors) == 0

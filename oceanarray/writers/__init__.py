@@ -1,4 +1,4 @@
-"""NetCDF output for oceanarray processing stages.
+"""Writing datasets to disk (encoding, compression, storage dtypes); writers do not change data.
 
 Submodules
 ----------

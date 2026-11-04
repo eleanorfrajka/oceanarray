@@ -1,3 +1,5 @@
+"""When each instrument entered and left the water: find the deployment window from temperature."""
+
 import logging
 
 import numpy as np
@@ -41,7 +43,7 @@ def _runs_of_true(mask: np.ndarray) -> list[tuple[int, int]]:
     gaps = np.diff(idx) > 1
     starts = np.r_[idx[0], idx[1:][gaps]]
     ends = np.r_[idx[:-1][gaps], idx[-1]]
-    return [(int(s), int(e)) for s, e in zip(starts, ends)]
+    return [(int(s), int(e)) for s, e in zip(starts, ends, strict=True)]
 
 
 def _best_step_change(y: np.ndarray, min_seg: int = 1) -> tuple[int, float, float]:
@@ -100,10 +102,12 @@ def likely_at_bottom_window(
     deployment_margin_hours: float = 2.0,
 ) -> tuple[np.datetime64, np.datetime64]:
     """Return (bot_start, bot_end): the window where the instrument is almost surely at depth.
+
     Strategies:
-      - 'fixed_hours': [tmin+margin, tmax-margin]
-      - 'percent_span': [tmin+f, tmax-f] using inner fraction (e.g. 25%)
-      - 'deployment_bounds': [deploy+2h, recover-2h]
+
+    - ``'fixed_hours'``: [tmin + margin, tmax - margin]
+    - ``'percent_span'``: [tmin + f, tmax - f] using the inner fraction (e.g. 25 %)
+    - ``'deployment_bounds'``: [deploy + 2 h, recover - 2 h]
     """
     t = pd.to_datetime(time)
     tmin, tmax = t[0], t[-1]  # <-- was .iloc[0], .iloc[-1]
@@ -401,15 +405,15 @@ def find_deployment(
     Returns ds with the variables added/updated.
     """
     if var_name not in ds:
-        raise ValueError(f"{var_name!r} not found in dataset.")  # noqa: TRY003
+        raise ValueError(f"{var_name!r} not found in dataset.")
     if ds[var_name].dims != ("time", "N_LEVELS"):
-        raise ValueError(  # noqa: TRY003
+        raise ValueError(
             f"{var_name!r} must have dims ('time','N_LEVELS'). Got {ds[var_name].dims}"
         )
 
     nlev = ds.sizes.get("N_LEVELS", None)
     if nlev is None:
-        raise ValueError("Dimension 'N_LEVELS' not found in dataset.")  # noqa: TRY003
+        raise ValueError("Dimension 'N_LEVELS' not found in dataset.")
 
     # ensure outputs exist with correct dtype/shape
     if "start_time" not in ds:

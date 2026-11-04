@@ -1,8 +1,7 @@
 """Hydrographic analysis utilities for oceanographic mooring data.
 
-hydrographic.py provides salinity computation, isopycnal tracking, dataset
-differencing, and cold-regime detection functions extracted from the general
-science utilities.
+Salinity computation, isopycnal tracking, dataset differencing and
+cold-regime detection.
 
 Pairs with :mod:`oceanarray.plotters.hydrography` for figure output.
 """

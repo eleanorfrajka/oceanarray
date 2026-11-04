@@ -5,9 +5,8 @@ from pathlib import Path
 import numpy as np
 import xarray as xr
 
-from oceanarray import paths
+from oceanarray import logger, paths
 from oceanarray.pipeline.units import to_canonical_units
-from oceanarray.utilities import _status
 from oceanarray.writers import write
 from oceanarray.writers.netcdf import as_stored
 
@@ -321,7 +320,7 @@ class MooringGridder:
             return False
 
         if output_found and not force:
-            _status("skip", self._rel(output_path))
+            logger.status("skip", self._rel(output_path))
             return True
 
         try:
@@ -342,5 +341,5 @@ class MooringGridder:
         # write() replaces atomically (temp file then rename), so the previous
         # output survives a failed write; do not unlink it first.
         write(ds_out, output_path, overwrite=True)
-        _status("file", self._rel(output_path))
+        logger.status("file", self._rel(output_path))
         return True

@@ -1,4 +1,4 @@
-"""Mooring report package — public API."""
+"""The report pages: HTML (and the merged PDF) built from the products; the figures come from ``plotters``."""
 
 from __future__ import annotations
 

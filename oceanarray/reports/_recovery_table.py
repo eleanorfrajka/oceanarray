@@ -18,14 +18,14 @@ from typing import Any
 
 import yaml
 
-from oceanarray import paths
+from oceanarray import logger, paths
+from oceanarray.instruments import instrument_entries
 
 from ..paths import safe_serial
 from ._env import render_template
 from ._html_helpers import (
     _parse_dt,
     _resolve_clock,
-    _status,
 )
 
 # ---------------------------------------------------------------------------
@@ -144,8 +144,6 @@ def _build_rows(
     cfg: dict[str, Any],
 ) -> tuple:
     """Build ``(rows, comments)`` for the recovery table and its Notes section."""
-    from ..utilities import instrument_entries
-
     waterdepth = cfg.get("waterdepth")
     entries = instrument_entries(cfg)
 
@@ -286,11 +284,12 @@ def generate_recovery_table(
     """
     from datetime import datetime
 
-    from ..utilities import (
+    from oceanarray.location import (
         format_latlon,
         is_unknown_latlon_source,
         parse_latlon_with_source,
     )
+
     from ._html_helpers import _format_duration
 
     proc_dir = Path(proc_dir)
@@ -301,7 +300,7 @@ def generate_recovery_table(
         out_path = proc_dir / f"{mooring_name}_recovery_table.html"
 
     if out_path.exists() and not force:
-        _status("skip", str(out_path))
+        logger.status("skip", str(out_path))
         return out_path
 
     if not yaml_path.exists():
@@ -344,5 +343,5 @@ def generate_recovery_table(
 
     html = render_template("recovery_table.html", **ctx)
     out_path.write_text(html, encoding="utf-8")
-    _status("file", str(out_path))
+    logger.status("file", str(out_path))
     return out_path

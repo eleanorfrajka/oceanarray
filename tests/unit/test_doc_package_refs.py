@@ -4,8 +4,7 @@ The ``processors`` → ``pipeline`` rename and the ``tools.readers`` removal wer
 swept through ``.py`` files, but the sed missed ``.ipynb`` and some ``.rst``/``.md``
 prose — which only surfaced when the notebook-build CI job executed the demo and
 hit ``ModuleNotFoundError: oceanarray.processors``. This test greps the
-user-facing docs and notebooks so the next package move (the boundaries phase)
-inherits the check.
+user-facing docs and notebooks for every package path removed in 0.6.0.
 
 The CHANGELOG and the migration guide are excluded: they document the old → new
 mapping and must name the removed paths.
@@ -19,7 +18,18 @@ _ROOT = Path(__file__).resolve().parents[2]
 
 #: Dotted module paths removed in 0.6.0; none may appear in executable notebooks
 #: or user-facing docs (outside the old→new mapping files).
-_REMOVED_PATHS = ("oceanarray.processors", "oceanarray.tools.readers")
+_REMOVED_PATHS = (
+    "oceanarray.processors",
+    "oceanarray.tools",
+    "oceanarray.utilities",
+    "oceanarray.pipeline.helpers",
+    "oceanarray.pipeline.caldip",
+    "oceanarray.analysis.clock",
+    "oceanarray.analysis.temporal",
+    "oceanarray.analysis.science",
+    "oceanarray.analysis.hydrographic",
+    "oceanarray.legacy.find_deployment",
+)
 
 #: Files that legitimately name the removed paths (the old→new mapping).
 _ALLOWED = {"CHANGELOG.md", "migration.rst"}

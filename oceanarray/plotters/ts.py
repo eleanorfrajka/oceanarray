@@ -7,10 +7,10 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
+from oceanarray.plotters.primitives import nice_colorbar_ticks
 from oceanarray.reports._vendored import design_tokens as report_tokens
 
 from ..config import parameters as params
-from ..utilities import nice_colorbar_ticks
 from .helpers import QC_MARKER as _QC_MARKER
 from .primitives import colorbar_norm, plot_title, square_axes_grid, unit_colorbar
 
@@ -66,7 +66,8 @@ def _ts_heatmap_panel(
     """Render a T-S 2-D count heatmap on *ax*."""
     import matplotlib.pyplot as plt
 
-    from ..utilities import nice_colorbar_ticks
+    from oceanarray.plotters.primitives import nice_colorbar_ticks
+
     from .primitives import unit_colorbar
 
     # s_lim/t_lim, when given, set bins and limits so the heatmap shares the

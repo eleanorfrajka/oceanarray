@@ -80,8 +80,6 @@ records what was applied and when.
 """
 
 import re
-from collections.abc import Mapping
-from pathlib import Path
 from typing import NamedTuple
 
 from oceanarray import paths
@@ -197,44 +195,6 @@ def check_serials(entries: list[dict]) -> list[ValidationIssue]:
                 )
             )
     return issues
-
-
-def serial_collision_errors(mooring_config: str | Path | Mapping) -> list[str]:
-    """Return the serial-collision ERROR messages for a mooring config, or ``[]``.
-
-    The pre-flight guard the processing path runs before any stage writes: it
-    builds the combined instrument list (``clamp`` + ``instruments`` + inline, same
-    rule as :func:`validate_mooring`) and returns only the :func:`check_serials`
-    ERROR messages.  It parses leniently through :func:`oceanarray.mooring._parse`
-    — a missing or unparseable file returns ``[]`` (those are reported by the normal
-    validator, not this guard) — rather than :func:`oceanarray.mooring.load`, which
-    would raise on the very collision this guard reports and swallow it.
-
-    Parameters
-    ----------
-    mooring_config : str or pathlib.Path or Mapping
-        A mooring YAML path, or an already-parsed mapping.
-
-    Returns
-    -------
-    list of str
-        One message per serial collision; empty when the serials are safe.
-    """
-    from oceanarray import mooring as _mooring
-
-    data = _mooring._parse(mooring_config)
-    if not isinstance(data, dict):
-        return []
-    instrument_list = data.get("clamp", data.get("instruments", []))
-    inline = [
-        e
-        for e in data.get("inline", [])
-        if isinstance(e, dict)
-        and "instrument" in e
-        and (e.get("filename") or e.get("skip"))
-    ]
-    combined = list(instrument_list) + inline
-    return [i.message for i in check_serials(combined) if i.level == "ERROR"]
 
 
 def validate_mooring_yaml(yaml_path: str) -> list[ValidationIssue]:
@@ -552,32 +512,3 @@ def validate_mooring(
 
     issues.extend(check_serials(combined_list))
     return issues
-
-
-def print_validation_report(yaml_path: str) -> bool:
-    """Print a human-readable validation report. Returns True if no errors."""
-    from oceanarray import mooring as _mooring
-
-    issues = _mooring.check(yaml_path)
-
-    errors = [i for i in issues if i.level == "ERROR"]
-    warnings = [i for i in issues if i.level == "WARNING"]
-
-    print(f"Validating: {yaml_path}")
-
-    if not issues:
-        print("  OK — no issues found")
-        return True
-
-    for issue in issues:
-        marker = "  ERROR  " if issue.level == "ERROR" else "  warn   "
-        print(f"{marker}{issue.message}")
-
-    summary = []
-    if errors:
-        summary.append(f"{len(errors)} error(s)")
-    if warnings:
-        summary.append(f"{len(warnings)} warning(s)")
-    print(f"  {', '.join(summary)}")
-
-    return len(errors) == 0

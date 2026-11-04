@@ -3,7 +3,7 @@ Calibration — applying caldip corrections at the front of Stage 3
 
 .. note::
 
-   **Status: planned, not yet implemented.** ``oceanarray/pipeline/caldip.py`` is a stub.
+   **Status: planned, not yet implemented.** ``oceanarray/pipeline/qc/calibration.py`` is a stub.
    This page is the build specification for that work: it carries the input contract, the
    sign convention, the per-variable model, the insertion point, and the acceptance criteria
    a builder needs. Settled decisions are stated as firm; open ones are marked
@@ -13,7 +13,7 @@ The interface to fill in
 ------------------------
 
 The stub on ``main`` fixes the interface this specification implements.
-``oceanarray/pipeline/caldip.py`` exports the shared contract — ``CALDIP_SUFFIX``,
+``oceanarray/pipeline/qc/calibration.py`` exports the shared contract — ``CALDIP_SUFFIX``,
 ``SUPPORTED_SCHEMA_VERSION``, ``CALDIP_FLAG_OK``, ``REQUIRED_PROVENANCE_GLOBALS``,
 ``PROVENANCE_PASSTHROUGH_GLOBALS``, and ``canonical_serial`` (the shared join-key rule) — and
 five functions to implement, each currently raising ``NotImplementedError``:

@@ -8,9 +8,8 @@ from os import PathLike
 from pathlib import Path
 from typing import Any, Literal
 
-from oceanarray import paths
+from oceanarray import logger, paths
 from oceanarray.exceptions import MooringError
-from oceanarray.utilities import _status
 
 Kind = Literal["mooring", "array", "recovery"]
 
@@ -106,9 +105,9 @@ def report(
     if kind not in ("mooring", "recovery"):
         raise ValueError(f"kind={kind!r}: expected 'mooring', 'array' or 'recovery'")
 
-    from oceanarray.pipeline import _resolve_mooring
+    from oceanarray.pipeline import resolve_mooring
 
-    cfg, moor_dir = _resolve_mooring(mooring, mooring_dir, "report")
+    cfg, moor_dir = resolve_mooring(mooring, mooring_dir, "report")
     name, proc_root = cfg["name"], moor_dir.parent
     yaml_path = _resolve_description_file(mooring, moor_dir, name)
     if kind == "recovery":
@@ -121,7 +120,7 @@ def report(
 
     serial_list = _as_serial_list(serials)
     with _sigma_grid(sig_level):
-        _status("section", f"Report: {name}")
+        logger.status("section", f"Report: {name}")
         page = MooringReport(
             proc_dir=str(proc_root),
             raw_dir=str(raw_dir) if raw_dir is not None else None,
@@ -254,7 +253,7 @@ def _combine_pdf(name: str, html_dir: Path, pdf_dir: PathLike | None) -> Path:
         pdf_path = combine_mooring_pdf(html_dir, name, output_path=pdf_path)
     except (ImportError, FileNotFoundError) as exc:
         raise MooringError(f"{name}: no PDF — {exc}") from exc
-    _status("file", str(pdf_path))
+    logger.status("file", str(pdf_path))
     return pdf_path
 
 
@@ -271,7 +270,7 @@ def _array_report(
     root = Path(proc_dir) if proc_dir is not None else array_yaml.parent
     if not array_yaml.exists() and not array_yaml.is_absolute():
         array_yaml = root / array_yaml
-    _status("section", f"Array report: {array_yaml.name}")
+    logger.status("section", f"Array report: {array_yaml.name}")
     page = generate_array_report(
         array_yaml_path=array_yaml,
         proc_dir=root,

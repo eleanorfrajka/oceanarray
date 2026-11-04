@@ -24,7 +24,7 @@ import xarray as xr
 from xarray.coding.times import CFDatetimeCoder
 
 from oceanarray.logger import log_info
-from oceanarray.utilities import cast_output_dtypes
+from oceanarray.writers.dtypes import cast_output_dtypes
 
 _DATETIME_ENCODING_ATTRS = ("units", "calendar")
 # zlib level 4 with the shuffle filter.  Turning shuffle off for float64 — as
@@ -225,7 +225,7 @@ def _prepare(ds: xr.Dataset, *, compress: bool = True) -> xr.Dataset:
 def as_stored(ds: xr.Dataset) -> xr.Dataset:
     """Return *ds* holding the values its file will hold, so it equals the file read back.
 
-    Casts to the storage dtypes (:func:`~oceanarray.utilities.cast_output_dtypes`:
+    Casts to the storage dtypes (:func:`~oceanarray.writers.dtypes.cast_output_dtypes`:
     float64 to float32 but for time and position) and rounds every datetime to what
     :data:`_TIME_ENCODING` (float64 seconds) can represent, by encoding and decoding
     it with xarray's own time coder. A stage applies it to its output, so a dataset

@@ -14,8 +14,8 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from oceanarray.utilities import cast_output_dtypes
 from oceanarray.writers import write
+from oceanarray.writers.dtypes import cast_output_dtypes
 from oceanarray.writers.netcdf import (
     _DROP,
     _netcdf_safe_attr_value,
@@ -72,7 +72,7 @@ def test_single_to_netcdf_path():
     pkg = Path(__file__).resolve().parents[2] / "oceanarray"
     allowed = {
         # legacy physics code; rewrite deferred (per-file-ignores mark it so).
-        pkg / "tools" / "rapid_interp.py",
+        pkg / "pipeline" / "gridders" / "rapid_interp.py",
     }
     offenders = []
     for py in pkg.rglob("*.py"):

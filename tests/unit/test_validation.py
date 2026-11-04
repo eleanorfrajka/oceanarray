@@ -356,7 +356,6 @@ def test_validate_serial_with_special_chars_is_warning(tmp_path):
 
 from oceanarray.config.validation import (  # noqa: E402
     check_serials,
-    serial_collision_errors,
 )
 
 
@@ -415,6 +414,8 @@ def test_star_only_serial_is_marker_warning_not_illegal(tmp_path):
 
 
 def test_serial_collision_errors_reads_yaml(tmp_path):
+    from oceanarray.mooring import serial_collision_errors
+
     data = dict(_VALID_MINIMAL)
     data["instruments"] = [_mk("1234"), _mk("1234")]
     msgs = serial_collision_errors(_write_yaml(tmp_path, data))

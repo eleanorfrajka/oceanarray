@@ -24,13 +24,13 @@ import xarray as xr
 from oceanarray import mooring as _mooring
 from oceanarray import paths, readers
 from oceanarray.exceptions import MooringError
-from oceanarray.pipeline import _stage, raw_files
-from oceanarray.utilities import (
+from oceanarray.instruments import instrument_entries
+from oceanarray.location import (
     format_latlon,
-    instrument_entries,
     is_unknown_latlon_source,
     parse_latlon_with_source,
 )
+from oceanarray.pipeline import _stage, raw_files
 
 # Placeholders the pipeline has always written when position / window are absent
 # (Eleanor, 2026-10-24: nobody mistakes 0/0 or the YYYY string for data). They

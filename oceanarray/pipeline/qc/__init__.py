@@ -1,4 +1,4 @@
-"""QARTOD QC tests and CTD derivations for stage 3."""
+"""Quality control: QARTOD tests, flag merging, CTD derivations for stage 3, and calibration."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from oceanarray.pipeline.units import UnitsError
 
 # Merge priority for combining QC flags (higher priority wins = worse quality).
 # Single source of truth: parameters.QC_MERGE_PRIORITY, shared with
-# mooring.helpers._worst_flag so the two merge paths cannot drift.
+# _worst_flag below so the two merge paths cannot drift.
 _QC_PRIORITY: dict[int, int] = params.QC_MERGE_PRIORITY
 
 # Velocity variable names in both beam and ENU coordinate systems.
@@ -759,3 +759,35 @@ def derive_oxygen_saturation(ds: xr.Dataset) -> xr.Dataset:
             },
         ),
     )
+
+
+def _apply_qc_mask(src_v: np.ndarray, ds: xr.Dataset, vname: str) -> np.ndarray:
+    """Return src_v with flagged values replaced by NaN."""
+    qc_name = f"{vname}_qc"
+    if qc_name not in ds.data_vars:
+        return src_v
+    qc = ds[qc_name].values
+    # Keep 0 (no QC), 1 (good), 2 (probably good), plus 8 (interpolated) for pressure
+    # only; 3 (suspect), 4 (bad) and 9 (missing) become NaN.
+    keep = np.isin(qc, [0, 1, 2, 8]) if vname == "pressure" else np.isin(qc, [0, 1, 2])
+    out = src_v.copy()
+    out[~keep] = np.nan
+    return out
+
+
+def _worst_flag(a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    """Element-wise worst QC flag on the OceanSITES priority ordering."""
+    # rank[flag_value] gives priority; higher rank = worse flag. Weakest to strongest:
+    # unknown 0 < good 1 < probably_good 2 < nominal 7 < interpolated 8
+    # < potentially_correctable_bad 3 < bad 4 < missing 9. The LUT is shared with the
+    # qc module's flag merge so the two merge paths cannot drift.
+    _rank = params.QC_MERGE_PRIORITY_LUT
+    # NaN -> 9 (missing) so levels with no data are never promoted to 0 (unknown).
+    a = np.where(np.isfinite(a), a, 9.0)
+    b = np.where(np.isfinite(b), b, 9.0)
+    ai = np.clip(np.round(a).astype(np.int8), 0, 9)
+    bi = np.clip(np.round(b).astype(np.int8), 0, 9)
+    take_b = _rank[bi] > _rank[ai]
+    out = ai.copy()
+    out[take_b] = bi[take_b]
+    return out

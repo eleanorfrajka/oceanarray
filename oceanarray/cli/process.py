@@ -6,7 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from oceanarray import paths
+from oceanarray import logger, paths
 from oceanarray.cli._common import (
     _MOORING_HELP,
     _add_dir_args,
@@ -18,7 +18,6 @@ from oceanarray.cli._common import (
     _raw_dir,
 )
 from oceanarray.pipeline import STAGES
-from oceanarray.utilities import _status
 
 
 def cmd_process(args: argparse.Namespace) -> int:
@@ -78,17 +77,17 @@ def cmd_process(args: argparse.Namespace) -> int:
                 raw_dir=raw_dir,
             )
         except MooringError as e:
-            _status("error", str(e))
+            logger.status("error", str(e))
             return 1
 
     if args.report:
         from ..reports import summary
 
-        _status("section", f"Record Summary: {args.mooring}")
+        logger.status("section", f"Record Summary: {args.mooring}")
         try:
             print(summary(location))
         except MooringError as e:
-            _status("error", str(e))
+            logger.status("error", str(e))
             return 1
 
     if args.plot:
@@ -137,7 +136,7 @@ def _save_stage2_plots(moor_dir: Path) -> None:
 
     from ..plotters import draw_aquadopp_raw, draw_microcat_raw
 
-    _status("section", f"Plotting: {moor_dir.name}")
+    logger.status("section", f"Plotting: {moor_dir.name}")
     for kind, draw in (
         ("microcat", draw_microcat_raw),
         ("aquadopp", draw_aquadopp_raw),

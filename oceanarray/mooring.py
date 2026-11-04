@@ -16,8 +16,8 @@ parameter is ``mooring`` can still call the module's functions::
 Users write ``oceanarray.mooring.load(...)``. This module handles the description
 *file* — ``load``, ``check``, ``template``, ``save``; interpreting the loaded dict
 (which entries to process, the position) is the caller's job, through
-:func:`oceanarray.utilities.instrument_entries` and
-:func:`oceanarray.utilities.parse_latlon_with_source`.
+:func:`oceanarray.instruments.instrument_entries` and
+:func:`oceanarray.location.parse_latlon_with_source`.
 
 The file shape is a cross-package contract (moordiag reads the same file), so
 ``load`` keeps every key exactly as written and never rewrites a value.
@@ -521,3 +521,40 @@ def save(
     with path.open("w", newline="\n") as fh:
         writer.dump(doc, fh)
     return path
+
+
+def serial_collision_errors(mooring_config: str | Path | Mapping) -> list[str]:
+    """Return the serial-collision ERROR messages for a mooring config, or ``[]``.
+
+    The pre-flight guard the processing path runs before any stage writes: it
+    builds the combined instrument list (``clamp`` + ``instruments`` + inline, same
+    rule as :func:`~oceanarray.config.validation.validate_mooring`) and returns only the
+    :func:`~oceanarray.config.validation.check_serials`
+    ERROR messages.  It parses leniently through :func:`_parse`
+    — a missing or unparseable file returns ``[]`` (those are reported by the normal
+    validator, not this guard) — rather than :func:`load`, which
+    would raise on the very collision this guard reports and swallow it.
+
+    Parameters
+    ----------
+    mooring_config : str or pathlib.Path or Mapping
+        A mooring YAML path, or an already-parsed mapping.
+
+    Returns
+    -------
+    list of str
+        One message per serial collision; empty when the serials are safe.
+    """
+    data = _parse(mooring_config)
+    if not isinstance(data, dict):
+        return []
+    instrument_list = data.get("clamp", data.get("instruments", []))
+    inline = [
+        e
+        for e in data.get("inline", [])
+        if isinstance(e, dict)
+        and "instrument" in e
+        and (e.get("filename") or e.get("skip"))
+    ]
+    combined = list(instrument_list) + inline
+    return [i.message for i in validation.check_serials(combined) if i.level == "ERROR"]

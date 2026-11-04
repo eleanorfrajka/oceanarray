@@ -6,8 +6,9 @@ import numpy as np
 import xarray as xr
 import yaml
 
-from .. import utilities  # for any shared helpers like date parsing
-from ..utilities import iso8601_duration_from_seconds  # or wherever you store it
+import math
+from typing import Any
+
 
 
 def convert_rodb_to_oceansites(
@@ -232,8 +233,8 @@ def add_global_attributes(ds, metadata):
     end = f"{metadata['END_DATE']}T{metadata['END_TIME']}:00Z"
     start = start.replace("/", "-")
     end = end.replace("/", "-")
-    utilities.is_iso8601_utc(start)
-    utilities.is_iso8601_utc(end)
+    is_iso8601_utc(start)
+    is_iso8601_utc(end)
 
     lat = metadata["LATITUDE"]
     lon = metadata["LONGITUDE"]
@@ -525,3 +526,51 @@ def sort_global_attributes(ds, attr_order=None):
     remaining = {k: v for k, v in ds.attrs.items() if k not in ordered}
     ds.attrs = {**ordered, **remaining}
     return ds
+
+
+def iso8601_duration_from_seconds(seconds: float) -> str:
+    """Convert a duration in seconds to an ISO 8601 duration string.
+
+    Parameters
+    ----------
+    seconds : float
+        Duration in seconds.
+
+    Returns
+    -------
+    str
+        ISO 8601 duration string, e.g., 'PT1H', 'PT30M', 'PT15S'.
+
+    """
+    seconds = int(round(seconds))
+    if seconds >= 86400:
+        return f"P{seconds // 86400}D"
+    if seconds >= 3600:
+        return f"PT{seconds // 3600}H"
+    if seconds >= 60:
+        return f"PT{seconds // 60}M"
+    return f"PT{seconds}S"
+
+
+def is_iso8601_utc(timestr: str) -> bool:
+    """Validate whether a string is in ISO8601 UTC format: YYYY-MM-DDTHH:MM:SSZ.
+
+    Parameters
+    ----------
+    timestr : str
+        Input time string.
+
+    Returns
+    -------
+    bool
+        True if valid ISO8601 UTC format, False otherwise.
+
+    """
+    try:
+        datetime.datetime.strptime(timestr, "%Y/%m/%dT%H:%M:%SZ")  # RODB-style
+    except ValueError:
+        try:
+            datetime.datetime.strptime(timestr, "%Y-%m-%dT%H:%M:%SZ")  # ISO8601 style
+        except ValueError:
+            return False
+    return True

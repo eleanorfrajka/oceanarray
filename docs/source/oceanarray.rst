@@ -95,7 +95,7 @@ raises ``MooringError`` on an invalid config), ``check`` (never raises), and
 ``template`` / ``save`` for the ``init`` stub. Every stage and report receives the
 loaded dict rather than re-reading the file. Interpreting that dict — which
 entries to process, the position — is the caller's job, through
-``utilities.instrument_entries`` and ``utilities.parse_latlon_with_source``.
+``instruments.instrument_entries`` and ``location.parse_latlon_with_source``.
 
 .. automodule:: oceanarray.mooring
    :members:
@@ -141,15 +141,55 @@ rapid interpolation
 ^^^^^^^^^^^^^^^^^^^
 Physics-informed vertical interpolation (RAPID array scheme).
 
-.. automodule:: oceanarray.tools.rapid_interp
+.. automodule:: oceanarray.pipeline.gridders.rapid_interp
    :members:
    :undoc-members:
 
-utilities
-^^^^^^^^^
-General utilities for file management, logging, and parsing ASCII metadata.
+climatology
+^^^^^^^^^^^
+Hydrographic profiles prepared as a climatology for ``rapid_interp``.
 
-.. automodule:: oceanarray.utilities
+.. automodule:: oceanarray.pipeline.gridders.climatology
+   :members:
+   :undoc-members:
+
+filters
+^^^^^^^
+Time filters applied to a series before it is gridded.
+
+.. automodule:: oceanarray.pipeline.gridders.filters
+   :members:
+   :undoc-members:
+
+instruments
+^^^^^^^^^^^
+The instruments a mooring description lists: its entries and inline hardware serials.
+
+.. automodule:: oceanarray.instruments
+   :members:
+   :undoc-members:
+
+location
+^^^^^^^^
+Geographic position of a mooring: parse and format latitude and longitude.
+
+.. automodule:: oceanarray.location
+   :members:
+   :undoc-members:
+
+storage dtypes
+^^^^^^^^^^^^^^
+The smallest dtype that holds each variable when a file is written.
+
+.. automodule:: oceanarray.writers.dtypes
+   :members:
+   :undoc-members:
+
+logger
+^^^^^^
+Logging set-up, the stage log files and the console status lines.
+
+.. automodule:: oceanarray.logger
    :members:
    :undoc-members:
 
@@ -223,13 +263,21 @@ Coordinate system transformations (BEAM → XYZ → ENU, magnetic declination).
    :members:
    :undoc-members:
 
-caldip
-^^^^^^
+calibration (caldip)
+^^^^^^^^^^^^^^^^^^^^
 Calibration-dip correction contract and interface, applied at the front of Stage 3.
 Currently a stub: the interface functions raise ``NotImplementedError`` pending the
 implementation (see :doc:`methods/calibration`).
 
-.. automodule:: oceanarray.pipeline.caldip
+.. automodule:: oceanarray.pipeline.qc.calibration
+   :members:
+   :undoc-members:
+
+ADCP QC
+^^^^^^^
+ADCP QC steps: bins in the seabed or surface sidelobe zone, and velocity checks.
+
+.. automodule:: oceanarray.pipeline.qc.adcp
    :members:
    :undoc-members:
 
@@ -262,11 +310,27 @@ Interpolate stacked mooring data onto a regular pressure grid
    :members:
    :undoc-members:
 
-mooring helpers
-^^^^^^^^^^^^^^^
-Shared helpers for position parsing, HAB computation, and instrument metadata.
+dataset
+^^^^^^^
+xarray conveniences the pipeline stages share.
 
-.. automodule:: oceanarray.pipeline.helpers
+.. automodule:: oceanarray.pipeline.dataset
+   :members:
+   :undoc-members:
+
+clock offsets
+^^^^^^^^^^^^^
+Clock offsets and lag correlation across a mooring's instruments.
+
+.. automodule:: oceanarray.pipeline.clock.offsets
+   :members:
+   :undoc-members:
+
+deployment window
+^^^^^^^^^^^^^^^^^
+When each instrument entered and left the water, from its temperature record.
+
+.. automodule:: oceanarray.pipeline.clock.deployment
    :members:
    :undoc-members:
 
@@ -293,30 +357,12 @@ Validate mooring YAML configuration files and check instrument type names.
 Analysis
 ---------
 
-science
-^^^^^^^
-QC routines: ``flag_salinity_outliers``, ``flag_temporal_spikes``,
-``flag_vertical_inconsistencies``, ``run_qc``.
-
-.. automodule:: oceanarray.analysis.science
-   :members:
-   :undoc-members:
-
-hydrographic
-^^^^^^^^^^^^
+hydrography
+^^^^^^^^^^^
 Salinity calculation, isopycnal tracking, cold-regime detection, and dataset
 differencing.
 
-.. automodule:: oceanarray.analysis.hydrographic
-   :members:
-   :undoc-members:
-
-temporal
-^^^^^^^^
-Lag correlation, histogram-based split value, T/S downsampling, and Tukey
-time-series filtering.
-
-.. automodule:: oceanarray.analysis.temporal
+.. automodule:: oceanarray.analysis.hydrography
    :members:
    :undoc-members:
 
@@ -325,14 +371,6 @@ spectral
 Gonella rotary spectra, Welch PSD, and continuous wavelet transforms.
 
 .. automodule:: oceanarray.analysis.spectral
-   :members:
-   :undoc-members:
-
-vector
-^^^^^^
-XYZ→ENU rotation and progressive-vector trajectory computation.
-
-.. automodule:: oceanarray.analysis.vector
    :members:
    :undoc-members:
 

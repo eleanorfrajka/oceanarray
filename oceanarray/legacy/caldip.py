@@ -30,7 +30,6 @@ import xarray as xr
 from scipy import signal
 from scipy.interpolate import interp1d
 
-from oceanarray import tools
 
 
 def detect_water_impact(

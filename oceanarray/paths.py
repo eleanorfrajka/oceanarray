@@ -406,3 +406,48 @@ def safe_serial(serial: Any) -> str:
     """
     primary = str(serial).split(",")[0]
     return re.sub(r"[^\w\-]", "", primary)
+
+
+def should_skip_regeneration(
+    output: Path,
+    force: bool,
+    skip_existing: bool,
+    *sources: Path,
+) -> bool:
+    """Decide whether regenerating *output* can be skipped.
+
+    Three-mode logic (matching the report layer / ctd_report CLI design):
+
+    - ``force=True``         → never skip (always regenerate).
+    - ``skip_existing=True`` → skip whenever *output* exists, regardless of
+      source modification times (the fast, mtime-agnostic behaviour).
+    - default                → skip only if *output* exists and is newer than
+      every path in *sources* (mtime-based staleness).  A source newer than
+      *output* — for example an edited mooring YAML — forces regeneration.
+
+    Parameters
+    ----------
+    output : Path
+        The file that would be (re)generated.
+    force : bool
+        If True, never skip.
+    skip_existing : bool
+        If True, skip whenever *output* exists regardless of source mtimes.
+    *sources : Path
+        Input files *output* is derived from (raw data, previous-stage NetCDF,
+        the mooring YAML).  Non-existent sources are ignored.
+
+    Returns
+    -------
+    bool
+        True if regeneration can be skipped; False if *output* must be rebuilt.
+
+    """
+    if force:
+        return False
+    if not output.exists():
+        return False
+    if skip_existing:
+        return True
+    out_mtime = output.stat().st_mtime
+    return not any(s.exists() and s.stat().st_mtime > out_mtime for s in sources)

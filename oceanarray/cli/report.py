@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from oceanarray import paths
+from oceanarray import logger, paths
 from oceanarray.cli._common import (
     _MOORING_HELP,
     _add_dir_args,
@@ -16,7 +16,6 @@ from oceanarray.cli._common import (
     _OldFlag,
     _resolve_dirs,
 )
-from oceanarray.utilities import _status
 
 
 def cmd_report(args: argparse.Namespace) -> int:
@@ -39,13 +38,13 @@ def cmd_report(args: argparse.Namespace) -> int:
 
     if getattr(args, "array", False):
         if getattr(args, "pdf", False) or getattr(args, "all_reports", False):
-            _status(
+            logger.status(
                 "error",
                 "--pdf is not supported in --array mode; the array index is "
                 "HTML-only. Run 'report MOORING --pdf' per mooring instead.",
             )
         if outdir:
-            _status(
+            logger.status(
                 "error",
                 "-o/--output-dir is ignored in --array mode; the array index "
                 "goes to the tree root. Use --report-dir to set it.",
@@ -59,7 +58,7 @@ def cmd_report(args: argparse.Namespace) -> int:
                 force=args.force,
             )
         except MooringError as e:
-            _status("error", str(e))
+            logger.status("error", str(e))
             return 1
         return 0
 
@@ -108,7 +107,7 @@ def cmd_report(args: argparse.Namespace) -> int:
                 force=args.force,
             )
     except MooringError as e:
-        _status("error", str(e))
+        logger.status("error", str(e))
         return 1
     if want_pdf:
         from ..reports._verb import _combine_pdf, _resolve_name_and_dir
@@ -119,7 +118,7 @@ def cmd_report(args: argparse.Namespace) -> int:
         except MooringError as e:
             # An explicit --pdf that cannot be honoured is a failure; a PDF only
             # implied by --all is best-effort, so the HTML result stands.
-            _status("error", str(e))
+            logger.status("error", str(e))
             if getattr(args, "pdf", False):
                 return 1
     return 0
@@ -136,22 +135,23 @@ def _report_dry_run(
     want_pdf: bool,
 ) -> int:
     """Print the pages a report run would write, at the paths it would write them to."""
+    from oceanarray import logger
     from oceanarray import mooring as _mooring
+    from oceanarray.instruments import instrument_entries
     from oceanarray.reports import report_paths
     from oceanarray.reports._verb import (
         _recovery_path,
         _resolve_description_file,
         _resolve_name_and_dir,
     )
-    from oceanarray.utilities import instrument_entries
 
     from ..exceptions import MooringError
 
-    _status("section", f"Report (dry run): {args.mooring}")
+    logger.status("section", f"Report (dry run): {args.mooring}")
     try:
         name, _ = _resolve_name_and_dir(moor_dir, None)
     except MooringError as e:
-        _status("error", str(e))
+        logger.status("error", str(e))
         return 1
     where = report_paths(
         moor_dir,
