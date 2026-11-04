@@ -20,6 +20,10 @@ OCEANSITES_VARIABLES: dict[str, str] = {
     "UCUR": "east_velocity",
     "VCUR": "north_velocity",
     "WCUR": "up_velocity",
+    "CSPD": "current_speed",
+    "CDIR": "current_direction",
+    "DOX2": "dissolved_oxygen",
+    "TURB": "turbidity",
 }
 
 #: OceanSITES reference table 2, used for a ``_QC`` variable that carries no

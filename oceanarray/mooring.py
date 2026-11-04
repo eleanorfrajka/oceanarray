@@ -25,10 +25,12 @@ The file shape is a cross-package contract (moordiag reads the same file), so
 
 import logging
 import math
+import re
 from collections.abc import Iterable, Mapping
 from os import PathLike
 from pathlib import Path
 
+import pandas as pd
 import yaml
 
 from oceanarray.config import validation
@@ -52,6 +54,9 @@ KNOWN_KEYS: frozenset[str] = frozenset(
         "year",
         "waterdepth",
         "status",
+        # OceanSITES identity (read by the export; see ``_check_export_codes``)
+        "platform_code",
+        "deployment_code",
         # cruise / ship (both vocabularies)
         "cruise",
         "ship",
@@ -86,6 +91,9 @@ KNOWN_KEYS: frozenset[str] = frozenset(
         "grid",
     }
 )
+
+#: A deployment code: ``YYYYMM`` with a calendar month (01–12).
+DEPLOYMENT_CODE_PATTERN = r"\d{4}(0[1-9]|1[0-2])"
 
 #: The keys each optional settings block may hold, and whether the value must be
 #: an integer.
@@ -215,6 +223,7 @@ def check(
 
     if isinstance(data, Mapping):
         issues += _check_settings(data)
+        issues += _check_export_codes(data)
         for key in data:
             if key not in KNOWN_KEYS:
                 issues.append(
@@ -226,6 +235,50 @@ def check(
                     )
                 )
     return issues
+
+
+def _check_export_codes(data: Mapping) -> list[ValidationIssue]:
+    """Check ``platform_code`` and ``deployment_code``, the OceanSITES file-name fields."""
+    issues: list[ValidationIssue] = []
+    platform = data.get("platform_code")
+    if platform is not None and (not isinstance(platform, str) or "_" in platform):
+        # "_" separates the fields of an OceanSITES file name (manual §4.1).
+        issues.append(
+            ValidationIssue(
+                "WARNING",
+                f"platform_code {platform!r} must be text without '_' (the OceanSITES "
+                f"file-name separator); the export refuses it.",
+            )
+        )
+    code = data.get("deployment_code")
+    if code is not None:
+        expected = _deployment_month(data.get("deployment_time"))
+        if not re.fullmatch(DEPLOYMENT_CODE_PATTERN, str(code)):
+            issues.append(
+                ValidationIssue(
+                    "WARNING",
+                    f"deployment_code {code!r} is not YYYYMM; the export refuses it.",
+                )
+            )
+        elif expected is not None and str(code) != expected:
+            issues.append(
+                ValidationIssue(
+                    "WARNING",
+                    f"deployment_code {code} does not match deployment_time "
+                    f"(month {expected}).",
+                )
+            )
+    return issues
+
+
+def _deployment_month(deployment_time: object) -> str | None:
+    """Return ``YYYYMM`` of a deployment time, or None if it cannot be read."""
+    if deployment_time is None:
+        return None
+    try:
+        return pd.Timestamp(str(deployment_time)).strftime("%Y%m")
+    except (ValueError, TypeError):
+        return None
 
 
 def _check_settings(data: Mapping) -> list[ValidationIssue]:
@@ -295,6 +348,8 @@ def _check_settings(data: Mapping) -> list[ValidationIssue]:
 # ``save`` writes these as end-of-line comments; keep in sync with KNOWN_KEYS.
 _FIELD_COMMENTS: dict[str, str] = {
     "name": "mooring identifier; every output file is named from it",
+    "platform_code": "OceanSITES station code, no '_' (e.g. DUNE2); used by the export",
+    "deployment_code": "YYYYMM of deployment_time (e.g. 202607); used by the export",
     "year": "deployment year, e.g. 2026",
     "waterdepth": "water depth at anchor in metres",
     "deployment_cruise": "cruise ID, e.g. MSM142",
@@ -397,6 +452,7 @@ def template(name: str, *, instruments: list[dict] | None = None) -> dict:
     """
     doc: dict = {"name": name}
     for key in (
+        "platform_code",
         "year",
         "waterdepth",
         "deployment_cruise",
@@ -406,6 +462,7 @@ def template(name: str, *, instruments: list[dict] | None = None) -> dict:
         "latitude",
         "longitude",
         "deployment_time",
+        "deployment_code",
         "recovery_time",
     ):
         doc[key] = None

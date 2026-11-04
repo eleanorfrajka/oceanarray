@@ -64,6 +64,43 @@ def test_check_returns_error_without_raising() -> None:
     assert any("waterdepth" in i.message for i in errors)
 
 
+def _export_warnings(**keys: object) -> list[str]:
+    """Return the check messages that name an OceanSITES export key, for the fixture plus *keys*."""
+    cfg = {**mooring.load(FIXTURE), **keys}
+    return [
+        i.message
+        for i in mooring.check(cfg, dir_name="dune2_1_2026")
+        if "platform_code" in i.message or "deployment_code" in i.message
+    ]
+
+
+def test_export_codes_that_fit_pass_quietly() -> None:
+    """A platform code without '_' and the deployment month as YYYYMM raise nothing."""
+    assert _export_warnings(platform_code="DUNE2", deployment_code=202607) == []
+
+
+@pytest.mark.parametrize("code", ["DUNE2_1", 12])
+def test_platform_code_with_separator_or_not_text_warns(code: object) -> None:
+    """'_' is the OceanSITES file-name separator, so a platform code may not hold one."""
+    assert any("platform_code" in m for m in _export_warnings(platform_code=code))
+
+
+@pytest.mark.parametrize(
+    ("code", "fragment"),
+    [
+        ("2026-07", "not YYYYMM"),
+        (202600, "not YYYYMM"),
+        (202613, "not YYYYMM"),
+        (202608, "does not match"),
+    ],
+)
+def test_deployment_code_off_pattern_or_month_warns(
+    code: object, fragment: str
+) -> None:
+    """The deployment code is YYYYMM and agrees with deployment_time (2026-07-11)."""
+    assert any(fragment in m for m in _export_warnings(deployment_code=code))
+
+
 def test_missing_deployment_window_warns_not_errors() -> None:
     """An absent deployment/recovery time is a WARNING, so the config still loads."""
     cfg = {"name": "x", "waterdepth": 100}

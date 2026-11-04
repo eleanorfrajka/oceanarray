@@ -91,7 +91,7 @@ Contents
 
    roadmap
    style_guide
-   Convert to OceanSITES (Stage 4) <methods/conversion>
+   OceanSITES export <methods/oceansites_export>
    Combine Deployments <methods/concatenation>
    Multi-site Merging <methods/multisite_merging>
 

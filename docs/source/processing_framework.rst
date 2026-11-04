@@ -94,7 +94,7 @@ The instrument-level processing carries out the following steps:
 - :doc:`methods/trimming` — trimming and clock corrections.
 - :doc:`methods/auto_qc` — QARTOD QC flags.
 - :doc:`methods/calibration` — applying calibration corrections.
-- :doc:`methods/conversion` — exporting to OceanSITES format.
+- :doc:`methods/oceansites_export` — exporting to OceanSITES 1.4.
 
 ----
 

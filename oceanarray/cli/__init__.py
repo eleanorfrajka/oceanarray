@@ -8,6 +8,7 @@ import sys
 from oceanarray import paths
 from oceanarray._version import __version__
 from oceanarray.cli import animate as _animate
+from oceanarray.cli import export as _export
 from oceanarray.cli import init as _init
 from oceanarray.cli import list as _list
 from oceanarray.cli import plot as _plot
@@ -18,6 +19,7 @@ from oceanarray.cli import stamp as _stamp
 from oceanarray.cli import validate as _validate
 from oceanarray.cli._common import _parse_stage_token  # noqa: F401  — used by the tests
 from oceanarray.cli.animate import cmd_animate
+from oceanarray.cli.export import cmd_export
 from oceanarray.cli.init import cmd_init
 from oceanarray.cli.list import cmd_list
 from oceanarray.cli.plot import cmd_plot
@@ -30,6 +32,7 @@ from oceanarray.cli.validate import cmd_validate
 __all__ = [
     "build_parser",
     "cmd_animate",
+    "cmd_export",
     "cmd_init",
     "cmd_list",
     "cmd_plot",
@@ -52,6 +55,7 @@ def build_parser() -> argparse.ArgumentParser:
         "  oceanarray report   MOORING --instruments                     look at the stage files\n"
         "  oceanarray run      MOORING --raw-dir /data/raw               stages 1-3, stack, grid, report\n"
         "  oceanarray run      MOORING --stage 3 --dp 10                 re-run stage 3, regrid finer\n"
+        "  oceanarray export   MOORING --array /data/proc/X.array.yaml   OceanSITES 1.4 files\n"
         "\n"
         "Run 'oceanarray <command> --help' for command-specific options.\n"
     )
@@ -82,6 +86,7 @@ def build_parser() -> argparse.ArgumentParser:
         _process,
         _report,
         _run,
+        _export,
         _validate,
         _stamp,
         _plot,
