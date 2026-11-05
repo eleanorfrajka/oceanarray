@@ -3,35 +3,32 @@ Calibration — applying caldip corrections at the front of Stage 3
 
 .. note::
 
-   **Status: planned, not yet implemented.** ``oceanarray/pipeline/calibration/`` is a stub.
-   This page is the build specification for that work: it carries the input contract, the
-   sign convention, the per-variable model, the insertion point, and the acceptance criteria
-   a builder needs. Settled decisions are stated as firm; open ones are marked
-   **TBD — do not invent**.
+   **Status: in progress.** Reading and checking a caldip cast is implemented
+   (:mod:`oceanarray.pipeline.calibration.caldip`); choosing stops, combining dips and applying
+   the correction are not yet, and Stage 3 output is unchanged. This page is the specification
+   for that work; open values are marked **TBD**.
 
-The interface to fill in
-------------------------
+The interface
+-------------
 
-The stub on ``main`` fixes the interface this specification implements.
-``oceanarray/pipeline/calibration/`` exports the shared contract — ``CALDIP_SUFFIX``,
+``oceanarray.pipeline.calibration`` exports the shared contract — ``CALDIP_SUFFIX``,
 ``SUPPORTED_SCHEMA_VERSION``, ``CALDIP_FLAG_OK``, ``REQUIRED_PROVENANCE_GLOBALS``,
-``PROVENANCE_PASSTHROUGH_GLOBALS``, and ``canonical_serial`` (the shared join-key rule) — and
-five functions to implement, each currently raising ``NotImplementedError``:
+``PROVENANCE_PASSTHROUGH_GLOBALS`` and ``canonical_serial`` (the shared join-key rule) — and:
 
-- ``read_caldip_cast(path)`` — open and validate one ``{cast}_caldip.nc``;
-- ``find_caldip_casts(caldip_dir, serial)`` — the set of casts an instrument appears in
-  (oceanarray searches; caldip never pairs dips);
-- ``assign_dip_role(cast_time, deployment_time, recovery_time)`` — pre/post from the
-  deployment window;
-- ``select_offsets(ds, serial, variable)`` — the per-variable stop choice (below);
-- ``apply_caldip(ds, offsets_pre, offsets_post)`` — subtract the offset, combining pre and
-  post in time.
+- ``read_caldip_cast(path)`` — open and check one ``{cast}_caldip.nc`` (implemented);
+- ``instrument_record(cast, serial)`` — one instrument's per-stop record (implemented);
+- ``find_caldip_casts``, ``assign_dip_role``, ``select_offsets``, ``apply_caldip`` — still
+  raise ``NotImplementedError``.
+
+The division of labour with caldip: **caldip measures, oceanarray decides.** caldip aligns
+the clocks, finds the bottle stops and writes, per instrument and stop, the instrument and CTD
+values and their difference. oceanarray picks the stops, reduces them to an offset or a slope,
+pairs a deployment dip with a recovery dip, and applies the result.
 
 Develop against the committed real cast ``tests/fixtures/caldip/castM4_caldip.nc`` (a
 ``.cnv``-input cast, so its ``ctd_*`` provenance is legitimately ``UNK``). Stage 3 already
 exposes a ``caldip_dir`` argument as a null action that stamps ``caldip_applied`` on each
-output; wiring these functions at the insertion point in :func:`oceanarray.stage3`
-replaces the stub.
+output.
 
 Calibration applies post-deployment drift corrections to sensor data (temperature,
 conductivity, pressure) from calibration-dip comparisons against a shipboard CTD. The
@@ -70,67 +67,40 @@ resolves correctly::
 A mooring with a single dip is an ordinary case; the attributes record which end supplied the
 correction.
 
-**Path resolution.** ``--caldip-dir`` is a root only. Locate each cast's file by its name
-``{cast}_detailed_statistics.csv``, matched on the **strict** ``_detailed_statistics.csv``
-suffix so the ``-old`` / ``_all`` / ``_fixed`` variants that sit beside it are excluded (the
-caldip package's own reader matches the same strict suffix). Search recursively under
-``--caldip-dir``: real output appears in two shapes — flat
-(``outputs/castM6_detailed_statistics.csv``) and nested
-(``data/proc_calib/{cruise}/cal_dip/castB1_detailed_statistics.csv``) — so use the YAML
-``cruise`` to disambiguate when a cast name recurs. Record the resolved source filename in the
-attributes (a cast name alone does not identify which file was read, and it distinguishes the
-excluded variants).
+**Path resolution** is TBD (it lands with the ``caldip:`` block): each end's file is
+``{cast}_caldip.nc`` beneath the root, the YAML ``cruise`` disambiguating a recurring cast
+name, and the resolved path is recorded in the attributes.
 
-CSV contract
-------------
+Reading a cast
+--------------
 
-caldip writes one **detailed** CSV per cast, one row per instrument per bottle stop. Read the
-detailed CSV (not the summary, which keeps only the deepest stop). Columns:
+caldip writes one netCDF per cast, ``{cast}_caldip.nc`` (``schema_version = 1``), with
+dimensions ``instrument`` and ``stop``. Per instrument and stop: ``{temp,cond,press}_diff``
+(**instrument − CTD**), ``{…}_std``, ``N``, ``{…}_flag`` (``ok``, ``no_data``, ``flagged``,
+``missing``, ``unknown``) and ``inst_{temp,cond,press}``; per stop: ``ctd_{temp,cond,press}``,
+``bl_press`` (a nominal stop label — select stops by the measured ``ctd_press``, never by
+position or by ``bl_press``), ``time_start``, ``time_end``. Absent values are ``NaN``.
 
-.. list-table::
-   :header-rows: 1
+:func:`~oceanarray.pipeline.calibration.caldip.read_caldip_cast` decides as follows::
 
-   * - Column
-     - Meaning / unit
-   * - ``serial``
-     - instrument serial; the join key (clean with the same serial-safe rule as filenames)
-   * - ``instrument_type``
-     - instrument family (``rbr``, ``sbe37``, …); the machine-readable discriminator for which variables to expect
-   * - ``bl_press``
-     - bottle-stop pressure (dbar) — a **rounded nominal stop label**, not a measured CTD pressure
-   * - ``temp_diff`` / ``cond_diff`` / ``press_diff``
-     - offset = **instrument − CTD** (°C / **mS/cm** / dbar)
-   * - ``temp_std`` / ``cond_std`` / ``press_std``
-     - instrument standard deviation in the comparison window
-   * - ``temp_status`` / ``cond_status`` / ``press_status``
-     - human-readable prose (``OK`` / ``reads high/low by X`` / ``NO DATA``)
-   * - ``date`` / ``time_start`` / ``time_end``
-     - UTC date and comparison-window bounds
-   * - ``ctd_temp`` / ``ctd_cond``
-     - CTD reference value at the stop
-   * - ``inst_temp`` / ``inst_cond`` / ``inst_press``
-     - instrument value at the stop
-   * - ``ctd_sensor_used``
-     - CTD sensor pair, ``1`` or ``2`` — **may be absent** (see gotchas)
-   * - ``N`` / ``label``
-     - sample count in the window / human-readable model
+    open the file, load it, close it
+    if any of REQUIRED_PROVENANCE_GLOBALS is missing      → refuse (CaldipProvenanceError)
+    if schema_version ≠ SUPPORTED_SCHEMA_VERSION          → refuse (CaldipError)
+    for each of temp, cond, press:
+        for each of <x>_diff, <x>_std, inst_<x>, ctd_<x> present:
+            resolve its units against the registry unit for the quantity
+                (temperature: degree_Celsius, conductivity: mS cm-1, pressure: dbar)
+            if the spelling is not recognised             → refuse (CaldipError)
+            multiply by the conversion factor (1 for a pure spelling) and write the
+                registry spelling
+    serial ← canonical_serial(serial)        (filename-safe, leading zeros stripped)
+    if two instruments share a serial                     → refuse (CaldipError)
+    if an instrument_type is outside oceanarray's vocabulary → warn, keep going
+    record the file path in attrs["source_path"]
 
-**Four gotchas, each observed in real files:**
-
-1. Empty cells (not zero) for variables an instrument lacks — a temperature-only logger has
-   empty ``cond_diff`` / ``press_diff`` / ``inst_cond`` / ``inst_press``. Parse empty as absent
-   (``NaN``), never as ``0``.
-2. ``ctd_sensor_used`` is **not always present** — some casts omit the column. Treat a missing
-   column as ``UNK`` with a warning; never raise, never default to ``1``.
-3. There is **no ``ctd_press`` column** — derive the CTD pressure as ``inst_press − press_diff``
-   and name the derivation in an attribute, or request it from caldip. Do **not** substitute
-   ``bl_press`` for it: ``bl_press`` is a rounded nominal stop label, not a measured pressure.
-4. ``*_status`` is **letter-prefixed prose** from a small set of templates — e.g. ``T OK``,
-   ``C NO DATA``, ``T reads high by 0.009`` — so a bare ``== "NO DATA"`` never matches (the cell
-   is ``"C NO DATA"``). Classify against the three known templates with a warn-on-unknown
-   fallback (as caldip's own status parser does), and treat this as a stopgap: caldip plans to
-   emit machine-readable ``temp_usable`` / ``cond_usable`` / ``press_usable`` fields to replace
-   the prose.
+A refused cast is never applied. :func:`~oceanarray.pipeline.calibration.caldip.instrument_record`
+then returns one instrument's slice over ``stop``, or ``None`` when the serial is not in the
+cast.
 
 Sign convention — the highest-risk line
 ----------------------------------------
@@ -149,11 +119,11 @@ checkable by eye after the fact — the same both-sides pattern the clock correc
 Units guard
 -----------
 
-``cond_diff`` is **mS/cm** (confirmed by magnitude: CTD conductivity ~32–33 is mS/cm; S/m would
-be ~3.2–3.3). oceanarray stores conductivity in mS/cm or ``S m-1`` depending on the path.
-Convert the offset once, at the CSV boundary; assert the target variable's unit before applying
-and refuse on a mismatch; assert the incoming magnitude is in the mS/cm band, so a future units
-change in caldip fails loudly instead of scaling the data by ten.
+The reader resolves every temperature, conductivity and pressure variable against the
+registry unit (above), so a future units change in caldip either converts exactly or fails
+loudly — it cannot scale the data by ten. caldip writes ``degree_C``, ``mS cm-1`` and ``dbar``
+today. Before applying, the target variable in the stage-2 dataset is in the same registry
+unit, because every stage writes canonical units.
 
 Per-variable stop selection
 ---------------------------
