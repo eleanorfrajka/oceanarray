@@ -1078,7 +1078,7 @@ For example, if sea temperature on a mooring is measured by a series of 5 Microc
    * - CAPH
      - air_pressure
    * - CDIR
-     - direction_of_sea_water_velocity
+     - direction_of_sea_water_velocity (CF has deprecated this name; oceanarray writes ``sea_water_velocity_to_direction``)
    * - CNDC
      - sea_water_electrical_conductivity
    * - CSPD

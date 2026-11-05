@@ -58,6 +58,7 @@ Contents
 
    Stack into one NetCDF <methods/time_gridding>
    Grid onto pressure <methods/vertical_gridding>
+   Export to OceanSITES <methods/oceansites_export>
 
 .. toctree::
    :maxdepth: 1
@@ -91,7 +92,6 @@ Contents
 
    roadmap
    style_guide
-   OceanSITES export <methods/oceansites_export>
    Combine Deployments <methods/concatenation>
    Multi-site Merging <methods/multisite_merging>
 

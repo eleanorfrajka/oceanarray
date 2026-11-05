@@ -58,13 +58,8 @@ If you use **conda**:
 
    conda activate oceanarray
 
-If you also use a local shell script to set ``DATA_BASE`` or similar
-environment variables, source that too before running ``oceanarray``
-commands:
-
-.. code-block:: bash
-
-   source shlocal/run_mooring.sh   # example — path will differ
+If a shell script of your own sets the data paths, source it in the new
+terminal too before running ``oceanarray`` commands.
 
 ----
 
@@ -75,8 +70,9 @@ Runtime problems
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Check that the ``--proc-dir`` path exists and that the mooring YAML is
-present at ``{proc_dir}/{mooring_name}/{mooring_name}.mooring.yaml``.
-Run with ``--verbose`` or ``-v`` for more detail.
+present at ``{proc_dir}/{mooring_name}/{mooring_name}.mooring.yaml`` (or give
+the YAML's path directly).  Run with ``-v`` (``--verbose``) for more detail, and
+``oceanarray validate MOORING`` to check the description.
 
 Stage 1 fails with "no reader found"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -92,8 +88,8 @@ For Nortek Aquadopps the BEAM→ENU transformation requires a transformation
 matrix parsed from the ``.hdr`` file.  If the ``.hdr`` file was not found at
 stage 1, ``coordinate_system`` is stored as ``"BEAM"`` and stage 3 skips the
 rotation.  Verify that the ``.hdr`` file is in the same directory as the
-``.aqd`` data file and that the ``header:`` field in the mooring YAML points
-to it.
+``.aqd`` data file, or that the ``header_file:`` field in the mooring YAML
+points to it.
 
 ----
 
@@ -104,4 +100,5 @@ If none of the above solves your problem:
 
 * Open an issue at https://github.com/ocean-uhh/oceanarray/issues and include
   the full traceback and the output of ``oceanarray --version``.
-* Check that your branch is up to date: ``git pull``.
+* Check that you have the latest release: ``pip install --upgrade oceanarray``
+  (or ``git pull`` in an editable install).

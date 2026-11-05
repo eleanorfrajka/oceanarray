@@ -77,8 +77,11 @@ KNOWN_KEYS: frozenset[str] = frozenset(
         "deployment_longitude",
         "planned_latitude",
         "planned_longitude",
-        # QC thresholds (read by the QC pass).
+        # QC thresholds (read by the QC pass; shapes checked by _check_qc_overrides).
         "qc_ranges",
+        "qc_spike",
+        "tilt_qc",
+        "qc_flat_line",
         # Deprecated: a raw-data root in the description is a run-time fact; use
         # raw_dir / --raw-dir. check() WARNs; the override is removed in 0.7.0.
         "directory",
@@ -224,6 +227,7 @@ def check(
     if isinstance(data, Mapping):
         issues += _check_settings(data)
         issues += _check_export_codes(data)
+        issues += _check_qc_overrides(data)
         for key in data:
             if key not in KNOWN_KEYS:
                 issues.append(
@@ -268,6 +272,134 @@ def _check_export_codes(data: Mapping) -> list[ValidationIssue]:
                     f"(month {expected}).",
                 )
             )
+    return issues
+
+
+#: The QC override blocks, at mooring level and in each instrument entry: whether
+#: the block is keyed by variable, and the fields each entry may hold.
+_QC_BLOCKS: dict[str, tuple[bool, frozenset[str]]] = {
+    "qc_ranges": (True, frozenset({"fail_span", "suspect_span"})),
+    "qc_spike": (True, frozenset({"suspect_threshold", "fail_threshold"})),
+    "qc_flat_line": (True, frozenset({"suspect_n", "fail_n", "tolerance"})),
+    "tilt_qc": (False, frozenset({"suspect_threshold", "fail_threshold"})),
+}
+
+
+def _is_number(value: object) -> bool:
+    """Return True for an int or float (not a bool)."""
+    return isinstance(value, int | float) and not isinstance(value, bool)
+
+
+def _qc_field_issue(field: str, value: object) -> str | None:
+    """Return what is wrong with one QC field's value, or None if it is valid."""
+    if field.endswith("_span"):
+        if (
+            not isinstance(value, list | tuple)
+            or len(value) != 2
+            or not all(_is_number(v) for v in value)
+            or not value[0] < value[1]
+        ):
+            return "must be two increasing numbers, e.g. [0, 40]"
+    elif field in ("suspect_n", "fail_n"):
+        if not isinstance(value, int) or isinstance(value, bool) or value < 1:
+            return "must be a whole number of samples, 1 or more"
+    elif not _is_number(value) or value < 0:
+        return "must be a number, 0 or more"
+    return None
+
+
+def _check_qc_block(
+    block: str, value: object, where: str, inherited: object = None
+) -> list[ValidationIssue]:
+    """Check one QC override block's shape; unknown variables are only a WARNING."""
+    from oceanarray.config import parameters as params
+
+    by_variable, fields = _QC_BLOCKS[block]
+    allowed = ", ".join(sorted(fields))
+    if not isinstance(value, Mapping):
+        return [
+            ValidationIssue("ERROR", f"{where}{block} must be a mapping, not {value!r}")
+        ]
+    entries = value.items() if by_variable else [(None, value)]
+    issues: list[ValidationIssue] = []
+    for var, entry in entries:
+        label = f"{where}{block}" + (f".{var}" if var is not None else "")
+        if var is not None:
+            if not isinstance(entry, Mapping):
+                issues.append(
+                    ValidationIssue("ERROR", f"{label} must be a mapping of {allowed}")
+                )
+                continue
+            if var not in params.VARIABLES and var != "tilt":
+                # A configured variable the registry does not know is most likely a
+                # typo; it is still allowed (the file may hold such a variable).
+                issues.append(
+                    ValidationIssue(
+                        "WARNING",
+                        f"{label}: {var!r} is not a registered variable; check the "
+                        "spelling (thresholds apply only if a file has it)",
+                    )
+                )
+            if (
+                block == "qc_ranges"
+                and var not in params.QC_GROSS_RANGE
+                and var != "tilt"
+                and "fail_span" not in entry
+                # An instrument entry inherits the mooring-level spans (the two
+                # are merged before QC runs).
+                and not (
+                    isinstance(inherited, Mapping)
+                    and isinstance(inherited.get(var), Mapping)
+                    and "fail_span" in inherited[var]
+                )
+            ):
+                issues.append(
+                    ValidationIssue(
+                        "ERROR",
+                        f"{label} needs a fail_span: {var!r} has no default to start from",
+                    )
+                )
+        for field, field_value in entry.items():
+            if field not in fields:
+                issues.append(
+                    ValidationIssue(
+                        "ERROR", f"{label}: unknown field {field!r}; allowed: {allowed}"
+                    )
+                )
+                continue
+            problem = _qc_field_issue(field, field_value)
+            if problem:
+                issues.append(
+                    ValidationIssue(
+                        "ERROR", f"{label}.{field} = {field_value!r} {problem}"
+                    )
+                )
+    return issues
+
+
+def _check_qc_overrides(data: Mapping) -> list[ValidationIssue]:
+    """Check the QC override blocks at mooring level and in every instrument entry.
+
+    A misspelt field or a malformed span would otherwise be dropped silently by
+    the threshold merge, and QC would run with the defaults.
+    """
+    issues: list[ValidationIssue] = []
+    for block in _QC_BLOCKS:
+        if block in data:
+            issues += _check_qc_block(block, data[block], "")
+    lists = [data.get(key) for key in ("clamp", "instruments", "inline")]
+    for entries in lists:
+        if not isinstance(entries, list):
+            continue
+        for i, entry in enumerate(entries):
+            if not isinstance(entry, Mapping):
+                continue
+            where = f"instrument {entry.get('serial', f'index {i}')}: "
+            for block in _QC_BLOCKS:
+                if block in entry:
+                    issues += _check_qc_block(
+                        block, entry[block], where, data.get(block)
+                    )
     return issues
 
 

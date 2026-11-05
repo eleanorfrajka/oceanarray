@@ -152,7 +152,20 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
     """Add the ``animate`` subcommand to *sub*."""
     p_animate = sub.add_parser(
         "animate",
-        help="Write an animated hodograph GIF for Aquadopp instrument(s).",
+        help="Write an animated hodograph GIF for each current meter.",
+        description=(
+            "Read each Aquadopp's stage-3 file and write a GIF of its velocity hodograph\n"
+            "building up over the deployment, one per instrument, beside its stage file\n"
+            "(or -o DIR; --output FILE.gif for a single instrument)."
+        ),
+        epilog=(
+            "Examples:\n"
+            "  # every current meter on the mooring\n"
+            "  oceanarray animate /data/proc/dsG3_1_2026\n"
+            "  # one instrument, one file\n"
+            "  oceanarray animate /data/proc/dsG3_1_2026 --only 9920 --output 9920.gif"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     p_animate.add_argument("mooring", help=_MOORING_HELP)
     _add_dir_args(p_animate, raw_needed=False)

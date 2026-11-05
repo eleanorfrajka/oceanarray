@@ -43,7 +43,7 @@ This approach is sensitive to smaller timing errors (seconds to minutes) and wor
 Implementation
 --------------
 
-The analysis is implemented in the ``oceanarray.clock_offset`` module with the following key functions:
+The analysis is implemented in the ``oceanarray.pipeline.clock.offsets`` module with the following key functions:
 
 Core Functions
 ~~~~~~~~~~~~~~

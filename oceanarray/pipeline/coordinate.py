@@ -254,7 +254,7 @@ def apply_beam_to_enu(
         (
             "current_direction",
             direction,
-            "direction_of_sea_water_velocity",
+            "sea_water_velocity_to_direction",
             "degrees",
             "Current direction (0=N, clockwise)",
         ),

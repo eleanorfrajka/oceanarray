@@ -42,6 +42,16 @@ def _array_description(array: str | PathLike | Mapping | None) -> Mapping:
     return data
 
 
+def _put(out: xr.Dataset, target: Path, *, overwrite: bool, dry_run: bool) -> Path:
+    """Write *out* under its OceanSITES name in *target*, or only name it on a dry run."""
+    path = target / oceansites_filename(out)
+    if dry_run:
+        if path.exists() and not overwrite:
+            raise FileExistsError(f"{path} exists (use overwrite=True / --force)")
+        return path
+    return write(out, path, overwrite=overwrite)
+
+
 def export(
     mooring: str | PathLike | Mapping[str, Any],
     *,
@@ -50,6 +60,7 @@ def export(
     array: str | PathLike | Mapping | None = None,
     grid: bool = True,
     overwrite: bool = False,
+    dry_run: bool = False,
 ) -> list[Path]:
     """Write a mooring's stage-3 files and grid as OceanSITES 1.4 files.
 
@@ -74,6 +85,9 @@ def export(
         Also write the grid, when ``<name>_grid.nc`` exists (default True).
     overwrite : bool, optional
         Replace files that exist (default False).
+
+    dry_run : bool, optional
+        Convert but write nothing; return the paths that would be written.
 
     Returns
     -------
@@ -117,9 +131,7 @@ def export(
                 out = to_oceansites(
                     ds.load(), cfg, array=array_cfg, source_file=path.name
                 )
-            written.append(
-                write(out, target / oceansites_filename(out), overwrite=overwrite)
-            )
+            written.append(_put(out, target, overwrite=overwrite, dry_run=dry_run))
         except _SKIPPABLE as e:
             # One instrument that cannot be exported does not stop the others.
             left_out.append(f"{serial}: {e}")
@@ -137,9 +149,7 @@ def export(
                     stack=stack,
                     source_file=grid_path.name,
                 )
-            written.append(
-                write(out, target / oceansites_filename(out), overwrite=overwrite)
-            )
+            written.append(_put(out, target, overwrite=overwrite, dry_run=dry_run))
         except _SKIPPABLE as e:
             left_out.append(f"grid: {e}")
         finally:

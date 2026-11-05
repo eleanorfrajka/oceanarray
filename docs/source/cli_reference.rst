@@ -4,13 +4,16 @@
 CLI Reference
 ===================
 
-The typical workflow is: validate the YAML, run ``oceanarray process`` stage by
-stage (including the ``stack`` and ``grid`` stages), inspect with
-``oceanarray report``, then use ``oceanarray run`` to reproduce the full pipeline
-in one command.
+The typical workflow is: ``oceanarray init`` a mooring description and fill it
+in, ``oceanarray validate`` it, run ``oceanarray process`` stage by stage and look
+at the stage files with ``oceanarray report``, then ``oceanarray run`` for the
+whole pipeline (stages 1–3, stack, grid, report) in one command, and
+``oceanarray export`` to write OceanSITES files.  ``python -m oceanarray`` works
+as well as ``oceanarray``.
 
-``process``, ``run``, ``report`` and ``animate`` take the mooring as the first
-positional argument, in either of two forms:
+``validate``, ``process``, ``run``, ``report``, ``export``, ``plot`` and
+``animate`` take the mooring as the first positional argument, in either of two
+forms:
 
 - the path to its ``*.mooring.yaml``, or to the folder holding it — the folder can
   have any name, and every file is named from the description's ``name:``;
@@ -22,13 +25,18 @@ positional argument, in either of two forms:
    oceanarray run dsG3_1_2026 --proc-dir /data/proc --raw-dir /data/raw   # the same
 
 ``--only SERIAL ...`` restricts a command to those instruments (``--serial`` is the
-old spelling, accepted until 0.7.0).  ``-v`` also prints the processing stages'
-debug messages.
+old spelling, accepted until 0.7.0).  ``-v`` (before or after the command name)
+also prints the processing stages' debug messages.
 
 Without ``--force``, the stages keep a file that already exists (stage 1 also
 rewrites one older than its raw file) and the report pages keep one newer than its
 inputs; add ``--force`` to rewrite.  ``oceanarray run``
 rebuilds the stack and grid every time.
+
+**Exit status**: 0 when the command did its work (``process`` and ``run`` also
+when instruments were left out, unless ``--strict``); 1 when it failed, or
+``validate`` found an ERROR; 2 for a usage error (an unknown flag, or a missing one
+such as ``--raw-dir`` for stage 1).
 
 The flag lists below are generated from the argument parser
 (:func:`oceanarray.cli.build_parser`), so they cannot drift from the code.
@@ -38,10 +46,11 @@ The flag lists below are generated from the argument parser
 ``oceanarray validate``
 ------------------------
 
-Check one or more YAML configuration files for missing required fields,
-unrecognised values, and structural errors.  Does not require ``--raw-dir``
-or ``--proc-dir``.  Run this before any processing to catch typos in
-``file_type``, missing ``hab``, or malformed serial numbers.
+Check one or more mooring descriptions for missing fields, unrecognised values and
+structural errors, including the QC override blocks and the OceanSITES codes (see
+:doc:`yaml_configuration`).  Run it before any processing to catch typos in
+``file_type``, a missing ``hab``, a malformed serial number or a misspelt QC
+threshold.
 
 .. argparse::
    :module: oceanarray.cli
@@ -49,6 +58,7 @@ or ``--proc-dir``.  Run this before any processing to catch typos in
    :prog: oceanarray
    :path: validate
    :nodescription:
+   :noepilog:
 
 **Example**
 
@@ -56,8 +66,8 @@ or ``--proc-dir``.  Run this before any processing to catch typos in
 
    oceanarray validate /data/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml
 
-Prints errors and warnings to the console.  Exits with a non-zero status
-if any errors are found.
+Prints every ERROR and WARNING.  Exits 1 if any description has an ERROR, or with
+``--strict`` a WARNING; 0 otherwise.
 
 ----
 
@@ -76,12 +86,13 @@ refused; a file already carrying the marker is left alone.
    :prog: oceanarray
    :path: stamp
    :nodescription:
+   :noepilog:
 
 **Example**
 
 .. code-block:: bash
 
-   oceanarray stamp /data/proc/dsG3_1_2026/*/dsG3_1_2026_*_stage3.nc --stage 3
+   oceanarray stamp /data/proc/dsG3_1_2026/*/dsG3_1_2026_*_stage3.nc --declare 3
 
 Exits with a non-zero status if any file was refused.
 
@@ -101,6 +112,7 @@ once, before ``oceanarray validate``.
    :prog: oceanarray
    :path: init
    :nodescription:
+   :noepilog:
 
 **Example**
 
@@ -133,6 +145,7 @@ The recommended sequence for a new mooring is:
    :prog: oceanarray
    :path: process
    :nodescription:
+   :noepilog:
 
 **Stage descriptions**
 
@@ -142,10 +155,14 @@ The recommended sequence for a new mooring is:
 - **Stage 2**: trims to ``deployment_time`` / ``recovery_time`` from the
   YAML and applies clock drift correction.  Writes
   ``{mooring}_{serial}_stage2.nc``.
-- **Stage 3**: applies QARTOD gross-range QC flags, derives salinity,
+- **Stage 3**: runs the QC tests (gross range, spike, flat line, tilt; see
+  :doc:`methods/auto_qc`), derives salinity,
   interpolates pressure for instruments without a pressure port, rotates
   Aquadopp velocities to earth coordinates, and applies magnetic declination
   correction.  Writes ``{mooring}_{serial}_stage3.nc``.
+
+``oceanarray run`` then builds the two mooring-level products:
+
 - **stack**: interpolates all instruments onto a common time axis and writes
   ``{mooring}_stack.nc``.  Instruments sampling faster than ``--dt-seconds`` are
   subsampled by nearest-neighbour; slower instruments are interpolated linearly.
@@ -204,6 +221,7 @@ description of what each report page contains.
    :prog: oceanarray
    :path: report
    :nodescription:
+   :noepilog:
 
 **Output created**
 
@@ -258,6 +276,7 @@ and a quick report inspection).
    :prog: oceanarray
    :path: run
    :nodescription:
+   :noepilog:
 
 **Output created**
 
@@ -270,6 +289,37 @@ reports.
 .. code-block:: bash
 
    oceanarray run dsG3_1_2026 --raw-dir /data/raw --proc-dir /data/proc --force
+
+----
+
+``oceanarray export``
+---------------------
+
+Write a mooring's stage-3 files and grid as OceanSITES 1.4 files (see
+:doc:`methods/oceansites_export`): one deployment file per instrument and one
+gridded file.  The mooring description needs ``platform_code``; ``--array`` adds
+the array's ``site_code`` and ``project``.  An instrument that cannot be exported
+is listed and left out; the command exits 1 only when nothing was written.
+
+.. argparse::
+   :module: oceanarray.cli
+   :func: build_parser
+   :prog: oceanarray
+   :path: export
+   :nodescription:
+   :noepilog:
+
+**Output created**
+
+``OS_<platform>_<YYYYMM>_<mode>_<type>-<serial>-<depth>m.nc`` per instrument and
+``OS_<platform>-<YYYYMM>_<start>-<end>_GRD_<interval>-DP<step>.nc`` for the grid, in
+``{proc_dir}/{mooring}/oceansites/`` (or ``-o DIR``).
+
+**Example**
+
+.. code-block:: bash
+
+   oceanarray export dsG3_1_2026 --proc-dir /data/proc --array /data/proc/MIXSED2026.array.yaml
 
 ----
 
@@ -289,6 +339,7 @@ Does not require a mooring name, ``--raw-dir``, or ``--proc-dir``.
    :prog: oceanarray
    :path: list
    :nodescription:
+   :noepilog:
 
 **Example**
 
@@ -316,6 +367,7 @@ Show an interactive overview plot of processed data, or save it to a file.
    :prog: oceanarray
    :path: plot
    :nodescription:
+   :noepilog:
 
 **Example**
 
@@ -339,6 +391,7 @@ be installed for GIF output.
    :prog: oceanarray
    :path: animate
    :nodescription:
+   :noepilog:
 
 **Example**
 
@@ -350,6 +403,42 @@ be installed for GIF output.
 
 Deprecated flags
 ----------------
+
+Renamed in 0.6.0
+~~~~~~~~~~~~~~~~
+
+The old spellings still work until 0.7.0, with a warning naming the new one.
+
+.. list-table::
+   :header-rows: 1
+
+   * - Command
+     - Old
+     - New
+   * - ``process``, ``run``, ``report``, ``animate``
+     - ``--serial``
+     - ``--only``
+   * - ``run``, ``process``
+     - ``--dt``
+     - ``--dt-seconds``
+   * - ``report``
+     - ``-i``, ``-s``, ``-g``, ``-A``
+     - ``--instruments``, ``--stack``, ``--grid``, ``--all``
+   * - ``process``
+     - ``--report``
+     - ``--summary``
+   * - ``stamp``
+     - ``--stage``
+     - ``--declare``
+   * - ``export``
+     - ``--overwrite``
+     - ``--force``
+   * - ``plot``
+     - ``--downsample``
+     - ``--downsample-seconds``
+   * - ``plot``
+     - ``--var_y``, ``--var_color``
+     - ``--var-y``, ``--var-color``
 
 ``--basedir DIR`` (removed)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -13,6 +13,7 @@ from oceanarray.cli._common import (
     _add_stack_grid_args,
     _mooring_location,
     _raw_dir,
+    _usage_error,
 )
 
 
@@ -47,8 +48,8 @@ def cmd_run(args: argparse.Namespace) -> int:
     if args.dry_run:
         return _run_dry_run(args, yaml_path, wanted)
     if wanted and wanted[0] == 1 and raw_dir is None:
-        raise SystemExit(
-            "ERROR: --raw-dir is required for stage 1 (or pass --from 2 to start "
+        _usage_error(
+            "--raw-dir is required for stage 1 (or pass --from 2 to start "
             "from the stage-1 files)."
         )
 
@@ -115,7 +116,25 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
     """Add the ``run`` subcommand to *sub*."""
     p_run = sub.add_parser(
         "run",
-        help="Full pipeline: stages 1-3, stack, grid, and all reports in one command.",
+        help="Run stages 1-3, the stack, the grid and the report pages in one go.",
+        description=(
+            "Process a mooring from its raw files to its products and report: stages 1-3\n"
+            "for every instrument, then the stack (instruments on one time base), the grid\n"
+            "(time x pressure levels) and the HTML pages. Writes the stage files, \n"
+            "<name>_stack.nc and <name>_grid.nc in the mooring folder, and the pages in\n"
+            "<mooring folder>/report/ (or -o / --report-dir). Instruments that fail are\n"
+            "left out and named in the products, unless --strict."
+        ),
+        epilog=(
+            "Examples:\n"
+            "  # everything, from the raw files\n"
+            "  oceanarray run dsG3_1_2026 --proc-dir /data/proc --raw-dir /data/raw\n"
+            "  # from the stage-1 files on, regridded at 10 dbar\n"
+            "  oceanarray run /data/proc/dsG3_1_2026 --from 2 --dp 10\n"
+            "  # list what would be written\n"
+            "  oceanarray run /data/proc/dsG3_1_2026 --from 2 -n"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     p_run.add_argument("mooring", help=_MOORING_HELP)
     _add_dir_args(p_run, raw_needed=True)

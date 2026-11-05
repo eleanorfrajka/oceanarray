@@ -88,3 +88,31 @@ def test_export_written_coordinates_have_no_fill_value(tmp_path: Path) -> None:
         with netCDF4.Dataset(path) as nc:
             for name in ("TIME", "DEPTH", "LATITUDE", "LONGITUDE"):
                 assert "_FillValue" not in nc[name].ncattrs(), (path.name, name)
+
+
+def test_cli_export_dry_run_writes_nothing_and_force_replaces(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
+) -> None:
+    """-n lists the files without writing; --force replaces existing ones."""
+    from oceanarray.cli import main
+
+    yaml_path = _copy(tmp_path)
+    out = tmp_path / "os"
+
+    def run(*flags: str) -> int:
+        monkeypatch.setattr(
+            sys,
+            "argv",
+            ["oceanarray", "export", str(yaml_path), "-o", str(out), *flags],
+        )
+        with pytest.raises(SystemExit) as exit_info:
+            main()
+        return exit_info.value.code
+
+    assert run("-n") == 0
+    assert not out.exists()
+    assert "would write" in capsys.readouterr().out
+    assert run() == 0
+    assert run("--force") == 0
+    with pytest.warns(DeprecationWarning, match="--force"):
+        assert run("--overwrite") == 0

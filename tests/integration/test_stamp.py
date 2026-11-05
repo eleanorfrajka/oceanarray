@@ -86,9 +86,25 @@ def test_cli_stamp_exits_nonzero_when_any_file_is_refused(tmp_path, capsys):
     """`oceanarray stamp` marks what it can and exits 1 when one file is refused."""
     good = _unmarked_copy(_STAGE3, tmp_path / _STAGE3.name)
     bad = shutil.copy(_FIX / "dune2_1_2026_grid.nc", tmp_path)
-    args = build_parser().parse_args(["stamp", str(good), str(bad), "--stage", "3"])
+    args = build_parser().parse_args(["stamp", str(good), str(bad), "--declare", "3"])
     assert args.func(args) == 1
     out = capsys.readouterr().out
     assert "stamped: dune2_1_2026_2941_stage3.nc" in out
     assert "not a stage file" in out
     assert _open(good).attrs[STAGE_ATTR] == 3
+
+
+def test_cli_stamp_old_stage_flag_warns_and_still_works(tmp_path):
+    """``--stage`` is the old spelling of ``--declare``: it works for one release, with a warning."""
+    good = _unmarked_copy(_STAGE3, tmp_path / _STAGE3.name)
+    with pytest.warns(DeprecationWarning, match="--declare"):
+        args = build_parser().parse_args(["stamp", str(good), "--stage", "3"])
+    assert args.func(args) == 0
+    assert _open(good).attrs[STAGE_ATTR] == 3
+
+
+def test_cli_stamp_without_declare_is_a_usage_error(tmp_path):
+    """No stage given: exit 2, nothing written."""
+    good = _unmarked_copy(_STAGE3, tmp_path / _STAGE3.name)
+    args = build_parser().parse_args(["stamp", str(good)])
+    assert args.func(args) == 2

@@ -34,6 +34,12 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
             "fields for all mandatory metadata and one example entry per instrument type.\n"
             "Edit the file to fill in real values and delete unused instrument blocks."
         ),
+        epilog=(
+            "Examples:\n"
+            "  oceanarray init dsG3_1_2026 --proc-dir /data/proc\n"
+            "  oceanarray validate /data/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     p_init.add_argument("mooring", help="Mooring name, e.g. dsG3_1_2026")
     p_init.add_argument(

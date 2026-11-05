@@ -85,14 +85,18 @@ Stage 3 applies the following tests, in order:
    4 (bad); values outside ``[suspect_span[0], suspect_span[1]]`` are flagged 3
    (suspect).  Note: ``fail_span`` defines the *pass range* — values outside it fail.
 
-2. **Spike test**: detects single-sample spikes larger than the ``qc_spike`` threshold.
-   Flagged 3 (suspect).
+2. **Spike test**: detects single-sample spikes larger than the ``qc_spike``
+   thresholds: above ``suspect_threshold`` flagged 3, above ``fail_threshold`` 4.
 
-3. **Tilt QC** (Aquadopp only): velocity variables are flagged when the combined
+3. **Flat-line test**: flags a stuck sensor, a value that does not change by more
+   than ``tolerance`` over ``suspect_n`` (flag 3) or ``fail_n`` (flag 4) samples
+   (``qc_flat_line``; by default on pressure).
+
+4. **Tilt QC** (Aquadopp only): velocity variables are flagged when the combined
    pitch/roll angle exceeds a threshold.  ADCP instruments use ``error_velocity`` QC
    instead (not a tilt test).
 
-4. **Pressure interpolation flag**: pressure values that were not measured but
+5. **Pressure interpolation flag**: pressure values that were not measured but
    interpolated from neighbouring instruments are flagged 8 (interpolated).
 
 QC is applied **after** pressure interpolation so that interpolated pressures also
@@ -258,8 +262,11 @@ exceeds the threshold:
 Configuration
 -------------
 
-QC ranges are configured in the ``qc_ranges`` block of the mooring YAML, under each
-instrument entry.  If absent, global defaults are used.
+QC ranges are configured in the ``qc_ranges`` block of the mooring YAML, at mooring
+level or under an instrument entry (which wins for its own variables).  If absent,
+the package defaults are used.  The spike, flat-line and tilt tests take the
+``qc_spike``, ``qc_flat_line`` and ``tilt_qc`` blocks; all four are checked when
+the description is read (see :doc:`../yaml_configuration`, "Other QC blocks").
 
 .. code-block:: yaml
 
@@ -328,10 +335,18 @@ these attributes:
 
    ds["temperature_qc"].attrs == {
        "long_name": "quality flag for temperature",
-       "flag_values": [1, 3, 4, 8, 9],
-       "flag_meanings": "good_data potentially_correctable_bad_data bad_data interpolated_value missing_value",
-       "fail_span": [-2.0, 35.0],
-       "suspect_span": [-1.5, 32.0],
+       "standard_name": "sea_water_temperature status_flag",
+       "flag_values": [0, 1, 2, 3, 4, 7, 8, 9],  # int8, OceanSITES reference table 2
+       "flag_meanings": "unknown good_data probably_good_data "
+       "potentially_correctable_bad_data bad_data nominal_value interpolated_value "
+       "missing_value",
+       "conventions": "OceanSITES reference table 2",
+       "qc_gross_range_fail_min": -2.5,
+       "qc_gross_range_fail_max": 40.0,
+       "qc_gross_range_suspect_min": -2.0,
+       "qc_gross_range_suspect_max": 35.0,
+       "qc_spike_suspect_threshold": 2.0,
+       "qc_spike_fail_threshold": 6.0,
    }
 
 The applied thresholds are stored as attributes so the exact QC configuration can be

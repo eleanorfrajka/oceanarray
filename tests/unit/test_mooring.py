@@ -196,3 +196,110 @@ def test_init_writes_the_optional_blocks_commented_out(tmp_path: Path) -> None:
     assert not [
         i for i in mooring.check(doc) if "stack" in i.message or "grid" in i.message
     ]
+
+
+def _qc_issues(**keys: object) -> list[tuple[str, str]]:
+    """Return (level, message) for the QC-override findings on the fixture plus *keys*."""
+    cfg = {**mooring.load(FIXTURE), **keys}
+    return [
+        (i.level, i.message)
+        for i in mooring.check(cfg, dir_name="dune2_1_2026")
+        if any(
+            b in i.message for b in ("qc_ranges", "qc_spike", "tilt_qc", "qc_flat_line")
+        )
+    ]
+
+
+def test_qc_overrides_as_documented_pass() -> None:
+    """The documented qc_ranges example and well-formed spike/tilt/flat-line blocks raise nothing."""
+    assert (
+        _qc_issues(
+            qc_ranges={
+                "temperature": {
+                    "fail_span": [-2.0, 35.0],
+                    "suspect_span": [-1.5, 30.0],
+                },
+                "pitch": {"fail_span": [-30.0, 30.0], "suspect_span": [-20.0, 20.0]},
+                "tilt": {"suspect_span": [-20, 20], "fail_span": [-30, 30]},
+            },
+            qc_spike={"pressure": {"suspect_threshold": 10.0, "fail_threshold": 50.0}},
+            tilt_qc={"suspect_threshold": 20, "fail_threshold": 30},
+            qc_flat_line={
+                "pressure": {"suspect_n": 3, "fail_n": 10, "tolerance": 0.001}
+            },
+        )
+        == []
+    )
+
+
+@pytest.mark.parametrize(
+    ("keys", "fragment"),
+    [
+        (
+            {"qc_ranges": {"temperature": {"suspect_spn": [0, 1]}}},
+            "unknown field 'suspect_spn'",
+        ),
+        ({"qc_ranges": {"salinity": {"fail_span": [40, 0]}}}, "two increasing numbers"),
+        (
+            {"qc_ranges": {"salinity": {"fail_span": [0, 40, 1]}}},
+            "two increasing numbers",
+        ),
+        ({"qc_spike": {"pressure": {"fail_threshold": "ten"}}}, "must be a number"),
+        ({"qc_flat_line": {"pressure": {"fail_n": 2.5}}}, "whole number"),
+        ({"tilt_qc": {"fail": 30}}, "unknown field 'fail'"),
+        ({"tilt_qc": [20, 30]}, "must be a mapping"),
+        ({"qc_ranges": {"sigma0": {"suspect_span": [20, 30]}}}, "needs a fail_span"),
+    ],
+)
+def test_qc_override_shape_mistakes_are_errors(keys: dict, fragment: str) -> None:
+    """A misspelt field or malformed value is an ERROR, so load() refuses the description."""
+    issues = _qc_issues(**keys)
+    assert any(level == "ERROR" and fragment in msg for level, msg in issues), issues
+    with pytest.raises(MooringError):
+        mooring.load({**mooring.load(FIXTURE), **keys})
+
+
+def test_qc_override_unknown_variable_only_warns() -> None:
+    """A variable outside the registry is a WARNING (likely a typo, but allowed)."""
+    issues = _qc_issues(qc_spike={"temprature": {"fail_threshold": 5.0}})
+    assert [level for level, _ in issues] == ["WARNING"]
+
+
+def test_instrument_level_qc_overrides_are_checked() -> None:
+    """The same checks run on each instrument entry, naming its serial."""
+    cfg = mooring.load(FIXTURE)
+    cfg["clamp"][0] = {
+        **cfg["clamp"][0],
+        "qc_ranges": {"temperature": {"fail_spn": [0, 1]}},
+    }
+    serial = cfg["clamp"][0]["serial"]
+    messages = [i.message for i in mooring.check(cfg, dir_name="dune2_1_2026")]
+    assert any(f"instrument {serial}: qc_ranges.temperature" in m for m in messages)
+
+
+def test_instrument_qc_ranges_inherit_the_mooring_fail_span() -> None:
+    """A fail_span set at mooring level counts for an instrument that adds only a suspect_span."""
+    cfg = mooring.load(FIXTURE)
+    cfg["qc_ranges"] = {"sigma0": {"fail_span": [20.0, 30.0]}}
+    cfg["clamp"][0] = {
+        **cfg["clamp"][0],
+        "qc_ranges": {"sigma0": {"suspect_span": [25.0, 28.0]}},
+    }
+    messages = [i.message for i in mooring.check(cfg, dir_name="dune2_1_2026")]
+    assert not [m for m in messages if "needs a fail_span" in m], messages
+    del cfg["qc_ranges"]
+    messages = [i.message for i in mooring.check(cfg, dir_name="dune2_1_2026")]
+    assert any("needs a fail_span" in m for m in messages)
+
+
+def test_mooring_level_qc_blocks_are_known_keys() -> None:
+    """qc_spike, tilt_qc and qc_flat_line are read by the QC pass, so not 'unknown'."""
+    cfg = {
+        **mooring.load(FIXTURE),
+        "qc_spike": {},
+        "tilt_qc": {},
+        "qc_flat_line": {},
+    }
+    assert not [
+        i for i in mooring.check(cfg, dir_name="dune2_1_2026") if "Unknown" in i.message
+    ]

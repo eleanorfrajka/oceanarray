@@ -288,4 +288,4 @@ See also
 - :doc:`auto_qc` — QARTOD flags applied to velocity after tilt QC
 - :py:func:`oceanarray.pipeline.coordinate.xyz_to_enu` — vectorised ENU rotation
 - :py:func:`oceanarray.pipeline.coordinate.apply_beam_to_enu` — full BEAM/XYZ → ENU pipeline
-- :py:func:`oceanarray.pipeline.stage1._parse_nortek_T_matrix_hdr` — header parsing
+- :py:func:`oceanarray.readers.nortek._parse_nortek_T_matrix_hdr` — header parsing

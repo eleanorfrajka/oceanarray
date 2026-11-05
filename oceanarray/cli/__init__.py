@@ -48,7 +48,7 @@ __all__ = [
 def build_parser() -> argparse.ArgumentParser:
     """Build and return the top-level argument parser for the oceanarray CLI."""
     epilog = (
-        "Typical workflow (MOORING is the *.mooring.yaml, its folder, or a name with --proc-dir):\n"
+        "Typical workflow (MOORING is the <name>.mooring.yaml, its folder, or a name with --proc-dir):\n"
         "  oceanarray init     dsG3_1_2026 --proc-dir /data/proc          write a skeleton description\n"
         "  oceanarray validate /data/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml\n"
         "  oceanarray process  MOORING --raw-dir /data/raw --stage 1      one stage on its own\n"
@@ -116,6 +116,9 @@ def main() -> None:
                     _skip_next = True
             elif _tok.startswith("--raw-dir="):
                 _raw_dir_unknowns.append(_tok)
+            elif _tok in ("-v", "--verbose"):
+                # -v is accepted after the command name as well as before it.
+                args.verbose = True
             else:
                 _other_unknowns.append(_tok)
         if _raw_dir_unknowns:

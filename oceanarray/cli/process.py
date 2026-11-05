@@ -16,7 +16,9 @@ from oceanarray.cli._common import (
     _mooring_location,
     _parse_stage_token,
     _raw_dir,
+    _usage_error,
 )
+from oceanarray.cli._deprecate import DeprecatedAlias
 from oceanarray.pipeline import STAGES
 
 
@@ -54,11 +56,11 @@ def cmd_process(args: argparse.Namespace) -> int:
         ints = sorted({int(s) for s in stages})
         return 0 if _print_stage_plan(args, location, ints, "Process") else 1
     if 1 in stages and raw_dir is None:
-        raise SystemExit("ERROR: --raw-dir is required for stage 1.")
+        _usage_error("--raw-dir is required for stage 1.")
 
     if products and not args.keep_going:
-        raise SystemExit(
-            "ERROR: --strict does not apply to --stage stack/grid; use "
+        _usage_error(
+            "--strict does not apply to --stage stack/grid; use "
             "'oceanarray run MOORING --strict' to build the stack and grid."
         )
     ok = True
@@ -102,8 +104,8 @@ def _process_with_classes(
     from ..pipeline import _process_legacy
 
     if not getattr(args, "proc_dir", None):
-        raise SystemExit(
-            "ERROR: --stage stack/grid needs a mooring name and --proc-dir; or use "
+        _usage_error(
+            "--stage stack/grid needs a mooring name and --proc-dir; or use "
             "'oceanarray run PATH' for the stack and grid."
         )
     if any(s in ("stack", "grid") for s in stages):
@@ -151,13 +153,25 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
     """Add the ``process`` subcommand to *sub*."""
     p_process = sub.add_parser(
         "process",
-        help="Run per-instrument processing stages 1-3 (raw→NetCDF, trim+clock, QC+ENU).",
+        help="Run the per-instrument stages 1-3 (raw files to QC'd netCDF).",
         description=(
-            "Run one or more per-instrument processing stages for a mooring.\n"
-            "  Stage 1: read raw files → CF-NetCDF (_stage1.nc)\n"
-            "  Stage 2: trim to deployment window + apply clock-drift correction (_stage2.nc)\n"
-            "  Stage 3: QC flags, BEAM→ENU rotation, magnetic declination, derived vars (_stage3.nc)\n"
-            "Default when --stage is omitted: stages 1, 2 and 3."
+            "Run one or more per-instrument processing stages for a mooring. Reads the\n"
+            "mooring description and the raw files (stage 1) or the previous stage's files;\n"
+            "writes <proc-dir>/<name>/<instrument>/<name>_<serial>_stage<N>.nc.\n"
+            "  Stage 1: read raw files into CF-NetCDF\n"
+            "  Stage 2: trim to the deployment window, correct clock drift\n"
+            "  Stage 3: QC flags, BEAM to ENU rotation, magnetic declination, derived variables\n"
+            "Default when --stage is omitted: stages 1, 2 and 3. For the stack, grid and\n"
+            "report as well, use 'oceanarray run'."
+        ),
+        epilog=(
+            "Examples:\n"
+            "  # all three stages from the raw files\n"
+            "  oceanarray process dsG3_1_2026 --proc-dir /data/proc --raw-dir /data/raw\n"
+            "  # re-run stage 3 for two instruments\n"
+            "  oceanarray process dsG3_1_2026 --proc-dir /data/proc --stage 3 --only 14321 400118\n"
+            "  # see what stage 2 would write\n"
+            "  oceanarray process /data/proc/dsG3_1_2026 --stage 2 -n"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -170,19 +184,28 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
         choices=[s.number if s.number is not None else s.name for s in STAGES],
         default=None,
         metavar="{1,2,3,stack,grid}",
-        help="Stage(s) to run (default: 1 2 3). "
-        "Use 'stack' and 'grid' for mooring-level steps.",
+        help="Stage(s) to run (default: 1 2 3). 'stack' and 'grid' are deprecated and "
+        "removed in 0.7.0: 'oceanarray run' builds them.",
     )
-    _add_stack_grid_args(p_process)
+    _add_stack_grid_args(p_process, hidden=True)
     p_process.add_argument(
         "--plot",
         action="store_true",
-        help="Generate plots of processed microcat data after stage 2",
+        help="After stage 2, plot the MicroCAT records (temperature, conductivity, pressure)",
+    )
+    p_process.add_argument(
+        "--summary",
+        action="store_true",
+        dest="report",
+        help="Print the number of records per instrument and serial number",
     )
     p_process.add_argument(
         "--report",
-        action="store_true",
-        help="Print a summary of processed records per instrument and serial number",
+        nargs=0,
+        dest="report",
+        action=DeprecatedAlias,
+        new="--summary",
+        help=argparse.SUPPRESS,
     )
     _add_only(
         p_process,
@@ -198,7 +221,8 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
     p_process.add_argument(
         "--force",
         action="store_true",
-        help="Overwrite existing output files (both stages skip existing files by default)",
+        help="Rewrite stage files that already exist (default: keep them; stage 1 "
+        "rewrites only a file older than its raw file)",
     )
     p_process.add_argument(
         "-n",

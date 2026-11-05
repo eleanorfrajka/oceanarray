@@ -68,19 +68,31 @@ mooring as a whole.
      - Required
      - Mooring identifier, e.g. ``dsG3_1_2026``.  Used in all output file
        names.
+   * - ``platform_code``
+     - string
+     - For export
+     - The OceanSITES platform (the station, e.g. ``DUNE2``), without ``_``.
+       Required by ``oceanarray export``; see :doc:`methods/oceansites_export`.
+       Quote it if it could be read as a number.
+   * - ``deployment_code``
+     - string
+     - Optional
+     - The OceanSITES deployment code, ``YYYYMM`` with a month 01–12.  Default:
+       the month of ``deployment_time``; ``validate`` warns if the two disagree.
    * - ``waterdepth``
      - number
      - Required
      - Water depth at the anchor position in metres.
    * - ``deployment_time``
      - ISO-8601 string
-     - Required
+     - Recommended
      - When the mooring was deployed (UTC).  Used by stage 2 to trim the
        record.  Format: ``"YYYY-MM-DDTHH:MM:SS"``, e.g.
-       ``"2026-05-07T17:05:00"`` means 7 May 2026 at 17:05 UTC.
+       ``"2026-05-07T17:05:00"`` means 7 May 2026 at 17:05 UTC.  Without it
+       (a WARNING), stage 2 uses the window detected from the records.
    * - ``recovery_time``
      - ISO-8601 string
-     - Required
+     - Recommended
      - When the mooring was recovered (UTC).  Used by stage 2 to trim the
        record.  Same format as ``deployment_time``.
    * - ``year``
@@ -139,8 +151,14 @@ mooring as a whole.
    * - ``qc_ranges``
      - mapping
      - Optional
-     - Mooring-wide QC thresholds applied in stage 3 to all instruments
-       unless overridden at the instrument level.  See `QC ranges`_ below.
+     - Mooring-wide gross-range (and tilt) thresholds applied in stage 3 to all
+       instruments unless overridden at the instrument level.  See `QC ranges`_
+       below.
+   * - ``qc_spike``, ``qc_flat_line``, ``tilt_qc``
+     - mapping
+     - Optional
+     - Mooring-wide spike, flat-line and tilt thresholds; see `Other QC
+       blocks`_ below.
    * - ``stack``
      - mapping
      - Optional
@@ -296,11 +314,18 @@ Optional fields
        instrument.  Set to ``4`` to mark pressure as bad/absent (e.g.
        the pressure sensor failed or the instrument type has no pressure
        sensor).
-   * - ``qc_ranges``
+   * - ``qc_ranges``, ``qc_spike``, ``qc_flat_line``, ``tilt_qc``
      - mapping
-     - Per-instrument QC overrides.  Same structure as mooring-level
-       ``qc_ranges``; instrument-level values override mooring-level
-       values for the same variable.
+     - Per-instrument QC overrides.  Same structure as the mooring-level
+       blocks; instrument-level values override mooring-level values for the
+       same variable.
+   * - ``data_mode``
+     - string or mapping
+     - OceanSITES data mode after a manual review: one letter for all the
+       instrument's variables, or ``{variable: letter}``, with ``P``
+       (provisional, the default) or ``D`` (delayed mode).  ``D`` is refused by
+       the export unless the stage-3 file records the calibration-dip
+       correction.
    * - ``skip``
      - boolean
      - Set to ``true`` to skip this instrument entirely during processing.
@@ -346,11 +371,15 @@ Additional fields
    ``"Aquadopp"``.  Used by ``moordiag`` for diagram labels and may be used
    by ``oceanarray`` as a legend label in plots.
 
+``clamp_id``
+   The clamp position on the mooring line.  Used by ``moordiag``; oceanarray
+   records it on each instrument's files (the ``clamp_id`` attribute).
+
 Fields used only by moordiag (ignored by oceanarray)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The following fields are read by the ``moordiag`` mooring diagram package
-and are ignored by ``oceanarray``: ``image``, ``clamp_id``, ``position``,
+and are ignored by ``oceanarray``: ``image``, ``position``,
 ``hardware_type``, ``category``, ``component_id``, ``length``, ``repeat``.
 They may safely remain in the YAML alongside the processing fields.
 
@@ -785,6 +814,40 @@ degrees-decimal-minutes format, e.g. ``"65 29.84 N"`` and
 ``"009 30.12 W"``.  The degrees component for longitude must be
 zero-padded to three digits (``009``, not ``9``).
 
+Other QC blocks
+~~~~~~~~~~~~~~~
+
+The spike, flat-line and tilt tests take their own blocks, at mooring level or in
+an instrument entry, in the units of the variable (see :doc:`methods/auto_qc` for
+the defaults):
+
+.. code-block:: yaml
+
+   qc_spike:                  # per variable
+     temperature: {suspect_threshold: 2.0, fail_threshold: 6.0}
+   qc_flat_line:              # per variable; counts of samples
+     pressure: {suspect_n: 3, fail_n: 10, tolerance: 0.001}
+   tilt_qc:                   # not per variable; degrees
+     suspect_threshold: 30
+     fail_threshold: 50
+
+``tilt`` may also be given in ``qc_ranges`` as symmetric spans
+(``suspect_span: [-20, 20]``); ``tilt_qc`` takes precedence.
+
+**The blocks are checked when the description is read.**  These are ERRORs, so
+``oceanarray validate`` reports them and processing refuses the description:
+
+- an unknown field (e.g. ``suspect_spn``);
+- a span that is not two increasing numbers;
+- a threshold that is not a number of 0 or more;
+- a sample count that is not a whole number of 1 or more;
+- a block that is not a mapping;
+- a ``qc_ranges`` variable without a default and without a ``fail_span`` (an
+  instrument entry may take the ``fail_span`` from the mooring-level block).
+
+A variable that is not in the registry is only a WARNING (most often a typo):
+its thresholds apply if a file has that variable.
+
 ----
 
 Validate your YAML
@@ -798,15 +861,17 @@ common mistakes:
    oceanarray validate /path/to/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml
 
 The validator checks that required fields are present, that ``instrument``
-and ``file_type`` values are recognised, and that the YAML can be parsed
+and ``file_type`` values are recognised, the QC blocks (`Other QC blocks`_),
+``platform_code`` and ``deployment_code``, and that the YAML can be parsed
 without errors.  It also emits warnings for inline instruments with commas
-in the serial number so you can confirm the ordering.
+in the serial number so you can confirm the ordering.  It exits 1 on an ERROR;
+add ``--strict`` to fail on warnings too.
 
 You can validate multiple files at once:
 
 .. code-block:: bash
 
-   oceanarray validate /path/to/proc/*/  *.mooring.yaml
+   oceanarray validate /path/to/proc/*/*.mooring.yaml
 
 ----
 

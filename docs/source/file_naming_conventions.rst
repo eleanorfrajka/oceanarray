@@ -104,14 +104,20 @@ serial number from the YAML.
      - HTML report for the gridded dataset
    * - ``{mooring}_{serial}_report.html``
      - Per-instrument HTML report
+   * - ``{mooring}_report.pdf``
+     - All the report pages as one A4 PDF (``oceanarray report --pdf``)
+   * - ``oceansites/OS_{platform}_{YYYYMM}_{mode}_{type}-{serial}-{depth}m.nc``
+     - OceanSITES 1.4 deployment file per instrument (``oceanarray export``)
+   * - ``oceansites/OS_{platform}_{YYYYMM}_{mode}_GRD_{interval}-DP{step}.nc``
+     - OceanSITES 1.4 gridded file from ``{mooring}_grid.nc``
 
 The ``{serial}`` component uses the value of the ``serial`` field in the
 YAML instrument entry.  If the serial contains a trailing ``*`` (used in
 some instrument identifiers), the ``*`` is stripped from the filename.
 
 The ``{mooring}`` component is the value of the ``name`` field at the top
-of the mooring YAML, which must also match the directory name under
-``{proc_dir}`` and the YAML filename itself::
+of the mooring YAML.  Keep the directory name under ``{proc_dir}`` and the YAML
+filename the same as it (``oceanarray validate`` warns when the directory differs)::
 
    {proc_dir}/{mooring}/{mooring}.mooring.yaml
 

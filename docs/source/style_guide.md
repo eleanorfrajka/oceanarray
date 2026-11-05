@@ -1,14 +1,14 @@
 # Project Style Guide
 
-> 🎨 This guide explains the coding and formatting conventions used in the project, and how to keep things consistent when adding or editing code.
+> This guide explains the coding and formatting conventions used in the project, and how to keep things consistent when adding or editing code.
 
 It combines Python code conventions, documentation standards, and metadata formatting guidelines.
 
 ---
 
-## 🧑‍💻 Python Coding Conventions
+## Python Coding Conventions
 
-### ✅ Function Definitions
+### Function Definitions
 - Use **type hints** for all parameters and return types.
 ```python
 def convert_units(
@@ -19,11 +19,11 @@ def convert_units(
     ...
 ```
 
-### 🐍 Naming
+### Naming
 - Functions and variables: `snake_case`
 - Constants (e.g., in xarray datasets): `ALL_CAPS`
 
-### 📝 Docstrings
+### Docstrings
 - Use **NumPy-style** docstrings
 - Required for all functions.
 - Sections include: `Parameters`, `Returns`, `Notes`, (optionally `Examples`, `References`)
@@ -61,79 +61,59 @@ def convert_units_var(
     """
 ```
 
-> 📚 NumPy-style docstrings render cleanly in Sphinx documentation (e.g. on Read the Docs). See [NumPy docstring style](https://numpydoc.readthedocs.io/en/latest/format.html).
+> NumPy-style docstrings render cleanly in Sphinx documentation (e.g. on Read the Docs). See [NumPy docstring style](https://numpydoc.readthedocs.io/en/latest/format.html).
 > 
-> 💡 Alternatives like [Google-style](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html) and [reST-style](https://www.sphinx-doc.org/en/master/usage/restructuredtext/domains.html#info-field-lists) docstrings are also valid with Sphinx if configured properly.
+> Alternatives like [Google-style](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html) and [reST-style](https://www.sphinx-doc.org/en/master/usage/restructuredtext/domains.html#info-field-lists) docstrings are also valid with Sphinx if configured properly.
 
 ---
 
-## 🗂 Dataset & Metadata Conventions
+## Dataset & Metadata Conventions
 
-### 🧬 Variable Names
+### Variable Names
 - Variable naming conventions are currently inconsistent across the codebase
 - We need to verify and align with [OceanSites variable naming recommendations](https://www.ocean-ops.org/oceansites/data/index.html)
 - Mix of `ALL_CAPS` (`TIME`, `DEPTH`) and lowercase (`temperature`, `pressure`) currently in use
 - Keep names short and unambiguous
 
-### 🧾 Attributes
+### Attributes
 - Follow [OceanSites format conventions](https://www.ocean-ops.org/oceansites/data/index.html)
 - Use `units`, `long_name`, `comment`
 - Avoid placing units in variable names — use attributes instead
 
-### 📐 Consistency
+### Consistency
 - Units are checked and converted using helper functions
 - Time is standardized using utility functions across the project
 
 ---
 
-## 🔁 Automating Formatting
+## Formatting and linting
 
-The project uses tools like `black`, `ruff`, and `pytest` to enforce style, linting, and test consistency. These are integrated into the workflow using pre-commit hooks.
+The project uses `ruff` for both linting and formatting, and `pytest` for tests. CI runs the same checks, so run them before pushing:
 
-**Pre-commit tools used:**
 ```bash
-black .                         # Format code with black
-ruff check .                    # Run ruff linter  
-ruff check . --fix              # Auto-fix issues where possible
-pre-commit run --all-files      # Run all pre-commit hooks
-codespell                       # Check for spelling errors
+ruff check . --fix              # lint, fixing what it can
+ruff format                     # format (ruff format --check to verify only)
+pytest                          # tests
 ```
-
-You don't need to run them manually, but setting up pre-commit ensures your code follows project standards automatically.
 
 ---
 
-## 🛠 Optional: VSCode Setup for Auto-formatting
+## Optional: VSCode setup
 
-To automatically format code when you save a file, add this to your **Workspace Settings** (`.vscode/settings.json`):
+To format on save with ruff, install the Ruff extension and add this to your **Workspace Settings** (`.vscode/settings.json`):
 ```json
 {
-  "python.formatting.provider": "black",
-  "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.organizeImports": true
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+      "source.organizeImports": "explicit"
+    }
   }
 }
 ```
 
-You can also add a VSCode task to format manually:
-```text
-{
-  "label": "Format Code",
-  "type": "shell",
-  "command": "black . && ruff check . --fix",
-  ...
-}
-```
-- Then bind it to a keyboard shortcut (e.g. `Cmd+Shift+R`) or run it from the command palette.
-
 ---
 
-## 💡 Future Considerations
-
-- Add `mypy` for static type checking
-- Use Sphinx for auto-generating documentation (already partially configured)
-
----
-
-> ✅ By following these conventions, your code will integrate smoothly with the rest of the project — clean, consistent, and ready for collaboration.
+By following these conventions, your code will integrate smoothly with the rest of the project.

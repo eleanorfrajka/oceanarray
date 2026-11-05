@@ -596,7 +596,7 @@ VARIABLES: dict[str, dict] = {
     "current_direction": {
         "label": "Current direction",
         "units": "degree",
-        "standard_name": "direction_of_sea_water_velocity",
+        "standard_name": "sea_water_velocity_to_direction",
         "cmap": None,
     },
     "bin_pressure": {

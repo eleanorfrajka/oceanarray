@@ -90,12 +90,14 @@ grid) and ``oceanarray report``.
        │   └── ...
        ├── {mooring}_stack.nc              ← all instruments on a common time grid
        ├── {mooring}_grid.nc               ← vertically interpolated onto a pressure grid
+       ├── oceansites/                     ← oceanarray export: OS_*.nc files
        ├── processing_logs/
        │   └── {mooring}_{timestamp}_{stage}.mooring.log
        └── report/
            ├── {mooring}_report.html           ← mooring summary report
            ├── {mooring}_stack_report.html
            ├── {mooring}_grid_report.html
+           ├── {mooring}_report.pdf            ← report --pdf: all pages as one A4 PDF
            └── instrument/
                └── {mooring}_{serial}_report.html
 
@@ -110,8 +112,9 @@ that mooring::
    {proc_dir}/{mooring_name}/{mooring_name}.mooring.yaml
 
 The ``{mooring_name}`` component is the value of the ``name`` field at the
-top of the YAML file (e.g. ``name: dsG3_1_2026``).  The directory name,
-the YAML filename, and the ``name`` field must all match exactly.
+top of the YAML file (e.g. ``name: dsG3_1_2026``).  Keep the directory name,
+the YAML filename and the ``name`` field identical: every output file is named from
+``name``, and ``oceanarray validate`` warns when the directory differs from it.
 
 Oceanarray looks for the YAML in this location when you supply
 ``--proc-dir``.  You do not need to place a copy in the raw directory.

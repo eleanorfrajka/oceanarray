@@ -114,7 +114,7 @@ Output
 Dimensions
 ^^^^^^^^^^
 
-``(N_LEVELS, time)`` following the OceanSITES convention. ``N_LEVELS`` is the instrument
+``(time, N_LEVELS)`` following the OceanSITES convention. ``N_LEVELS`` is the instrument
 index (deepest first); ``time`` is the common time axis at ``dt_seconds`` resolution.
 
 Coordinates

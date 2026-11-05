@@ -9,7 +9,7 @@
 
 Python tools for processing moored oceanographic array observations from raw instrument files to quality-controlled, CF-compliant NetCDF.
 
-It covers a single mooring's instruments — stages 1–3, stacking, and pressure gridding, each documented in an HTML report. Deriving calibration-dip offsets is handled by `caldip`, and shipboard CTD processing by `ctdcast`.
+It covers a single mooring's instruments — stages 1–3, stacking, and pressure gridding, each documented in an HTML report, and an OceanSITES 1.4 export. One command, `oceanarray run MOORING --raw-dir RAW`, takes a mooring from raw files to the gridded product and its report. Deriving calibration-dip offsets is handled by `caldip`, and shipboard CTD processing by `ctdcast`.
 
 **Documentation**: https://ocean-uhh.github.io/oceanarray/
 
@@ -38,6 +38,7 @@ oceanarray init dsG3_1_2026 --proc-dir /data/proc
 # edit /data/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml
 oceanarray validate /data/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml
 oceanarray run     /data/proc/dsG3_1_2026 --raw-dir /data/raw     # stages 1-3, stack, grid, report
+oceanarray export  /data/proc/dsG3_1_2026                          # OceanSITES 1.4 files (needs platform_code)
 ```
 
 See the [documentation](https://ocean-uhh.github.io/oceanarray/) for the recommended first-processing workflow, YAML reference, and CLI reference.
@@ -50,6 +51,7 @@ import oceanarray as oa
 yaml_path = "/data/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml"
 oa.process(yaml_path, raw_dir="/data/raw")  # stages 1-3
 oa.run(yaml_path, from_stage=3, report=True)  # re-run stage 3, stack, grid, report
+oa.export(yaml_path)  # OceanSITES 1.4 files in <mooring folder>/oceansites/
 ```
 
 See the [API reference](https://ocean-uhh.github.io/oceanarray/oceanarray.html) for the full interface.

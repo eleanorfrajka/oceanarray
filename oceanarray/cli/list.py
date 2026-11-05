@@ -48,7 +48,13 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
     """Add the ``list`` subcommand to *sub*."""
     p_list = sub.add_parser(
         "list",
-        help="List allowed instrument types and file_type values for mooring YAML files.",
+        help="List the instrument types and file_type values a mooring YAML may use.",
+        description=(
+            "Print the values the 'instrument' and 'file_type' fields of a mooring\n"
+            "description accept. Reads and writes nothing."
+        ),
+        epilog="Examples:\n  oceanarray list\n  oceanarray list file-types",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     p_list.add_argument(
         "topic",

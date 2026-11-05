@@ -311,6 +311,22 @@ See :doc:`reports` for a description of what each report contains.
 
 ----
 
+Export to OceanSITES
+--------------------
+
+To share the products as OceanSITES 1.4 files, add ``platform_code`` (the station,
+e.g. ``DSG3``) to the mooring YAML, then:
+
+.. code-block:: bash
+
+   oceanarray export dsG3_1_2026 --proc-dir /data/cruise2026/proc -n   # list the names
+   oceanarray export dsG3_1_2026 --proc-dir /data/cruise2026/proc
+
+Each instrument's stage-3 file and the grid are written to
+``/data/cruise2026/proc/dsG3_1_2026/oceansites/``.  See :doc:`methods/oceansites_export`.
+
+----
+
 From Python
 -----------
 
@@ -323,6 +339,7 @@ The same steps from Python:
    yaml_path = "/data/cruise2026/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml"
    oa.process(yaml_path, stages=1, raw_dir="/data/cruise2026/raw")  # stage 1
    oa.run(yaml_path, raw_dir="/data/cruise2026/raw", report=True)   # everything
+   oa.export(yaml_path)                                              # OceanSITES files
 
 See :doc:`oceanarray` for the full API and :doc:`migrating_0_6_0` when updating
 code written for 0.5.

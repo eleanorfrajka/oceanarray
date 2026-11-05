@@ -41,8 +41,17 @@ active processing code:
    Its YAML inputs live beside it: ``OS1_variable_names.yaml``,
    ``OS1_variable_attributes.yaml`` and ``OS1_sensor_attributes.yaml``.
 
-``rapid_interp.py`` (top-level)
-   RAPID-specific interpolation helpers — not part of the active pipeline.
+``qc_rodb.py``
+   RODB-era QC flaggers for datasets with OceanSITES-style uppercase variables
+   (``TEMP``, ``CNDC``, ``PSAL``).
+
+``caldip.py``
+   The earlier in-package calibration-dip analysis — superseded by the separate
+   ``caldip`` tool, whose per-cast netCDF Stage 3 reads (see :doc:`methods/calibration`).
+
+The RAPID climatological-gradient gridding routine is not legacy: it lives in
+``oceanarray/pipeline/gridders/rapid_interp.py`` and is waiting to be wired into
+``grid`` as a selectable method.
 
 Demo notebooks for the legacy workflow live in ``notebooks/legacy/`` and are kept
 for reference only.

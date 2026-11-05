@@ -10,8 +10,8 @@ from oceanarray.cli._common import (
     _add_dir_args,
     _folder,
     _mooring_location,
-    _OldFlag,
 )
+from oceanarray.cli._deprecate import DeprecatedAlias
 
 
 def cmd_plot(args: argparse.Namespace) -> int:
@@ -19,7 +19,7 @@ def cmd_plot(args: argparse.Namespace) -> int:
 
     Reads the best available processed NetCDF (stage3 preferred, falling back to
     stage2) for all instruments and produces a scatter/line plot with a user-chosen
-    y-axis variable (default: pressure) and colour variable (default: temperature).
+    y-axis variable (default: temperature) and an optional colour variable.
 
     When ``--output`` is given the plot is saved to that filename in the proc
     directory (or ``--output-dir`` if specified).  Without ``--output``, the plot
@@ -57,7 +57,25 @@ def cmd_plot(args: argparse.Namespace) -> int:
 
 def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-arg]
     """Add the ``plot`` subcommand to *sub*."""
-    p_plot = sub.add_parser("plot", help="Plot multi-instrument mooring overview.")
+    p_plot = sub.add_parser(
+        "plot",
+        help="Plot one variable of every instrument on a mooring in one figure.",
+        description=(
+            "Read each instrument's stage-3 file (stage 2 where there is none) and plot\n"
+            "one variable against time for all of them, as lines or, with --var-color,\n"
+            "as points coloured by a second variable. Shows the figure (--show) or saves\n"
+            "it (--output / -o)."
+        ),
+        epilog=(
+            "Examples:\n"
+            "  # temperature of every instrument, saved next to the stage files\n"
+            "  oceanarray plot /data/proc/dsG3_1_2026 --output overview.png\n"
+            "  # pressure coloured by temperature, on screen\n"
+            "  oceanarray plot dsG3_1_2026 --proc-dir /data/proc --var-y pressure "
+            "--var-color temperature --show"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     p_plot.add_argument("mooring", help=_MOORING_HELP)
     _add_dir_args(p_plot, raw_needed=False)
     p_plot.add_argument(
@@ -76,7 +94,7 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
         p_plot.add_argument(
             old,
             dest=new[2:].replace("-", "_"),
-            action=_OldFlag,
+            action=DeprecatedAlias,
             new=new,
             help=argparse.SUPPRESS,
         )
@@ -93,11 +111,20 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
         help="Scatter marker size in points² (default 4). Only used in scatter mode.",
     )
     p_plot.add_argument(
-        "--downsample",
+        "--downsample-seconds",
         type=int,
         default=None,
+        dest="downsample",
         metavar="SECONDS",
         help="Resample interval in seconds (default: 120)",
+    )
+    p_plot.add_argument(
+        "--downsample",
+        type=int,
+        dest="downsample",
+        action=DeprecatedAlias,
+        new="--downsample-seconds",
+        help=argparse.SUPPRESS,
     )
     p_plot.add_argument(
         "--output",

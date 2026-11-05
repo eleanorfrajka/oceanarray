@@ -39,7 +39,7 @@ See :doc:`migrating_0_6_0`.
   the stage that produced them, and reading a stage file checks it.  A file written
   before 0.6 has no marker: it is still read, with a WARNING, and its stage inferred
   from its filename.  0.7.0 will refuse unmarked files; mark existing ones once with
-  ``oceanarray stamp <files> --stage N`` (it writes only the marker, and refuses a
+  ``oceanarray stamp <files> --declare N`` (it writes only the marker, and refuses a
   file whose name says another stage).
 - **A stage file made under a different mooring name is refused.**  Reading a stage
   file whose ``mooring_name`` differs from the description's ``name:`` by more than

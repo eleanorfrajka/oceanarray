@@ -1,15 +1,40 @@
 OceanSITES export
 =================
 
-.. note::
-   In development.  This page describes what the export writes; the converter is being
-   built against it.
-
 oceanarray writes its products as `OceanSITES 1.4
 <https://www.ocean-ops.org/oceansites/docs/oceansites_data_format_reference_manual.pdf>`_
 files (see :doc:`../oceanSITES_manual`): ``format_version = "1.4"``, ``Conventions``
 naming CF, OceanSITES-1.4 and ACDD.  The files follow the format; they are not yet ready
 to submit to a GDAC, which needs a ``site_code`` approved by the OceanSITES Project Office.
+
+Running the export
+------------------
+
+After stage 3 (and the grid, if one is wanted), from the command line:
+
+.. code-block:: bash
+
+   oceanarray export /data/proc/dune2_1_2026 --array /data/proc/MIXSED2026.array.yaml
+   oceanarray export dune2_1_2026 --proc-dir /data/proc -n     # list the file names only
+
+or from Python:
+
+.. code-block:: python
+
+   import oceanarray as oa
+
+   oa.export("/data/proc/dune2_1_2026/dune2_1_2026.mooring.yaml",
+             array="/data/proc/MIXSED2026.array.yaml")
+
+The files go to ``<mooring folder>/oceansites/`` (``-o DIR`` / ``out_dir=`` to change it).
+An existing file is kept unless ``--force`` (``overwrite=True``) is given.  An instrument
+that cannot be exported is listed and left out; the others are written.  ``--no-grid``
+(``grid=False``) leaves the grid out.
+
+The mooring YAML needs ``platform_code``; ``deployment_code`` (``YYYYMM``) is optional and
+taken from ``deployment_time`` when absent — ``oceanarray validate`` warns when the two
+disagree.  The array YAML (``--array``) supplies ``site_code`` and ``project``.  See
+:doc:`../yaml_configuration`.
 
 Products
 --------
@@ -56,9 +81,7 @@ The grid stays on its pressure levels: ``PRES(DEPTH)`` holds the levels, and ``D
 each level converted with ``gsw.z_from_p`` at the mooring latitude, so nothing is
 re-interpolated.  Its ``history`` names the grid and the stage files the stack was built
 from (manual §4.2.1).  A gridded file carries no ``_QC`` variables (§4.2.1: only good
-source data went into it).  A grid records no per-input data modes, so only a
-provisional (``P``) grid is exported; until a grid can record them, any other mode is
-refused.
+source data went into it).
 
 Data mode
 ---------

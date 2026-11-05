@@ -1,7 +1,7 @@
 Grid: Vertical Pressure Grid
 =============================
 
-The ``grid`` stage linearly interpolates the stacked ``(N_LEVELS, time)``
+The ``grid`` stage linearly interpolates the stacked ``(time, N_LEVELS)``
 dataset onto a regular pressure grid, producing ``(time, pressure)`` output suitable for
 quick T-S section plots and density diagnostics.
 
@@ -86,7 +86,7 @@ Dimensions
 Variables gridded
 ^^^^^^^^^^^^^^^^^
 
-All ``(N_LEVELS, time)`` variables present in the stack file, except ``pressure`` itself,
+All ``(time, N_LEVELS)`` variables present in the stack file, except ``pressure`` itself,
 are interpolated onto the pressure axis. This includes derived quantities such as
 ``sigma0`` or ``sigma2`` computed at the stack step.
 

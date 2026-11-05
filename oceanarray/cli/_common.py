@@ -5,9 +5,17 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
+from typing import NoReturn
 
 from oceanarray import paths
+from oceanarray.cli._deprecate import DeprecatedAlias
 from oceanarray.pipeline import resolve_stage
+
+
+def _usage_error(message: str) -> NoReturn:
+    """Print *message* as an ERROR and exit 2, the exit status of a usage error."""
+    print(f"ERROR: {message}", file=sys.stderr)
+    raise SystemExit(2)
 
 
 def _resolve_dirs(
@@ -21,8 +29,8 @@ def _resolve_dirs(
     proc_dir = getattr(args, "proc_dir", None)
 
     if basedir:
-        raise SystemExit(
-            "ERROR: --basedir has been removed. Use --raw-dir + --proc-dir "
+        _usage_error(
+            "--basedir has been removed. Use --raw-dir + --proc-dir "
             "(the mooring directory is now <proc-dir>/<mooring>, not "
             "<basedir>/moor/proc/<mooring>). See the migration guide: "
             f"docs/source/migration.rst or {paths.DOCS_URL}migration.html"
@@ -30,9 +38,7 @@ def _resolve_dirs(
 
     if not proc_dir:
         if proc_required:
-            raise SystemExit(
-                "ERROR: --proc-dir is required (and --raw-dir for stage 1)."
-            )
+            _usage_error("--proc-dir is required (and --raw-dir for stage 1).")
         return Path(raw_dir) if raw_dir else None, None
     return Path(raw_dir) if raw_dir else None, Path(proc_dir)
 
@@ -43,7 +49,13 @@ def _mooring_location(args: argparse.Namespace) -> Path:
     if getattr(args, "proc_dir", None):
         proc_root = Path(args.proc_dir)
         paths.require_current_layout(proc_root, args.mooring)
-        return paths.mooring_proc_dir(proc_root, args.mooring)
+        folder = paths.mooring_proc_dir(proc_root, args.mooring)
+        if not folder.is_dir():
+            raise SystemExit(
+                f"ERROR: no mooring folder {folder}: {args.mooring} is not a mooring name "
+                "under --proc-dir."
+            )
+        return folder
     # Without --proc-dir the positional is a path: a *.mooring.yaml or the folder
     # holding one, under any name.
     given = Path(args.mooring)
@@ -95,8 +107,8 @@ def _add_dir_args(p: argparse.ArgumentParser, raw_needed: bool = True) -> None:
             default=None,
             dest="raw_dir",
             metavar="DIR",
-            help="Cruise-level raw data directory (pipeline appends /{mooring}/). "
-            "Required for stage 1.",
+            help="The cruise's raw-data folder; a mooring's raw files are in "
+            "<raw-dir>/<name>/. Needed only when stage 1 runs.",
         )
     else:
         # Commands that read only processed NetCDF (plot, animate) take no --raw-dir.
@@ -106,33 +118,9 @@ def _add_dir_args(p: argparse.ArgumentParser, raw_needed: bool = True) -> None:
         default=None,
         dest="proc_dir",
         metavar="DIR",
-        help="Cruise-level processed output directory (pipeline appends /{mooring}/).",
+        help="The cruise's processed-data folder; a mooring's files are in "
+        "<proc-dir>/<name>/. With it, MOORING may be just the name.",
     )
-
-
-class _OldFlag(argparse.Action):
-    """Accept a renamed flag for one release, saying what it is called now."""
-
-    def __init__(self, *args: object, new: str, **kwargs: object) -> None:
-        """Remember the new spelling."""
-        self.new = new
-        super().__init__(*args, **kwargs)
-
-    def __call__(
-        self,
-        parser: argparse.ArgumentParser,  # noqa: ARG002  — argparse.Action signature
-        namespace: argparse.Namespace,
-        values: object,
-        option_string: str | None = None,
-    ) -> None:
-        """Store the value and print the new spelling to stderr."""
-        print(
-            f"oceanarray: {option_string} is now {self.new} ({option_string} is "
-            "removed in 0.7.0).",
-            file=sys.stderr,
-        )
-        # nargs=0 is a renamed on/off switch; otherwise forward the parsed values.
-        setattr(namespace, self.dest, True if self.nargs == 0 else values)
 
 
 def _add_only(p: argparse.ArgumentParser, text: str) -> None:
@@ -144,16 +132,20 @@ def _add_only(p: argparse.ArgumentParser, text: str) -> None:
         "--serial",
         nargs="+",
         dest="serials",
-        action=_OldFlag,
+        action=DeprecatedAlias,
         new="--only",
         help=argparse.SUPPRESS,
     )
 
 
 def _add_stack_grid_args(
-    p: argparse.ArgumentParser, *, from_description: bool = False
+    p: argparse.ArgumentParser, *, from_description: bool = False, hidden: bool = False
 ) -> None:
-    """Add the shared stack/grid tuning flags (--dt-seconds, --dp, --pmin, --pmax)."""
+    """Add the shared stack/grid tuning flags (--dt-seconds, --dp, --pmin, --pmax).
+
+    *hidden* keeps them working but out of ``--help`` (``process``, where they only
+    serve the deprecated ``--stage stack|grid``).
+    """
     from ..pipeline._run import DEFAULTS
 
     # The flags spell the Python keywords; the time step carries its unit.
@@ -179,13 +171,13 @@ def _add_stack_grid_args(
             # keeps the fixed defaults.
             default=None if from_description else kind(default),
             metavar=metavar,
-            help=f"{text} (default: {where})",
+            help=argparse.SUPPRESS if hidden else f"{text} (default: {where})",
         )
     p.add_argument(
         "--dt",
         type=int,
         dest="dt_seconds",
-        action=_OldFlag,
+        action=DeprecatedAlias,
         new="--dt-seconds",
         help=argparse.SUPPRESS,
     )

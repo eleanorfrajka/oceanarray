@@ -36,6 +36,9 @@ The verbs
 .. autofunction:: oceanarray.report
    :no-index:
 
+.. autofunction:: oceanarray.export
+   :no-index:
+
 On datasets
 ^^^^^^^^^^^
 
@@ -285,7 +288,7 @@ ADCP QC steps: bins in the seabed or surface sidelobe zone, and velocity checks.
 stamp
 ^^^^^
 Mark stage files written before the ``processing_stage`` marker existed
-(``oceanarray stamp FILE... --stage N``).
+(``oceanarray stamp FILE... --declare N``).
 
 .. automodule:: oceanarray.pipeline.stamp
    :members:

@@ -53,13 +53,18 @@ def test_only_and_the_old_serial_spelling(folder, capsys):
         )
         assert other.stat().st_mtime == t_other
         assert target.exists()
-    assert "--serial is now --only" in capsys.readouterr().err
+    assert (
+        "--serial is deprecated and removed in 0.7.0; use --only"
+        in capsys.readouterr().err
+    )
 
 
-def test_process_stack_without_proc_dir_points_at_run(folder):
+def test_process_stack_without_proc_dir_points_at_run(folder, capsys):
     """The stack and grid through process need --proc-dir; the message names run."""
-    with pytest.raises(SystemExit, match="oceanarray run"):
+    with pytest.raises(SystemExit) as exit_info:
         _cli(["process", str(folder), "--stage", "stack"])
+    assert exit_info.value.code == 2  # a usage error
+    assert "oceanarray run" in capsys.readouterr().err
 
 
 def test_a_path_that_does_not_exist_is_refused(tmp_path):
@@ -83,7 +88,10 @@ def test_old_plot_flag_spellings_still_parse(capsys):
         ]
     )
     assert (ns.var_y, ns.var_color) == ("pressure", "temperature")
-    assert "--var_y is now --var-y" in capsys.readouterr().err
+    assert (
+        "--var_y is deprecated and removed in 0.7.0; use --var-y"
+        in capsys.readouterr().err
+    )
 
 
 def test_verbose_lowers_the_stage_console_level(monkeypatch):
@@ -216,14 +224,17 @@ def test_report_short_flags_are_old_spellings(folder, capsys):
     assert (ns.instruments, ns.stack, ns.grid, ns.all_reports) == (True,) * 4
     err = capsys.readouterr().err
     for new in ("--instruments", "--stack", "--grid", "--all"):
-        assert f"is now {new}" in err
+        assert f"use {new}" in err
 
 
 def test_dt_is_the_old_spelling_of_dt_seconds(capsys):
     """--dt still sets the stack time step, and says --dt-seconds."""
     ns = build_parser().parse_args(["run", "m", "--proc-dir", ".", "--dt", "600"])
     assert ns.dt_seconds == 600
-    assert "--dt is now --dt-seconds" in capsys.readouterr().err
+    assert (
+        "--dt is deprecated and removed in 0.7.0; use --dt-seconds"
+        in capsys.readouterr().err
+    )
 
 
 def test_process_dry_run_lists_every_stage_and_the_interpolated_pressure(
@@ -243,12 +254,15 @@ def test_process_dry_run_lists_every_stage_and_the_interpolated_pressure(
     assert {p: p.stat().st_mtime for p in before} == before
 
 
-def test_process_strict_with_stack_points_to_run(tmp_path):
+def test_process_strict_with_stack_points_to_run(tmp_path, capsys):
     """process --stage stack --strict is refused, naming oceanarray run --strict."""
     from oceanarray.cli import build_parser
 
+    (tmp_path / "m").mkdir()
     ns = build_parser().parse_args(
         ["process", "m", "--proc-dir", str(tmp_path), "--stage", "stack", "--strict"]
     )
-    with pytest.raises(SystemExit, match="oceanarray run MOORING --strict"):
+    with pytest.raises(SystemExit) as exit_info:
         ns.func(ns)
+    assert exit_info.value.code == 2
+    assert "oceanarray run MOORING --strict" in capsys.readouterr().err

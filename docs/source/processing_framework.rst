@@ -60,13 +60,14 @@ The instrument-level processing carries out the following steps:
      magnetic declination correction.  (Stage 1 applies the prior BEAM→XYZ step
      using the instrument T matrix from the ``.hdr`` file.)
   7. Tilt QC for Aquadopps: velocity variables flagged suspect or bad when pitch/roll
-     exceed configurable thresholds (default 20°/30°).  For RDI ADCPs with four
+     exceed configurable thresholds (default 30°/50°; ``tilt_qc``).  For RDI ADCPs with four
      beams, ``error_velocity`` is used for QC instead.
 
   Output: ``_stage3.nc``.  Applied QC thresholds are stored as attributes on each
   ``*_qc`` variable so the exact configuration can be recovered from the file.
 
-- **Stage 4 (planned):** Full export to OceanSITES format with rich metadata.
+- **Export:** ``oceanarray export`` writes the stage-3 files and the grid as
+  OceanSITES 1.4 files; see :doc:`methods/oceansites_export`.
 
 .. note::
 
@@ -123,8 +124,9 @@ mooring are combined:
 
 .. note::
 
-  The stack step may include optional low-pass filtering to remove tides before
-  subsampling.  This is controlled by YAML parameters; see :doc:`yaml_configuration`.
+  The stack does no filtering: a fast instrument is subsampled (nearest sample in
+  time) and a slow one interpolated linearly.  Low-pass filtering, if wanted, is done
+  on the stage-3 files before stacking.
 
 .. admonition:: RAPID Analogy
   :class: hint
@@ -136,7 +138,7 @@ mooring are combined:
 
 **Further details:**
 
-- :doc:`methods/time_gridding` — low-pass filtering and common time axis.
+- :doc:`methods/time_gridding` — the common time axis.
 - :doc:`methods/vertical_gridding` — pressure-grid interpolation.
 - :doc:`methods/concatenation` — joining multiple deployments.
 
@@ -194,8 +196,8 @@ Summary table
      - QC & rotation
      - Pressure interpolation; QARTOD QC flags; salinity; velocity rotation (optional caldip T/C/P correction at the front — planned)
    * - 4
-     - OceanSITES export (planned)
-     - Full export to OceanSITES format with rich metadata
+     - OceanSITES export
+     - Stage-3 files and the grid as OceanSITES 1.4 files (``oceanarray export``)
    * - A
      - Stack
      - Resample all instruments onto a common time axis; stack with depth dimension

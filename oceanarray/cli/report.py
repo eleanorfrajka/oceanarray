@@ -13,9 +13,9 @@ from oceanarray.cli._common import (
     _add_shared_report_args,
     _folder,
     _mooring_location,
-    _OldFlag,
     _resolve_dirs,
 )
+from oceanarray.cli._deprecate import DeprecatedAlias
 
 
 def cmd_report(args: argparse.Namespace) -> int:
@@ -204,7 +204,25 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
     """Add the ``report`` subcommand to *sub*."""
     p_report = sub.add_parser(
         "report",
-        help="Generate a mooring recovery HTML report.",
+        help="Build a mooring's HTML report pages from its processed files.",
+        description=(
+            "Build the report for one mooring from the files already processed: the\n"
+            "summary page, and with --instruments / --stack / --grid (or --all) the\n"
+            "per-instrument, stack and grid pages. Reads the stage, stack and grid files;\n"
+            "writes HTML into <mooring folder>/report/ (or -o / --report-dir), and with\n"
+            "--pdf one A4 PDF. Processes no data. With --array, builds the array index\n"
+            "from an <array>.array.yaml instead."
+        ),
+        epilog=(
+            "Examples:\n"
+            "  # the summary page\n"
+            "  oceanarray report /data/proc/dsG3_1_2026\n"
+            "  # every page, and the PDF\n"
+            "  oceanarray report dsG3_1_2026 --proc-dir /data/proc --all --pdf\n"
+            "  # the array index\n"
+            "  oceanarray report /data/proc/MIXSED2026.array.yaml --array"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     p_report.add_argument("mooring", help=_MOORING_HELP)
     _add_dir_args(p_report, raw_needed=True)
@@ -291,8 +309,8 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
         action="store_true",
         dest="skip_existing",
         default=False,
-        help="Skip any output file that already exists, regardless of source mtime "
-        "(old behaviour; use --force to always regenerate).",
+        help="Skip any page that already exists, even if its files are newer "
+        "(--force always rebuilds).",
     )
     # The short spellings went in 0.6 (family rule: only -o, -n and -v are short);
     # accepted until 0.7.0 with a note.
@@ -303,6 +321,11 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
         ("-A", "all_reports", "--all"),
     ):
         p_report.add_argument(
-            short, dest=dest, nargs=0, action=_OldFlag, new=new, help=argparse.SUPPRESS
+            short,
+            dest=dest,
+            nargs=0,
+            action=DeprecatedAlias,
+            new=new,
+            help=argparse.SUPPRESS,
         )
     p_report.set_defaults(func=cmd_report)
