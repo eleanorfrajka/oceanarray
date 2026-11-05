@@ -232,11 +232,6 @@ def test_assign_dip_role(when, role):
 
 
 # ── interface: the correction functions are still stubs ──────────────────────
-def test_select_offsets_is_stub():
-    with pytest.raises(NotImplementedError, match="select_offsets"):
-        caldip.select_offsets(xr.Dataset(), "13874", "temperature")
-
-
 def test_apply_caldip_is_stub():
     with pytest.raises(NotImplementedError, match="apply_caldip"):
         caldip.apply_caldip(xr.Dataset(), None)

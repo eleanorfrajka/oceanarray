@@ -7,11 +7,12 @@ by serial, and corrects temperature, conductivity and pressure at the front of S
 pressure interpolation. A correction changes the values, as the Stage 2 clock-drift
 correction does; it is not quality control.
 
-**Status: reading and finding the dips are implemented, the correction is not.**
+**Status: everything up to applying the correction is implemented.**
 :mod:`.caldip` reads and checks a cast (:func:`read_caldip_cast`, :func:`instrument_record`);
 :mod:`.dips` finds the file for each end the mooring YAML names (:func:`caldip_ends`) and
-which end a cast is (:func:`assign_dip_role`). :func:`select_offsets` and :func:`apply_caldip`
-are the interface the correction is built to; each still raises :class:`NotImplementedError`.
+which end a cast is (:func:`assign_dip_role`); :mod:`.stops` reduces one dip's bottle stops to
+an offset or a slope per variable (:func:`reduce_dip`). :func:`apply_caldip` is the interface
+the correction is built to; it still raises :class:`NotImplementedError`.
 
 The carrier, the field contract, the correction model and the stop-selection rules are
 documented in ``docs/source/methods/calibration.rst``. Sign convention: every ``*_diff``
@@ -21,13 +22,12 @@ subtracting the offset (``corrected = measured − diff``).
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any
-
 import xarray as xr
 
 from oceanarray.pipeline.calibration.caldip import (
+    CALDIP_FLAG_FLAGGED,
     CALDIP_FLAG_OK,
+    CALDIP_FLAGS_USABLE,
     CALDIP_QUANTITIES,
     CALDIP_SUFFIX,
     PROVENANCE_PASSTHROUGH_GLOBALS,
@@ -47,9 +47,25 @@ from oceanarray.pipeline.calibration.dips import (
     caldip_root,
     cast_time,
 )
+from oceanarray.pipeline.calibration.stops import (
+    STEMS,
+    Reduction,
+    conductivity_offset,
+    conductivity_slope,
+    conductivity_stops,
+    deepest_offset,
+    pressure_offset,
+    rapid_depth_average,
+    rapid_pressure_at_depth,
+    reduce_dip,
+    through_origin_slope,
+    usable_stops,
+)
 
 __all__ = [
+    "CALDIP_FLAG_FLAGGED",
     "CALDIP_FLAG_OK",
+    "CALDIP_FLAGS_USABLE",
     "CALDIP_QUANTITIES",
     "CALDIP_STUB_APPLIED",
     "CALDIP_SUFFIX",
@@ -59,7 +75,18 @@ __all__ = [
     "SUPPORTED_SCHEMA_VERSION",
     "CaldipError",
     "CaldipProvenanceError",
-    "Offsets",
+    "Reduction",
+    "STEMS",
+    "conductivity_offset",
+    "conductivity_slope",
+    "conductivity_stops",
+    "deepest_offset",
+    "pressure_offset",
+    "rapid_depth_average",
+    "rapid_pressure_at_depth",
+    "reduce_dip",
+    "through_origin_slope",
+    "usable_stops",
     "apply_caldip",
     "assign_dip_role",
     "canonical_serial",
@@ -69,7 +96,6 @@ __all__ = [
     "cast_time",
     "instrument_record",
     "read_caldip_cast",
-    "select_offsets",
 ]
 
 #: Value written to the ``caldip_applied`` global attribute of ``_stage3.nc`` when a caldip
@@ -82,68 +108,8 @@ CALDIP_STUB_APPLIED = (
 )
 
 
-@dataclass(frozen=True)
-class Offsets:
-    """One variable's caldip offset selected for an instrument at a bottle stop.
-
-    Parameters
-    ----------
-    value : float
-        The offset (``instrument − CTD``) to subtract from the instrument value, in the
-        variable's units.
-    stop_pressure : float
-        Bottle-stop pressure the offset was taken from (dbar).
-    n : int
-        Sample count in the comparison window at that stop.
-    flag : int
-        caldip ``*_flag`` value at the stop (see :data:`CALDIP_FLAG_OK`).
-    source_tracking_id : str
-        ``tracking_id`` of the caldip file the offset came from, for provenance.
-
-    """
-
-    value: float
-    stop_pressure: float
-    n: int
-    flag: int
-    source_tracking_id: str
-
-
-def select_offsets(ds: xr.Dataset, serial: Any, variable: str) -> Offsets:
-    """Select the bottle-stop offset for one instrument variable (stub).
-
-    Stop selection is per variable (``docs/source/methods/calibration.rst``, correction
-    model): pressure from the stop nearest deployment depth, temperature from the deepest
-    stop, conductivity from the deepest stop or a fit across stops. The choice of stop and
-    reduction is oceanarray's, not caldip's.
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        A cast from :func:`read_caldip_cast`.
-    serial : Any
-        Instrument serial, normalised before matching.
-    variable : str
-        ``"temperature"``, ``"conductivity"``, or ``"pressure"``.
-
-    Returns
-    -------
-    Offsets
-        The selected offset and its provenance.
-
-    Raises
-    ------
-    NotImplementedError
-        Always — see ``docs/source/methods/calibration.rst``.
-
-    """
-    del ds, serial, variable
-    msg = "select_offsets is not implemented; see docs/source/methods/calibration.rst"
-    raise NotImplementedError(msg)
-
-
 def apply_caldip(
-    ds: xr.Dataset, offsets_pre: Offsets, offsets_post: Offsets | None = None
+    ds: xr.Dataset, pre: Reduction | None, post: Reduction | None = None
 ) -> xr.Dataset:
     """Apply a variable's caldip offset(s) to a Stage 3 dataset (stub).
 
@@ -157,10 +123,10 @@ def apply_caldip(
     ----------
     ds : xarray.Dataset
         The Stage 3 dataset to correct.
-    offsets_pre : Offsets
-        The pre-deployment (or single) offset.
-    offsets_post : Offsets or None, optional
-        The post-deployment offset, when a bracketing dip exists.
+    pre : Reduction or None
+        The pre-deployment dip's correction.
+    post : Reduction or None, optional
+        The post-deployment dip's correction.
 
     Returns
     -------
@@ -173,6 +139,6 @@ def apply_caldip(
         Always — see ``docs/source/methods/calibration.rst``.
 
     """
-    del ds, offsets_pre, offsets_post
+    del ds, pre, post
     msg = "apply_caldip is not implemented; see docs/source/methods/calibration.rst"
     raise NotImplementedError(msg)

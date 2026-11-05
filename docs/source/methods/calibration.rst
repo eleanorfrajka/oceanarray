@@ -4,8 +4,9 @@ Calibration — applying caldip corrections at the front of Stage 3
 .. note::
 
    **Status: in progress.** Reading and checking a caldip cast
-   (:mod:`oceanarray.pipeline.calibration.caldip`) and finding the dips the mooring YAML names
-   (:mod:`oceanarray.pipeline.calibration.dips`) are implemented; choosing stops, combining dips and applying
+   (:mod:`oceanarray.pipeline.calibration.caldip`), finding the dips the mooring YAML names
+   (:mod:`oceanarray.pipeline.calibration.dips`) and reducing a dip's stops to an offset or a
+   slope (:mod:`oceanarray.pipeline.calibration.stops`) are implemented; combining dips and applying
    the correction are not yet, and Stage 3 output is unchanged. This page is the specification
    for that work; open values are marked **TBD**.
 
@@ -22,7 +23,9 @@ The interface
   for each end the YAML names (implemented);
 - ``assign_dip_role(cast_time, deployment_time, recovery_time)`` and ``cast_time(cast)`` —
   which end a cast is for an instrument (implemented);
-- ``select_offsets``, ``apply_caldip`` — still raise ``NotImplementedError``.
+- ``reduce_dip(record, variable, scheme=, deployment_pressure=, slope=)`` — one dip's offset
+  or slope for one variable (implemented);
+- ``apply_caldip`` — still raises ``NotImplementedError``.
 
 The division of labour with caldip: **caldip measures, oceanarray decides.** caldip aligns
 the clocks, finds the bottle stops and writes, per instrument and stop, the instrument and CTD
@@ -145,26 +148,67 @@ loudly — it cannot scale the data by ten. caldip writes ``degree_C``, ``mS cm-
 today. Before applying, the target variable in the stage-2 dataset is in the same registry
 unit, because every stage writes canonical units.
 
-Per-variable stop selection
----------------------------
+Reducing a dip to one number
+----------------------------
 
-Stop selection is **per variable** — not one policy applied to three variables:
+One dip's bottle stops become one offset per variable — or, for conductivity under
+``standard``, one Sea-Bird AN31 slope (:mod:`oceanarray.pipeline.calibration.stops`,
+:func:`~oceanarray.pipeline.calibration.stops.reduce_dip`). The mooring YAML picks the scheme
+(``caldip.scheme``); ``standard`` is the default, ``rapid`` reproduces the RAPID MicroCAT
+processing. Pressures are the CTD's (``ctd_press``), in dbar; values marked *provisional* are
+defaults still to be confirmed.
 
-.. list-table::
-   :header-rows: 1
+**B. Usable stops** (per instrument, per variable)::
 
-   * - Variable
-     - Stop selection
-     - Shape
-   * - pressure
-     - stop nearest the instrument's deployment pressure (``waterdepth − hab``, dbar)
-     - single offset
-   * - temperature
-     - deepest stop
-     - single offset
-   * - conductivity
-     - deepest stop, or a fit across stops
-     - offset, or a slope ``a·C + b`` when the stops span a wide conductivity range
+    usable ← stops whose <var>_flag is ok or flagged, and whose <var>_diff and ctd_press
+             are finite
+    (caldip's "flagged" means the difference exceeds its acceptance threshold — the
+     instrument reads off, which is what the correction is for; no_data, missing and
+     unknown stops are not used)
+
+**C. Temperature — standard**::
+
+    if no usable stop                    → none ("no usable stop")
+    offset ← temp_diff at the usable stop with the largest ctd_press
+
+**D. Conductivity — standard (AN31 slope)**::
+
+    deep ← usable stops deeper than 500 dbar
+    if fewer than 2:  deep ← usable stops deeper than 200 dbar
+    if none           → none ("no usable stop below 200 dbar"); never a shallower stop
+    if every deep stop has a positive cond_std:
+        drop the stops whose cond_std > 3 × the smallest      (unstable water; provisional)
+    α ← inst_cond, β ← ctd_cond over the remaining stops
+    w ← N / cond_std²   (equal weights if any std is missing or zero)
+    slope ← Σ w·α·β / Σ w·α²
+    σ_slope ← √( Σ w·r² / (n − 1) / Σ w·α² ),  r = β − slope·α   (undefined for one stop)
+    record the stops, n, σ_slope, the RMS of r and the conductivity range of the stops
+
+    with a mean or ramp override: offset ← the mean cond_diff over the same stops
+
+The slope is through the origin (zero offset), following Sea-Bird Application Note 31:
+conductivity cells drift in span, and an offset error is a sign of a faulty sensor. On castM4
+the stop differences also change with pressure, by about the size of a cell-compressibility
+term; the deep-stop rule keeps the fit near the deployment pressures until the cause is
+settled.
+
+**G. Pressure — standard**::
+
+    near ← usable stops within 200 dbar of the deployment pressure        (provisional)
+    if none:  near ← the single usable stop nearest the deployment pressure
+    offset ← mean press_diff over near
+
+**H. The rapid scheme** (RAPID's ``microcat_insitu_cal.m``)::
+
+    temperature, conductivity:
+        interval ← the deepest 500 dbar of the usable stops                (provisional)
+        hold the deepest stop's difference 100 dbar below it
+        interpolate the differences linearly in pressure onto a 20-dbar grid over interval
+        offset ← mean over the grid points the stops reach
+    pressure:
+        if the deployment pressure is shallower than every stop → none
+        within the stops (or ≤ 100 dbar below the deepest): linear interpolation
+        deeper still: a polynomial in pressure through all usable stops (cubic from four)
 
 Application thresholds
 ----------------------

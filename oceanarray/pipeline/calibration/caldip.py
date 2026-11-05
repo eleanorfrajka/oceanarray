@@ -42,6 +42,14 @@ SUPPORTED_SCHEMA_VERSION = 1
 #: ``flag_meanings`` order is ``ok no_data flagged missing unknown`` = ``1 2 3 4 9``.
 CALDIP_FLAG_OK = 1
 
+#: caldip's ``flagged``: the stop's difference exceeds caldip's acceptance threshold
+#: (``flagging_threshold``, e.g. 0.005 °C). The comparison itself is sound — a stop that reads
+#: off is exactly what a correction is for — so it is usable for a correction.
+CALDIP_FLAG_FLAGGED = 3
+
+#: The flag values whose stops a correction may use.
+CALDIP_FLAGS_USABLE = (CALDIP_FLAG_OK, CALDIP_FLAG_FLAGGED)
+
 #: Global attributes that must all be present before a cast may be used.
 REQUIRED_PROVENANCE_GLOBALS = (
     "schema_version",

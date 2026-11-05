@@ -270,16 +270,19 @@ Coordinate system transformations (BEAM → XYZ → ENU, magnetic declination).
 calibration (caldip)
 ^^^^^^^^^^^^^^^^^^^^
 Calibration-dip correction, applied at the front of Stage 3 (see :doc:`methods/calibration`).
-Reading a caldip cast and finding the dips are implemented; the correction functions still raise
+Reading a caldip cast, finding the dips and reducing a dip to an offset or slope are implemented; applying still raises
 ``NotImplementedError``.
 
 .. automodule:: oceanarray.pipeline.calibration
-   :members: Offsets, select_offsets, apply_caldip
+   :members: apply_caldip
 
 .. automodule:: oceanarray.pipeline.calibration.caldip
    :members:
 
 .. automodule:: oceanarray.pipeline.calibration.dips
+   :members:
+
+.. automodule:: oceanarray.pipeline.calibration.stops
    :members:
 
 ADCP QC
