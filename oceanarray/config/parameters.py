@@ -258,6 +258,20 @@ QC_TILT: dict = {
     "fail_threshold": 50.0,
 }
 
+
+# ── Calibration-dip correction (the mooring YAML ``caldip:`` block) ─────────────
+#: The correction schemes a user chooses between; ``standard`` is the default.
+CALDIP_SCHEMES: tuple[str, ...] = ("standard", "rapid")
+
+#: How the two dips combine (``mean``, ``ramp``) or, for conductivity only, a slope.
+CALDIP_METHODS: tuple[str, ...] = ("mean", "ramp", "slope")
+
+#: Which dips an override may keep.
+CALDIP_USE: tuple[str, ...] = ("both", "pre", "post")
+
+#: The variables a caldip correction applies to.
+CALDIP_TARGETS: tuple[str, ...] = ("temperature", "conductivity", "pressure")
+
 # ---------------------------------------------------------------------------
 # ADCP-specific QC thresholds.
 #

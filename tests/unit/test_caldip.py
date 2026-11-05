@@ -158,17 +158,80 @@ def test_an_unknown_instrument_type_warns(tmp_path):
         caldip.read_caldip_cast(path)
 
 
+# ── finding the dips ─────────────────────────────────────────────────────────
+_BLOCK = {
+    "deployment": {"cruise": "msm142_2026", "cast": "castM4"},
+    "recovery": {"cruise": "odb2026", "cast": "castX"},
+}
+
+
+def _place(root: Path, *parts: str) -> Path:
+    """Copy the real cast to root/<parts…>/castM4_caldip.nc; return the file."""
+    dest = root.joinpath(*parts, FIXTURE.name)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy(FIXTURE, dest)
+    return dest
+
+
+def test_caldip_file_flat_and_caldip_layouts(tmp_path):
+    """<root>/<cruise>/ is found first; caldip's proc_calib/<cruise>/cal_dip/ next."""
+    flat = _place(tmp_path / "a", "msm142_2026")
+    assert caldip.caldip_file(tmp_path / "a", "msm142_2026", "castM4") == flat
+    nested = _place(tmp_path / "b", "proc_calib", "msm142_2026", "cal_dip")
+    assert caldip.caldip_file(tmp_path / "b", "msm142_2026", "castM4") == nested
+    # the cruise must be on the path: another cruise's castM4 is not this one
+    assert caldip.caldip_file(tmp_path / "b", "odb2026", "castM4") is None
+
+
+def test_caldip_file_ambiguous_is_an_error(tmp_path):
+    """Two castM4 files under one cruise cannot be told apart."""
+    _place(tmp_path, "proc_calib", "msm142_2026", "cal_dip")
+    _place(tmp_path, "proc_calib", "msm142_2026", "old")
+    with pytest.raises(caldip.CaldipError, match="ambiguous"):
+        caldip.caldip_file(tmp_path, "msm142_2026", "castM4")
+
+
+def test_caldip_root_precedence(tmp_path):
+    """caldip_dir= wins over the YAML root; a relative root is from the YAML's folder."""
+    block = {**_BLOCK, "root": "../caldip_out"}
+    yaml_dir = tmp_path / "proc" / "m"
+    assert caldip.caldip_root(block, yaml_dir=yaml_dir) == yaml_dir / "../caldip_out"
+    assert caldip.caldip_root(block, caldip_dir=tmp_path) == tmp_path
+    assert caldip.caldip_root(_BLOCK) is None
+
+
+def test_caldip_ends_finds_each_named_end(tmp_path):
+    """The deployment dip is found; the recovery dip, not yet processed, is None."""
+    found = _place(tmp_path, "msm142_2026")
+    assert caldip.caldip_ends(_BLOCK, caldip_dir=tmp_path) == {
+        "deployment": found,
+        "recovery": None,
+    }
+    with pytest.raises(caldip.CaldipError, match="no caldip root"):
+        caldip.caldip_ends(_BLOCK)
+
+
+def test_cast_time_is_the_middle_of_the_stops():
+    """castM4's stops run 03:53–05:04 on 3 April 2026; the cast time is their midpoint."""
+    cast = caldip.read_caldip_cast(FIXTURE)
+    assert str(caldip.cast_time(cast)) == "2026-04-03 04:28:44"
+
+
+@pytest.mark.parametrize(
+    ("when", "role"),
+    [
+        ("2026-04-03T04:28", "pre"),
+        ("2026-06-01T00:00", None),
+        ("2027-07-20T00:00", "post"),
+        (None, None),
+    ],
+)
+def test_assign_dip_role(when, role):
+    """Before deployment is pre, after recovery is post, during or unknown is neither."""
+    assert caldip.assign_dip_role(when, "2026-05-07T17:06", "2027-07-10T17:45Z") == role
+
+
 # ── interface: the correction functions are still stubs ──────────────────────
-def test_find_caldip_casts_is_stub():
-    with pytest.raises(NotImplementedError, match="find_caldip_casts"):
-        caldip.find_caldip_casts(FIXTURE.parent, "13874")
-
-
-def test_assign_dip_role_is_stub():
-    with pytest.raises(NotImplementedError, match="assign_dip_role"):
-        caldip.assign_dip_role(None, None, None)
-
-
 def test_select_offsets_is_stub():
     with pytest.raises(NotImplementedError, match="select_offsets"):
         caldip.select_offsets(xr.Dataset(), "13874", "temperature")
