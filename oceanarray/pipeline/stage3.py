@@ -66,6 +66,7 @@ from oceanarray.location import parse_latlon_with_source
 from oceanarray.logger import log_message, with_stage_handlers
 from oceanarray.paths import safe_serial
 from oceanarray.pipeline import _stage
+from oceanarray.pipeline.calibration import CALDIP_STUB_APPLIED
 from oceanarray.pipeline.coordinate import (
     apply_beam_to_enu,
     apply_declination_to_enu,
@@ -91,7 +92,6 @@ from oceanarray.pipeline.qc.adcp import (
     apply_adcp_surface_qc,
     apply_adcp_velocity_qc,
 )
-from oceanarray.pipeline.qc.calibration import CALDIP_STUB_APPLIED
 from oceanarray.pipeline.read_mooring import read_mooring
 from oceanarray.pipeline.units import to_canonical_units
 from oceanarray.pipeline.write_mooring import write_mooring
@@ -609,7 +609,7 @@ class Stage3Processor:
         """Run Stage 3 QC and pressure interpolation for all instruments on a mooring.
 
         ``caldip_dir`` is the entry point for the planned front-of-Stage-3 calibration-dip
-        correction. It is **not yet implemented** (:mod:`oceanarray.pipeline.qc.calibration` is a
+        correction. It is **not yet implemented** (:mod:`oceanarray.pipeline.calibration` is a
         stub): supplying it logs a warning and continues, so the science data is unchanged, but
         each output stamps a ``caldip_applied`` attribute recording that only the stub ran, so
         the first real correction is visible as a change in that attribute. A caldip request

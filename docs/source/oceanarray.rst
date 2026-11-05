@@ -273,7 +273,7 @@ Calibration-dip correction contract and interface, applied at the front of Stage
 Currently a stub: the interface functions raise ``NotImplementedError`` pending the
 implementation (see :doc:`methods/calibration`).
 
-.. automodule:: oceanarray.pipeline.qc.calibration
+.. automodule:: oceanarray.pipeline.calibration
    :members:
    :undoc-members:
 

@@ -109,7 +109,7 @@ Every old name below still works, warns (`DeprecationWarning`, naming its replac
   | `oceanarray.utilities` (`iso8601_duration_from_seconds`, `is_iso8601_utc`) | `oceanarray.legacy.convertOS` |
   | `oceanarray.config.validation.print_validation_report` | removed (`oceanarray validate` prints the report) |
   | `oceanarray.legacy.find_deployment` | `oceanarray.pipeline.clock.deployment` |
-  | `oceanarray.pipeline.caldip` (`normalize_serial` → `canonical_serial`) | `oceanarray.pipeline.qc.calibration` |
+  | `oceanarray.pipeline.caldip` (`normalize_serial` → `canonical_serial`) | `oceanarray.pipeline.calibration` |
   | `oceanarray.pipeline.coordinate.apply_adcp_seabed_qc` / `_surface_qc` / `_velocity_qc` | `oceanarray.pipeline.qc.adcp` |
   | `oceanarray.analysis.hydrographic` | `oceanarray.analysis.hydrography` |
   | `oceanarray.analysis.science` QC flaggers (`flag_salinity_outliers`, `run_qc`, …) | `oceanarray.legacy.qc_rodb` |

@@ -1,4 +1,4 @@
-"""Quality control: QARTOD tests, flag merging, CTD derivations for stage 3, and calibration."""
+"""Quality control: QARTOD tests, flag merging and CTD derivations for stage 3."""
 
 from __future__ import annotations
 

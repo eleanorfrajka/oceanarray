@@ -38,7 +38,8 @@ oceanarray/
 │   │   ├── units.py               # Canonical units
 │   │   ├── dataset.py             # Small xarray conveniences the stages share
 │   │   ├── clock/                 # Clock offsets between instruments; deployment window
-│   │   ├── qc/                    # QARTOD tests and OceanSITES flags; calibration (caldip stub); ADCP QC
+│   │   ├── calibration/           # caldip calibration-dip correction at the front of stage 3 (stub)
+│   │   ├── qc/                    # QARTOD tests and OceanSITES flags; ADCP QC
 │   │   └── gridders/              # Vertical gridding methods: rapid_interp, climatology, filters
 │   │
 │   ├── readers/                   # Vendor file → canonical dataset, one module per format

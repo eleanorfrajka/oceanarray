@@ -52,7 +52,7 @@ See :doc:`migrating_0_6_0`.
   ``utilities.parse_latlon`` is ``oceanarray.location.parse_latlon``,
   ``tools.rapid_interp`` is ``oceanarray.pipeline.gridders.rapid_interp``,
   ``analysis.clock`` is ``oceanarray.pipeline.clock.offsets``, ``pipeline.caldip`` is
-  ``oceanarray.pipeline.qc.calibration`` and ``analysis.hydrographic`` is
+  ``oceanarray.pipeline.calibration`` and ``analysis.hydrographic`` is
   ``oceanarray.analysis.hydrography``.  The changelog lists every move.  There is no
   compatibility shim.
 

@@ -1,4 +1,4 @@
-"""Contract tests for the caldip stub (:mod:`oceanarray.pipeline.qc.calibration`).
+"""Contract tests for the caldip stub (:mod:`oceanarray.pipeline.calibration`).
 
 The module carries only the shared contract (constants, serial join-key rule) and the interface
 the correction is built to (five functions that raise :class:`NotImplementedError`). These
@@ -16,7 +16,7 @@ import pytest
 import xarray as xr
 
 from oceanarray.config.parameters import KNOWN_INSTRUMENT_TYPES
-from oceanarray.pipeline.qc import calibration as caldip
+from oceanarray.pipeline import calibration as caldip
 
 FIXTURE = (
     Path(__file__).resolve().parent.parent / "fixtures" / "caldip" / "castM4_caldip.nc"

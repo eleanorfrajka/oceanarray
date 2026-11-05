@@ -1,22 +1,21 @@
-"""CalDip calibration-dip contract and interface for the front of Stage 3 (stub).
+"""Calibration-dip corrections at the front of Stage 3 (interface stub).
 
 caldip is a separate package that compares mooring instruments against a shipboard CTD at
 bottle stops and writes one netCDF per cast (``{cast}_caldip.nc``); the statistics CSV is a
 derived export that oceanarray does not read. oceanarray reads that netCDF, matches instruments
-by serial, and applies per-variable offsets at the front of Stage 3, before pressure
-interpolation.
+by serial, and corrects temperature, conductivity and pressure at the front of Stage 3, before
+pressure interpolation. A correction changes the values, as the Stage 2 clock-drift
+correction does; it is not quality control.
 
 **Status: the correction is not implemented here.** This module carries only the *contract*
 (the constants and serial join-key rule both packages share) and the *interface* the correction
 is built to: :func:`read_caldip_cast`, :func:`find_caldip_casts`, :func:`assign_dip_role`,
-:func:`select_offsets`, and :func:`apply_caldip` each raise :class:`NotImplementedError`. The
-implementation lands on a separate branch; a reference implementation exists for cross-checking.
+:func:`select_offsets`, and :func:`apply_caldip` each raise :class:`NotImplementedError`.
 
-Carrier and field contract are fixed by the three-way coordination note
-(ctdcast → caldip → oceanarray) and documented for builders in
-``docs/source/methods/calibration.rst`` (which owns the correction model and stop-selection
-rules). Sign convention: every ``*_diff`` variable is ``instrument − CTD``, so an instrument is
-corrected toward the reference by subtracting the offset (``corrected = measured − diff``).
+The carrier, the field contract, the correction model and the stop-selection rules are
+documented in ``docs/source/methods/calibration.rst``. Sign convention: every ``*_diff``
+variable is ``instrument − CTD``, so an instrument is corrected toward the reference by
+subtracting the offset (``corrected = measured − diff``).
 """
 
 from __future__ import annotations

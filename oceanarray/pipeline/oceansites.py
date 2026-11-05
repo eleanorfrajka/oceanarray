@@ -27,7 +27,7 @@ from oceanarray.config import parameters as params
 from oceanarray.instruments import instrument_entries
 from oceanarray.mooring import DEPLOYMENT_CODE_PATTERN
 from oceanarray.paths import safe_serial
-from oceanarray.pipeline.qc.calibration import CALDIP_STUB_APPLIED
+from oceanarray.pipeline.calibration import CALDIP_STUB_APPLIED
 from oceanarray.pipeline.stage1 import ADCP_BIN_DIM
 from oceanarray.readers.oceansites import OCEANSITES_VARIABLES
 

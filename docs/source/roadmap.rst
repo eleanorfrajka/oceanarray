@@ -30,7 +30,7 @@ Status Overview
 **Partly implemented**
 
 - Calibration correction from caldip casts: the interface and a null-action hook are in
-  ``pipeline/qc/calibration.py``; applying the offsets is not yet written.
+  ``pipeline/calibration/``; applying the offsets is not yet written.
 
 **Not yet implemented**
 
@@ -46,7 +46,7 @@ Priority 1: Near-term
 1. Calibration correction (caldip) — front of Stage 3, not a separate stage
 -----------------------------------------------------------------------------
 
-**Status**: interface only — ``pipeline/qc/calibration.py`` defines the functions and
+**Status**: interface only — ``pipeline/calibration/`` defines the functions and
 the stage-3 hook, which does nothing yet.
 
 **Purpose**: apply per-instrument temperature / conductivity / pressure corrections derived
