@@ -48,6 +48,7 @@ from oceanarray.pipeline.calibration.dips import (
     cast_time,
 )
 from oceanarray.pipeline.calibration.stops import (
+    STABLE_CTD_STD,
     STEMS,
     Reduction,
     conductivity_offset,
@@ -58,6 +59,7 @@ from oceanarray.pipeline.calibration.stops import (
     rapid_depth_average,
     rapid_pressure_at_depth,
     reduce_dip,
+    stable_stops,
     through_origin_slope,
     usable_stops,
 )
@@ -76,6 +78,7 @@ __all__ = [
     "CaldipError",
     "CaldipProvenanceError",
     "Reduction",
+    "STABLE_CTD_STD",
     "STEMS",
     "conductivity_offset",
     "conductivity_slope",
@@ -85,6 +88,7 @@ __all__ = [
     "rapid_depth_average",
     "rapid_pressure_at_depth",
     "reduce_dip",
+    "stable_stops",
     "through_origin_slope",
     "usable_stops",
     "apply_caldip",

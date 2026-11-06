@@ -158,27 +158,37 @@ One dip's bottle stops become one offset per variable — or, for conductivity u
 processing. Pressures are the CTD's (``ctd_press``), in dbar; values marked *provisional* are
 defaults still to be confirmed.
 
-**B. Usable stops** (per instrument, per variable)::
+**B. Usable and stable stops** (per instrument, per variable)::
 
-    usable ← stops whose <var>_flag is ok or flagged, and whose <var>_diff and ctd_press
-             are finite
-    (caldip's "flagged" means the difference exceeds its acceptance threshold — the
-     instrument reads off, which is what the correction is for; no_data, missing and
-     unknown stops are not used)
+    usable ← stops whose <var>_diff and ctd_press are finite and whose <var>_flag is
+             ok                    (caldip schema 2: flags record facts only)
+             ok or flagged         (schema 1: "flagged" only means the instrument reads
+                                    off by more than caldip's tolerance — what the
+                                    correction is for)
+    stable (standard only; rapid has no stability test, as RAPID had none):
+        temperature:  usable stops with ctd_temp_std ≤ 0.002 °C
+        conductivity: usable stops with ctd_cond_std ≤ 0.003 mS/cm
+        pressure:     every usable stop (its scatter at a stop is ship heave)
+        a cast without ctd_<var>_std (schema 1): every usable stop, recorded as
+        "stability not checked"
+
+The stability limits test the **CTD**, the reference: a stop is unusable when the water there
+was too variable to compare, not because the instrument reads off. On castM4 the CTD standard
+deviations over caldip's 121-s windows are, for T and C, ≤ 0.0015 at 2029 and 1522 dbar and
+0.004–0.010 at 909, 355 and 52 dbar — mostly ship heave moving the CTD through the vertical
+gradient.
 
 **C. Temperature — standard**::
 
-    if no usable stop                    → none ("no usable stop")
-    offset ← temp_diff at the usable stop with the largest ctd_press
+    if no stable stop                    → none ("no stable stop" / "no usable stop")
+    offset ← temp_diff at the stable stop with the largest ctd_press
 
 **D. Conductivity — standard (AN31 slope)**::
 
-    deep ← usable stops deeper than 500 dbar
-    if fewer than 2:  deep ← usable stops deeper than 200 dbar
-    if none           → none ("no usable stop below 200 dbar"); never a shallower stop
-    if every deep stop has a positive cond_std:
-        drop the stops whose cond_std > 3 × the smallest      (unstable water; provisional)
-    α ← inst_cond, β ← ctd_cond over the remaining stops
+    deep ← stable stops deeper than 500 dbar
+    if fewer than 2:  deep ← stable stops deeper than 200 dbar
+    if none           → none ("no stable stop below 200 dbar"); never a shallower stop
+    α ← inst_cond, β ← ctd_cond over deep
     w ← N / cond_std²   (equal weights if any std is missing or zero)
     slope ← Σ w·α·β / Σ w·α²
     σ_slope ← √( Σ w·r² / (n − 1) / Σ w·α² ),  r = β − slope·α   (undefined for one stop)

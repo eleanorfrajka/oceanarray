@@ -29,7 +29,7 @@ from dataclasses import dataclass, field
 import numpy as np
 import xarray as xr
 
-from oceanarray.pipeline.calibration.caldip import CALDIP_FLAGS_USABLE
+from oceanarray.pipeline.calibration.caldip import CALDIP_FLAG_OK, CALDIP_FLAGS_USABLE
 
 #: oceanarray's variable name → caldip's short stem.
 STEMS: dict[str, str] = {
@@ -42,9 +42,10 @@ STEMS: dict[str, str] = {
 DEEP_STOP_DBAR = 500.0
 #: … otherwise stops deeper than this; a stop shallower than this never counts.
 SHALLOWEST_STOP_DBAR = 200.0
-#: A conductivity stop whose ``cond_std`` exceeds this multiple of the smallest among the
-#: deep stops is dropped as unstable water (provisional).
-STABLE_STD_FACTOR = 3.0
+#: ``standard``: the largest CTD standard deviation at a stop for it to count as stable water,
+#: per variable (the CTD's ``ctd_<var>_std``; from caldip schema 2). Pressure has none: its
+#: scatter at a stop is ship heave, not the water.
+STABLE_CTD_STD: dict[str, float] = {"temperature": 0.002, "conductivity": 0.003}
 #: Pressure, ``standard``: stops within this distance of the deployment pressure are averaged;
 #: with none, the single nearest stop is used (provisional).
 PRESSURE_WINDOW_DBAR = 200.0
@@ -111,10 +112,11 @@ class Reduction:
 def usable_stops(record: xr.Dataset, variable: str) -> np.ndarray:
     """Return a mask of the stops usable for one variable.
 
-    A stop is usable when its caldip flag is ``ok`` or ``flagged`` and its difference and CTD
-    pressure are finite. caldip's ``flagged`` means the difference exceeds its acceptance
-    threshold — the instrument reads off, which is what a correction is for — not that the
-    comparison is bad; ``no_data``, ``missing`` and ``unknown`` stops are not used.
+    A stop is usable when its difference and CTD pressure are finite and its caldip flag says
+    the comparison exists: ``ok`` — and, in a schema-1 cast, also ``flagged``, which there
+    only means the instrument reads off by more than caldip's acceptance tolerance (what a
+    correction is for). ``no_data``, ``missing`` and ``unknown`` stops are not used. Whether
+    the water at a stop was stable enough is decided separately (:func:`stable_stops`).
 
     Parameters
     ----------
@@ -133,7 +135,48 @@ def usable_stops(record: xr.Dataset, variable: str) -> np.ndarray:
     flag = np.asarray(record[f"{stem}_flag"].values)
     diff = np.asarray(record[f"{stem}_diff"].values, dtype=float)
     press = np.asarray(record["ctd_press"].values, dtype=float)
-    return np.isin(flag, CALDIP_FLAGS_USABLE) & np.isfinite(diff) & np.isfinite(press)
+    accepted = CALDIP_FLAGS_USABLE if _schema(record) == 1 else (CALDIP_FLAG_OK,)
+    return np.isin(flag, accepted) & np.isfinite(diff) & np.isfinite(press)
+
+
+def _schema(record: xr.Dataset) -> int:
+    """Return the cast's caldip schema version (1 when it cannot be read)."""
+    try:
+        return int(record.attrs.get("schema_version", 1))
+    except (TypeError, ValueError):
+        return 1
+
+
+def stable_stops(record: xr.Dataset, variable: str) -> tuple[np.ndarray, str]:
+    """Return the usable stops where the CTD saw stable water, and the rule in words.
+
+    A stop counts when the CTD's standard deviation there (``ctd_<var>_std``) is at most
+    :data:`STABLE_CTD_STD` for the variable. Pressure has no stability test. A cast without
+    ``ctd_<var>_std`` (caldip schema 1) cannot be tested: every usable stop counts, and the
+    rule says so.
+
+    Parameters
+    ----------
+    record : xarray.Dataset
+        One instrument's record.
+    variable : str
+        ``"temperature"``, ``"conductivity"`` or ``"pressure"``.
+
+    Returns
+    -------
+    tuple of (numpy.ndarray of bool, str)
+        The stop mask and the stability rule applied (empty for pressure).
+
+    """
+    ok = usable_stops(record, variable)
+    if variable not in STABLE_CTD_STD:
+        return ok, ""
+    name = f"ctd_{STEMS[variable]}_std"
+    if name not in record:
+        return ok, "stability not checked (no CTD std in the cast)"
+    limit = STABLE_CTD_STD[variable]
+    std = np.asarray(record[name].values, dtype=float)
+    return ok & (std <= limit), f"CTD std ≤ {limit:g}"
 
 
 def through_origin_slope(
@@ -190,10 +233,14 @@ def _unavailable(
 
 
 def _no_deep_reason(record: xr.Dataset) -> str:
-    """Say why no conductivity stop qualified: none usable at all, or none deep enough."""
+    """Say why no conductivity stop qualified: none usable, none stable, or none deep enough."""
     if not usable_stops(record, "conductivity").any():
         return "no usable stop"
-    return f"no usable stop below {SHALLOWEST_STOP_DBAR:g} dbar"
+    stable, rule = stable_stops(record, "conductivity")
+    word = "usable" if rule.startswith("stability not checked") else "stable"
+    if not stable.any():
+        return f"no {word} stop"
+    return f"no {word} stop below {SHALLOWEST_STOP_DBAR:g} dbar"
 
 
 def _tid(record: xr.Dataset) -> str:
@@ -202,7 +249,7 @@ def _tid(record: xr.Dataset) -> str:
 
 
 def deepest_offset(record: xr.Dataset, variable: str) -> Reduction:
-    """Return the offset at the deepest usable stop (``standard`` temperature).
+    """Return the offset at the deepest stable stop (``standard`` temperature).
 
     Parameters
     ----------
@@ -214,13 +261,20 @@ def deepest_offset(record: xr.Dataset, variable: str) -> Reduction:
     Returns
     -------
     Reduction
-        The offset, or NaN with ``reason`` "no usable stop".
+        The offset, or NaN with ``reason``.
 
     """
-    rule = "offset at the deepest usable stop"
-    ok = usable_stops(record, variable)
+    ok, stability = stable_stops(record, variable)
+    rule = "offset at the deepest stable stop" + (
+        f" ({stability})" if stability else ""
+    )
     if not ok.any():
-        return _unavailable(variable, "offset", rule, "no usable stop", _tid(record))
+        reason = (
+            "no stable stop"
+            if usable_stops(record, variable).any()
+            else "no usable stop"
+        )
+        return _unavailable(variable, "offset", rule, reason, _tid(record))
     press = np.asarray(record["ctd_press"].values, dtype=float)
     i = int(np.argmax(np.where(ok, press, -np.inf)))
     diff = float(record[f"{STEMS[variable]}_diff"].values[i])
@@ -238,9 +292,9 @@ def deepest_offset(record: xr.Dataset, variable: str) -> Reduction:
 def conductivity_stops(record: xr.Dataset) -> tuple[np.ndarray, str]:
     """Return the deep, stable conductivity stops (``standard``) and the rule that chose them.
 
-    Stops deeper than :data:`DEEP_STOP_DBAR` when at least two qualify, otherwise deeper than
-    :data:`SHALLOWEST_STOP_DBAR`; never shallower. Of those, a stop whose ``cond_std`` exceeds
-    :data:`STABLE_STD_FACTOR` times the smallest is dropped (water too variable to compare).
+    Of the stable stops (:func:`stable_stops`): those deeper than :data:`DEEP_STOP_DBAR` when at
+    least two qualify, otherwise those deeper than :data:`SHALLOWEST_STOP_DBAR`; never
+    shallower.
 
     Parameters
     ----------
@@ -253,22 +307,14 @@ def conductivity_stops(record: xr.Dataset) -> tuple[np.ndarray, str]:
         The stop mask (all False when none qualify) and the rule, in words.
 
     """
-    ok = usable_stops(record, "conductivity")
+    ok, stability = stable_stops(record, "conductivity")
     press = np.asarray(record["ctd_press"].values, dtype=float)
     deep = ok & (press > DEEP_STOP_DBAR)
     rule = f"stops deeper than {DEEP_STOP_DBAR:g} dbar"
     if deep.sum() < 2:
         deep = ok & (press > SHALLOWEST_STOP_DBAR)
         rule = f"stops deeper than {SHALLOWEST_STOP_DBAR:g} dbar (fewer than two below {DEEP_STOP_DBAR:g})"
-    if not deep.any():
-        return deep, rule
-    std = np.asarray(record["cond_std"].values, dtype=float)
-    deep_std = std[deep]
-    if np.all(np.isfinite(deep_std)) and np.min(deep_std) > 0:
-        limit = STABLE_STD_FACTOR * float(np.min(deep_std))
-        deep = deep & (std <= limit)
-        rule += f", cond_std ≤ {STABLE_STD_FACTOR:g}× the smallest ({limit:.4f})"
-    return deep, rule
+    return deep, f"{rule}, {stability}"
 
 
 def conductivity_slope(record: xr.Dataset) -> Reduction:

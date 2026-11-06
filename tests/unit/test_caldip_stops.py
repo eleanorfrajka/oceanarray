@@ -31,6 +31,22 @@ def _record(cast: xr.Dataset, serial: str) -> xr.Dataset:
     return rec.copy(deep=True)
 
 
+#: The CTD's standard deviation at castM4's five stops (2029, 1522, 909, 355, 52 dbar),
+#: computed from the cast's 1-s CTD file (msm_142_1_032_1sec.cnv, primary sensors) over the
+#: 121-s windows caldip used. caldip schema 2 will write these as ``ctd_<var>_std``.
+CASTM4_CTD_STD = {
+    "ctd_temp_std": [0.00152, 0.00028, 0.00412, 0.00759, 0.00945],
+    "ctd_cond_std": [0.00120, 0.00073, 0.00363, 0.00783, 0.00967],
+}
+
+
+def _with_ctd_std(rec: xr.Dataset) -> xr.Dataset:
+    """The record with the CTD std at each stop, as caldip schema 2 will carry it."""
+    for name, values in CASTM4_CTD_STD.items():
+        rec[name] = ("stop", np.asarray(values))
+    return rec
+
+
 def _at(rec: xr.Dataset, pressure: float) -> int:
     """Index of the stop nearest *pressure*."""
     return int(np.argmin(np.abs(rec["ctd_press"].values - pressure)))
@@ -47,8 +63,8 @@ def test_an31_bottle_example():
     assert one == pytest.approx(1.0005) and np.isnan(sigma_one)
 
 
-def test_flagged_stops_are_usable(cast):
-    """caldip 'flagged' means reads off by more than its threshold — usable for a correction.
+def test_flagged_stops_are_usable_in_schema_1(cast):
+    """In schema 1, caldip 'flagged' means reads off by more than its tolerance — usable.
 
     TR1050 13874 reads ~0.008 °C warm at every stop, so caldip flags all five; excluding
     them would leave exactly the instrument that needs correcting uncorrected.
@@ -58,6 +74,32 @@ def test_flagged_stops_are_usable(cast):
     assert cal.usable_stops(rec, "temperature").all()
     # no conductivity cell: no_data everywhere, nothing usable
     assert not cal.usable_stops(rec, "conductivity").any()
+
+
+def test_schema_2_uses_ok_stops_only(cast):
+    """From schema 2 caldip flags facts only, so anything but ok is not used."""
+    rec = _record(cast, "13874")
+    rec.attrs["schema_version"] = 2
+    assert not cal.usable_stops(rec, "temperature").any()
+
+
+def test_stability_from_the_ctd_std(cast):
+    """With the CTD std, only stops where the water was steady count; pressure is not tested."""
+    rec = _with_ctd_std(_record(cast, "13840"))
+    stable_c, rule = cal.stable_stops(rec, "conductivity")
+    assert sorted(round(p) for p in rec["ctd_press"].values[stable_c]) == [1522, 2029]
+    assert rule == "CTD std ≤ 0.003"
+    stable_t, _ = cal.stable_stops(rec, "temperature")
+    assert sorted(round(p) for p in rec["ctd_press"].values[stable_t]) == [1522, 2029]
+    stable_p, rule_p = cal.stable_stops(rec, "pressure")
+    assert stable_p.sum() == 5 and rule_p == ""
+
+
+def test_without_ctd_std_stability_is_not_checked(cast):
+    """A schema-1 cast has no CTD std: every usable stop counts, and the rule says so."""
+    rec = _record(cast, "13840")
+    stable, rule = cal.stable_stops(rec, "conductivity")
+    assert stable.sum() == 5 and rule.startswith("stability not checked")
 
 
 def test_temperature_standard_is_the_deepest_stop(cast):
@@ -71,12 +113,17 @@ def test_temperature_standard_is_the_deepest_stop(cast):
 
 
 def test_conductivity_stops_deep_and_stable(cast):
-    """Below 500 dbar (two qualify), and 909 dbar dropped: its cond_std is > 3x the smallest."""
-    rec = _record(cast, "13840")
+    """Stable and below 500 dbar: 909 dbar is deep but its CTD std (0.0036) is over 0.003."""
+    rec = _with_ctd_std(_record(cast, "13840"))
     stops, rule = cal.conductivity_stops(rec)
-    used = sorted(round(p) for p in rec["ctd_press"].values[stops])
-    assert used == [1522, 2029]
-    assert "500 dbar" in rule and "cond_std" in rule
+    assert sorted(round(p) for p in rec["ctd_press"].values[stops]) == [1522, 2029]
+    assert "500 dbar" in rule and "CTD std" in rule
+    unchecked, _ = cal.conductivity_stops(_record(cast, "13840"))
+    assert sorted(round(p) for p in rec["ctd_press"].values[unchecked]) == [
+        909,
+        1522,
+        2029,
+    ]
 
 
 def test_conductivity_stops_fall_back_to_200_dbar(cast):
@@ -98,11 +145,14 @@ def test_conductivity_never_uses_a_stop_above_200_dbar(cast):
     red = cal.reduce_dip(rec, "conductivity")
     assert not red.available
     assert red.reason == "no usable stop below 200 dbar"
+    # with the CTD std, the 52-dbar stop is unstable too: nothing stable at all
+    rec = _with_ctd_std(rec)
+    assert cal.reduce_dip(rec, "conductivity").reason == "no stable stop"
 
 
 def test_conductivity_slope_is_an31_weighted(cast):
     """The slope through the origin over the chosen stops, weighted N / cond_std²."""
-    rec = _record(cast, "13840")
+    rec = _with_ctd_std(_record(cast, "13840"))
     stops, _ = cal.conductivity_stops(rec)
     a = rec["inst_cond"].values[stops]
     b = rec["ctd_cond"].values[stops]
