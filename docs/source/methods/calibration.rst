@@ -3,8 +3,9 @@ Calibration — applying caldip corrections at the front of Stage 3
 
 .. note::
 
-   **Status: in progress.** Reading and checking a caldip cast is implemented
-   (:mod:`oceanarray.pipeline.calibration.caldip`); choosing stops, combining dips and applying
+   **Status: in progress.** Reading and checking a caldip cast
+   (:mod:`oceanarray.pipeline.calibration.caldip`) and finding the dips the mooring YAML names
+   (:mod:`oceanarray.pipeline.calibration.dips`) are implemented; choosing stops, combining dips and applying
    the correction are not yet, and Stage 3 output is unchanged. This page is the specification
    for that work; open values are marked **TBD**.
 
@@ -17,8 +18,11 @@ The interface
 
 - ``read_caldip_cast(path)`` — open and check one ``{cast}_caldip.nc`` (implemented);
 - ``instrument_record(cast, serial)`` — one instrument's per-stop record (implemented);
-- ``find_caldip_casts``, ``assign_dip_role``, ``select_offsets``, ``apply_caldip`` — still
-  raise ``NotImplementedError``.
+- ``caldip_ends(block, caldip_dir=, yaml_dir=)``, ``caldip_file``, ``caldip_root`` — the file
+  for each end the YAML names (implemented);
+- ``assign_dip_role(cast_time, deployment_time, recovery_time)`` and ``cast_time(cast)`` —
+  which end a cast is for an instrument (implemented);
+- ``select_offsets``, ``apply_caldip`` — still raise ``NotImplementedError``.
 
 The division of labour with caldip: **caldip measures, oceanarray decides.** caldip aligns
 the clocks, finds the bottle stops and writes, per instrument and stop, the instrument and CTD
@@ -56,20 +60,36 @@ per-instrument stage — gets the pressure ordering wrong.
 Input
 -----
 
-``--caldip-dir`` gives the root directory of caldip output only. The mooring YAML names the
-cast for each deployment end, so a mooring whose two dips were processed on different cruises
-resolves correctly::
+The mooring YAML names the cast for each end of the deployment, so a mooring whose two dips
+were processed on different cruises resolves both (see :doc:`../yaml_configuration`,
+*Calibration dips*)::
 
     caldip:
-      deployment: {cruise: msm142_2026, cast: castM6}
-      recovery:   {cruise: <later cruise>, cast: <cast>}
+      deployment: {cruise: msm142_2026, cast: castM4}
+      recovery:   {cruise: odb2026, cast: castX}
+      scheme: standard
+
+**A. Which dips apply** (:mod:`oceanarray.pipeline.calibration.dips`)::
+
+    root ← caldip_dir= (the run-time root) if given,
+           else caldip.root (relative to the YAML's folder)
+    if no root                                   → error ("no caldip root")
+    for each end in (deployment, recovery) the block names:
+        file ← <root>/<cruise>/<cast>_caldip.nc  if it exists,
+               else the one <cast>_caldip.nc beneath root with <cruise> on its path
+        if more than one such file                → error (ambiguous)
+        if none                                   → end unavailable
+    for each instrument:                                                (lands with the apply)
+        if its serial is not in an end's cast     → that end unavailable for it
+        role ← pre  if cast time < deployment_time
+               post if cast time > recovery_time
+               none otherwise            (cast time = middle of the cast's stops)
+        if role disagrees with the YAML end       → warning, the YAML end is used
+        if override use = pre / post              → drop the other end
+        if no end is available                    → no correction ("no usable dip")
 
 A mooring with a single dip is an ordinary case; the attributes record which end supplied the
 correction.
-
-**Path resolution** is TBD (it lands with the ``caldip:`` block): each end's file is
-``{cast}_caldip.nc`` beneath the root, the YAML ``cruise`` disambiguating a recurring cast
-name, and the resolved path is recorded in the attributes.
 
 Reading a cast
 --------------
@@ -186,7 +206,7 @@ attribute. Never silently substitute a default.
 Acceptance criteria
 -------------------
 
-- Without ``--caldip-dir``, ``_stage3.nc`` is **byte-identical** to today's output.
+- Without a ``caldip:`` block, ``_stage3.nc`` is **byte-identical** to today's output.
 - A sensorless instrument's interpolated pressure is derived from **corrected** neighbour
   pressures, not raw — verifiable against a hand-computed value.
 - Both the raw instrument value and the CTD reference value are recorded per corrected variable,

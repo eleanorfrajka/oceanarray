@@ -384,6 +384,36 @@ def require_current_layout(proc_root: _PathLike, mooring: str) -> None:
             )
 
 
+def is_path_component(name: Any) -> bool:
+    """Return whether a name is one folder or file name, with no way out of its parent.
+
+    Names taken from a description (a cruise, a cast) are joined onto a root; a name that is
+    absolute, empty, ``.`` or ``..``, or that holds a path separator or a Windows drive colon,
+    would point somewhere else.
+
+    Parameters
+    ----------
+    name : Any
+        The name to check.
+
+    Returns
+    -------
+    bool
+        ``True`` when ``name`` is non-empty text naming one entry beneath a folder.
+
+    Examples
+    --------
+    >>> is_path_component("msm142_2026"), is_path_component("../other")
+    (True, False)
+
+    """
+    return (
+        isinstance(name, str)
+        and name not in ("", ".", "..")
+        and not any(sep in name for sep in ("/", "\\", ":"))
+    )
+
+
 def safe_serial(serial: Any) -> str:
     """Return a filename-safe token for an instrument serial number.
 

@@ -303,3 +303,71 @@ def test_mooring_level_qc_blocks_are_known_keys() -> None:
     assert not [
         i for i in mooring.check(cfg, dir_name="dune2_1_2026") if "Unknown" in i.message
     ]
+
+
+# ── the caldip: block ───────────────────────────────────────────────────────
+_CALDIP_OK = {
+    "deployment": {"cruise": "msm142_2026", "cast": "castM4"},
+    "recovery": {"cruise": "odb2026", "cast": "castX"},
+    "scheme": "standard",
+    "override": {"conductivity": {"method": "ramp", "use": "pre"}},
+}
+
+
+def _caldip_issues(block: object) -> list[tuple[str, str]]:
+    """Return (level, message) for the caldip findings on the fixture with *block*."""
+    cfg = {**mooring.load(FIXTURE), "caldip": block}
+    return [
+        (i.level, i.message)
+        for i in mooring.check(cfg, dir_name="dune2_1_2026")
+        if i.message.startswith("caldip:")
+    ]
+
+
+def test_a_complete_caldip_block_passes() -> None:
+    """Both ends, a scheme and an override: no findings, and caldip is a known key."""
+    assert _caldip_issues(_CALDIP_OK) == []
+    assert "caldip" in mooring.KNOWN_KEYS
+
+
+def test_one_end_alone_passes() -> None:
+    """A deployment dip with no recovery dip is an ordinary case."""
+    assert _caldip_issues({"deployment": _CALDIP_OK["deployment"]}) == []
+
+
+@pytest.mark.parametrize(
+    ("block", "match"),
+    [
+        ("castM4", "must be a mapping"),
+        ({**_CALDIP_OK, "shceme": "standard"}, "unknown key 'shceme'"),
+        ({"scheme": "standard"}, "names no cast"),
+        ({"deployment": {"cast": "castM4"}}, "deployment must be"),
+        ({"deployment": {"cruise": "msm142_2026", "cast": ""}}, "non-empty"),
+        ({"deployment": {"cruise": "/tmp", "cast": "castM4"}}, "one folder or file"),
+        (
+            {"deployment": {"cruise": "msm142_2026", "cast": "../x"}},
+            "one folder or file",
+        ),
+        ({**_CALDIP_OK, "scheme": "kanzow"}, "scheme 'kanzow'"),
+        ({**_CALDIP_OK, "override": {"salinity": {}}}, "'salinity' is not one of"),
+        ({**_CALDIP_OK, "override": {"temperature": {"mthod": "ramp"}}}, "'mthod'"),
+        ({**_CALDIP_OK, "override": {"temperature": {"method": "fit"}}}, "'fit'"),
+        (
+            {**_CALDIP_OK, "override": {"temperature": {"method": "slope"}}},
+            "conductivity only",
+        ),
+        ({**_CALDIP_OK, "override": {"pressure": {"use": "first"}}}, "'first'"),
+        (
+            {
+                "deployment": _CALDIP_OK["deployment"],
+                "override": {"pressure": {"use": "post"}},
+            },
+            "names a dip the block lacks",
+        ),
+    ],
+)
+def test_caldip_shape_mistakes_are_errors(block: object, match: str) -> None:
+    """Each malformed caldip block is an ERROR naming what is wrong."""
+    issues = _caldip_issues(block)
+    assert issues and all(level == "ERROR" for level, _ in issues), issues
+    assert any(match in message for _, message in issues), issues

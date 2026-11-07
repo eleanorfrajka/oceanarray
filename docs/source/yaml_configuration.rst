@@ -159,6 +159,11 @@ mooring as a whole.
      - Optional
      - Mooring-wide spike, flat-line and tilt thresholds; see `Other QC
        blocks`_ below.
+   * - ``caldip``
+     - mapping
+     - Optional
+     - The calibration-dip casts for each end of the deployment and the correction
+       scheme; see `Calibration dips`_ below.  Read but not yet applied.
    * - ``stack``
      - mapping
      - Optional
@@ -850,6 +855,40 @@ its thresholds apply if a file has that variable.
 
 ----
 
+Calibration dips
+----------------
+
+The ``caldip:`` block names the caldip cast for each end of the deployment and the
+correction scheme.  The correction itself is not yet applied in stage 3; the block is
+checked now so it can be written ahead.
+
+.. code-block:: yaml
+
+   caldip:
+     root: ../../caldip_out      # optional; caldip_dir= wins; relative to this file's folder
+     deployment: {cruise: msm142_2026, cast: castM4}
+     recovery:   {cruise: odb2026, cast: castX}
+     scheme: standard            # standard (default) or rapid
+     # override:                 # rare: per variable, method and/or which dip to use
+     #   conductivity: {method: ramp, use: pre}
+
+- ``deployment`` / ``recovery``: ``{cruise, cast}``; at least one.  One dip is an
+  ordinary case (the correction is then a constant).  Each end's file is
+  ``<root>/<cruise>/<cast>_caldip.nc``, or anywhere beneath the root with the cruise
+  among the folders of its path (caldip's ``proc_calib/<cruise>/cal_dip/``).
+- ``scheme``: ``standard`` or ``rapid`` (reproduces the RAPID MicroCAT processing).
+  See :doc:`methods/calibration`.
+- ``override``: keyed by ``temperature``, ``conductivity`` or ``pressure``; ``method``
+  is ``mean``, ``ramp`` or ``slope`` (conductivity only); ``use`` is ``both``, ``pre``
+  or ``post``.
+
+Every shape mistake is an ERROR: an unknown key or field, an end that is not
+``{cruise, cast}``, a cruise or cast that is not a single folder or file name
+(``../x``, ``/tmp``), no end at all, an unknown scheme, method or ``use``, a ``slope`` on
+temperature or pressure, or a ``use`` naming a dip the block lacks.
+
+----
+
 Validate your YAML
 ------------------
 
@@ -862,7 +901,7 @@ common mistakes:
 
 The validator checks that required fields are present, that ``instrument``
 and ``file_type`` values are recognised, the QC blocks (`Other QC blocks`_),
-``platform_code`` and ``deployment_code``, and that the YAML can be parsed
+the ``caldip`` block (`Calibration dips`_), ``platform_code`` and ``deployment_code``, and that the YAML can be parsed
 without errors.  It also emits warnings for inline instruments with commas
 in the serial number so you can confirm the ordering.  It exits 1 on an ERROR;
 add ``--strict`` to fail on warnings too.

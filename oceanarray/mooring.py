@@ -36,6 +36,7 @@ import yaml
 from oceanarray.config import validation
 from oceanarray.config.validation import ValidationIssue
 from oceanarray.exceptions import MooringError
+from oceanarray.paths import is_path_component
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +83,8 @@ KNOWN_KEYS: frozenset[str] = frozenset(
         "qc_spike",
         "tilt_qc",
         "qc_flat_line",
+        # calibration-dip correction (read at the front of stage 3; ``_check_caldip``)
+        "caldip",
         # Deprecated: a raw-data root in the description is a run-time fact; use
         # raw_dir / --raw-dir. check() WARNs; the override is removed in 0.7.0.
         "directory",
@@ -228,6 +231,7 @@ def check(
         issues += _check_settings(data)
         issues += _check_export_codes(data)
         issues += _check_qc_overrides(data)
+        issues += _check_caldip(data)
         for key in data:
             if key not in KNOWN_KEYS:
                 issues.append(
@@ -401,6 +405,112 @@ def _check_qc_overrides(data: Mapping) -> list[ValidationIssue]:
                         block, entry[block], where, data.get(block)
                     )
     return issues
+
+
+#: The fields of the ``caldip:`` block and of each of its two ends.
+_CALDIP_KEYS = frozenset({"root", "deployment", "recovery", "scheme", "override"})
+_CALDIP_END_KEYS = frozenset({"cruise", "cast"})
+_CALDIP_OVERRIDE_KEYS = frozenset({"method", "use"})
+
+
+def _check_caldip(data: Mapping) -> list[ValidationIssue]:
+    """Check the ``caldip:`` block: its keys, its two ends, the scheme and any override.
+
+    Every shape mistake is an ERROR: a misspelt key or an unknown method would
+    otherwise change which correction runs, silently.
+    """
+    from oceanarray.config import parameters as params
+
+    if "caldip" not in data:
+        return []
+    block = data["caldip"]
+
+    def err(message: str) -> ValidationIssue:
+        return ValidationIssue("ERROR", f"caldip: {message}")
+
+    if not isinstance(block, Mapping):
+        return [err("must be a mapping (root, deployment, recovery, scheme, override)")]
+    issues: list[ValidationIssue] = []
+    for key in block:
+        if key not in _CALDIP_KEYS:
+            issues.append(err(f"unknown key '{key}'; allowed: {sorted(_CALDIP_KEYS)}"))
+    ends = [end for end in ("deployment", "recovery") if end in block]
+    if not ends:
+        issues.append(err("names no cast; give deployment and/or recovery"))
+    for end in ends:
+        value = block[end]
+        if not isinstance(value, Mapping) or set(value) != _CALDIP_END_KEYS:
+            issues.append(err(f"{end} must be {{cruise: <cruise>, cast: <cast>}}"))
+        elif not all(isinstance(value[k], str) and value[k] for k in _CALDIP_END_KEYS):
+            issues.append(err(f"{end}: cruise and cast must be non-empty text"))
+        elif not all(is_path_component(value[k]) for k in _CALDIP_END_KEYS):
+            issues.append(
+                err(f"{end}: cruise and cast must each be one folder or file name")
+            )
+    if "root" in block and not (isinstance(block["root"], str) and block["root"]):
+        issues.append(err("root must be a path"))
+    scheme = block.get("scheme", "standard")
+    if scheme not in params.CALDIP_SCHEMES:
+        issues.append(
+            err(f"scheme {scheme!r} is not one of {list(params.CALDIP_SCHEMES)}")
+        )
+    override = block.get("override")
+    if override is not None:
+        if not isinstance(override, Mapping):
+            issues.append(err("override must be keyed by variable"))
+            override = {}
+        for var, entry in override.items():
+            if var not in params.CALDIP_TARGETS:
+                issues.append(
+                    err(
+                        f"override: '{var}' is not one of {list(params.CALDIP_TARGETS)}"
+                    )
+                )
+                continue
+            if not isinstance(entry, Mapping):
+                issues.append(err(f"override.{var} must be a mapping (method, use)"))
+                continue
+            for field, value in entry.items():
+                if field not in _CALDIP_OVERRIDE_KEYS:
+                    issues.append(
+                        err(
+                            f"override.{var}: unknown field '{field}'; allowed: "
+                            f"{sorted(_CALDIP_OVERRIDE_KEYS)}"
+                        )
+                    )
+                elif field == "method" and value not in params.CALDIP_METHODS:
+                    issues.append(
+                        err(
+                            f"override.{var}.method {value!r} is not one of "
+                            f"{list(params.CALDIP_METHODS)}"
+                        )
+                    )
+                elif field == "method" and value == "slope" and var != "conductivity":
+                    issues.append(
+                        err(f"override.{var}.method slope applies to conductivity only")
+                    )
+                elif field == "use" and value not in params.CALDIP_USE:
+                    issues.append(
+                        err(
+                            f"override.{var}.use {value!r} is not one of "
+                            f"{list(params.CALDIP_USE)}"
+                        )
+                    )
+                elif (
+                    field == "use"
+                    and value != "both"
+                    and _use_names_missing_end(value, ends)
+                ):
+                    issues.append(
+                        err(f"override.{var}.use {value!r} names a dip the block lacks")
+                    )
+    return issues
+
+
+def _use_names_missing_end(use: str, ends: list[str]) -> bool:
+    """Return True when ``use`` keeps a dip end the ``caldip:`` block does not name."""
+    wanted = {"pre": "deployment", "post": "recovery"}[use]
+    return wanted not in ends
 
 
 def _deployment_month(deployment_time: object) -> str | None:
