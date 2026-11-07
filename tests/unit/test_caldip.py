@@ -1,8 +1,8 @@
-"""Contract tests for the caldip stub (:mod:`oceanarray.pipeline.calibration`).
+"""Tests for :mod:`oceanarray.pipeline.calibration`: reading caldip casts, and the stub.
 
-The module carries only the shared contract (constants, serial join-key rule) and the interface
-the correction is built to (five functions that raise :class:`NotImplementedError`). These
-tests pin the contract against caldip's real output ``castM4_caldip.nc`` and confirm the Stage 3
+Reading and checking a cast is implemented (:mod:`oceanarray.pipeline.calibration.caldip`);
+the correction is not yet. These tests pin the reader against caldip's real output
+``castM4_caldip.nc``, check the four interface functions still raise, and confirm the Stage 3
 ``caldip_dir`` argument is a data-null action that stamps stub provenance.
 """
 
@@ -65,12 +65,129 @@ def test_fixture_instrument_types_in_vocabulary():
     assert seen <= known, f"unknown instrument_type(s): {seen - known}"
 
 
-# ── interface: every function is a stub that raises ─────────────────────────
-def test_read_caldip_cast_is_stub():
-    with pytest.raises(NotImplementedError, match="read_caldip_cast"):
-        caldip.read_caldip_cast(FIXTURE)
+# ── reading a cast ───────────────────────────────────────────────────────────
+def _copy_with(tmp_path: Path, edit) -> Path:
+    """Write a copy of the real cast with *edit* applied to the loaded dataset."""
+    with xr.open_dataset(FIXTURE, engine="netcdf4") as ds:
+        ds = ds.load()
+    edit(ds)
+    out = tmp_path / "castX_caldip.nc"
+    ds.to_netcdf(out)
+    return out
 
 
+def test_read_caldip_cast_joins_serials_and_canonicalises_units():
+    """The real cast reads: serials become join keys, T/C/P units the registry spelling."""
+    cast = caldip.read_caldip_cast(FIXTURE)
+    assert dict(cast.sizes) == {"instrument": 23, "stop": 5}
+    assert "13840" in cast["serial"].values
+    assert all(not str(s).startswith("0") for s in cast["serial"].values)
+    assert cast["temp_diff"].attrs["units"] == "degree_Celsius"
+    assert cast["ctd_temp"].attrs["units"] == "degree_Celsius"
+    assert cast["cond_diff"].attrs["units"] == "mS cm-1"
+    assert cast["press_diff"].attrs["units"] == "dbar"
+    # the sign comment survives the units rewrite
+    assert "instrument minus CTD" in cast["cond_diff"].attrs["comment"]
+    assert cast.attrs["source_path"] == str(FIXTURE)
+
+
+def test_instrument_record_matches_any_serial_spelling():
+    """A leading zero or the YAML marker asterisk still finds the instrument; a stranger does not."""
+    cast = caldip.read_caldip_cast(FIXTURE)
+    rec = caldip.instrument_record(cast, "013840")
+    assert rec is not None and str(rec["serial"].values) == "13840"
+    assert dict(rec.sizes) == {"stop": 5}
+    np.testing.assert_allclose(
+        rec["cond_diff"].values,
+        rec["inst_cond"].values - rec["ctd_cond"].values,
+        atol=1e-6,
+    )
+    assert caldip.instrument_record(cast, "13840*") is not None
+    assert caldip.instrument_record(cast, "99999") is None
+
+
+@pytest.mark.parametrize("missing", caldip.REQUIRED_PROVENANCE_GLOBALS)
+def test_a_cast_without_required_provenance_is_refused(tmp_path, missing):
+    """Any one required provenance attribute missing refuses the cast."""
+    path = _copy_with(tmp_path, lambda ds: ds.attrs.pop(missing))
+    with pytest.raises(caldip.CaldipProvenanceError, match=missing):
+        caldip.read_caldip_cast(path)
+
+
+@pytest.mark.parametrize("schema", [2, 1.5, "2", "one"])
+def test_a_cast_from_another_schema_is_refused(tmp_path, schema):
+    """Any schema_version other than 1 is refused — 1.5 is not truncated to 1."""
+    path = _copy_with(tmp_path, lambda ds: ds.attrs.update(schema_version=schema))
+    with pytest.raises(caldip.CaldipError, match="schema_version"):
+        caldip.read_caldip_cast(path)
+
+
+@pytest.mark.parametrize("schema", [1.0, "1"])
+def test_schema_1_written_as_a_float_or_text_is_read(tmp_path, schema):
+    """1.0 and "1" are version 1."""
+    path = _copy_with(tmp_path, lambda ds: ds.attrs.update(schema_version=schema))
+    assert caldip.read_caldip_cast(path).sizes["instrument"] == 23
+
+
+def test_a_unit_conversion_is_converted_and_recorded(tmp_path):
+    """Conductivity in S/m is converted ×10 to mS cm-1, and the conversion is recorded."""
+    names = ("cond_diff", "cond_std", "inst_cond", "ctd_cond")
+
+    def edit(ds):
+        for name in names:
+            ds[name] = ds[name] / 10.0
+            ds[name].attrs["units"] = "S/m"
+
+    original = caldip.read_caldip_cast(FIXTURE)
+    converted = caldip.read_caldip_cast(_copy_with(tmp_path, edit))
+    for name in names:
+        np.testing.assert_allclose(converted[name].values, original[name].values)
+        attrs = converted[name].attrs
+        assert attrs["units"] == "mS cm-1"
+        assert attrs["units_converted_from"] == "S/m"
+        assert attrs["units_conversion_factor"] == 10.0
+    # a pure spelling rewrite records nothing
+    assert "units_converted_from" not in original["temp_diff"].attrs
+
+
+def test_an_unknown_units_string_is_refused(tmp_path):
+    """A conductivity unit oceanarray cannot resolve stops the read."""
+
+    def edit(ds):
+        ds["cond_diff"].attrs["units"] = "mmho"
+
+    path = _copy_with(tmp_path, edit)
+    with pytest.raises(caldip.CaldipError, match="cond_diff units 'mmho'"):
+        caldip.read_caldip_cast(path)
+
+
+def test_two_serials_with_one_join_key_are_refused(tmp_path):
+    """013840 and 13840 in one cast would make the match ambiguous."""
+
+    def edit(ds):
+        serials = ds["serial"].values.astype(object)
+        serials[1] = "0" + str(serials[0])
+        ds["serial"] = ("instrument", serials.astype(str))
+
+    path = _copy_with(tmp_path, edit)
+    with pytest.raises(caldip.CaldipError, match="13840"):
+        caldip.read_caldip_cast(path)
+
+
+def test_an_unknown_instrument_type_warns(tmp_path):
+    """An instrument_type outside the vocabulary is read, with a warning."""
+
+    def edit(ds):
+        types = ds["instrument_type"].values.astype(object)
+        types[0] = "mystery"
+        ds["instrument_type"] = ("instrument", types.astype(str))
+
+    path = _copy_with(tmp_path, edit)
+    with pytest.warns(UserWarning, match="mystery"):
+        caldip.read_caldip_cast(path)
+
+
+# ── interface: the correction functions are still stubs ──────────────────────
 def test_find_caldip_casts_is_stub():
     with pytest.raises(NotImplementedError, match="find_caldip_casts"):
         caldip.find_caldip_casts(FIXTURE.parent, "13874")

@@ -7,10 +7,10 @@ by serial, and corrects temperature, conductivity and pressure at the front of S
 pressure interpolation. A correction changes the values, as the Stage 2 clock-drift
 correction does; it is not quality control.
 
-**Status: the correction is not implemented here.** This module carries only the *contract*
-(the constants and serial join-key rule both packages share) and the *interface* the correction
-is built to: :func:`read_caldip_cast`, :func:`find_caldip_casts`, :func:`assign_dip_role`,
-:func:`select_offsets`, and :func:`apply_caldip` each raise :class:`NotImplementedError`.
+**Status: reading is implemented, the correction is not.** :mod:`.caldip` reads and checks a
+cast (:func:`read_caldip_cast`, :func:`instrument_record`). :func:`find_caldip_casts`,
+:func:`assign_dip_role`, :func:`select_offsets` and :func:`apply_caldip` are the interface the
+correction is built to; each still raises :class:`NotImplementedError`.
 
 The carrier, the field contract, the correction model and the stop-selection rules are
 documented in ``docs/source/methods/calibration.rst``. Sign convention: every ``*_diff``
@@ -26,54 +26,39 @@ from typing import Any
 
 import xarray as xr
 
-from oceanarray.paths import safe_serial
-
-#: Filename suffix of the per-cast caldip netCDF (strict — excludes CSV exports and variants).
-CALDIP_SUFFIX = "_caldip.nc"
-
-#: Schema version this consumer understands (``schema_version`` global attribute).
-SUPPORTED_SCHEMA_VERSION = 1
-
-#: Integer value meaning "ok" in caldip's ``*_flag`` variables.
-#: ``flag_meanings`` order is ``ok no_data flagged missing unknown`` = ``1 2 3 4 9``.
-CALDIP_FLAG_OK = 1
-
-#: Global attributes that must all be present for a file to carry usable provenance.
-#: A file with none of these is unprovenanced and must be refused, never applied.
-REQUIRED_PROVENANCE_GLOBALS = (
-    "schema_version",
-    "caldip_version",
-    "tracking_id",
-    "cruise_id",
-    "cast_id",
-    "data_mode",
+from oceanarray.pipeline.calibration.caldip import (
+    CALDIP_FLAG_OK,
+    CALDIP_QUANTITIES,
+    CALDIP_SUFFIX,
+    PROVENANCE_PASSTHROUGH_GLOBALS,
+    REQUIRED_PROVENANCE_GLOBALS,
+    SUPPORTED_SCHEMA_VERSION,
+    CaldipError,
+    CaldipProvenanceError,
+    canonical_serial,
+    instrument_record,
+    read_caldip_cast,
 )
 
-#: Global attributes oceanarray copies through into ``_stage3.nc`` when a correction is applied,
-#: under caldip/ctdcast's own names (no translation layer). Values may legitimately be ``UNK``
-#: for a ``.cnv``-input caldip cast until caldip's ``ctdcast-input`` step populates them.
-PROVENANCE_PASSTHROUGH_GLOBALS = (
-    "tracking_id",
-    "source_tracking_id",
-    "cruise_id",
-    "cast_id",
-    "caldip_version",
-    "schema_version",
-    "data_mode",
-    "ctd_path",
-    "ctd_stage",
-    "input_mode",
-    "qc_flags_honoured",
-    "ctd_conductivity_slope",
-    "ctd_cond_slope_adjusted",
-    "ctd_temp_sensor_serial",
-    "ctd_cond_sensor_serial",
-    "ctd_temp_sensor_caldate",
-    "ctd_cond_sensor_caldate",
-    "ctd_temp_processing_level",
-    "ctd_cond_processing_level",
-    "ctd_press_processing_level",
-)
+__all__ = [
+    "CALDIP_FLAG_OK",
+    "CALDIP_QUANTITIES",
+    "CALDIP_STUB_APPLIED",
+    "CALDIP_SUFFIX",
+    "PROVENANCE_PASSTHROUGH_GLOBALS",
+    "REQUIRED_PROVENANCE_GLOBALS",
+    "SUPPORTED_SCHEMA_VERSION",
+    "CaldipError",
+    "CaldipProvenanceError",
+    "Offsets",
+    "apply_caldip",
+    "assign_dip_role",
+    "canonical_serial",
+    "find_caldip_casts",
+    "instrument_record",
+    "read_caldip_cast",
+    "select_offsets",
+]
 
 #: Value written to the ``caldip_applied`` global attribute of ``_stage3.nc`` when a caldip
 #: correction was requested but only the null-action stub ran. The first real correction
@@ -83,14 +68,6 @@ PROVENANCE_PASSTHROUGH_GLOBALS = (
 CALDIP_STUB_APPLIED = (
     "none - caldip stub (correction not implemented); Stage 3 science data unchanged"
 )
-
-
-class CaldipError(Exception):
-    """Base error for caldip-file reading and matching."""
-
-
-class CaldipProvenanceError(CaldipError):
-    """Raised when a caldip file carries no provenance and so must not be applied."""
 
 
 @dataclass(frozen=True)
@@ -118,60 +95,6 @@ class Offsets:
     n: int
     flag: int
     source_tracking_id: str
-
-
-def canonical_serial(serial: Any) -> str:
-    """Return the join-key form of an instrument serial.
-
-    The caldip↔oceanarray contract matches instruments on ``serial`` after making it
-    filename-safe and stripping leading zeros, so ``013874`` and ``13874`` join and the
-    trailing YAML marker asterisk (``9920*``) is dropped. Both packages apply it on read,
-    so the join is symmetric. This is contract, not method, so it lives with the stub.
-
-    Parameters
-    ----------
-    serial : Any
-        Raw serial value from a caldip file coordinate or a mooring YAML entry.
-
-    Returns
-    -------
-    str
-        The join-key serial: filename-safe with leading zeros removed. An all-zero token
-        falls back to its filename-safe form rather than the empty string.
-
-    """
-    safe = safe_serial(serial)
-    return safe.lstrip("0") or safe
-
-
-def read_caldip_cast(path: Path) -> xr.Dataset:
-    """Open and validate one caldip per-cast netCDF (interface stub — not implemented).
-
-    The implementation opens ``{cast}_caldip.nc``, checks ``schema_version`` equals
-    :data:`SUPPORTED_SCHEMA_VERSION` and every :data:`REQUIRED_PROVENANCE_GLOBALS` is present
-    (raising :class:`CaldipProvenanceError` otherwise), normalises the ``serial`` coordinate
-    with :func:`canonical_serial`, and warns when an ``instrument_type`` is outside
-    ``parameters.KNOWN_INSTRUMENT_TYPES`` or disagrees with the mooring YAML.
-
-    Parameters
-    ----------
-    path : Path
-        Path to a ``{cast}_caldip.nc`` file.
-
-    Returns
-    -------
-    xarray.Dataset
-        The validated cast with dimensions ``instrument`` and ``stop``.
-
-    Raises
-    ------
-    NotImplementedError
-        Always — see ``docs/source/methods/calibration.rst``.
-
-    """
-    del path
-    msg = "read_caldip_cast is not implemented; see docs/source/methods/calibration.rst"
-    raise NotImplementedError(msg)
 
 
 def find_caldip_casts(caldip_dir: Path, serial: Any) -> list[Path]:

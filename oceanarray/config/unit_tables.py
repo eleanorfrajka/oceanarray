@@ -65,6 +65,9 @@ UNIT_ALIAS_EXTRAS: dict[str, dict[str, float]] = {
         "cm s-1": 0.01,
     },
     "m": {"meter": 1.0},
+    # caldip writes temperatures and temperature differences as 'degree_C' (UDUNITS).
+    # Evidence: castM4_caldip.nc temp_diff / inst_temp / ctd_temp.  Factor 1.
+    "degree_Celsius": {"degree_C": 1.0},
 }
 
 #: Extra spellings meaningful for one quantity only, keyed by CF ``standard_name``.
