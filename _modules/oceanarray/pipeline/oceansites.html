@@ -1,0 +1,932 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.pipeline.oceansites &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/oceansites_export.html">Export to OceanSITES</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">OceanArray Data Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_0.html">Upgrading from 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../pipeline.html">oceanarray.pipeline</a></li>
+      <li class="breadcrumb-item active">oceanarray.pipeline.oceansites</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.pipeline.oceansites</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Converting stage-3 datasets and grids to OceanSITES 1.4 datasets.</span>
+
+<span class="sd">:func:`to_oceansites` returns one instrument's stage-3 dataset as an OceanSITES</span>
+<span class="sd">deployment data file (OceanSITES Data Format Reference Manual 1.4, §4.1) and a</span>
+<span class="sd">mooring's grid as a gridded file (§4.2): variables on ``(TIME, DEPTH)``,</span>
+<span class="sd">``&lt;PARAM&gt;_QC`` flags from reference table 2, a data mode per variable (reference</span>
+<span class="sd">table 4) and the global attributes of §2.2.  It writes nothing; the</span>
+<span class="sd">:func:`oceanarray.export` verb finds a mooring's files, converts them and writes</span>
+<span class="sd">each under :func:`oceansites_filename`.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">location</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameters</span> <span class="k">as</span> <span class="n">params</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.instruments</span><span class="w"> </span><span class="kn">import</span> <span class="n">instrument_entries</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.mooring</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEPLOYMENT_CODE_PATTERN</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_serial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">CALDIP_STUB_APPLIED</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.stage1</span><span class="w"> </span><span class="kn">import</span> <span class="n">ADCP_BIN_DIM</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.readers.oceansites</span><span class="w"> </span><span class="kn">import</span> <span class="n">OCEANSITES_VARIABLES</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1">#: oceanarray registry name → OceanSITES parameter code (reference table 6), the</span>
+<span class="c1">#: inverse of the reader's table so reading and writing share one mapping.</span>
+<span class="n">PARAMETER_CODES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">code</span> <span class="k">for</span> <span class="n">code</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">OCEANSITES_VARIABLES</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="c1">#: Reference table 2, as oceanarray's own flags already carry it (5 and 6 unused).</span>
+<span class="n">QC_FLAG_VALUES</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"int8"</span><span class="p">)</span>
+<span class="n">QC_FLAG_MEANINGS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"unknown good_data probably_good_data potentially_correctable_bad_data "</span>
+    <span class="s2">"bad_data nominal_value interpolated_value missing_value"</span>
+<span class="p">)</span>
+
+<span class="c1">#: Data modes this package can claim (reference table 4); ``R`` is real-time</span>
+<span class="c1">#: telemetry, which a recovered instrument never is.</span>
+<span class="n">DATA_MODES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"P"</span><span class="p">,</span> <span class="s2">"D"</span><span class="p">)</span>
+
+<span class="n">FORMAT_VERSION</span> <span class="o">=</span> <span class="s2">"1.4"</span>
+<span class="n">CONVENTIONS</span> <span class="o">=</span> <span class="s2">"CF-1.13, OceanSITES-1.4, ACDD-1.3"</span>
+<span class="n">TIME_UNITS</span> <span class="o">=</span> <span class="s2">"days since 1950-01-01T00:00:00Z"</span>
+<span class="n">_EPOCH</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s2">"1950-01-01T00:00:00"</span><span class="p">,</span> <span class="s2">"ns"</span><span class="p">)</span>
+
+<span class="c1">#: Attributes carried from a stage-3 variable onto its OceanSITES parameter.</span>
+<span class="n">_KEPT_ATTRS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"standard_name"</span><span class="p">,</span> <span class="s2">"units"</span><span class="p">,</span> <span class="s2">"long_name"</span><span class="p">,</span> <span class="s2">"valid_min"</span><span class="p">,</span> <span class="s2">"valid_max"</span><span class="p">)</span>
+
+<span class="c1">#: Stage-3 ``SENSOR_*`` ``sensor_type`` → the variable it measured.</span>
+<span class="n">_SENSOR_VARIABLES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"TEMPERATURE"</span><span class="p">:</span> <span class="s2">"temperature"</span><span class="p">,</span>
+    <span class="s2">"CONDUCTIVITY"</span><span class="p">:</span> <span class="s2">"conductivity"</span><span class="p">,</span>
+    <span class="s2">"PRESSURE"</span><span class="p">:</span> <span class="s2">"pressure"</span><span class="p">,</span>
+    <span class="s2">"OXYGEN"</span><span class="p">:</span> <span class="s2">"dissolved_oxygen"</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="c1">#: The ADCP variables the below-seabed flag applies to: a bin below the seabed sees</span>
+<span class="c1">#: the bottom, so its velocity is not water velocity; its computed pressure is</span>
+<span class="c1">#: still a pressure.</span>
+<span class="n">_SEABED_VARIABLES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">"east_velocity"</span><span class="p">,</span> <span class="s2">"north_velocity"</span><span class="p">,</span> <span class="s2">"up_velocity"</span><span class="p">})</span>
+
+
+<div class="viewcode-block" id="OceanSitesError">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.oceansites.OceanSitesError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">OceanSitesError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Raised when a dataset or description cannot make a valid OceanSITES file."""</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_iso</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return an instant as ISO 8601 UTC, ``YYYY-MM-DDThh:mm:ssZ`` (manual §2.2)."""</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%SZ"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_iso_duration</span><span class="p">(</span><span class="n">seconds</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a time step as an ISO 8601 duration, e.g. ``PT10M``."""</span>
+    <span class="n">seconds</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">seconds</span><span class="p">))</span>
+    <span class="n">days</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">seconds</span><span class="p">,</span> <span class="mi">86400</span><span class="p">)</span>
+    <span class="n">hours</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">rem</span><span class="p">,</span> <span class="mi">3600</span><span class="p">)</span>
+    <span class="n">minutes</span><span class="p">,</span> <span class="n">secs</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">rem</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="s2">"P"</span> <span class="o">+</span> <span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">days</span><span class="si">}</span><span class="s2">D"</span> <span class="k">if</span> <span class="n">days</span> <span class="k">else</span> <span class="s2">""</span><span class="p">)</span>
+    <span class="n">clock</span> <span class="o">=</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">n</span><span class="si">}{</span><span class="n">u</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">u</span> <span class="ow">in</span> <span class="p">((</span><span class="n">hours</span><span class="p">,</span> <span class="s2">"H"</span><span class="p">),</span> <span class="p">(</span><span class="n">minutes</span><span class="p">,</span> <span class="s2">"M"</span><span class="p">),</span> <span class="p">(</span><span class="n">secs</span><span class="p">,</span> <span class="s2">"S"</span><span class="p">))</span> <span class="k">if</span> <span class="n">n</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span> <span class="o">+</span> <span class="p">(</span><span class="s2">"T"</span> <span class="o">+</span> <span class="n">clock</span> <span class="k">if</span> <span class="n">clock</span> <span class="k">else</span> <span class="s2">""</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">days</span> <span class="ow">or</span> <span class="n">clock</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"PT0S"</span>
+
+
+<div class="viewcode-block" id="type_code">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.oceansites.type_code">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">type_code</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the instrument-type field of the file name for a stage-3 dataset.</span>
+
+<span class="sd">    ``CM`` current meter; ``CTDO`` conductivity, temperature, pressure and</span>
+<span class="sd">    oxygen; ``CTD`` conductivity, temperature and pressure (measured, or</span>
+<span class="sd">    interpolated from neighbouring instruments); ``CT`` no pressure at all;</span>
+<span class="sd">    ``O`` oxygen only; ``T`` temperature only; ``ADCP`` a profiler with bins.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    OceanSitesError</span>
+<span class="sd">        For a set of variables none of the codes describes.</span>
+<span class="sd">    """</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ADCP_BIN_DIM</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"ADCP"</span>
+    <span class="k">if</span> <span class="p">{</span><span class="s2">"east_velocity"</span><span class="p">,</span> <span class="s2">"north_velocity"</span><span class="p">}</span> <span class="o">&lt;=</span> <span class="n">names</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"CM"</span>
+    <span class="n">oxygen</span> <span class="o">=</span> <span class="s2">"dissolved_oxygen"</span> <span class="ow">in</span> <span class="n">names</span>
+    <span class="k">if</span> <span class="s2">"conductivity"</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">oxygen</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"pressure"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">OceanSitesError</span><span class="p">(</span>
+                    <span class="s2">"conductivity and oxygen without pressure has no type code"</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="s2">"CTDO"</span>
+        <span class="k">return</span> <span class="s2">"CTD"</span> <span class="k">if</span> <span class="s2">"pressure"</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">else</span> <span class="s2">"CT"</span>
+    <span class="k">if</span> <span class="n">oxygen</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"O"</span>
+    <span class="k">if</span> <span class="s2">"temperature"</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"T"</span>
+    <span class="k">raise</span> <span class="n">OceanSitesError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"no type code for variables </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">names</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_nominal_depth</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the instrument's nominal depth (m): ``InstrDepth``, else water depth − HAB."""</span>
+    <span class="k">if</span> <span class="s2">"InstrDepth"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"InstrDepth"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"waterdepth"</span><span class="p">])</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"hab"</span><span class="p">])</span>
+    <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">OceanSitesError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"no nominal depth: stage-3 file lacks </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_bin_depths</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">head</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return an ADCP's nominal bin depths: transducer depth ± ``range``, by orientation.</span>
+
+<span class="sd">    The orientation is never assumed: without ``orientation_yaml`` or</span>
+<span class="sd">    ``orientation_instrument`` the export refuses.</span>
+<span class="sd">    """</span>
+    <span class="n">orientation</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"orientation_yaml"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="s2">"orientation_instrument"</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">orientation</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"up"</span><span class="p">,</span> <span class="s2">"down"</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">OceanSitesError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ADCP orientation </span><span class="si">{</span><span class="n">orientation</span><span class="si">!r}</span><span class="s2"> is not 'up' or 'down'"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">"range"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">OceanSitesError</span><span class="p">(</span><span class="s2">"ADCP stage-3 file has no 'range' (distance to each bin)"</span><span class="p">)</span>
+    <span class="n">sign</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">orientation</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"down"</span> <span class="k">else</span> <span class="o">-</span><span class="mf">1.0</span>
+    <span class="k">return</span> <span class="n">head</span> <span class="o">+</span> <span class="n">sign</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"range"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"float64"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_position</span><span class="p">(</span><span class="n">mooring</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the mooring's position; refused when the description has none (no 0, 0)."""</span>
+    <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">source</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">parse_latlon_with_source</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">mooring</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">location</span><span class="o">.</span><span class="n">is_unknown_latlon_source</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">OceanSitesError</span><span class="p">(</span>
+            <span class="s2">"the mooring description has no position (latitude/longitude)"</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_entry</span><span class="p">(</span><span class="n">mooring</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">serial</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the mooring description's entry for instrument *serial* ({} if absent)."""</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">instrument_entries</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">mooring</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">safe_serial</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"serial"</span><span class="p">))</span> <span class="o">==</span> <span class="n">serial</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">entry</span>
+    <span class="k">return</span> <span class="p">{}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_caldip_applied</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return True if the stage-3 file records a real calibration-dip correction."""</span>
+    <span class="n">stamp</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"caldip_applied"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">stamp</span><span class="p">)</span> <span class="ow">and</span> <span class="n">stamp</span> <span class="o">!=</span> <span class="n">CALDIP_STUB_APPLIED</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">stamp</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"none"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_data_modes</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">entry</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the data mode of each variable in *names*.</span>
+
+<span class="sd">    The mode comes from the instrument entry's ``data_mode`` (one letter for all</span>
+<span class="sd">    its variables, or a mapping from variable name to letter), recorded after a</span>
+<span class="sd">    manual review; the default is ``P``.  ``D`` is refused unless the stage-3</span>
+<span class="sd">    file records the calibration-dip correction.</span>
+<span class="sd">    """</span>
+    <span class="n">given</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"data_mode"</span><span class="p">,</span> <span class="s2">"P"</span><span class="p">)</span>
+    <span class="n">modes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">n</span><span class="p">:</span> <span class="p">(</span><span class="n">given</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="s2">"P"</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">given</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="k">else</span> <span class="n">given</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">mode</span> <span class="ow">in</span> <span class="n">modes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">DATA_MODES</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">OceanSitesError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"data_mode </span><span class="si">{</span><span class="n">mode</span><span class="si">!r}</span><span class="s2"> for </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: use one of </span><span class="si">{</span><span class="n">DATA_MODES</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"D"</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_caldip_applied</span><span class="p">(</span><span class="n">ds</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">OceanSitesError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"data_mode D for </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> needs the calibration-dip correction, "</span>
+                <span class="sa">f</span><span class="s2">"which this stage-3 file does not record"</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">modes</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_sensor_attrs</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the ``sensor_*`` attributes (manual §2.5) for variable *name*."""</span>
+    <span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"sensor_model"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"source"</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"instrument"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))),</span>
+        <span class="s2">"sensor_serial_number"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"serial"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)),</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span>
+        <span class="k">if</span> <span class="n">_SENSOR_VARIABLES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sensor_type"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)))</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
+            <span class="n">attrs</span><span class="p">[</span><span class="s2">"sensor_model"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sensor_model"</span><span class="p">,</span> <span class="n">attrs</span><span class="p">[</span><span class="s2">"sensor_model"</span><span class="p">]))</span>
+            <span class="n">attrs</span><span class="p">[</span><span class="s2">"sensor_serial_number"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
+                <span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sensor_serial_number"</span><span class="p">,</span> <span class="n">attrs</span><span class="p">[</span><span class="s2">"sensor_serial_number"</span><span class="p">])</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="s2">"sensor_calibration_date"</span> <span class="ow">in</span> <span class="n">meta</span><span class="p">:</span>
+                <span class="n">attrs</span><span class="p">[</span><span class="s2">"sensor_calibration_date"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">"sensor_calibration_date"</span><span class="p">])</span>
+    <span class="n">attrs</span><span class="p">[</span><span class="s2">"sensor_mount"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"mounted_on_mooring_line"</span>
+    <span class="n">attrs</span><span class="p">[</span><span class="s2">"sensor_data_start_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">start</span>
+    <span class="n">attrs</span><span class="p">[</span><span class="s2">"sensor_data_end_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span>
+    <span class="k">return</span> <span class="n">attrs</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_worst</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the element-wise worse of two reference-table-2 flag arrays."""</span>
+    <span class="n">rank</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">QC_MERGE_PRIORITY_LUT</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"int8"</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"int8"</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">),</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">rank</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">rank</span><span class="p">[</span><span class="n">a</span><span class="p">],</span> <span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"int8"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_levels</span><span class="p">(</span><span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a stage-3 variable as a ``(time, level)`` array (one level for a point)."""</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">values</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="k">if</span> <span class="n">values</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">values</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_flags</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the ``(time, level)`` flags of *name*: its stage-3 flags, 9 where missing.</span>
+
+<span class="sd">    An ADCP's seabed flag is kept apart from the velocity flags in stage 3</span>
+<span class="sd">    (``seabed_qc``); OceanSITES has one flag per value, so for the velocities the</span>
+<span class="sd">    worse of the two is written.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_qc"</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">_as_levels</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_qc"</span><span class="p">]),</span> <span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+            <span class="s2">"int8"</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"int8"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">"seabed_qc"</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_SEABED_VARIABLES</span><span class="p">:</span>
+        <span class="c1"># Only a failed or suspect seabed test is merged in: a passed one must not</span>
+        <span class="c1"># promote an unchecked (0) value to good.</span>
+        <span class="n">seabed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">_as_levels</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"seabed_qc"</span><span class="p">]),</span> <span class="n">flags</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">seabed</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">_worst</span><span class="p">(</span><span class="n">flags</span><span class="p">,</span> <span class="n">seabed</span><span class="p">),</span> <span class="n">flags</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"int8"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="n">flags</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"int8"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_qc_variable</span><span class="p">(</span><span class="n">flags</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">long_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a ``&lt;PARAM&gt;_QC`` variable on ``(TIME, DEPTH)``."""</span>
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">flags</span><span class="p">,</span>
+        <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">"TIME"</span><span class="p">,</span> <span class="s2">"DEPTH"</span><span class="p">),</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">"long_name"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"quality flag of </span><span class="si">{</span><span class="n">long_name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="s2">"conventions"</span><span class="p">:</span> <span class="s2">"OceanSITES QC Flags"</span><span class="p">,</span>
+            <span class="s2">"flag_values"</span><span class="p">:</span> <span class="n">QC_FLAG_VALUES</span><span class="p">,</span>
+            <span class="s2">"flag_meanings"</span><span class="p">:</span> <span class="n">QC_FLAG_MEANINGS</span><span class="p">,</span>
+            <span class="s2">"coordinates"</span><span class="p">:</span> <span class="s2">"TIME DEPTH LATITUDE LONGITUDE"</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_first</span><span class="p">(</span><span class="n">mooring</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">,</span> <span class="o">*</span><span class="n">keys</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the first non-empty value among *keys* in the description, as text."""</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">mooring</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">mooring</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="deployment_code">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.oceansites.deployment_code">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">deployment_code</span><span class="p">(</span><span class="n">mooring</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the deployment code: ``deployment_code``, else ``YYYYMM`` of ``deployment_time``."""</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="n">mooring</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"deployment_code"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">code</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mooring</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"deployment_time"</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">OceanSitesError</span><span class="p">(</span>
+                <span class="s2">"no deployment_code and no deployment_time to derive it"</span>
+            <span class="p">)</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">mooring</span><span class="p">[</span><span class="s2">"deployment_time"</span><span class="p">]))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y%m"</span><span class="p">)</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">DEPLOYMENT_CODE_PATTERN</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">OceanSitesError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"deployment_code </span><span class="si">{</span><span class="n">code</span><span class="si">!r}</span><span class="s2"> is not YYYYMM"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">code</span></div>
+
+
+
+<div class="viewcode-block" id="platform_code">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.oceansites.platform_code">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">platform_code</span><span class="p">(</span><span class="n">mooring</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return ``platform_code``; refused if absent or holding ``_`` (the file-name separator)."""</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="n">mooring</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"platform_code"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">code</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">code</span> <span class="o">==</span> <span class="s2">""</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">OceanSitesError</span><span class="p">(</span><span class="s2">"the mooring description has no platform_code"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="c1"># YAML reads an unquoted 12 as a number; the validator warns, and a number</span>
+        <span class="c1"># is not taken as a code.</span>
+        <span class="k">raise</span> <span class="n">OceanSitesError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"platform_code </span><span class="si">{</span><span class="n">code</span><span class="si">!r}</span><span class="s2"> is not text; quote it in the YAML"</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="s2">"_"</span> <span class="ow">in</span> <span class="n">code</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">OceanSitesError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"platform_code </span><span class="si">{</span><span class="n">code</span><span class="si">!r}</span><span class="s2"> contains '_', the file-name separator"</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">code</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_coordinates</span><span class="p">(</span>
+    <span class="n">times</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">levels</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">level_comment</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the four OceanSITES coordinate variables (manual §2.4) as a dataset."""</span>
+    <span class="n">days</span> <span class="o">=</span> <span class="p">(</span><span class="n">times</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"datetime64[ns]"</span><span class="p">)</span> <span class="o">-</span> <span class="n">_EPOCH</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"D"</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+        <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">"TIME"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"TIME"</span><span class="p">,</span>
+                <span class="n">days</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"float64"</span><span class="p">),</span>
+                <span class="p">{</span>
+                    <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">,</span>
+                    <span class="s2">"units"</span><span class="p">:</span> <span class="n">TIME_UNITS</span><span class="p">,</span>
+                    <span class="s2">"axis"</span><span class="p">:</span> <span class="s2">"T"</span><span class="p">,</span>
+                    <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"time of measurement"</span><span class="p">,</span>
+                    <span class="s2">"calendar"</span><span class="p">:</span> <span class="s2">"gregorian"</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">),</span>
+            <span class="s2">"DEPTH"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"DEPTH"</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">levels</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"float32"</span><span class="p">),</span>
+                <span class="p">{</span>
+                    <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"depth"</span><span class="p">,</span>
+                    <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"m"</span><span class="p">,</span>
+                    <span class="s2">"positive"</span><span class="p">:</span> <span class="s2">"down"</span><span class="p">,</span>
+                    <span class="s2">"axis"</span><span class="p">:</span> <span class="s2">"Z"</span><span class="p">,</span>
+                    <span class="s2">"reference"</span><span class="p">:</span> <span class="s2">"sea_level"</span><span class="p">,</span>
+                    <span class="s2">"coordinate_reference_frame"</span><span class="p">:</span> <span class="s2">"urn:ogc:def:crs:EPSG::5831"</span><span class="p">,</span>
+                    <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"Depth of measurement"</span><span class="p">,</span>
+                    <span class="s2">"comment"</span><span class="p">:</span> <span class="n">level_comment</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">),</span>
+            <span class="s2">"LATITUDE"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"LATITUDE"</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">lat</span><span class="p">]),</span>
+                <span class="p">{</span>
+                    <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"latitude"</span><span class="p">,</span>
+                    <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"degrees_north"</span><span class="p">,</span>
+                    <span class="s2">"axis"</span><span class="p">:</span> <span class="s2">"Y"</span><span class="p">,</span>
+                    <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"latitude of measurement"</span><span class="p">,</span>
+                    <span class="s2">"reference"</span><span class="p">:</span> <span class="s2">"WGS84"</span><span class="p">,</span>
+                    <span class="s2">"coordinate_reference_frame"</span><span class="p">:</span> <span class="s2">"urn:ogc:def:crs:EPSG::4326"</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">),</span>
+            <span class="s2">"LONGITUDE"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"LONGITUDE"</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">lon</span><span class="p">]),</span>
+                <span class="p">{</span>
+                    <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"longitude"</span><span class="p">,</span>
+                    <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"degrees_east"</span><span class="p">,</span>
+                    <span class="s2">"axis"</span><span class="p">:</span> <span class="s2">"X"</span><span class="p">,</span>
+                    <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"longitude of measurement"</span><span class="p">,</span>
+                    <span class="s2">"reference"</span><span class="p">:</span> <span class="s2">"WGS84"</span><span class="p">,</span>
+                    <span class="s2">"coordinate_reference_frame"</span><span class="p">:</span> <span class="s2">"urn:ogc:def:crs:EPSG::4326"</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="c1"># TIME is stored as numbers already in the manual's units, so xarray must not</span>
+    <span class="c1"># re-encode it as datetime; no coordinate may carry a fill value (manual §2.4).</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"TIME"</span><span class="p">,</span> <span class="s2">"DEPTH"</span><span class="p">,</span> <span class="s2">"LATITUDE"</span><span class="p">,</span> <span class="s2">"LONGITUDE"</span><span class="p">):</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">encoding</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"_FillValue"</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">"TIME"</span><span class="p">]</span><span class="o">.</span><span class="n">encoding</span><span class="p">[</span><span class="s2">"dtype"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"float64"</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_globals</span><span class="p">(</span>
+    <span class="n">out</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">,</span>
+    <span class="n">array</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">file_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">data_mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">history</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">note</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the §2.2 global attributes shared by every file this module writes."""</span>
+    <span class="n">now</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">UTC</span><span class="p">)</span>
+    <span class="n">history</span> <span class="o">=</span> <span class="n">history</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+    <span class="n">history</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="k">if</span> <span class="n">history</span> <span class="k">else</span> <span class="s2">""</span><span class="p">)</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">_iso</span><span class="p">(</span><span class="n">now</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">note</span><span class="si">}</span><span class="s2">"</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="s2">"TIME"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">attrs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>
+        <span class="s2">"platform_code"</span><span class="p">:</span> <span class="n">platform_code</span><span class="p">(</span><span class="n">mooring</span><span class="p">),</span>
+        <span class="s2">"data_mode"</span><span class="p">:</span> <span class="n">data_mode</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="n">file_id</span><span class="p">,</span>
+        <span class="s2">"naming_authority"</span><span class="p">:</span> <span class="s2">"OceanSITES"</span><span class="p">,</span>
+        <span class="s2">"data_type"</span><span class="p">:</span> <span class="s2">"OceanSITES time-series data"</span><span class="p">,</span>
+        <span class="s2">"format_version"</span><span class="p">:</span> <span class="n">FORMAT_VERSION</span><span class="p">,</span>
+        <span class="s2">"Conventions"</span><span class="p">:</span> <span class="n">CONVENTIONS</span><span class="p">,</span>
+        <span class="s2">"cdm_data_type"</span><span class="p">:</span> <span class="s2">"Station"</span><span class="p">,</span>
+        <span class="s2">"featureType"</span><span class="p">:</span> <span class="s2">"timeSeries"</span><span class="p">,</span>
+        <span class="s2">"source"</span><span class="p">:</span> <span class="s2">"subsurface mooring"</span><span class="p">,</span>
+        <span class="s2">"geospatial_lat_min"</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span>
+        <span class="s2">"geospatial_lat_max"</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span>
+        <span class="s2">"geospatial_lon_min"</span><span class="p">:</span> <span class="n">lon</span><span class="p">,</span>
+        <span class="s2">"geospatial_lon_max"</span><span class="p">:</span> <span class="n">lon</span><span class="p">,</span>
+        <span class="s2">"geospatial_vertical_min"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">"DEPTH"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span>
+        <span class="s2">"geospatial_vertical_max"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">"DEPTH"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">()),</span>
+        <span class="s2">"geospatial_vertical_positive"</span><span class="p">:</span> <span class="s2">"down"</span><span class="p">,</span>
+        <span class="s2">"geospatial_vertical_units"</span><span class="p">:</span> <span class="s2">"meter"</span><span class="p">,</span>
+        <span class="s2">"time_coverage_start"</span><span class="p">:</span> <span class="n">_iso</span><span class="p">(</span>
+            <span class="n">_EPOCH</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">864e11</span><span class="p">)),</span> <span class="s2">"ns"</span><span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"time_coverage_end"</span><span class="p">:</span> <span class="n">_iso</span><span class="p">(</span>
+            <span class="n">_EPOCH</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mf">864e11</span><span class="p">)),</span> <span class="s2">"ns"</span><span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"date_created"</span><span class="p">:</span> <span class="n">_iso</span><span class="p">(</span><span class="n">now</span><span class="p">),</span>
+        <span class="s2">"history"</span><span class="p">:</span> <span class="n">history</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">mooring</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"waterdepth"</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">attrs</span><span class="p">[</span><span class="s2">"sea_floor_depth_below_sea_surface"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">mooring</span><span class="p">[</span><span class="s2">"waterdepth"</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">array</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"site_code"</span><span class="p">):</span>
+        <span class="n">attrs</span><span class="p">[</span><span class="s2">"site_code"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="s2">"site_code"</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># site_code is required by the GDAC and approved by the OceanSITES Project</span>
+        <span class="c1"># Office; it is never invented here.</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"</span><span class="si">%s</span><span class="s2">: no site_code in the array description; left out"</span><span class="p">,</span> <span class="n">file_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">array</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"project"</span><span class="p">):</span>
+        <span class="n">attrs</span><span class="p">[</span><span class="s2">"project"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="s2">"project"</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">when</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"deployment"</span><span class="p">,</span> <span class="s2">"recovery"</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">mooring</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">when</span><span class="si">}</span><span class="s2">_time"</span><span class="p">):</span>
+            <span class="n">attrs</span><span class="p">[</span><span class="sa">f</span><span class="s2">"platform_</span><span class="si">{</span><span class="n">when</span><span class="si">}</span><span class="s2">_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">_iso</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">mooring</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">when</span><span class="si">}</span><span class="s2">_time"</span><span class="p">]))</span>
+        <span class="n">ship</span> <span class="o">=</span> <span class="n">_first</span><span class="p">(</span><span class="n">mooring</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">when</span><span class="si">}</span><span class="s2">_ship"</span><span class="p">,</span> <span class="s2">"ship"</span><span class="p">)</span>
+        <span class="n">cruise</span> <span class="o">=</span> <span class="n">_first</span><span class="p">(</span><span class="n">mooring</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">when</span><span class="si">}</span><span class="s2">_cruise"</span><span class="p">,</span> <span class="s2">"cruise"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ship</span><span class="p">:</span>
+            <span class="n">attrs</span><span class="p">[</span><span class="sa">f</span><span class="s2">"platform_</span><span class="si">{</span><span class="n">when</span><span class="si">}</span><span class="s2">_ship_name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ship</span>
+        <span class="k">if</span> <span class="n">cruise</span><span class="p">:</span>
+            <span class="n">attrs</span><span class="p">[</span><span class="sa">f</span><span class="s2">"platform_</span><span class="si">{</span><span class="n">when</span><span class="si">}</span><span class="s2">_cruise_name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">cruise</span>
+    <span class="k">return</span> <span class="n">attrs</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_source_name</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">given</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fallback</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the name of the file *ds* came from, for ``history``."""</span>
+    <span class="k">return</span> <span class="n">given</span> <span class="ow">or</span> <span class="n">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">encoding</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"source"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)))</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="n">fallback</span>
+
+
+<div class="viewcode-block" id="to_oceansites">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.oceansites.to_oceansites">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_oceansites</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">array</span><span class="p">:</span> <span class="n">Mapping</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">stack</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">source_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a stage-3 or grid dataset as an OceanSITES 1.4 file.</span>
+
+<span class="sd">    A stage-3 dataset (one instrument, a ``time`` dimension) becomes a deployment</span>
+<span class="sd">    data file (manual §4.1); a grid (``time`` × ``pressure``) becomes a gridded</span>
+<span class="sd">    file (§4.2, content type ``GRD``).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        A stage-3 dataset for one instrument, or a mooring's grid.</span>
+<span class="sd">    mooring : Mapping</span>
+<span class="sd">        The loaded mooring description; supplies ``platform_code``,</span>
+<span class="sd">        ``deployment_code`` (default: ``YYYYMM`` of ``deployment_time``), the</span>
+<span class="sd">        position, the ships and cruises, and each variable's data mode.</span>
+<span class="sd">    array : Mapping or None, optional</span>
+<span class="sd">        The array description; ``site_code`` and ``project`` are taken from it</span>
+<span class="sd">        when present.  Without ``site_code`` the attribute is left out.</span>
+<span class="sd">    stack : xarray.Dataset or None, optional</span>
+<span class="sd">        For a grid: the stack it was made from, whose instruments are listed in</span>
+<span class="sd">        ``history`` as the grid's source files (§4.2.1).</span>
+<span class="sd">    source_file : str or None, optional</span>
+<span class="sd">        Name of the input file, recorded in ``history``; defaults to the file the</span>
+<span class="sd">        dataset was opened from.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        Dimensions ``TIME``, ``DEPTH``, ``LATITUDE``, ``LONGITUDE``; each</span>
+<span class="sd">        parameter on ``(TIME, DEPTH)``; ``id`` is the file name without ``.nc``.</span>
+<span class="sd">        A deployment file carries ``&lt;PARAM&gt;_QC`` and a data mode per variable.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    OceanSitesError</span>
+<span class="sd">        If ``platform_code`` is missing or holds ``_``, the deployment code is</span>
+<span class="sd">        not ``YYYYMM``, a data mode is invalid or unearned, or the instrument has</span>
+<span class="sd">        no type code.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s2">"pressure"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_grid_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">mooring</span><span class="p">,</span> <span class="n">array</span> <span class="ow">or</span> <span class="p">{},</span> <span class="n">stack</span><span class="p">,</span> <span class="n">source_file</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_deployment_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">mooring</span><span class="p">,</span> <span class="n">array</span> <span class="ow">or</span> <span class="p">{},</span> <span class="n">source_file</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_deployment_file</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">mooring</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">array</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">source_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return one instrument's stage-3 dataset as a deployment data file (§4.1)."""</span>
+    <span class="n">platform</span> <span class="o">=</span> <span class="n">platform_code</span><span class="p">(</span><span class="n">mooring</span><span class="p">)</span>
+    <span class="n">deployment</span> <span class="o">=</span> <span class="n">deployment_code</span><span class="p">(</span><span class="n">mooring</span><span class="p">)</span>
+    <span class="n">kind</span> <span class="o">=</span> <span class="n">type_code</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+    <span class="n">serial</span> <span class="o">=</span> <span class="n">safe_serial</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"serial"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">serial</span> <span class="ow">or</span> <span class="s2">"_"</span> <span class="ow">in</span> <span class="n">serial</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">OceanSitesError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"serial </span><span class="si">{</span><span class="n">serial</span><span class="si">!r}</span><span class="s2"> cannot form a file-name field"</span><span class="p">)</span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="n">_nominal_depth</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+    <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="n">_position</span><span class="p">(</span><span class="n">mooring</span><span class="p">)</span>
+    <span class="n">profiler</span> <span class="o">=</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"ADCP"</span>
+    <span class="k">if</span> <span class="n">profiler</span><span class="p">:</span>
+        <span class="n">levels</span> <span class="o">=</span> <span class="n">_bin_depths</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">depth</span><span class="p">)</span>
+        <span class="n">level_dims</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">ADCP_BIN_DIM</span><span class="p">)</span>
+        <span class="n">level_comment</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">"nominal bin depth: nominal transducer depth (water depth minus height above "</span>
+            <span class="sa">f</span><span class="s2">"bottom, from the mooring description) </span><span class="si">{</span><span class="s1">'plus'</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">levels</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">depth</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'minus'</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="s2">"the distance from the transducer to each bin; PRES gives the pressure at "</span>
+            <span class="s2">"each bin in time, including knock-down"</span>
+        <span class="p">)</span>
+        <span class="c1"># The bin pressure is the ADCP's pressure on the bins; the transducer's own</span>
+        <span class="c1"># pressure and temperature are not on DEPTH and stay in the stage-3 file.</span>
+        <span class="n">sources</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"bin_pressure"</span><span class="p">:</span> <span class="s2">"pressure"</span><span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">levels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">depth</span><span class="p">])</span>
+        <span class="n">level_dims</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"time"</span><span class="p">,)</span>
+        <span class="n">level_comment</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">"nominal instrument depth: water depth minus height above bottom, from the "</span>
+            <span class="s2">"mooring description; PRES gives the measured (or interpolated) pressure "</span>
+            <span class="s2">"in time, including knock-down"</span>
+        <span class="p">)</span>
+        <span class="n">sources</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">exported</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">sources</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span> <span class="n">v</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span>
+        <span class="k">if</span> <span class="n">sources</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">PARAMETER_CODES</span> <span class="ow">and</span> <span class="n">ds</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span> <span class="o">==</span> <span class="n">level_dims</span>
+    <span class="p">}</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">PARAMETER_CODES</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">exported</span><span class="p">]</span>
+    <span class="n">modes</span> <span class="o">=</span> <span class="n">_data_modes</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">_entry</span><span class="p">(</span><span class="n">mooring</span><span class="p">,</span> <span class="n">serial</span><span class="p">),</span> <span class="n">names</span><span class="p">)</span>
+    <span class="n">distinct</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">modes</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+    <span class="n">data_mode</span> <span class="o">=</span> <span class="n">distinct</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">distinct</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">"M"</span>
+
+    <span class="n">times</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"datetime64[ns]"</span><span class="p">)</span>
+    <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">_iso</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">_iso</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">_coordinates</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">levels</span><span class="p">,</span> <span class="n">level_comment</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="n">PARAMETER_CODES</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">src</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">exported</span><span class="p">[</span><span class="n">name</span><span class="p">]]</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">src</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">_KEPT_ATTRS</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">src</span><span class="o">.</span><span class="n">attrs</span><span class="p">}</span>
+        <span class="n">long_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"long_name"</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+        <span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"coordinates"</span><span class="p">:</span> <span class="s2">"TIME DEPTH LATITUDE LONGITUDE"</span><span class="p">,</span>
+                <span class="s2">"ancillary_variables"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">code</span><span class="si">}</span><span class="s2">_QC"</span><span class="p">,</span>
+                <span class="s2">"DM_indicator"</span><span class="p">:</span> <span class="n">modes</span><span class="p">[</span><span class="n">name</span><span class="p">],</span>
+                <span class="s2">"processing_level"</span><span class="p">:</span> <span class="s2">"Ranges applied, bad data flagged"</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_sensor_attrs</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">"pressure"</span> <span class="ow">and</span> <span class="s2">"pressure_source"</span> <span class="ow">in</span> <span class="n">src</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+            <span class="n">attrs</span><span class="p">[</span><span class="s2">"comment"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"pressure source: </span><span class="si">{</span><span class="n">src</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'pressure_source'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">elif</span> <span class="n">src</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"bin_pressure"</span><span class="p">:</span>
+            <span class="n">attrs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"standard_name"</span><span class="p">,</span> <span class="s2">"sea_water_pressure"</span><span class="p">)</span>
+            <span class="n">attrs</span><span class="p">[</span><span class="s2">"comment"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"pressure at each bin: </span><span class="si">{</span><span class="n">src</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'comment'</span><span class="p">,</span><span class="w"> </span><span class="s1">''</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">": "</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">profiler</span><span class="p">:</span>
+            <span class="n">attrs</span><span class="p">[</span><span class="s2">"sensor_orientation"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"downward"</span> <span class="k">if</span> <span class="n">levels</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">depth</span> <span class="k">else</span> <span class="s2">"upward"</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">_as_levels</span><span class="p">(</span><span class="n">src</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"float64"</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">code</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">"TIME"</span><span class="p">,</span> <span class="s2">"DEPTH"</span><span class="p">),</span> <span class="n">attrs</span><span class="o">=</span><span class="n">attrs</span><span class="p">)</span>
+        <span class="c1"># The bin pressure is computed from the transducer pressure, so it carries</span>
+        <span class="c1"># the transducer's flags (stage 3 keeps no bin_pressure_qc).</span>
+        <span class="n">flag_source</span> <span class="o">=</span> <span class="s2">"pressure"</span> <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"bin_pressure"</span> <span class="k">else</span> <span class="n">exported</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">out</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">code</span><span class="si">}</span><span class="s2">_QC"</span><span class="p">]</span> <span class="o">=</span> <span class="n">_qc_variable</span><span class="p">(</span><span class="n">_flags</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">flag_source</span><span class="p">,</span> <span class="n">values</span><span class="p">),</span> <span class="n">long_name</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">profiler</span> <span class="ow">and</span> <span class="s2">"pressure"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span> <span class="ow">and</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span> <span class="o">==</span> <span class="p">(</span><span class="s2">"time"</span><span class="p">,):</span>
+        <span class="c1"># The transducer's measured pressure: the record of knock-down that the bin</span>
+        <span class="c1"># pressures are computed from.  It is at no bin, so it is on TIME only, with</span>
+        <span class="c1"># the transducer's nominal depth as sensor_depth (as GDAC files carry it).</span>
+        <span class="n">src</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"float64"</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">"TRANSDUCER_PRES"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">values</span><span class="p">,</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">"TIME"</span><span class="p">,),</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"sea_water_pressure"</span><span class="p">,</span>
+                <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"dbar"</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">_sensor_attrs</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"pressure"</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">),</span>
+                <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"sea water pressure at the ADCP transducer"</span><span class="p">,</span>
+                <span class="s2">"coordinates"</span><span class="p">:</span> <span class="s2">"TIME LATITUDE LONGITUDE"</span><span class="p">,</span>
+                <span class="s2">"sensor_depth"</span><span class="p">:</span> <span class="n">depth</span><span class="p">,</span>
+                <span class="s2">"sensor_orientation"</span><span class="p">:</span> <span class="s2">"downward"</span> <span class="k">if</span> <span class="n">levels</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">depth</span> <span class="k">else</span> <span class="s2">"upward"</span><span class="p">,</span>
+                <span class="s2">"ancillary_variables"</span><span class="p">:</span> <span class="s2">"TRANSDUCER_PRES_QC"</span><span class="p">,</span>
+                <span class="s2">"DM_indicator"</span><span class="p">:</span> <span class="n">modes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"pressure"</span><span class="p">,</span> <span class="s2">"P"</span><span class="p">),</span>
+                <span class="s2">"comment"</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="s2">"measured at the transducer; PRES (per bin) is computed from it"</span>
+                <span class="p">),</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="n">_flags</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"pressure"</span><span class="p">,</span> <span class="n">values</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">])[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">qc</span> <span class="o">=</span> <span class="n">_qc_variable</span><span class="p">(</span><span class="n">flags</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="s2">"sea water pressure at the ADCP transducer"</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">"TRANSDUCER_PRES_QC"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">flags</span><span class="p">,</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">"TIME"</span><span class="p">,),</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="o">**</span><span class="n">qc</span><span class="o">.</span><span class="n">attrs</span><span class="p">,</span> <span class="s2">"coordinates"</span><span class="p">:</span> <span class="s2">"TIME LATITUDE LONGITUDE"</span><span class="p">},</span>
+        <span class="p">)</span>
+
+    <span class="n">file_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"OS_</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">deployment</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">data_mode</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">depth</span><span class="p">)</span><span class="si">}</span><span class="s2">m"</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="n">_source_name</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">source_file</span><span class="p">,</span> <span class="s2">"stage-3 dataset"</span><span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="n">_globals</span><span class="p">(</span>
+        <span class="n">out</span><span class="p">,</span>
+        <span class="n">mooring</span><span class="p">,</span>
+        <span class="n">array</span><span class="p">,</span>
+        <span class="n">file_id</span><span class="o">=</span><span class="n">file_id</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2"> deployment </span><span class="si">{</span><span class="n">deployment</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2"> at </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">depth</span><span class="p">)</span><span class="si">}</span><span class="s2"> m"</span><span class="p">,</span>
+        <span class="n">data_mode</span><span class="o">=</span><span class="n">data_mode</span><span class="p">,</span>
+        <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
+        <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
+        <span class="n">history</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"history"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)),</span>
+        <span class="n">note</span><span class="o">=</span><span class="sa">f</span><span class="s2">"OceanSITES </span><span class="si">{</span><span class="n">FORMAT_VERSION</span><span class="si">}</span><span class="s2"> deployment file written by oceanarray from </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="s2">"sample_interval_seconds"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"time_coverage_resolution"</span><span class="p">]</span> <span class="o">=</span> <span class="n">_iso_duration</span><span class="p">(</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"sample_interval_seconds"</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_stack_sources</span><span class="p">(</span><span class="n">stack</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">mooring</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the stage files a stack was built from, for a gridded file's ``history``."""</span>
+    <span class="k">if</span> <span class="n">stack</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="s2">"serial"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stack</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"the mooring's stack (source files not given)"</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">mooring</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+    <span class="n">stages</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">stack</span><span class="p">[</span><span class="s2">"source_stage"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">"source_stage"</span> <span class="ow">in</span> <span class="n">stack</span><span class="o">.</span><span class="n">variables</span>
+        <span class="k">else</span> <span class="p">[</span><span class="s2">"3"</span><span class="p">]</span> <span class="o">*</span> <span class="n">stack</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"N_LEVELS"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">safe_serial</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'_'</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2">_stage</span><span class="si">{</span><span class="n">stage</span><span class="si">}</span><span class="s2">.nc"</span>
+            <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">stage</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">stack</span><span class="p">[</span><span class="s2">"serial"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">stages</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_grid_file</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">,</span>
+    <span class="n">array</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">,</span>
+    <span class="n">stack</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">source_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a mooring's grid as a gridded file (§4.2, ``GRD``)."""</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">gsw</span>
+
+    <span class="n">platform</span> <span class="o">=</span> <span class="n">platform_code</span><span class="p">(</span><span class="n">mooring</span><span class="p">)</span>
+    <span class="n">deployment</span> <span class="o">=</span> <span class="n">deployment_code</span><span class="p">(</span><span class="n">mooring</span><span class="p">)</span>
+    <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="n">_position</span><span class="p">(</span><span class="n">mooring</span><span class="p">)</span>
+    <span class="n">pressure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"float64"</span><span class="p">)</span>
+    <span class="c1"># The data stay on the pressure levels; DEPTH is those levels as depths, not a</span>
+    <span class="c1"># re-interpolation.</span>
+    <span class="n">levels</span> <span class="o">=</span> <span class="o">-</span><span class="n">gsw</span><span class="o">.</span><span class="n">z_from_p</span><span class="p">(</span><span class="n">pressure</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+    <span class="n">level_comment</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"depth of each grid pressure level, gsw.z_from_p at latitude </span><span class="si">{</span><span class="n">lat</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">; the "</span>
+        <span class="s2">"data are on the pressure levels (PRES), not re-interpolated onto depth"</span>
+    <span class="p">)</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"datetime64[ns]"</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">_coordinates</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">levels</span><span class="p">,</span> <span class="n">level_comment</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">"PRES"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">pressure</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"float32"</span><span class="p">),</span>
+        <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">"DEPTH"</span><span class="p">,),</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"sea_water_pressure"</span><span class="p">,</span>
+            <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"dbar"</span><span class="p">,</span>
+            <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"pressure of the grid level"</span><span class="p">,</span>
+            <span class="s2">"comment"</span><span class="p">:</span> <span class="s2">"the pressure levels the grid is interpolated onto"</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="c1"># A grid value is built from several instruments; it is P while any of them is</span>
+    <span class="c1"># (no stage-3 file can be D before the calibration-dip correction exists).</span>
+    <span class="n">data_mode</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"data_mode"</span><span class="p">,</span> <span class="s2">"P"</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">data_mode</span> <span class="o">!=</span> <span class="s2">"P"</span><span class="p">:</span>
+        <span class="c1"># The grid does not record its inputs' data modes, so it cannot apply the</span>
+        <span class="c1"># least-final-mode rule; until it does, only an all-P grid is exported.</span>
+        <span class="k">raise</span> <span class="n">OceanSitesError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"grid data_mode </span><span class="si">{</span><span class="n">data_mode</span><span class="si">!r}</span><span class="s2">: a grid records no per-input data modes, "</span>
+            <span class="s2">"so only a provisional (P) grid can be exported"</span>
+        <span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">PARAMETER_CODES</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span> <span class="ow">or</span> <span class="n">ds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span> <span class="o">!=</span> <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"pressure"</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="n">PARAMETER_CODES</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">ds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">_KEPT_ATTRS</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">}</span>
+        <span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"coordinates"</span><span class="p">:</span> <span class="s2">"TIME DEPTH LATITUDE LONGITUDE"</span><span class="p">,</span>
+                <span class="s2">"DM_indicator"</span><span class="p">:</span> <span class="n">data_mode</span><span class="p">,</span>
+                <span class="s2">"cell_methods"</span><span class="p">:</span> <span class="s2">"TIME: point DEPTH: point"</span><span class="p">,</span>
+                <span class="s2">"processing_level"</span><span class="p">:</span> <span class="s2">"Data interpolated"</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">code</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"float64"</span><span class="p">),</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">"TIME"</span><span class="p">,</span> <span class="s2">"DEPTH"</span><span class="p">),</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="n">attrs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">interval</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_iso_duration</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"dt_seconds"</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="s2">"dt_seconds"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span>
+        <span class="k">else</span> <span class="kc">None</span>
+    <span class="p">)</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"dp_dbar"</span><span class="p">)</span>
+    <span class="n">partx</span> <span class="o">=</span> <span class="s2">"-"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">(</span><span class="n">interval</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"DP</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">step</span><span class="p">)</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">p</span>
+    <span class="p">)</span>
+    <span class="n">span</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="s2">%Y%m%d</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="si">:</span><span class="s2">%Y%m%d</span><span class="si">}</span><span class="s2">"</span>
+    <span class="n">file_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"OS_</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">deployment</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">span</span><span class="si">}</span><span class="s2">_GRD"</span> <span class="o">+</span> <span class="p">(</span><span class="sa">f</span><span class="s2">"_</span><span class="si">{</span><span class="n">partx</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">partx</span> <span class="k">else</span> <span class="s2">""</span><span class="p">)</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="n">_source_name</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">source_file</span><span class="p">,</span> <span class="s2">"grid dataset"</span><span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="n">_globals</span><span class="p">(</span>
+        <span class="n">out</span><span class="p">,</span>
+        <span class="n">mooring</span><span class="p">,</span>
+        <span class="n">array</span><span class="p">,</span>
+        <span class="n">file_id</span><span class="o">=</span><span class="n">file_id</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2"> deployment </span><span class="si">{</span><span class="n">deployment</span><span class="si">}</span><span class="s2">: gridded in time and pressure"</span><span class="p">,</span>
+        <span class="n">data_mode</span><span class="o">=</span><span class="n">data_mode</span><span class="p">,</span>
+        <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
+        <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
+        <span class="n">history</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"history"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)),</span>
+        <span class="n">note</span><span class="o">=</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"OceanSITES </span><span class="si">{</span><span class="n">FORMAT_VERSION</span><span class="si">}</span><span class="s2"> gridded file written by oceanarray from "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">; source files: </span><span class="si">{</span><span class="n">_stack_sources</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span><span class="w"> </span><span class="n">mooring</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">interval</span><span class="p">:</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"time_coverage_resolution"</span><span class="p">]</span> <span class="o">=</span> <span class="n">interval</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<div class="viewcode-block" id="oceansites_filename">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.oceansites.oceansites_filename">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">oceansites_filename</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the file name of a dataset made by :func:`to_oceansites` (its ``id`` + ``.nc``)."""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'id'</span><span class="p">]</span><span class="si">}</span><span class="s2">.nc"</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

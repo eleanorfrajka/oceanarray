@@ -1,0 +1,586 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.logger &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/oceansites_export.html">Export to OceanSITES</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oceanarray_format.html">OceanArray Data Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../migrating_0_6_0.html">Upgrading from 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.logger</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.logger</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Logging configuration and helpers for the oceanarray processing pipeline."""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="c1"># Global logger instance (will be configured by setup_logger)</span>
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">"oceanarray"</span><span class="p">)</span>
+<span class="n">log</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>  <span class="c1"># capture everything; handlers filter later</span>
+
+<span class="c1">#: Level of the console handler a processing stage attaches (``oceanarray -v``: DEBUG).</span>
+<span class="n">CONSOLE_LEVEL</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
+
+<span class="c1"># Global logging flag</span>
+<span class="c1"># Set to True to enable logging, False to disable</span>
+<span class="n">LOGGING_ENABLED</span> <span class="o">=</span> <span class="kc">True</span>
+
+
+<div class="viewcode-block" id="enable_logging">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.logger.enable_logging">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">enable_logging</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Enable logging globally."""</span>
+    <span class="k">global</span> <span class="n">LOGGING_ENABLED</span>
+    <span class="n">LOGGING_ENABLED</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+
+<div class="viewcode-block" id="disable_logging">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.logger.disable_logging">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">disable_logging</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Disable logging globally."""</span>
+    <span class="k">global</span> <span class="n">LOGGING_ENABLED</span>
+    <span class="n">LOGGING_ENABLED</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="log_info">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.logger.log_info">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">log_info</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Log an info message, if logging is enabled."""</span>
+    <span class="k">if</span> <span class="n">LOGGING_ENABLED</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="log_warning">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.logger.log_warning">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">log_warning</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Log a warning message, if logging is enabled."""</span>
+    <span class="k">if</span> <span class="n">LOGGING_ENABLED</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="log_message">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.logger.log_message">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">log_message</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Log a pipeline status line, as a warning when it starts with ``WARNING``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    message : Any</span>
+<span class="sd">        The line to log; converted with ``str``.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; log_message("  SKIP microcat 2941: marked skip")</span>
+<span class="sd">    &gt;&gt;&gt; log_message("WARNING: serial 2941 has no 'hab'")</span>
+<span class="sd">    """</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"WARNING"</span><span class="p">):</span>
+        <span class="n">log_warning</span><span class="p">(</span><span class="s2">"</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">log_info</span><span class="p">(</span><span class="s2">"</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="log_error">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.logger.log_error">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">log_error</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Log an error message, if logging is enabled."""</span>
+    <span class="k">if</span> <span class="n">LOGGING_ENABLED</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="log_debug">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.logger.log_debug">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">log_debug</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Log a debug message, if logging is enabled."""</span>
+    <span class="k">if</span> <span class="n">LOGGING_ENABLED</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="attach_stage_handlers">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.logger.attach_stage_handlers">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">attach_stage_handlers</span><span class="p">(</span><span class="n">log_file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Handler</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Send the package's INFO-and-above messages to stdout and *log_file*.</span>
+
+<span class="sd">    The console takes :data:`CONSOLE_LEVEL` and above (DEBUG with</span>
+<span class="sd">    ``oceanarray -v``).</span>
+
+<span class="sd">    A processing stage calls this when it starts, so the messages its pure</span>
+<span class="sd">    functions log reach the console and the stage log as they did when the stage</span>
+<span class="sd">    printed them. Detach with :func:`detach_handlers`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    log_file : pathlib.Path or None</span>
+<span class="sd">        The stage log file; None sends to stdout only.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of logging.Handler</span>
+<span class="sd">        The handlers attached, for :func:`detach_handlers`.</span>
+<span class="sd">    """</span>
+    <span class="n">formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s2">"</span><span class="si">%(message)s</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">handlers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Handler</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">log_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">handlers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="n">log_file</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">))</span>
+    <span class="n">handlers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">CONSOLE_LEVEL</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="n">handlers</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="n">handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="n">handlers</span><span class="p">:</span>
+        <span class="n">handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">handlers</span></div>
+
+
+
+<div class="viewcode-block" id="detach_handlers">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.logger.detach_handlers">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">detach_handlers</span><span class="p">(</span><span class="n">handlers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Handler</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Remove and close handlers attached by :func:`attach_stage_handlers`."""</span>
+    <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="n">handlers</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">removeHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+        <span class="n">handler</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="StageLog">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.logger.StageLog">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">StageLog</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One stage's log, open for the length of a ``with`` block.</span>
+
+<span class="sd">    On entry the package handlers are attached (:func:`attach_stage_handlers`);</span>
+<span class="sd">    calling the instance prints to stdout and appends the same line to the log</span>
+<span class="sd">    file; on exit the handlers are detached.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring_name : str</span>
+<span class="sd">        The mooring's name, used in the log filename.</span>
+<span class="sd">    stage_name : str</span>
+<span class="sd">        The stage, e.g. ``"stage2"``, used in the log filename.</span>
+<span class="sd">    mooring_dir : pathlib.Path</span>
+<span class="sd">        The mooring's own directory; the log goes under it.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file : pathlib.Path</span>
+<span class="sd">        The log file.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mooring_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">stage_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mooring_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Choose the log file; nothing is attached until the block is entered."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">setup_stage_logging</span><span class="p">(</span><span class="n">mooring_name</span><span class="p">,</span> <span class="n">stage_name</span><span class="p">,</span> <span class="n">mooring_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Handler</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"StageLog"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Attach the package handlers."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span> <span class="o">=</span> <span class="n">attach_stage_handlers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">exc</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Detach the package handlers."""</span>
+        <span class="n">detach_handlers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Print to stdout and append to the log file."""</span>
+        <span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"a"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="with_stage_handlers">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.logger.with_stage_handlers">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">with_stage_handlers</span><span class="p">(</span><span class="n">method</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Detach a stage's log handlers (``self._log_handlers``) when *method* returns."""</span>
+
+    <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">detach_handlers</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_log_handlers"</span><span class="p">,</span> <span class="p">[]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_handlers</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">return</span> <span class="n">wrapper</span></div>
+
+
+
+<div class="viewcode-block" id="setup_logger">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.logger.setup_logger">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_logger</span><span class="p">(</span><span class="n">array_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"logs"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Configure the global logger to output to a file for the given array.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    array_name : str</span>
+<span class="sd">        Name of the observing array (e.g., 'move', 'rapid', etc.).</span>
+<span class="sd">    output_dir : str</span>
+<span class="sd">        Directory to save log files.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">LOGGING_ENABLED</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="c1"># Resolve output directory to project root</span>
+    <span class="n">project_root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+    <span class="n">output_path</span> <span class="o">=</span> <span class="n">project_root</span> <span class="o">/</span> <span class="n">output_dir</span>
+    <span class="n">output_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y%m</span><span class="si">%d</span><span class="s2">T%H"</span><span class="p">)</span>
+    <span class="n">log_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">array_name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">timestamp</span><span class="si">}</span><span class="s2">_read.log"</span>
+    <span class="n">log_path</span> <span class="o">=</span> <span class="n">output_path</span> <span class="o">/</span> <span class="n">log_filename</span>
+
+    <span class="c1"># Prevent duplicate handlers in case of multiple calls</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">)</span> <span class="ow">and</span> <span class="n">h</span><span class="o">.</span><span class="n">baseFilename</span> <span class="o">==</span> <span class="n">log_path</span>
+        <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">log</span><span class="o">.</span><span class="n">handlers</span>
+    <span class="p">):</span>
+        <span class="n">file_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="n">log_path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"w"</span><span class="p">)</span>
+        <span class="n">formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span>
+            <span class="n">fmt</span><span class="o">=</span><span class="s2">"</span><span class="si">%(asctime)s</span><span class="s2"> </span><span class="si">%(levelname)-8s</span><span class="s2"> </span><span class="si">%(funcName)s</span><span class="s2"> </span><span class="si">%(message)s</span><span class="s2">"</span><span class="p">,</span>
+            <span class="n">datefmt</span><span class="o">=</span><span class="s2">"%Y%m</span><span class="si">%d</span><span class="s2">T%H%M%S"</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">file_handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+
+        <span class="c1"># Optional: console handler</span>
+        <span class="n">console_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">()</span>
+        <span class="n">console_handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+
+        <span class="c1"># Clear existing handlers first</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">file_handler</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">console_handler</span><span class="p">)</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Logger initialized for array: </span><span class="si">{</span><span class="n">array_name</span><span class="si">}</span><span class="s2">, writing to </span><span class="si">{</span><span class="n">log_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="load_logging_config">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.logger.load_logging_config">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_logging_config</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Load the global logging configuration from config/logging.yaml.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Logging configuration dictionary</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    FileNotFoundError</span>
+<span class="sd">        If logging.yaml is not found</span>
+<span class="sd">    yaml.YAMLError</span>
+<span class="sd">        If logging.yaml cannot be parsed</span>
+
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+
+    <span class="n">config_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">"config"</span> <span class="o">/</span> <span class="s2">"logging.yaml"</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">config_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Logging config not found: </span><span class="si">{</span><span class="n">config_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">config_path</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"logging"</span><span class="p">,</span> <span class="p">{})</span></div>
+
+
+
+<div class="viewcode-block" id="setup_stage_logging">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.logger.setup_stage_logging">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_stage_logging</span><span class="p">(</span><span class="n">mooring_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">stage_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">proc_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Set up logging for a processing stage using global configuration.</span>
+
+<span class="sd">    This creates simple file-based logging for processing stages (stage1, stage2, etc.)</span>
+<span class="sd">    using the configuration from config/logging.yaml.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring_name : str</span>
+<span class="sd">        Name of the mooring (e.g., 'dsE_1_2018')</span>
+<span class="sd">    stage_name : str</span>
+<span class="sd">        Name of the processing stage (e.g., 'stage1', 'stage2', 'stack')</span>
+<span class="sd">    proc_dir : Path</span>
+<span class="sd">        Processing directory for the mooring</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">        Full path to the log file.  When the logging configuration file</span>
+<span class="sd">        (``config/logging.yaml``) is missing or unparseable, falls back to</span>
+<span class="sd">        ``{proc_dir}/processing_logs/{mooring_name}_{timestamp}_{stage_name}.mooring.log``.</span>
+<span class="sd">        This function does not raise; config failures are handled silently.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">load_logging_config</span><span class="p">()</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span><span class="p">):</span>
+        <span class="c1"># Fallback: place logs in processing_logs/ subdir</span>
+        <span class="n">log_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y%m</span><span class="si">%d</span><span class="s2">T%H"</span><span class="p">)</span>
+        <span class="n">log_dir</span> <span class="o">=</span> <span class="n">proc_dir</span> <span class="o">/</span> <span class="s2">"processing_logs"</span>
+        <span class="n">log_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">log_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mooring_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">log_time</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">stage_name</span><span class="si">}</span><span class="s2">.mooring.log"</span>
+
+    <span class="c1"># Extract configuration values with defaults</span>
+    <span class="n">log_directory</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"directory"</span><span class="p">,</span> <span class="s2">"processing_logs"</span><span class="p">)</span>
+    <span class="n">filename_pattern</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="s2">"filename_pattern"</span><span class="p">,</span> <span class="s2">"</span><span class="si">{mooring_name}</span><span class="s2">_</span><span class="si">{timestamp}</span><span class="s2">_</span><span class="si">{stage}</span><span class="s2">.log"</span>
+    <span class="p">)</span>
+    <span class="n">timestamp_format</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"timestamp_format"</span><span class="p">,</span> <span class="s2">"%Y%m</span><span class="si">%d</span><span class="s2">T%H"</span><span class="p">)</span>
+    <span class="n">create_directory</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"create_directory"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Generate timestamp</span>
+    <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">timestamp_format</span><span class="p">)</span>
+
+    <span class="c1"># Determine log directory path</span>
+    <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">log_directory</span><span class="p">)</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">():</span>
+        <span class="c1"># Absolute path specified</span>
+        <span class="n">log_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">log_directory</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Relative path - create within mooring proc directory</span>
+        <span class="n">log_dir</span> <span class="o">=</span> <span class="n">proc_dir</span> <span class="o">/</span> <span class="n">log_directory</span>
+
+    <span class="c1"># Create directory if requested and it doesn't exist</span>
+    <span class="k">if</span> <span class="n">create_directory</span><span class="p">:</span>
+        <span class="n">log_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Generate filename using pattern</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">filename_pattern</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">mooring_name</span><span class="o">=</span><span class="n">mooring_name</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="n">stage_name</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">log_dir</span> <span class="o">/</span> <span class="n">filename</span></div>
+
+
+
+<div class="viewcode-block" id="status">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.logger.status">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="n">kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">char</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"="</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Print a formatted status line to stdout.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    kind : str</span>
+<span class="sd">        ``"section"`` (a bordered heading), ``"instr"`` (an instrument sub-heading),</span>
+<span class="sd">        ``"file"`` (an output file being created), ``"skip"`` (an output kept because it</span>
+<span class="sd">        exists) or ``"error"``.</span>
+<span class="sd">    msg : str</span>
+<span class="sd">        The text of the line.</span>
+<span class="sd">    char : str, optional</span>
+<span class="sd">        Border character for ``"section"`` lines; ``"*"`` tells mooring runs apart in a</span>
+<span class="sd">        multi-mooring script (``*** Stage 1: dsG3_2_2026 ***``).</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; status("section", "Stage 1: dsG3_2_2026")</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">    === Stage 1: dsG3_2_2026 ===</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"section"</span><span class="p">:</span>
+        <span class="n">border</span> <span class="o">=</span> <span class="n">char</span> <span class="o">*</span> <span class="mi">3</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="si">{</span><span class="n">border</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">border</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"instr"</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">--- </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2"> ---"</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"file"</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Creating output file: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"skip"</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  OUTFILE EXISTS: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">  (use --force to overwrite)"</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"error"</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="format_rel_path">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.logger.format_rel_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">format_rel_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return *path* relative to *root* for display, or its bare name if unrelated.</span>
+
+<span class="sd">    Report output written to a custom ``--output-dir`` is not under *root*; the</span>
+<span class="sd">    ``ValueError`` from ``Path.relative_to`` must never abort a run from a logging call.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : pathlib.Path</span>
+<span class="sd">        The path to show.</span>
+<span class="sd">    root : pathlib.Path</span>
+<span class="sd">        The folder it is shown relative to (usually the mooring's processed folder).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        ``path`` relative to ``root``, or ``path.name`` when it is not under ``root``.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from pathlib import Path</span>
+<span class="sd">    &gt;&gt;&gt; format_rel_path(Path("/proc/m1/report/m1.html"), Path("/proc/m1"))</span>
+<span class="sd">    'report/m1.html'</span>
+<span class="sd">    &gt;&gt;&gt; format_rel_path(Path("/elsewhere/m1.html"), Path("/proc/m1"))</span>
+<span class="sd">    'm1.html'</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">root</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

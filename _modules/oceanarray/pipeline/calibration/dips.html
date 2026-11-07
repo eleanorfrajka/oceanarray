@@ -1,0 +1,389 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.pipeline.calibration.dips &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/oceansites_export.html">Export to OceanSITES</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../oceanarray_format.html">OceanArray Data Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../migrating_0_6_0.html">Upgrading from 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../pipeline.html">oceanarray.pipeline</a></li>
+          <li class="breadcrumb-item"><a href="../calibration.html">oceanarray.pipeline.calibration</a></li>
+      <li class="breadcrumb-item active">oceanarray.pipeline.calibration.dips</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.pipeline.calibration.dips</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Find a mooring's calibration dips: the caldip file for each end, and which end a cast is.</span>
+
+<span class="sd">The mooring YAML names the cast for each end of the deployment::</span>
+
+<span class="sd">    caldip:</span>
+<span class="sd">      deployment: {cruise: msm142_2026, cast: castM4}</span>
+<span class="sd">      recovery:   {cruise: odb2026, cast: castX}</span>
+
+<span class="sd">so a mooring whose two dips were processed on different cruises resolves both. A mooring with</span>
+<span class="sd">one dip is an ordinary case. caldip never pairs dips; this module does, from the YAML.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_path_component</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.calibration.caldip</span><span class="w"> </span><span class="kn">import</span> <span class="n">CALDIP_SUFFIX</span><span class="p">,</span> <span class="n">CaldipError</span>
+
+<span class="c1">#: The two ends of a deployment, as the YAML names them, and the role each dip plays.</span>
+<span class="n">DIP_ENDS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"deployment"</span><span class="p">:</span> <span class="s2">"pre"</span><span class="p">,</span> <span class="s2">"recovery"</span><span class="p">:</span> <span class="s2">"post"</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="caldip_root">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.calibration.dips.caldip_root">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">caldip_root</span><span class="p">(</span>
+    <span class="n">block</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">caldip_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">yaml_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the caldip output root: ``caldip_dir`` if given, else the block's ``root``.</span>
+
+<span class="sd">    A relative ``root`` is taken relative to the folder holding the mooring YAML.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    block : Mapping</span>
+<span class="sd">        The mooring YAML's ``caldip:`` block.</span>
+<span class="sd">    caldip_dir : str, os.PathLike or None, optional</span>
+<span class="sd">        The run-time root (``caldip_dir=``); wins over the YAML.</span>
+<span class="sd">    yaml_dir : str, os.PathLike or None, optional</span>
+<span class="sd">        The folder holding the mooring YAML, for a relative ``root``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pathlib.Path or None</span>
+<span class="sd">        The root, or ``None`` when neither is given.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">caldip_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">caldip_dir</span><span class="p">)</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"root"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">root</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">root</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">()</span> <span class="ow">and</span> <span class="n">yaml_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">yaml_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">root</span>
+    <span class="k">return</span> <span class="n">root</span></div>
+
+
+
+<div class="viewcode-block" id="caldip_file">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.calibration.dips.caldip_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">caldip_file</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">cruise</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cast</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the ``{cast}_caldip.nc`` for one dip beneath a caldip root, or ``None``.</span>
+
+<span class="sd">    The file is looked for at ``&lt;root&gt;/&lt;cruise&gt;/{cast}_caldip.nc`` first, then anywhere beneath</span>
+<span class="sd">    ``root`` with ``cruise`` among the folders of its path (caldip's own layout is</span>
+<span class="sd">    ``proc_calib/&lt;cruise&gt;/cal_dip/``).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    root : str or os.PathLike</span>
+<span class="sd">        The caldip output root.</span>
+<span class="sd">    cruise : str</span>
+<span class="sd">        The cruise the dip was processed under, as the YAML names it.</span>
+<span class="sd">    cast : str</span>
+<span class="sd">        The cast name, e.g. ``"castM4"``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pathlib.Path or None</span>
+<span class="sd">        The file, or ``None`` when there is none.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    CaldipError</span>
+<span class="sd">        If ``cruise`` or ``cast`` is not a single folder or file name, or more than one</span>
+<span class="sd">        file matches.</span>
+
+<span class="sd">    """</span>
+    <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">((</span><span class="s2">"cruise"</span><span class="p">,</span> <span class="n">cruise</span><span class="p">),</span> <span class="p">(</span><span class="s2">"cast"</span><span class="p">,</span> <span class="n">cast</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_path_component</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"caldip </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2"> must be a single folder or file name"</span>
+            <span class="k">raise</span> <span class="n">CaldipError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">cast</span><span class="si">}{</span><span class="n">CALDIP_SUFFIX</span><span class="si">}</span><span class="s2">"</span>
+    <span class="n">direct</span> <span class="o">=</span> <span class="n">root</span> <span class="o">/</span> <span class="n">cruise</span> <span class="o">/</span> <span class="n">name</span>
+    <span class="k">if</span> <span class="n">direct</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">direct</span>
+    <span class="n">matches</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="n">cruise</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">parts</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">listed</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> for cruise </span><span class="si">{</span><span class="n">cruise</span><span class="si">!r}</span><span class="s2"> is ambiguous beneath </span><span class="si">{</span><span class="n">root</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">listed</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">raise</span> <span class="n">CaldipError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">matches</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="caldip_ends">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.calibration.dips.caldip_ends">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">caldip_ends</span><span class="p">(</span>
+    <span class="n">block</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">caldip_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">yaml_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the caldip file for each end the ``caldip:`` block names.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    block : Mapping</span>
+<span class="sd">        The mooring YAML's ``caldip:`` block (checked by :func:`oceanarray.mooring.check`).</span>
+<span class="sd">    caldip_dir : str, os.PathLike or None, optional</span>
+<span class="sd">        The run-time root; wins over the block's ``root``.</span>
+<span class="sd">    yaml_dir : str, os.PathLike or None, optional</span>
+<span class="sd">        The folder holding the mooring YAML, for a relative ``root``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        ``{"deployment": path or None, "recovery": path or None}`` for the ends the block</span>
+<span class="sd">        names; ``None`` where the file is not found.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    CaldipError</span>
+<span class="sd">        If no root is given, or a file is ambiguous.</span>
+
+<span class="sd">    """</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">caldip_root</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">caldip_dir</span><span class="o">=</span><span class="n">caldip_dir</span><span class="p">,</span> <span class="n">yaml_dir</span><span class="o">=</span><span class="n">yaml_dir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">"no caldip root: give caldip.root in the YAML or caldip_dir="</span>
+        <span class="k">raise</span> <span class="n">CaldipError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">end</span><span class="p">:</span> <span class="n">caldip_file</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">block</span><span class="p">[</span><span class="n">end</span><span class="p">][</span><span class="s2">"cruise"</span><span class="p">],</span> <span class="n">block</span><span class="p">[</span><span class="n">end</span><span class="p">][</span><span class="s2">"cast"</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">DIP_ENDS</span>
+        <span class="k">if</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">block</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="cast_time">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.calibration.dips.cast_time">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cast_time</span><span class="p">(</span><span class="n">cast</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the time of a cast: the middle of its bottle stops.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cast : xarray.Dataset</span>
+<span class="sd">        A cast from :func:`~oceanarray.pipeline.calibration.caldip.read_caldip_cast`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas.Timestamp</span>
+<span class="sd">        The midpoint of the earliest and latest stop times.</span>
+
+<span class="sd">    """</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">cast</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="o">~</span><span class="n">times</span><span class="o">.</span><span class="n">isna</span><span class="p">()]</span>
+    <span class="k">if</span> <span class="n">times</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">cast</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'cast_id'</span><span class="p">,</span><span class="w"> </span><span class="s1">'cast'</span><span class="p">)</span><span class="si">}</span><span class="s2">: no stop times"</span>
+        <span class="k">raise</span> <span class="n">CaldipError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">times</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">+</span> <span class="p">(</span><span class="n">times</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">times</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">/</span> <span class="mi">2</span></div>
+
+
+
+<div class="viewcode-block" id="assign_dip_role">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.calibration.dips.assign_dip_role">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">assign_dip_role</span><span class="p">(</span>
+    <span class="n">cast_time</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">deployment_time</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">recovery_time</span><span class="p">:</span> <span class="n">Any</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Classify a cast as the pre- or post-deployment dip for an instrument.</span>
+
+<span class="sd">    ``dip_role`` is not in the caldip file: pre- versus post-deployment is a property of the</span>
+<span class="sd">    (instrument, deployment) pair, so it is derived from the cast time against the</span>
+<span class="sd">    instrument's deployment window.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cast_time : Any</span>
+<span class="sd">        The cast time (see :func:`cast_time`).</span>
+<span class="sd">    deployment_time : Any</span>
+<span class="sd">        The instrument's deployment time.</span>
+<span class="sd">    recovery_time : Any</span>
+<span class="sd">        The instrument's recovery time.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str or None</span>
+<span class="sd">        ``"pre"`` before deployment, ``"post"`` after recovery, ``None`` during the</span>
+<span class="sd">        deployment or when a time is missing.</span>
+
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">cast_time</span><span class="p">)</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">deployment_time</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">recovery_time</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="c1"># A time without a timezone is UTC; one with a timezone is converted to UTC, not relabelled.</span>
+    <span class="n">t</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">tz_convert</span><span class="p">(</span><span class="s2">"UTC"</span><span class="p">)</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">tzinfo</span> <span class="k">else</span> <span class="n">x</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">start</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"pre"</span>
+    <span class="k">if</span> <span class="n">t</span> <span class="o">&gt;</span> <span class="n">end</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"post"</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

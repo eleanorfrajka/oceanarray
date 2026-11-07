@@ -1,0 +1,328 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.pipeline.gridders.climatology &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/oceansites_export.html">Export to OceanSITES</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../oceanarray_format.html">OceanArray Data Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../migrating_0_6_0.html">Upgrading from 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../pipeline.html">oceanarray.pipeline</a></li>
+      <li class="breadcrumb-item active">oceanarray.pipeline.gridders.climatology</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.pipeline.gridders.climatology</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Hydrographic profiles prepared as a climatology for :mod:`~oceanarray.pipeline.gridders.rapid_interp`."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.gridders.rapid_interp</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_dims</span>
+
+<span class="n">_log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="downsample_to_sparse">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.gridders.climatology.downsample_to_sparse">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">downsample_to_sparse</span><span class="p">(</span>
+    <span class="n">temp_profiles</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">salt_profiles</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">full_pressures</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">sparse_pressures</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Downsample full T/S profiles to sparse pressure levels.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    temp_profiles : np.ndarray</span>
+<span class="sd">        Full temperature profiles, shape (n_profiles, n_pressures_full).</span>
+<span class="sd">    salt_profiles : np.ndarray</span>
+<span class="sd">        Full salinity profiles, shape (n_profiles, n_pressures_full).</span>
+<span class="sd">    full_pressures : np.ndarray</span>
+<span class="sd">        Full pressure levels corresponding to temp_profiles and salt_profiles, shape (n_pressures_full,).</span>
+<span class="sd">    sparse_pressures : np.ndarray</span>
+<span class="sd">        Target sparse pressure levels to sample, shape (n_pressures_sparse,).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    temp_sparse : np.ndarray</span>
+<span class="sd">        Sparse temperature profiles, shape ``(n_profiles, n_pressures_sparse)``.</span>
+<span class="sd">        NaN where the target pressure is outside ``full_pressures``.</span>
+<span class="sd">    salt_sparse : np.ndarray</span>
+<span class="sd">        Sparse salinity profiles, same shape.  NaN at the same out-of-range</span>
+<span class="sd">        levels.</span>
+
+<span class="sd">    """</span>
+    <span class="n">n_profiles</span> <span class="o">=</span> <span class="n">temp_profiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">all_temp</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">all_salt</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_profiles</span><span class="p">):</span>
+        <span class="n">temp_sparse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span>
+            <span class="n">sparse_pressures</span><span class="p">,</span>
+            <span class="n">full_pressures</span><span class="p">,</span>
+            <span class="n">temp_profiles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="n">left</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+            <span class="n">right</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">salt_sparse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span>
+            <span class="n">sparse_pressures</span><span class="p">,</span>
+            <span class="n">full_pressures</span><span class="p">,</span>
+            <span class="n">salt_profiles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="n">left</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+            <span class="n">right</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">all_temp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp_sparse</span><span class="p">)</span>
+        <span class="n">all_salt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">salt_sparse</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">all_temp</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">all_salt</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="process_dataset">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.gridders.climatology.process_dataset">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">process_dataset</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">latlim</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">26.0</span><span class="p">,</span> <span class="mf">27.0</span><span class="p">),</span>
+    <span class="n">lonlim</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">77.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">76.5</span><span class="p">),</span>
+    <span class="n">pgrid</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Filter and process a hydrographic dataset for use in training.</span>
+
+<span class="sd">    This function selects a region of interest, extracts and downsamples profiles of</span>
+<span class="sd">    temperature and salinity onto both standard and sparse pressure grids. It also computes</span>
+<span class="sd">    potential density anomaly for both resolutions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xr.Dataset</span>
+<span class="sd">        Input dataset containing hydrographic data including CT, SA, PRES, and metadata.</span>
+<span class="sd">    latlim : tuple of float, optional</span>
+<span class="sd">        Latitude limits for filtering, by default (26.0, 27.0).</span>
+<span class="sd">    lonlim : tuple of float, optional</span>
+<span class="sd">        Longitude limits for filtering, by default (-77.0, -76.5).</span>
+<span class="sd">    pgrid : np.ndarray, optional</span>
+<span class="sd">        Target pressure levels (dbar) for vertical interpolation.  When None,</span>
+<span class="sd">        a 20 dbar grid is constructed automatically from 0 to the maximum</span>
+<span class="sd">        observed pressure.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ds_standard : xr.Dataset</span>
+<span class="sd">        Dataset downsampled to standard pressure levels.</span>
+<span class="sd">    ds_sparse : xr.Dataset</span>
+<span class="sd">        Dataset downsampled to sparse pressure levels.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    verticalnn.data_utils.downsample_to_sparse : Used to interpolate to target pressure levels.</span>
+<span class="sd">    verticalnn.config.STANDARD_PRESSURES : Standard pressure grid.</span>
+<span class="sd">    verticalnn.config.SPARSE_PRESSURES : Sparse pressure grid.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.gridders.climatology</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">downsample_to_sparse</span> <span class="k">as</span> <span class="n">_downsample</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">pres_key</span><span class="p">,</span> <span class="n">time_key</span><span class="p">,</span> <span class="n">pres_dim</span><span class="p">,</span> <span class="n">time_dim</span> <span class="o">=</span> <span class="n">get_dims</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">pgrid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">max_pres</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">pres_key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">pgrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_pres</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+
+    <span class="c1"># Extract variables</span>
+    <span class="n">TEMP_profiles</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"TEMP"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">PSAL_profiles</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"PSAL"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">CT_profiles</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"CT"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">SA_profiles</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"SA"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">PRES</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">pres_key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">LAT</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"LATITUDE"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">LON</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"LONGITUDE"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">time_key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="c1"># Apply region of interest mask</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">latlim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">LAT</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">latlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">LAT</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">lonlim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">LON</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">lonlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">LON</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">TEMP_profiles</span> <span class="o">=</span> <span class="n">TEMP_profiles</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+    <span class="n">PSAL_profiles</span> <span class="o">=</span> <span class="n">PSAL_profiles</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+    <span class="n">CT_profiles</span> <span class="o">=</span> <span class="n">CT_profiles</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+    <span class="n">SA_profiles</span> <span class="o">=</span> <span class="n">SA_profiles</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="n">time</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+    <span class="n">LAT</span> <span class="o">=</span> <span class="n">LAT</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+    <span class="n">LON</span> <span class="o">=</span> <span class="n">LON</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+
+    <span class="c1"># Downsample to standard pressures</span>
+    <span class="n">CT_standard</span><span class="p">,</span> <span class="n">SA_standard</span> <span class="o">=</span> <span class="n">_downsample</span><span class="p">(</span><span class="n">CT_profiles</span><span class="p">,</span> <span class="n">SA_profiles</span><span class="p">,</span> <span class="n">PRES</span><span class="p">,</span> <span class="n">pgrid</span><span class="p">)</span>
+    <span class="c1"># Downsample to standard pressures</span>
+    <span class="n">temp_standard</span><span class="p">,</span> <span class="n">salt_standard</span> <span class="o">=</span> <span class="n">_downsample</span><span class="p">(</span>
+        <span class="n">TEMP_profiles</span><span class="p">,</span> <span class="n">PSAL_profiles</span><span class="p">,</span> <span class="n">PRES</span><span class="p">,</span> <span class="n">pgrid</span>
+    <span class="p">)</span>
+    <span class="n">standard_pressures</span> <span class="o">=</span> <span class="n">pgrid</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+    <span class="c1"># Create ds_standard</span>
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">"CT"</span><span class="p">:</span> <span class="p">((</span><span class="n">time_dim</span><span class="p">,</span> <span class="n">pres_dim</span><span class="p">),</span> <span class="n">CT_standard</span><span class="p">),</span>
+            <span class="s2">"SA"</span><span class="p">:</span> <span class="p">((</span><span class="n">time_dim</span><span class="p">,</span> <span class="n">pres_dim</span><span class="p">),</span> <span class="n">SA_standard</span><span class="p">),</span>
+            <span class="s2">"TEMP"</span><span class="p">:</span> <span class="p">((</span><span class="n">time_dim</span><span class="p">,</span> <span class="n">pres_dim</span><span class="p">),</span> <span class="n">temp_standard</span><span class="p">),</span>
+            <span class="s2">"PSAL"</span><span class="p">:</span> <span class="p">((</span><span class="n">time_dim</span><span class="p">,</span> <span class="n">pres_dim</span><span class="p">),</span> <span class="n">salt_standard</span><span class="p">),</span>
+        <span class="p">},</span>
+        <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
+            <span class="n">time_key</span><span class="p">:</span> <span class="p">(</span><span class="n">time_dim</span><span class="p">,</span> <span class="n">time</span><span class="p">),</span>
+            <span class="n">pres_key</span><span class="p">:</span> <span class="p">(</span><span class="n">pres_dim</span><span class="p">,</span> <span class="n">standard_pressures</span><span class="p">),</span>
+            <span class="s2">"LATITUDE"</span><span class="p">:</span> <span class="p">(</span><span class="n">time_dim</span><span class="p">,</span> <span class="n">LAT</span><span class="p">),</span>
+            <span class="s2">"LONGITUDE"</span><span class="p">:</span> <span class="p">(</span><span class="n">time_dim</span><span class="p">,</span> <span class="n">LON</span><span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,316 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.pipeline._stage &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/oceansites_export.html">Export to OceanSITES</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">OceanArray Data Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_0.html">Upgrading from 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../pipeline.html">oceanarray.pipeline</a></li>
+      <li class="breadcrumb-item active">oceanarray.pipeline._stage</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.pipeline._stage</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""The processing-stage marker that records and enforces stage order.</span>
+
+<span class="sd">Each stage file carries a ``processing_stage`` attribute naming the stage that</span>
+<span class="sd">produced it; :func:`stamp` writes it, :func:`require` refuses a dataset that is at</span>
+<span class="sd">the wrong stage for the next step. A file written before the marker existed is</span>
+<span class="sd">tolerated for one release: read back, a missing marker is a WARNING and the</span>
+<span class="sd">dataset is taken at the stage the caller expected, so existing proc trees keep</span>
+<span class="sd">working.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MooringError</span>
+
+<span class="n">STAGE_ATTR</span> <span class="o">=</span> <span class="s2">"processing_stage"</span>
+
+
+<div class="viewcode-block" id="StageError">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.StageError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">StageError</span><span class="p">(</span><span class="n">MooringError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Raised when a dataset is at the wrong processing stage for the step requested."""</span></div>
+
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StageRun</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""What one stage did to a mooring's files.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    written : list of pathlib.Path</span>
+<span class="sd">        The stage files written.</span>
+<span class="sd">    files : list of pathlib.Path</span>
+<span class="sd">        Every stage file the instruments asked for now have, written or kept</span>
+<span class="sd">        because it was already there, in the description's order.</span>
+<span class="sd">    failed : list of str</span>
+<span class="sd">        One message per instrument that failed, naming it.</span>
+<span class="sd">    failed_serials : list of str</span>
+<span class="sd">        The (cleaned) serials of those instruments.</span>
+<span class="sd">    matched : int</span>
+<span class="sd">        The instruments the stage was asked to process (skipped ones included).</span>
+<span class="sd">    """</span>
+
+    <span class="n">written</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">failed</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">failed_serials</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">matched</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_history_stamp</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the current UTC time as the package's ``history`` timestamp."""</span>
+    <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">UTC</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%MZ"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">append_history</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">note</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Append a timestamped *note* to ``ds.attrs['history']`` in place.</span>
+
+<span class="sd">    The one place the ``history`` timestamp format and the ``"; "`` separator</span>
+<span class="sd">    live, so every stage appends in the same form.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        The dataset whose ``history`` attribute is extended.</span>
+<span class="sd">    note : str</span>
+<span class="sd">        The event text, timestamped and appended.</span>
+<span class="sd">    """</span>
+    <span class="n">entry</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">_history_stamp</span><span class="p">()</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">note</span><span class="si">}</span><span class="s2">"</span>
+    <span class="n">existing</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"history"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"history"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">existing</span><span class="si">}</span><span class="s2">; </span><span class="si">{</span><span class="n">entry</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">existing</span> <span class="k">else</span> <span class="n">entry</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">stamp</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">stage</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">inferred</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a copy of *ds* marked as the output of *stage*.</span>
+
+<span class="sd">    Sets the ``processing_stage`` marker, appends a ``history`` line, and records</span>
+<span class="sd">    ``source_file`` when *source* is given (an existing ``source_file`` is kept).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        The dataset to mark.</span>
+<span class="sd">    stage : int</span>
+<span class="sd">        The stage that produced *ds* (1, 2 or 3).</span>
+<span class="sd">    source : str or None, optional</span>
+<span class="sd">        The source filename to record as ``source_file``.</span>
+<span class="sd">    inferred : bool, optional</span>
+<span class="sd">        When True, the stage was not earned by processing but read off an</span>
+<span class="sd">        unmarked file's name; the ``history`` line says so, keeping the</span>
+<span class="sd">        provenance honest.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        A copy of *ds* carrying the marker, history line and (optional) source.</span>
+<span class="sd">    """</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">STAGE_ATTR</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span>
+    <span class="n">note</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"processing_stage </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">if</span> <span class="n">inferred</span><span class="p">:</span>
+        <span class="n">note</span> <span class="o">+=</span> <span class="s2">" inferred from filename"</span>
+    <span class="n">append_history</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">note</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">source</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"source_file"</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">require</span><span class="p">(</span>
+    <span class="n">datasets</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span>
+    <span class="n">stage</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">next_stage</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Raise :class:`StageError` unless every dataset is at *stage* before *next_stage*.</span>
+
+<span class="sd">    A dataset with no ``processing_stage`` marker (written before the marker</span>
+<span class="sd">    existed) is a WARNING and is tolerated at *stage*, for one release.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    datasets : Mapping of str to xarray.Dataset, or sequence of xarray.Dataset</span>
+<span class="sd">        The datasets about to enter stage *next_stage*.</span>
+<span class="sd">    stage : int</span>
+<span class="sd">        The stage the datasets must already be at.</span>
+<span class="sd">    next_stage : int</span>
+<span class="sd">        The stage about to run, named in the error and the warning.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    StageError</span>
+<span class="sd">        If any dataset carries a marker other than *stage*, naming the stage to run.</span>
+<span class="sd">    """</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="k">else</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+        <span class="n">marker</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">STAGE_ATTR</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">marker</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"stage </span><span class="si">{</span><span class="n">next_stage</span><span class="si">}</span><span class="s2">: dataset </span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s2"> has no '</span><span class="si">{</span><span class="n">STAGE_ATTR</span><span class="si">}</span><span class="s2">' marker; "</span>
+                <span class="sa">f</span><span class="s2">"assuming stage </span><span class="si">{</span><span class="n">stage</span><span class="si">}</span><span class="s2"> (written before the marker existed)."</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">marker</span><span class="p">)</span> <span class="o">!=</span> <span class="n">stage</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">StageError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"stage </span><span class="si">{</span><span class="n">next_stage</span><span class="si">}</span><span class="s2"> expects stage-</span><span class="si">{</span><span class="n">stage</span><span class="si">}</span><span class="s2"> datasets; </span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s2"> is "</span>
+                <span class="sa">f</span><span class="s2">"stage </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">marker</span><span class="p">)</span><span class="si">}</span><span class="s2"> — run stage </span><span class="si">{</span><span class="n">stage</span><span class="si">}</span><span class="s2"> first."</span>
+            <span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

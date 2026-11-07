@@ -1,0 +1,391 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OceanArray Data Format &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=20758594" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8b92e751"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="OceanSITES Data Format Reference Manual" href="oceanSITES_manual.html" />
+    <link rel="prev" title="OceanArray Project Structure" href="project_structure.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            oceanarray
+              <img src="_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/vertical_gridding.html">Grid onto pressure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/oceansites_export.html">Export to OceanSITES</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">OceanArray Data Format</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dimensions-and-coordinates">Dimensions and coordinates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-variables">Data variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quality-control">Quality control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-mode">Data mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#global-attributes">Global attributes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_6_0.html">Upgrading from 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">OceanArray Data Format</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/oceanarray_format.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="oceanarray-data-format">
+<h1>OceanArray Data Format<a class="headerlink" href="#oceanarray-data-format" title="Link to this heading"></a></h1>
+<p>oceanarray’s shareable output is <a class="reference external" href="https://www.ocean-ops.org/oceansites/docs/oceansites_data_format_reference_manual.pdf">OceanSITES 1.4</a>
+(<a class="reference internal" href="oceanSITES_manual.html"><span class="doc">OceanSITES Data Format Reference Manual</span></a>), with no departures from it.  This page lists what the export
+writes; <a class="reference internal" href="methods/oceansites_export.html"><span class="doc">OceanSITES export</span></a> lists the products and file names.  The stage,
+stack and grid files the pipeline works with (<code class="docutils literal notranslate"><span class="pre">*_stage3.nc</span></code>, <code class="docutils literal notranslate"><span class="pre">*_stack.nc</span></code>,
+<code class="docutils literal notranslate"><span class="pre">*_grid.nc</span></code>) are oceanarray’s own working files and are not OceanSITES files.</p>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#dimensions-and-coordinates" id="id1">Dimensions and coordinates</a></p></li>
+<li><p><a class="reference internal" href="#data-variables" id="id2">Data variables</a></p></li>
+<li><p><a class="reference internal" href="#quality-control" id="id3">Quality control</a></p></li>
+<li><p><a class="reference internal" href="#data-mode" id="id4">Data mode</a></p></li>
+<li><p><a class="reference internal" href="#global-attributes" id="id5">Global attributes</a></p></li>
+</ul>
+</nav>
+<section id="dimensions-and-coordinates">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Dimensions and coordinates</a><a class="headerlink" href="#dimensions-and-coordinates" title="Link to this heading"></a></h2>
+<p>Manual §2.3–2.4.  No coordinate holds a fill value.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 15.0%" />
+<col style="width: 25.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Units</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">TIME</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">days</span> <span class="pre">since</span> <span class="pre">1950-01-01T00:00:00Z</span></code></p></td>
+<td><p>UTC; <code class="docutils literal notranslate"><span class="pre">axis</span> <span class="pre">=</span> <span class="pre">&quot;T&quot;</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">DEPTH</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">m</span></code>, <code class="docutils literal notranslate"><span class="pre">positive</span> <span class="pre">=</span> <span class="pre">&quot;down&quot;</span></code></p></td>
+<td><p>Deployment file: the nominal instrument depth (water depth minus height above
+bottom), or for an ADCP the nominal bin depths.  Gridded file: the pressure levels
+converted with <code class="docutils literal notranslate"><span class="pre">gsw.z_from_p</span></code>.  The <code class="docutils literal notranslate"><span class="pre">comment</span></code> says which.  <code class="docutils literal notranslate"><span class="pre">PRES</span></code> carries the
+pressure, so the knock-down is in the data, not in <code class="docutils literal notranslate"><span class="pre">DEPTH</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">LATITUDE</span></code>, <code class="docutils literal notranslate"><span class="pre">LONGITUDE</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">degrees_north</span></code>, <code class="docutils literal notranslate"><span class="pre">degrees_east</span></code></p></td>
+<td><p>WGS84 (<code class="docutils literal notranslate"><span class="pre">EPSG::4326</span></code>), one value, from the mooring description.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="data-variables">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Data variables</a><a class="headerlink" href="#data-variables" title="Link to this heading"></a></h2>
+<p>Manual §2.5 and reference table 6.  Every parameter is on <code class="docutils literal notranslate"><span class="pre">(TIME,</span> <span class="pre">DEPTH)</span></code>, with
+<code class="docutils literal notranslate"><span class="pre">coordinates</span> <span class="pre">=</span> <span class="pre">&quot;TIME</span> <span class="pre">DEPTH</span> <span class="pre">LATITUDE</span> <span class="pre">LONGITUDE&quot;</span></code>, the stage-3 <code class="docutils literal notranslate"><span class="pre">standard_name</span></code>,
+<code class="docutils literal notranslate"><span class="pre">units</span></code> (oceanarray’s canonical spelling), <code class="docutils literal notranslate"><span class="pre">long_name</span></code> and valid range, and
+<code class="docutils literal notranslate"><span class="pre">DM_indicator</span></code>.  Deployment files add <code class="docutils literal notranslate"><span class="pre">ancillary_variables</span></code>, <code class="docutils literal notranslate"><span class="pre">processing_level</span></code> and
+the <code class="docutils literal notranslate"><span class="pre">sensor_*</span></code> attributes (model, serial number, calibration date, mount, orientation,
+data start and end).</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 15.0%" />
+<col style="width: 30.0%" />
+<col style="width: 55.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Code</p></th>
+<th class="head"><p>oceanarray variable</p></th>
+<th class="head"><p>Note</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">TEMP</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">CNDC</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">conductivity</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">PSAL</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">salinity</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PRES</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pressure</span></code> (ADCP: <code class="docutils literal notranslate"><span class="pre">bin_pressure</span></code>)</p></td>
+<td><p>measured, or interpolated from neighbouring instruments (flag 8); an ADCP also
+carries <code class="docutils literal notranslate"><span class="pre">TRANSDUCER_PRES(TIME)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">UCUR</span></code>, <code class="docutils literal notranslate"><span class="pre">VCUR</span></code>, <code class="docutils literal notranslate"><span class="pre">WCUR</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">east_velocity</span></code>, <code class="docutils literal notranslate"><span class="pre">north_velocity</span></code>, <code class="docutils literal notranslate"><span class="pre">up_velocity</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">WCUR</span></code> is not in reference table 6; it is the common name</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">CSPD</span></code>, <code class="docutils literal notranslate"><span class="pre">CDIR</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">current_speed</span></code>, <code class="docutils literal notranslate"><span class="pre">current_direction</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">DOX2</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dissolved_oxygen</span></code></p></td>
+<td><p>per unit mass</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">TURB</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">turbidity</span></code></p></td>
+<td><p>not in reference table 6</p></td>
+</tr>
+</tbody>
+</table>
+<p>Variables without a code (beam velocities, amplitude, tilt, <code class="docutils literal notranslate"><span class="pre">sigma0</span></code>) stay in the stage
+files and are not exported.</p>
+</section>
+<section id="quality-control">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Quality control</a><a class="headerlink" href="#quality-control" title="Link to this heading"></a></h2>
+<p>Manual §2.6 and reference table 2.  oceanarray’s flags already use table 2, so a
+deployment file’s <code class="docutils literal notranslate"><span class="pre">&lt;PARAM&gt;_QC</span></code> holds them unchanged (byte, <code class="docutils literal notranslate"><span class="pre">conventions</span> <span class="pre">=</span> <span class="pre">&quot;OceanSITES</span>
+<span class="pre">QC</span> <span class="pre">Flags&quot;</span></code>), with 9 wherever the value is missing.  An ADCP’s below-seabed flag, kept
+apart in stage 3, is merged into each velocity flag where it failed or was suspect (the
+worse flag is kept).  Gridded
+files carry no <code class="docutils literal notranslate"><span class="pre">_QC</span></code> variables (§4.2.1).</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 80.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Flag</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>unknown</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>good_data</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>probably_good_data</p></td>
+</tr>
+<tr class="row-odd"><td><p>3</p></td>
+<td><p>potentially_correctable_bad_data</p></td>
+</tr>
+<tr class="row-even"><td><p>4</p></td>
+<td><p>bad_data</p></td>
+</tr>
+<tr class="row-odd"><td><p>7</p></td>
+<td><p>nominal_value</p></td>
+</tr>
+<tr class="row-even"><td><p>8</p></td>
+<td><p>interpolated_value</p></td>
+</tr>
+<tr class="row-odd"><td><p>9</p></td>
+<td><p>missing_value</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="data-mode">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Data mode</a><a class="headerlink" href="#data-mode" title="Link to this heading"></a></h2>
+<p>Reference table 4.  <code class="docutils literal notranslate"><span class="pre">P</span></code> (provisional) unless the instrument entry in the mooring
+description records <code class="docutils literal notranslate"><span class="pre">D</span></code> after a manual review, which is accepted only when the stage-3
+file records the calibration-dip correction.  <code class="docutils literal notranslate"><span class="pre">data_mode</span></code> on the instrument entry is
+one letter or a mapping from variable name to letter.  The global <code class="docutils literal notranslate"><span class="pre">data_mode</span></code> is the
+single mode, or <code class="docutils literal notranslate"><span class="pre">M</span></code> when variables differ.  A grid records no per-input modes, so only
+a <code class="docutils literal notranslate"><span class="pre">P</span></code> grid is exported.</p>
+</section>
+<section id="global-attributes">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Global attributes</a><a class="headerlink" href="#global-attributes" title="Link to this heading"></a></h2>
+<p>Manual §2.2.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 35.0%" />
+<col style="width: 65.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Attribute</p></th>
+<th class="head"><p>Source</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">platform_code</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">platform_code</span></code> in the mooring description (required; no <code class="docutils literal notranslate"><span class="pre">_</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">site_code</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">site_code</span></code> in the array description; left out when absent, never invented</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">data_mode</span></code></p></td>
+<td><p>as above</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">id</span></code></p></td>
+<td><p>the file name without <code class="docutils literal notranslate"><span class="pre">.nc</span></code>; <code class="docutils literal notranslate"><span class="pre">naming_authority</span> <span class="pre">=</span> <span class="pre">&quot;OceanSITES&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">format_version</span></code>, <code class="docutils literal notranslate"><span class="pre">Conventions</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;1.4&quot;</span></code>; <code class="docutils literal notranslate"><span class="pre">&quot;CF-1.13,</span> <span class="pre">OceanSITES-1.4,</span> <span class="pre">ACDD-1.3&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">data_type</span></code>, <code class="docutils literal notranslate"><span class="pre">cdm_data_type</span></code>, <code class="docutils literal notranslate"><span class="pre">featureType</span></code>, <code class="docutils literal notranslate"><span class="pre">source</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;OceanSITES</span> <span class="pre">time-series</span> <span class="pre">data&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;Station&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;timeSeries&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;subsurface</span> <span class="pre">mooring&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">geospatial_*</span></code></p></td>
+<td><p>position from the mooring description; vertical range from <code class="docutils literal notranslate"><span class="pre">DEPTH</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">time_coverage_start</span></code>, <code class="docutils literal notranslate"><span class="pre">_end</span></code>, <code class="docutils literal notranslate"><span class="pre">_resolution</span></code></p></td>
+<td><p>from <code class="docutils literal notranslate"><span class="pre">TIME</span></code> (<code class="docutils literal notranslate"><span class="pre">YYYY-MM-DDThh:mm:ssZ</span></code>) and the sampling interval (ISO 8601)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">platform_deployment_*</span></code>, <code class="docutils literal notranslate"><span class="pre">platform_recovery_*</span></code></p></td>
+<td><p>date, ship and cruise from the mooring description</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sea_floor_depth_below_sea_surface</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">waterdepth</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">project</span></code></p></td>
+<td><p>the array description</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">history</span></code></p></td>
+<td><p>the stage-3 or grid file’s history, then a line naming the source file (and,
+for a gridded file, the stage files it was built from)</p></td>
+</tr>
+</tbody>
+</table>
+<p>Attribution (<code class="docutils literal notranslate"><span class="pre">creator_*</span></code>, <code class="docutils literal notranslate"><span class="pre">principal_investigator_*</span></code>, <code class="docutils literal notranslate"><span class="pre">institution</span></code>,
+<code class="docutils literal notranslate"><span class="pre">citation</span></code>, <code class="docutils literal notranslate"><span class="pre">license</span></code>, <code class="docutils literal notranslate"><span class="pre">references</span></code>) is not written yet; it will come from the
+array description.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="project_structure.html" class="btn btn-neutral float-left" title="OceanArray Project Structure" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="oceanSITES_manual.html" class="btn btn-neutral float-right" title="OceanSITES Data Format Reference Manual" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

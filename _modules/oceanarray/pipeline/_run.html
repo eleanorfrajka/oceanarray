@@ -1,0 +1,487 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.pipeline._run &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/oceansites_export.html">Export to OceanSITES</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">OceanArray Data Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_0.html">Upgrading from 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../pipeline.html">oceanarray.pipeline</a></li>
+      <li class="breadcrumb-item active">oceanarray.pipeline._run</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.pipeline._run</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""The standard chain for one mooring: stages 1–3, then stack and grid."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">paths</span>
+
+<span class="c1">#: Stack and grid settings used when neither the call nor the description's</span>
+<span class="c1">#: ``stack:`` / ``grid:`` block gives one.</span>
+<span class="n">DEFAULTS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"stack"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"dt_seconds"</span><span class="p">:</span> <span class="mi">60</span><span class="p">},</span>
+    <span class="s2">"grid"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"pmin"</span><span class="p">:</span> <span class="mf">200.0</span><span class="p">,</span> <span class="s2">"pmax"</span><span class="p">:</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="s2">"dp"</span><span class="p">:</span> <span class="mf">20.0</span><span class="p">},</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="run">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.run">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">stages</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">from_stage</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">serials</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">keep_going</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">mooring_dir</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">raw_dir</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">caldip_dir</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dt_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">pmin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">pmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">stack_stage</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="n">report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Run stages 1–3 for one mooring, then stack and grid it (and build its report).</span>
+
+<span class="sd">    :func:`oceanarray.process` writes the stage files; the stack is built from</span>
+<span class="sd">    every instrument's stage-3 file and written as ``&lt;name&gt;_stack.nc``, then</span>
+<span class="sd">    gridded onto pressure levels as ``&lt;name&gt;_grid.nc``. The stack and grid are</span>
+<span class="sd">    rebuilt on every call, so they always match the stage files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring : str or os.PathLike or Mapping</span>
+<span class="sd">        A ``*.mooring.yaml`` path, a directory holding exactly one, or a loaded</span>
+<span class="sd">        description (then *mooring_dir* is required).</span>
+<span class="sd">    stages : int or "all" or iterable of int or None, optional</span>
+<span class="sd">        The stages to run before the stack. The stack is built from the stage-3</span>
+<span class="sd">        files (stage 2 with ``stack_stage=2``), so the stages must run from the</span>
+<span class="sd">        first one given through that stage: ``(2, 3)`` re-runs stages 2 and 3 from</span>
+<span class="sd">        the stage-1 files without needing *raw_dir*; ``3`` re-runs stage 3 only;</span>
+<span class="sd">        ``2`` alone is refused (the stack would take stage-3 files older than the</span>
+<span class="sd">        stage-2 files just written). To run one stage on its own, use</span>
+<span class="sd">        :func:`oceanarray.process`. Default: all.</span>
+<span class="sd">    from_stage : int or None, optional</span>
+<span class="sd">        The stage to start from instead of listing *stages*: ``from_stage=2`` is</span>
+<span class="sd">        ``stages=(2, 3)``.</span>
+<span class="sd">    serials : iterable of str or None, optional</span>
+<span class="sd">        Run stages 1–3 for these instruments only; the stack still takes every</span>
+<span class="sd">        instrument's stage-3 file.</span>
+<span class="sd">    force : bool, optional</span>
+<span class="sd">        Rewrite stage files that already exist (see :func:`oceanarray.process`).</span>
+<span class="sd">    keep_going : bool, optional</span>
+<span class="sd">        Default True: stages 1–3 carry on past failures, and the stack takes each</span>
+<span class="sd">        instrument's stage-3 file, else its stage-2 file (recorded per level in</span>
+<span class="sd">        ``source_stage`` and in ``stage2_instruments``), leaving out and naming in</span>
+<span class="sd">        ``instruments_omitted`` any with neither or that failed in this run; what</span>
+<span class="sd">        failed is recorded in ``keep_going_failures``. Every product is</span>
+<span class="sd">        ``data_mode = "P"``. False (strict): any failure raises, and no grid is</span>
+<span class="sd">        made from a stack that left an instrument out.</span>
+<span class="sd">    mooring_dir, raw_dir, caldip_dir : os.PathLike or None, optional</span>
+<span class="sd">        As for :func:`oceanarray.process`.</span>
+<span class="sd">    dt_seconds : int or None, optional</span>
+<span class="sd">        Spacing of the stack's time axis. ``None`` takes ``stack: dt_seconds`` from</span>
+<span class="sd">        the description, else 60.</span>
+<span class="sd">    pmin, pmax, dp : float or None, optional</span>
+<span class="sd">        The grid's pressure levels, in dbar. ``None`` takes the description's</span>
+<span class="sd">        ``grid:`` block, else 200, 1000 and 20.</span>
+<span class="sd">    stack_stage : {3, 2}, optional</span>
+<span class="sd">        Which stage files the stack is built from. 2 builds a quick look at sea</span>
+<span class="sd">        from the stage-2 files without running stage 3: no QC flags, no</span>
+<span class="sd">        interpolated pressure, no magnetic declination (recorded per level in</span>
+<span class="sd">        ``source_stage`` and in ``stage2_instruments``; the report says so).</span>
+<span class="sd">    report : bool, optional</span>
+<span class="sd">        Then build the mooring's report pages with :func:`oceanarray.report`</span>
+<span class="sd">        (summary, per-instrument, stack and grid; no PDF), in the default place.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of pathlib.Path</span>
+<span class="sd">        The stage files (as :func:`oceanarray.process` returns them), then the</span>
+<span class="sd">        stack and grid files, then (with *report*) the report's summary page.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    oceanarray.exceptions.MooringError</span>
+<span class="sd">        When nothing at all can be stacked, or a setting is invalid; with</span>
+<span class="sd">        ``keep_going=False`` also on any failure in stages 1–3, an instrument with</span>
+<span class="sd">        no stage-3 file, or a stack that left an instrument out.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import oceanarray as oa</span>
+<span class="sd">    &gt;&gt;&gt; oa.run("proc/dune2_1_2026/dune2_1_2026.mooring.yaml", raw_dir="raw/")</span>
+<span class="sd">    &gt;&gt;&gt; oa.run(yaml_path, raw_dir="raw/", keep_going=False)  # stop on any failure</span>
+<span class="sd">    &gt;&gt;&gt; oa.run(yaml_path, stages=3, dp=10)                    # re-QC, regrid finer</span>
+<span class="sd">    &gt;&gt;&gt; oa.run(yaml_path, from_stage=2)                        # stages 2 and 3</span>
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MooringError</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">_Outcome</span><span class="p">,</span>
+        <span class="n">_process_stages</span><span class="p">,</span>
+        <span class="n">resolve_mooring</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.grid</span><span class="w"> </span><span class="kn">import</span> <span class="n">_grid_file</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.stack</span><span class="w"> </span><span class="kn">import</span> <span class="n">_stack_file</span>
+
+    <span class="k">if</span> <span class="n">stack_stage</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"stack_stage=</span><span class="si">{</span><span class="n">stack_stage</span><span class="si">!r}</span><span class="s2">: expected 3 or 2"</span><span class="p">)</span>
+    <span class="n">wanted</span> <span class="o">=</span> <span class="n">_resolve_stages</span><span class="p">(</span><span class="n">stages</span><span class="p">,</span> <span class="n">from_stage</span><span class="p">,</span> <span class="n">stack_stage</span><span class="p">)</span>
+    <span class="n">serial_list</span> <span class="o">=</span> <span class="n">_as_serial_list</span><span class="p">(</span><span class="n">serials</span><span class="p">)</span>
+    <span class="n">cfg</span><span class="p">,</span> <span class="n">moor_dir</span> <span class="o">=</span> <span class="n">resolve_mooring</span><span class="p">(</span><span class="n">mooring</span><span class="p">,</span> <span class="n">mooring_dir</span><span class="p">,</span> <span class="s2">"run"</span><span class="p">)</span>
+    <span class="n">settings</span> <span class="o">=</span> <span class="n">_resolve_settings</span><span class="p">(</span>
+        <span class="n">cfg</span><span class="p">,</span> <span class="n">dt_seconds</span><span class="o">=</span><span class="n">dt_seconds</span><span class="p">,</span> <span class="n">pmin</span><span class="o">=</span><span class="n">pmin</span><span class="p">,</span> <span class="n">pmax</span><span class="o">=</span><span class="n">pmax</span><span class="p">,</span> <span class="n">dp</span><span class="o">=</span><span class="n">dp</span>
+    <span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span>
+    <span class="n">products</span> <span class="o">=</span> <span class="p">[</span><span class="n">paths</span><span class="o">.</span><span class="n">product_file</span><span class="p">(</span><span class="n">moor_dir</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"stack"</span><span class="p">,</span> <span class="s2">"grid"</span><span class="p">)]</span>
+    <span class="n">outcome</span> <span class="o">=</span> <span class="n">_Outcome</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">_process_stages</span><span class="p">(</span>
+            <span class="n">cfg</span><span class="p">,</span>
+            <span class="n">moor_dir</span><span class="p">,</span>
+            <span class="n">wanted</span><span class="p">,</span>
+            <span class="n">outcome</span><span class="p">,</span>
+            <span class="n">serial_list</span><span class="o">=</span><span class="n">serial_list</span><span class="p">,</span>
+            <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">,</span>
+            <span class="n">keep_going</span><span class="o">=</span><span class="n">keep_going</span><span class="p">,</span>
+            <span class="n">raw_dir</span><span class="o">=</span><span class="n">raw_dir</span><span class="p">,</span>
+            <span class="n">caldip_dir</span><span class="o">=</span><span class="n">caldip_dir</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Stack for mooring </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> (dt = </span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">'dt_seconds'</span><span class="p">]</span><span class="si">}</span><span class="s2"> s)"</span><span class="p">)</span>
+        <span class="n">stack_path</span><span class="p">,</span> <span class="n">ds_stack</span> <span class="o">=</span> <span class="n">_stack_file</span><span class="p">(</span>
+            <span class="n">cfg</span><span class="p">,</span>
+            <span class="n">moor_dir</span><span class="p">,</span>
+            <span class="n">dt_seconds</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s2">"dt_seconds"</span><span class="p">]),</span>
+            <span class="n">keep_going</span><span class="o">=</span><span class="n">keep_going</span><span class="p">,</span>
+            <span class="n">failed</span><span class="o">=</span><span class="n">outcome</span><span class="o">.</span><span class="n">failed_serials</span><span class="p">,</span>
+            <span class="n">from_stage2</span><span class="o">=</span><span class="n">outcome</span><span class="o">.</span><span class="n">stage3_failed</span> <span class="ow">or</span> <span class="n">stack_stage</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="n">stage2_reason</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">"stage 2 requested with stack_stage=2"</span>
+                <span class="k">if</span> <span class="n">stack_stage</span> <span class="o">==</span> <span class="mi">2</span>
+                <span class="k">else</span> <span class="s2">"stage 3 failed in this run"</span>
+                <span class="k">if</span> <span class="n">outcome</span><span class="o">.</span><span class="n">stage3_failed</span>
+                <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">),</span>
+            <span class="n">failures</span><span class="o">=</span><span class="n">outcome</span><span class="o">.</span><span class="n">failures</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="c1"># Whatever stopped the run, a product built from the old stage files no</span>
+        <span class="c1"># longer matches the ones it rewrote.</span>
+        <span class="k">if</span> <span class="n">outcome</span><span class="o">.</span><span class="n">written</span><span class="p">:</span>
+            <span class="n">_set_aside_stale</span><span class="p">(</span><span class="n">products</span><span class="p">,</span> <span class="s2">"the stage files changed but the run stopped"</span><span class="p">)</span>
+        <span class="k">raise</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">keep_going</span> <span class="ow">and</span> <span class="s2">"instruments_omitted"</span> <span class="ow">in</span> <span class="n">ds_stack</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+        <span class="n">_set_aside_stale</span><span class="p">(</span><span class="n">products</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="s2">"the new stack left instruments out"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: the stack left instruments out "</span>
+            <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">ds_stack</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'instruments_omitted'</span><span class="p">]</span><span class="si">}</span><span class="s2">); </span><span class="si">{</span><span class="n">stack_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> is "</span>
+            <span class="s2">"written but not gridded. Fix them, or use keep_going=True."</span>
+        <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Grid for mooring </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">'pmin'</span><span class="p">]</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">–"</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">'pmax'</span><span class="p">]</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> dbar every </span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">'dp'</span><span class="p">]</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> dbar)"</span>
+    <span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">grid_path</span> <span class="o">=</span> <span class="n">_grid_file</span><span class="p">(</span>
+            <span class="n">ds_stack</span><span class="p">,</span>
+            <span class="n">cfg</span><span class="p">,</span>
+            <span class="n">moor_dir</span><span class="p">,</span>
+            <span class="n">pmin</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">"pmin"</span><span class="p">],</span>
+            <span class="n">pmax</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">"pmax"</span><span class="p">],</span>
+            <span class="n">dp</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">"dp"</span><span class="p">],</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">keep_going</span><span class="p">:</span>
+            <span class="n">_set_aside_stale</span><span class="p">(</span><span class="n">products</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="s2">"the stack changed but could not be gridded"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: cannot grid the stack: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"WARNING: keep_going: no grid — </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">_set_aside_stale</span><span class="p">(</span><span class="n">products</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="s2">"the stack changed but could not be gridded"</span><span class="p">)</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">outcome</span><span class="o">.</span><span class="n">files</span><span class="p">,</span> <span class="n">stack_path</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">_set_aside_stale</span><span class="p">(</span><span class="n">products</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="s2">"the stack changed but could not be gridded"</span><span class="p">)</span>
+        <span class="k">raise</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">outcome</span><span class="o">.</span><span class="n">files</span><span class="p">,</span> <span class="n">stack_path</span><span class="p">,</span> <span class="n">grid_path</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">report</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.reports</span><span class="w"> </span><span class="kn">import</span> <span class="n">report</span> <span class="k">as</span> <span class="n">_report</span>
+
+        <span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">_report</span><span class="p">(</span>
+                <span class="n">cfg</span><span class="p">,</span>
+                <span class="n">mooring_dir</span><span class="o">=</span><span class="n">moor_dir</span><span class="p">,</span>
+                <span class="n">raw_dir</span><span class="o">=</span><span class="n">raw_dir</span><span class="p">,</span>
+                <span class="n">serials</span><span class="o">=</span><span class="n">serial_list</span><span class="p">,</span>
+                <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">files</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_stages</span><span class="p">(</span>
+    <span class="n">stages</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">from_stage</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">stack_stage</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">cli</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the stages ``run`` runs, refusing any that would stack older files."""</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">_canonical_stages</span>
+
+    <span class="k">if</span> <span class="n">cli</span><span class="p">:</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_canonical_stages</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+
+        <span class="n">stage_kw</span><span class="p">,</span> <span class="n">from_kw</span><span class="p">,</span> <span class="n">stack_kw</span> <span class="o">=</span> <span class="s2">"--stage "</span><span class="p">,</span> <span class="s2">"--from "</span><span class="p">,</span> <span class="s2">"--stack-stage "</span>
+        <span class="n">one_stage</span> <span class="o">=</span> <span class="s2">"'oceanarray process --stage N'"</span>
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+        <span class="n">stage_kw</span><span class="p">,</span> <span class="n">from_kw</span><span class="p">,</span> <span class="n">stack_kw</span> <span class="o">=</span> <span class="s2">"stages="</span><span class="p">,</span> <span class="s2">"from_stage="</span><span class="p">,</span> <span class="s2">"stack_stage="</span>
+        <span class="n">one_stage</span> <span class="o">=</span> <span class="s2">"oceanarray.process"</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">stages</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">stages</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"all"</span><span class="p">:</span>
+        <span class="n">stages</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">stages</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">from_stage</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"give </span><span class="si">{</span><span class="n">stage_kw</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="s2"> or </span><span class="si">{</span><span class="n">from_kw</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="s2">, not both"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">from_stage</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">from_stage</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">stack_stage</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">from_kw</span><span class="si">}{</span><span class="n">from_stage</span><span class="si">}</span><span class="s2">: expected 1–</span><span class="si">{</span><span class="n">stack_stage</span><span class="si">}</span><span class="s2"> with "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">stack_kw</span><span class="si">}{</span><span class="n">stack_stage</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">from_stage</span><span class="p">,</span> <span class="n">stack_stage</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">stages</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">stack_stage</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">wanted</span> <span class="o">=</span> <span class="n">_canonical_stages</span><span class="p">(</span><span class="n">stages</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">wanted</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">stack_stage</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">stage_kw</span><span class="si">}{</span><span class="n">show</span><span class="p">(</span><span class="n">stages</span><span class="p">)</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="n">stack_kw</span><span class="si">}{</span><span class="n">stack_stage</span><span class="si">}</span><span class="s2">: the stack is "</span>
+            <span class="sa">f</span><span class="s2">"built from the stage-</span><span class="si">{</span><span class="n">stack_stage</span><span class="si">}</span><span class="s2"> files, so start at stage "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">stack_stage</span><span class="si">}</span><span class="s2"> or earlier"</span>
+        <span class="p">)</span>
+    <span class="n">through</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">wanted</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">stack_stage</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">wanted</span> <span class="o">!=</span> <span class="n">through</span><span class="p">:</span>
+        <span class="n">listed</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">through</span><span class="p">))</span> <span class="k">if</span> <span class="n">cli</span> <span class="k">else</span> <span class="nb">repr</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">through</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">stage_kw</span><span class="si">}{</span><span class="n">show</span><span class="p">(</span><span class="n">stages</span><span class="p">)</span><span class="si">}</span><span class="s2">: run rebuilds the stack from the "</span>
+            <span class="sa">f</span><span class="s2">"stage-</span><span class="si">{</span><span class="n">stack_stage</span><span class="si">}</span><span class="s2"> files, so the stages must run from stage "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">wanted</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> through </span><span class="si">{</span><span class="n">stack_stage</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">stage_kw</span><span class="si">}{</span><span class="n">listed</span><span class="si">}</span><span class="s2">, or "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">from_kw</span><span class="si">}{</span><span class="n">wanted</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">); otherwise the stack would take files older "</span>
+            <span class="sa">f</span><span class="s2">"than the ones just written. To run one stage on its own, use "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">one_stage</span><span class="si">}</span><span class="s2">."</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">wanted</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_serial_list</span><span class="p">(</span><span class="n">serials</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return *serials* as a list read once; a bare string is one serial."""</span>
+    <span class="k">if</span> <span class="n">serials</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">serials</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">serials</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">serials</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_set_aside_stale</span><span class="p">(</span><span class="n">paths_</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">],</span> <span class="n">why</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Rename product files that no longer match the stage files to ``*.stale.nc``."""</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths_</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">stale</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">stale_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="c1"># One stale copy per product: a later rename replaces it.</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">stale</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"  renamed </span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">stale</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">why</span><span class="si">}</span><span class="s2">, so it no longer matched."</span>
+            <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_settings</span><span class="p">(</span>
+    <span class="n">cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="o">**</span><span class="n">given</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return checked stack/grid settings: call, else description, else DEFAULTS."""</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MooringError</span>
+
+    <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">block</span><span class="p">,</span> <span class="n">keys</span> <span class="ow">in</span> <span class="n">DEFAULTS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">from_yaml</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">block</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">default</span> <span class="ow">in</span> <span class="n">keys</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">given</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">from_yaml</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+    <span class="n">problems</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">whole</span> <span class="o">=</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"dt_seconds"</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span> <span class="k">if</span> <span class="n">whole</span> <span class="k">else</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2"> is not a </span><span class="si">{</span><span class="s1">'whole number'</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">whole</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'number'</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">problems</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">out</span><span class="p">[</span><span class="s2">"dt_seconds"</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"dt_seconds=</span><span class="si">{</span><span class="n">out</span><span class="p">[</span><span class="s1">'dt_seconds'</span><span class="p">]</span><span class="si">}</span><span class="s2"> must be &gt; 0"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">out</span><span class="p">[</span><span class="s2">"dp"</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"dp=</span><span class="si">{</span><span class="n">out</span><span class="p">[</span><span class="s1">'dp'</span><span class="p">]</span><span class="si">}</span><span class="s2"> must be &gt; 0"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">out</span><span class="p">[</span><span class="s2">"pmax"</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">out</span><span class="p">[</span><span class="s2">"pmin"</span><span class="p">]:</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"pmax=</span><span class="si">{</span><span class="n">out</span><span class="p">[</span><span class="s1">'pmax'</span><span class="p">]</span><span class="si">}</span><span class="s2"> must be above pmin=</span><span class="si">{</span><span class="n">out</span><span class="p">[</span><span class="s1">'pmin'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">problems</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span>
+            <span class="s2">"stack/grid settings (from the call, else the description's stack:/grid: "</span>
+            <span class="s2">"blocks, else the defaults): "</span> <span class="o">+</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">problems</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,344 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.pipeline.calibration &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/oceansites_export.html">Export to OceanSITES</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">OceanArray Data Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_0.html">Upgrading from 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../pipeline.html">oceanarray.pipeline</a></li>
+      <li class="breadcrumb-item active">oceanarray.pipeline.calibration</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.pipeline.calibration</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Calibration-dip corrections at the front of Stage 3 (interface stub).</span>
+
+<span class="sd">caldip is a separate package that compares mooring instruments against a shipboard CTD at</span>
+<span class="sd">bottle stops and writes one netCDF per cast (``{cast}_caldip.nc``); the statistics CSV is a</span>
+<span class="sd">derived export that oceanarray does not read. oceanarray reads that netCDF, matches instruments</span>
+<span class="sd">by serial, and corrects temperature, conductivity and pressure at the front of Stage 3, before</span>
+<span class="sd">pressure interpolation. A correction changes the values, as the Stage 2 clock-drift</span>
+<span class="sd">correction does; it is not quality control.</span>
+
+<span class="sd">**Status: reading and finding the dips are implemented, the correction is not.**</span>
+<span class="sd">:mod:`.caldip` reads and checks a cast (:func:`read_caldip_cast`, :func:`instrument_record`);</span>
+<span class="sd">:mod:`.dips` finds the file for each end the mooring YAML names (:func:`caldip_ends`) and</span>
+<span class="sd">which end a cast is (:func:`assign_dip_role`). :func:`select_offsets` and :func:`apply_caldip`</span>
+<span class="sd">are the interface the correction is built to; each still raises :class:`NotImplementedError`.</span>
+
+<span class="sd">The carrier, the field contract, the correction model and the stop-selection rules are</span>
+<span class="sd">documented in ``docs/source/methods/calibration.rst``. Sign convention: every ``*_diff``</span>
+<span class="sd">variable is ``instrument − CTD``, so an instrument is corrected toward the reference by</span>
+<span class="sd">subtracting the offset (``corrected = measured − diff``).</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.calibration.caldip</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CALDIP_FLAG_OK</span><span class="p">,</span>
+    <span class="n">CALDIP_QUANTITIES</span><span class="p">,</span>
+    <span class="n">CALDIP_SUFFIX</span><span class="p">,</span>
+    <span class="n">PROVENANCE_PASSTHROUGH_GLOBALS</span><span class="p">,</span>
+    <span class="n">REQUIRED_PROVENANCE_GLOBALS</span><span class="p">,</span>
+    <span class="n">SUPPORTED_SCHEMA_VERSION</span><span class="p">,</span>
+    <span class="n">CaldipError</span><span class="p">,</span>
+    <span class="n">CaldipProvenanceError</span><span class="p">,</span>
+    <span class="n">canonical_serial</span><span class="p">,</span>
+    <span class="n">instrument_record</span><span class="p">,</span>
+    <span class="n">read_caldip_cast</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.calibration.dips</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DIP_ENDS</span><span class="p">,</span>
+    <span class="n">assign_dip_role</span><span class="p">,</span>
+    <span class="n">caldip_ends</span><span class="p">,</span>
+    <span class="n">caldip_file</span><span class="p">,</span>
+    <span class="n">caldip_root</span><span class="p">,</span>
+    <span class="n">cast_time</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"CALDIP_FLAG_OK"</span><span class="p">,</span>
+    <span class="s2">"CALDIP_QUANTITIES"</span><span class="p">,</span>
+    <span class="s2">"CALDIP_STUB_APPLIED"</span><span class="p">,</span>
+    <span class="s2">"CALDIP_SUFFIX"</span><span class="p">,</span>
+    <span class="s2">"DIP_ENDS"</span><span class="p">,</span>
+    <span class="s2">"PROVENANCE_PASSTHROUGH_GLOBALS"</span><span class="p">,</span>
+    <span class="s2">"REQUIRED_PROVENANCE_GLOBALS"</span><span class="p">,</span>
+    <span class="s2">"SUPPORTED_SCHEMA_VERSION"</span><span class="p">,</span>
+    <span class="s2">"CaldipError"</span><span class="p">,</span>
+    <span class="s2">"CaldipProvenanceError"</span><span class="p">,</span>
+    <span class="s2">"Offsets"</span><span class="p">,</span>
+    <span class="s2">"apply_caldip"</span><span class="p">,</span>
+    <span class="s2">"assign_dip_role"</span><span class="p">,</span>
+    <span class="s2">"canonical_serial"</span><span class="p">,</span>
+    <span class="s2">"caldip_ends"</span><span class="p">,</span>
+    <span class="s2">"caldip_file"</span><span class="p">,</span>
+    <span class="s2">"caldip_root"</span><span class="p">,</span>
+    <span class="s2">"cast_time"</span><span class="p">,</span>
+    <span class="s2">"instrument_record"</span><span class="p">,</span>
+    <span class="s2">"read_caldip_cast"</span><span class="p">,</span>
+    <span class="s2">"select_offsets"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1">#: Value written to the ``caldip_applied`` global attribute of ``_stage3.nc`` when a caldip</span>
+<span class="c1">#: correction was requested but only the null-action stub ran. The first real correction</span>
+<span class="c1">#: replaces this string, so the stub -&gt; non-stub transition is visible in the output file.</span>
+<span class="c1">#: Plain ASCII (a hyphen, not an em-dash) — a portable marker, matched byte-for-byte by the</span>
+<span class="c1">#: contract test.</span>
+<span class="n">CALDIP_STUB_APPLIED</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"none - caldip stub (correction not implemented); Stage 3 science data unchanged"</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="Offsets">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.calibration.Offsets">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Offsets</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One variable's caldip offset selected for an instrument at a bottle stop.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : float</span>
+<span class="sd">        The offset (``instrument − CTD``) to subtract from the instrument value, in the</span>
+<span class="sd">        variable's units.</span>
+<span class="sd">    stop_pressure : float</span>
+<span class="sd">        Bottle-stop pressure the offset was taken from (dbar).</span>
+<span class="sd">    n : int</span>
+<span class="sd">        Sample count in the comparison window at that stop.</span>
+<span class="sd">    flag : int</span>
+<span class="sd">        caldip ``*_flag`` value at the stop (see :data:`CALDIP_FLAG_OK`).</span>
+<span class="sd">    source_tracking_id : str</span>
+<span class="sd">        ``tracking_id`` of the caldip file the offset came from, for provenance.</span>
+
+<span class="sd">    """</span>
+
+    <span class="n">value</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">stop_pressure</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">flag</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">source_tracking_id</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+
+<div class="viewcode-block" id="select_offsets">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.calibration.select_offsets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">select_offsets</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">serial</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">variable</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Offsets</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Select the bottle-stop offset for one instrument variable (stub).</span>
+
+<span class="sd">    Stop selection is per variable (``docs/source/methods/calibration.rst``, correction</span>
+<span class="sd">    model): pressure from the stop nearest deployment depth, temperature from the deepest</span>
+<span class="sd">    stop, conductivity from the deepest stop or a fit across stops. The choice of stop and</span>
+<span class="sd">    reduction is oceanarray's, not caldip's.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        A cast from :func:`read_caldip_cast`.</span>
+<span class="sd">    serial : Any</span>
+<span class="sd">        Instrument serial, normalised before matching.</span>
+<span class="sd">    variable : str</span>
+<span class="sd">        ``"temperature"``, ``"conductivity"``, or ``"pressure"``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Offsets</span>
+<span class="sd">        The selected offset and its provenance.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    NotImplementedError</span>
+<span class="sd">        Always — see ``docs/source/methods/calibration.rst``.</span>
+
+<span class="sd">    """</span>
+    <span class="k">del</span> <span class="n">ds</span><span class="p">,</span> <span class="n">serial</span><span class="p">,</span> <span class="n">variable</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">"select_offsets is not implemented; see docs/source/methods/calibration.rst"</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="apply_caldip">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.pipeline.calibration.apply_caldip">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_caldip</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">offsets_pre</span><span class="p">:</span> <span class="n">Offsets</span><span class="p">,</span> <span class="n">offsets_post</span><span class="p">:</span> <span class="n">Offsets</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Apply a variable's caldip offset(s) to a Stage 3 dataset (stub).</span>
+
+<span class="sd">    Subtracts the offset (``corrected = measured − diff``). With both a pre- and a</span>
+<span class="sd">    post-deployment offset the correction is a linear-in-time interpolation across the</span>
+<span class="sd">    deployment (``docs/source/methods/calibration.rst``, pre/post combination); with one it is</span>
+<span class="sd">    constant. The implementation records :data:`PROVENANCE_PASSTHROUGH_GLOBALS`, the applied</span>
+<span class="sd">    value, and the method in the output attributes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        The Stage 3 dataset to correct.</span>
+<span class="sd">    offsets_pre : Offsets</span>
+<span class="sd">        The pre-deployment (or single) offset.</span>
+<span class="sd">    offsets_post : Offsets or None, optional</span>
+<span class="sd">        The post-deployment offset, when a bracketing dip exists.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        The corrected dataset.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    NotImplementedError</span>
+<span class="sd">        Always — see ``docs/source/methods/calibration.rst``.</span>
+
+<span class="sd">    """</span>
+    <span class="k">del</span> <span class="n">ds</span><span class="p">,</span> <span class="n">offsets_pre</span><span class="p">,</span> <span class="n">offsets_post</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">"apply_caldip is not implemented; see docs/source/methods/calibration.rst"</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

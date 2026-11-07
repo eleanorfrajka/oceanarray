@@ -1,0 +1,668 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.pipeline.clock.deployment &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/oceansites_export.html">Export to OceanSITES</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../oceanarray_format.html">OceanArray Data Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../migrating_0_6_0.html">Upgrading from 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../pipeline.html">oceanarray.pipeline</a></li>
+      <li class="breadcrumb-item active">oceanarray.pipeline.clock.deployment</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.pipeline.clock.deployment</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""When each instrument entered and left the water: find the deployment window from temperature."""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="c1"># Initialize logging</span>
+<span class="n">_log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_first_sustained</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">min_len</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">_runs_of_true</span><span class="p">(</span><span class="n">mask</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">e</span> <span class="o">-</span> <span class="n">s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_len</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">s</span><span class="p">,</span> <span class="n">e</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_last_sustained</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">min_len</span><span class="p">):</span>
+    <span class="n">runs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">s</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="ow">in</span> <span class="n">_runs_of_true</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">e</span> <span class="o">-</span> <span class="n">s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_len</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">runs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">runs</span> <span class="k">else</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_rolling_median</span><span class="p">(</span><span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">win</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">win</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">win</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">median</span><span class="p">()</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_sampling_seconds</span><span class="p">(</span><span class="n">time</span><span class="p">):</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">time</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"timedelta64[s]"</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">d</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">d</span><span class="p">))</span> <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_runs_of_true</span><span class="p">(</span><span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">idx</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">gaps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+    <span class="n">starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">idx</span><span class="p">[</span><span class="mi">1</span><span class="p">:][</span><span class="n">gaps</span><span class="p">]]</span>
+    <span class="n">ends</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">idx</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">gaps</span><span class="p">],</span> <span class="n">idx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="p">[(</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">e</span><span class="p">))</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">starts</span><span class="p">,</span> <span class="n">ends</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_best_step_change</span><span class="p">(</span><span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">min_seg</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""One change-point (piecewise constant) via SSE minimization.</span>
+<span class="sd">    Returns (k, mu_left, mu_right) with 0 &lt; k &lt; n (split after k-1).</span>
+<span class="sd">    Enforces min_seg samples on each side.</span>
+<span class="sd">    """</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">size</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">min_seg</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># too short; no split</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">min_seg</span><span class="p">,</span> <span class="n">n</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span> <span class="n">mu</span><span class="p">,</span> <span class="n">mu</span>
+
+    <span class="c1"># cumulative sums</span>
+    <span class="n">c1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nancumsum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">y</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+    <span class="n">c2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nancumsum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">y</span> <span class="o">*</span> <span class="n">y</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+    <span class="n">cnt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nancumsum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span>
+
+    <span class="n">best_k</span><span class="p">,</span> <span class="n">best_sse</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="n">best_mu1</span><span class="p">,</span> <span class="n">best_mu2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_seg</span><span class="p">,</span> <span class="n">n</span> <span class="o">-</span> <span class="n">min_seg</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">n1</span> <span class="o">=</span> <span class="n">cnt</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">n2</span> <span class="o">=</span> <span class="n">cnt</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">cnt</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">n1</span> <span class="o">&lt;</span> <span class="n">min_seg</span> <span class="ow">or</span> <span class="n">n2</span> <span class="o">&lt;</span> <span class="n">min_seg</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">s1</span> <span class="o">=</span> <span class="n">c1</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">s2</span> <span class="o">=</span> <span class="n">c1</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">c1</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">q1</span> <span class="o">=</span> <span class="n">c2</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">q2</span> <span class="o">=</span> <span class="n">c2</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">c2</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">mu1</span> <span class="o">=</span> <span class="n">s1</span> <span class="o">/</span> <span class="n">n1</span>
+        <span class="n">mu2</span> <span class="o">=</span> <span class="n">s2</span> <span class="o">/</span> <span class="n">n2</span>
+        <span class="n">sse</span> <span class="o">=</span> <span class="p">(</span><span class="n">q1</span> <span class="o">-</span> <span class="n">n1</span> <span class="o">*</span> <span class="n">mu1</span> <span class="o">*</span> <span class="n">mu1</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">q2</span> <span class="o">-</span> <span class="n">n2</span> <span class="o">*</span> <span class="n">mu2</span> <span class="o">*</span> <span class="n">mu2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sse</span> <span class="o">&lt;</span> <span class="n">best_sse</span><span class="p">:</span>
+            <span class="n">best_sse</span> <span class="o">=</span> <span class="n">sse</span>
+            <span class="n">best_k</span> <span class="o">=</span> <span class="n">k</span>
+            <span class="n">best_mu1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">mu1</span><span class="p">)</span>
+            <span class="n">best_mu2</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">mu2</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">best_k</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">min_seg</span><span class="p">,</span> <span class="n">n</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span> <span class="n">mu</span><span class="p">,</span> <span class="n">mu</span>
+    <span class="k">return</span> <span class="n">best_k</span><span class="p">,</span> <span class="n">best_mu1</span><span class="p">,</span> <span class="n">best_mu2</span>
+
+
+<span class="c1"># ---------- helpers you can customise ----------</span>
+<div class="viewcode-block" id="likely_at_bottom_window">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.clock.deployment.likely_at_bottom_window">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">likely_at_bottom_window</span><span class="p">(</span>
+    <span class="n">time</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">strategy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"fixed_hours"</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">bottom_margin_hours</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">24.0</span><span class="p">,</span>
+    <span class="n">bottom_inner_fraction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span><span class="p">,</span>
+    <span class="n">deployment_time</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">recovery_time</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">deployment_margin_hours</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return (bot_start, bot_end): the window where the instrument is almost surely at depth.</span>
+
+<span class="sd">    Strategies:</span>
+
+<span class="sd">    - ``'fixed_hours'``: [tmin + margin, tmax - margin]</span>
+<span class="sd">    - ``'percent_span'``: [tmin + f, tmax - f] using the inner fraction (e.g. 25 %)</span>
+<span class="sd">    - ``'deployment_bounds'``: [deploy + 2 h, recover - 2 h]</span>
+<span class="sd">    """</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+    <span class="n">tmin</span><span class="p">,</span> <span class="n">tmax</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># &lt;-- was .iloc[0], .iloc[-1]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"My start is </span><span class="si">{</span><span class="n">tmin</span><span class="si">}</span><span class="s2"> and end is </span><span class="si">{</span><span class="n">tmax</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">strategy</span> <span class="o">==</span> <span class="s2">"fixed_hours"</span><span class="p">:</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">tmin</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="n">bottom_margin_hours</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">tmax</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="n">bottom_margin_hours</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="p">(</span>
+        <span class="n">strategy</span> <span class="o">==</span> <span class="s2">"deployment_bounds"</span>
+        <span class="ow">and</span> <span class="p">(</span><span class="n">deployment_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="p">(</span><span class="n">recovery_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">deployment_time</span><span class="p">)</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span>
+            <span class="n">hours</span><span class="o">=</span><span class="n">deployment_margin_hours</span>
+        <span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">recovery_time</span><span class="p">)</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span>
+            <span class="n">hours</span><span class="o">=</span><span class="n">deployment_margin_hours</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># 'percent_span' default</span>
+        <span class="n">span</span> <span class="o">=</span> <span class="n">tmax</span> <span class="o">-</span> <span class="n">tmin</span>
+        <span class="n">pad</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">bottom_inner_fraction</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">"D"</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="n">span</span> <span class="o">/</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">tmin</span> <span class="o">+</span> <span class="n">pad</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">tmax</span> <span class="o">-</span> <span class="n">pad</span>
+
+    <span class="c1"># clip to available range</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">tmin</span><span class="p">)</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="n">tmax</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">end</span> <span class="o">&lt;=</span> <span class="n">start</span><span class="p">:</span>
+        <span class="c1"># fallback: middle third</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">tmin</span> <span class="o">+</span> <span class="p">(</span><span class="n">tmax</span> <span class="o">-</span> <span class="n">tmin</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.33</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">tmin</span> <span class="o">+</span> <span class="p">(</span><span class="n">tmax</span> <span class="o">-</span> <span class="n">tmin</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.66</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="n">start</span><span class="o">.</span><span class="n">to_datetime64</span><span class="p">()),</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="n">end</span><span class="o">.</span><span class="n">to_datetime64</span><span class="p">())</span></div>
+
+
+
+<div class="viewcode-block" id="compute_threshold_sigma_band">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.clock.deployment.compute_threshold_sigma_band">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_threshold_sigma_band</span><span class="p">(</span>
+    <span class="n">time</span><span class="p">,</span>
+    <span class="n">temp</span><span class="p">,</span>
+    <span class="n">sea_mean</span><span class="p">,</span>
+    <span class="n">sea_std</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">band_sigma</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+    <span class="n">min_band_halfwidth</span><span class="o">=</span><span class="mf">0.10</span><span class="p">,</span>  <span class="c1"># °C</span>
+    <span class="n">warm_side</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">,</span>  <span class="c1"># "high", "low", or "auto"</span>
+    <span class="n">hours</span><span class="o">=</span><span class="mf">24.0</span><span class="p">,</span>
+    <span class="n">smooth_window</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+    <span class="n">warm_percentile</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Decide a single threshold using sigma-band logic.</span>
+
+<span class="sd">    - Band half-width = max(band_sigma*sea_std, min_band_halfwidth).</span>
+<span class="sd">    - If warm_side == "high": threshold = sea_mean + half_width  (deep is below threshold)</span>
+<span class="sd">      If warm_side == "low" : threshold = sea_mean - half_width  (deep is above threshold)</span>
+<span class="sd">      If warm_side == "auto": infer 'high' vs 'low' from early/late warm percentiles.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    threshold : float</span>
+<span class="sd">    deep_is_below : bool</span>
+<span class="sd">        True if 'deep' should be considered &lt;= threshold, False if &gt;= threshold.</span>
+
+<span class="sd">    """</span>
+    <span class="n">halfw</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">band_sigma</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">sea_std</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">min_band_halfwidth</span><span class="p">))</span>
+
+    <span class="c1"># decide warm side</span>
+    <span class="n">side</span> <span class="o">=</span> <span class="n">warm_side</span>
+    <span class="k">if</span> <span class="n">side</span> <span class="o">==</span> <span class="s2">"auto"</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="n">ys</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">smooth_window</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">median</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="n">tmin</span><span class="p">,</span> <span class="n">tmax</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">early</span> <span class="o">=</span> <span class="n">t</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">tmin</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="n">hours</span><span class="p">))</span>
+        <span class="n">late</span> <span class="o">=</span> <span class="n">t</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">tmax</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="n">hours</span><span class="p">))</span>
+
+        <span class="n">warm_samples</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">early</span><span class="p">):</span>
+            <span class="n">warm_samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">ys</span><span class="p">[</span><span class="n">early</span><span class="p">],</span> <span class="n">warm_percentile</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">late</span><span class="p">):</span>
+            <span class="n">warm_samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">ys</span><span class="p">[</span><span class="n">late</span><span class="p">],</span> <span class="n">warm_percentile</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">warm_samples</span><span class="p">):</span>
+            <span class="n">warm_est</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">warm_samples</span><span class="p">))</span>
+            <span class="n">side</span> <span class="o">=</span> <span class="s2">"high"</span> <span class="k">if</span> <span class="n">warm_est</span> <span class="o">&gt;=</span> <span class="n">sea_mean</span> <span class="k">else</span> <span class="s2">"low"</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">side</span> <span class="o">=</span> <span class="s2">"high"</span>  <span class="c1"># sensible default for temperature</span>
+
+    <span class="k">if</span> <span class="n">side</span> <span class="o">==</span> <span class="s2">"low"</span><span class="p">:</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">sea_mean</span> <span class="o">-</span> <span class="n">halfw</span><span class="p">)</span>
+        <span class="n">deep_is_below</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># deep temps are &gt;= threshold (colder is "higher" only if variable inversed; for temp, 'low' warm side is rare)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">sea_mean</span> <span class="o">+</span> <span class="n">halfw</span><span class="p">)</span>
+        <span class="n">deep_is_below</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># deep temps &lt;= threshold (usual case for temperature)</span>
+
+    <span class="k">return</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">deep_is_below</span></div>
+
+
+
+<div class="viewcode-block" id="determine_sea_values">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.clock.deployment.determine_sea_values">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">determine_sea_values</span><span class="p">(</span>
+    <span class="n">time</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">temp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">bot_start</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">,</span> <span class="n">bot_end</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return (sea_mean, sea_std) computed over the bottom window [bot_start, bot_end].</span>
+<span class="sd">    If the mask is empty, fall back to whole-series robust stats.</span>
+<span class="sd">    """</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="p">(</span><span class="n">t</span> <span class="o">&gt;=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">bot_start</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">t</span> <span class="o">&lt;=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">bot_end</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+        <span class="n">sea_mean</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">m</span><span class="p">]))</span>
+        <span class="n">sea_std</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">m</span><span class="p">],</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">m</span><span class="p">]))</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mf">0.0</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># fallback: middle 50% as proxy</span>
+        <span class="n">q25</span><span class="p">,</span> <span class="n">q75</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">75</span><span class="p">])</span>
+        <span class="n">m2</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="n">q25</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y</span> <span class="o">&lt;=</span> <span class="n">q75</span><span class="p">)</span>
+        <span class="n">sea_mean</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">m2</span><span class="p">]))</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">m2</span><span class="p">)</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+        <span class="n">sea_std</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">m2</span><span class="p">],</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">m2</span><span class="p">]))</span> <span class="o">&gt;</span> <span class="mi">1</span>
+            <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">sea_mean</span><span class="p">,</span> <span class="n">sea_std</span></div>
+
+
+
+<div class="viewcode-block" id="likely_at_surface">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.clock.deployment.likely_at_surface">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">likely_at_surface</span><span class="p">(</span>
+    <span class="n">time</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">temp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">sea_mean</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">sea_std</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">hours</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">24.0</span><span class="p">,</span>
+    <span class="n">smooth_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">9</span><span class="p">,</span>
+    <span class="n">dwell_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1800</span><span class="p">,</span>
+    <span class="n">tol_sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return (sink_time, float_time, threshold).</span>
+<span class="sd">    - sink_time: first sustained entry into 'sea' regime found in the early window.</span>
+<span class="sd">    - float_time: last sustained exit from 'sea' regime found in the late window.</span>
+<span class="sd">    - threshold: separator between warm and sea (midpoint between sea_mean and estimated warm_mean).</span>
+<span class="sd">    """</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+    <span class="n">ys</span> <span class="o">=</span> <span class="n">_rolling_median</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">smooth_window</span><span class="p">)</span>
+
+    <span class="n">tmin</span><span class="p">,</span> <span class="n">tmax</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">early_mask</span> <span class="o">=</span> <span class="n">t</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">tmin</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="n">hours</span><span class="p">))</span>
+    <span class="n">late_mask</span> <span class="o">=</span> <span class="n">t</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">tmax</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="n">hours</span><span class="p">))</span>
+
+    <span class="n">te</span><span class="p">,</span> <span class="n">ye</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="n">early_mask</span><span class="p">],</span> <span class="n">ys</span><span class="p">[</span><span class="n">early_mask</span><span class="p">]</span>
+    <span class="n">tl</span><span class="p">,</span> <span class="n">yl</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="n">late_mask</span><span class="p">],</span> <span class="n">ys</span><span class="p">[</span><span class="n">late_mask</span><span class="p">]</span>
+
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">_sampling_seconds</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+    <span class="n">min_len</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">dwell_seconds</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span> <span class="ow">and</span> <span class="n">dt</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">1</span>
+
+    <span class="c1"># "cold" test relative to sea_mean</span>
+    <span class="n">cold_limit</span> <span class="o">=</span> <span class="n">sea_mean</span> <span class="o">+</span> <span class="n">tol_sigma</span> <span class="o">*</span> <span class="n">sea_std</span>
+    <span class="n">is_cold_e</span> <span class="o">=</span> <span class="n">ye</span> <span class="o">&lt;=</span> <span class="n">cold_limit</span>
+    <span class="n">is_cold_l</span> <span class="o">=</span> <span class="n">yl</span> <span class="o">&lt;=</span> <span class="n">cold_limit</span>
+
+    <span class="n">sink_time</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">float_time</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">warm_means</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># ---- EARLY window: warm -&gt; cold</span>
+    <span class="k">if</span> <span class="n">te</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">min_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">k_e</span><span class="p">,</span> <span class="n">mu_e1</span><span class="p">,</span> <span class="n">mu_e2</span> <span class="o">=</span> <span class="n">_best_step_change</span><span class="p">(</span><span class="n">ye</span><span class="p">,</span> <span class="n">min_seg</span><span class="o">=</span><span class="n">min_len</span><span class="p">)</span>
+        <span class="c1"># prefer splits where later segment looks like sea</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">mu_e2</span> <span class="o">&lt;</span> <span class="n">mu_e1</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">mu_e2</span> <span class="o">-</span> <span class="n">sea_mean</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">mu_e1</span> <span class="o">-</span> <span class="n">sea_mean</span><span class="p">)):</span>
+            <span class="c1"># first sustained cold run AFTER k_e</span>
+            <span class="n">post_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">is_cold_e</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+            <span class="n">post_mask</span><span class="p">[</span><span class="n">k_e</span><span class="p">:]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">runs</span> <span class="o">=</span> <span class="n">_runs_of_true</span><span class="p">(</span><span class="n">is_cold_e</span> <span class="o">&amp;</span> <span class="n">post_mask</span><span class="p">)</span>
+            <span class="n">runs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">s</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="ow">in</span> <span class="n">runs</span> <span class="k">if</span> <span class="p">(</span><span class="n">e</span> <span class="o">-</span> <span class="n">s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_len</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">runs</span><span class="p">:</span>
+                <span class="n">s0</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">runs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">sink_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="n">te</span><span class="p">[</span><span class="n">s0</span><span class="p">]</span><span class="o">.</span><span class="n">to_datetime64</span><span class="p">())</span>
+            <span class="n">warm_means</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mu_e1</span><span class="p">)</span>  <span class="c1"># early warm</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># fallback: first sustained cold run in early window</span>
+            <span class="n">runs</span> <span class="o">=</span> <span class="n">_runs_of_true</span><span class="p">(</span><span class="n">is_cold_e</span><span class="p">)</span>
+            <span class="n">runs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">s</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="ow">in</span> <span class="n">runs</span> <span class="k">if</span> <span class="p">(</span><span class="n">e</span> <span class="o">-</span> <span class="n">s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_len</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">runs</span><span class="p">:</span>
+                <span class="n">s0</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">runs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">sink_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="n">te</span><span class="p">[</span><span class="n">s0</span><span class="p">]</span><span class="o">.</span><span class="n">to_datetime64</span><span class="p">())</span>
+            <span class="c1"># estimate warm as mean before first cold run</span>
+            <span class="k">if</span> <span class="n">runs</span> <span class="ow">and</span> <span class="n">runs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">warm_means</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">ye</span><span class="p">[:</span> <span class="n">runs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]])))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># too short: simple sustained cold</span>
+        <span class="n">runs</span> <span class="o">=</span> <span class="n">_runs_of_true</span><span class="p">(</span><span class="n">is_cold_e</span><span class="p">)</span>
+        <span class="n">runs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">s</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="ow">in</span> <span class="n">runs</span> <span class="k">if</span> <span class="p">(</span><span class="n">e</span> <span class="o">-</span> <span class="n">s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_len</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">runs</span><span class="p">:</span>
+            <span class="n">s0</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">runs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">sink_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="n">te</span><span class="p">[</span><span class="n">s0</span><span class="p">]</span><span class="o">.</span><span class="n">to_datetime64</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">runs</span> <span class="ow">and</span> <span class="n">runs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">warm_means</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">ye</span><span class="p">[:</span> <span class="n">runs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]])))</span>
+
+    <span class="c1"># ---- LATE window: cold -&gt; warm</span>
+    <span class="k">if</span> <span class="n">tl</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">min_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">k_l</span><span class="p">,</span> <span class="n">mu_l1</span><span class="p">,</span> <span class="n">mu_l2</span> <span class="o">=</span> <span class="n">_best_step_change</span><span class="p">(</span><span class="n">yl</span><span class="p">,</span> <span class="n">min_seg</span><span class="o">=</span><span class="n">min_len</span><span class="p">)</span>
+        <span class="c1"># prefer splits where earlier segment looks like sea</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">mu_l1</span> <span class="o">&lt;</span> <span class="n">mu_l2</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">mu_l1</span> <span class="o">-</span> <span class="n">sea_mean</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">mu_l2</span> <span class="o">-</span> <span class="n">sea_mean</span><span class="p">)):</span>
+            <span class="c1"># last sustained cold run BEFORE k_l</span>
+            <span class="n">pre_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">is_cold_l</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+            <span class="n">pre_mask</span><span class="p">[:</span><span class="n">k_l</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">runs</span> <span class="o">=</span> <span class="n">_runs_of_true</span><span class="p">(</span><span class="n">is_cold_l</span> <span class="o">&amp;</span> <span class="n">pre_mask</span><span class="p">)</span>
+            <span class="n">runs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">s</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="ow">in</span> <span class="n">runs</span> <span class="k">if</span> <span class="p">(</span><span class="n">e</span> <span class="o">-</span> <span class="n">s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_len</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">runs</span><span class="p">:</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">eL</span> <span class="o">=</span> <span class="n">runs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">float_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="n">tl</span><span class="p">[</span><span class="n">eL</span><span class="p">]</span><span class="o">.</span><span class="n">to_datetime64</span><span class="p">())</span>
+            <span class="n">warm_means</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mu_l2</span><span class="p">)</span>  <span class="c1"># late warm</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># fallback: last sustained cold run in late window</span>
+            <span class="n">runs</span> <span class="o">=</span> <span class="n">_runs_of_true</span><span class="p">(</span><span class="n">is_cold_l</span><span class="p">)</span>
+            <span class="n">runs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">s</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="ow">in</span> <span class="n">runs</span> <span class="k">if</span> <span class="p">(</span><span class="n">e</span> <span class="o">-</span> <span class="n">s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_len</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">runs</span><span class="p">:</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">eL</span> <span class="o">=</span> <span class="n">runs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">float_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="n">tl</span><span class="p">[</span><span class="n">eL</span><span class="p">]</span><span class="o">.</span><span class="n">to_datetime64</span><span class="p">())</span>
+            <span class="c1"># estimate warm as mean after last cold run</span>
+            <span class="k">if</span> <span class="n">runs</span> <span class="ow">and</span> <span class="n">runs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">yl</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">warm_means</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">yl</span><span class="p">[</span><span class="n">runs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:])))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">runs</span> <span class="o">=</span> <span class="n">_runs_of_true</span><span class="p">(</span><span class="n">is_cold_l</span><span class="p">)</span>
+        <span class="n">runs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">s</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="ow">in</span> <span class="n">runs</span> <span class="k">if</span> <span class="p">(</span><span class="n">e</span> <span class="o">-</span> <span class="n">s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_len</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">runs</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">eL</span> <span class="o">=</span> <span class="n">runs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">float_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="n">tl</span><span class="p">[</span><span class="n">eL</span><span class="p">]</span><span class="o">.</span><span class="n">to_datetime64</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">runs</span> <span class="ow">and</span> <span class="n">runs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">yl</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">warm_means</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">yl</span><span class="p">[</span><span class="n">runs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:])))</span>
+
+    <span class="c1"># ---- threshold: midpoint between sea_mean and an estimated warm mean</span>
+    <span class="k">if</span> <span class="n">warm_means</span><span class="p">:</span>
+        <span class="n">warm_mean</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">warm_means</span><span class="p">))</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">sea_mean</span> <span class="o">+</span> <span class="n">warm_mean</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># fallback if we never saw warm segments: small offset above sea</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="n">sea_mean</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">sea_std</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">sink_time</span><span class="p">,</span> <span class="n">float_time</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">threshold</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="find_entry_exit_from_threshold">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.clock.deployment.find_entry_exit_from_threshold">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_entry_exit_from_threshold</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return (sink_time, float_time) where temp is below threshold.</span>
+<span class="sd">    No smoothing, no dwell time — just first/last index where condition holds.</span>
+<span class="sd">    """</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">time</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>  <span class="c1"># datetime64[ns] array</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+
+    <span class="n">finite</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">below</span> <span class="o">=</span> <span class="n">finite</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">)</span>
+
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">below</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">idx</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+        <span class="n">sink_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+        <span class="n">float_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sink_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s2">"NaT"</span><span class="p">,</span> <span class="s2">"ns"</span><span class="p">)</span>
+        <span class="n">float_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s2">"NaT"</span><span class="p">,</span> <span class="s2">"ns"</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">sink_time</span><span class="p">,</span> <span class="n">float_time</span></div>
+
+
+
+<span class="c1"># ---------- main, function-only API ----------</span>
+
+
+<div class="viewcode-block" id="find_deployment">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.clock.deployment.find_deployment">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_deployment</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">,</span>
+    <span class="n">var_name</span><span class="o">=</span><span class="s2">"temperature"</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">bottom_strategy</span><span class="o">=</span><span class="s2">"percent_span"</span><span class="p">,</span>
+    <span class="n">bottom_margin_hours</span><span class="o">=</span><span class="mf">24.0</span><span class="p">,</span>
+    <span class="n">bottom_inner_fraction</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
+    <span class="n">deployment_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">recovery_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">deployment_margin_hours</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+    <span class="n">surface_window_hours</span><span class="o">=</span><span class="mf">24.0</span><span class="p">,</span>  <span class="c1"># noqa: ARG001  — reserved for future surface-window logic</span>
+    <span class="n">smooth_window</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>  <span class="c1"># noqa: ARG001  — reserved for future smoothing step</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">"sigma_band"</span><span class="p">,</span>  <span class="c1"># noqa: ARG001  — reserved for future method dispatch</span>
+    <span class="n">band_sigma</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>  <span class="c1"># noqa: ARG001  — reserved for future sigma_band method</span>
+    <span class="n">dwell_seconds</span><span class="o">=</span><span class="mi">1800</span><span class="p">,</span>  <span class="c1"># noqa: ARG001  — reserved for future dwell filter</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Populate ds with:</span>
+<span class="sd">      - start_time (N_LEVELS) : first deep time (when temps settle cold)</span>
+<span class="sd">      - end_time   (N_LEVELS) : last deep time (before temps warm)</span>
+<span class="sd">      - split_value(N_LEVELS) : threshold separating surface vs sea regimes</span>
+
+<span class="sd">    Returns ds with the variables added/updated.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">var_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">var_name</span><span class="si">!r}</span><span class="s2"> not found in dataset."</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span> <span class="o">!=</span> <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"N_LEVELS"</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">var_name</span><span class="si">!r}</span><span class="s2"> must have dims ('time','N_LEVELS'). Got </span><span class="si">{</span><span class="n">ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+
+    <span class="n">nlev</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"N_LEVELS"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">nlev</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Dimension 'N_LEVELS' not found in dataset."</span><span class="p">)</span>
+
+    <span class="c1"># ensure outputs exist with correct dtype/shape</span>
+    <span class="k">if</span> <span class="s2">"start_time"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s2">"start_time"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"N_LEVELS"</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">nlev</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s2">"NaT"</span><span class="p">,</span> <span class="s2">"ns"</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="s2">"end_time"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s2">"end_time"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"N_LEVELS"</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">nlev</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s2">"NaT"</span><span class="p">,</span> <span class="s2">"ns"</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="s2">"split_value"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s2">"split_value"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"N_LEVELS"</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">nlev</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">))</span>
+
+    <span class="n">time</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"My time starts at </span><span class="si">{</span><span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nlev</span><span class="p">):</span>
+        <span class="n">data1</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">][:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">deployment_time</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"time"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">recovery_time</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"time"</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"recovery time is </span><span class="si">{</span><span class="n">recovery_time</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="c1"># 1) pick bottom window using your chosen strategy</span>
+        <span class="n">bot_start</span><span class="p">,</span> <span class="n">bot_end</span> <span class="o">=</span> <span class="n">likely_at_bottom_window</span><span class="p">(</span>
+            <span class="n">time</span><span class="p">,</span>
+            <span class="n">strategy</span><span class="o">=</span><span class="n">bottom_strategy</span><span class="p">,</span>
+            <span class="n">bottom_margin_hours</span><span class="o">=</span><span class="n">bottom_margin_hours</span><span class="p">,</span>
+            <span class="n">bottom_inner_fraction</span><span class="o">=</span><span class="n">bottom_inner_fraction</span><span class="p">,</span>
+            <span class="n">deployment_time</span><span class="o">=</span><span class="n">deployment_time</span><span class="p">,</span>
+            <span class="n">recovery_time</span><span class="o">=</span><span class="n">recovery_time</span><span class="p">,</span>
+            <span class="n">deployment_margin_hours</span><span class="o">=</span><span class="n">deployment_margin_hours</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"My bot_start is </span><span class="si">{</span><span class="n">bot_start</span><span class="si">}</span><span class="s2"> and bot_end is </span><span class="si">{</span><span class="n">bot_end</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="c1"># 2) sea (cold) representative value from bottom window</span>
+        <span class="n">sea_mean</span><span class="p">,</span> <span class="n">sea_std</span> <span class="o">=</span> <span class="n">determine_sea_values</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">data1</span><span class="p">,</span> <span class="n">bot_start</span><span class="p">,</span> <span class="n">bot_end</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"My sea_mean is </span><span class="si">{</span><span class="n">sea_mean</span><span class="si">}</span><span class="s2"> and std is </span><span class="si">{</span><span class="n">sea_std</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="c1"># 2) threshold (separate step)</span>
+        <span class="n">thr</span><span class="p">,</span> <span class="n">deep_is_below</span> <span class="o">=</span> <span class="n">compute_threshold_sigma_band</span><span class="p">(</span>
+            <span class="n">time</span><span class="p">,</span>
+            <span class="n">data1</span><span class="p">,</span>
+            <span class="n">sea_mean</span><span class="p">,</span>
+            <span class="n">sea_std</span><span class="p">,</span>
+            <span class="n">band_sigma</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+            <span class="n">min_band_halfwidth</span><span class="o">=</span><span class="mf">0.10</span><span class="p">,</span>
+            <span class="n">warm_side</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">,</span>  <span class="c1"># or "high"</span>
+            <span class="n">hours</span><span class="o">=</span><span class="mf">24.0</span><span class="p">,</span>
+            <span class="n">smooth_window</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+            <span class="n">warm_percentile</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># 3) entry/exit from threshold (sustained crossings)</span>
+        <span class="n">sink_time</span><span class="p">,</span> <span class="n">float_time</span> <span class="o">=</span> <span class="n">find_entry_exit_from_threshold</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">data1</span><span class="p">,</span> <span class="n">thr</span><span class="p">)</span>
+
+        <span class="c1"># 4) assign</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s2">"start_time"</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="n">sink_time</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sink_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s2">"NaT"</span><span class="p">,</span> <span class="s2">"ns"</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s2">"end_time"</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="n">float_time</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">float_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s2">"NaT"</span><span class="p">,</span> <span class="s2">"ns"</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s2">"split_value"</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">thr</span><span class="p">)</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">thr</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+        <span class="c1"># 5) print summary (same style as you had)</span>
+        <span class="n">serial</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"serial_number"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">if</span> <span class="s2">"serial_number"</span> <span class="ow">in</span> <span class="n">ds</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">inst</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"instrument"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">if</span> <span class="s2">"instrument"</span> <span class="ow">in</span> <span class="n">ds</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">if</span> <span class="n">serial</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"/</span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">if</span> <span class="n">inst</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">":</span><span class="si">{</span><span class="n">inst</span><span class="si">}</span><span class="s2">"</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: Split at </span><span class="si">{</span><span class="n">ds</span><span class="p">[</span><span class="s1">'split_value'</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">.  "</span>
+            <span class="sa">f</span><span class="s2">"Start after </span><span class="si">{</span><span class="n">ds</span><span class="p">[</span><span class="s1">'start_time'</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s2">.  "</span>
+            <span class="sa">f</span><span class="s2">"End with </span><span class="si">{</span><span class="n">ds</span><span class="p">[</span><span class="s1">'end_time'</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s2">."</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ds</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

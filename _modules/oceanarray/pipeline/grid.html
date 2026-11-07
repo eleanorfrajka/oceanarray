@@ -1,0 +1,511 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.pipeline.grid &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/oceansites_export.html">Export to OceanSITES</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">OceanArray Data Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_0.html">Upgrading from 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../pipeline.html">oceanarray.pipeline</a></li>
+      <li class="breadcrumb-item active">oceanarray.pipeline.grid</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.pipeline.grid</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Grid a mooring's stack onto regular pressure levels: the pure :func:`grid` and MooringGridder."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span><span class="p">,</span> <span class="n">paths</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.units</span><span class="w"> </span><span class="kn">import</span> <span class="n">to_canonical_units</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.writers</span><span class="w"> </span><span class="kn">import</span> <span class="n">write</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.writers.netcdf</span><span class="w"> </span><span class="kn">import</span> <span class="n">as_stored</span>
+
+
+<div class="viewcode-block" id="grid">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.grid">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">grid</span><span class="p">(</span>
+    <span class="n">ds_stack</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">pmin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">200.0</span><span class="p">,</span>
+    <span class="n">pmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1000.0</span><span class="p">,</span>
+    <span class="n">dp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Interpolate a mooring stack onto a regular pressure grid.</span>
+
+<span class="sd">    Pure function: no file I/O. At each time step every variable is interpolated</span>
+<span class="sd">    linearly in pressure from the instruments with valid pressure and values onto</span>
+<span class="sd">    ``pmin:dp:pmax`` dbar, with no extrapolation. Velocity flagged suspect or</span>
+<span class="sd">    worse (``velocity_flag`` and the ADCP seabed, percent-good and error-velocity</span>
+<span class="sd">    flags) is masked first.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_stack : xarray.Dataset</span>
+<span class="sd">        The stack, as :func:`oceanarray.pipeline.stack.stack` returns it.</span>
+<span class="sd">    pmin, pmax, dp : float, optional</span>
+<span class="sd">        The pressure grid, in dbar.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        The gridded product on ``(time, pressure)``.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the stack has no ``pressure`` variable.</span>
+<span class="sd">    """</span>
+    <span class="n">p_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">pmin</span><span class="p">,</span> <span class="n">pmax</span> <span class="o">+</span> <span class="n">dp</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">dp</span><span class="p">)</span>
+    <span class="n">n_p</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">p_grid</span><span class="p">)</span>
+
+    <span class="c1"># Canonicalise the stack's units (idempotent on a 0.5.0 stack; rewrites a</span>
+    <span class="c1"># pre-0.5.0 one) so the grid inherits one spelling per quantity.</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">to_canonical_units</span><span class="p">(</span><span class="n">ds_stack</span><span class="p">,</span> <span class="n">log_fn</span><span class="o">=</span><span class="nb">print</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="s2">"grid"</span><span class="p">)</span>
+    <span class="n">n_time</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span>
+    <span class="n">n_instr</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"N_LEVELS"</span><span class="p">]</span>
+
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Gridding </span><span class="si">{</span><span class="n">n_instr</span><span class="si">}</span><span class="s2"> instruments → </span><span class="si">{</span><span class="n">n_p</span><span class="si">}</span><span class="s2"> pressure levels "</span>
+        <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">pmin</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">dp</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">pmax</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> dbar) × </span><span class="si">{</span><span class="n">n_time</span><span class="si">}</span><span class="s2"> time steps"</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">"pressure"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"'pressure' not found in the stack — cannot grid vertically"</span><span class="p">)</span>
+
+    <span class="n">pressure</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>  <span class="c1"># (time, N_LEVELS)</span>
+    <span class="c1"># Variables that are meaningful at the stacked per-instrument level but</span>
+    <span class="c1"># should not be interpolated onto the pressure grid.  Instrument-frame</span>
+    <span class="c1"># and beam-frame velocities are excluded because the XYZ→ENU rotation</span>
+    <span class="c1"># has already been applied; gridding the pre-rotation components would</span>
+    <span class="c1"># be misleading.  Diagnostic quantities (amplitude, correlation,</span>
+    <span class="c1"># battery) are per-sensor and do not have a physical meaning on a</span>
+    <span class="c1"># spatially-interpolated grid.</span>
+    <span class="n">_GRID_EXCLUDE</span><span class="p">:</span> <span class="nb">frozenset</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">"velocity_x"</span><span class="p">,</span>
+            <span class="s2">"velocity_y"</span><span class="p">,</span>
+            <span class="s2">"velocity_z"</span><span class="p">,</span>
+            <span class="s2">"velocity_beam1"</span><span class="p">,</span>
+            <span class="s2">"velocity_beam2"</span><span class="p">,</span>
+            <span class="s2">"velocity_beam3"</span><span class="p">,</span>
+            <span class="s2">"amplitude"</span><span class="p">,</span>
+            <span class="s2">"correlation"</span><span class="p">,</span>
+            <span class="s2">"battery_voltage"</span><span class="p">,</span>
+            <span class="s2">"velocity_flag"</span><span class="p">,</span>  <span class="c1"># flag array, not a gridded physics variable</span>
+            <span class="s2">"tilt_from_pressure"</span><span class="p">,</span>  <span class="c1"># per-instrument diagnostic, not gridded</span>
+            <span class="s2">"tilt_pressure_ref_hab"</span><span class="p">,</span>
+            <span class="s2">"heading"</span><span class="p">,</span>  <span class="c1"># instrument-frame orientation — not meaningful on a pressure grid</span>
+            <span class="s2">"pitch"</span><span class="p">,</span>
+            <span class="s2">"roll"</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="c1"># Variables eligible for gridding: physics vars on the (time, N_LEVELS)</span>
+    <span class="c1"># grid, excluding pressure and QC flags.  Compute once, then split into</span>
+    <span class="c1"># kept vs excluded so the two lists cannot drift (D2).</span>
+    <span class="n">_grid_candidates</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">v</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="o">!=</span> <span class="s2">"pressure"</span>
+        <span class="ow">and</span> <span class="n">ds</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span> <span class="o">==</span> <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"N_LEVELS"</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="ow">not</span> <span class="n">v</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"_qc"</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">grid_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_grid_candidates</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_GRID_EXCLUDE</span><span class="p">]</span>
+
+    <span class="c1"># Tell the operator which present physics variables were excluded from the</span>
+    <span class="c1"># grid rather than dropping them silently (D2).</span>
+    <span class="n">_excluded</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_grid_candidates</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_GRID_EXCLUDE</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">_excluded</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"  NOTE: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">_excluded</span><span class="p">)</span><span class="si">}</span><span class="s2"> variable(s) excluded from gridding "</span>
+            <span class="sa">f</span><span class="s2">"(listed in _GRID_EXCLUDE): </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_excluded</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+
+    <span class="n">stacked</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">v</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_p</span><span class="p">,</span> <span class="n">n_time</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">grid_vars</span>
+    <span class="p">}</span>
+    <span class="n">var_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">ds</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">grid_vars</span><span class="p">}</span>
+
+    <span class="c1"># QC masking before vertical interpolation.</span>
+    <span class="c1"># T/S/P: NaN any non-finite values (already masked at stack time).</span>
+    <span class="c1"># Velocity: use velocity_flag from the stack to NaN suspect/bad samples.</span>
+    <span class="c1">#   Flag 3 (suspect), 4 (bad), 9 (missing) → NaN before interpolation.</span>
+    <span class="n">_GRIDDER_TSQC</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"temperature"</span><span class="p">,</span> <span class="s2">"conductivity"</span><span class="p">,</span> <span class="s2">"salinity"</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">_v</span> <span class="ow">in</span> <span class="n">grid_vars</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">_v</span> <span class="ow">in</span> <span class="n">_GRIDDER_TSQC</span><span class="p">:</span>
+            <span class="n">var_data</span><span class="p">[</span><span class="n">_v</span><span class="p">][</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">var_data</span><span class="p">[</span><span class="n">_v</span><span class="p">])]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="n">_vel_vars</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"east_velocity"</span><span class="p">,</span>
+        <span class="s2">"north_velocity"</span><span class="p">,</span>
+        <span class="s2">"up_velocity"</span><span class="p">,</span>
+        <span class="s2">"current_speed"</span><span class="p">,</span>
+        <span class="s2">"current_direction"</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="s2">"velocity_flag"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">_vflag</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"velocity_flag"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">_bad_vel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">_vflag</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">),</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">_v</span> <span class="ow">in</span> <span class="n">_vel_vars</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_v</span> <span class="ow">in</span> <span class="n">var_data</span><span class="p">:</span>
+                <span class="n">var_data</span><span class="p">[</span><span class="n">_v</span><span class="p">][</span><span class="n">_bad_vel</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">_v</span> <span class="ow">in</span> <span class="n">_vel_vars</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_v</span> <span class="ow">in</span> <span class="n">var_data</span><span class="p">:</span>
+                <span class="n">var_data</span><span class="p">[</span><span class="n">_v</span><span class="p">][</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">var_data</span><span class="p">[</span><span class="n">_v</span><span class="p">])]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="c1"># ADCP standalone QC variables — mask velocity before gridding.</span>
+    <span class="c1"># seabed_qc removes bins at/below the seafloor; percent_good_qc and</span>
+    <span class="c1"># error_velocity_qc remove poor-quality pings.  All three use flag &gt;= 3</span>
+    <span class="c1"># (suspect or worse) as the NaN threshold, consistent with how the</span>
+    <span class="c1"># rose diagram and stack report mask these variables.</span>
+    <span class="k">for</span> <span class="n">_adcp_qc</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"seabed_qc"</span><span class="p">,</span> <span class="s2">"percent_good_qc"</span><span class="p">,</span> <span class="s2">"error_velocity_qc"</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">_adcp_qc</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">_qc</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">_adcp_qc</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>  <span class="c1"># (time, N_LEVELS) after stack transpose</span>
+        <span class="n">_bad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">_qc</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">),</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">_v</span> <span class="ow">in</span> <span class="n">_vel_vars</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_v</span> <span class="ow">in</span> <span class="n">var_data</span><span class="p">:</span>
+                <span class="n">var_data</span><span class="p">[</span><span class="n">_v</span><span class="p">][</span><span class="n">_bad</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_time</span><span class="p">):</span>
+        <span class="n">p_col</span> <span class="o">=</span> <span class="n">pressure</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">p_valid_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">p_col</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">p_valid_mask</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">grid_vars</span><span class="p">:</span>
+            <span class="n">v_col</span> <span class="o">=</span> <span class="n">var_data</span><span class="p">[</span><span class="n">vname</span><span class="p">][</span><span class="n">t</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">both_valid</span> <span class="o">=</span> <span class="n">p_valid_mask</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">v_col</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">both_valid</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">p_v</span> <span class="o">=</span> <span class="n">p_col</span><span class="p">[</span><span class="n">both_valid</span><span class="p">]</span>
+            <span class="n">v_v</span> <span class="o">=</span> <span class="n">v_col</span><span class="p">[</span><span class="n">both_valid</span><span class="p">]</span>
+            <span class="n">sort_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">p_v</span><span class="p">)</span>
+            <span class="n">stacked</span><span class="p">[</span><span class="n">vname</span><span class="p">][:,</span> <span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span>
+                <span class="n">p_grid</span><span class="p">,</span>
+                <span class="n">p_v</span><span class="p">[</span><span class="n">sort_idx</span><span class="p">],</span>
+                <span class="n">v_v</span><span class="p">[</span><span class="n">sort_idx</span><span class="p">],</span>
+                <span class="n">left</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                <span class="n">right</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Build output dataset; skip variables that are entirely NaN</span>
+    <span class="n">data_vars</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">grid_vars</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">stacked</span><span class="p">[</span><span class="n">vname</span><span class="p">])):</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+            <span class="n">a</span><span class="p">[</span><span class="s2">"vertical_interpolation"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"linear in pressure; no extrapolation outside </span><span class="si">{</span><span class="n">pmin</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">–</span><span class="si">{</span><span class="n">pmax</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> dbar"</span>
+            <span class="p">)</span>
+            <span class="n">data_vars</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"pressure"</span><span class="p">),</span> <span class="n">stacked</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">a</span>
+            <span class="p">)</span>
+
+    <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+        <span class="n">data_vars</span><span class="p">,</span>
+        <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">"time"</span><span class="p">:</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"time"</span><span class="p">],</span>
+            <span class="s2">"pressure"</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                <span class="s2">"pressure"</span><span class="p">,</span>
+                <span class="n">p_grid</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"dbar"</span><span class="p">,</span>
+                    <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"sea water pressure"</span><span class="p">,</span>
+                    <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"sea_water_pressure"</span><span class="p">,</span>
+                    <span class="s2">"axis"</span><span class="p">:</span> <span class="s2">"Z"</span><span class="p">,</span>
+                    <span class="s2">"positive"</span><span class="p">:</span> <span class="s2">"down"</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+
+    <span class="n">prior_history</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"history"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"history"</span><span class="p">,)},</span>
+            <span class="s2">"data_mode"</span><span class="p">:</span> <span class="s2">"P"</span><span class="p">,</span>
+            <span class="s2">"p_start_dbar"</span><span class="p">:</span> <span class="n">pmin</span><span class="p">,</span>
+            <span class="s2">"p_end_dbar"</span><span class="p">:</span> <span class="n">pmax</span><span class="p">,</span>
+            <span class="s2">"dp_dbar"</span><span class="p">:</span> <span class="n">dp</span><span class="p">,</span>
+            <span class="s2">"history"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="n">prior_history</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">"; Step 2 grid: linear interpolation in pressure onto </span><span class="si">{</span><span class="n">dp</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> dbar pressure grid "</span>
+                <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">pmin</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">–</span><span class="si">{</span><span class="n">pmax</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> dbar); no extrapolation"</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">as_stored</span><span class="p">(</span><span class="n">to_canonical_units</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="n">log_fn</span><span class="o">=</span><span class="nb">print</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="s2">"grid"</span><span class="p">))</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_grid_file</span><span class="p">(</span>
+    <span class="n">ds_stack</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">mooring_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">pmin</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">pmax</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">dp</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Grid *ds_stack* and write ``&lt;name&gt;_grid.nc``; return its path."""</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">grid</span><span class="p">(</span><span class="n">ds_stack</span><span class="p">,</span> <span class="n">pmin</span><span class="o">=</span><span class="n">pmin</span><span class="p">,</span> <span class="n">pmax</span><span class="o">=</span><span class="n">pmax</span><span class="p">,</span> <span class="n">dp</span><span class="o">=</span><span class="n">dp</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">write</span><span class="p">(</span>
+        <span class="n">ds</span><span class="p">,</span> <span class="n">paths</span><span class="o">.</span><span class="n">product_file</span><span class="p">(</span><span class="n">mooring_dir</span><span class="p">,</span> <span class="n">mooring</span><span class="p">[</span><span class="s2">"name"</span><span class="p">],</span> <span class="s2">"grid"</span><span class="p">),</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="MooringGridder">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.MooringGridder">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MooringGridder</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Step 2: vertically interpolate stacked instruments onto a pressure grid → ``_grid.nc``.</span>
+
+<span class="sd">    .. deprecated:: 0.6.0</span>
+<span class="sd">        Removed in 0.7.0; see the migration page.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">proc_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Interpolate a mooring stack onto a regular pressure grid.</span>
+
+<span class="sd">        Reads ``{mooring}_stack.nc`` (produced by :class:`MooringStacker`) and</span>
+<span class="sd">        interpolates all scalar variables onto a uniform pressure axis defined by</span>
+<span class="sd">        ``p_start``, ``p_end``, and ``dp`` (in dbar).  Writes</span>
+<span class="sd">        ``{mooring}_grid.nc`` in the mooring proc directory.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        proc_dir : str</span>
+<span class="sd">            Cruise-level processed output directory. The pipeline appends</span>
+<span class="sd">            ``/{mooring}/`` internally (see :func:`oceanarray.paths.mooring_proc_dir`).</span>
+
+<span class="sd">        """</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">_deprecated</span>
+
+        <span class="n">_deprecated</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">"oceanarray.pipeline.grid.MooringGridder"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_proc_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_proc_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mooring_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the mooring-level proc directory."""</span>
+        <span class="k">return</span> <span class="n">paths</span><span class="o">.</span><span class="n">mooring_proc_dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proc_dir</span><span class="p">,</span> <span class="n">mooring_name</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_rel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return a short display path relative to proc_dir."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proc_dir</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proc_dir</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
+
+<div class="viewcode-block" id="MooringGridder.grid">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.MooringGridder.grid">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">grid</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">mooring_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">p_start</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">200.0</span><span class="p">,</span>
+        <span class="n">p_end</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1000.0</span><span class="p">,</span>
+        <span class="n">dp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.0</span><span class="p">,</span>
+        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Interpolate the stacked mooring dataset onto a regular pressure grid.</span>
+
+<span class="sd">        Reads ``{mooring}_stack.nc``, interpolates all variables onto a pressure</span>
+<span class="sd">        axis from *p_start* to *p_end* in steps of *dp* dbar, and writes</span>
+<span class="sd">        ``{mooring}_grid.nc``.</span>
+
+<span class="sd">        Returns True on success, False on error.</span>
+<span class="sd">        """</span>
+        <span class="n">proc_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_proc_dir</span><span class="p">(</span><span class="n">mooring_name</span><span class="p">)</span>
+        <span class="n">merge_path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">product_file</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">,</span> <span class="n">mooring_name</span><span class="p">,</span> <span class="s2">"stack"</span><span class="p">)</span>
+        <span class="n">output_path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">product_file</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">,</span> <span class="n">mooring_name</span><span class="p">,</span> <span class="s2">"grid"</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">stack_found</span> <span class="o">=</span> <span class="n">merge_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+            <span class="n">output_found</span> <span class="o">=</span> <span class="n">output_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TimeoutError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"ERROR: Cannot access data drive — is it connected?"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"       Path: </span><span class="si">{</span><span class="n">merge_path</span><span class="o">.</span><span class="n">parent</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"       (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">stack_found</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR: Stack file not found: </span><span class="si">{</span><span class="n">merge_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"       Run 'oceanarray process MOORING --stage stack' first."</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">output_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="s2">"skip"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rel</span><span class="p">(</span><span class="n">output_path</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span>
+                <span class="n">merge_path</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">"netcdf4"</span><span class="p">,</span> <span class="n">decode_timedelta</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+                <span class="n">ds_stack</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TimeoutError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"ERROR: Cannot read stack file — is the data drive connected?"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"       (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ds_out</span> <span class="o">=</span> <span class="n">grid</span><span class="p">(</span><span class="n">ds_stack</span><span class="p">,</span> <span class="n">pmin</span><span class="o">=</span><span class="n">p_start</span><span class="p">,</span> <span class="n">pmax</span><span class="o">=</span><span class="n">p_end</span><span class="p">,</span> <span class="n">dp</span><span class="o">=</span><span class="n">dp</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="c1"># write() replaces atomically (temp file then rename), so the previous</span>
+        <span class="c1"># output survives a failed write; do not unlink it first.</span>
+        <span class="n">write</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="s2">"file"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rel</span><span class="p">(</span><span class="n">output_path</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

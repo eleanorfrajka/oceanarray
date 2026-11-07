@@ -1,0 +1,262 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OceanSITES export &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Calibration dips or “caldips”" href="../calibration_dips.html" />
+    <link rel="prev" title="Grid: Vertical Pressure Grid" href="vertical_gridding.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vertical_gridding.html">Grid onto pressure</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Export to OceanSITES</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#running-the-export">Running the export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#products">Products</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-mode">Data mode</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanarray_format.html">OceanArray Data Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migrating_0_6_0.html">Upgrading from 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">OceanSITES export</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/methods/oceansites_export.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="oceansites-export">
+<h1>OceanSITES export<a class="headerlink" href="#oceansites-export" title="Link to this heading"></a></h1>
+<p>oceanarray writes its products as <a class="reference external" href="https://www.ocean-ops.org/oceansites/docs/oceansites_data_format_reference_manual.pdf">OceanSITES 1.4</a>
+files (see <a class="reference internal" href="../oceanSITES_manual.html"><span class="doc">OceanSITES Data Format Reference Manual</span></a>): <code class="docutils literal notranslate"><span class="pre">format_version</span> <span class="pre">=</span> <span class="pre">&quot;1.4&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">Conventions</span></code>
+naming CF, OceanSITES-1.4 and ACDD.  The files follow the format; they are not yet ready
+to submit to a GDAC, which needs a <code class="docutils literal notranslate"><span class="pre">site_code</span></code> approved by the OceanSITES Project Office.</p>
+<section id="running-the-export">
+<h2>Running the export<a class="headerlink" href="#running-the-export" title="Link to this heading"></a></h2>
+<p>After stage 3 (and the grid, if one is wanted), from the command line:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>oceanarray<span class="w"> </span><span class="nb">export</span><span class="w"> </span>/data/proc/dune2_1_2026<span class="w"> </span>--array<span class="w"> </span>/data/proc/MIXSED2026.array.yaml
+oceanarray<span class="w"> </span><span class="nb">export</span><span class="w"> </span>dune2_1_2026<span class="w"> </span>--proc-dir<span class="w"> </span>/data/proc<span class="w"> </span>-n<span class="w">     </span><span class="c1"># list the file names only</span>
+</pre></div>
+</div>
+<p>or from Python:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">oa</span>
+
+<span class="n">oa</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="s2">"/data/proc/dune2_1_2026/dune2_1_2026.mooring.yaml"</span><span class="p">,</span>
+          <span class="n">array</span><span class="o">=</span><span class="s2">"/data/proc/MIXSED2026.array.yaml"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The files go to <code class="docutils literal notranslate"><span class="pre">&lt;mooring</span> <span class="pre">folder&gt;/oceansites/</span></code> (<code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">DIR</span></code> / <code class="docutils literal notranslate"><span class="pre">out_dir=</span></code> to change it).
+An existing file is kept unless <code class="docutils literal notranslate"><span class="pre">--force</span></code> (<code class="docutils literal notranslate"><span class="pre">overwrite=True</span></code>) is given.  An instrument
+that cannot be exported is listed and left out; the others are written.  <code class="docutils literal notranslate"><span class="pre">--no-grid</span></code>
+(<code class="docutils literal notranslate"><span class="pre">grid=False</span></code>) leaves the grid out.</p>
+<p>The mooring YAML needs <code class="docutils literal notranslate"><span class="pre">platform_code</span></code>; <code class="docutils literal notranslate"><span class="pre">deployment_code</span></code> (<code class="docutils literal notranslate"><span class="pre">YYYYMM</span></code>) is optional and
+taken from <code class="docutils literal notranslate"><span class="pre">deployment_time</span></code> when absent — <code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">validate</span></code> warns when the two
+disagree.  The array YAML (<code class="docutils literal notranslate"><span class="pre">--array</span></code>) supplies <code class="docutils literal notranslate"><span class="pre">site_code</span></code> and <code class="docutils literal notranslate"><span class="pre">project</span></code>.  See
+<a class="reference internal" href="../yaml_configuration.html"><span class="doc">YAML Configuration Reference</span></a>.</p>
+</section>
+<section id="products">
+<h2>Products<a class="headerlink" href="#products" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 25.0%" />
+<col style="width: 55.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>oceanarray file</p></th>
+<th class="head"><p>OceanSITES product</p></th>
+<th class="head"><p>file name</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{mooring}_{serial}_stage3.nc</span></code></p></td>
+<td><p>deployment data file (manual §4.1), one instrument, native sampling</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">OS_&lt;platform&gt;_&lt;YYYYMM&gt;_&lt;mode&gt;_&lt;type&gt;-&lt;serial&gt;-&lt;depth&gt;m.nc</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{mooring}_grid.nc</span></code></p></td>
+<td><p>gridded file (§4.2), time and pressure grid</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">OS_&lt;platform&gt;-&lt;YYYYMM&gt;_&lt;start&gt;-&lt;end&gt;_GRD_&lt;interval&gt;-DP&lt;step&gt;.nc</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;platform&gt;</span></code> is <code class="docutils literal notranslate"><span class="pre">platform_code</span></code> from the mooring YAML (the station, e.g. <code class="docutils literal notranslate"><span class="pre">DUNE2</span></code>);
+it may not contain <code class="docutils literal notranslate"><span class="pre">_</span></code>, the field separator.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;YYYYMM&gt;</span></code> is the month of <code class="docutils literal notranslate"><span class="pre">deployment_time</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;mode&gt;</span></code> is <code class="docutils literal notranslate"><span class="pre">P</span></code>, <code class="docutils literal notranslate"><span class="pre">D</span></code> or <code class="docutils literal notranslate"><span class="pre">M</span></code> (mixed), from the data modes below.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;type&gt;</span></code> is <code class="docutils literal notranslate"><span class="pre">CTD</span></code> (with pressure, measured or interpolated from neighbouring
+instruments and flagged 8), <code class="docutils literal notranslate"><span class="pre">CT</span></code> (no pressure at all), <code class="docutils literal notranslate"><span class="pre">CTDO</span></code> (CTD and oxygen), <code class="docutils literal notranslate"><span class="pre">O</span></code> (oxygen only), <code class="docutils literal notranslate"><span class="pre">T</span></code>
+(temperature only), <code class="docutils literal notranslate"><span class="pre">CM</span></code> (current meter) or <code class="docutils literal notranslate"><span class="pre">ADCP</span></code>; <code class="docutils literal notranslate"><span class="pre">&lt;depth&gt;</span></code> is the nominal depth in whole
+metres.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;interval&gt;</span></code> is the time step in ISO 8601 (<code class="docutils literal notranslate"><span class="pre">PT10M</span></code>); <code class="docutils literal notranslate"><span class="pre">&lt;step&gt;</span></code> the pressure step in
+dbar.</p></li>
+</ul>
+<p>An ADCP is one file with its bins on <code class="docutils literal notranslate"><span class="pre">DEPTH</span></code>: the nominal transducer depth plus (down-looking)
+or minus (up-looking) the distance to each bin, from the orientation in the mooring
+description or, without one, the instrument header; with neither, the export refuses.
+<code class="docutils literal notranslate"><span class="pre">PRES</span></code> holds the pressure at each bin, computed from the transducer’s measured
+pressure, which the file also carries as <code class="docutils literal notranslate"><span class="pre">TRANSDUCER_PRES(TIME)</span></code> (its nominal depth in
+<code class="docutils literal notranslate"><span class="pre">sensor_depth</span></code>): <code class="docutils literal notranslate"><span class="pre">DEPTH</span></code> is nominal, and the pressures show the knock-down.  The below-seabed flag that stage 3 keeps
+apart (<code class="docutils literal notranslate"><span class="pre">seabed_qc</span></code>) is merged into each velocity’s <code class="docutils literal notranslate"><span class="pre">_QC</span></code> where it failed or was
+suspect, the worse flag winning; a passed seabed test leaves the flag as it was.</p>
+<p>The stack (instruments on one time base) is not exported yet; it will be a gridded file
+whose <code class="docutils literal notranslate"><span class="pre">DEPTH</span></code> levels each say how they reached the time base (nearest-neighbour
+subsample or linear interpolation).</p>
+<p>The grid stays on its pressure levels: <code class="docutils literal notranslate"><span class="pre">PRES(DEPTH)</span></code> holds the levels, and <code class="docutils literal notranslate"><span class="pre">DEPTH</span></code> is
+each level converted with <code class="docutils literal notranslate"><span class="pre">gsw.z_from_p</span></code> at the mooring latitude, so nothing is
+re-interpolated.  Its <code class="docutils literal notranslate"><span class="pre">history</span></code> names the grid and the stage files the stack was built
+from (manual §4.2.1).  A gridded file carries no <code class="docutils literal notranslate"><span class="pre">_QC</span></code> variables (§4.2.1: only good
+source data went into it).</p>
+</section>
+<section id="data-mode">
+<h2>Data mode<a class="headerlink" href="#data-mode" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">P</span></code> (provisional) until the calibration-dip correction is applied.  <code class="docutils literal notranslate"><span class="pre">D</span></code> (delayed
+mode) is set per variable after a manual review, recorded as <code class="docutils literal notranslate"><span class="pre">data_mode</span></code> on the
+instrument entry (one letter, or a mapping from variable name to letter), and is refused
+unless the stage-3 file records the calibration-dip correction.  In a deployment file
+each variable carries <code class="docutils literal notranslate"><span class="pre">&lt;PARAM&gt;:DM_indicator</span></code> and the global <code class="docutils literal notranslate"><span class="pre">data_mode</span></code> is the
+single mode, or <code class="docutils literal notranslate"><span class="pre">M</span></code> when the variables differ.</p>
+<p>A grid records no per-input data modes, so only a provisional (<code class="docutils literal notranslate"><span class="pre">P</span></code>) grid is exported;
+any other grid is refused.  <code class="docutils literal notranslate"><span class="pre">&lt;PARAM&gt;_DM</span></code> arrays, which a gridded file would need when
+its levels mixed modes, are not written.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="vertical_gridding.html" class="btn btn-neutral float-left" title="Grid: Vertical Pressure Grid" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../calibration_dips.html" class="btn btn-neutral float-right" title="Calibration dips or “caldips”" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

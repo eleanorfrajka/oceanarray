@@ -1,0 +1,440 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.pipeline.calibration.caldip &mdash; oceanarray v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../processing_framework.html">OceanArray processing framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reports.html">HTML Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../directory_structure.html">Directory Structure and File Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../file_naming_conventions.html">File Naming Conventions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stage 1 2 3 - Instrument</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/acquisition.html">0. Data Acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/standardisation.html">1. Standardisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../clock_offset.html">2. Clock Offset Analysis (optional)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/trimming.html">2. Trim to Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/calibration.html">3. Apply Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/auto_qc.html">3. Automatic QC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/nortek_coordinate_transform.html">3. Coordinate Transform</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Stack &amp; Grid - Moorings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/time_gridding.html">Stack into one NetCDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/vertical_gridding.html">Grid onto pressure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/oceansites_export.html">Export to OceanSITES</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Caldips</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../calibration_dips.html">Calibration dips</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../oceanarray.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cli_reference.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../yaml_configuration.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../project_structure.html">OceanArray Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../oceanarray_format.html">OceanArray Data Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog / Migration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../migrating_0_6_0.html">Upgrading from 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../migration.html">Migrating from the <code class="docutils literal notranslate"><span class="pre">--basedir</span></code> Layout</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../style_guide.html">Project Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/concatenation.html">Combine Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/multisite_merging.html">Multi-site Merging</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../pipeline.html">oceanarray.pipeline</a></li>
+          <li class="breadcrumb-item"><a href="../calibration.html">oceanarray.pipeline.calibration</a></li>
+      <li class="breadcrumb-item active">oceanarray.pipeline.calibration.caldip</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.pipeline.calibration.caldip</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Read caldip's per-cast netCDF: the bottle-stop comparisons a calibration correction is built from.</span>
+
+<span class="sd">caldip compares each mooring instrument with the shipboard CTD at the bottle stops of one cast</span>
+<span class="sd">and writes ``{cast}_caldip.nc`` (dimensions ``instrument`` and ``stop``). caldip measures;</span>
+<span class="sd">oceanarray decides: this module only reads and checks a cast. Choosing stops, reducing them to</span>
+<span class="sd">an offset or a slope, pairing a deployment dip with a recovery dip and applying the result are</span>
+<span class="sd">done elsewhere in :mod:`oceanarray.pipeline.calibration`.</span>
+
+<span class="sd">A cast is refused, never applied, when it</span>
+
+<span class="sd">- carries a ``schema_version`` other than :data:`SUPPORTED_SCHEMA_VERSION`,</span>
+<span class="sd">- lacks any of :data:`REQUIRED_PROVENANCE_GLOBALS`,</span>
+<span class="sd">- has a units string on a temperature, conductivity or pressure variable that is not a</span>
+<span class="sd">  recognised spelling of oceanarray's canonical unit for that quantity, or</span>
+<span class="sd">- has two instruments whose serials are the same join key.</span>
+
+<span class="sd">Sign convention: every ``*_diff`` variable is ``instrument − CTD``, so an instrument is</span>
+<span class="sd">corrected toward the reference by subtracting it (``corrected = measured − diff``).</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameters</span> <span class="k">as</span> <span class="n">params</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.config.unit_tables</span><span class="w"> </span><span class="kn">import</span> <span class="n">TABLES</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_serial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.reports._vendored.units</span><span class="w"> </span><span class="kn">import</span> <span class="n">UnitsError</span><span class="p">,</span> <span class="n">resolve_units</span>
+
+<span class="c1">#: Filename suffix of the per-cast caldip netCDF (strict — excludes CSV exports and variants).</span>
+<span class="n">CALDIP_SUFFIX</span> <span class="o">=</span> <span class="s2">"_caldip.nc"</span>
+
+<span class="c1">#: Schema version this reader understands (``schema_version`` global attribute).</span>
+<span class="n">SUPPORTED_SCHEMA_VERSION</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1">#: Integer value meaning "ok" in caldip's ``*_flag`` variables.</span>
+<span class="c1">#: ``flag_meanings`` order is ``ok no_data flagged missing unknown`` = ``1 2 3 4 9``.</span>
+<span class="n">CALDIP_FLAG_OK</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1">#: Global attributes that must all be present before a cast may be used.</span>
+<span class="n">REQUIRED_PROVENANCE_GLOBALS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"schema_version"</span><span class="p">,</span>
+    <span class="s2">"caldip_version"</span><span class="p">,</span>
+    <span class="s2">"tracking_id"</span><span class="p">,</span>
+    <span class="s2">"cruise_id"</span><span class="p">,</span>
+    <span class="s2">"cast_id"</span><span class="p">,</span>
+    <span class="s2">"data_mode"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">#: Global attributes oceanarray copies through into ``_stage3.nc`` when a correction is applied,</span>
+<span class="c1">#: under caldip/ctdcast's own names (no translation layer). Values may legitimately be ``UNK``</span>
+<span class="c1">#: for a ``.cnv``-input caldip cast.</span>
+<span class="n">PROVENANCE_PASSTHROUGH_GLOBALS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"tracking_id"</span><span class="p">,</span>
+    <span class="s2">"source_tracking_id"</span><span class="p">,</span>
+    <span class="s2">"cruise_id"</span><span class="p">,</span>
+    <span class="s2">"cast_id"</span><span class="p">,</span>
+    <span class="s2">"caldip_version"</span><span class="p">,</span>
+    <span class="s2">"schema_version"</span><span class="p">,</span>
+    <span class="s2">"data_mode"</span><span class="p">,</span>
+    <span class="s2">"ctd_path"</span><span class="p">,</span>
+    <span class="s2">"ctd_stage"</span><span class="p">,</span>
+    <span class="s2">"input_mode"</span><span class="p">,</span>
+    <span class="s2">"qc_flags_honoured"</span><span class="p">,</span>
+    <span class="s2">"ctd_conductivity_slope"</span><span class="p">,</span>
+    <span class="s2">"ctd_cond_slope_adjusted"</span><span class="p">,</span>
+    <span class="s2">"ctd_temp_sensor_serial"</span><span class="p">,</span>
+    <span class="s2">"ctd_cond_sensor_serial"</span><span class="p">,</span>
+    <span class="s2">"ctd_temp_sensor_caldate"</span><span class="p">,</span>
+    <span class="s2">"ctd_cond_sensor_caldate"</span><span class="p">,</span>
+    <span class="s2">"ctd_temp_processing_level"</span><span class="p">,</span>
+    <span class="s2">"ctd_cond_processing_level"</span><span class="p">,</span>
+    <span class="s2">"ctd_press_processing_level"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">#: caldip's short variable stem → oceanarray's registry name, whose units are the canonical.</span>
+<span class="n">CALDIP_QUANTITIES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"temp"</span><span class="p">:</span> <span class="s2">"temperature"</span><span class="p">,</span> <span class="s2">"cond"</span><span class="p">:</span> <span class="s2">"conductivity"</span><span class="p">,</span> <span class="s2">"press"</span><span class="p">:</span> <span class="s2">"pressure"</span><span class="p">}</span>
+
+<span class="c1">#: The per-quantity variables a cast carries, by suffix (``{stem}_diff`` …) and prefix</span>
+<span class="c1">#: (``inst_{stem}``, ``ctd_{stem}``).</span>
+<span class="n">_UNIT_SUFFIXES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"_diff"</span><span class="p">,</span> <span class="s2">"_std"</span><span class="p">)</span>
+<span class="n">_UNIT_PREFIXES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"inst_"</span><span class="p">,</span> <span class="s2">"ctd_"</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="CaldipError">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.calibration.caldip.CaldipError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CaldipError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Base error for caldip-file reading and matching."""</span></div>
+
+
+
+<div class="viewcode-block" id="CaldipProvenanceError">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.calibration.caldip.CaldipProvenanceError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CaldipProvenanceError</span><span class="p">(</span><span class="n">CaldipError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Raised when a caldip file lacks the provenance required before it may be used."""</span></div>
+
+
+
+<div class="viewcode-block" id="canonical_serial">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.calibration.caldip.canonical_serial">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">canonical_serial</span><span class="p">(</span><span class="n">serial</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the join-key form of an instrument serial.</span>
+
+<span class="sd">    The caldip↔oceanarray contract matches instruments on ``serial`` after making it</span>
+<span class="sd">    filename-safe and stripping leading zeros, so ``013874`` and ``13874`` join and the</span>
+<span class="sd">    trailing YAML marker asterisk (``9920*``) is dropped. Both packages apply it on read,</span>
+<span class="sd">    so the join is symmetric.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    serial : Any</span>
+<span class="sd">        Raw serial value from a caldip file coordinate or a mooring YAML entry.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The join-key serial: filename-safe with leading zeros removed. An all-zero token</span>
+<span class="sd">        falls back to its filename-safe form rather than the empty string.</span>
+
+<span class="sd">    """</span>
+    <span class="n">safe</span> <span class="o">=</span> <span class="n">safe_serial</span><span class="p">(</span><span class="n">serial</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">safe</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">"0"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">safe</span></div>
+
+
+
+<div class="viewcode-block" id="read_caldip_cast">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.calibration.caldip.read_caldip_cast">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_caldip_cast</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Open one ``{cast}_caldip.nc``, check it, and return it ready for matching.</span>
+
+<span class="sd">    The file is loaded into memory and closed. The ``serial`` coordinate is replaced by its</span>
+<span class="sd">    join key (:func:`canonical_serial`), and the units of every temperature, conductivity and</span>
+<span class="sd">    pressure variable are rewritten to oceanarray's canonical spelling. A genuine conversion</span>
+<span class="sd">    (factor ≠ 1) multiplies the values and records ``units_converted_from`` and</span>
+<span class="sd">    ``units_conversion_factor`` on the variable, as the stage writers do. The source path is</span>
+<span class="sd">    recorded in ``attrs["source_path"]``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : str or pathlib.Path</span>
+<span class="sd">        Path to a ``{cast}_caldip.nc`` file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        The cast, with dimensions ``instrument`` and ``stop``.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    CaldipError</span>
+<span class="sd">        If the schema version is not :data:`SUPPORTED_SCHEMA_VERSION`, a units string is not</span>
+<span class="sd">        a recognised spelling of the canonical unit, or two serials share a join key.</span>
+<span class="sd">    CaldipProvenanceError</span>
+<span class="sd">        If any of :data:`REQUIRED_PROVENANCE_GLOBALS` is missing.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; cast = read_caldip_cast("proc_calib/msm142_2026/castM4_caldip.nc")</span>
+<span class="sd">    &gt;&gt;&gt; instrument_record(cast, "013840")["cond_diff"].values</span>
+
+<span class="sd">    """</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">"netcdf4"</span><span class="p">)</span> <span class="k">as</span> <span class="n">_ds</span><span class="p">:</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">_ds</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+
+    <span class="n">_check_provenance</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="n">_check_schema</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">_canonical_units</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+
+    <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">canonical_serial</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"serial"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">]</span>
+    <span class="n">duplicates</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">({</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span> <span class="k">if</span> <span class="n">keys</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">})</span>
+    <span class="k">if</span> <span class="n">duplicates</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: serials </span><span class="si">{</span><span class="n">duplicates</span><span class="si">}</span><span class="s2"> occur more than once after normalising"</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="n">CaldipError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span><span class="n">serial</span><span class="o">=</span><span class="p">(</span><span class="s2">"instrument"</span><span class="p">,</span> <span class="n">keys</span><span class="p">))</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">"serial"</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"comment"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">"join key: canonical_serial of the serial caldip wrote"</span>
+    <span class="p">)</span>
+
+    <span class="n">_warn_unknown_instrument_types</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"source_path"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds</span></div>
+
+
+
+<div class="viewcode-block" id="instrument_record">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.calibration.caldip.instrument_record">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">instrument_record</span><span class="p">(</span><span class="n">cast</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">serial</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return one instrument's per-stop record from a cast, or ``None`` if it is not there.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cast : xarray.Dataset</span>
+<span class="sd">        A cast from :func:`read_caldip_cast`.</span>
+<span class="sd">    serial : Any</span>
+<span class="sd">        Instrument serial in any form; matched by :func:`canonical_serial`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset or None</span>
+<span class="sd">        The instrument's slice, indexed over ``stop`` (the per-stop CTD variables come</span>
+<span class="sd">        with it), or ``None`` when the serial is not in the cast.</span>
+
+<span class="sd">    """</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">canonical_serial</span><span class="p">(</span><span class="n">serial</span><span class="p">)</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">cast</span><span class="p">[</span><span class="s2">"serial"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">==</span> <span class="n">key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">idx</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">cast</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">instrument</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_provenance</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Refuse a cast missing any required provenance attribute."""</span>
+    <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">REQUIRED_PROVENANCE_GLOBALS</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: missing provenance attributes </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">; the cast cannot be used"</span>
+        <span class="k">raise</span> <span class="n">CaldipProvenanceError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_schema</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Refuse a cast written to a schema this reader does not know."""</span>
+    <span class="n">schema</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"schema_version"</span><span class="p">]</span>
+    <span class="c1"># Equal in value, not truncated: 1, 1.0 and "1" are version 1; 1.5 and True are not.</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">supported</span> <span class="o">=</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUPPORTED_SCHEMA_VERSION</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="n">supported</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">supported</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: schema_version </span><span class="si">{</span><span class="n">schema</span><span class="si">!r}</span><span class="s2">, but this reader understands "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">SUPPORTED_SCHEMA_VERSION</span><span class="si">}</span><span class="s2">; update oceanarray or re-run caldip"</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="n">CaldipError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_canonical_units</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Rewrite the T/C/P variables' units to the registry spelling, or refuse."""</span>
+    <span class="k">for</span> <span class="n">stem</span><span class="p">,</span> <span class="n">quantity</span> <span class="ow">in</span> <span class="n">CALDIP_QUANTITIES</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">canonical</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">VARIABLES</span><span class="p">[</span><span class="n">quantity</span><span class="p">][</span><span class="s2">"units"</span><span class="p">]</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">stem</span><span class="si">}{</span><span class="n">s</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">_UNIT_SUFFIXES</span><span class="p">]</span>
+        <span class="n">names</span> <span class="o">+=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">p</span><span class="si">}{</span><span class="n">stem</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">_UNIT_PREFIXES</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">units</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"units"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">spelling</span><span class="p">,</span> <span class="n">factor</span> <span class="o">=</span> <span class="n">resolve_units</span><span class="p">(</span>
+                    <span class="n">units</span><span class="p">,</span> <span class="n">canonical</span><span class="o">=</span><span class="n">canonical</span><span class="p">,</span> <span class="n">tables</span><span class="o">=</span><span class="n">TABLES</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="n">UnitsError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> units </span><span class="si">{</span><span class="n">units</span><span class="si">!r}</span><span class="s2"> — </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span>
+                <span class="k">raise</span> <span class="n">CaldipError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+            <span class="k">if</span> <span class="n">factor</span> <span class="o">!=</span> <span class="mf">1.0</span><span class="p">:</span>
+                <span class="n">ds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">data</span> <span class="o">*</span> <span class="n">factor</span>
+                <span class="n">ds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"units_converted_from"</span><span class="p">]</span> <span class="o">=</span> <span class="n">units</span>
+                <span class="n">ds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"units_conversion_factor"</span><span class="p">]</span> <span class="o">=</span> <span class="n">factor</span>
+            <span class="n">ds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"units"</span><span class="p">]</span> <span class="o">=</span> <span class="n">spelling</span>
+    <span class="k">return</span> <span class="n">ds</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_warn_unknown_instrument_types</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Warn on any ``instrument_type`` outside oceanarray's vocabulary."""</span>
+    <span class="k">if</span> <span class="s2">"instrument_type"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">known</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">KNOWN_INSTRUMENT_TYPES</span><span class="p">}</span>
+    <span class="n">seen</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"instrument_type"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)}</span>
+    <span class="n">unknown</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">seen</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">known</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">unknown</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: instrument_type </span><span class="si">{</span><span class="n">unknown</span><span class="si">}</span><span class="s2"> not in oceanarray's vocabulary"</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams, FirstName LastName.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
