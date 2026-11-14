@@ -646,14 +646,16 @@ def generate_instrument_pages(
             )
         ctx["analog_yaml_info"] = analog_yaml_info
         # Warn if magnetic declination was not applied (lat/lon missing from YAML)
-        _global_names = {
-            attr
+        _global_attrs = {
+            attr: _val
             for _title, rows in ctx["nc_meta"].get("global_groups", [])
             for attr, _type, _val in rows
         }
+        # Warn when declination was not applied: the attribute is absent, or "UNK"
+        # (stage 3 had no mooring position), so the velocities are magnetic north.
         ctx["declination_warn"] = (
             instr_type.lower() == "aquadopp"
-            and "magnetic_declination" not in _global_names
+            and _global_attrs.get("magnetic_declination") in (None, "UNK")
         )
         # True when the NC contains instrument-frame XYZ velocities (rose has XYZ panel)
         _tvar_names = {

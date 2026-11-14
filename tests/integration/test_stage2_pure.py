@@ -135,3 +135,16 @@ def test_stage2_processor_logs_to_console_and_stage_log(tmp_path, capsys, monkey
     logs = list((root / "dune2_1_2026").rglob("*stage2*.log"))
     assert logs, "no stage-2 log written"
     assert "Final time range" in logs[0].read_text()
+
+
+def test_stage2_refuses_a_stage1_file_with_missing_times():
+    """A stage-1 file holding NaT (written before the readers dropped them) is refused."""
+    from oceanarray.exceptions import MooringError
+
+    cfg = _mooring.load(_YAML)
+    ds = read_mooring(cfg, stage=1, serials=["2941"], mooring_dir=_FIX)["2941"].load()
+    time = ds["time"].values.copy()
+    time[-3:] = np.datetime64("NaT", "ns")
+    ds = ds.assign_coords(time=time)
+    with pytest.raises(MooringError, match="2941: 3 record"):
+        stage2({"2941": ds}, cfg)

@@ -544,6 +544,14 @@ def _stage1_instrument(
     # An imported file's units are the originator's word; check the values agree.
     if file_type in ("oceansites", "rodb"):
         _refuse_out_of_range(dataset, stated_units)
+    # The reader drops records with no time and counts them; say so in history.
+    n_no_time = dataset.attrs.get("n_records_without_time")
+    if n_no_time:
+        _stage.append_history(
+            dataset,
+            f"dropped {int(n_no_time)} record(s) with no time at read "
+            f"({dataset.attrs.get('source_file', 'raw file')})",
+        )
     return dataset
 
 

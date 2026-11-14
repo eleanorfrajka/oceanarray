@@ -126,3 +126,35 @@ def test_low_passed_file_without_stack_false_is_omitted(tmp_path):
     out = xr.open_dataset(proc / "dune2_1_2026_stack.nc", engine="netcdf4")
     assert "stack: false" in out.attrs["instruments_omitted"]
     out.close()
+
+
+def test_stack_names_an_entry_with_no_hab():
+    """A stacked entry with no hab is omitted and named, not silently dropped."""
+    from oceanarray import mooring as _mooring
+    from oceanarray.pipeline.read_mooring import read_mooring
+    from oceanarray.pipeline.stack import stack
+
+    cfg = _mooring.load(_FIXTURE / "dune2_1_2026.mooring.yaml")
+    for entry in cfg["clamp"]:
+        if str(entry["serial"]) == "2941":
+            entry.pop("hab")
+    datasets = read_mooring(cfg, stage=3, mooring_dir=_FIXTURE)
+    ds = stack(datasets, cfg)
+    omitted = ds.attrs["instruments_omitted"]
+    assert "microcat s/n 2941 (no hab in the mooring YAML" in omitted
+    assert [str(s) for s in ds["serial"].values] == ["9920"]
+
+
+def test_stack_does_not_report_a_skipped_entry_with_no_hab():
+    from oceanarray import mooring as _mooring
+    from oceanarray.pipeline.read_mooring import read_mooring
+    from oceanarray.pipeline.stack import stack
+
+    cfg = _mooring.load(_FIXTURE / "dune2_1_2026.mooring.yaml")
+    datasets = read_mooring(cfg, stage=3, serials=["9920"], mooring_dir=_FIXTURE)
+    for entry in cfg["clamp"]:
+        if str(entry["serial"]) == "2941":
+            entry.pop("hab")
+            entry["skip"] = True
+    ds = stack(datasets, cfg)
+    assert "instruments_omitted" not in ds.attrs

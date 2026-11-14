@@ -218,3 +218,43 @@ def test_stage1_pointing_down_flips_y_and_z():
     np.testing.assert_array_equal(
         flipped["velocity_z"].values, -up["velocity_z"].values
     )
+
+
+def test_stage1_records_records_dropped_for_missing_time(tmp_path):
+    """A raw file with fill times: stage 1 writes the count and a history line."""
+    from oceanarray import readers
+    from oceanarray.writers import write
+
+    osnap = _RAW / "osnap"
+    lines = (osnap / "rtwb1_01_2014_001.microcat").read_text().splitlines()
+    row = lines[20].split()
+    row[3] = "-9999"  # a fill in the HH column
+    lines[20] = "  ".join(row)
+    path = tmp_path / "rtwb1_01_2014_001.microcat"
+    path.write_text("\n".join(lines) + "\n")
+
+    cfg = {
+        "name": "rtwb1_01_2014",
+        "waterdepth": 1600,
+        "latitude": "57 28.240 N",
+        "longitude": "012 42.300 W",
+        "deployment_time": "2014-07-17T12:00",
+        "recovery_time": "2015-06-22T12:00",
+        "clamp": [
+            {
+                "serial": 11335,
+                "instrument": "microcat",
+                "file_type": "rodb",
+                "filename": path.name,
+                "hab": 1500,
+            }
+        ],
+    }
+    with pytest.warns(UserWarning, match="dropped 1 record"):
+        raw = readers._read_typed("rodb", str(path))
+    raw.attrs["source_file"] = path.name
+    out = stage1({"11335": raw}, cfg)["11335"]
+    assert "dropped 1 record(s) with no time at read" in out.attrs["history"]
+    written = xr.open_dataset(write(out, tmp_path / "stage1.nc"), engine="netcdf4")
+    assert int(written.attrs["n_records_without_time"]) == 1
+    written.close()

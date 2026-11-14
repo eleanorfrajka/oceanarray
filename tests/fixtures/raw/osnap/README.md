@@ -1,7 +1,7 @@
 # OSNAP reader fixtures
 
 Trimmed real files (480 records each) for the `oceansites` and `rodb` readers in
-`oceanarray.tools.readers`. One file per format and instrument type. Header and
+`oceanarray.readers`. One file per format and instrument type. Header and
 global attributes are unchanged; only the time dimension is cut.
 
 | File | Format | Instrument | Source |

@@ -520,6 +520,21 @@ def _drop_redundant_sbe_vars(dataset: xr.Dataset) -> xr.Dataset:
     return dataset
 
 
+def _refuse_missing_time(ds: xr.Dataset, entry: dict[str, Any]) -> None:
+    """Raise MooringError when a stage-1 dataset holds records with no time (NaT)."""
+    time = ds["time"].values
+    if not np.issubdtype(time.dtype, np.datetime64):
+        return
+    n = int(np.isnat(time).sum())
+    if n:
+        raise MooringError(
+            f"{entry.get('instrument', 'unknown')} s/n "
+            f"{paths.safe_serial(entry.get('serial', 'unknown'))}: {n} record(s) "
+            "with no time in the stage-1 file; re-run stage 1 (the reader now "
+            "drops them)"
+        )
+
+
 def _stage2_instrument(
     ds: xr.Dataset,
     entry: dict[str, Any],
@@ -528,6 +543,7 @@ def _stage2_instrument(
     recover_time: np.datetime64,
 ) -> xr.Dataset:
     """Apply clock corrections and deployment trimming to one instrument dataset."""
+    _refuse_missing_time(ds, entry)
     dataset = to_canonical_units(ds.copy(deep=True), log_fn=log_info, stage=2)
 
     _stage1_t0 = dataset["time"].values[0]
@@ -619,6 +635,12 @@ def stage2(
     -------
     dict of str to xarray.Dataset
         Stage-2 datasets keyed by serial.
+
+    Raises
+    ------
+    oceanarray.exceptions.MooringError
+        If a stage-1 dataset holds records with no time (written before the
+        readers dropped them); re-run stage 1.
     """
     deploy_time = _parse_yaml_time(mooring, "deployment_time")
     recover_time = _parse_yaml_time(mooring, "recovery_time")

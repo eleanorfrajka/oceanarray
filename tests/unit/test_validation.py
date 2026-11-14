@@ -1,9 +1,19 @@
 """Unit tests for oceanarray.validation module."""
 
+from pathlib import Path
+
 import pytest
 import yaml
 
 from oceanarray import mooring
+
+_DUNE2_YAML = (
+    Path(__file__).resolve().parents[1]
+    / "fixtures"
+    / "proc"
+    / "dune2_1_2026"
+    / "dune2_1_2026.mooring.yaml"
+)
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -456,3 +466,43 @@ def test_stack_key_must_be_boolean(tmp_path):
     data["instruments"][0]["stack"] = False
     errors = _errors(mooring.check(_write_yaml(tmp_path, data)))
     assert not any("stack=" in e.message for e in errors)
+
+
+def test_stacked_entry_without_hab_is_warning():
+    """A stacked entry with no hab is omitted by the stack, so validate warns."""
+    cfg = mooring.load(_DUNE2_YAML)
+    for entry in cfg["clamp"]:
+        if str(entry["serial"]) == "2941":
+            entry.pop("hab")
+    warns = [w.message for w in _warnings(mooring.check(cfg)) if "hab" in w.message]
+    assert len(warns) == 1 and "2941" in warns[0] and "stack: false" in warns[0]
+
+
+def test_entry_without_hab_is_quiet_when_not_stacked():
+    cfg = mooring.load(_DUNE2_YAML)
+    for entry in cfg["clamp"]:
+        entry.pop("hab")
+    cfg["clamp"][0]["stack"] = False
+    cfg["clamp"][1]["skip"] = True
+    assert not [w for w in _warnings(mooring.check(cfg)) if "'hab'" in w.message]
+
+
+def test_adcp_resolves_hab_from_hab_bottom_no_warning():
+    """An ADCP with hab_bottom (downward) resolves its hab, so validate is quiet."""
+    cfg = mooring.load(_DUNE2_YAML)
+    for entry in cfg["clamp"]:
+        if str(entry["serial"]) == "2941":
+            entry.pop("hab")
+            entry["hab_bottom"] = 100.0  # downward default → hab resolves to this
+    assert not [i for i in mooring.check(cfg) if "hab" in i.message]
+
+
+def test_adcp_missing_orientation_key_is_an_error():
+    """An ADCP that declares an orientation but lacks the matching hab key is an ERROR."""
+    cfg = mooring.load(_DUNE2_YAML)
+    for entry in cfg["clamp"]:
+        if str(entry["serial"]) == "2941":
+            entry.pop("hab")
+            entry["orientation"] = "up"  # needs hab_top, which is absent
+    errs = [e.message for e in _errors(mooring.check(cfg)) if "hab_top" in e.message]
+    assert len(errs) == 1 and "2941" in errs[0] and "up" in errs[0]

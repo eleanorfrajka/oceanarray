@@ -320,6 +320,16 @@ def _fill_cf_attrs(ds: xr.Dataset) -> None:
         set_qc_attrs(ds, qv[:-3])
 
 
+def _declination_clause(value: Any) -> str:
+    """Return the history clause for a ``magnetic_declination`` attribute value."""
+    if value is None:
+        return "declination=0.00° (assumed 0)"
+    if isinstance(value, str):
+        # "UNK": no mooring position, so no declination was applied.
+        return "declination not applied (position unknown)"
+    return f"declination={float(value):.2f}° (ppigrf IGRF)"
+
+
 def _stage3_instrument(
     info: dict[str, Any],
     sources: list[dict[str, Any]],
@@ -444,9 +454,12 @@ def _stage3_instrument(
             f"BEAM→ENU rotation applied: "
             f"beam_angle={beam_angle}° "
             f"({'ASSUMED DEFAULT — not from datasheet' if assumed else 'from YAML'}), "
-            f"declination={ds.attrs.get('magnetic_declination', 0.0):.2f}° "
-            f"({'ppigrf IGRF' if 'magnetic_declination' in ds.attrs else 'assumed 0'})"
+            + _declination_clause(ds.attrs.get("magnetic_declination"))
         )
+    elif ds.attrs.get("magnetic_declination") == "UNK":
+        # No rotation happened (native ENU, or a BEAM dataset that stayed BEAM), but
+        # declination was not applied — record it so the history matches the "UNK" attr.
+        history_notes.append(_declination_clause("UNK"))
 
     qc_summary = _format_qc_summary(ds)
     if qc_summary:

@@ -317,8 +317,11 @@ def stack(
     (nearest neighbour) when it samples at least as fast as *dt_seconds*, else
     interpolated linearly in time; ADCPs expand into one level per bin plus a head
     level. Instruments marked ``stack: false`` are left out and named in
-    ``instruments_excluded``; instruments that cannot be stacked (non-canonical
-    units, low-passed data) are left out and named in ``instruments_omitted``.
+    ``instruments_excluded``; instruments that cannot be stacked (no ``hab`` in
+    the description, non-canonical units, low-passed data) are left out and named
+    in ``instruments_omitted``. A level whose stage-3 ``magnetic_declination`` is
+    ``"UNK"`` (no mooring position) gets NaN in the per-level
+    ``magnetic_declination``, whose ``comment`` names those levels.
 
     Parameters
     ----------
@@ -400,6 +403,12 @@ def stack(
             continue
         hab = entry.get("hab")
         if hab is None:
+            # No height above bottom: the level cannot be placed. Named, not silent
+            # (a skipped entry is not processed, so it is not reported).
+            if not entry.get("skip"):
+                reason = "no hab in the mooring YAML; set hab, or stack: false"
+                omitted.append(f"{instr_type} s/n {serial} ({reason})")
+                print(f"  ERROR: omitting {instr_type} s/n {serial} — {reason}")
             continue
         if serial not in datasets:
             why = next(
@@ -543,6 +552,7 @@ def stack(
     # omission is recorded loudly: in the summary, in an `instruments_omitted`
     # global attribute the grid inherits, and in the exit code.
     omitted_idx: list[int] = []  # enumerate positions of omitted instruments
+    decl_unknown: list[str] = []  # levels whose stage-3 declination is "UNK"
 
     for i, info in enumerate(instruments):
         serials.append(info["serial"])
@@ -634,6 +644,17 @@ def stack(
                 "long_name": "Magnetic declination (IGRF)",
             }
         decl_val = ds.attrs.get("magnetic_declination")
+        if decl_val == "UNK":
+            # Stage 3 had no position, so no declination was applied. Name each
+            # physical instrument once (an ADCP expands into _hd/_b## levels that
+            # all share the one declination).
+            base = info["serial"]
+            if "_adcp_bin_idx" in info or "_adcp_head" in info:
+                base = base.rsplit("_", 1)[0]
+            label = f"{info['instrument']} s/n {base}"
+            if label not in decl_unknown:
+                decl_unknown.append(label)
+            decl_val = None
         scalar_meta["magnetic_declination"].append(
             float(decl_val) if decl_val is not None else np.nan
         )
@@ -858,7 +879,15 @@ def stack(
                 dtype=np.float64,
             )
             unique_finite = np.unique(arr[np.isfinite(arr)])
-            if len(unique_finite) <= 1:
+            if vname == "magnetic_declination" and decl_unknown:
+                # Keep one value per level so the unknown ones stay NaN, and name them.
+                attrs = dict(scalar_attrs[vname])
+                attrs["comment"] = (
+                    "declination unknown (no mooring position at stage 3; not "
+                    "applied) for: " + "; ".join(decl_unknown)
+                )
+                data_vars[vname] = xr.Variable(("N_LEVELS",), arr, attrs=attrs)
+            elif len(unique_finite) <= 1:
                 val = float(unique_finite[0]) if len(unique_finite) == 1 else np.nan
                 data_vars[vname] = xr.Variable((), val, attrs=scalar_attrs[vname])
             else:

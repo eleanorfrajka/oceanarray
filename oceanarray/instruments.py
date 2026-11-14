@@ -5,6 +5,21 @@ from __future__ import annotations
 from typing import Any
 
 
+def hab_for(entry: dict[str, Any]) -> Any:
+    """Return an entry's height above bottom, filling it by orientation when absent.
+
+    An explicit ``hab`` always wins.  Otherwise an upward-looking instrument's HAB is
+    ``hab_top`` and a downward-looking one's is ``hab_bottom`` (the orientation
+    convention); an entry with no ``orientation`` falls back to ``hab_bottom`` — the
+    historical downward default.  Returns ``None`` when the needed key is absent.
+    """
+    if entry.get("hab") is not None:
+        return entry["hab"]
+    if str(entry.get("orientation", "") or "").lower() in ("up", "upward"):
+        return entry.get("hab_top")
+    return entry.get("hab_bottom")
+
+
 def extract_inline_instruments(
     inline_list: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
@@ -14,11 +29,9 @@ def extract_inline_instruments(
     This function filters for entries that have an ``instrument`` field and either
     a ``filename`` (to be processed) or ``skip: true`` (to be reported as skipped).
 
-    Normalisation applied to each matching entry:
+    Normalisation applied to each matching entry (``hab`` is filled later, for clamp
+    and inline alike, by :func:`instrument_entries` via :func:`hab_for`):
 
-    - ``hab`` is set from ``hab_bottom`` if ``hab`` is not already present.
-      For a downward-looking instrument the transducer is at the bottom of the
-      housing (``hab_bottom``); for an upward-looking one use ``hab_top``.
     - ``serial`` is split on the first comma and the first token is used as the
       primary serial number.  Any remaining tokens are joined and stored under
       ``beacon_id`` in the returned dict.
@@ -50,9 +63,6 @@ def extract_inline_instruments(
             continue
 
         normalized: dict[str, Any] = dict(entry)
-
-        if "hab" not in normalized and "hab_bottom" in normalized:
-            normalized["hab"] = normalized["hab_bottom"]
 
         serial_raw = str(entry.get("serial", ""))
         if "," in serial_raw:
@@ -86,4 +96,15 @@ def instrument_entries(mooring: dict[str, Any]) -> list[dict[str, Any]]:
     clamp = mooring.get("clamp")
     if clamp is None:
         clamp = mooring.get("instruments")
-    return list(clamp or []) + extract_inline_instruments(mooring.get("inline") or [])
+    entries = list(clamp or []) + extract_inline_instruments(
+        mooring.get("inline") or []
+    )
+    # Fill hab from hab_bottom/hab_top by orientation (clamp and inline alike), so the
+    # stack, the report and validate all read the same resolved hab.
+    resolved: list[dict[str, Any]] = []
+    for entry in entries:
+        hab = hab_for(entry)
+        if hab is not None and entry.get("hab") is None:
+            entry = {**entry, "hab": hab}
+        resolved.append(entry)
+    return resolved

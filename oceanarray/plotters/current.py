@@ -888,7 +888,9 @@ def draw_instrument_rose(
         susp_mask = qc == 3
         fail_mask = qc == 4
 
-        decl_str = f"{float(decl):+.1f}°" if decl is not None else "?"
+        # decl is a float when applied, None when absent, or "UNK" when stage 3 had
+        # no position; show "?" for anything non-numeric.
+        decl_str = f"{float(decl):+.1f}°" if isinstance(decl, (int, float)) else "?"
         enu_title = f"ENU true (decl = {decl_str})\nflags 0–2, 7, 8 (usable)"
         if np.any(np.isfinite(e_all[good_mask])):
             panels.append((*_masked(good_mask), enu_title, "Blues"))

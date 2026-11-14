@@ -51,9 +51,11 @@ def read_rodb(path: str | Path) -> xr.Dataset:
     ``Columns`` line names the data columns.  ``YY MM DD HH`` (decimal hours) build
     ``time``, rounded to the nearest second.  Other columns are renamed through
     :data:`RODB_COLUMNS` with their documented units; :data:`RODB_FILL_VALUES` become
-    NaN.  An ``.edt``/``.lowedt`` header's ``MagDeviation`` (already applied by the
-    originator) is recorded as ``originator_magnetic_declination`` and the velocities
-    marked ``coordinate_system = "ENU"``.  A ``.lowedt`` file is marked
+    NaN; a record with a fill in ``YY MM DD HH`` gets a ``NaT`` time (dropped, with
+    the count, by :func:`oceanarray.readers.read` and stage 1).  An
+    ``.edt``/``.lowedt`` header's ``MagDeviation`` (already applied by the
+    originator) is recorded as ``originator_magnetic_declination`` and the
+    velocities marked ``coordinate_system = "ENU"``.  A ``.lowedt`` file is marked
     ``originator_low_passed``.
 
     Parameters
@@ -71,12 +73,13 @@ def read_rodb(path: str | Path) -> xr.Dataset:
     ------
     ValueError
         If the header has no ``Columns`` line, a column is not in
-        :data:`RODB_COLUMNS`, or ``YY:MM:DD:HH`` are missing.
+        :data:`RODB_COLUMNS`, ``YY:MM:DD:HH`` are missing, or no data rows follow
+        the header.
     """
     path = Path(path)
     lines = path.read_text().splitlines()
     header: dict[str, str] = {}
-    start = 0
+    start = None
     for i, line in enumerate(lines):
         if not line.strip():
             continue
@@ -97,16 +100,30 @@ def read_rodb(path: str | Path) -> xr.Dataset:
             f"RODB_COLUMNS with the units documented in config/legacy/rodb_keys.yaml"
         )
 
+    if start is None:
+        raise ValueError(f"{path.name}: no data rows after the RODB header")
+
     data = np.atleast_2d(np.genfromtxt(lines[start:], dtype=float))
+    if data.shape[1] < 4:
+        raise ValueError(
+            f"{path.name}: data rows have fewer than 4 columns (need YY MM DD HH)"
+        )
     for fill in RODB_FILL_VALUES:
         data[data == fill] = np.nan
-    day = pd.to_datetime(
-        {"year": data[:, 0], "month": data[:, 1], "day": data[:, 2]}
-    ).to_numpy()
-    seconds = np.rint(data[:, 3] * 3600.0).astype("int64")
-    time = day + seconds.astype("timedelta64[s]")
+    # A fill in YY/MM/DD/HH leaves the record with no time: build it from the
+    # complete rows only and mark the rest NaT (a NaN hour cast to int64 is
+    # platform-dependent and can read as midnight).
+    valid = np.isfinite(data[:, :4]).all(axis=1)
+    time = np.full(len(data), np.datetime64("NaT", "ns"))
+    if valid.any():
+        rows = data[valid]
+        day = pd.to_datetime(
+            {"year": rows[:, 0], "month": rows[:, 1], "day": rows[:, 2]}
+        ).to_numpy()
+        seconds = np.rint(rows[:, 3] * 3600.0).astype("int64")
+        time[valid] = day + seconds.astype("timedelta64[s]")
 
-    out = xr.Dataset(coords={"time": time.astype("datetime64[ns]")})
+    out = xr.Dataset(coords={"time": time})
     for j, code in enumerate(columns[4:], start=4):
         name, units = RODB_COLUMNS[code]
         out[name] = xr.DataArray(

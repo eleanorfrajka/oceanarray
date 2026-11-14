@@ -192,18 +192,44 @@ def test_extract_inline_instruments_no_comma_serial():
     assert "beacon_id" not in result[0]
 
 
-def test_extract_inline_instruments_hab_bottom_to_hab():
-    """hab_bottom is copied to hab when hab is absent."""
-    inline = [
-        {
-            "instrument": "aquadopp",
-            "serial": "1234",
-            "filename": "f.dat",
-            "hab_bottom": 2.0,
-        }
-    ]
-    result = extract_inline_instruments(inline)
-    assert result[0]["hab"] == 2.0
+def test_instrument_entries_fills_hab_by_orientation():
+    """hab is filled from hab_bottom (down) / hab_top (up) for clamp and inline alike."""
+    cfg = {
+        "clamp": [
+            # downward (and no orientation → downward default): hab from hab_bottom
+            {"instrument": "ADCP", "serial": "d", "filename": "a", "hab_bottom": 2.0},
+            # upward: hab from hab_top, not hab_bottom
+            {
+                "instrument": "ADCP",
+                "serial": "u",
+                "filename": "b",
+                "orientation": "up",
+                "hab_top": 9.0,
+                "hab_bottom": 2.0,
+            },
+            # explicit hab always wins
+            {
+                "instrument": "ADCP",
+                "serial": "e",
+                "filename": "c",
+                "hab": 5.0,
+                "hab_bottom": 2.0,
+            },
+        ],
+        "inline": [
+            {
+                "instrument": "aquadopp",
+                "serial": "i",
+                "filename": "d",
+                "hab_bottom": 3.0,
+            },
+        ],
+    }
+    by_serial = {e["serial"]: e for e in instrument_entries(cfg)}
+    assert by_serial["d"]["hab"] == 2.0
+    assert by_serial["u"]["hab"] == 9.0
+    assert by_serial["e"]["hab"] == 5.0
+    assert by_serial["i"]["hab"] == 3.0
 
 
 def test_extract_inline_instruments_skip_entry_included():

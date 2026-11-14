@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+import shutil
+import warnings
 from pathlib import Path
 
+import netCDF4
 import numpy as np
 import pytest
 import xarray as xr
 
+from oceanarray import readers
 from oceanarray.pipeline.coordinate import apply_declination_to_enu
 from oceanarray.pipeline.units import UnitsError, to_canonical_units
 from oceanarray.readers import read_oceansites, read_rodb
@@ -109,7 +113,7 @@ def test_oceansites_drops_records_with_missing_time(tmp_path):
     ).to_netcdf(path)
 
     with pytest.warns(UserWarning, match="dropped 2 record"):
-        ds = read_oceansites(path)
+        ds = readers.read(path)
     assert ds.sizes == {"time": 3}
     assert not np.isnat(ds["time"].values).any()
 
@@ -134,8 +138,133 @@ def test_oceansites_non_datetime_calendar_is_not_dropped(tmp_path):
     ds["TIME"].attrs = {"units": "days since 2020-01-01", "calendar": "360_day"}
     ds.to_netcdf(path)
 
-    out = read_oceansites(path)
+    out = readers.read(path)
     assert out.sizes == {"time": 3}
+
+
+def _whoi_with_fill_times(tmp_path: Path, index: slice) -> Path:
+    """Copy the WHOI current-meter file with TIME[index] set to its fill (NaN)."""
+    path = tmp_path / WHOI_CM.name
+    shutil.copy(WHOI_CM, path)
+    with netCDF4.Dataset(path, "a") as nc:
+        time = nc["TIME"][:].filled(np.nan)
+        time[index] = np.nan
+        nc["TIME"][:] = time
+    return path
+
+
+@pytest.mark.parametrize("entry", ["read", "_read_typed"])
+def test_padded_tail_is_dropped_through_every_entry_point(tmp_path, entry):
+    """A NaT tail is dropped, counted and recorded, by read() and _read_typed alike."""
+    path = _whoi_with_fill_times(tmp_path, slice(-3, None))
+    with pytest.warns(UserWarning, match=rf"{WHOI_CM.name}: dropped 3 record"):
+        if entry == "read":
+            ds = readers.read(path)
+        else:
+            ds = readers._read_typed("oceansites", str(path))
+    assert ds.sizes == {"time": 477}
+    assert ds.attrs["n_records_without_time"] == 3
+    assert (np.diff(ds["time"].values) > np.timedelta64(0, "s")).all()
+
+
+def test_read_oceansites_itself_keeps_the_padding(tmp_path):
+    """The format reader is faithful; the drop happens once, at the choke point."""
+    path = _whoi_with_fill_times(tmp_path, slice(-3, None))
+    ds = read_oceansites(path)
+    assert ds.sizes == {"time": 480}
+    assert int(np.isnat(ds["time"].values).sum()) == 3
+
+
+def test_all_missing_time_raises(tmp_path):
+    path = _whoi_with_fill_times(tmp_path, slice(None))
+    with pytest.raises(ValueError, match="no record has a timestamp"):
+        readers.read(path)
+
+
+def test_zero_length_time_raises(tmp_path):
+    """A file with a zero-length time dimension raises, not returns an empty dataset."""
+    path = tmp_path / "empty.nc"
+    xr.Dataset(
+        {
+            "TEMP": (
+                "TIME",
+                np.array([], dtype="float32"),
+                {"units": "degree_Celsius", "standard_name": "sea_water_temperature"},
+            ),
+        },
+        coords={"TIME": np.array([], dtype="datetime64[ns]")},
+    ).to_netcdf(path)
+    with pytest.raises(ValueError, match="no record has a timestamp"):
+        readers.read(path)
+
+
+def test_non_standard_calendar_on_a_real_file_is_returned_whole(tmp_path):
+    """cftime time cannot hold NaT; the guard returns the dataset unchanged."""
+    path = tmp_path / WHOI_CM.name
+    shutil.copy(WHOI_CM, path)
+    with netCDF4.Dataset(path, "a") as nc:
+        nc["TIME"].setncattr("calendar", "360_day")
+    ds = readers.read(path)
+    assert ds.sizes == {"time": 480}
+    assert "n_records_without_time" not in ds.attrs
+
+
+def test_complete_file_carries_no_dropped_count():
+    ds = readers.read(WHOI_CM)
+    assert "n_records_without_time" not in ds.attrs
+
+
+def _microcat_with_lines(tmp_path: Path, edit) -> Path:
+    """Copy the RODB microcat into tmp_path with its lines passed through *edit*."""
+    path = tmp_path / RODB_MICROCAT.name
+    path.write_text("\n".join(edit(RODB_MICROCAT.read_text().splitlines())) + "\n")
+    return path
+
+
+def test_rodb_fill_in_a_time_column_drops_the_record(tmp_path):
+    """HH = -9999 and YY = -9999 give no time (not midnight) and are dropped."""
+
+    def edit(lines):
+        hh = lines[20].split()
+        hh[3] = "-9999"
+        yy = lines[30].split()
+        yy[0] = "-9999"
+        lines[20], lines[30] = "  ".join(hh), "  ".join(yy)
+        return lines
+
+    path = _microcat_with_lines(tmp_path, edit)
+    full = read_rodb(RODB_MICROCAT)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", RuntimeWarning)
+        raw = read_rodb(path)
+    assert int(np.isnat(raw["time"].values).sum()) == 2
+    with pytest.warns(UserWarning, match="dropped 2 record"):
+        ds = readers.read(path)
+    assert ds.sizes == {"time": full.sizes["time"] - 2}
+    assert ds.attrs["n_records_without_time"] == 2
+    kept = set(ds["time"].values)
+    assert set(np.delete(full["time"].values, [9, 19])) == kept
+
+
+def test_rodb_header_only_raises_no_data_rows(tmp_path):
+    path = _microcat_with_lines(tmp_path, lambda lines: lines[:11])
+    with pytest.raises(ValueError, match="no data rows after the RODB header"):
+        read_rodb(path)
+
+
+def test_rodb_header_and_blank_lines_raises_no_data_rows(tmp_path):
+    path = _microcat_with_lines(tmp_path, lambda lines: lines[:11] + ["", "  "])
+    with pytest.raises(ValueError, match="no data rows"):
+        read_rodb(path)
+
+
+def test_rodb_rows_with_fewer_than_four_columns_raise(tmp_path):
+    """Data rows without YY MM DD HH (fewer than 4 columns) are refused by name."""
+    path = _microcat_with_lines(
+        tmp_path, lambda lines: lines[:11] + ["  12.0  3.0", "  13.0  3.1"]
+    )
+    with pytest.raises(ValueError, match="fewer than 4 columns"):
+        read_rodb(path)
 
 
 def test_oceansites_keeps_all_records_when_time_is_complete():

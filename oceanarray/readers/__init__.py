@@ -16,6 +16,7 @@ import re
 import warnings
 from pathlib import Path
 
+import numpy as np
 import xarray as xr
 
 from oceanarray.config import parameters as params
@@ -37,10 +38,75 @@ __all__ = [
 _OCEANSITES_CODES = frozenset({"TEMP", "PSAL", "CNDC", "PRES", "UCUR", "VCUR", "WCUR"})
 
 
+#: Global attribute recording how many records the reader dropped for having no time.
+N_RECORDS_WITHOUT_TIME_ATTR = "n_records_without_time"
+
+
+def _drop_missing_time(dataset: xr.Dataset, source: str) -> xr.Dataset:
+    """Drop records whose ``time`` coordinate is ``NaT``, warning with the count.
+
+    Some originators pad a record that ended early with missing timestamps, and a
+    fill in a time column leaves a record with no time.  Left in, the ``NaT``
+    entries leave the ``time`` index non-monotonic, which later breaks the
+    deployment-window ``sel(time=slice(...))`` in stage 2, so they are removed
+    here, for every format, and the count is recorded in the global attribute
+    :data:`N_RECORDS_WITHOUT_TIME_ATTR`.
+
+    Parameters
+    ----------
+    dataset : xarray.Dataset
+        A dataset on a ``time`` dimension.
+    source : str
+        File name, named in the warning so the operator sees which file was padded.
+
+    Returns
+    -------
+    xarray.Dataset
+        The input unchanged when every timestamp is valid (or the dataset has no
+        datetime ``time`` coordinate), otherwise the subset of records with a valid
+        timestamp, carrying :data:`N_RECORDS_WITHOUT_TIME_ATTR`.
+
+    Raises
+    ------
+    ValueError
+        If no record has a valid timestamp.
+    """
+    if "time" not in dataset.coords:
+        return dataset
+    time = dataset["time"].values
+    if not np.issubdtype(time.dtype, np.datetime64):
+        # A non-standard calendar decodes to cftime objects (object dtype), which
+        # np.isnat cannot take and which cannot hold NaT; nothing to drop.
+        return dataset
+    if not time.size:
+        raise ValueError(f"{source}: no record has a timestamp (file has no records).")
+    missing = np.isnat(time)
+    n = int(missing.sum())
+    if not n:
+        return dataset
+    if n == missing.size:
+        raise ValueError(f"{source}: no record has a timestamp (all {n} missing).")
+    warnings.warn(
+        f"{source}: dropped {n} record(s) with no timestamp (missing time).",
+        stacklevel=3,
+    )
+    out = dataset.isel(time=np.where(~missing)[0])
+    out.attrs[N_RECORDS_WITHOUT_TIME_ATTR] = n
+    return out
+
+
 def _read_typed(
     file_type: str, file_path: str, header_path: str | None = None
 ) -> xr.Dataset:
-    """Read a raw instrument file of a known *file_type* and return a Dataset."""
+    """Read a raw instrument file of a known *file_type*, dropping records with no time."""
+    ds = _dispatch(file_type, file_path, header_path)
+    return _drop_missing_time(ds, Path(file_path).name)
+
+
+def _dispatch(
+    file_type: str, file_path: str, header_path: str | None = None
+) -> xr.Dataset:
+    """Read a raw instrument file of a known *file_type* with its format's reader."""
     # Remap deprecated file_type aliases to their current equivalent before
     # the membership check — aliases are intentionally excluded from
     # ALL_FILE_TYPES so they no longer appear in any public list.
@@ -51,7 +117,7 @@ def _read_typed(
             f"'{canonical}' automatically; update your mooring YAML to "
             f"'{canonical}'.",
             DeprecationWarning,
-            stacklevel=4,
+            stacklevel=5,
         )
         file_type = canonical
 
@@ -68,7 +134,7 @@ def _read_typed(
             "file_type 'nortek-csv-oa' is deprecated. "
             "Use 'nortek-csv' once seasenselib supports Nortek CSV export files.",
             DeprecationWarning,
-            stacklevel=4,
+            stacklevel=5,
         )
         ds = load_nortek_csv(file_path, header_file=header_path)
         coord_system = ds.attrs.get("coordinate_system")
@@ -176,7 +242,9 @@ def read(path: str | Path, *, file_type: str | None = None) -> xr.Dataset:
     file's content (the suffix is never used). A netCDF is read as an OceanSITES
     time series when it carries a ``TIME`` dimension and an OceanSITES parameter
     code, and returned unchanged otherwise. For Nortek data the companion
-    ``.hdr`` beside the data file supplies the coordinate system.
+    ``.hdr`` beside the data file supplies the coordinate system. Records with no
+    time (``NaT``) are dropped from any raw file with a warning, and the count is
+    recorded in the ``n_records_without_time`` global attribute.
 
     Parameters
     ----------
@@ -193,8 +261,8 @@ def read(path: str | Path, *, file_type: str | None = None) -> xr.Dataset:
     Raises
     ------
     ValueError
-        If *file_type* is not a known type, or no *file_type* is given and the
-        content is not one the sniffer recognises.
+        If *file_type* is not a known type, no *file_type* is given and the
+        content is not one the sniffer recognises, or no record has a time.
     """
     path = Path(path)
 
@@ -202,16 +270,16 @@ def read(path: str | Path, *, file_type: str | None = None) -> xr.Dataset:
         if file_type not in (None, "oceansites"):
             return _read_typed(file_type, str(path))
         # Open once.  An OceanSITES file (a TIME dimension and an OceanSITES code)
-        # goes to read_oceansites, which re-opens with its own decode; our own
-        # netCDF is already canonical, so the open dataset is the result and
-        # read_netcdf is not re-opened.
+        # goes to read_oceansites (through the missing-time guard), which re-opens
+        # with its own decode; our own netCDF is already canonical, so the open
+        # dataset is the result and read_netcdf is not re-opened.
         src = xr.open_dataset(path, engine="netcdf4")
         is_oceansites = "TIME" in src.dims and bool(
             _OCEANSITES_CODES & set(src.data_vars)
         )
         if file_type == "oceansites" or is_oceansites:
             src.close()
-            return read_oceansites(path)
+            return _read_typed("oceansites", str(path))
         return src
 
     if file_type is None:
