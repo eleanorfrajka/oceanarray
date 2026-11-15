@@ -417,13 +417,21 @@ def test_resolve_report_sections_reads_the_mooring_description() -> None:
 
 
 def _dune2_text() -> str:
-    return (
+    text = (
         Path(__file__).resolve().parents[1]
         / "fixtures"
         / "proc"
         / "dune2_1_2026"
         / "dune2_1_2026.mooring.yaml"
     ).read_text()
+    # The cruise/ship tests exercise the legacy keys (no recovery_* fields); the
+    # report fixture carries recovery_cruise/recovery_ship, so strip them here and
+    # let each test add them back when it wants the recovered case.
+    return "".join(
+        line
+        for line in text.splitlines(keepends=True)
+        if not line.startswith(("recovery_cruise:", "recovery_ship:"))
+    )
 
 
 def _position_warnings(path: Path) -> list[str]:

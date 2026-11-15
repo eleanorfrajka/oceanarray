@@ -31,7 +31,10 @@ def test_page_crumbs_deeper_page_prefix():
 
 def test_crumbs_from_ctx_uses_the_stored_ancestors():
     ctx = {"_breadcrumb_ancestors": [("Index", "index.html")]}
-    assert crumbs_from_ctx(ctx, [("m", None)]) == [("Index", "../index.html"), ("m", None)]
+    assert crumbs_from_ctx(ctx, [("m", None)]) == [
+        ("Index", "../index.html"),
+        ("m", None),
+    ]
 
 
 def test_crumbs_from_ctx_is_empty_without_ancestors():
