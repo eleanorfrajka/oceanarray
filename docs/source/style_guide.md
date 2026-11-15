@@ -1,4 +1,4 @@
-# Project Style Guide
+# Style guide
 
 > This guide explains the coding and formatting conventions used in the project, and how to keep things consistent when adding or editing code.
 

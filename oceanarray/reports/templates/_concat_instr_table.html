@@ -1,5 +1,5 @@
-{# The site inventory: levels of a concatenated stack by depth slot, one column per
-   deployment, deep-first by depth (never by slot number); each serial links to its instrument page in that deployment's report. #}
+{# The site inventory: levels of a concatenated stack by depth, one column per
+   deployment, deep-first by depth (never by depth index); each serial links to its instrument page in that deployment's report. #}
 <table class="instr-table">
   <thead><tr><th>~Depth (m)</th><th>Type</th>
   {% for name in deployments %}<th>{{ name }}</th><th>Serial</th>{% endfor %}</tr></thead>

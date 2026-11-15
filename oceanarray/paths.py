@@ -213,9 +213,10 @@ def stage_output_name(mooring: str, serial: Any, stage: int, tag: str = "") -> s
     return f"{mooring}_{safe_serial(serial)}{tag}{stage_suffix(stage)}"
 
 
-#: The multi-instrument products a mooring directory holds, each named
-#: ``{name}_{product}.nc`` at the top of the mooring directory.
-PRODUCTS: frozenset[str] = frozenset({"stack", "grid", "stackcat"})
+#: The multi-instrument products, each named ``{name}_{product}.nc``: a mooring's
+#: stack and grid in its directory, a site's stack and grid (``stackcat``,
+#: ``gridcat``) in the site's.
+PRODUCTS: frozenset[str] = frozenset({"stack", "grid", "stackcat", "gridcat"})
 
 
 def stage_file(
@@ -303,7 +304,7 @@ def product_file(mooring_dir: _PathLike, name: str, product: str) -> Path:
     """Return the full path of a mooring-level product file.
 
     ``<mooring_dir>/<name>_<product>.nc`` for *product* in :data:`PRODUCTS`
-    (``"stack"`` or ``"grid"``).
+    (``"stack"``, ``"grid"``, ``"stackcat"`` or ``"gridcat"``).
 
     Parameters
     ----------

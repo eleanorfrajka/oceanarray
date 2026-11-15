@@ -1,0 +1,356 @@
+"""Figures of a site's gridded record: sections over the years, profiles and T-S per deployment.
+
+Tier-2 plotters for the site grid page; the numbers come from
+:mod:`oceanarray.analysis.site`. Each ``draw_*`` takes plain arrays and returns a
+Figure (or None when there is nothing to draw).
+"""
+
+from __future__ import annotations
+
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any
+
+import numpy as np
+
+from oceanarray.reports._vendored import design_tokens as report_tokens
+
+from ..config import parameters as params
+from .helpers import _velocity_panel_style, deployment_line
+from .primitives import date_axis, pcolormesh_panel
+from .timeseries import _mark_deployments
+
+if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
+
+#: The part of a section panel's height (inches) that is not plotting area: its
+#: title and the gap to the next panel.
+_SECTION_FRAME_IN: float = 0.45
+
+#: The velocity variables, drawn on one shared symmetric scale.
+_VELOCITY = ("east_velocity", "north_velocity", "along_slope", "across_slope")
+
+
+def section_cmap(var: str, *, anomaly: bool = False) -> Any:
+    """Return the colormap of a pressure × time section of *var* (or of its anomaly).
+
+    Velocity takes the mooring grid page's velocity map; temperature, salinity
+    and their anomalies take :data:`parameters.SECTION_CMAPS`; any other
+    variable its registry map.
+    """
+    if var in _VELOCITY:
+        return _velocity_panel_style("east_velocity", np.array([]), 1.0)[2]
+    key = f"{var}_anomaly" if anomaly else var
+    return params.SECTION_CMAPS.get(
+        key,
+        "RdBu_r"
+        if anomaly
+        else params.CMAPS_BY_VARIABLE.get(var, params.DEFAULT_COLORMAP),
+    )
+
+
+def symmetric_limit(*fields: np.ndarray) -> float:
+    """Return the shared ± limit of diverging fields: the larger of |2nd| and |98th| percentile."""
+    values = np.concatenate([np.ravel(f) for f in fields]) if fields else np.array([])
+    values = values[np.isfinite(values)]
+    if not values.size:
+        return 1.0
+    lo, hi = np.percentile(values, [2, 98])
+    return max(abs(float(lo)), abs(float(hi)), 1e-6)
+
+
+def _edges(centers: np.ndarray) -> np.ndarray:
+    """Return cell edges for regularly spaced pressure *centers*: midway between, half a step beyond."""
+    if len(centers) == 1:  # one level: a cell 1 dbar thick
+        return np.array([centers[0] - 0.5, centers[0] + 0.5])
+    step = np.diff(centers)
+    half = np.concatenate([[step[0]], step, [step[-1]]]) / 2
+    return np.concatenate([[centers[0] - half[0]], centers + half[1:]])
+
+
+def _contour_by_deployment(
+    ax: Any,
+    time: np.ndarray,
+    pressure: np.ndarray,
+    field: np.ndarray,
+    levels: Sequence[float],
+    fmt: str,
+    owner: np.ndarray,
+) -> None:
+    """Contour *field* within each deployment's bins, so no line runs across a change.
+
+    Labeled once, in the longest deployment.
+    """
+    runs = [np.flatnonzero(owner == k) for k in np.unique(owner[owner >= 0])]
+    runs = [cols for cols in runs if cols.size >= 2]
+    if not runs:
+        return
+    longest = max(range(len(runs)), key=lambda i: runs[i].size)
+    for i, cols in enumerate(runs):
+        part = field[cols]
+        if not np.isfinite(part).any():
+            continue
+        cs = ax.contour(
+            time[cols],
+            pressure,
+            part.T,
+            levels=list(levels),
+            colors="k",
+            linewidths=0.7,
+        )
+        if i == longest:
+            ax.clabel(cs, fontsize=report_tokens.ANNOT_FS, fmt=fmt)
+
+
+def draw_site_sections(
+    panels: Sequence[dict],
+    time: np.ndarray,
+    pressure: np.ndarray,
+    time_edges: np.ndarray,
+    owner: np.ndarray,
+    *,
+    deployments: Sequence[tuple] = (),
+    isopycnals: Sequence[tuple[np.ndarray, Sequence[float], str]] = (),
+    crop: bool = False,
+    width_in: float = report_tokens.W_FULL,
+) -> plt.Figure | None:
+    """Stacked pressure × time sections of a site grid, sharing the time axis; return a Figure.
+
+    Each panel is drawn with 20 discrete color levels, each cell between its
+    time edges so a deployment's last, shorter bin ends exactly at the change.
+    Turnarounds are shaded, each deployment's start is a thin dotted line and
+    each deployment is named along the top; the instruments measuring the
+    panel's variable are thin pale lines at their pressures; isopycnals are black
+    contours drawn within each deployment (no line runs across a change),
+    labeled once.
+
+    Parameters
+    ----------
+    panels : sequence of dict
+        One per panel: ``data`` (``(time, pressure)``), ``title``, ``units``,
+        ``cmap``, and optionally ``limit`` (draw symmetric about zero, ±limit),
+        ``instruments`` (the pressures of the instruments measuring the
+        variable, on ``(time, n)``) and ``isopycnals`` (bool: overlay
+        *isopycnals*).
+    time, pressure : numpy.ndarray
+        The sections' axes (the bins' centers).
+    time_edges : numpy.ndarray
+        The bins' edges, one more than *time*.
+    owner : numpy.ndarray
+        Each bin's deployment (-1 none), for the contours.
+    deployments : sequence of tuple, optional
+        ``(start, end, name)`` per deployment.
+    isopycnals : sequence of tuple, optional
+        ``(field on (time, pressure), levels, label format)`` per density
+        reference, e.g. ``(sigma0, [27.6, 27.7], "σ0 %g")``.
+    crop : bool, optional
+        Show only the pressures the panels have data at, in panels made shorter
+        in proportion, so a dbar spans the same height as in an uncropped
+        section of the same grid.
+    width_in : float, optional
+        Figure width in inches (the report slot's).
+
+    Returns
+    -------
+    matplotlib.figure.Figure or None
+        None when *panels* is empty.
+    """
+    import matplotlib.pyplot as plt
+
+    panels = [p for p in panels if np.isfinite(p["data"]).any()]
+    if not panels:
+        return None
+    p_edges = _edges(pressure.astype(float))
+    p_range = (float(p_edges[0]), float(p_edges[-1]))
+    row_in = params.GRID_PANEL_ROW_IN
+    if crop:
+        rows = np.flatnonzero(
+            np.any([np.isfinite(p["data"]).any(axis=0) for p in panels], axis=0)
+        )
+        cropped = (float(p_edges[rows[0]]), float(p_edges[rows[-1] + 1]))
+        # The plotting area shrinks with the pressure span; the title and the
+        # margins (about _SECTION_FRAME_IN) do not.
+        share = (cropped[1] - cropped[0]) / (p_range[1] - p_range[0])
+        row_in = _SECTION_FRAME_IN + max(
+            (params.GRID_PANEL_ROW_IN - _SECTION_FRAME_IN) * share, 0.5
+        )
+        p_range = cropped
+    fig, axes = plt.subplots(
+        len(panels),
+        1,
+        figsize=(width_in, row_in * len(panels)),
+        sharex=True,
+        squeeze=False,
+        layout="constrained",
+    )
+    axes = list(axes[:, 0])
+    edges = (time_edges, p_edges)
+    for i, (ax, panel) in enumerate(zip(axes, panels, strict=True)):
+        limit = panel.get("limit")
+        # The deployment names sit above the top panel: lift its title over them.
+        lift = {"axes.titlepad": 16} if i == 0 and deployments else {}
+        with plt.rc_context(lift):
+            pcolormesh_panel(
+                fig,
+                ax,
+                np.asarray(panel["data"]).T,
+                time,
+                pressure,
+                title=panel["title"],
+                units=panel.get("units", ""),
+                cmap=panel["cmap"],
+                vmin=-limit if limit is not None else None,
+                vmax=limit if limit is not None else None,
+                date_fmt=False,
+                edges=edges,
+            )
+        if panel.get("isopycnals"):
+            for field, levels, fmt in isopycnals:
+                _contour_by_deployment(ax, time, pressure, field, levels, fmt, owner)
+        if panel.get("instruments") is not None:
+            ax.plot(time, panel["instruments"], color="0.7", lw=0.3, zorder=3)
+        ax.set_ylim(p_range[1], p_range[0])
+    if deployments:
+        _mark_deployments(axes, list(deployments))
+    date_axis(axes[-1])
+    return fig
+
+
+def draw_site_profiles(
+    columns: Sequence[dict],
+    pressure: np.ndarray,
+    names: Sequence[str],
+    *,
+    width_in: float = report_tokens.W_FULL,
+) -> plt.Figure | None:
+    """Median profile of each deployment, one panel per variable; return a Figure.
+
+    The panels are as tall as a section panel, so the pressure axis spans about
+    the same height on the page.
+
+    Parameters
+    ----------
+    columns : sequence of dict
+        One per panel: ``medians`` (``(deployment, pressure)``), ``title``.
+    pressure : numpy.ndarray
+        The grid's pressure levels.
+    names : sequence of str
+        The deployments' names, in time order.
+    width_in : float, optional
+        Figure width in inches (the report slot's).
+
+    Returns
+    -------
+    matplotlib.figure.Figure or None
+        None when no column has a value.
+    """
+    import matplotlib.pyplot as plt
+
+    columns = [c for c in columns if np.isfinite(c["medians"]).any()]
+    if not columns:
+        return None
+    fig, axes = plt.subplots(
+        1,
+        len(columns),
+        # A section panel's height plus room for the x labels, so the pressure
+        # axis spans about the same height on the page as a section's.
+        figsize=(width_in, params.GRID_PANEL_ROW_IN + 0.5),
+        sharey=True,
+        squeeze=False,
+        layout="constrained",
+    )
+    axes = list(axes[0])
+    for ax, column in zip(axes, columns, strict=True):
+        medians = column["medians"]
+        for k, row in enumerate(medians):
+            if np.isfinite(row).any():
+                ax.plot(row, pressure, lw=1.2, label=names[k], **deployment_line(k))
+        finite = medians[np.isfinite(medians)]
+        lo, hi = np.percentile(finite, [0.5, 99.5])
+        pad = 0.05 * (hi - lo) if hi > lo else 0.1
+        ax.set_xlim(lo - pad, hi + pad)
+        ax.set_xlabel(column["title"])
+        ax.grid(alpha=0.3)
+    axes[0].set_ylim(float(pressure.max()), float(pressure.min()))
+    axes[0].set_ylabel(params.vlabel("pressure"))
+    axes[-1].legend(fontsize=report_tokens.ANNOT_FS, ncols=2, loc="best")
+    return fig
+
+
+def draw_site_ts(
+    theta: np.ndarray,
+    salinity: np.ndarray,
+    names: Sequence[str],
+    longitude: float | None,
+    latitude: float | None,
+    *,
+    sigma0_levels: Sequence[float] = (),
+    sigma2_levels: Sequence[float] = (),
+    width_in: float = report_tokens.W_HALF,
+) -> plt.Figure | None:
+    """θ-S of each deployment's median profile, one line per deployment; return a Figure.
+
+    Potential temperature, so the σ0 and σ2 contours (gray, labeled), computed
+    from it at the site's position, hold at every depth. The axes span the 1–99 %
+    range of the medians.
+
+    Parameters
+    ----------
+    theta, salinity : numpy.ndarray
+        Median potential temperature (°C) and Practical Salinity per deployment
+        and level, ``(deployment, pressure)``.
+    names : sequence of str
+        The deployments' names, in time order.
+    longitude, latitude : float or None
+        The site's position, for Absolute Salinity. None when unknown: *theta* is
+        then in-situ temperature, labeled so, and no isopycnals are drawn.
+    sigma0_levels, sigma2_levels : sequence of float, optional
+        The isopycnals to draw (kg m⁻³).
+    width_in : float, optional
+        Figure width in inches (the report slot's).
+
+    Returns
+    -------
+    matplotlib.figure.Figure or None
+        None when no deployment has both θ and S.
+    """
+    import gsw
+    import matplotlib.pyplot as plt
+
+    ok = np.isfinite(theta) & np.isfinite(salinity)
+    if not ok.any():
+        return None
+    fig, ax = plt.subplots(figsize=(width_in, width_in * 0.9), layout="constrained")
+    for k in range(theta.shape[0]):
+        if ok[k].any():
+            ax.plot(
+                np.where(ok[k], salinity[k], np.nan),
+                np.where(ok[k], theta[k], np.nan),
+                lw=1.3,
+                label=names[k],
+                **deployment_line(k),
+            )
+    s_lo, s_hi = np.percentile(salinity[ok], [1, 99])
+    t_lo, t_hi = np.percentile(theta[ok], [1, 99])
+    s_pad = max(0.1 * (s_hi - s_lo), 0.01)
+    t_pad = max(0.1 * (t_hi - t_lo), 0.05)
+    s_lim = (s_lo - s_pad, s_hi + s_pad)
+    t_lim = (t_lo - t_pad, t_hi + t_pad)
+    sg, tg = np.meshgrid(np.linspace(*s_lim, 100), np.linspace(*t_lim, 100))
+    known = longitude is not None and latitude is not None
+    sa = gsw.SA_from_SP(sg, 0.0, longitude, latitude) if known else None
+    ct = gsw.CT_from_pt(sa, tg) if known else None
+    for levels, sigma, fmt in (
+        (sigma2_levels, gsw.sigma2, "σ2 %g"),
+        (sigma0_levels, gsw.sigma0, "σ0 %g"),
+    ):
+        if levels and known:
+            cs = ax.contour(
+                sg, tg, sigma(sa, ct), levels=list(levels), colors="0.4", linewidths=0.6
+            )
+            ax.clabel(cs, fontsize=report_tokens.ANNOT_FS, fmt=fmt)
+    ax.set_xlim(*s_lim)
+    ax.set_ylim(*t_lim)
+    ax.set_xlabel(params.vlabel("salinity"))
+    ax.set_ylabel(params.vlabel("potential_temperature" if known else "temperature"))
+    ax.legend(fontsize=report_tokens.ANNOT_FS, ncols=2)
+    return fig

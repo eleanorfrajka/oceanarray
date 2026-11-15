@@ -1,5 +1,5 @@
-Grid: Vertical Pressure Grid
-=============================
+Grid: pressure levels
+=====================
 
 The ``grid`` stage linearly interpolates the stacked ``(time, N_LEVELS)``
 dataset onto a regular pressure grid, producing ``(time, pressure)`` output suitable for
@@ -58,13 +58,16 @@ interpolation. The available points are sorted by pressure and passed to
 ``numpy.interp`` onto the target pressure grid. Values at pressures outside the range of
 finite instruments at that time step are set to NaN; there is no extrapolation.
 
-Note on QC flags
-^^^^^^^^^^^^^^^^
+QC flags
+^^^^^^^^
 
-The stack step applies QC masking before gridding: when a companion ``*_qc`` variable
-exists, samples flagged suspect (3), bad (4), or missing (9) are replaced with NaN so
-they do not contribute to the vertical interpolation.  QC flag variables themselves are
-not gridded.
+Values whose QC flag is in ``mask_flags`` are left out first: the default leaves out
+4 (bad) and 9 (missing) for every variable; ``velocity=3,4,9`` (or any variable
+name) sets an exception. Set it with ``--mask-flags 4,9 velocity=3,4,9``,
+``mask_flags=`` in Python, or ``grid: mask_flags`` in the YAML; the file records it
+as ``grid_mask_flags``. The stack has already left out the non-velocity values
+flagged 3, 4 or 9, so for those the setting can only leave out more. QC flag
+variables themselves are not gridded.
 
 Pressure grid axis
 ------------------
@@ -86,9 +89,11 @@ Dimensions
 Variables gridded
 ^^^^^^^^^^^^^^^^^
 
-All ``(time, N_LEVELS)`` variables present in the stack file, except ``pressure`` itself,
-are interpolated onto the pressure axis. This includes derived quantities such as
-``sigma0`` or ``sigma2`` computed at the stack step.
+All ``(time, N_LEVELS)`` variables of the stack except ``pressure``, the flags, and the
+instrument-frame and diagnostic variables (beam and XYZ velocity, amplitude,
+correlation, heading, pitch, roll), including ``sigma0`` or ``sigma2`` from the stack.
+Current speed and direction are computed from the gridded east and north velocity,
+not interpolated.
 
 Output file
 ^^^^^^^^^^^
@@ -99,23 +104,7 @@ Global attributes are inherited from the stack file. The following attributes ar
 ``p_start_dbar``, ``p_end_dbar``, ``dp_dbar``. The ``history`` attribute is extended.
 Each gridded variable carries a ``vertical_interpolation`` note in its attributes.
 
-Grid report
------------
-
-The command ``oceanarray report {mooring} --grid`` generates
-``{mooring}_grid_report.html`` containing:
-
-- Variable coverage table (name, long name, units, percentage non-NaN).
-- Temperature pcolormesh and contourf (colormap ``RdYlBu_r``, 20 discrete levels).
-- Practical salinity pcolormesh and contourf (colormap ``YlGnBu_r``, reversed so that
-  low salinity maps to blue).
-- Potential density (sigma0 or sigma2) pcolormesh and contourf (colormap BuPu) with
-  iso-density contour lines overlaid (default 27.7 and 27.8 kg m\ :sup:`-3`,
-  configurable via ``parameters.SIGMA_CONTOUR_LEVELS``).
-
-All figures use 20 human-readable discrete colorbar levels computed by
-``plotters.primitives.nice_colorbar_bounds(vmin, vmax, n=20)``, which rounds the step to one
-significant figure and centres the range on the data midpoint.
+The grid's report page is described in :doc:`../reports`.
 
 See also
 --------

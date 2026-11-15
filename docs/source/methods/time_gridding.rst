@@ -1,5 +1,5 @@
-Stack: Common Time Axis
-=======================
+Stack: one time axis
+====================
 
 The ``stack`` stage reads all instruments for one mooring deployment from their
 best available stage file, places them on a common time axis, and writes a single
@@ -83,19 +83,11 @@ is at index 0 of the ``N_LEVELS`` dimension.
 Variables stacked
 -----------------
 
-The following variables are included when present in a stage file. Variables absent for a
-given instrument are filled with NaN for that level:
-
-- ``temperature``
-- ``salinity``
-- ``conductivity``
-- ``pressure``
-- ``east_velocity``
-- ``north_velocity``
-- ``up_velocity``
-- ``heading``
-- ``pitch``
-- ``roll``
+Temperature, salinity, conductivity, pressure, the velocities and their direction
+and speed, heading, pitch and roll, turbidity and oxygen, with their QC flags, when
+an instrument has them (``stack.STACK_VARS``); a level without a variable is NaN
+there. Values flagged 3, 4 or 9 are left out at this step, except velocity and
+orientation, which keep their flags for the grid's ``mask_flags``.
 
 Potential density
 -----------------
@@ -172,25 +164,10 @@ YAML fields used
      - Sets the input subdirectory
    * - ``clamp[].serial``
      - Instrument serial number
-   * - ``clamp[].sample_interval_seconds``
-     - Optional; auto-detected from data if absent
    * - ``density_reference``
      - Optional; reference pressure in dbar for potential density (default 0)
 
-Stack report
-------------
-
-The command ``oceanarray report {mooring} --stack`` generates
-``{mooring}_stack_report.html`` containing:
-
-- Instrument table (type, serial, HAB, approximate depth, stage file used)
-- Variable coverage table (variable name, units, percentage non-NaN)
-- Pressure time series with all instruments on one plot, inverted y-axis, each instrument
-  as a separate coloured line; legend groups by instrument type using colours from
-  ``parameters.INSTRUMENT_COLORS``
-- Temperature time series with the same colour scheme
-
-Time series are downsampled to approximately 5000 points for display.
+The stack's report page is described in :doc:`../reports`.
 
 See also
 --------

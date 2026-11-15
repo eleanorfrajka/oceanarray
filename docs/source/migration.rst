@@ -1,60 +1,10 @@
 .. _migration:
 
-=========================================
-Migrating from the ``--basedir`` Layout
-=========================================
+========================================================
+Older upgrades: 0.4 to 0.5, and the ``--basedir`` layout
+========================================================
 
-Upgrading from 0.5 to 0.6
--------------------------
-
-See :doc:`migrating_0_6_0`.
-
-----
-
-0.6.0 is a breaking release.  If you are upgrading an existing install:
-
-- **The ``oceanarray.processors`` package is now ``oceanarray.pipeline``.**  Update
-  imports: ``from oceanarray.processors.stage1 import ...`` becomes
-  ``from oceanarray.pipeline.stage1 import ...`` (likewise ``stage2``, ``stage3``,
-  ``stack``, ``grid``, ``qc``, ``coordinate``, ``pressure``, ``units``, ``caldip``,
-  and ``process`` / ``run``).  There is no compatibility shim.
-- **``oceanarray.tools.readers`` is removed.**  Its readers moved to the new
-  ``oceanarray.readers`` package: ``read_oceansites`` and ``read_rodb`` are now
-  ``oceanarray.readers.read_oceansites`` / ``oceanarray.readers.read_rodb``, and
-  ``load_nortek_csv`` is ``oceanarray.readers.load_nortek_csv``.  The unused
-  ``load_dataset`` and ``rodbload_old`` are gone — use ``oceanarray.readers.read(path)``,
-  which picks the format from the file's content, and ``read_rodb``.
-- **``oceanarray.writers.write`` no longer overwrites silently.**  It refuses to
-  replace an existing file unless you pass ``overwrite=True`` (the processing
-  stages do), logs one INFO line when it does replace a file, and returns the
-  written ``Path`` instead of ``None``.
-- **Output filenames come from the mooring's ``name:`` field, not its directory
-  name.**  Every stage and product file is ``{name}_{serial}_stage{N}.nc`` /
-  ``{name}_stack.nc`` / ``{name}_grid.nc``.  Make sure each
-  ``*.mooring.yaml``'s ``name:`` is the mooring you intend: a directory whose
-  basename differs from ``name:`` now produces a WARNING — most often a folder
-  copied and not renamed, which would otherwise write its outputs under the
-  original mooring's name.
-- **Stage files carry a ``processing_stage`` marker.**  Files written by 0.6 record
-  the stage that produced them, and reading a stage file checks it.  A file written
-  before 0.6 has no marker: it is still read, with a WARNING, and its stage inferred
-  from its filename.  0.7.0 will refuse unmarked files; mark existing ones once with
-  ``oceanarray stamp <files> --declare N`` (it writes only the marker, and refuses a
-  file whose name says another stage).
-- **A stage file made under a different mooring name is refused.**  Reading a stage
-  file whose ``mooring_name`` differs from the description's ``name:`` by more than
-  case raises; reprocess it from stage 1.  A case-only difference is corrected.
-- **Stacking no longer reads ``sample_interval_seconds``.**  Each instrument's
-  sampling interval is detected from its time stamps.
-- **``oceanarray.utilities``, ``oceanarray.tools`` and ``oceanarray.pipeline.helpers``
-  are gone; their functions moved to the module that owns their job.**  For
-  example ``utilities.instrument_entries`` is ``oceanarray.instruments.instrument_entries``,
-  ``utilities.parse_latlon`` is ``oceanarray.location.parse_latlon``,
-  ``tools.rapid_interp`` is ``oceanarray.pipeline.gridders.rapid_interp``,
-  ``analysis.clock`` is ``oceanarray.pipeline.clock.offsets``, ``pipeline.caldip`` is
-  ``oceanarray.pipeline.calibration`` and ``analysis.hydrographic`` is
-  ``oceanarray.analysis.hydrography``.  The changelog lists every move.  There is no
-  compatibility shim.
+For 0.5 to 0.6, see :doc:`migrating_0_6_0`.
 
 ----
 

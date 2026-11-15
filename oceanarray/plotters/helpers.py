@@ -34,14 +34,56 @@ OKABE_ITO: list[str] = [
     "#CC79A7",  # reddish purple
 ]
 
-#: One color per deployment on a concatenated page: Okabe-Ito without black, which
-#: stays for markers and text.
-DEPLOYMENT_COLORS: list[str] = OKABE_ITO[1:]
+#: One color per deployment on a concatenated page: Okabe-Ito without black (kept
+#: for markers and text), in rainbow order — vermillion, orange, yellow, green,
+#: sky blue, blue, purple — so time reads along the spectrum.
+DEPLOYMENT_COLORS: list[str] = [
+    "#D55E00",  # vermillion
+    "#E69F00",  # orange
+    "#F0E442",  # yellow
+    "#009E73",  # bluish green
+    "#56B4E9",  # sky blue
+    "#0072B2",  # blue
+    "#CC79A7",  # reddish purple
+]
+
+#: Line styles that pair with :data:`DEPLOYMENT_COLORS` in :func:`deployment_line`.
+DEPLOYMENT_LINESTYLES: tuple[str, ...] = ("-", "--", ":", "-.")
+
+#: The thin dotted line marking each deployment's start on a time axis: a dot
+#: every 8 line widths, so the dots stay apart at a thin width.
+DEPLOYMENT_BOUNDARY: dict = {"color": "0.25", "lw": 0.6, "ls": (0, (1, 8))}
 
 
 def deployment_color(k: int) -> str:
     """Return deployment *k*'s color (cycling through :data:`DEPLOYMENT_COLORS`)."""
     return DEPLOYMENT_COLORS[k % len(DEPLOYMENT_COLORS)]
+
+
+def deployment_line(k: int) -> dict:
+    """Return deployment *k*'s line color and style: each color twice, solid then dashed.
+
+    Consecutive deployments step slowly through :data:`DEPLOYMENT_COLORS` (red,
+    red dashed, orange, orange dashed, ...), so the colors change evenly with time
+    on a line plot. Past fourteen deployments the pairs repeat dotted, then
+    dash-dot.
+
+    Parameters
+    ----------
+    k : int
+        The deployment's index, in time order.
+
+    Returns
+    -------
+    dict
+        ``{"color": ..., "ls": ...}`` for ``Axes.plot``.
+    """
+    n = len(DEPLOYMENT_COLORS)
+    style = (k % 2 + 2 * (k // (2 * n))) % len(DEPLOYMENT_LINESTYLES)
+    return {
+        "color": DEPLOYMENT_COLORS[(k // 2) % n],
+        "ls": DEPLOYMENT_LINESTYLES[style],
+    }
 
 
 def distinct_line_styles(n: int) -> list[tuple[str, str, float]]:

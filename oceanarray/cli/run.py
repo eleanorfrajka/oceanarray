@@ -8,9 +8,11 @@ from pathlib import Path
 from oceanarray.cli._common import (
     _MOORING_HELP,
     _add_dir_args,
+    _add_mask_flags_arg,
     _add_only,
     _add_shared_report_args,
     _add_stack_grid_args,
+    _mask_flags,
     _mooring_location,
     _raw_dir,
     _usage_error,
@@ -67,6 +69,7 @@ def cmd_run(args: argparse.Namespace) -> int:
             pmin=args.pmin,
             pmax=args.pmax,
             dp=args.dp,
+            mask_flags=_mask_flags(args),
         )
     except (MooringError, ValueError) as e:
         print(f"ERROR: {e}")
@@ -204,5 +207,6 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
         "the products are provisional (data_mode P) either way.",
     )
     _add_stack_grid_args(p_run, from_description=True)
+    _add_mask_flags_arg(p_run, from_description=True)
     _add_shared_report_args(p_run)
     p_run.set_defaults(func=cmd_run)

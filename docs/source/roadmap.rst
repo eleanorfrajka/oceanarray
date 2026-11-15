@@ -1,6 +1,6 @@
-===================
-Development Roadmap
-===================
+=======
+Roadmap
+=======
 
 .. contents::
    :local:
@@ -26,6 +26,7 @@ Status Overview
 - Clock offset analysis (``pipeline/clock/offsets.py``)
 - Multi-instrument overview plots (``plotters/``)
 - Mooring description validation (``oceanarray validate``, ``mooring.check``)
+- Several deployments of a site: the Stack cat and the Grid cat (``oceanarray concat``)
 
 **Partly implemented**
 
@@ -35,8 +36,7 @@ Status Overview
 **Not yet implemented**
 
 - OceanSITES export of the stack file
-- Concatenation of multiple deployments at a single location
-- Multi-site merging for boundary profiles
+- Multi-site merging for boundary profiles (RAPID's method: :doc:`rapid_heritage`)
 
 ---
 
@@ -125,12 +125,6 @@ Priority 2: Longer-term
 Merge records from multiple mooring sites (e.g. WB2, WB3, WBH2) at each time step to
 construct a single merged boundary profile.  Requires static-stability checking and
 site-specific weighting strategies.
-
-6. Deployment concatenation
-----------------------------
-
-Join successive deployments at the same location into a continuous time series after
-clock corrections and QC are confirmed stable.
 
 ---
 

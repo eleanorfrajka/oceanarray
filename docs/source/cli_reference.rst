@@ -1,8 +1,8 @@
 .. _cli_reference:
 
-===================
-CLI Reference
-===================
+============
+Command line
+============
 
 The typical workflow is: ``oceanarray init`` a mooring description and fill it
 in, ``oceanarray validate`` it, run ``oceanarray process`` stage by stage and look
@@ -296,9 +296,14 @@ reports.
 ``oceanarray concat``
 ---------------------
 
-Join one site's deployment stacks end to end in time, by depth slot (see
-:doc:`methods/concatenation`).  Writes ``<NAME>_stackcat.nc`` in its own folder
-and its page ``report/<NAME>_stackcat_report.html``.  ``--report-dir`` says where
+Join one site's deployment stacks end to end in time, by depth, and grid them
+onto pressure levels, one mooring per profile (see :doc:`methods/concatenation`).
+Writes ``<NAME>_stackcat.nc`` and ``<NAME>_gridcat.nc`` in their own folder, and
+their pages ``report/<NAME>_stackcat_report.html`` and
+``report/<NAME>_gridcat_report.html`` (``--no-grid`` writes the Stack cat only).
+``--pmin`` / ``--pmax`` default to the 5th percentile of the shallowest depth's
+pressure and the 95th of the deepest's, rounded outward to ``--dp`` (default 20); ``--mask-flags`` takes ``4,9`` for every variable and
+``VAR=3,4,9`` exceptions.  ``--report-dir`` says where
 the deployments' own reports already are (``<DIR>/<deployment>``), for the page's
 links; it does not move where the page is written.
 
@@ -315,6 +320,8 @@ links; it does not move where the page is written.
 .. code-block:: bash
 
    oceanarray concat egM2_2016 egM2_2018 --name egM2 --proc-dir /data/proc
+   oceanarray concat egM2_2016 egM2_2018 --name egM2 --proc-dir /data/proc \
+       --dp 50 --mask-flags 4,9 velocity=3,4,9
 
 ----
 

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}Site grid &ndash; {{ mooring_name }}{% endblock %}
+{% block page_styles %}
+  :root { --accent:#8e44ad; --accent-link:#ecf; }
+  .fig { border:1px solid var(--rule); border-radius:var(--radius-btn); margin-bottom:1.5rem; }
+  details.deployment-history { margin:0.4rem 0; }
+  details.deployment-history > summary { cursor:pointer; font-weight:600; }
+{% endblock %}
+{% block masthead_type %}Site grid{% endblock %}
+{% block content %}
+{{ m.report_body(report, "site", generated, "") }}
+{% endblock %}

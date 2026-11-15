@@ -7,7 +7,7 @@
 [![Documentation](https://img.shields.io/badge/docs-ocean--uhh.github.io-blue.svg)](https://ocean-uhh.github.io/oceanarray/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21890564.svg)](https://doi.org/10.5281/zenodo.21890564)
 
-Python tools for processing moored oceanographic array observations from raw instrument files to quality-controlled, CF-compliant NetCDF.
+Python tools for processing moored oceanographic array observations from raw instrument files (or OceanSITES and RAPID RODB files from other groups) to quality-controlled, CF-compliant NetCDF.
 
 It covers a single mooring's instruments — stages 1–3, stacking, and pressure gridding, each documented in an HTML report, and an OceanSITES 1.4 export. One command, `oceanarray run MOORING --raw-dir RAW`, takes a mooring from raw files to the gridded product and its report. Deriving calibration-dip offsets is handled by `caldip`, and shipboard CTD processing by `ctdcast`.
 

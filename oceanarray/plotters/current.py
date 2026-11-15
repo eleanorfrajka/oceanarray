@@ -2131,10 +2131,10 @@ def draw_aquadopp_tilt_panels(
 
 
 def _velocity_groups(ds: xr.Dataset) -> list[tuple[str, int]]:
-    """Return ``(label, column)`` per velocity slot of a concatenated stack, deep-first.
+    """Return ``(label, column)`` per velocity depth of a concatenated stack, deep-first.
 
-    One column per slot (its ``serial`` is the slot's label); only columns with
-    finite east and north velocity are kept, and a slot with no known depth goes
+    One column per depth (its ``serial`` is the depth's label); only columns with
+    finite east and north velocity are kept, and a depth with no known depth goes
     last.
     """
     if "east_velocity" not in ds or "north_velocity" not in ds:
@@ -2156,7 +2156,7 @@ def draw_rose_outlines(
     n_sectors: int = 16,
     width_in: float = report_tokens.W_FULL,
 ) -> plt.Figure | None:
-    """One current rose per velocity slot of a concatenated stack, one outline per deployment.
+    """One current rose per velocity depth of a concatenated stack, one outline per deployment.
 
     Each outline is the share (%) of that deployment's samples in each direction
     sector, so deployments of different length compare directly. Direction is
@@ -2166,8 +2166,8 @@ def draw_rose_outlines(
     Parameters
     ----------
     ds : xr.Dataset
-        A concatenated stack, one column per slot, with east/north velocity,
-        ``depth``, ``serial`` (the slot's label), ``cell_deployment(time, N_LEVELS)``
+        A concatenated stack, one column per depth, with east/north velocity,
+        ``depth``, ``serial`` (the depth's label), ``cell_deployment(time, N_LEVELS)``
         and ``deployment_name``.
     n_sectors : int, optional
         Number of direction sectors.
@@ -2249,17 +2249,17 @@ def draw_rose_outlines(
 def draw_speed_profile_by_deployment(
     ds: xr.Dataset, *, width_in: float = report_tokens.W_HALF
 ) -> plt.Figure | None:
-    """Current-speed box per velocity slot and deployment of a concatenated stack, overlaid.
+    """Current-speed box per velocity depth and deployment of a concatenated stack, overlaid.
 
-    Boxes of one slot sit at the slot's nominal depth, one per deployment in its
+    Boxes of one depth sit at the depth's nominal depth, one per deployment in its
     color, so a change in speed between deployments shows as boxes that do not
     overlap. Values flagged 3, 4 or 9 are left out.
 
     Parameters
     ----------
     ds : xr.Dataset
-        A concatenated stack, one column per slot, with east/north velocity,
-        ``depth``, ``serial`` (the slot's label), ``cell_deployment(time, N_LEVELS)``
+        A concatenated stack, one column per depth, with east/north velocity,
+        ``depth``, ``serial`` (the depth's label), ``cell_deployment(time, N_LEVELS)``
         and ``deployment_name``.
     width_in : float, optional
         Figure width in inches.
@@ -2272,7 +2272,7 @@ def draw_speed_profile_by_deployment(
     from oceanarray.plotters.helpers import deployment_color
 
     depth = ds["depth"].values.astype(float)
-    # Boxes are placed at depth: a slot with no known depth cannot be drawn.
+    # Boxes are placed at depth: a depth with no known depth cannot be drawn.
     groups = [(label, j) for label, j in _velocity_groups(ds) if np.isfinite(depth[j])]
     if not groups:
         return None
@@ -2303,7 +2303,7 @@ def draw_speed_profile_by_deployment(
             if s.size < 3:
                 continue
             color = deployment_color(k)
-            # Side by side about the slot's depth, so deployments do not overlap.
+            # Side by side about the depth's value, so deployments do not overlap.
             ax.boxplot(
                 s,
                 positions=[y + (m - (len(present) - 1) / 2) * box_w],
@@ -2346,5 +2346,5 @@ def draw_speed_profile_by_deployment(
         loc="best",
         fontsize="small",
     )
-    plot_title(ax, "Current speed by slot and deployment")
+    plot_title(ax, "Current speed by depth and deployment")
     return fig

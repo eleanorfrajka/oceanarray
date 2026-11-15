@@ -432,3 +432,47 @@ def test_units_converted_is_recorded_in_the_file(tmp_path):
         )
         assert ledger["pressure"] == {"factor": 1.0, "from": "decibar", "to": "dbar"}
         assert ledger["east_velocity"]["from"] == "meter/second"
+
+
+#: egM5 2016's waterdepth correction, as osnap-east records it in the mooring YAML.
+EGM5_WATERDEPTH_SOURCE = (
+    "corrected from the originator's 3047 m (RODB header, copied from M4 with M4's "
+    "position); mean of egM5 2014 and 2015 (3122, 3127 m), with which the measured "
+    "pressures agree to within 5 dbar"
+)
+
+
+@pytest.mark.parametrize("with_source", [True, False])
+def test_a_mooring_level_source_reaches_every_file(tmp_path, with_source):
+    """A ``waterdepth_source`` in the YAML is written beside ``waterdepth`` at stage 1,
+    with one history line, and kept through stage 3; without one, neither appears."""
+    header = {**RTWB, "waterdepth": 3125.0}
+    if with_source:
+        header["waterdepth_source"] = EGM5_WATERDEPTH_SOURCE
+    raw, proc = _mooring(
+        tmp_path,
+        "rtwb1_01_2014",
+        header,
+        [
+            {
+                "serial": 11335,
+                "instrument": "microcat",
+                "file_type": "rodb",
+                "filename": "rtwb1_01_2014_001.microcat",
+                "hab": 1500,
+            }
+        ],
+    )
+    assert process("rtwb1_01_2014", [1, 2, 3], proc_dir=proc, raw_dir=raw, force=True)
+    for stage in (1, 3):
+        ds = _open(proc, "rtwb1_01_2014", "microcat", 11335, stage)
+        assert ds.attrs["waterdepth"] == 3125.0
+        if with_source:
+            assert ds.attrs["waterdepth_source"] == EGM5_WATERDEPTH_SOURCE
+            assert (
+                f"waterdepth 3125.0 m from the mooring YAML: {EGM5_WATERDEPTH_SOURCE}"
+                in ds.attrs["history"]
+            )
+        else:
+            assert "waterdepth_source" not in ds.attrs
+            assert "from the mooring YAML" not in ds.attrs["history"]

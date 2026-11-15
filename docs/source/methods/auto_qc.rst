@@ -1,5 +1,5 @@
-Automatic QC flagging (Stage 3)
-================================
+Stage 3: QC flags
+=================
 
 Stage 3 applies QARTOD-style quality control tests to the instrument data and writes
 ``*_qc`` flag variables alongside each measured parameter.  The tests are implemented
@@ -381,12 +381,14 @@ Implementation notes
 - All QC flags default to 9 (missing) and are only set to 1/3/4 where data are
   present.
 
-FAIR considerations
---------------------
+What QC does not do
+-------------------
 
-- Data values are never modified; only flag variables are added.
-- Applied QC thresholds are stored as variable attributes for full reproducibility.
-- Flag 2 is explicitly avoided to prevent ambiguity between OceanSITES and QARTOD
-  conventions.
+- It never changes a value; it only adds flags.
+- It does not use flag 2 (probably good), so the OceanSITES and QARTOD meanings
+  cannot be confused.
 
-See also: :doc:`calibration`, :doc:`nortek_coordinate_transform`
+The thresholds used are stored on each ``*_qc`` variable.
+
+See also: :doc:`nortek_coordinate_transform`, :doc:`../yaml_configuration` (the
+``qc_ranges``, ``qc_spike``, ``qc_flat_line`` and ``tilt_qc`` blocks).

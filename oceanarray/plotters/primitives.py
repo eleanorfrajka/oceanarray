@@ -101,6 +101,7 @@ def pcolormesh_panel(
     cb_label: str | None = None,
     title_loc: str = "left",
     date_fmt: bool = True,
+    edges: tuple[np.ndarray, np.ndarray] | None = None,
 ) -> Any:
     """Draw one (pressure × time) field as a discrete-colorbar panel on *ax*.
 
@@ -140,6 +141,10 @@ def pcolormesh_panel(
         When ``True`` (default), apply :func:`date_axis` to *ax*.  Pass
         ``False`` for stacked panels where only the last axis needs the
         formatter.
+    edges : tuple of numpy.ndarray, optional
+        ``(time edges, pressure edges)``, each one longer than *time* and
+        *pressure*: draw each cell between its edges (pcolormesh only) rather than
+        centered on its coordinate, so cells of unequal length keep their extent.
 
     Returns
     -------
@@ -151,8 +156,14 @@ def pcolormesh_panel(
     if style == "contourf":
         pc = ax.contourf(time, pressure, data, levels=bounds, cmap=cmap, extend="both")
     else:
+        x, y = edges if edges is not None else (time, pressure)
         pc = ax.pcolormesh(
-            time, pressure, data, shading="nearest", cmap=cmap, norm=norm
+            x,
+            y,
+            data,
+            shading="flat" if edges is not None else "nearest",
+            cmap=cmap,
+            norm=norm,
         )
     cb = fig.colorbar(
         pc,

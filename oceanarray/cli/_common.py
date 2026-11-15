@@ -183,6 +183,55 @@ def _add_stack_grid_args(
     )
 
 
+def _add_mask_flags_arg(p: argparse.ArgumentParser, *, from_description: bool) -> None:
+    """Add ``--mask-flags``: the QC flags left out before gridding."""
+    where = (
+        "the description's grid: mask_flags, else 4,9" if from_description else "4,9"
+    )
+    p.add_argument(
+        "--mask-flags",
+        nargs="+",
+        action="extend",
+        default=None,
+        metavar="FLAGS",
+        help=(
+            "QC flags left out before gridding: a list for every variable, and "
+            "VAR=list exceptions (VAR a variable name, or velocity), e.g. "
+            "--mask-flags 4,9 velocity=3,4,9 dissolved_oxygen=3,4,9; the flag may be "
+            f"repeated (default: {where})"
+        ),
+    )
+
+
+def _mask_flags(args: argparse.Namespace) -> dict[str, tuple[int, ...]] | None:
+    """Return ``--mask-flags`` as the mapping the API takes (None when not given).
+
+    Each token is ``4,9`` (the default for every variable) or ``VAR=3,4,9`` (one
+    exception); a bad token is a usage error.
+    """
+    from oceanarray.pipeline.grid import resolve_mask_flags
+
+    tokens = getattr(args, "mask_flags", None)
+    if not tokens:
+        return None
+    given: dict[str, tuple[int, ...]] = {}
+    for token in tokens:
+        key, _, flags = token.rpartition("=")
+        key = key.strip() or "default"
+        if key in given:
+            _usage_error(f"--mask-flags gives {key!r} twice.")
+        try:
+            given[key] = tuple(int(f) for f in flags.split(",") if f.strip())
+        except ValueError:
+            _usage_error(
+                f"--mask-flags {token!r}: expected flags like 4,9 or VAR=3,4,9."
+            )
+    try:
+        return resolve_mask_flags(given)
+    except ValueError as exc:
+        _usage_error(f"--{exc}.")
+
+
 def _add_shared_report_args(p: argparse.ArgumentParser) -> None:
     """Add the report-location and grid-isopycnal arguments shared by report/run."""
     p.add_argument(

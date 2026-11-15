@@ -1,5 +1,5 @@
-Nortek Aquadopp Coordinate Transformation
-==========================================
+Stage 3: Aquadopp velocity to east/north/up
+===========================================
 
 Nortek Aquadopp current profilers measure velocity along three acoustic beams.
 The raw BEAM-frame data must be transformed to geographic East–North–Up (ENU)

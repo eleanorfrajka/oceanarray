@@ -199,6 +199,11 @@ and ``oceanarray.legacy.tools`` are gone. ``oceanarray.tools.readers`` moved to 
 Other changes
 -------------
 
+- **A stage file made under a different mooring name is refused.**  Reading a stage
+  file whose ``mooring_name`` differs from the description's ``name:`` by more than
+  case raises; reprocess it from stage 1.  A case-only difference is corrected.
+- **Stacking no longer reads ``sample_interval_seconds``.**  Each instrument's
+  sampling interval is detected from its time stamps.
 - **Stack and grid files change.** Besides the hourly default above, a ``clamp``
   ADCP whose height is given only as ``hab_bottom`` / ``hab_top`` is now placed by
   its ``orientation`` and stacked (before: silently left out). Rebuild stacks and

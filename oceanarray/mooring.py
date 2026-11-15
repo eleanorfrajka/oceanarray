@@ -49,8 +49,20 @@ logger = logging.getLogger(__name__)
 # ERROR) for now so a real config carrying a key the fixtures never showed is
 # not rejected; promotion to ERROR is planned for a later release, once this list
 # has been checked against the configs on the drive (``scripts/survey_mooring_keys.py``).
+#: The mooring-level fields whose origin or correction a description may record
+#: as ``<field>_source`` (free text), carried into every file beside the field.
+SOURCE_FIELDS: tuple[str, ...] = (
+    "waterdepth",
+    "deployment_time",
+    "recovery_time",
+    "latitude",
+    "longitude",
+)
+
 KNOWN_KEYS: frozenset[str] = frozenset(
     {
+        # where a mooring-level value came from, or why it was corrected
+        *(f"{field}_source" for field in SOURCE_FIELDS),
         # identity / header
         "name",
         "cleaname",
@@ -110,14 +122,15 @@ OPTIONAL_REPORT_SECTIONS: dict[str, frozenset[str]] = {"grid": frozenset({"overf
 DEPLOYMENT_CODE_PATTERN = r"\d{4}(0[1-9]|1[0-2])"
 
 #: The keys each optional settings block may hold, and whether the value must be
-#: an integer (True), any non-negative number (False) or one of a few words (a tuple).
-_SETTINGS_KEYS: dict[str, dict[str, bool | tuple[str, ...]]] = {
+#: an integer (True), any non-negative number (False), one of a few words (a
+#: tuple) or a flag list (None: ``grid: mask_flags``, checked by the gridder).
+_SETTINGS_KEYS: dict[str, dict[str, bool | tuple[str, ...] | None]] = {
     "stack": {
         "dt_seconds": True,
-        "slot_reference": ("depth", "hab"),
-        "slot_tolerance_m": False,
+        "depth_match": ("depth", "hab"),
+        "depth_tolerance_m": False,
     },
-    "grid": {"pmin": False, "pmax": False, "dp": False},
+    "grid": {"pmin": False, "pmax": False, "dp": False, "mask_flags": None},
 }
 
 REQUIRED_KEYS: list[str] = validation.REQUIRED_MOORING_KEYS
@@ -334,6 +347,7 @@ def check(
         issues += _check_caldip(data)
         issues += _check_position_pairs(data)
         issues += _check_legacy_cruise_keys(data)
+        issues += _check_sources(data)
         for key in data:
             if key not in KNOWN_KEYS:
                 issues.append(
@@ -671,6 +685,21 @@ def _deployment_month(deployment_time: object) -> str | None:
         return None
 
 
+def _check_sources(data: Mapping) -> list[ValidationIssue]:
+    """Return ERRORs for a ``<field>_source`` that is not text (see :data:`SOURCE_FIELDS`)."""
+    return [
+        ValidationIssue(
+            "ERROR",
+            f"'{field}_source' must be text (where the value came from); "
+            f"got {data[f'{field}_source']!r}.",
+        )
+        for field in SOURCE_FIELDS
+        if f"{field}_source" in data
+        and data[f"{field}_source"] is not None
+        and not isinstance(data[f"{field}_source"], str)
+    ]
+
+
 def _check_settings(data: Mapping) -> list[ValidationIssue]:
     """Return ERRORs for a malformed ``stack:`` or ``grid:`` block (both optional)."""
     issues: list[ValidationIssue] = []
@@ -698,6 +727,14 @@ def _check_settings(data: Mapping) -> list[ValidationIssue]:
                 )
                 continue
             integer = allowed[key]
+            if integer is None:
+                from oceanarray.pipeline.grid import resolve_mask_flags
+
+                try:
+                    resolve_mask_flags(setting)
+                except ValueError as exc:
+                    issues.append(ValidationIssue("ERROR", f"{block}: {exc}."))
+                continue
             if isinstance(integer, tuple):
                 if setting not in integer:
                     issues.append(
@@ -955,6 +992,7 @@ def template(name: str, *, instruments: list[dict] | None = None) -> dict:
 
 def _format_optional_blocks() -> str:
     """Return the commented-out ``stack:`` and ``grid:`` blocks, with their defaults."""
+    from oceanarray.config import parameters as params
     from oceanarray.pipeline._run import DEFAULTS
 
     st, gr = DEFAULTS["stack"], DEFAULTS["grid"]
@@ -967,6 +1005,8 @@ def _format_optional_blocks() -> str:
             f"  pmin: {gr['pmin']:g}  # shallowest grid level, dbar",
             f"  pmax: {gr['pmax']:g}  # deepest grid level, dbar",
             f"  dp: {gr['dp']:g}  # grid spacing, dbar",
+            f"  mask_flags: {list(params.GRID_MASK_FLAGS)}  # QC flags left out "
+            "before gridding; or {default: [4, 9], velocity: [3, 4, 9]}",
         ]
     )
 

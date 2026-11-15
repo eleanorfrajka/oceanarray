@@ -36,9 +36,9 @@ def test_a_title_after_a_name_is_not_a_person():
 
 
 def test_the_publisher_is_a_contributor_with_one_slot_per_role():
-    """WHOI CF7 2020: Adam Houk as publisher and as processor, two slots."""
+    """WHOI CF7 2020: Adam Houk as publisher and as processor, two entries."""
     out = _clean(_OSNAP / "OS_OSNAP_WHOI_CF7_202007_CM_500m.nc")
-    # "data processing and interpretation" is two roles: two slots.
+    # "data processing and interpretation" is two roles: two entries.
     assert out["contributor_name"] == "Adam Houk; Fiamma Straneo; Adam Houk; Adam Houk"
     assert out["contributor_role"] == "publisher; PI; data processing; interpretation"
 
@@ -62,7 +62,7 @@ def test_a_role_that_does_not_pair_is_left_out():
             prefix="originator_",
         )
     out = attribution.to_attrs(attribution.union([people]))
-    # Marilena Oltmanns's blank-role slot merges into her publisher slot.
+    # Marilena Oltmanns's blank-role entry merges into her publisher entry.
     assert out["contributor_name"] == "Marilena Oltmanns; Johannes Karstensen"
     assert out["contributor_role"] == "publisher; "
     assert out["contributor_email"] == "moltmanns@geomar.de; jkarstensen@geomar.de"
@@ -192,7 +192,7 @@ def test_a_shared_contact_email_keeps_both_people():
         "Nora Fried",
         "Nora Fried",
     ]
-    # Every slot empty: the attribute is still written, one empty entry per slot.
+    # Every entry empty: the attribute is still written, one empty entry per entry.
     assert attribution.to_attrs(people)["contributor_email"] == "; ; "
 
 

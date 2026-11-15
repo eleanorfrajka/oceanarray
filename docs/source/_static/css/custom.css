@@ -34,11 +34,20 @@
   /* white text */
 }
 
-/* Highlighted current section */
-.wy-menu-vertical li.current>a {
+/* The current page in the sidebar: white on the accent (the theme's own rule for
+   the first level would otherwise put white text on its pale background). */
+.wy-menu-vertical li.toctree-l1.current > a,
+.wy-menu-vertical li.current > a {
   background-color: #406d8c;
-  /* accent color */
   color: #ffffff;
+  border: none;
+}
+
+/* The current page's sections, listed under it */
+.wy-menu-vertical li.toctree-l2 > a,
+.wy-menu-vertical li.toctree-l2.current > a,
+.wy-menu-vertical li.toctree-l3 > a {
+  color: #1a2a3a;
 }
 
 /* Hover effect for sidebar links */

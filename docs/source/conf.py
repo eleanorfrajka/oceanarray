@@ -18,9 +18,12 @@ year = datetime.datetime.now(tz=datetime.timezone.utc).date().year
 
 # General information about the project.
 project = "oceanarray"
-author = "Eleanor Frajka-Williams, FirstName LastName"
+author = "Eleanor Frajka-Williams"
 copyright = f"{year}, {author}"
-release = "v0.0.0"
+try:
+    from oceanarray import __version__ as release
+except ImportError:
+    release = ""
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

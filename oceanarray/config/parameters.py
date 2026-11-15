@@ -149,6 +149,11 @@ QC_FLAG_VALUES_I8 = np.array(QC_FLAG_VALUES, dtype="int8")
 # is the instrument's pressure, and dropping it hides a sensorless instrument.
 QC_BAD_FLAGS = (3, 4, 9)
 
+#: Flags whose values the grid leaves out before interpolating, unless the call,
+#: the CLI or the description's ``grid: mask_flags`` says otherwise: bad (4) and
+#: missing (9). Suspect (3) is kept unless asked for.
+GRID_MASK_FLAGS: tuple[int, ...] = (4, 9)
+
 # ---------------------------------------------------------------------------
 # QARTOD gross-range test thresholds (global ocean defaults).
 #
@@ -351,9 +356,9 @@ INSTRUMENT_FILE_TYPES: dict = {
 # Derived: set of allowed ``instrument:`` values in mooring YAML files.
 KNOWN_INSTRUMENT_TYPES: frozenset = frozenset(INSTRUMENT_FILE_TYPES.keys())
 
-#: Which instruments may share a depth slot across deployments in a
+#: Which instruments may share a depth across deployments in a
 #: concatenated stack. A temperature-only logger is hydrography, so it can sit in
-#: one slot with a CTD of another year. ADCP bins (and the ADCP head) are their
+#: one depth with a CTD of another year. ADCP bins (and the ADCP head) are their
 #: own family, matched within half the bin size; an unlisted type is a family of
 #: its own. Keys are lower-case instrument types.
 INSTRUMENT_FAMILIES: dict[str, str] = {
@@ -368,10 +373,25 @@ INSTRUMENT_FAMILIES: dict[str, str] = {
     "adcp": "adcp",
 }
 
-#: Default slot rule for ``concat``: match levels by depth (water depth − hab)
+#: Isopycnals contoured over the site grid's sections and T-S diagram, each
+#: over the whole depth (kg m⁻³): σ0 for the upper water column, σ2 for the deep.
+SITE_SIGMA0_LEVELS: tuple[float, ...] = (27.6, 27.7, 27.75)
+SITE_SIGMA2_LEVELS: tuple[float, ...] = (36.9, 37.0, 37.1)
+
+#: The along-slope direction of a site grid, when none is given, is the direction
+#: of its mean flow, used only when the flow is steady enough: the speed of the
+#: mean of the daily-mean, depth-mean velocity over the mean of their speeds (0 for
+#: flow that reverses evenly, 1 for flow that never turns) must reach this.
+SLOPE_STEADINESS_MIN: float = 0.3
+
+#: The default pressure range of a site grid: from this low percentile of the
+#: shallowest depth's pressure to this high percentile of the deepest depth's.
+SITE_GRID_PERCENTILES: tuple[float, float] = (5.0, 95.0)
+
+#: Default depth-matching rule for ``concat``: match levels by depth (water depth − hab)
 #: within this many metres. Both can be set per mooring in ``stack:``.
-CONCAT_SLOT_REFERENCE: str = "depth"
-CONCAT_SLOT_TOLERANCE_M: float = 50.0
+CONCAT_DEPTH_MATCH: str = "depth"
+CONCAT_DEPTH_TOLERANCE_M: float = 50.0
 
 # File types that seasenselib accepts but are deprecated, experimental, or
 # not tied to a primary ``instrument:`` value above.  These remain valid in a
@@ -654,6 +674,16 @@ VARIABLES: dict[str, dict] = {
 #: the two cannot drift.  Excludes entries where ``cmap`` is ``None``.
 CMAPS_BY_VARIABLE: dict[str, str] = {
     k: v["cmap"] for k, v in VARIABLES.items() if v.get("cmap") is not None
+}
+
+#: Colormaps of the gridded pressure × time sections (the mooring grid page and
+#: the site grid page), and of their anomalies from the whole-record median.
+SECTION_CMAPS: dict[str, str] = {
+    "temperature": "RdYlBu_r",
+    "salinity": "YlGnBu_r",
+    "oxygen_saturation_pct": "BrBG",
+    "temperature_anomaly": "RdBu_r",
+    "salinity_anomaly": "BrBG_r",
 }
 
 #: Colormaps for colouring *lines* (one per instrument, deep-first) — distinct

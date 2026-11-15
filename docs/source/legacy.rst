@@ -12,7 +12,7 @@ Background
 ==========
 
 The `RAPID-MOC array <https://rapid.ac.uk/>`_ stores its processed mooring data in
-a proprietary binary format called RODB (RAPID Ocean DataBase).  The legacy modules
+RODB (RAPID Ocean DataBase) text files.  The legacy modules
 can read and parse that format.  They were the original processing functions
 developed for RAPID-style workflows and predate the current CF-compliant pipeline.
 

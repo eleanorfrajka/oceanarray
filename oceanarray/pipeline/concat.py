@@ -1,8 +1,8 @@
 """Join one site's deployment stacks end to end in time: the pure :func:`concat` and its file verb.
 
-The site stack stores its time series by depth *slot* (``time, SLOT``). Slot
-numbers are reassigned whenever a deployment is added or the slot rule changes,
-so nothing may read a slot's number as a depth: a slot's depth is ``slot_depth``.
+The site stack stores its time series by *depth* (``time, N_DEPTHS``). Depth
+indices are reassigned whenever a deployment is added or the depth-matching rule changes,
+so nothing may read a depth index as a depth: a depth's value is ``nominal_depth``.
 """
 
 from __future__ import annotations
@@ -39,22 +39,24 @@ def _stack_settings(ds: xr.Dataset) -> dict:
     if text and not settings:
         warnings.warn(
             f"{ds.attrs.get('mooring_name', 'a stack')}: its deployment_settings do not "
-            "parse; the default slot rule is used for it.",
+            "parse; the default depth-matching rule is used for it.",
             stacklevel=2,
         )
     block = settings.get("stack")
     return block if isinstance(block, Mapping) else {}
 
 
-def _slot_rule(stacks: Sequence[xr.Dataset], names: Sequence[str]) -> tuple[str, float]:
-    """Return the one slot reference and tolerance every deployment agrees on."""
+def _depth_rule(
+    stacks: Sequence[xr.Dataset], names: Sequence[str]
+) -> tuple[str, float]:
+    """Return the one depth reference and tolerance every deployment agrees on."""
     rules = []
     for ds in stacks:
         block = _stack_settings(ds)
         rules.append(
             (
-                str(block.get("slot_reference", params.CONCAT_SLOT_REFERENCE)),
-                float(block.get("slot_tolerance_m", params.CONCAT_SLOT_TOLERANCE_M)),
+                str(block.get("depth_match", params.CONCAT_DEPTH_MATCH)),
+                float(block.get("depth_tolerance_m", params.CONCAT_DEPTH_TOLERANCE_M)),
             )
         )
     if len(set(rules)) > 1:
@@ -62,13 +64,13 @@ def _slot_rule(stacks: Sequence[xr.Dataset], names: Sequence[str]) -> tuple[str,
             f"{n}: {r} ±{t:g} m" for n, (r, t) in zip(names, rules, strict=True)
         )
         raise MooringError(
-            f"The deployments set different slot rules ({listed}); set the same "
-            "stack: slot_reference and slot_tolerance_m in each mooring YAML."
+            f"The deployments set different depth-matching rules ({listed}); set the same "
+            "stack: depth_match and depth_tolerance_m in each mooring YAML."
         )
     reference, tolerance = rules[0]
     if reference not in ("depth", "hab"):
         raise MooringError(
-            f"stack: slot_reference must be 'depth' or 'hab', not {reference!r}."
+            f"stack: depth_match must be 'depth' or 'hab', not {reference!r}."
         )
     return reference, tolerance
 
@@ -156,10 +158,10 @@ def _level_depth(ds: xr.Dataset) -> np.ndarray:
 
 
 def _family(instrument_type: str, serial: str = "") -> str:
-    """Return a level's slot family; an unlisted type is its own family.
+    """Return a level's depth family; an unlisted type is its own family.
 
     An ADCP head (``<serial>_hd``: pressure and temperature, no velocity) is a
-    family of its own, ``adcp_head``, so it never shares a slot with a bin.
+    family of its own, ``adcp_head``, so it never shares a depth with a bin.
     """
     itype = str(instrument_type).lower()
     family = params.INSTRUMENT_FAMILIES.get(itype, itype)
@@ -169,7 +171,7 @@ def _family(instrument_type: str, serial: str = "") -> str:
 
 
 def _tolerances(levels: list[dict], tolerance: float) -> np.ndarray:
-    """Return each level's slot tolerance (m): half the bin size for ADCP bins.
+    """Return each level's depth tolerance (m): half the bin size for ADCP bins.
 
     An ADCP's bin size is the spacing of its bins (the median step of their
     ``hab``); an ADCP with fewer than two bins, and an ADCP head, keep *tolerance*.
@@ -190,17 +192,17 @@ def _tolerances(levels: list[dict], tolerance: float) -> np.ndarray:
     return out
 
 
-def _assign_slots(
+def _assign_depths(
     levels: list[dict], reference: str, tolerance: float
 ) -> tuple[np.ndarray, list[dict]]:
-    """Give every level a slot: same family, within the tolerance, one level per deployment.
+    """Give every level a depth: same family, within the tolerance, one level per deployment.
 
-    Deployments are taken in time order; a level joins the nearest slot of its
+    Deployments are taken in time order; a level joins the nearest depth of its
     family whose center (the mean of its members so far) is within the tolerance
-    and that has no level of the same deployment yet, else it opens a new slot.
+    and that has no level of the same deployment yet, else it opens a new depth.
     The tolerance is *tolerance*, or half the bin size for ADCP levels (the larger
-    of the level's and the slot's when they differ). A level without a reference
-    value (no water depth for a depth reference) has a slot of its own.
+    of the level's and the depth's when they differ). A level without a reference
+    value (no water depth for a depth reference) has a depth of its own.
 
     Parameters
     ----------
@@ -210,15 +212,15 @@ def _assign_slots(
     reference : {"depth", "hab"}
         Which key the tolerance is measured on.
     tolerance : float
-        The largest distance (m) from a slot's center that still joins it.
+        The largest distance (m) from a depth's center that still joins it.
 
     Returns
     -------
     tuple of (numpy.ndarray, list of dict)
-        Each level's slot, and each slot's ``family``, ``center``,
+        Each level's depth index, and each depth's ``family``, ``center``,
         ``tolerance``, ``values`` and ``deployments``.
     """
-    slots: list[dict] = []
+    depth_groups: list[dict] = []
     tolerances = _tolerances(levels, tolerance)
     out = np.full(len(levels), -1, dtype=np.int32)
     for i, lev in enumerate(levels):
@@ -227,16 +229,19 @@ def _assign_slots(
         tol = float(tolerances[i])
         best, best_dist = None, None
         if np.isfinite(value):
-            for k, slot in enumerate(slots):
-                if slot["family"] != family or lev["deployment"] in slot["deployments"]:
+            for k, depth_group in enumerate(depth_groups):
+                if (
+                    depth_group["family"] != family
+                    or lev["deployment"] in depth_group["deployments"]
+                ):
                     continue
-                dist = abs(slot["center"] - value)
-                if dist <= max(tol, slot["tolerance"]) and (
+                dist = abs(depth_group["center"] - value)
+                if dist <= max(tol, depth_group["tolerance"]) and (
                     best_dist is None or dist < best_dist
                 ):
                     best, best_dist = k, dist
         if best is None:
-            slots.append(
+            depth_groups.append(
                 {
                     "family": family,
                     "center": value,
@@ -245,31 +250,32 @@ def _assign_slots(
                     "deployments": {lev["deployment"]},
                 }
             )
-            best = len(slots) - 1
+            best = len(depth_groups) - 1
         else:
-            slot = slots[best]
-            slot["deployments"].add(lev["deployment"])
-            slot["values"].append(value)
-            slot["tolerance"] = max(slot["tolerance"], tol)
+            depth_group = depth_groups[best]
+            depth_group["deployments"].add(lev["deployment"])
+            depth_group["values"].append(value)
+            depth_group["tolerance"] = max(depth_group["tolerance"], tol)
             # The center follows its members, so an instrument re-hung a little
-            # deeper each deployment stays in one slot.
-            slot["center"] = float(np.mean(slot["values"]))
+            # deeper each deployment stays in one depth.
+            depth_group["center"] = float(np.mean(depth_group["values"]))
         out[i] = best
-    for slot in slots:
+    for depth_group in depth_groups:
         far = [
             v
-            for v in slot["values"]
-            if np.isfinite(v) and abs(v - slot["center"]) > slot["tolerance"]
+            for v in depth_group["values"]
+            if np.isfinite(v)
+            and abs(v - depth_group["center"]) > depth_group["tolerance"]
         ]
         if far:
             warnings.warn(
-                f"a {slot['family']} slot (center {slot['center']:.0f} m) has "
-                f"levels more than {slot['tolerance']:g} m from its center: "
+                f"a {depth_group['family']} depth (center {depth_group['center']:.0f} m) has "
+                f"levels more than {depth_group['tolerance']:g} m from its center: "
                 f"{', '.join(f'{v:.0f}' for v in far)} m; check the grouping in the "
                 "report's instrument table.",
                 stacklevel=2,
             )
-    return out, slots
+    return out, depth_groups
 
 
 def _per_level(ds: xr.Dataset, name: str) -> np.ndarray | None:
@@ -303,29 +309,29 @@ def _join_level_values(parts: list[np.ndarray | None], sizes: list[int]) -> np.n
 def _place(
     starts: Sequence[int],
     lengths: Sequence[int],
-    level_slot: np.ndarray,
+    level_depth_index: np.ndarray,
     level_deployment: np.ndarray,
     n_time: int,
-    n_slot: int,
+    n_depths: int,
     overlap: str,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Decide which level fills each step of each slot, and which steps are overlap.
+    """Decide which level fills each step of each depth, and which steps are overlap.
 
-    A level occupies its deployment's steps in its slot. Where two levels occupy
-    the same step of one slot (two deployments in the water at once), the one the
+    A level occupies its deployment's steps in its depth. Where two levels occupy
+    the same step of one depth (two deployments in the water at once), the one the
     overlap rule picks fills it and the other's step goes to the overlap block.
 
     Returns
     -------
     tuple of numpy.ndarray
-        ``level_index`` (time, SLOT; -1 empty), then the overlap block's rows
-        (time index), slots and levels, sorted by time and slot.
+        ``level_index`` (time, N_DEPTHS; -1 empty), then the overlap block's rows
+        (time index), depth indices and levels, sorted by time and depth.
     """
-    level_index = np.full((n_time, n_slot), -1, dtype=np.int32)
-    ov_rows, ov_slots, ov_levels = [], [], []
-    for lvl in range(level_slot.size):
+    level_index = np.full((n_time, n_depths), -1, dtype=np.int32)
+    ov_rows, ov_depths, ov_levels = [], [], []
+    for lvl in range(level_depth_index.size):
         k = int(level_deployment[lvl])
-        s = int(level_slot[lvl])
+        s = int(level_depth_index[lvl])
         rows = np.arange(starts[k], starts[k] + lengths[k])
         current = level_index[rows, s]
         taken = current >= 0
@@ -333,56 +339,21 @@ def _place(
             # Placed in time order, so this level is the newer one: it takes the
             # step and the level it displaces goes to the overlap block.
             ov_rows.append(rows[taken])
-            ov_slots.append(np.full(taken.sum(), s))
+            ov_depths.append(np.full(taken.sum(), s))
             ov_levels.append(current[taken])
             level_index[rows, s] = lvl
         else:
             ov_rows.append(rows[taken])
-            ov_slots.append(np.full(taken.sum(), s))
+            ov_depths.append(np.full(taken.sum(), s))
             ov_levels.append(np.full(taken.sum(), lvl))
             level_index[rows[~taken], s] = lvl
     rows = np.concatenate(ov_rows) if ov_rows else np.array([], dtype=np.int64)
-    slots = np.concatenate(ov_slots) if ov_slots else np.array([], dtype=np.int64)
+    overlap_depth_index = (
+        np.concatenate(ov_depths) if ov_depths else np.array([], dtype=np.int64)
+    )
     levels = np.concatenate(ov_levels) if ov_levels else np.array([], dtype=np.int64)
-    order = np.lexsort((slots, rows))
-    return level_index, rows[order], slots[order], levels[order]
-
-
-def _segments(level_index: np.ndarray, time: np.ndarray) -> dict[str, xr.Variable]:
-    """Return the segment table: one row per run of one level in one slot."""
-    seg_slot, seg_level, seg_start, seg_end = [], [], [], []
-    for s in range(level_index.shape[1]):
-        col = level_index[:, s]
-        change = np.flatnonzero(np.diff(col)) + 1
-        starts = np.r_[0, change]
-        ends = np.r_[change, col.size] - 1
-        for a, b in zip(starts, ends, strict=True):
-            if col[a] >= 0:
-                seg_slot.append(s)
-                seg_level.append(int(col[a]))
-                seg_start.append(time[a])
-                seg_end.append(time[b])
-    dims = ("N_SEGMENTS",)
-    return {
-        "segment_slot": xr.Variable(
-            dims, np.array(seg_slot, dtype=np.int32), {"long_name": "slot of the run"}
-        ),
-        "segment_level_index": xr.Variable(
-            dims,
-            np.array(seg_level, dtype=np.int32),
-            {"long_name": "index into N_LEVELS of the level filling the run"},
-        ),
-        "segment_start": xr.Variable(
-            dims,
-            np.array(seg_start, dtype="datetime64[ns]"),
-            {"long_name": "first step of the run"},
-        ),
-        "segment_end": xr.Variable(
-            dims,
-            np.array(seg_end, dtype="datetime64[ns]"),
-            {"long_name": "last step of the run"},
-        ),
-    }
+    order = np.lexsort((overlap_depth_index, rows))
+    return level_index, rows[order], overlap_depth_index[order], levels[order]
 
 
 def _same_value(a: object, b: object) -> bool:
@@ -392,6 +363,14 @@ def _same_value(a: object, b: object) -> bool:
     except (TypeError, ValueError):
         return str(a).strip() == str(b).strip()
 
+
+#: The DEPLOYMENT record variable of each field in ``mooring.SOURCE_FIELDS``
+#: whose name differs from the field's: its source is ``<record variable>_source``.
+_SOURCE_RECORD: dict[str, str] = {
+    "waterdepth": "deployment_waterdepth",
+    "latitude": "deployment_latitude",
+    "longitude": "deployment_longitude",
+}
 
 #: Global attributes concat writes itself (or as its own DEPLOYMENT variables);
 #: any other stack attribute is kept once when every deployment agrees, else it
@@ -409,6 +388,7 @@ _OWN_ATTRS = frozenset(
         "deployment_settings",
         "history",
         "Conventions",
+        *(f"{field}_source" for field in _mooring.SOURCE_FIELDS),
         "featureType",
         "data_mode",
         "oceanarray_version",
@@ -428,20 +408,20 @@ def concat(
     sources: Sequence[tuple[str, str]] | None = None,
     descriptions: Sequence[Mapping] | None = None,
 ) -> xr.Dataset:
-    """Join one site's deployment stacks end to end on one time axis, by depth slot.
+    """Join one site's deployment stacks end to end on one time axis, by depth.
 
-    Every level of every deployment (ADCP bins included) gets a *slot*: same
-    instrument family, within the slot tolerance, at most one level per
-    deployment. The time series are stored on ``(time, SLOT)``, with
-    ``level_index`` naming the level behind each value; a slot is empty outside its
+    Every level of every deployment (ADCP bins included) gets a *depth*: same
+    instrument family, within the depth tolerance, at most one level per
+    deployment. The time series are stored on ``(time, N_DEPTHS)``, with
+    ``level_index`` naming the level behind each value; a depth is empty outside its
     levels' deployments, and nothing is interpolated or filled across a
     turnaround. Where two deployments are in the water at once, the overlap rule
-    picks the level that fills a slot's step and the other's values go to the
+    picks the level that fills a depth's step and the other's values go to the
     overlap block (``N_OVERLAP``), so nothing is lost.
 
-    Slot numbers are not stable: adding a deployment or changing the slot rule
-    renumbers them. A slot's depth is ``slot_depth`` (or
-    ``slot_reference_value``), never its number.
+    Depth indices are not stable: adding a deployment or changing the depth-matching rule
+    renumbers them. A depth's value is ``nominal_depth`` (or
+    ``depth_match_value``), never its number.
 
     Parameters
     ----------
@@ -453,7 +433,7 @@ def concat(
     name : str
         The site's name, used for the file stem and ``site_name``.
     overlap : {"newer", "older"}, optional
-        Which deployment's level fills a slot's step where two are in the water
+        Which deployment's level fills a depth's step where two are in the water
         (also ``deployment_index``); the other's values go to the overlap block.
     sources : sequence of (str, str), optional
         ``(file path, sha256)`` of each stack, in the order of *stacks*.
@@ -464,14 +444,14 @@ def concat(
     Returns
     -------
     xarray.Dataset
-        Time series on ``(time, SLOT)`` with ``level_index``; the level table on
-        ``N_LEVELS``; the slot table on ``SLOT``; the ``DEPLOYMENT`` record; the
-        overlap block on ``N_OVERLAP`` and the segment table on ``N_SEGMENTS``.
+        Time series on ``(time, N_DEPTHS)`` with ``level_index``; the level table on
+        ``N_LEVELS``; the depth table on ``N_DEPTHS``; the ``DEPLOYMENT`` record and the
+        overlap block on ``N_OVERLAP``.
 
     Raises
     ------
     MooringError
-        Fewer than two stacks, differing ``dt_seconds`` or slot rules, or a time
+        Fewer than two stacks, differing ``dt_seconds`` or depth-matching rules, or a time
         axis not on whole steps.
     """
     if len(stacks) < 2:
@@ -489,7 +469,7 @@ def concat(
         for i, ds in enumerate(stacks)
     ]
     dt = _check_time_steps(stacks, names)
-    reference, tolerance = _slot_rule(stacks, names)
+    reference, tolerance = _depth_rule(stacks, names)
 
     # The joined axis is the stack axis of the whole site window: every stack sits
     # on whole steps of the same dt, so each one's steps are a run of it.
@@ -531,23 +511,25 @@ def concat(
             deployment, serial, instrument_type, depth, hab, strict=True
         )
     ]
-    slot, slot_list = _assign_slots(levels, reference, tolerance)
-    # Number the slots deep-first (largest depth, or smallest hab, first); a slot
+    depth_index, depth_list = _assign_depths(levels, reference, tolerance)
+    # Number the depths deep-first (largest depth, or smallest hab, first); a depth
     # with no known reference value goes last.
-    slot_order = sorted(
-        range(len(slot_list)),
+    depth_order = sorted(
+        range(len(depth_list)),
         key=lambda k: (
-            not np.isfinite(slot_list[k]["center"]),
-            -slot_list[k]["center"] if reference == "depth" else slot_list[k]["center"],
+            not np.isfinite(depth_list[k]["center"]),
+            -depth_list[k]["center"]
+            if reference == "depth"
+            else depth_list[k]["center"],
         ),
     )
-    renumber = {old: new for new, old in enumerate(slot_order)}
-    slot = np.array([renumber[int(s)] for s in slot], dtype=np.int32)
-    slot_list = [slot_list[k] for k in slot_order]
-    n_slot = len(slot_list)
+    renumber = {old: new for new, old in enumerate(depth_order)}
+    depth_index = np.array([renumber[int(s)] for s in depth_index], dtype=np.int32)
+    depth_list = [depth_list[k] for k in depth_order]
+    n_depths = len(depth_list)
 
-    level_index, ov_rows, ov_slots, ov_levels = _place(
-        starts, lengths, slot, deployment, n_time, n_slot, overlap
+    level_index, ov_rows, ov_depths, ov_levels = _place(
+        starts, lengths, depth_index, deployment, n_time, n_depths, overlap
     )
 
     # ── The time series, one stack variable at a time ─────────────────
@@ -559,7 +541,7 @@ def concat(
             if ds[v].dims == ("time", "N_LEVELS") and v not in ts_names
         ]
     first_of = {v: next(ds[v] for ds in stacks if v in ds.data_vars) for v in ts_names}
-    # Only a flag gets the "missing" flag where its slot is empty; any other
+    # Only a flag gets the "missing" flag where its depth is empty; any other
     # variable becomes float so its gaps can be NaN.
     flags = {
         v
@@ -569,7 +551,7 @@ def concat(
     level_offset = np.cumsum([0, *sizes])
     grid = {
         v: np.full(
-            (n_time, n_slot),
+            (n_time, n_depths),
             _QC_MISSING if v in flags else np.nan,
             dtype=first_of[v].dtype if v in flags else np.float32,
         )
@@ -592,7 +574,7 @@ def concat(
             values = ds[v].transpose("time", "N_LEVELS").values
             for j in range(sizes[k]):
                 lvl = level_offset[k] + j
-                s = slot[lvl]
+                s = depth_index[lvl]
                 mine = np.flatnonzero(level_index[rows, s] == lvl)
                 grid[v][a + mine, s] = values[mine, j]
                 spill = np.flatnonzero(ov_levels == lvl)
@@ -601,11 +583,11 @@ def concat(
             del values
 
     data_vars: dict[str, xr.Variable] = {
-        v: xr.Variable(("time", "SLOT"), grid[v], attrs=dict(first_of[v].attrs))
+        v: xr.Variable(("time", "N_DEPTHS"), grid[v], attrs=dict(first_of[v].attrs))
         for v in ts_names
     }
     data_vars["level_index"] = xr.Variable(
-        ("time", "SLOT"),
+        ("time", "N_DEPTHS"),
         level_index.astype(np.int16),
         {
             "long_name": "index into N_LEVELS of the level behind each value (-1: none)",
@@ -643,47 +625,47 @@ def concat(
         depth.astype(np.float32),
         {"long_name": "nominal depth (water depth − hab) of the level", "units": "m"},
     )
-    data_vars["slot"] = xr.Variable(
+    data_vars["depth_index"] = xr.Variable(
         ("N_LEVELS",),
-        slot,
+        depth_index,
         {
-            "long_name": "depth slot of the level, shared across deployments",
+            "long_name": "index into N_DEPTHS of the level: its depth, shared across deployments",
             "comment": (
-                f"same instrument family, {reference} within the slot tolerance; slot "
-                "numbers change when a deployment is added or the slot rule changes, "
-                "so a slot's depth is slot_depth, never its number"
+                f"same instrument family, {reference} within the depth tolerance; depth "
+                "numbers change when a deployment is added or the depth-matching rule changes, "
+                "so a depth's value is nominal_depth, never its number"
             ),
         },
     )
 
-    # ── The slot table ────────────────────────────────────────────────
-    slot_depth = np.array(
+    # ── The depth table ────────────────────────────────────────────────
+    nominal_depth = np.array(
         [
-            float(np.nanmean(depth[slot == k]))
-            if np.isfinite(depth[slot == k]).any()
+            float(np.nanmean(depth[depth_index == k]))
+            if np.isfinite(depth[depth_index == k]).any()
             else np.nan
-            for k in range(n_slot)
+            for k in range(n_depths)
         ]
     )
-    data_vars["slot_family"] = xr.Variable(
-        ("SLOT",), np.array([s["family"] for s in slot_list], dtype=object)
+    data_vars["depth_family"] = xr.Variable(
+        ("N_DEPTHS",), np.array([s["family"] for s in depth_list], dtype=object)
     )
-    data_vars["slot_reference_value"] = xr.Variable(
-        ("SLOT",),
-        np.array([s["center"] for s in slot_list], dtype=np.float32),
-        {"long_name": f"mean {reference} of the slot's levels", "units": "m"},
+    data_vars["depth_match_value"] = xr.Variable(
+        ("N_DEPTHS",),
+        np.array([s["center"] for s in depth_list], dtype=np.float32),
+        {"long_name": f"mean {reference} of the levels at this depth", "units": "m"},
     )
-    data_vars["slot_depth"] = xr.Variable(
-        ("SLOT",),
-        slot_depth.astype(np.float32),
-        {"long_name": "mean nominal depth of the slot's levels", "units": "m"},
+    data_vars["nominal_depth"] = xr.Variable(
+        ("N_DEPTHS",),
+        nominal_depth.astype(np.float32),
+        {"long_name": "mean nominal depth of the levels at this depth", "units": "m"},
     )
-    data_vars["slot_tolerance"] = xr.Variable(
-        ("SLOT",),
-        np.array([s["tolerance"] for s in slot_list], dtype=np.float32),
+    data_vars["depth_tolerance"] = xr.Variable(
+        ("N_DEPTHS",),
+        np.array([s["tolerance"] for s in depth_list], dtype=np.float32),
         {
-            "long_name": f"largest {reference} distance from the slot's center that joined it",
-            "comment": "half the bin size for ADCP slots",
+            "long_name": f"largest {reference} distance from the depth's center that joined it",
+            "comment": "half the bin size for ADCP depths",
             "units": "m",
         },
     )
@@ -692,8 +674,10 @@ def concat(
     data_vars["overlap_time"] = xr.Variable(
         ("N_OVERLAP",), time[ov_rows], {"long_name": "step of the overlapping value"}
     )
-    data_vars["overlap_slot"] = xr.Variable(
-        ("N_OVERLAP",), ov_slots.astype(np.int32), {"long_name": "slot of the value"}
+    data_vars["overlap_depth_index"] = xr.Variable(
+        ("N_OVERLAP",),
+        ov_depths.astype(np.int32),
+        {"long_name": "depth index of the value"},
     )
     data_vars["overlap_level_index"] = xr.Variable(
         ("N_OVERLAP",),
@@ -704,7 +688,6 @@ def concat(
         data_vars[f"overlap_{v}"] = xr.Variable(
             ("N_OVERLAP",), over[v], attrs=dict(first_of[v].attrs)
         )
-    data_vars.update(_segments(level_index, time))
 
     # Which deployment counts at each step: -1 in gaps; the overlap rule decides
     # where two are in the water.
@@ -720,7 +703,7 @@ def concat(
         {
             "long_name": "deployment whose levels count at this step (-1: none in the water)",
             "comment": (
-                f"where two deployments overlap, the {overlap} one counts; a slot "
+                f"where two deployments overlap, the {overlap} one counts; a depth "
                 "that deployment has no level in keeps the other's (see level_index)"
             ),
         },
@@ -776,6 +759,15 @@ def concat(
         listed = [attribution.to_attrs(p).get(attr, "") for p in people]
         if any(listed):
             data_vars[f"deployment_{attr}"] = _deployment_var(listed)
+    # Where each deployment's mooring-level value came from, beside its record
+    # variable (empty for a deployment that does not say).
+    for field in _mooring.SOURCE_FIELDS:
+        key = f"{field}_source"
+        if any(ds.attrs.get(key) for ds in stacks):
+            record = _SOURCE_RECORD.get(field, field)
+            data_vars[f"{record}_source"] = _deployment_var(
+                [str(ds.attrs.get(key) or "") for ds in stacks]
+            )
     # Any other stack attribute: once when every deployment agrees, else one
     # value per deployment.
     shared: dict[str, object] = {}
@@ -850,8 +842,8 @@ def concat(
             "deployments": " ".join(names),
             "n_deployments": len(stacks),
             "dt_seconds": dt,
-            "slot_reference": reference,
-            "slot_tolerance_m": tolerance,
+            "depth_match": reference,
+            "depth_tolerance_m": tolerance,
             "overlap_rule": overlap,
             "latitude": f"{np.nanmedian(finite_lats):.5f}" if finite_lats else "",
             "longitude": f"{np.nanmedian(finite_lons):.5f}" if finite_lons else "",
@@ -862,12 +854,12 @@ def concat(
             "data_mode": "P",
             "history": (
                 f"concat: {len(stacks)} deployment stacks ({', '.join(names)}) "
-                f"joined on one {dt} s time axis in {n_slot} depth slots, each slot "
+                f"joined on one {dt} s time axis in {n_depths} depths, each depth "
                 "empty outside its levels' deployments, nothing filled across a "
                 "turnaround; "
                 + (
                     f"where two deployments overlap the {overlap} one fills the "
-                    f"slot, the other's {ov_rows.size} slot steps are in the overlap "
+                    f"depth, the other's {ov_rows.size} depth steps are in the overlap "
                     "block"
                     if ov_rows.size
                     else "no deployments overlap"
@@ -878,7 +870,51 @@ def concat(
     return out
 
 
-def _sha256(path: Path) -> str:
+def is_site_stack(ds: xr.Dataset) -> bool:
+    """Return whether *ds* is a site stack (:func:`concat` output) rather than a deployment's."""
+    return "N_DEPTHS" in ds.dims and "level_index" in ds and "deployment_index" in ds
+
+
+def cell_deployment(ds: xr.Dataset) -> np.ndarray:
+    """Return, on ``(time, N_DEPTHS)``, the deployment behind each value of a site stack (-1 none).
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A site stack.
+
+    Returns
+    -------
+    numpy.ndarray of int
+        ``deployment`` of the level ``level_index`` names, -1 where the depth is empty.
+    """
+    level = ds["level_index"].values.astype(np.int64)
+    deployment = ds["deployment"].values.astype(np.int64)
+    return np.where(level >= 0, deployment[np.clip(level, 0, None)], -1)
+
+
+def own_levels(ds: xr.Dataset) -> np.ndarray:
+    """Return, on ``(time, N_DEPTHS)``, where a site stack's value is from the deployment that counts.
+
+    At each step only the levels of the deployment ``deployment_index`` names are
+    kept, so a profile is never made of two moorings; a turnaround (index -1)
+    keeps nothing.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A site stack.
+
+    Returns
+    -------
+    numpy.ndarray of bool
+        True where the value counts.
+    """
+    counts = ds["deployment_index"].values.astype(np.int64)[:, None]
+    return (counts >= 0) & (cell_deployment(ds) == counts)
+
+
+def sha256(path: Path) -> str:
     """Return the SHA-256 of a file."""
     digest = hashlib.sha256()
     with Path(path).open("rb") as fh:
@@ -894,7 +930,7 @@ _CHUNK_SECONDS = 365 * 86400
 def chunks(ds: xr.Dataset) -> dict[str, int]:
     """Return the site stack's chunk lengths: about one year along time, whole along the rest.
 
-    A reader asking for one year, or one slot over the whole record, then
+    A reader asking for one year, or one depth over the whole record, then
     decompresses about a year of the file at a time rather than all of it.
 
     Parameters
@@ -982,14 +1018,14 @@ def concat_moorings(
             )
             # Relative to the site folder, so the site report can link each deployment.
             rel = os.path.relpath(stack_path.resolve(), target_dir.resolve())
-            sources.append((Path(rel).as_posix(), _sha256(stack_path)))
+            sources.append((Path(rel).as_posix(), sha256(stack_path)))
             cfgs.append(cfg)
         _check_people_cleaned(stacks, [c["name"] for c in cfgs])
         ds = concat(stacks, name=name, sources=sources, descriptions=cfgs)
     if dry_run:
         print(
-            f"would write {out_path} ({ds.sizes['time']} steps × {ds.sizes['SLOT']} "
-            f"slots, {ds.sizes['N_LEVELS']} levels, {ds.sizes['N_OVERLAP']} overlap steps)"
+            f"would write {out_path} ({ds.sizes['time']} steps × {ds.sizes['N_DEPTHS']} "
+            f"depths, {ds.sizes['N_LEVELS']} levels, {ds.sizes['N_OVERLAP']} overlap steps)"
         )
         return out_path
     target_dir.mkdir(parents=True, exist_ok=True)

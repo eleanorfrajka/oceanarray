@@ -961,6 +961,11 @@ def stack(
             "longitude": str(_lon_str),
             "deployment_time": str(deploy_time),
             "recovery_time": str(recover_time),
+            **{
+                f"{field}_source": str(mooring_config[f"{field}_source"])
+                for field in _mooring.SOURCE_FIELDS
+                if mooring_config.get(f"{field}_source")
+            },
             "dt_seconds": dt_seconds,
             # What built this stack, as YAML a description can take back.
             "deployment_settings": _mooring.settings_yaml(

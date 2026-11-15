@@ -9,12 +9,26 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Added
 
-- `oceanarray concat` / `oa.concat` join one site's deployment stacks by depth slot into `<site>_stackcat.nc`, with a Stack cat report page (#135).
+- `oceanarray concat` / `oa.concat` join one site's deployment stacks by depth into `<site>_stackcat.nc`, with a Stack cat report page (#135).
 - Stage 1 writes an imported file's principal investigators and contributors as OceanSITES lists; the stack and Stack cat join them (#135).
 - `writers.write(chunks=)` sets the chunk length along a dimension (#135).
 - Every file names the oceanarray that wrote it (`oceanarray_version`, `oceanarray_commit`, `stage<n>_oceanarray_version`); units changes are recorded in `units_converted` (#135).
+- `oceanarray concat` also grids the Stack cat, one mooring per profile, into `<site>_gridcat.nc` with a Grid cat report page; `--no-grid` skips it.
+- `mask_flags` (API, `grid: mask_flags` in the YAML, `--mask-flags` on `run` and `concat`): the QC flags left out before gridding, recorded as `grid_mask_flags`.
+- `<field>_source` in the mooring YAML (waterdepth, deployment/recovery time, latitude, longitude) is written beside the field in every file and in the Stack cat's deployment record.
+
+### Changed
+
+- Deployments on the Stack cat page are colored red to purple in time order; their start lines are dotted.
+- The Stack cat's depth columns are named for what they are: dimension `N_DEPTHS`, `depth_index`, `nominal_depth`, `depth_family`, `depth_match_value`, `depth_tolerance`, `overlap_depth_index`; the YAML keys are `stack: depth_match` / `depth_tolerance_m`.
+
+### Breaking changes
+
+- Grids change: velocity flagged 3 (suspect) is kept unless `mask_flags` says otherwise (the default leaves out 4 and 9), and current speed and direction come from the gridded east and north velocity.
 
 ### Fixed
+
+- A grid's current direction is no longer interpolated across 0/360° (it pointed the wrong way between a 355° and a 5° instrument).
 
 - `stage2_source_sha256` is the full SHA-256, not its first 8 digits (#135).
 - The stack time axis keeps a last step that falls exactly on the recovery time (#135).

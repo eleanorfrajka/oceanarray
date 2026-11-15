@@ -608,7 +608,7 @@ def draw_ts_by_deployment(
     Parameters
     ----------
     ds : xr.Dataset
-        A concatenated stack, one column per slot (``time, N_LEVELS``), with
+        A concatenated stack, one column per depth (``time, N_LEVELS``), with
         ``temperature``, ``salinity``, ``cell_deployment(time, N_LEVELS)`` (the
         deployment behind each value, -1 none) and ``deployment_name(DEPLOYMENT)``.
     width_in : float, optional
@@ -672,14 +672,14 @@ def draw_ts_medians(
 ) -> plt.Figure | None:
     """Median T and S of each instrument in each deployment, with interquartile whiskers.
 
-    One point per slot and deployment of a concatenated stack, in the deployment's
+    One point per depth and deployment of a concatenated stack, in the deployment's
     color (Okabe-Ito). Values flagged 3, 4 or 9 (``parameters.QC_BAD_FLAGS``) are
     left out.
 
     Parameters
     ----------
     ds : xr.Dataset
-        A concatenated stack, one column per slot, with ``temperature``,
+        A concatenated stack, one column per depth, with ``temperature``,
         ``salinity``, ``cell_deployment(time, N_LEVELS)`` and
         ``deployment_name(DEPLOYMENT)``.
     width_in : float, optional

@@ -48,7 +48,7 @@ from oceanarray.reports._vendored import design_tokens as report_tokens
 
 from ..config import parameters as params
 from ..config.unit_tables import unit_label
-from .helpers import OKABE_ITO, grid_despine, level_line_styles
+from .helpers import DEPLOYMENT_BOUNDARY, OKABE_ITO, grid_despine, level_line_styles
 from .primitives import (
     colorbar_norm,
     date_axis,
@@ -189,14 +189,10 @@ def draw_grid_hydro(
         var_bounds = {}
 
     panels = []
-    for var, cmap in [
-        ("temperature", "RdYlBu_r"),
-        ("salinity", "YlGnBu_r"),
-        ("oxygen_saturation_pct", "BrBG"),
-    ]:
+    for var in ("temperature", "salinity", "oxygen_saturation_pct"):
         if var not in ds.data_vars:
             continue
-        panels.append((var, cmap))
+        panels.append((var, params.SECTION_CMAPS[var]))
 
     # Also allow derived salinity from T/C
     if (
@@ -219,7 +215,7 @@ def draw_grid_hydro(
                     attrs={"units": "1", "long_name": "Practical Salinity"},
                 )
             )
-            panels.append(("salinity", "YlGnBu_r"))
+            panels.append(("salinity", params.SECTION_CMAPS["salinity"]))
         except Exception:  # noqa: BLE001
             pass
 
@@ -823,7 +819,7 @@ def draw_stack_timeseries(
     date_axis(axs[-1, 0])
     axs[-1, 0].set_xlabel("Time")
     fig.align_ylabels(axs[:, 0])
-    # Levels that share a name (a slot across deployments) share one legend entry.
+    # Levels that share a name (a depth across deployments) share one legend entry.
     ordered = [s for s in dict.fromkeys(serials) if s in handles]
     if legend_shallow_first:
         ordered.reverse()
@@ -848,7 +844,7 @@ def _mark_deployments(
         for (_s0, e0, _n0), (s1, _e1, _n1) in zip(spans, spans[1:], strict=False):
             if s1 > e0:
                 ax.axvspan(e0, s1, color="0.85", alpha=0.7, lw=0, zorder=0)
-            ax.axvline(s1, color="0.45", lw=0.6, zorder=1)
+            ax.axvline(s1, **DEPLOYMENT_BOUNDARY, zorder=1)
     top = axes[0]
     trans = mtransforms.blended_transform_factory(top.transData, top.transAxes)
     for start, end, label in spans:

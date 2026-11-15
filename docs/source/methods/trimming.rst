@@ -1,5 +1,5 @@
-Trim to deployment period (Stage 2)
-====================================
+Stage 2: trim and clocks
+========================
 
 Stage 2 isolates the valid in-water period from a raw time series and applies
 clock corrections.  Input is the Stage 1 output (``*_stage1.nc``); output is
@@ -9,8 +9,8 @@ This step typically needs to be run at least twice: once to produce an initial
 inspection report, then again after adjusting ``deployment_time`` and
 ``recovery_time`` in the YAML.
 
-1. Overview
------------
+Overview
+--------
 
 Raw mooring records contain data collected before deployment (deck testing, bench
 soaking) and after recovery (handling, rinsing).  Stage 2 removes these segments and
@@ -24,8 +24,8 @@ Operations applied at Stage 2:
   redundant with the CF time coordinate
 - Metadata enrichment (instrument depth, serial number, type)
 
-2. Clock corrections
---------------------
+Clock corrections
+-----------------
 
 Two types of timing error can be corrected.
 
@@ -52,13 +52,61 @@ YAML configuration:
        computer_clock_at_recovery: "2027-04-15T08:00:00"
        instrument_clock_at_recovery: "2027-04-15T07:59:48"
 
-See :doc:`../yaml_configuration` for the full field reference and sign convention.
-
 If neither ``computer_clock_at_recovery`` nor ``instrument_clock_at_recovery`` is
-set, no clock correction is applied.
+set, no clock correction is applied. The original time is kept as ``time_orig``.
 
-3. CLI usage
-------------
+Instead of the two timestamps, the correction can be given directly:
+
+The sign convention: **positive = instrument was slow (behind UTC), negative = instrument was fast (ahead of UTC)**. The value is *added* to the raw instrument time. For example, if an instrument was 15 seconds behind UTC, set ``clock_offset: 15``.
+
+``clock_offset`` and ``clock_drift_seconds`` describe the **total correction** at two points in time:
+
+- ``clock_offset`` — correction needed at the **start** of the deployment (instrument clock error when deployed).
+- ``clock_drift_seconds`` — correction needed at the **end** of the deployment (instrument clock error at recovery).
+
+Stage 2 applies a linear ramp between these two values, so every timestamp receives the
+appropriate interpolated correction.  All values are **added** to instrument time
+(positive = instrument was slow/behind UTC).
+
+.. list-table::
+   :header-rows: 1
+
+   * - Fields set
+     - Behaviour
+   * - ``clock_offset`` only
+     - Uniform constant shift throughout the record.
+   * - ``clock_drift_seconds`` only
+     - Ramps from 0 at deployment to ``clock_drift_seconds`` at recovery.
+   * - Both
+     - Ramps from ``clock_offset`` at deployment to ``clock_drift_seconds`` at recovery.
+
+.. code-block:: yaml
+
+   # Example: clock was 5 s slow at deployment and 8 s slow at recovery.
+   # Stage 2 applies +5 s at deployment time, +8 s at recovery, linearly in between.
+   clock_offset: 5
+   clock_drift_seconds: 8
+
+   # Alternative — two timestamps read off at recovery (preferred; avoids sign errors).
+   # Compact YYYYMMDDTHH:MM:SS, full ISO-8601 datetime, or time-only HH:MM:SS are all accepted.
+   computer_clock_at_recovery:    '20260711T10:23:30'   # or '2026-07-11T10:23:30' or '10:23:30'
+   instrument_clock_at_recovery:  '20260711T10:23:22'
+   # computer − instrument = +8 s → used as clock_drift_seconds (total correction at recovery)
+   # clock_offset (if also set) remains the correction at deployment.
+
+.. note::
+
+   The two-timestamp method measures ``computer − instrument`` at **recovery only**.
+   If the clock was also set incorrectly at deployment, set ``clock_offset`` for that
+   initial error and let the two timestamps capture the total at recovery.
+
+To estimate an offset from the data — when each instrument entered the cold deep
+water, and the lag that best lines up neighboring temperature records —
+``oceanarray.pipeline.clock.offsets`` has the functions, shown in the notebook
+``notebooks/legacy/demo_clock_offset.ipynb``.
+
+CLI usage
+---------
 
 Run Stage 2 for all instruments:
 
@@ -72,19 +120,20 @@ Rerun after adjusting deployment times (single instrument):
 
    oceanarray process dsG3_1_2026 --proc-dir /data/proc --stage 2 --only 26261 --force
 
-4. Output format
-----------------
+Output format
+-------------
 
 ``{mooring}_{serial}_stage2.nc`` in ``{proc_dir}/{mooring}/{instrument}/``
 
 The dataset is a trimmed slice of the Stage 1 output.  Key attributes added:
 
-- ``deployment_time``, ``recovery_time`` — the trim bounds used
-- ``clock_offset_seconds`` — the correction applied, stored for provenance
-- ``history`` — processing timestamp and command
+- ``yaml_deployment_time``, ``yaml_recovery_time`` — the trim bounds used
+- ``suggested_deployment_time_utc``, ``suggested_recovery_time_utc`` — the window
+  detected from the record (see below)
+- ``history`` — the clock correction and the trim, in words
 
-5. Validation
--------------
+Validation
+----------
 
 Stage 2 checks for common problems and emits warnings:
 
@@ -96,8 +145,8 @@ Stage 2 checks for common problems and emits warnings:
 Processing continues past individual instrument failures; check
 ``{proc_dir}/{mooring}/processing_logs/`` for details.
 
-3.5 Auto-detection of deployment window
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Auto-detection of the deployment window
+---------------------------------------
 
 If ``deployment_time`` or ``recovery_time`` is absent from the mooring YAML (or
 left as ``null``), Stage 2 attempts to detect the in-water period automatically
@@ -141,23 +190,12 @@ time falls outside the plotted range, most commonly because the YAML
 ``recovery_time`` was set earlier than the data transition.  Update
 ``recovery_time`` to the suggested value and rerun.
 
-6. What comes next
-------------------
+What comes next
+---------------
 
 Stage 2 output is the normal input to Stage 3 (QC, velocity rotation, salinity
 derivation).  See :doc:`auto_qc` and :doc:`../processing_framework`.
 
-7. Legacy scripts
------------------
-
-The original RAPID trimming script:
-
-- `microcat_raw2use_003.m <../_static/code/microcat_raw2use_003.m>`__
-
-.. literalinclude:: ../_static/code/microcat_raw2use_003.m
-   :language: matlab
-   :lines: 1-40
-   :linenos:
-   :caption: Excerpt from ``microcat_raw2use_003.m``
+RAPID's trimming script is on :doc:`../rapid_heritage`.
 
 See also: :doc:`standardisation`, :doc:`time_gridding`

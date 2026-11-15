@@ -3,13 +3,13 @@
 OceanSITES 1.4 lists principal investigators (``principal_investigator``,
 ``_email``, ``_url``, ``_id``) separated by commas, and contributors
 (``contributor_name``, ``_role``, ``_email``) separated by semicolons; the
-parallel attributes of one list hold one entry per slot, so the *n*-th entries
+parallel attributes of one list hold one entry per person and role, so the *n*-th entries
 describe one person.
 
 Reading another file's lists is lenient (originators use either separator, add
 titles, spell a name or an email two ways); writing is strict (the manual's
 separators, no separator inside a value, every parallel attribute the same
-length). A contributor with two roles takes two slots. Stage 1 cleans an
+length). A contributor with two roles takes two entries. Stage 1 cleans an
 imported file's own lists (its ``originator_*`` attributes) with the lenient
 reader, once; every later step reads oceanarray's own lists with the strict
 reader (:func:`read_own`) and only joins them.
@@ -21,7 +21,7 @@ import re
 import warnings
 from collections.abc import Iterable, Mapping
 
-#: Fields of one principal investigator, and of one contributor slot.
+#: Fields of one principal investigator, and of one contributor entry.
 PI_FIELDS = ("name", "email", "url", "id")
 CONTRIBUTOR_FIELDS = ("name", "role", "email")
 
@@ -165,7 +165,7 @@ def _paired_count(*fields: object) -> int | None:
 
 
 def _single(get: object, stem: str, role: str, prefix: str) -> list[dict[str, str]]:
-    """Return the contributor slots of a ``<stem>_name`` / ``<stem>_email`` pair."""
+    """Return the contributor entries of a ``<stem>_name`` / ``<stem>_email`` pair."""
     email = get(f"{stem}_email")  # type: ignore[operator]
     names = split_names(get(f"{stem}_name"), _paired_count(email))  # type: ignore[operator]
     emails = _aligned(len(names), _split(email), f"{prefix}{stem}_email")
@@ -181,7 +181,7 @@ def people_from_attrs(
     prefix: str = "",
     creator_role: str = CREATOR_ROLE,
 ) -> dict[str, list[dict[str, str]]]:
-    """Return the principal investigators and contributor slots a file's attributes name.
+    """Return the principal investigators and contributor entries a file's attributes name.
 
     Parameters
     ----------
@@ -198,7 +198,7 @@ def people_from_attrs(
     -------
     dict
         ``{"principal_investigator": [...], "contributor": [...]}``: dicts with
-        the fields of :data:`PI_FIELDS`, and one dict per person-role slot with
+        the fields of :data:`PI_FIELDS`, and one dict per person-role entry with
         the fields of :data:`CONTRIBUTOR_FIELDS`.
 
     Notes
@@ -253,12 +253,12 @@ def people_from_attrs(
 
 
 def split_roles(role: str) -> list[str]:
-    """Return the roles one contributor entry names, each its own slot.
+    """Return the roles one contributor entry names, each its own entry.
 
     ``"data processing and interpretation"`` is two roles, ``"data processing"``
     and ``"interpretation"``; a principal-investigator role (``"project PI"``,
     ``"Principal Investigator"``) reads ``"PI"``. An empty role stays one empty
-    slot.
+    entry.
 
     Parameters
     ----------
@@ -313,7 +313,7 @@ def union(
 
     See :func:`_same` for when two entries are one person. A principal
     investigator appears once; a contributor appears once per role (case aside),
-    and a blank role merges into the person's other slot. A person's first name, url and id are kept (a missing one filled from a later
+    and a blank role merges into the person's other entry. A person's first name, url and id are kept (a missing one filled from a later
     entry); their newest email is kept, the earlier one named in a warning.
 
     Parameters
@@ -359,11 +359,11 @@ def union(
                         continue
                     blank = next((p for p in same if not p["role"]), None)
                     if blank is not None:
-                        # A blank-role slot of this person takes the role.
+                        # A blank-role entry of this person takes the role.
                         blank["role"] = entry["role"]
                         continue
-                    # The same person in a new role: a slot of its own, with the
-                    # name and email of their first slot.
+                    # The same person in a new role: an entry of its own, with the
+                    # name and email of their first entry.
                     entry = {
                         **entry,
                         "name": same[0]["name"],
@@ -372,7 +372,7 @@ def union(
                 elif same:
                     continue
                 out[kind].append(entry)
-    # A PI listed without an email takes the one their contributor slot has.
+    # A PI listed without an email takes the one their contributor entry has.
     for pi in out["principal_investigator"]:
         if not pi["email"]:
             pi["email"] = next(
@@ -406,7 +406,7 @@ def _clean(value: str, separator: str, label: str) -> str:
 def to_attrs(people: Mapping[str, list[dict[str, str]]]) -> dict[str, str]:
     """Return the OceanSITES attributes for a people list.
 
-    Every parallel attribute of a list has one entry per slot, empty entries
+    Every parallel attribute of a list has one entry per person and role, empty entries
     kept, so the *n*-th entries always describe one person. ``contributor_name``,
     ``_role`` and ``_email`` are written whenever there is a contributor (an
     empty field as ``"; ; "``); a PI field nobody has is left out.

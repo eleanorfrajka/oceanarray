@@ -1,4 +1,4 @@
-# OceanArray Project Structure
+# Project structure
 
 This document provides an overview of the oceanarray codebase structure and organisation.
 

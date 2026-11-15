@@ -642,6 +642,68 @@ def _make_speed_profile_by_deployment_b64(ds: xr.Dataset) -> str | None:
     return render_slot(draw_speed_profile_by_deployment, ds, slot="half", optional=True)
 
 
+def _make_site_sections_b64(
+    panels: list[dict],
+    time: np.ndarray,
+    pressure: np.ndarray,
+    time_edges: np.ndarray,
+    owner: np.ndarray,
+    deployments: list[tuple],
+    isopycnals: list[tuple],
+    crop: bool = False,
+) -> str | None:
+    """Stacked pressure × time sections of a site grid, full width, for the site grid page."""
+    from oceanarray.plotters.site import draw_site_sections
+
+    return render_slot(
+        draw_site_sections,
+        panels,
+        time,
+        pressure,
+        time_edges=time_edges,
+        owner=owner,
+        deployments=deployments,
+        isopycnals=isopycnals,
+        crop=crop,
+        optional=True,
+    )
+
+
+def _make_site_profiles_b64(
+    columns: list[dict], pressure: np.ndarray, names: list[str], slot: str
+) -> str | None:
+    """Median profile per deployment, at *slot* width, for the site grid page."""
+    from oceanarray.plotters.site import draw_site_profiles
+
+    return render_slot(
+        draw_site_profiles, columns, pressure, names, slot=slot, optional=True
+    )
+
+
+def _make_site_ts_b64(
+    theta: np.ndarray,
+    salinity: np.ndarray,
+    names: list[str],
+    position: tuple[float, float] | None,
+    sigma0_levels: tuple,
+    sigma2_levels: tuple,
+) -> str | None:
+    """θ-S of each deployment's median profile, half width, for the site grid page."""
+    from oceanarray.plotters.site import draw_site_ts
+
+    return render_slot(
+        draw_site_ts,
+        theta,
+        salinity,
+        names,
+        *(position or (None, None)),
+        sigma0_levels=sigma0_levels,
+        sigma2_levels=sigma2_levels,
+        slot="half",
+        optional=True,
+    )
+
+
 def _make_aquadopp_tilt_panels_b64(ds: xr.Dataset, step: int = 1) -> str | None:
     """|pitch|, |roll| and pressure tilt per Aquadopp, full width, for the stack page."""
     from oceanarray.plotters.current import draw_aquadopp_tilt_panels

@@ -1,104 +1,35 @@
 Troubleshooting
 ===============
 
-This page collects common installation and runtime problems and their solutions.
-It was assembled from real installation notes on macOS (Python 3.11, Homebrew).
+**pip fails to build pyproj** (a dependency of ``seasenselib``)
+   Install a ready-built wheel, then oceanarray:
 
-.. contents:: On this page
-   :local:
-   :depth: 1
+   .. code-block:: bash
 
-----
+      pip install --upgrade --force-reinstall --no-cache-dir --only-binary=:all: "pyproj>=3.7.0"
+      pip install oceanarray
 
-Installation problems
----------------------
+   If that fails too, start a new environment with Python 3.11.
 
-seasenselib / pyproj build failures
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**"command not found" in a new terminal**
+   The environment is active only in the terminal that activated it: run
+   ``source venv/bin/activate`` (``venv\Scripts\activate`` on Windows) or
+   ``conda activate oceanarray`` again.
 
-``seasenselib`` (the raw-file reader, installed automatically with
-``oceanarray``) and its dependency ``pyproj`` occasionally fail to build from
-source on some platforms or pip versions.
+**oceanarray prints nothing, or stops at once**
+   Check that the mooring's YAML file is where oceanarray looks
+   (``{proc_dir}/{mooring}/{mooring}.mooring.yaml``, or give its path), run
+   ``oceanarray validate`` on it, and add ``-v`` for more output.
 
-**If pyproj fails to install**, force a pre-built binary wheel, then re-run the
-install:
+**Stage 1: "no reader found"**
+   The instrument's ``file_type:`` is not one oceanarray knows; ``oceanarray
+   list`` prints the ones it accepts.
 
-.. code-block:: bash
+**Stage 3: Aquadopp velocity all NaN, coordinate_system "BEAM"**
+   Stage 1 did not find the ``.hdr`` file with the transformation matrix, so
+   stage 3 could not rotate the velocity. Put the ``.hdr`` beside the ``.aqd``,
+   or name it with ``header_file:`` in the instrument entry, and run again from
+   stage 1.
 
-   pip install --upgrade \
-       --force-reinstall \
-       --no-cache-dir \
-       --only-binary=:all: \
-       "pyproj>=3.7.0"
-
-   pip install oceanarray
-
-If all else fails, recreate the virtual environment with Python 3.11 exactly
-(``python3.11 -m venv venv``) and start from scratch.
-
-----
-
-Environment problems
---------------------
-
-Commands not found after closing the terminal
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The virtual environment must be activated in every new terminal session.
-If you use a **venv**:
-
-.. code-block:: bash
-
-   source venv/bin/activate        # macOS / Linux
-   # venv\Scripts\activate         # Windows
-
-If you use **conda**:
-
-.. code-block:: bash
-
-   conda activate oceanarray
-
-If a shell script of your own sets the data paths, source it in the new
-terminal too before running ``oceanarray`` commands.
-
-----
-
-Runtime problems
-----------------
-
-``oceanarray`` prints no output / exits silently
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Check that the ``--proc-dir`` path exists and that the mooring YAML is
-present at ``{proc_dir}/{mooring_name}/{mooring_name}.mooring.yaml`` (or give
-the YAML's path directly).  Run with ``-v`` (``--verbose``) for more detail, and
-``oceanarray validate MOORING`` to check the description.
-
-Stage 1 fails with "no reader found"
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-``seasenselib`` is not installed, or the ``file_type:`` field in the mooring
-YAML does not match a recognised reader.  Run ``oceanarray list`` to see
-accepted ``file_type`` strings.
-
-Stage 3 velocity shows all NaN / coordinate_system is BEAM
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-For Nortek Aquadopps the BEAM→ENU transformation requires a transformation
-matrix parsed from the ``.hdr`` file.  If the ``.hdr`` file was not found at
-stage 1, ``coordinate_system`` is stored as ``"BEAM"`` and stage 3 skips the
-rotation.  Verify that the ``.hdr`` file is in the same directory as the
-``.aqd`` data file, or that the ``header_file:`` field in the mooring YAML
-points to it.
-
-----
-
-Getting help
-------------
-
-If none of the above solves your problem:
-
-* Open an issue at https://github.com/ocean-uhh/oceanarray/issues and include
-  the full traceback and the output of ``oceanarray --version``.
-* Check that you have the latest release: ``pip install --upgrade oceanarray``
-  (or ``git pull`` in an editable install).
+Still stuck? Open an issue at https://github.com/ocean-uhh/oceanarray/issues with
+the full error and ``oceanarray --version``.

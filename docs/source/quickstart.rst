@@ -1,70 +1,20 @@
 .. _quickstart:
 
 ========================
-Quickstart Guide
+Quickstart
 ========================
 
-This guide walks through processing a single mooring from raw instrument files
-to a vertically gridded NetCDF and an HTML report.  The steps are intended
-for oceanographers who are comfortable with a command line but do not need to
-write Python code.
+This page takes one mooring from its raw files to the gridded file and its report,
+from the command line. Stages 1 and 2 are run one at a time the first time, to check
+the files are read and the deployment times are right.
 
-.. note::
-
-   Output variable names and file format are not yet stable — see the
-   :doc:`roadmap` before building downstream scripts that depend on specific
-   variable names or file structure.
+You need oceanarray installed (:doc:`installation`) and the raw files of one
+mooring.
 
 ----
 
-Prerequisites
--------------
-
-**Python 3.11 or later** is required.  Install ``oceanarray`` from PyPI, ideally
-into an isolated environment.
-
-**Option A — conda**
-
-.. code-block:: bash
-
-   conda create -n oceanarray python=3.11
-   conda activate oceanarray
-   pip install oceanarray
-
-**Option B — venv**
-
-.. code-block:: bash
-
-   python -m venv venv
-   source venv/bin/activate        # macOS / Linux
-   # venv\Scripts\activate         # Windows
-   pip install oceanarray
-
-For development, install from source instead:
-
-.. code-block:: bash
-
-   git clone https://github.com/ocean-uhh/oceanarray
-   cd oceanarray
-   pip install -e .
-
-``oceanarray`` reads raw instrument files via the ``seasenselib`` library,
-which is on PyPI and installed automatically with ``oceanarray``.
-
-.. note::
-
-   Without ``seasenselib``, stage 1 processing (raw file ingestion) cannot
-   run.  Stages 2–3, stack, grid, and report generation work on existing
-   NetCDF files without it.
-
-RDI WorkHorse ADCP files (``file_type: rdi-raw``) need no extra install:
-``seasenselib`` reads them via ``mhkit[dolfyn]``, pulled in automatically with
-``oceanarray``.
-
-----
-
-Organise your files
--------------------
+Put the files in place
+----------------------
 
 Arrange your raw instrument files under a **raw directory** in the
 mooring-first layout:
@@ -86,8 +36,7 @@ Create a **processed directory** alongside it:
 
    mkdir -p /data/cruise2026/proc/dsG3_1_2026
 
-See :doc:`directory_structure` for a full description of the layout and how
-file names are constructed.
+See :doc:`files` for the folders and file names.
 
 ----
 
@@ -253,29 +202,11 @@ out is recorded in the stack and grid (``instruments_omitted``,
 provisional (``data_mode = "P"``).  Add ``--strict`` to stop at the first
 failure instead.
 
-``--from 2`` re-runs stages 2 and 3 without the raw files (``--stage 2 3`` is the
-same); ``run`` always runs through stage 3, because it rebuilds the stack from
-those files.  To run one stage on its own, use ``oceanarray process --stage N``.
-``--dry-run`` lists what a run would write.  For a quick look at sea before stage 3 is
-trusted, ``--stack-stage 2`` stacks and grids the stage-2 files instead; the
-report marks those instruments in amber (no QC flags, no interpolated pressure,
-velocities referenced to magnetic north).
-
-The stack's time step and the grid's pressure levels come from ``--dt-seconds``,
-``--pmin``, ``--pmax`` and ``--dp``, else from optional ``stack:`` and ``grid:``
-blocks in the YAML (``oceanarray init`` writes them commented out), else 3600 s
-and 200–1000 dbar every 20 dbar.  Each step of the stack takes every instrument's
-nearest sample within ±dt/2 (no interpolation in time), so an instrument sampling
-slower than the step leaves the steps between its samples empty:
-
-.. code-block:: yaml
-
-   stack:
-     dt_seconds: 600
-   grid:
-     pmin: 200
-     pmax: 1000
-     dp: 20
+``--from 2`` re-runs stages 2 and 3 without the raw files; ``--dry-run`` lists what
+a run would write. The stack's time step (default hourly) and the grid's levels
+(default 200–1000 dbar every 20) are set with ``--dt-seconds``, ``--pmin``,
+``--pmax`` and ``--dp``, or in the YAML's ``stack:`` and ``grid:`` blocks
+(:doc:`yaml_configuration`).
 
 The mooring can also be given by path, with no ``--proc-dir``; the folder can
 have any name:
@@ -348,13 +279,9 @@ code written for 0.5.
 
 ----
 
-Where to go next
-----------------
+Next
+----
 
-- :doc:`yaml_configuration` — full reference for all YAML fields, QC
-  thresholds, clock correction, and inline instruments.
-- :doc:`cli_reference` — every command-line option for all subcommands.
-- :doc:`directory_structure` — detailed description of the file layout
-  and naming conventions.
-- :doc:`processing_framework` — description of what each processing stage
-  does to the data.
+- Several deployments of one site: ``oceanarray concat`` (:doc:`methods/concatenation`).
+- Every YAML field: :doc:`yaml_configuration`; every option: :doc:`cli_reference`.
+- What each stage does: :doc:`processing_framework`.

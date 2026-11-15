@@ -1,6 +1,6 @@
-==============================
-OceanArray Data Format
-==============================
+============
+Output files
+============
 
 oceanarray's shareable output is `OceanSITES 1.4
 <https://www.ocean-ops.org/oceansites/docs/oceansites_data_format_reference_manual.pdf>`_
@@ -169,8 +169,8 @@ Stage 1 cleans the people an imported file names (its ``originator_*``
 attributes stay as given) and writes them as OceanSITES 1.4 lists:
 ``principal_investigator``, ``_email``, ``_url``, ``_id`` separated by commas, and
 ``contributor_name``, ``_role``, ``_email`` separated by semicolons. Every parallel
-attribute has one entry per slot (empty entries kept), and a contributor with two
-roles takes two slots. Reading an originator's lists:
+attribute has one entry per person and role (empty entries kept), and a contributor with two
+roles takes two entries. Reading an originator's lists:
 
 - each field is split on its own separator (``;`` when it has one, else ``,``);
 - titles before or after a name are dropped (``"Dr. Fiamma Straneo, Professor"``
@@ -178,15 +178,15 @@ roles takes two slots. Reading an originator's lists:
   Surname"``;
 - a role, email, url or id without one entry per name is left out, with a
   warning (never guessed); a role joined by "and" is two roles, each its own
-  slot (``"data processing and interpretation"``), and a principal-investigator
+  entry (``"data processing and interpretation"``), and a principal-investigator
   role reads ``PI``;
 - the file's creator and publisher join the contributors (roles ``originator`` and
   ``publisher``); a file with no ``principal_investigator`` takes its PIs from the
   contributors whose role says principal investigator or PI;
 - across files, two entries are one person when they share an id, or a name
   (titles, initials, case, dots and spaces aside), so a changed or mistyped email
-  does not split a person; the newest email is kept; a blank-role slot merges
-  into the same person's other slot.
+  does not split a person; the newest email is kept; a blank-role entry merges
+  into the same person's other entry.
 
 ``contributor_name``, ``_role`` and ``_email`` are written whenever there is a
 contributor, an empty field as empty entries (``"; ; "``), so the three always
@@ -211,6 +211,21 @@ the stage-2 file.
 
 Every units change (a new spelling or a conversion) is recorded in the file's
 ``units_converted`` attribute, JSON ``{variable: {"from", "to", "factor"}}``,
-written at stage 1 and carried forward. The rest
+written at stage 1 and carried forward.
+
+Where a mooring-level value came from, or why it was corrected, is written beside
+it when the mooring YAML says so: ``waterdepth_source``, ``deployment_time_source``,
+``recovery_time_source``, ``latitude_source``, ``longitude_source`` (stage 1 adds a
+history line, e.g. ``waterdepth 3125.0 m from the mooring YAML: <source>``). The
+stack carries them, and the Stack cat lists them per deployment beside the record
+variable (``deployment_waterdepth_source``, ``deployment_time_source``, ...; an
+empty string for a deployment that gives none). The values themselves are the
+YAML's, as without a source.
+
+Every grid records the QC flags it left out before gridding in ``grid_mask_flags``
+(JSON, ``{"default": [4, 9], "velocity": [3, 4, 9]}``). A site grid
+(``<site>_gridcat.nc``) also records its site stack (``stackcat_file``,
+``stackcat_sha256``) and the along-slope direction (``slope_angle_deg``, degrees
+clockwise from north, with ``slope_angle_source``). The rest
 of the attribution (``creator_*``, ``institution``, ``citation``, ``license``,
 ``references``) is not written yet; it will come from the array description.

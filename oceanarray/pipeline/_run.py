@@ -34,6 +34,7 @@ def run(
     pmin: float | None = None,
     pmax: float | None = None,
     dp: float | None = None,
+    mask_flags: Iterable[int] | Mapping[str, Iterable[int]] | None = None,
     stack_stage: int = 3,
     report: bool = False,
 ) -> list[Path]:
@@ -82,6 +83,10 @@ def run(
     pmin, pmax, dp : float or None, optional
         The grid's pressure levels, in dbar. ``None`` takes the description's
         ``grid:`` block, else 200, 1000 and 20.
+    mask_flags : iterable of int, or Mapping of str to iterable of int, optional
+        The QC flags left out before gridding (see
+        :func:`oceanarray.pipeline.grid.resolve_mask_flags`). ``None`` takes the
+        description's ``grid: mask_flags``, else 4 and 9 for every variable.
     stack_stage : {3, 2}, optional
         Which stage files the stack is built from. 2 builds a quick look at sea
         from the stage-2 files without running stage 3: no QC flags, no
@@ -129,6 +134,7 @@ def run(
     settings = _resolve_settings(
         cfg, dt_seconds=dt_seconds, pmin=pmin, pmax=pmax, dp=dp
     )
+    flags = resolve_grid_mask_flags(cfg, mask_flags)
     name = cfg["name"]
     products = [paths.product_file(moor_dir, name, p) for p in ("stack", "grid")]
     outcome = _Outcome()
@@ -186,6 +192,7 @@ def run(
             pmin=settings["pmin"],
             pmax=settings["pmax"],
             dp=settings["dp"],
+            mask_flags=flags,
         )
     except ValueError as e:
         if not keep_going:
@@ -327,6 +334,40 @@ def _resolve_settings(
             "blocks, else the defaults): " + "; ".join(problems)
         )
     return out
+
+
+def resolve_grid_mask_flags(
+    cfg: Mapping[str, Any],
+    given: Iterable[int] | Mapping[str, Iterable[int]] | None = None,
+) -> dict[str, tuple[int, ...]]:
+    """Return the grid's mask flags: the call, else ``grid: mask_flags``, else the default.
+
+    Parameters
+    ----------
+    cfg : Mapping
+        The mooring description.
+    given : iterable of int, or Mapping of str to iterable of int, optional
+        The call's (or the CLI's) value.
+
+    Returns
+    -------
+    dict of str to tuple of int
+        As :func:`oceanarray.pipeline.grid.resolve_mask_flags` returns it.
+
+    Raises
+    ------
+    oceanarray.exceptions.MooringError
+        The value is invalid.
+    """
+    from oceanarray.exceptions import MooringError
+    from oceanarray.pipeline.grid import resolve_mask_flags
+
+    value = given if given is not None else (cfg.get("grid") or {}).get("mask_flags")
+    try:
+        return resolve_mask_flags(value)
+    except ValueError as exc:
+        where = "the call" if given is not None else "the description's grid: block"
+        raise MooringError(f"{cfg.get('name', 'mooring')}: {exc} ({where})") from exc
 
 
 def _dt_seconds_problem(value: Any) -> str | None:

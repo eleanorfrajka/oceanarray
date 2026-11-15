@@ -241,6 +241,24 @@ def _add_global_attributes(
     return dataset
 
 
+def _add_sources(dataset: xr.Dataset, yaml_data: dict[str, Any]) -> xr.Dataset:
+    """Copy each ``<field>_source`` of the description beside its field, with a history line.
+
+    Provenance only: the field's value is the description's, as without it.
+    """
+    for field in _mooring.SOURCE_FIELDS:
+        source = yaml_data.get(f"{field}_source")
+        if not source:
+            continue
+        dataset.attrs[f"{field}_source"] = str(source)
+        value = yaml_data.get(field, "")
+        unit = " m" if field == "waterdepth" else ""
+        _stage.append_history(
+            dataset, f"{field} {value}{unit} from the mooring YAML: {source}"
+        )
+    return dataset
+
+
 def _add_instrument_metadata(
     dataset: xr.Dataset,
     instrument_config: dict[str, Any],
@@ -529,7 +547,7 @@ def _add_people(dataset: xr.Dataset) -> xr.Dataset:
         _stage.append_history(
             dataset,
             f"people: cleaned per OceanSITES 1.4 from originator_* ({n_pi} PI, "
-            f"{n_c} contributor slots; {len(caught)} warning"
+            f"{n_c} contributor entries; {len(caught)} warning"
             f"{'' if len(caught) == 1 else 's'})",
         )
     return dataset
@@ -561,6 +579,7 @@ def _stage1_instrument(
     dataset = _rename_sensor_vars(dataset, entry)
     dataset = _drop_file_type_variables(dataset, file_type)
     dataset = _add_global_attributes(dataset, mooring)
+    dataset = _add_sources(dataset, mooring)
     dataset = _add_instrument_metadata(dataset, entry, mooring)
     # The people an imported file names, cleaned once, here (its originator_*
     # stay as given).
