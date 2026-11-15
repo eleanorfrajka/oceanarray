@@ -21,6 +21,7 @@ from ..config import parameters as params
 from ..plotters import helpers as _helpers
 from ..plotters import ts as _ts
 from . import _masthead
+from ._breadcrumb import page_crumbs
 from ._env import render_history, render_template
 from ._figdebug import as_panel
 from ._html_helpers import _format_dt, _format_duration, _parse_dt, _parse_history
@@ -757,6 +758,8 @@ def generate_concat_page(
     *,
     generated: str | None = None,
     report_dir: Path | None = None,
+    breadcrumb: list[tuple[str, str | None]] | None = None,
+    label: str | None = None,
 ) -> Path | None:
     """Write the concatenated-stack report page for a site stack.
 
@@ -772,6 +775,12 @@ def generate_concat_page(
         Where the deployments' own reports are, one folder per deployment
         (``<report_dir>/<deployment>``); default the ``report`` folder beside each
         deployment's stack. The page links to them.
+    breadcrumb : list of (str, str or None) or None, optional
+        The caller's trail of ancestor crumbs shown above the title (hrefs relative
+        to the report root, rebased for this page's depth); the page appends its own.
+    label : str or None, optional
+        The site's display name for the title and its own crumb; defaults to the
+        file stem.
 
     Returns
     -------
@@ -895,7 +904,12 @@ def generate_concat_page(
         report = resolve(CONCAT_DEFAULT, context, CONCAT_PANELS)
         html = render_template(
             "concat.html",
-            mooring_name=name,
+            mooring_name=label or name,
+            breadcrumb=(
+                page_crumbs(breadcrumb, "../", [(label or name, None)])
+                if breadcrumb
+                else []
+            ),
             nav=_nav(
                 deployment_rows,
                 other=(

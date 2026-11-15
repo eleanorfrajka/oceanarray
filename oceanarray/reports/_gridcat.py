@@ -15,6 +15,7 @@ from oceanarray.analysis import site
 
 from ..config import parameters as params
 from . import _masthead
+from ._breadcrumb import page_crumbs
 from ._concat import (
     CONCAT_PANELS,
     CONCAT_SECTIONS,
@@ -391,6 +392,8 @@ def generate_gridcat_page(
     *,
     generated: str | None = None,
     report_dir: Path | None = None,
+    breadcrumb: list[tuple[str, str | None]] | None = None,
+    label: str | None = None,
 ) -> Path | None:
     """Write the site grid page for a site grid.
 
@@ -407,6 +410,12 @@ def generate_gridcat_page(
     report_dir : Path, optional
         Where the deployments' own reports are (see
         :func:`oceanarray.reports._concat.generate_concat_page`).
+    breadcrumb : list of (str, str or None) or None, optional
+        The caller's trail of ancestor crumbs shown above the title; the page
+        appends the site (linking to its Stack cat page) and ``Grid cat``.
+    label : str or None, optional
+        The site's display name for the title and its own crumb; defaults to the
+        file stem.
 
     Returns
     -------
@@ -473,7 +482,19 @@ def generate_gridcat_page(
         stack_page = out_dir / f"{name}_stackcat_report.html"
         html = render_template(
             "gridcat.html",
-            mooring_name=name,
+            mooring_name=label or name,
+            breadcrumb=(
+                page_crumbs(
+                    breadcrumb,
+                    "../",
+                    [
+                        (label or name, f"{name}_stackcat_report.html"),
+                        ("Grid cat", None),
+                    ],
+                )
+                if breadcrumb
+                else []
+            ),
             nav=_nav(
                 deployment_rows,
                 current="gridcat",
