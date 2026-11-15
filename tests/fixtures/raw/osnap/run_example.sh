@@ -37,6 +37,6 @@ YAML
 
 oceanarray validate "$W/proc/$M/$M.mooring.yaml"
 oceanarray run "$M" --raw-dir "$W/raw" --proc-dir "$W/proc" --force \
-    --dt 1200 --pmin 70 --pmax 110 --dp 10
+    --dt-seconds 1200 --pmin 70 --pmax 110 --dp 10
 
 echo "Report: $W/proc/$M/report/${M}_report.html"

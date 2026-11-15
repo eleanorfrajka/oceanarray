@@ -40,9 +40,9 @@ def test_detect_interval_s_median():
     assert H._sample_interval_s(_dt([0.0, 10.0, 20.0, 120.0])) == 10.0
 
 
-def test_detect_interval_s_default_when_too_few():
-    """Fewer than 2 samples falls back to 60 s."""
-    assert H._sample_interval_s(_dt([5.0])) == 60.0
+def test_detect_interval_s_nan_when_too_few():
+    """Fewer than 2 samples have no interval: NaN, not an assumed value."""
+    assert np.isnan(H._sample_interval_s(_dt([5.0])))
 
 
 # ---------------------------------------------------------------------------
@@ -127,51 +127,6 @@ def test_nearest_subsample_missing_var_is_nan():
     ds = _ds("temperature", [10.0, 20.0], _dt([0.0, 10.0]))
     out = H._nearest_subsample(ds, _dt([0.0]), half_window_s=5.0)
     assert np.isnan(out["salinity"][0])  # salinity absent -> NaN
-
-
-# ---------------------------------------------------------------------------
-# _linear_interp
-# ---------------------------------------------------------------------------
-
-
-def test_linear_interp_midpoint():
-    ds = _ds("temperature", [10.0, 20.0], _dt([0.0, 10.0]))
-    out = H._linear_interp(ds, _dt([5.0]))
-    np.testing.assert_allclose(out["temperature"], [15.0])
-
-
-def test_linear_interp_nan_outside_range():
-    ds = _ds("temperature", [10.0, 20.0], _dt([10.0, 20.0]))
-    out = H._linear_interp(ds, _dt([0.0, 30.0]))
-    assert np.isnan(out["temperature"]).all()
-
-
-def test_linear_interp_qc_takes_worst_bracketing_flag():
-    """*_qc flag arrays are resampled conservatively, never linearly averaged.
-
-    Each target inherits the *worst* flag of its two bracketing source samples on
-    the OceanSITES priority, so a bad flag adjacent to a target is never laundered
-    into a good one. Two invariants: (1) no interpolated intermediate flag (e.g.
-    2.5) is ever produced; (2) a target between a bad and a good sample takes the
-    bad flag *regardless of ordering* — the earlier searchsorted "next" pick
-    dropped a leading bad flag, which this guards against.
-    """
-    # good-then-bad: midpoint takes the bad(4) flag; endpoints match exactly.
-    ds = xr.Dataset(
-        {"temperature_qc": ("time", np.array([1, 4], dtype=np.int8))},
-        coords={"time": _dt([0.0, 10.0])},
-    )
-    out = H._linear_interp(ds, _dt([0.0, 5.0, 10.0]))
-    np.testing.assert_array_equal(out["temperature_qc"], [1.0, 4.0, 4.0])
-
-    # bad-then-good: the midpoint must NOT drop the leading bad(4) flag. This is
-    # the case the old searchsorted-"next" behaviour got wrong (it returned 1).
-    ds_rev = xr.Dataset(
-        {"temperature_qc": ("time", np.array([4, 1], dtype=np.int8))},
-        coords={"time": _dt([0.0, 10.0])},
-    )
-    out_rev = H._linear_interp(ds_rev, _dt([0.0, 5.0, 10.0]))
-    np.testing.assert_array_equal(out_rev["temperature_qc"], [4.0, 4.0, 1.0])
 
 
 # ---------------------------------------------------------------------------

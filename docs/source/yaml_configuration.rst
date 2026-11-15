@@ -171,8 +171,9 @@ mooring as a whole.
    * - ``stack``
      - mapping
      - Optional
-     - ``dt_seconds``: the stack's time step in whole seconds (default 60).
-       ``--dt-seconds`` / ``dt_seconds=`` override it.
+     - ``dt_seconds``: the stack's time step in whole seconds (default 3600).
+       ``--dt-seconds`` / ``dt_seconds=`` override it.  Each step takes every
+       instrument's nearest sample within ±dt/2; nothing is interpolated in time.
    * - ``grid``
      - mapping
      - Optional

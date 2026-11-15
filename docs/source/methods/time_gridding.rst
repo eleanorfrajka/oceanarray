@@ -2,7 +2,7 @@ Stack: Common Time Axis
 =======================
 
 The ``stack`` stage reads all instruments for one mooring deployment from their
-best available stage file, resamples them onto a common time axis, and writes a single
+best available stage file, places them on a common time axis, and writes a single
 multi-instrument NetCDF file.
 
 Command
@@ -10,7 +10,7 @@ Command
 
 .. code-block:: bash
 
-   oceanarray run {mooring} --proc-dir /data/proc --stage 3 [--dt-seconds 60]
+   oceanarray run {mooring} --proc-dir /data/proc --stage 3 [--dt-seconds 600]
 
 Python API
 ----------
@@ -20,18 +20,22 @@ Python API
    import oceanarray as oa
 
    # stage 3 (kept where it exists), then the stack and grid
-   oa.run(yaml_path, stages=3, dt_seconds=60)
+   oa.run(yaml_path, stages=3, dt_seconds=600)
 
    # or on datasets: the stack itself, no files written
    cfg = oa.mooring.load(yaml_path)
-   stacked = oa.stack(oa.read_mooring(yaml_path, stage=3), cfg, dt_seconds=60)
+   stacked = oa.stack(oa.read_mooring(yaml_path, stage=3), cfg, dt_seconds=600)
+
+``dt_seconds`` comes from the call (or ``--dt-seconds``), else the YAML's
+``stack: dt_seconds``, else ``parameters.STACK_DT_SECONDS`` (3600) — the same order
+for every entry point.
 
 Purpose
 -------
 
 Stack reads all instruments configured in the mooring YAML that have a ``hab`` (height
-above bottom) value and at least one stage file (stage3 or stage2). It resamples each
-instrument record onto a common time axis and writes the result as a single
+above bottom) value and at least one stage file (stage3 or stage2). It places each
+instrument record on a common time axis and writes the result as a single
 ``{mooring}_stack.nc`` file with an ``N_LEVELS`` dimension ordered deepest first.
 
 Input files
@@ -48,18 +52,27 @@ Algorithm
 Common time axis
 ^^^^^^^^^^^^^^^^
 
-The common time axis spans ``deployment_time`` to ``recovery_time`` at ``dt_seconds``
-intervals (default 60 s).
+The common time axis runs through the deployment window at ``dt_seconds`` intervals
+(default 3600 s). Its first step is ``deployment_time`` rounded up to a whole multiple of
+``dt_seconds`` counted from 1970-01-01 UTC (on the hour at 3600 s), so deployments of one
+site share their steps; the last step is the last multiple at or before
+``recovery_time``.
 
-Resampling
-^^^^^^^^^^
+Nearest sample
+^^^^^^^^^^^^^^
 
-- Instruments with a native sampling interval <= ``dt_seconds``: nearest-neighbour
-  subsampling within a +/- dt/2 window.
-- Instruments with a native sampling interval > ``dt_seconds``: linear interpolation.
-  Values are not extrapolated beyond the instrument's own record.
+Every instrument is placed the same way: each step takes the instrument's nearest sample
+within a ±dt/2 window (half-open: a sample exactly half a step from two steps goes to the
+later one; on equal distance the earlier sample wins), with that sample's QC flags. Nothing
+is interpolated or averaged in time. A step with no sample in its window is NaN.
 
-If ``sample_interval_seconds`` is absent from the YAML, it is auto-detected from the data.
+An instrument sampling slower than ``dt_seconds`` therefore fills only the steps nearest
+its samples; the steps between are empty, and the stack prints a warning naming it. The
+grid leaves those steps empty at that level too (gap filling up to the instrument's own
+interval is not done yet). For a gap-free grid, set ``dt_seconds`` no finer than the
+slowest instrument.
+
+Each instrument's sampling interval is the median step of its time axis.
 
 Ordering
 ^^^^^^^^
@@ -116,6 +129,7 @@ Dimensions
 
 ``(time, N_LEVELS)`` following the OceanSITES convention. ``N_LEVELS`` is the instrument
 index (deepest first); ``time`` is the common time axis at ``dt_seconds`` resolution.
+The ``history`` attribute records the method in one line.
 
 Coordinates
 ^^^^^^^^^^^

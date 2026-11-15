@@ -57,6 +57,8 @@ def grid(
         f"({pmin:.0f}:{dp:.0f}:{pmax:.0f} dbar) × {n_time} time steps"
     )
 
+    _warn_slow_instruments(ds)
+
     if "pressure" not in ds.data_vars:
         raise ValueError("'pressure' not found in the stack — cannot grid vertically")
 
@@ -343,3 +345,13 @@ class MooringGridder:
         write(ds_out, output_path, overwrite=True)
         logger.status("file", self._rel(output_path))
         return True
+
+
+def _warn_slow_instruments(ds: xr.Dataset) -> None:
+    """Warn for the instruments the stack recorded as sampling slower than its step."""
+    slow = ds.attrs.get("instruments_slower_than_step")
+    if slow:
+        print(
+            f"  WARNING: sampled slower than the stack step: {slow}; the grid leaves "
+            "the steps between their samples empty."
+        )

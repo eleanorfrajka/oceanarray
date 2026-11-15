@@ -71,6 +71,10 @@ DEFAULT_COLORMAP = "RdBu_r"  # red (warm) → blue (cold); good for temperature
 COLORBAR_PLOW = 5  # lower percentile for vmin
 COLORBAR_PHIGH = 95  # upper percentile for vmax
 
+# Time step of the stack, in seconds: used when neither the call (or
+# --dt-seconds) nor the mooring YAML's ``stack: dt_seconds`` gives one.
+STACK_DT_SECONDS: int = 3600
+
 # ---------------------------------------------------------------------------
 # Density reference pressure (dbar) for potential density anomaly at stack step.
 # 0 → sigma-0 (suitable for shallow moorings < ~1000 m)

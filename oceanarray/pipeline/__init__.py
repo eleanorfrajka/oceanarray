@@ -134,7 +134,7 @@ def _run_stack(
     proc_dir: Path,
     *,
     force: bool = False,
-    dt_seconds: int = 60,
+    dt_seconds: int | None = None,
     **_kw: Any,
 ) -> bool:
     """Run the stack stage (multi-instrument → common time grid) for *mooring*."""

@@ -143,9 +143,8 @@ Stack report
 Generated when ``--stack`` is passed.  Requires ``{mooring}_stack.nc`` (run
 ``oceanarray run MOORING`` first).  Sections include:
 
-- **Processing history** — how many instruments were stacked and the
-  resampling method used (nearest-neighbour for fast instruments,
-  linear interpolation for slow).
+- **Processing history** — how many instruments were stacked, the time step
+  and the method (nearest sample within ±dt/2, no interpolation in time).
 - **Instruments (deep-first)** — metadata for each level in the stack:
   serial, HAB, depth, sampling interval, record count.
 - **Pressure / Temperature / Salinity / Velocity / Tilt time series** —

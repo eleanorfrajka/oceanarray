@@ -1,4 +1,4 @@
-"""MooringStacker: interpolate all instruments on a mooring onto a common time grid."""
+"""Stack all instruments on a mooring onto a common time axis (nearest sample per step)."""
 
 from collections.abc import Mapping, Sequence
 from pathlib import Path
@@ -89,8 +89,9 @@ _STACK_RAW: frozenset = frozenset(
 
 
 def _sample_interval_s(time_vals: np.ndarray) -> float:
+    """Return the median sample interval in seconds; NaN for fewer than two samples."""
     if len(time_vals) < 2:
-        return 60.0
+        return float("nan")
     dt = np.diff(time_vals.astype("datetime64[s]").astype(np.float64))
     return float(np.median(dt))
 
@@ -180,7 +181,7 @@ def _build_adcp_bin_ds(ds_parent: xr.Dataset, bin_idx: int) -> xr.Dataset:
 
     # Beam-dimension arrays (amplitude, correlation, percent_good) cannot be a point
     # time series without choosing a beam; dropping them leaves only ("time",) or
-    # scalar variables, as _nearest_subsample and _linear_interp need.
+    # scalar variables, as _nearest_subsample needs.
     to_drop = [v for v in ds_bin.data_vars if any(d != "time" for d in ds_bin[v].dims)]
     if to_drop:
         ds_bin = ds_bin.drop_vars(to_drop)
@@ -188,83 +189,66 @@ def _build_adcp_bin_ds(ds_parent: xr.Dataset, bin_idx: int) -> xr.Dataset:
     return ds_bin
 
 
+def _nearest_index(
+    src_t: np.ndarray, tgt_t: np.ndarray, half_window_ns: float
+) -> np.ndarray:
+    """Return the index of the nearest source time within the window per target, else -1."""
+    # The window is half-open, [t - half, t + half): a sample exactly half a step
+    # from two targets lands on the later one only. On equal distance the earlier
+    # sample wins.
+    n_src = len(src_t)
+    if n_src == 0:
+        return np.full(len(tgt_t), -1, dtype=np.intp)
+    k = np.searchsorted(src_t, tgt_t)  # src_t[k - 1] < t <= src_t[k]
+    before = np.clip(k - 1, 0, n_src - 1)
+    after = np.clip(k, 0, n_src - 1)
+    d_before = np.where(k > 0, tgt_t - src_t[before], np.inf)
+    d_after = np.where(k < n_src, src_t[after] - tgt_t, np.inf)
+    ok_before = d_before <= half_window_ns
+    ok_after = d_after < half_window_ns
+    use_after = ok_after & (~ok_before | (d_after < d_before))
+    return np.where(use_after, after, np.where(ok_before, before, -1))
+
+
 def _nearest_subsample(
     ds: xr.Dataset,
     common_time: np.ndarray,
     half_window_s: float,
 ) -> dict[str, np.ndarray]:
-    """Return nearest-neighbor values on common_time within ±half_window_s seconds."""
-    # NaN where no sample falls within the window.
-    src_t = _times_to_float(ds["time"].values)
-    tgt_t = _times_to_float(common_time)
+    """Return each stack variable's nearest sample on common_time within ±half_window_s."""
+    # NaN where no sample falls within the window; no interpolation, no averaging.
+    idx = _nearest_index(
+        _times_to_float(ds["time"].values),
+        _times_to_float(common_time),
+        half_window_s * 1e9,
+    )
+    hit = idx >= 0
     n = len(common_time)
-    half_ns = half_window_s * 1e9  # ns
-
-    idx = np.searchsorted(src_t, tgt_t)
     result: dict[str, np.ndarray] = {}
     for vname in STACK_VARS:
-        if vname not in ds.data_vars:
-            result[vname] = np.full(n, np.nan)
-            continue
-        src_v = ds[vname].values.astype(np.float64)
-        if vname not in _STACK_RAW:
-            src_v = _apply_qc_mask(src_v, ds, vname)
         out = np.full(n, np.nan)
-        for i, (t_tgt, k) in enumerate(zip(tgt_t, idx, strict=False)):
-            # Check candidates at k-1 and k
-            best_dt = np.inf
-            best_v = np.nan
-            for j in [k - 1, k]:
-                if 0 <= j < len(src_t):
-                    dt = abs(src_t[j] - t_tgt)
-                    if dt < best_dt and dt <= half_ns:
-                        best_dt = dt
-                        best_v = src_v[j]
-            out[i] = best_v
+        if vname in ds.data_vars:
+            src_v = ds[vname].values.astype(np.float64)
+            if vname not in _STACK_RAW:
+                src_v = _apply_qc_mask(src_v, ds, vname)
+            out[hit] = src_v[idx[hit]]
         result[vname] = out
     return result
 
 
-def _linear_interp(
-    ds: xr.Dataset,
-    common_time: np.ndarray,
-) -> dict[str, np.ndarray]:
-    """Linearly interpolate all stack variables onto common_time; NaN outside data range."""
-    src_t = _times_to_float(ds["time"].values)
-    tgt_t = _times_to_float(common_time)
-    result: dict[str, np.ndarray] = {}
-    for vname in STACK_VARS:
-        if vname not in ds.data_vars:
-            result[vname] = np.full(len(common_time), np.nan)
-            continue
-        src_v = ds[vname].values.astype(np.float64)
-        if vname not in _STACK_RAW:
-            src_v = _apply_qc_mask(src_v, ds, vname)
-        valid = np.isfinite(src_v)
-        if valid.sum() < 2:
-            result[vname] = np.full(len(common_time), np.nan)
-            continue
-        if vname.endswith("_qc"):
-            # QC flag arrays must not be linearly interpolated (a flag of 2.5 is
-            # meaningless). Resample conservatively: each target inherits the
-            # *worst* flag of its two bracketing source samples on the OceanSITES
-            # priority (see _worst_flag), so a bad flag adjacent to a target is
-            # never laundered into a good one. A target coinciding exactly with a
-            # source sample takes that sample's flag alone (left == right);
-            # out-of-range targets take the nearest edge flag.
-            src_t_v = src_t[valid]
-            src_v_v = src_v[valid]
-            n = len(src_t_v)
-            left = np.clip(np.searchsorted(src_t_v, tgt_t, side="right") - 1, 0, n - 1)
-            right = np.clip(np.searchsorted(src_t_v, tgt_t, side="left"), 0, n - 1)
-            result[vname] = _worst_flag(src_v_v[left], src_v_v[right]).astype(
-                np.float64
-            )
-        else:
-            result[vname] = np.interp(
-                tgt_t, src_t[valid], src_v[valid], left=np.nan, right=np.nan
-            )
-    return result
+def _time_axis(
+    deploy_time: np.datetime64, recover_time: np.datetime64, dt_seconds: int
+) -> np.ndarray:
+    """Return the steps of dt_seconds that are whole multiples of it within the window."""
+    # Whole multiples of the step since the Unix epoch (on the hour at 3600 s),
+    # so deployments of one site share their steps.
+    step_ns = int(dt_seconds) * 1_000_000_000
+    start_ns = int(deploy_time.astype("datetime64[ns]").astype(np.int64))
+    end_ns = int(recover_time.astype("datetime64[ns]").astype(np.int64))
+    first_ns = -(-start_ns // step_ns) * step_ns
+    return np.arange(first_ns, end_ns + 1, step_ns, dtype=np.int64).astype(
+        "datetime64[ns]"
+    )
 
 
 KNOWN_INSTRUMENT_TYPES: frozenset = params.KNOWN_INSTRUMENT_TYPES
@@ -307,16 +291,20 @@ def stack(
     datasets: dict[str, xr.Dataset],
     mooring: dict,
     *,
-    dt_seconds: int = 60,
+    dt_seconds: int | None = None,
     omitted: list[str] | None = None,
     stage2_reason: str = "no stage-3 file",
 ) -> xr.Dataset:
     """Stack a mooring's instruments onto a common time axis.
 
-    Pure function over datasets: no file I/O. Each instrument is subsampled
-    (nearest neighbour) when it samples at least as fast as *dt_seconds*, else
-    interpolated linearly in time; ADCPs expand into one level per bin plus a head
-    level. Instruments marked ``stack: false`` are left out and named in
+    Pure function over datasets: no file I/O. The time axis runs through the
+    deployment window in steps of *dt_seconds*, starting at the first whole
+    multiple of the step (UTC, counted from 1970-01-01; on the hour at 3600 s).
+    Each step takes every instrument's nearest sample within ±dt/2 (no
+    interpolation or averaging in time); a step with no sample in that window is
+    NaN, so an instrument sampling slower than the step leaves the steps between
+    its samples empty (with a warning). ADCPs expand into one level per bin plus a
+    head level. Instruments marked ``stack: false`` are left out and named in
     ``instruments_excluded``; instruments that cannot be stacked (no ``hab`` in
     the description, non-canonical units, low-passed data) are left out and named
     in ``instruments_omitted``. A level whose stage-3 ``magnetic_declination`` is
@@ -331,8 +319,10 @@ def stack(
         The loaded mooring description: the deployment window is the time axis, and
         each entry's ``hab`` and ``stack`` flag are used. Each instrument's sampling
         interval is detected from its time axis.
-    dt_seconds : int, optional
-        Spacing of the common time axis, in seconds.
+    dt_seconds : int or None, optional
+        Spacing of the common time axis, in seconds. ``None`` takes
+        ``stack: dt_seconds`` from *mooring*, else
+        ``parameters.STACK_DT_SECONDS`` (3600).
     omitted : list of str or None, optional
         Instruments the caller already dropped (e.g. unreadable files), recorded
         in ``instruments_omitted`` with the ones dropped here.
@@ -348,8 +338,12 @@ def stack(
     Raises
     ------
     oceanarray.exceptions.MooringError
-        If the description has no deployment window, or no instrument can be stacked.
+        If the description has no deployment window, the window holds no whole
+        step, the time step is not a whole number > 0, or no instrument can be
+        stacked.
     """
+    from oceanarray.pipeline._run import resolve_dt_seconds
+
     mooring_config = mooring
     mooring_name = mooring["name"]
     omitted = list(omitted or [])
@@ -370,12 +364,14 @@ def stack(
     deploy_time = np.datetime64(mooring_config["deployment_time"], "ns")
     recover_time = np.datetime64(mooring_config["recovery_time"], "ns")
 
-    common_time = np.arange(
-        deploy_time.astype("datetime64[s]"),
-        recover_time.astype("datetime64[s]") + np.timedelta64(1, "s"),
-        np.timedelta64(dt_seconds, "s"),
-    ).astype("datetime64[ns]")
+    dt_seconds = resolve_dt_seconds(mooring_config, dt_seconds)
+    common_time = _time_axis(deploy_time, recover_time, dt_seconds)
     n_time = len(common_time)
+    if n_time == 0:
+        raise MooringError(
+            f"Cannot stack {mooring_name}: no whole multiple of the {dt_seconds} s "
+            f"step falls between the deployment and recovery times."
+        )
 
     instrument_list = instrument_entries(mooring_config)
 
@@ -553,6 +549,8 @@ def stack(
     # global attribute the grid inherits, and in the exit code.
     omitted_idx: list[int] = []  # enumerate positions of omitted instruments
     decl_unknown: list[str] = []  # levels whose stage-3 declination is "UNK"
+    slow_warned: set[str] = set()  # instruments already warned as slower than dt
+    slow: list[str] = []  # recorded in instruments_slower_than_step
 
     for i, info in enumerate(instruments):
         serials.append(info["serial"])
@@ -572,8 +570,8 @@ def stack(
             # Canonicalise each instrument's units before stacking, so a
             # pre-0.5.0 input (degC, S/m, …) joins the stack already canonical.
             ds = to_canonical_units(ds, log_fn=print, stage="stack")
-            # A low-passed file (e.g. RODB .lowedt) on a coarse step would be
-            # interpolated onto the stack grid as if it were full-rate data.
+            # A low-passed file (e.g. RODB .lowedt) would be sampled onto the
+            # stack's steps as if it were full-rate data.
             if "originator_low_passed" in ds.attrs:
                 raise _LowPassedError(
                     f"low-passed reference data "
@@ -598,17 +596,27 @@ def stack(
             continue
 
         interval_s = _sample_interval_s(ds["time"].values)
+        interval_txt = f"{interval_s:.0f}s" if np.isfinite(interval_s) else "?"
         print(
             f"  [{i:2d}] {info['instrument']:10s} s/n {info['serial']:<8}  "
-            f"hab={info['hab']:6.1f} m  dt={interval_s:.0f}s  "
+            f"hab={info['hab']:6.1f} m  dt={interval_txt}  "
             f"({stage_labels[-1]})"
         )
+        base = info["serial"]
+        if "_adcp_bin_idx" in info or "_adcp_head" in info:
+            base = base.rsplit("_", 1)[0]
+        if interval_s > dt_seconds and base not in slow_warned:
+            # An ADCP warns once, not once per bin.
+            slow_warned.add(base)
+            slow.append(f"{info['instrument']} s/n {base} ({interval_s:.0f} s)")
+            print(
+                f"  WARNING: {info['instrument']} s/n {base} samples every "
+                f"{interval_s:.0f} s, slower than the {dt_seconds} s step: the steps "
+                f"between its samples are empty in the stack and the grid (set "
+                f"stack: dt_seconds to at least {interval_s:.0f} to avoid them)."
+            )
 
-        half_window = dt_seconds / 2.0
-        if interval_s <= dt_seconds:
-            values = _nearest_subsample(ds, common_time, half_window)
-        else:
-            values = _linear_interp(ds, common_time)
+        values = _nearest_subsample(ds, common_time, dt_seconds / 2.0)
 
         for vname in STACK_VARS:
             arr = values[vname]
@@ -970,9 +978,10 @@ def stack(
             "dt_seconds": dt_seconds,
             "Conventions": "CF-1.13",
             "history": (
-                f"Step 1 stack: {n_instr} instruments onto {dt_seconds}s grid; "
-                f"fast instruments (dt<={dt_seconds}s) subsampled (nearest-neighbour in time), "
-                f"slow instruments interpolated (linear in time)"
+                f"Step 1 stack: {n_instr} instruments onto a {dt_seconds} s time axis "
+                f"(whole multiples of {dt_seconds} s); each step takes the nearest "
+                f"sample within ±{dt_seconds / 2:g} s (no interpolation or averaging "
+                f"in time); steps with no sample are empty"
             ),
         }
     )
@@ -1037,6 +1046,10 @@ def stack(
         )
     if excluded:
         ds_out.attrs["instruments_excluded"] = "; ".join(excluded)
+    if slow:
+        # Recorded once here, so the grid (which reads this file) names the same
+        # instruments without re-detecting them.
+        ds_out.attrs["instruments_slower_than_step"] = "; ".join(slow)
     if omitted:
         # Record the omission in the file so the stack report and the grid
         # (which reads this file) inherit it, and summarise it loudly.
@@ -1085,7 +1098,7 @@ def _stack_file(
     mooring: dict,
     mooring_dir: Path,
     *,
-    dt_seconds: int = 60,
+    dt_seconds: int | None = None,
     keep_going: bool = False,
     failed: Mapping[str, str] | None = None,
     from_stage2: bool = False,
@@ -1176,8 +1189,8 @@ class MooringStacker:
         """Resample all instruments from a mooring onto a common time axis.
 
         Reads ``{mooring}_{serial}_stage3.nc`` (or ``_stage2.nc`` as fallback) for
-        every instrument listed in the mooring YAML, resamples each to a uniform
-        sampling interval, and writes a single multi-instrument file
+        every instrument listed in the mooring YAML, takes each one's nearest
+        sample at every step of a common time axis, and writes a single multi-instrument file
         ``{mooring}_stack.nc`` in the mooring proc directory.
 
         Parameters
@@ -1208,14 +1221,15 @@ class MooringStacker:
     def stack(
         self,
         mooring_name: str,
-        dt_seconds: int = 60,
+        dt_seconds: int | None = None,
         force: bool = False,
     ) -> bool:
         """Stack all processed instruments for *mooring_name* onto a common time grid.
 
         Reads ``_stage3.nc`` (falling back to ``_stage2.nc``) for every instrument
-        listed in the mooring YAML, resamples each to *dt_seconds* resolution, and
-        writes ``{mooring}_stack.nc`` under the mooring proc directory.
+        listed in the mooring YAML, takes each one's nearest sample at every step of
+        *dt_seconds* (``None``: the YAML's ``stack: dt_seconds``, else the default),
+        and writes ``{mooring}_stack.nc`` under the mooring proc directory.
 
         Returns True on success; False if no instruments could be stacked, or if any
         instrument was omitted (the partial stack is still written).

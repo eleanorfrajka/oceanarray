@@ -74,8 +74,7 @@ apart (``seabed_qc``) is merged into each velocity's ``_QC`` where it failed or 
 suspect, the worse flag winning; a passed seabed test leaves the flag as it was.
 
 The stack (instruments on one time base) is not exported yet; it will be a gridded file
-whose ``DEPTH`` levels each say how they reached the time base (nearest-neighbour
-subsample or linear interpolation).
+on the stack's time base (every level placed by its nearest sample within ±dt/2).
 
 The grid stays on its pressure levels: ``PRES(DEPTH)`` holds the levels, and ``DEPTH`` is
 each level converted with ``gsw.z_from_p`` at the mooring latitude, so nothing is

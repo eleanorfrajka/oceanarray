@@ -1,9 +1,9 @@
 """The pure ``stack(datasets, mooring)`` and ``grid(ds_stack)`` on the dune2 stage-3 fixtures.
 
 Builds the stack from the committed two-instrument stage-3 fixtures and checks its
-layout and values against those inputs: the time axis is the deployment window, the
-levels run deepest first, and each level's values are the instrument's own samples
-at the nearest stack time. The grid is checked against ``numpy.interp`` of the stack
+layout and values against those inputs: the time axis is the deployment window on
+whole steps, the levels run deepest first, and each level's values are the
+instrument's own samples at the nearest stack time. The grid is checked against ``numpy.interp`` of the stack
 at sampled time steps.
 """
 
@@ -46,9 +46,11 @@ def ds_stack(stage3, cfg) -> xr.Dataset:
 
 
 def test_stack_time_axis_is_the_deployment_window(ds_stack, cfg):
-    """The stack's time axis runs from deployment to recovery at dt_seconds."""
+    """The time axis runs through the deployment window on whole steps of dt_seconds."""
     t = ds_stack["time"].values
-    assert t[0] == np.datetime64(cfg["deployment_time"], "ns")
+    deploy = np.datetime64(cfg["deployment_time"], "ns")  # 20:30
+    assert t[0] == np.datetime64("2026-07-11T21:00", "ns")  # rounded up to the hour
+    assert deploy <= t[0] < deploy + np.timedelta64(_DT, "s")
     assert np.all(np.diff(t) == np.timedelta64(_DT, "s"))
     assert t[-1] <= np.datetime64(cfg["recovery_time"], "ns")
 

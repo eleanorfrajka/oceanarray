@@ -818,7 +818,11 @@ def draw_grid_rotary_spectrum(
 
     press_vals = ds.coords["pressure"].values.astype(float)
     n_lev, n_time = arr_u.shape
-    dt_s = float(ds.attrs.get("dt_seconds", 3600))
+    from oceanarray.pipeline.dataset import time_step_seconds
+
+    dt_s = time_step_seconds(ds)
+    if not np.isfinite(dt_s) or dt_s <= 0:
+        return None
     dt_days = dt_s / 86400.0
 
     seg_14d = max(128, int(14.0 / dt_days))

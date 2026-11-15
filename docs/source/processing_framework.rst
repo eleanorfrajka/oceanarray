@@ -111,10 +111,12 @@ Mooring-level processing
 After per-instrument processing (stages 0–3), multiple instruments on the same
 mooring are combined:
 
-- **Stack** (``oceanarray run``): Resample all instruments onto a common time axis
-  (default 60 s) and stack into a single NetCDF file with an ``N_LEVELS`` dimension
-  ordered deep-first (``{mooring}_stack.nc``).  Fast-sampling instruments (Δt ≤ 60 s)
-  are subsampled by nearest-neighbour; slower instruments are linearly interpolated.
+- **Stack** (``oceanarray run``): Place all instruments on a common time axis
+  (default 3600 s, on whole multiples of the step) and stack them into a single
+  NetCDF file with an ``N_LEVELS`` dimension ordered deep-first
+  (``{mooring}_stack.nc``).  Every step takes each instrument's nearest sample within
+  ±dt/2; nothing is interpolated in time, so an instrument sampling slower than the
+  step leaves the steps between its samples empty.
 - **Grid** (``oceanarray run``): Linearly interpolate the stacked file onto a regular
   pressure grid (``{mooring}_grid.nc``).  Values outside the instrument range at each
   time step are set to NaN.  QC flags are not consulted — data flagged suspect or bad
@@ -124,9 +126,11 @@ mooring are combined:
 
 .. note::
 
-  The stack does no filtering: a fast instrument is subsampled (nearest sample in
-  time) and a slow one interpolated linearly.  Low-pass filtering, if wanted, is done
-  on the stage-3 files before stacking.
+  The stack does no filtering and no interpolation in time: every instrument is
+  placed by its nearest sample within ±dt/2, and a step with no sample in that window
+  is empty.  The grid leaves those steps empty too (gap filling is not done yet), so
+  set ``dt_seconds`` no finer than the slowest instrument for a gap-free grid.
+  Low-pass filtering, if wanted, is done on the stage-3 files before stacking.
 
 .. admonition:: RAPID Analogy
   :class: hint

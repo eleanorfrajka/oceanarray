@@ -160,16 +160,16 @@ def _add_stack_grid_args(
         where = (
             f"the description's {'stack' if key == 'dt_seconds' else 'grid'}: "
             f"block, else {default:g}"
-            if from_description
+            if from_description or key == "dt_seconds"
             else f"{default:g}"
         )
         p.add_argument(
             flag,
             type=kind,
             dest=key,
-            # None (run) lets the description's stack:/grid: blocks apply; process
-            # keeps the fixed defaults.
-            default=None if from_description else kind(default),
+            # None lets the description's stack:/grid: blocks apply (run, and the
+            # time step everywhere); process keeps the fixed grid defaults.
+            default=None if from_description or key == "dt_seconds" else kind(default),
             metavar=metavar,
             help=argparse.SUPPRESS if hidden else f"{text} (default: {where})",
         )

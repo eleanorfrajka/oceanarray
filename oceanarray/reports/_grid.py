@@ -13,6 +13,7 @@ from oceanarray import logger, paths
 from oceanarray import mooring as _mooring
 from oceanarray.location import is_unknown_latlon_source, parse_latlon_with_source
 from oceanarray.paths import should_skip_regeneration
+from oceanarray.pipeline.dataset import time_step_seconds
 
 from ..config import parameters as params
 from . import _masthead
@@ -205,7 +206,8 @@ class GridContext:
         drawn.  Cached here so the figure is drawn once, not once for the bounds
         and again for the panel.
     dt_s : float
-        Sample interval in seconds.
+        The grid's time step in seconds: its ``dt_seconds`` attribute, else the
+        median step of its time axis.
     history_entries : list
         Parsed processing-history entries (for the history panel).
     nc_meta : dict
@@ -253,7 +255,7 @@ def build_grid_context(ds: Any, grid_path: Path) -> GridContext:
         )
         lat_v = 0.0
     ts_b64, ts_bounds = _make_grid_ts_diagram_b64(ds)
-    dt_s = float(ds.attrs.get("dt_seconds", 3600))
+    dt_s = time_step_seconds(ds)
     return GridContext(
         ds=ds,
         lat=lat_v,

@@ -9,11 +9,12 @@ from pathlib import Path
 from typing import Any
 
 from oceanarray import paths
+from oceanarray.config import parameters as params
 
 #: Stack and grid settings used when neither the call nor the description's
 #: ``stack:`` / ``grid:`` block gives one.
 DEFAULTS: dict[str, dict[str, float]] = {
-    "stack": {"dt_seconds": 60},
+    "stack": {"dt_seconds": params.STACK_DT_SECONDS},
     "grid": {"pmin": 200.0, "pmax": 1000.0, "dp": 20.0},
 }
 
@@ -75,8 +76,9 @@ def run(
     mooring_dir, raw_dir, caldip_dir : os.PathLike or None, optional
         As for :func:`oceanarray.process`.
     dt_seconds : int or None, optional
-        Spacing of the stack's time axis. ``None`` takes ``stack: dt_seconds`` from
-        the description, else 60.
+        Spacing of the stack's time axis, in seconds. ``None`` takes
+        ``stack: dt_seconds`` from the description, else
+        ``parameters.STACK_DT_SECONDS`` (3600).
     pmin, pmax, dp : float or None, optional
         The grid's pressure levels, in dbar. ``None`` takes the description's
         ``grid:`` block, else 200, 1000 and 20.
@@ -302,19 +304,19 @@ def _resolve_settings(
             value = given.get(key)
             out[key] = value if value is not None else from_yaml.get(key, default)
     problems = []
+    dt_problem = _dt_seconds_problem(out["dt_seconds"])
+    if dt_problem:
+        problems.append(dt_problem)
     for key, value in out.items():
-        whole = key == "dt_seconds"
+        if key == "dt_seconds":
+            continue
         if (
             isinstance(value, bool)
-            or not isinstance(value, int if whole else int | float)
+            or not isinstance(value, int | float)
             or not math.isfinite(value)
         ):
-            problems.append(
-                f"{key}={value!r} is not a {'whole number' if whole else 'number'}"
-            )
+            problems.append(f"{key}={value!r} is not a number")
     if not problems:
-        if out["dt_seconds"] <= 0:
-            problems.append(f"dt_seconds={out['dt_seconds']} must be > 0")
         if out["dp"] <= 0:
             problems.append(f"dp={out['dp']} must be > 0")
         if out["pmax"] <= out["pmin"]:
@@ -325,3 +327,50 @@ def _resolve_settings(
             "blocks, else the defaults): " + "; ".join(problems)
         )
     return out
+
+
+def _dt_seconds_problem(value: Any) -> str | None:
+    """Return why *value* is not a valid stack time step, or None if it is."""
+    if isinstance(value, bool) or not isinstance(value, int):
+        return f"dt_seconds={value!r} is not a whole number"
+    if value <= 0:
+        return f"dt_seconds={value} must be > 0"
+    return None
+
+
+def resolve_dt_seconds(mooring: Mapping[str, Any], given: int | None = None) -> int:
+    """Return the stack's time step: the call, else the description, else the default.
+
+    Parameters
+    ----------
+    mooring : Mapping
+        The loaded mooring description; its ``stack: dt_seconds`` is used when
+        *given* is None.
+    given : int or None, optional
+        The time step the caller (or ``--dt-seconds``) gave, in seconds.
+
+    Returns
+    -------
+    int
+        The time step in seconds: *given*, else the description's
+        ``stack: dt_seconds``, else ``parameters.STACK_DT_SECONDS``.
+
+    Raises
+    ------
+    oceanarray.exceptions.MooringError
+        If the chosen value is not a whole number greater than 0.
+    """
+    from oceanarray.exceptions import MooringError
+
+    if given is not None:
+        value, where = given, "the call"
+    else:
+        from_yaml = (mooring.get("stack") or {}).get("dt_seconds")
+        if from_yaml is not None:
+            value, where = from_yaml, "the description's stack: block"
+        else:
+            value, where = DEFAULTS["stack"]["dt_seconds"], "the default"
+    problem = _dt_seconds_problem(value)
+    if problem:
+        raise MooringError(f"stack time step (from {where}): {problem}")
+    return int(value)

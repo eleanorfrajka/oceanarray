@@ -263,8 +263,10 @@ velocities referenced to magnetic north).
 
 The stack's time step and the grid's pressure levels come from ``--dt-seconds``,
 ``--pmin``, ``--pmax`` and ``--dp``, else from optional ``stack:`` and ``grid:``
-blocks in the YAML (``oceanarray init`` writes them commented out), else 60 s
-and 200–1000 dbar every 20 dbar:
+blocks in the YAML (``oceanarray init`` writes them commented out), else 3600 s
+and 200–1000 dbar every 20 dbar.  Each step of the stack takes every instrument's
+nearest sample within ±dt/2 (no interpolation in time), so an instrument sampling
+slower than the step leaves the steps between its samples empty:
 
 .. code-block:: yaml
 

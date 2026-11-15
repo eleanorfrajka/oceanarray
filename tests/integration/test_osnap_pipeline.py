@@ -1,4 +1,4 @@
-"""Stages 1-3 on imported OSNAP files (OceanSITES netCDF and RODB text).
+"""Stages 1-3 and the stack on imported OSNAP files (OceanSITES netCDF and RODB text).
 
 Builds two small moorings in a temp tree from the trimmed fixtures in
 ``tests/fixtures/raw/osnap`` and runs the pipeline: the readers, the YAML
@@ -239,3 +239,78 @@ def test_oceansites_current_meter_to_stage3(tmp_path):
     assert s3.attrs["coordinate_system"] == "ENU"
     assert "magnetic_declination" not in s3.attrs
     assert s3.attrs["originator_institution"].startswith("Scripps")
+
+
+_RTWB_INSTRUMENTS = [
+    {
+        "serial": 11335,
+        "instrument": "microcat",
+        "file_type": "rodb",
+        "filename": "rtwb1_01_2014_001.microcat",
+        "hab": 1500,
+    },
+    {
+        "serial": 11021,
+        "instrument": "currentmeter",
+        "file_type": "rodb",
+        "filename": "rtwb1_01_2014_11021.edt",
+        "hab": 1505,
+    },
+]
+
+
+@pytest.mark.parametrize("dt_seconds", [600, 3600])
+def test_rodb_instruments_stack_by_nearest_sample_only(tmp_path, capsys, dt_seconds):
+    """30-min MicroCAT and 20-min current meter: each step is a sample or empty.
+
+    At 600 s every source sample lands on exactly one step and the steps between
+    are empty (with a warning per instrument); at 3600 s each step takes the
+    nearest sample. No value is interpolated in time.
+    """
+    import oceanarray as oa
+    from oceanarray.pipeline.qc import _apply_qc_mask
+
+    name = "rtwb1_01_2014"
+    raw, proc = _mooring(
+        tmp_path, name, RTWB, [dict(entry) for entry in _RTWB_INSTRUMENTS]
+    )
+    files = oa.run(
+        proc / name / f"{name}.mooring.yaml",
+        raw_dir=raw,
+        dt_seconds=dt_seconds,
+        pmin=70,
+        pmax=110,
+        dp=10,
+    )
+    out = capsys.readouterr().out
+    with xr.open_dataset(files[-2]) as ds:
+        ds = ds.load()
+    steps = ds["time"].values
+    assert np.all(steps.astype("datetime64[s]").astype(np.int64) % dt_seconds == 0)
+    half = np.timedelta64(dt_seconds // 2, "s")
+    for serial, instrument, var, interval in (
+        ("11335", "microcat", "temperature", 1800),
+        ("11021", "currentmeter", "east_velocity", 1200),
+    ):
+        warned = f"{instrument} s/n {serial} samples every {interval} s"
+        assert (warned in out) == (interval > dt_seconds)
+        src = _open(proc, name, instrument, serial, 3)
+        src_t = src["time"].values
+        src_v = src[var].values.astype(np.float64)
+        if var == "temperature":
+            src_v = _apply_qc_mask(src_v, src, var)
+        level = ds[var].isel(N_LEVELS=ds["serial"].values.tolist().index(serial))
+        level = level.values.astype(np.float64)
+        # The nearest sample to each step in [step - dt/2, step + dt/2).
+        want = np.full(len(steps), np.nan)
+        for k, t in enumerate(steps):
+            d = np.abs(src_t - t)
+            j = int(np.argmin(d))
+            if d[j] < half or (d[j] == half and src_t[j] < t):
+                want[k] = src_v[j]
+        np.testing.assert_array_equal(level, want.astype(level.dtype))
+        if interval > dt_seconds:
+            used = np.isfinite(level).sum()
+            inside = (src_t >= steps[0] - half) & (src_t < steps[-1] + half)
+            assert used == np.isfinite(src_v[inside]).sum()
+            assert used < 0.6 * len(steps)

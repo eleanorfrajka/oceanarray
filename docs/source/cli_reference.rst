@@ -163,10 +163,11 @@ The recommended sequence for a new mooring is:
 
 ``oceanarray run`` then builds the two mooring-level products:
 
-- **stack**: interpolates all instruments onto a common time axis and writes
-  ``{mooring}_stack.nc``.  Instruments sampling faster than ``--dt-seconds`` are
-  subsampled by nearest-neighbour; slower instruments are interpolated linearly.
-  The 60-second default suits most mooring data; for high-frequency analysis
+- **stack**: places all instruments on a common time axis and writes
+  ``{mooring}_stack.nc``.  Each step of ``--dt-seconds`` (else the YAML's
+  ``stack: dt_seconds``, else 3600) takes every instrument's nearest sample within
+  ±dt/2; nothing is interpolated in time, so an instrument sampling slower than the
+  step leaves the steps between its samples empty.  For high-frequency analysis
   (e.g. internal waves from fast thermistors) work from the ``_stage3.nc`` files
   or build a finer stack with ``--dt-seconds``.
 - **grid**: interpolates the stack onto a regular pressure grid and writes
