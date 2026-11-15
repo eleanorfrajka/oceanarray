@@ -103,6 +103,11 @@ def instrument_entries(mooring: dict[str, Any]) -> list[dict[str, Any]]:
     # stack, the report and validate all read the same resolved hab.
     resolved: list[dict[str, Any]] = []
     for entry in entries:
+        # A malformed (non-mapping) entry passes through unchanged, as before the hab
+        # fill; callers skip it and validate reports it.
+        if not isinstance(entry, dict):
+            resolved.append(entry)
+            continue
         hab = hab_for(entry)
         if hab is not None and entry.get("hab") is None:
             entry = {**entry, "hab": hab}

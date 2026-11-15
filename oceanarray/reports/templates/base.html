@@ -94,7 +94,9 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
   <p class="sub"><span>{% block masthead_sub %}{% endblock %}</span><span>generated {{ generated }}</span></p>
   {% block masthead_nav %}{% set nav = nav | default({}) %}{{ nav_m.page_nav(nav) }}{{ nav_m.inventory_strip(nav) }}{% endblock %}
   <dl class="meta-grid">
-    {% block masthead_meta %}{% endblock %}
+    {% block masthead_meta %}{% for label, value, miss in meta_facts | default([]) %}
+    <div{% if miss %} class="meta-miss"{% endif %}><dt>{{ label }}</dt><dd>{{ value }}</dd></div>
+    {%- endfor %}{% endblock %}
   </dl>
   <a class="wordmark" href="https://github.com/ocean-uhh/oceanarray" target="_blank" rel="noopener noreferrer">{{ package_name }}</a>
 </div>

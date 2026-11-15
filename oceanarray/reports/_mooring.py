@@ -16,7 +16,7 @@ from oceanarray.instruments import instrument_entries
 from oceanarray.paths import should_skip_regeneration
 
 from ..paths import safe_serial
-from . import _figdebug
+from . import _figdebug, _masthead
 from ._env import render_template
 from ._grid import generate_grid_page
 from ._html_helpers import (
@@ -96,6 +96,9 @@ MOORING_CAPTIONS: dict[str, str] = {
 #: ``"half"``, so they carry ``slot="half"``.
 _fig_panel = make_fig_panel(MOORING_CAPTIONS)
 
+
+#: Table note for an entry without a hab; the stack omits it for the same reason.
+NO_HAB_NOTE = "not stacked: no hab in the mooring YAML"
 
 #: File types whose records the originator already trimmed (no raw instrument clock).
 _IMPORTED_FILE_TYPES = frozenset({"oceansites", "rodb"})
@@ -606,15 +609,21 @@ class MooringReport:
                 continue
             serial = safe_serial(entry.get("serial", ""))
             instr_type = entry.get("instrument", "unknown")
+            # An entry without a hab stays in the table with a note, as the masthead
+            # counts it (the stack omits it); a skipped one without a hab is left out.
             hab = entry.get("hab")
-            if hab is None:
+            if hab is None and entry.get("skip"):
                 continue
-            hab = float(hab)
+            hab = float(hab) if hab is not None else None
 
             depth = (
                 float(entry["depth"])
                 if "depth" in entry
-                else (float(waterdepth) - hab if waterdepth is not None else None)
+                else (
+                    float(waterdepth) - hab
+                    if waterdepth is not None and hab is not None
+                    else None
+                )
             )
 
             filename = entry.get("filename", "")
@@ -695,6 +704,7 @@ class MooringReport:
                     "serial": serial,
                     "instr_type": instr_type,
                     "hab": hab,
+                    "no_hab_note": NO_HAB_NOTE if hab is None else "",
                     "depth": depth,
                     "filename": filename,
                     "file_type": file_type,
@@ -743,7 +753,8 @@ class MooringReport:
                 }
             )
 
-        instruments.sort(key=lambda x: x["hab"])
+        # Entries without a hab sort last.
+        instruments.sort(key=lambda x: (x["hab"] is None, x["hab"] or 0.0))
 
         # Compute recommended --pmin / --pmax for `oceanarray run`.
         # Collect finite min/max pressure values from instruments that have real
@@ -879,34 +890,16 @@ class MooringReport:
             except Exception:
                 pass
 
-        def _combined(deploy_key: str, recover_key: str, legacy_key: str) -> str:
-            d = cfg.get(deploy_key) or cfg.get(legacy_key, "—")
-            r = cfg.get(recover_key) or cfg.get(legacy_key) or d
-            return d if d == r else f"{d} / {r}"
-
+        common = _masthead.common_facts(cfg, instrument_list)
         return {
             "mooring_name": mooring_name,
-            "cruise": _combined("deployment_cruise", "recovery_cruise", "cruise"),
-            "ship": _combined("deployment_ship", "recovery_ship", "ship"),
+            "cruise": _masthead.cruise_label(cfg),
+            "masthead_common": common,
+            "meta_facts": _masthead.masthead_facts("mooring", common),
             "deploy_time": _format_dt(deploy_dt),
             "recover_time": _format_dt(recover_dt),
             "duration": _format_duration(deploy_dt, recover_dt),
             "waterdepth": waterdepth if waterdepth is not None else "—",
-            "latitude": (
-                cfg.get("seabed_latitude")
-                or cfg.get("deployment_latitude")
-                or cfg.get("planned_latitude")
-                or cfg.get("latitude")
-                or "—"
-            ),
-            "longitude": (
-                cfg.get("seabed_longitude")
-                or cfg.get("deployment_longitude")
-                or cfg.get("planned_longitude")
-                or cfg.get("longitude")
-                or "—"
-            ),
-            "n_instruments": len(instruments),
             "instruments": instruments,
             "timing_mode": _timing_mode(instruments),
             # Optional report sections turned on in the config. A standalone mooring

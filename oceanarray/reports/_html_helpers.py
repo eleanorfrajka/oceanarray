@@ -68,13 +68,29 @@ def _format_dt(dt: datetime | None, fmt: str = "%Y-%m-%d %H:%M UTC") -> str:
     return dt.strftime(fmt) if dt else "—"
 
 
+#: Mean month length in days, for the month form of a duration.
+_DAYS_PER_MONTH = 30.44
+#: Spans shorter than this many days (6 months of 30.44 d) print as days and hours.
+_MONTH_FORM_DAYS = 182.6
+
+
 def _format_duration(start: datetime | None, end: datetime | None) -> str:
+    """Return a span as ``13d 15h`` under 182.6 days, else ``11.2mon`` or ``1y 10.0mon``."""
+    # Months are 30.44 d and carry one decimal; the year split is taken on the rounded
+    # tenths, so no string reads "12.0mon" or "1y 12.0mon". A negative span is "—".
     if start is None or end is None:
         return "—"
     delta = end - start
-    days = delta.days
-    hours, _ = divmod(delta.seconds, 3600)
-    return f"{days}d {hours}h"
+    if delta.total_seconds() < 0:
+        return "—"
+    days = delta.total_seconds() / 86400
+    if days < _MONTH_FORM_DAYS:
+        hours, _ = divmod(delta.seconds, 3600)
+        return f"{delta.days}d {hours}h"
+    tenths = round(days / _DAYS_PER_MONTH * 10)
+    years, tenths = divmod(tenths, 120)
+    months = f"{tenths / 10:.1f}mon"
+    return f"{years}y {months}" if years else months
 
 
 def _format_clock(s: str | None) -> str | None:

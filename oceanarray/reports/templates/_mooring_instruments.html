@@ -35,7 +35,7 @@
       <td>{{ instr.instr_type }}</td>
       <td>{% if instr.report_exists %}<a href="instrument/{{ mooring_name }}_{{ instr.serial }}_report.html"
              style="font-family:monospace;font-size:0.85rem">{{ instr.serial }}</a>{% else %}<span style="font-family:monospace;font-size:0.85rem">{{ instr.serial }}</span>{% endif %}</td>
-      <td class="num">{{ "%.1f"|format(instr.hab) }}</td>
+      <td class="num">{% if instr.hab is not none %}{{ "%.1f"|format(instr.hab) }}{% else %}<span class="none-note"{% if instr.no_hab_note %} title="{{ instr.no_hab_note }}"{% endif %}>—</span>{% endif %}</td>
       {% if instr.nc and instr.nc.get("error") %}
         <td colspan="10" style="color:var(--bad);font-size:0.8rem;">Error: {{ instr.nc.error }}</td>
       {% elif instr.nc and instr.nc.get("t_start") %}
@@ -73,7 +73,7 @@
       {% elif instr.skipped %}
         <td colspan="10" class="none-note">skipped{% if instr.skip_reason %} — {{ instr.skip_reason }}{% endif %}</td>
       {% else %}
-        <td colspan="10" class="none-note">no stage files in <code>{{ instr.stage_dir }}</code></td>
+        <td colspan="10" class="none-note">{% if instr.no_hab_note %}{{ instr.no_hab_note }}; {% endif %}no stage files in <code>{{ instr.stage_dir }}</code></td>
       {% endif %}
     </tr>
     {% endfor %}

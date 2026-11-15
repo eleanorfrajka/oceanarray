@@ -19,15 +19,17 @@ import numpy as np
 import yaml
 from markupsafe import escape
 
-from oceanarray import logger
+from oceanarray import location, logger
 from oceanarray import mooring as _mooring
 from oceanarray.exceptions import MooringError
+from oceanarray.instruments import instrument_entries
 
 from ..config.unit_tables import unit_label
 from ..paths import safe_serial
 from ..plotters.helpers import grid_despine
 from ._env import render_template
 from ._html_helpers import _format_duration, _parse_dt, _stage_files
+from ._navs import _TYPE_ORDER, _type_label
 from ._plots import render_b64
 from ._read import _read_instrument_info
 from ._vendored import design_tokens as report_tokens
@@ -41,36 +43,9 @@ _log = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 
-def _parse_decdeg(val: Any) -> float | None:
-    """Parse a latitude or longitude value to decimal degrees."""
-    if val is None:
-        return None
-    if isinstance(val, (int, float)):
-        return float(val)
-    s = str(val).strip()
-    try:
-        return float(s)
-    except ValueError:
-        pass
-    # Degrees + decimal minutes: "65 43.913" (sign gives hemisphere) or
-    # "029 25.878 W" (hemisphere letter).
-    parts = s.split()
-    if len(parts) >= 2:
-        try:
-            deg = float(parts[0])
-            minutes = float(parts[1])
-            dd = abs(deg) + minutes / 60.0
-            if deg < 0:
-                dd = -dd
-            if len(parts) >= 3:
-                hemi = parts[2].strip(".,").upper()
-                if hemi in ("S", "W"):
-                    dd = -abs(dd)
-        except (ValueError, IndexError):
-            pass
-        else:
-            return dd
-    return None
+def _parse_coordinate(val: Any) -> float | None:
+    """Parse one latitude or longitude value to decimal degrees, None if absent or unparseable."""
+    return location.parse_coordinate(val)
 
 
 # ---------------------------------------------------------------------------
@@ -78,27 +53,19 @@ def _parse_decdeg(val: Any) -> float | None:
 # ---------------------------------------------------------------------------
 
 
-def _resolve_lat_lon(cfg: dict[str, Any]) -> tuple:
-    """Return (lat_dd, lon_dd) decimal degrees from a mooring YAML dict."""
-    lat_raw = (
-        cfg.get("seabed_latitude")
-        or cfg.get("deployment_latitude")
-        or cfg.get("planned_latitude")
-        or cfg.get("latitude")
-    )
-    lon_raw = (
-        cfg.get("seabed_longitude")
-        or cfg.get("deployment_longitude")
-        or cfg.get("planned_longitude")
-        or cfg.get("longitude")
-    )
-    return _parse_decdeg(lat_raw), _parse_decdeg(lon_raw)
+def _resolve_lat_lon(cfg: dict[str, Any]) -> tuple[float | None, float | None]:
+    """Return (lat, lon) decimal degrees from a mooring YAML dict, (None, None) if unknown."""
+    lat, lon, source = location.parse_latlon_with_source(cfg)
+    if location.is_unknown_latlon_source(source):
+        return None, None
+    return lat, lon
 
 
 def _count_instruments(cfg: dict[str, Any]) -> int:
-    """Count instruments in a mooring YAML (clamp or instruments key)."""
-    entries = cfg.get("clamp") or cfg.get("instruments") or []
-    return sum(1 for e in entries if isinstance(e, dict) and not e.get("skip"))
+    """Count the not-skipped instruments in a mooring YAML (clamp or legacy key, plus inline)."""
+    return sum(
+        1 for e in instrument_entries(cfg) if isinstance(e, dict) and not e.get("skip")
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -120,16 +87,6 @@ def _square_map_limits(
         extra = (lon_span_sq - lon_span) / 2
         xl0, xl1 = xl0 - extra, xl1 + extra
     return yl0, yl1, xl0, xl1
-
-
-def _format_deg_min(dd: float | None, *, is_lat: bool) -> str:
-    """Format decimal degrees as degrees + decimal minutes with a hemisphere letter."""
-    if dd is None:
-        return "—"
-    hemi = ("N" if dd >= 0 else "S") if is_lat else ("E" if dd >= 0 else "W")
-    a = abs(dd)
-    deg = int(a)
-    return f"{deg:0{2 if is_lat else 3}d}° {(a - deg) * 60:05.2f}′ {hemi}"
 
 
 def _build_array_masthead(
@@ -161,13 +118,14 @@ def _build_array_masthead(
         skipped += t.get("skipped", 0)
         active = t["deployed"] - t.get("skipped", 0)
         if active > 0:
-            by_type.append(f"{vocab.get(t['itype'].lower(), t['itype'])} {active}")
+            itype = t["itype"].lower()
+            by_type.append(f"{vocab.get(itype) or _type_label(itype)} {active}")
     total = sum(r["n_instruments"] for r in rows)
     recovered = sum(1 for r in rows if r["_recover_dt"] is not None)
     deployed_only = len(rows) - recovered
 
-    lat_dd = _parse_decdeg(array_cfg.get("latitude"))
-    lon_dd = _parse_decdeg(array_cfg.get("longitude"))
+    lat_dd = _parse_coordinate(array_cfg.get("latitude"))
+    lon_dd = _parse_coordinate(array_cfg.get("longitude"))
     wd_min, wd_max = array_cfg.get("waterdepth_min"), array_cfg.get("waterdepth_max")
 
     instruments = str(total)
@@ -181,13 +139,13 @@ def _build_array_masthead(
         "recovered": rec_dt.strftime("%Y-%m-%d") if rec_dt else "—",
         "duration": _format_duration(dep_dt, rec_dt),
         "position": (
-            f"{_format_deg_min(lat_dd, is_lat=True)} / {_format_deg_min(lon_dd, is_lat=False)}"
+            f"{location.format_ddm(lat_dd, is_lat=True)} / {location.format_ddm(lon_dd, is_lat=False)}"
             if lat_dd is not None and lon_dd is not None
             else "—"
         ),
         "extent": (
-            f"{_format_deg_min(min(lats), is_lat=True)}–{_format_deg_min(max(lats), is_lat=True)} / "
-            f"{_format_deg_min(min(lons), is_lat=False)}–{_format_deg_min(max(lons), is_lat=False)}"
+            f"{location.format_ddm(min(lats), is_lat=True)}–{location.format_ddm(max(lats), is_lat=True)} / "
+            f"{location.format_ddm(min(lons), is_lat=False)}–{location.format_ddm(max(lons), is_lat=False)}"
             if lats and lons
             else "—"
         ),
@@ -278,16 +236,6 @@ def _make_array_map_b64(rows: list[dict[str, Any]]) -> str | None:
 # Instrument status helpers
 # ---------------------------------------------------------------------------
 
-_TYPE_ORDER = [
-    "microcat",
-    "aquadopp",
-    "rbrsolo",
-    "tr1050",
-    "seapoint",
-    "adcp",
-    "ADCP",
-]
-
 
 def _build_mooring_instruments(
     proc_dir: Path,
@@ -297,7 +245,6 @@ def _build_mooring_instruments(
 ) -> list[dict[str, Any]]:
     """Return a lightweight instrument status list for array-level tables."""
     # proc_dir is the cruise-level processed dir; recover_dt is the YAML recovery time.
-    from oceanarray.instruments import instrument_entries
 
     mooring_proc = proc_dir / mooring_id
     waterdepth = mcfg.get("waterdepth")
@@ -412,7 +359,8 @@ def _array_map_payload(rows: list[dict[str, Any]]) -> tuple[str, str, str]:
         # Per-marker info HTML is pre-escaped here, then embedded via safe_json.
         info = [
             f"<strong>{escape(r['mooring'])}</strong>",
-            f"{r['lat']:.4f}, {r['lon']:.4f}",
+            f"{location.format_ddm(r['lat'], is_lat=True)}, "
+            f"{location.format_ddm(r['lon'], is_lat=False)}",
         ]
         if r.get("waterdepth"):
             info.append(f"{escape(str(r['waterdepth']))} m")

@@ -178,6 +178,41 @@ class TestHtmlHelpers:
         result = _format_duration(s, e)
         assert "2d" in result
 
+    def test_duration_dune2_days_and_hours(self):
+        from datetime import datetime
+
+        s = datetime(2026, 7, 11, 20, 30)
+        e = datetime(2026, 7, 25, 11, 44)
+        assert _format_duration(s, e) == "13d 15h"
+
+    def test_duration_rodb_mooring_in_months(self):
+        from datetime import datetime
+
+        # The OSNAP RODB mooring: 340 d, past the 182.6-day threshold.
+        s = datetime(2014, 7, 17, 12)
+        e = datetime(2015, 6, 22, 12)
+        assert _format_duration(s, e) == "11.2mon"
+
+    def test_duration_over_a_year_in_years_and_months(self):
+        from datetime import datetime, timedelta
+
+        s = datetime(2014, 7, 17, 12)
+        assert _format_duration(s, s + timedelta(days=669, hours=2)) == "1y 10.0mon"
+
+    def test_duration_threshold_and_year_boundary(self):
+        from datetime import datetime, timedelta
+
+        s = datetime(2014, 7, 17, 12)
+        assert _format_duration(s, s + timedelta(days=182.5)) == "182d 12h"
+        assert _format_duration(s, s + timedelta(days=182.6)) == "6.0mon"
+        # 364.9 d is 11.99 months: rounds to 12.0, so it reads as a year.
+        assert _format_duration(s, s + timedelta(days=364.9)) == "1y 0.0mon"
+
+    def test_duration_negative_span_is_dash(self):
+        from datetime import datetime
+
+        assert _format_duration(datetime(2015, 6, 22), datetime(2014, 7, 17)) == "—"
+
     def test_duration_str_none_inputs(self):
         assert _format_duration(None, None) == "—"
         from datetime import datetime

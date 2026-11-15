@@ -70,6 +70,19 @@ def test_a_fresh_summary_does_not_stop_the_stack_page(tree):
     assert where["stack"].exists()
 
 
+def test_an_entry_with_no_hab_stays_in_the_mooring_tables(tree):
+    """No hab: the row stays, noted as not stacked, so it agrees with the masthead count."""
+    yaml_path = tree / f"{_NAME}.mooring.yaml"
+    yaml_path.write_text(yaml_path.read_text().replace("  hab: 425\n", ""))
+    page = report(tree, stack=False, grid=False, instruments=False)
+    html = page.read_text(encoding="utf-8")
+    assert "<dd>2 (MicroCAT 1 · Aquadopp 1)</dd>" in html
+    pipeline = html[html.index('id="pipeline"') :]
+    pipeline = pipeline[: pipeline.index("</table>")]
+    assert ">2941<" in pipeline
+    assert "not stacked: no hab in the mooring YAML" in pipeline
+
+
 def test_recovery_table_goes_beside_the_description(tree):
     """kind="recovery" writes the recovery table in the mooring directory by default."""
     page = report(tree, kind="recovery")

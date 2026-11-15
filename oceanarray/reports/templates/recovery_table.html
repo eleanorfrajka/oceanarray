@@ -4,14 +4,6 @@
 {% block masthead_title %}{{ mooring_name }} ({{ year }}){% endblock %}
 {% block masthead_type %}Mooring Recovery{% endblock %}
 {% block masthead_nav %}{% endblock %}
-{% block masthead_meta %}
-    {% if latitude %}<div><dt>Latitude</dt><dd>{{ latitude }}</dd></div>{% endif %}
-    {% if longitude %}<div><dt>Longitude</dt><dd>{{ longitude }}</dd></div>{% endif %}
-    <div><dt>Water depth</dt><dd>{{ waterdepth }}&thinsp;m</dd></div>
-    <div><dt>Deployment</dt><dd>{{ deploy_time }}</dd></div>
-    <div><dt>Recovery</dt><dd>{{ recover_time }}</dd></div>
-    <div><dt>Duration</dt><dd>{{ duration }}</dd></div>
-  {% endblock %}
 {% block page_styles %}
   table {
     border-collapse: collapse;

@@ -10,7 +10,12 @@ from oceanarray import logger
 from oceanarray.instruments import extract_inline_instruments, instrument_entries
 from oceanarray.legacy.convertOS import is_iso8601_utc, iso8601_duration_from_seconds
 from oceanarray.legacy.mooring_rodb import concat_with_scalar_vars
-from oceanarray.location import _parse_dms, format_latlon, parse_latlon_with_source
+from oceanarray.location import (
+    _parse_dms,
+    format_ddm,
+    format_latlon,
+    parse_latlon_with_source,
+)
 from oceanarray.paths import should_skip_regeneration
 from oceanarray.pipeline.dataset import drop_all_zero_vars
 from oceanarray.pipeline.gridders.rapid_interp import (
@@ -438,6 +443,38 @@ def test_format_latlon_hemisphere_from_sign():
     lat_s, lon_s = format_latlon(-12.5, 42.0, ndp=1)
     assert lat_s == "12.5° S"
     assert lon_s == "42.0° E"
+
+
+@pytest.mark.parametrize(
+    ("raw", "is_lat", "expected"),
+    [
+        ("65 43.913", True, "65° 43.91′ N"),  # dune2 YAML
+        ("-27 48.000", False, "027° 48.00′ W"),  # dune2 YAML
+        ("57 28.240 N", True, "57° 28.24′ N"),  # OSNAP RODB mooring
+        ("012 42.300 W", False, "012° 42.30′ W"),  # OSNAP RODB mooring
+        ("-40.277166666666666", False, "040° 16.63′ W"),  # OSNAP decimal value
+        ("-40.277166666666666", True, "40° 16.63′ S"),
+    ],
+)
+def test_format_ddm_on_real_positions(raw, is_lat, expected):
+    """format_ddm prints the real fixture positions in degrees and decimal minutes."""
+    assert format_ddm(_parse_dms(raw), is_lat=is_lat) == expected
+
+
+@pytest.mark.parametrize(
+    ("value", "is_lat", "expected"),
+    [
+        (64.99992, True, "65° 00.00′ N"),
+        (64.99991667, True, "65° 00.00′ N"),
+        (59.99999, True, "60° 00.00′ N"),
+        (-179.99999, False, "180° 00.00′ W"),
+        (-0.00001, True, "00° 00.00′ N"),
+        (-0.00001, False, "000° 00.00′ E"),
+    ],
+)
+def test_format_ddm_rounding_edges(value, is_lat, expected):
+    """Rounding edges (not data): minutes never read 60.00 and a zero is never S or W."""
+    assert format_ddm(value, is_lat=is_lat) == expected
 
 
 def test_find_best_dtype_timedelta_passthrough_beats_name_rules():

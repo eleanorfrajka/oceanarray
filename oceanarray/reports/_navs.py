@@ -42,6 +42,17 @@ _TYPE_LABELS: dict[str, str] = {
     "sbe56": "SBE56",
 }
 
+#: Display order of instrument types in counts and summaries; other types follow
+#: alphabetically.
+_TYPE_ORDER = [
+    "microcat",
+    "aquadopp",
+    "rbrsolo",
+    "tr1050",
+    "seapoint",
+    "adcp",
+]
+
 
 def _type_label(itype: str) -> str:
     """Return the display label for an instrument type, upper-casing the unknown."""

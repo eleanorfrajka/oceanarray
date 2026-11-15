@@ -117,11 +117,15 @@ mooring as a whole.
    * - ``recovery_cruise``
      - string
      - Optional
-     - Cruise identifier for the recovery leg.
+     - Cruise identifier for the recovery leg. Shown as ``UNK`` in the report
+       masthead when absent; the legacy ``cruise`` key is the deployment
+       value only, and ``validate`` warns when it stands alone on a
+       recovered mooring.
    * - ``recovery_ship``
      - string
      - Optional
-     - Vessel name for the recovery.
+     - Vessel name for the recovery. Shown as ``UNK`` in the report masthead
+       when absent; the legacy ``ship`` key is the deployment value only.
    * - ``seabed_latitude`` / ``seabed_longitude``
      - string
      - Optional

@@ -9,20 +9,6 @@
   /* .var-table / .instr-table drop to the canonical emit_css table style. */
 {% endblock %}
 {% block masthead_type %}Stacked{% endblock %}
-{% block masthead_meta %}
-    <div{% if cruise == '—' %} class="meta-miss"{% endif %}><dt>Cruise</dt><dd>{{ cruise }}</dd></div>
-    <div{% if ship == '—' %} class="meta-miss"{% endif %}><dt>Ship</dt><dd>{{ ship }}</dd></div>
-    <div{% if latitude == '—' %} class="meta-miss"{% endif %}><dt>Latitude</dt><dd>{{ latitude }}</dd></div>
-    <div{% if longitude == '—' %} class="meta-miss"{% endif %}><dt>Longitude</dt><dd>{{ longitude }}</dd></div>
-    <div{% if waterdepth == '—' %} class="meta-miss"{% endif %}><dt>Water depth</dt><dd>{{ waterdepth }}{% if waterdepth != '—' %}&thinsp;m{% endif %}</dd></div>
-    <div{% if deploy_time == '—' %} class="meta-miss"{% endif %}><dt>Deployment</dt><dd>{{ deploy_time }}</dd></div>
-    <div{% if recover_time == '—' %} class="meta-miss"{% endif %}><dt>Recovery</dt><dd>{{ recover_time }}</dd></div>
-    <div{% if duration == '—' %} class="meta-miss"{% endif %}><dt>Duration</dt><dd>{{ duration }}</dd></div>
-    <div{% if dt_seconds == '—' %} class="meta-miss"{% endif %}><dt>Samp.&nbsp;&Delta;t</dt><dd>{{ dt_seconds }}{% if dt_seconds != '—' %}&thinsp;s{% endif %}</dd></div>
-    <div><dt>Records</dt><dd>{{ n_time }}</dd></div>
-    <div><dt>Instruments</dt><dd>{{ n_instr }}</dd></div>
-    <div><dt>Source&nbsp;file</dt><dd>{{ nc_file }}</dd></div>
-  {% endblock %}
 {% block content %}
 {{ m.report_body(report, "deployment", generated, cruise) }}
 {% endblock %}

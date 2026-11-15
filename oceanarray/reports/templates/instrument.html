@@ -22,7 +22,7 @@
 {% block masthead_sub %}{{ mooring_name }}{% endblock %}
 {% block masthead_meta %}
     <div{% if cruise == '—' %} class="meta-miss"{% endif %}><dt>Cruise</dt><dd>{{ cruise }}</dd></div>
-    <div><dt>HAB</dt><dd>{{ "%.1f"|format(hab) }}&thinsp;m</dd></div>
+    {% if hab is not none %}<div><dt>HAB</dt><dd>{{ "%.1f"|format(hab) }}&thinsp;m</dd></div>{% else %}<div class="meta-miss"><dt>HAB</dt><dd>—</dd></div>{% endif %}
     <div{% if depth is none %} class="meta-miss"{% endif %}><dt>Depth</dt><dd>{% if depth is not none %}~{{ "%.0f"|format(depth) }}&thinsp;m{% else %}&mdash;{% endif %}</dd></div>
     <div{% if t_start is none or t_start == '—' %} class="meta-miss"{% endif %}><dt>Start</dt><dd>{{ t_start | default("—") }}</dd></div>
     <div{% if t_end is none or t_end == '—' %} class="meta-miss"{% endif %}><dt>End</dt><dd>{{ t_end | default("—") }}</dd></div>

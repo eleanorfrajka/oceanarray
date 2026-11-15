@@ -14,6 +14,7 @@ from oceanarray import logger, paths
 from oceanarray.paths import should_skip_regeneration
 
 from ..config import parameters as params
+from . import _masthead
 from ._env import (
     render_history,
     render_nc_coords,
@@ -678,18 +679,16 @@ def generate_stack_page(
             ),
             report=report,
             cruise=ctx.get("cruise", "—"),
-            ship=ctx.get("ship", "—"),
-            deploy_time=ctx["deploy_time"],
-            recover_time=ctx["recover_time"],
-            duration=ctx.get("duration", "—"),
-            waterdepth=ctx.get("waterdepth", "—"),
-            n_instr=n_instr,
-            dt_seconds=dt_seconds,
-            n_time=n_time,
+            meta_facts=_masthead.masthead_facts(
+                "stack",
+                ctx.get("masthead_common", []),
+                {
+                    _masthead.DT_S: dt_seconds,
+                    _masthead.N_TIME: n_time,
+                    _masthead.NC_FILE: stack_path.name,
+                },
+            ),
             grid_exists=grid_exists,
-            latitude=ctx.get("latitude", "—"),
-            longitude=ctx.get("longitude", "—"),
-            nc_file=stack_path.name,
             generated=ctx["generated"],
         )
         out_path.write_text(html, encoding="utf-8")

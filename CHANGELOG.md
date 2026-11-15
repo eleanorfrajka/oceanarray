@@ -8,6 +8,7 @@ All notable changes to oceanarray are documented here.
 
 ### Added
 
+- `location.parse_coordinate` reads one latitude or longitude value; a non-finite position counts as unknown (#132).
 - Reports for moorings built from imported originator files (OceanSITES/RODB): an imported current meter holding only pressure and velocity no longer crashes the instrument page (its temperature, speed, trajectory and hodograph panels show as not applicable); a `currentmeter` instrument gets the "Current meter" masthead label; the deployment-timing table adapts (all-imported → a trimmed "Record first/last" table; mixed → imported rows marked and not falsely flagged as stopped-early); the array report accepts a mooring entry's `config:` as a path relative to the array description; and the instrument inventory names the directory it searched when no stage file is found.
 - `report_sections` in the mooring YAML turns on optional report sections, keyed by page: `report_sections: {grid: [overflow]}`, resolved by `oceanarray.mooring.resolve_report_sections`.
 - Pressure in `kPa` (converted to dbar, ×0.1) and the OOI ERDDAP unit spellings `decibars`, `m.s-1`, `mS.cm-1` and `1e-3` (practical salinity). A `units_override` entry can be `{units, reason}`; the reason is kept in the variable's `units_override_reason` attribute.
@@ -46,6 +47,7 @@ All notable changes to oceanarray are documented here.
 
 ### Changed
 
+- Report mastheads (mooring, stack, grid, recovery table) come from one fact list: four cruise/ship fields (recovery `UNK` unless given), positions in degrees and decimal minutes, durations over 6 months in months (`11.2mon`, `1y 10.0mon`), instruments counted by type; the mooring page lists an entry with no `hab` as not stacked; `validate` warns on a position key without its pair, and on a recovered mooring that gives only the legacy `cruise`/`ship` (deployment values only) (#132).
 - The command-line help says, for every subcommand, what it reads and writes, with an `Examples:` block; flags follow the family conventions. Renamed (old spellings accepted until 0.7.0 with a note on stderr): `process --report` → `--summary`, `plot --downsample` → `--downsample-seconds`, `export --overwrite` → `--force`, `stamp --stage` → `--declare`. All deprecated spellings now share one mechanism and message ("… is deprecated and removed in 0.7.0; use …").
 - `oceanarray validate` takes a mooring the way the other commands do (its `*.mooring.yaml`, its folder, or a name with `--proc-dir`) and gains `--strict` (exit 1 on warnings too; the default still exits 0 when there are only warnings).
 - A usage error (a removed flag, a missing `--raw-dir` or `--proc-dir`, an option that does not combine) exits 2 with an `ERROR:` line on stderr; a processing failure still exits 1. A mooring name with `--proc-dir` whose folder does not exist is an error naming the folder.
@@ -140,6 +142,7 @@ Every old name below still works, warns (`DeprecationWarning`, naming its replac
 
 ### Fixed
 
+- Positions no longer print `60.00′` or a hemisphere on zero, a `nan` position reads `—` instead of crashing the report, and the array report pairs latitude and longitude from one key pair and skips `(0, 0)` (#132).
 - `oceanarray report --dry-run` honours `--only` and lists the recovery table with `--cruise-table`; `process --report` on an invalid description prints an ERROR line instead of a traceback; a loaded description passed to `oceanarray.report` rebuilds the summary page even when the page is newer than the YAML file.
 - The stack T–S diagram, the instrument data histograms and the stack pressure range also leave out flag 3 (they left out only 4 and 9).
 - A stack whose Aquadopps carry no east/north velocity (a stage-2 stack of beam-coordinate data) no longer loses its stack page.

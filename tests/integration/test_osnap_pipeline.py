@@ -154,6 +154,15 @@ def test_imported_rodb_report_labels_current_meter(tmp_path):
     assert "Record first" in html and "Record last" in html
     assert "Records were trimmed by the originator" in html
     assert "Sugg." not in html
+    # Masthead: the RODB YAML names no cruise or ship; position in degrees and
+    # decimal minutes; 340 days in months; instruments by type.
+    assert '<div class="meta-miss"><dt>Deployment cruise</dt><dd>—</dd></div>' in html
+    assert '<div class="meta-miss"><dt>Recovery cruise</dt><dd>UNK</dd></div>' in html
+    assert '<div class="meta-miss"><dt>Recovery ship</dt><dd>UNK</dd></div>' in html
+    assert "<dd>57° 28.24′ N</dd>" in html
+    assert "<dd>012° 42.30′ W</dd>" in html
+    assert "<dd>11.2mon</dd>" in html
+    assert "<dd>1 (Current meter 1)</dd>" in html
 
 
 def test_mislabelled_units_refused_then_fixed_by_override(tmp_path):

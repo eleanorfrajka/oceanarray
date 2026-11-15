@@ -9,6 +9,8 @@ written and well-formed — a smoke test that catches template/render crashes an
 missing-variable guards that only surface on a real NetCDF.
 """
 
+import re
+
 from oceanarray.reports._recovery_table import generate_recovery_table
 
 MOORING = "dune2_1_2026"
@@ -55,6 +57,28 @@ class TestRecoveryTable:
         self._generate(proc_root_stage1_stage2, out)
         again = self._generate(proc_root_stage1_stage2, out, force=False)
         assert again == out
+
+    def test_masthead_is_the_shared_mooring_facts(
+        self, proc_root_stage1_stage2, tmp_path
+    ):
+        # The recovery masthead shows the shared facts it always showed, in the
+        # shared order and formats: position in degrees and minutes, depth with unit.
+        out = tmp_path / f"{MOORING}_recovery_table.html"
+        self._generate(proc_root_stage1_stage2, out)
+        html = out.read_text(encoding="utf-8")
+        meta = html[html.index('<dl class="meta-grid">') : html.index("</dl>")]
+        labels = re.findall(r"<dt>(.*?)</dt>", meta)
+        assert labels == [
+            "Latitude",
+            "Longitude",
+            "Water depth",
+            "Deployment",
+            "Recovery",
+            "Duration",
+        ]
+        assert "<dd>65° 43.91′ N</dd>" in meta
+        assert "<dd>745&thinsp;m</dd>" in meta
+        assert "<dd>13d 15h</dd>" in meta
 
 
 class TestRecoveryTableMissingYaml:

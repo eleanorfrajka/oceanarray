@@ -81,8 +81,15 @@ The Summary report is the first thing to open after processing.  It shows:
 - **Navigation pills** — the header row links to the Summary, Stack, and Grid
   reports (and the array report when present).  A pill's colour is its role, not
   its page, and the current page's pill is muted.
-- **Metadata cards** — cruise, ship, latitude, longitude, water depth,
-  deployment and recovery times, duration, instrument count.
+- **Metadata cards** — deployment cruise, deployment ship, recovery cruise,
+  recovery ship, latitude, longitude, water depth, deployment and recovery
+  times, duration, instruments.  The stack and grid pages show the same cards,
+  then their own.  A recovery cruise or ship not given in the mooring YAML reads
+  ``UNK``.  Positions are in degrees and decimal minutes (``65° 43.91′ N``,
+  ``027° 48.00′ W``).  A duration under 182.6 days (6 months) reads ``13d 15h``;
+  longer, it is in months of 30.44 days (``11.2mon``), and over a year in years
+  and months (``1y 10.0mon``).  Instruments are the YAML's entries, counted by
+  type: ``2 (MicroCAT 1 · Aquadopp 1)``.
 - **Processing pipeline table** — one row per instrument with Raw / Stage 1 /
   Stage 2 / Stage 3 / Stack / Grid status pills.
 - **Clock corrections table** — applied offset and drift for every instrument.

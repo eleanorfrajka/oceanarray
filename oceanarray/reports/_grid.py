@@ -15,6 +15,7 @@ from oceanarray.location import is_unknown_latlon_source, parse_latlon_with_sour
 from oceanarray.paths import should_skip_regeneration
 
 from ..config import parameters as params
+from . import _masthead
 from ._env import (
     render_history,
     render_nc_coords,
@@ -631,7 +632,6 @@ def generate_grid_page(
             grid_dt_s = str(int(np.median(dt_arr)))
         else:
             grid_dt_s = "—"
-        n_instr = ctx.get("n_instruments", "—")
 
         # Build the shared context (latitude, ts_bounds, history, nc_meta) once,
         # then resolve the profile against it.  ``resolve`` renders every panel
@@ -674,20 +674,18 @@ def generate_grid_page(
             ),
             report=report,
             cruise=ctx.get("cruise", "—"),
-            ship=ctx.get("ship", "—"),
-            deploy_time=ctx["deploy_time"],
-            recover_time=ctx["recover_time"],
-            duration=ctx.get("duration", "—"),
-            waterdepth=ctx.get("waterdepth", "—"),
-            n_levels=n_levels,
-            n_time=n_time,
-            p_range=p_range,
-            nc_file=grid_path.name,
-            latitude=ctx.get("latitude", "—"),
-            longitude=ctx.get("longitude", "—"),
-            n_instr=n_instr,
-            grid_dt_s=grid_dt_s,
-            grid_dp=grid_dp,
+            meta_facts=_masthead.masthead_facts(
+                "grid",
+                ctx.get("masthead_common", []),
+                {
+                    _masthead.DT_S: grid_dt_s,
+                    _masthead.N_TIME: n_time,
+                    _masthead.GRID_DP: grid_dp,
+                    _masthead.N_LEVELS: n_levels,
+                    _masthead.P_RANGE: p_range,
+                    _masthead.NC_FILE: grid_path.name,
+                },
+            ),
             generated=ctx["generated"],
         )
         out_path.write_text(html, encoding="utf-8")

@@ -30,6 +30,7 @@ from ._html_helpers import (
     _stage_file_details,
     make_fig_panel,
 )
+from ._masthead import cruise_label
 from ._navs import mooring_nav
 from ._plots import (
     _make_adcp_hodograph_b64,
@@ -391,9 +392,7 @@ def generate_instrument_pages(
     generated = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
     stack_exists = paths.product_file(proc_dir, mooring_name, "stack").exists()
     grid_exists = paths.product_file(proc_dir, mooring_name, "grid").exists()
-    _d = cfg.get("deployment_cruise") or cfg.get("cruise", "—")
-    _r = cfg.get("recovery_cruise") or cfg.get("cruise") or _d
-    cruise = _d if _d == _r else f"{_d} / {_r}"
+    cruise = cruise_label(cfg)
     serial_filter = {safe_serial(s) for s in serials} if serials else None
 
     idx = 0

@@ -22,11 +22,9 @@ from oceanarray import logger, paths
 from oceanarray.instruments import instrument_entries
 
 from ..paths import safe_serial
+from . import _masthead
 from ._env import render_template
-from ._html_helpers import (
-    _parse_dt,
-    _resolve_clock,
-)
+from ._html_helpers import _resolve_clock
 
 # ---------------------------------------------------------------------------
 # Instrument type → parameter abbreviations
@@ -44,6 +42,11 @@ _TYPE_PARAMS: dict[str, str] = {
 }
 
 _NON_LOGGING = {"beacon", "release", "float", "swivel", "shackle"}
+
+#: The shared masthead facts the recovery table shows, in the shared order.
+_MASTHEAD_LABELS = frozenset(
+    {"Latitude", "Longitude", "Water depth", "Deployment", "Recovery", "Duration"}
+)
 
 
 # ---------------------------------------------------------------------------
@@ -284,14 +287,6 @@ def generate_recovery_table(
     """
     from datetime import datetime
 
-    from oceanarray.location import (
-        format_latlon,
-        is_unknown_latlon_source,
-        parse_latlon_with_source,
-    )
-
-    from ._html_helpers import _format_duration
-
     proc_dir = Path(proc_dir)
 
     if yaml_path is None:
@@ -310,32 +305,16 @@ def generate_recovery_table(
     with yaml_path.open() as fh:
         cfg = yaml.safe_load(fh) or {}
 
-    deploy_dt = _parse_dt(cfg.get("deployment_time"))
-    recover_dt = _parse_dt(cfg.get("recovery_time"))
-
-    # Latitude/longitude for the canonical meta fields, if available.  Route through
-    # the shared parser (DMS-aware, pairs lat/lon from one key set, skips the (0, 0)
-    # placeholder) then format with the hemisphere derived from the sign — never a
-    # hardcoded suffix, which produced the malformed "-27.8 W" for signed inputs.
-    lat_v, lon_v, source = parse_latlon_with_source(cfg)
-    if is_unknown_latlon_source(source):
-        latitude = longitude = ""
-    else:
-        latitude, longitude = format_latlon(lat_v, lon_v)
-
     rows, comments = _build_rows(proc_dir, mooring_name, cfg)
 
     ctx = {
         "mooring_name": mooring_name,
         "year": cfg.get("year", ""),
-        "waterdepth": cfg.get("waterdepth", "?"),
-        "latitude": latitude,
-        "longitude": longitude,
-        "deploy_time": deploy_dt.strftime("%Y-%m-%d %H:%M UTC") if deploy_dt else "?",
-        "recover_time": recover_dt.strftime("%Y-%m-%d %H:%M UTC")
-        if recover_dt
-        else "?",
-        "duration": _format_duration(deploy_dt, recover_dt),
+        "meta_facts": [
+            fact
+            for fact in _masthead.common_facts(cfg, instrument_entries(cfg))
+            if fact[0] in _MASTHEAD_LABELS
+        ],
         "rows": rows,
         "comments": comments,
         "generated": datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC"),
