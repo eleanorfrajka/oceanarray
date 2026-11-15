@@ -32,7 +32,7 @@ _REMOVED_PATHS = (
 )
 
 #: Files that legitimately name the removed paths (the old→new mapping).
-_ALLOWED = {"CHANGELOG.md", "migration.rst"}
+_ALLOWED = {"CHANGELOG.md", "migration.rst", "migrating_0_6_0.rst"}
 
 
 def _doc_and_notebook_files() -> list[Path]:

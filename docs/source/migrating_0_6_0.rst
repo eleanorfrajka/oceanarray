@@ -31,7 +31,9 @@ folder can have any name, and every file is named from ``name:``.
   (CLI ``--stage 2 3`` or ``--from 2``). ``stages=2`` alone is refused. Run one
   stage on its own with ``process(yaml_path, stages=N)``.
 - Renamed CLI flags, accepted with a note until 0.7.0: ``--serial`` → ``--only``,
-  ``--dt`` → ``--dt-seconds``, ``plot --var_y`` / ``--var_color`` → ``--var-y`` /
+  ``--dt`` → ``--dt-seconds``, ``process --report`` → ``--summary``,
+  ``plot --downsample`` → ``--downsample-seconds``, ``export --overwrite`` →
+  ``--force``, ``stamp --stage`` → ``--declare``, ``plot --var_y`` / ``--var_color`` → ``--var-y`` /
   ``--var-color``; the short ``-i``, ``-s``, ``-g``, ``-A`` on ``report`` →
   ``--instruments``, ``--stack``, ``--grid``, ``--all``. ``animate -o`` is now the
   output directory (``--output`` names one GIF).
@@ -118,7 +120,105 @@ Removed in 0.6.0
   band-pass filters) — the stack is the one way to put a mooring on a common time
   axis.
 
+Moved modules (no alias)
+------------------------
+
+Nothing outside oceanarray imported these, so they moved without a shim.
+``oceanarray.processors`` is now ``oceanarray.pipeline`` (every
+``oceanarray.processors.*`` import becomes ``oceanarray.pipeline.*``), and
+``oceanarray.tools``, ``oceanarray.utilities``, ``oceanarray.pipeline.helpers``
+and ``oceanarray.legacy.tools`` are gone. ``oceanarray.tools.readers`` moved to the
+``oceanarray.readers`` package (``read_oceansites``, ``read_rodb``,
+``load_nortek_csv``; ``readers.read`` picks the format).
+
+.. list-table::
+   :header-rows: 1
+   :widths: 50 50
+
+   * - Old
+     - New
+   * - ``oceanarray.utilities`` (``instrument_entries``, ``extract_inline_instruments``)
+     - ``oceanarray.instruments``
+   * - ``oceanarray.utilities`` (``parse_latlon``, ``parse_latlon_with_source``, ``format_latlon``, …)
+     - ``oceanarray.location``
+   * - ``oceanarray.utilities`` (``find_best_dtype``, ``cast_output_dtypes``)
+     - ``oceanarray.writers.dtypes``
+   * - ``oceanarray.utilities`` (``should_skip_regeneration``)
+     - ``oceanarray.paths``
+   * - ``oceanarray.utilities`` (``drop_all_zero_vars``)
+     - ``oceanarray.pipeline.dataset``
+   * - ``oceanarray.utilities`` (``nice_colorbar_ticks``, ``period_axis_ticks``; ``_nice_colorbar_bounds`` → ``nice_colorbar_bounds``)
+     - ``oceanarray.plotters.primitives``
+   * - ``oceanarray.utilities._status``, ``_format_rel_path``
+     - ``oceanarray.logger.status``, ``logger.format_rel_path``
+   * - ``oceanarray.tools.rapid_interp``
+     - ``oceanarray.pipeline.gridders.rapid_interp``
+   * - ``oceanarray.tools.process_dataset``, ``analysis.science.process_dataset``, ``analysis.temporal.downsample_to_sparse``
+     - ``oceanarray.pipeline.gridders.climatology``
+   * - ``oceanarray.tools`` / ``analysis.science`` re-exports ``calc_psal``, ``calc_ds_difference``, ``find_cold_entry_exit``, ``isopycnal_dataset``, ``isopycnal_pressure_series``
+     - ``oceanarray.analysis.hydrography``
+   * - ``oceanarray.tools`` / ``analysis.science`` re-exports ``welch_psd``, ``welch_psd_gapaware``, ``compute_cwt``
+     - ``oceanarray.analysis.spectral``
+   * - ``oceanarray.tools`` re-exports ``lag_correlation``, ``split_value``, ``downsample_to_sparse``
+     - ``oceanarray.pipeline.clock.offsets`` (``lag_correlation``, ``split_value``), ``oceanarray.pipeline.gridders.climatology`` (``downsample_to_sparse``)
+   * - ``oceanarray.tools`` re-exports ``flag_salinity_outliers``, ``flag_temporal_spikes``, ``flag_vertical_inconsistencies``, ``run_qc``
+     - ``oceanarray.legacy.qc_rodb``
+   * - ``oceanarray.pipeline.helpers`` (was ``processors.helpers``): ``STACK_VARS`` and the stack helpers
+     - ``oceanarray.pipeline.stack``; the QC mask and worst-flag merge → ``oceanarray.pipeline.qc``
+   * - ``oceanarray.analysis.temporal.filter_sigma_tukey``
+     - ``oceanarray.pipeline.gridders.filters``
+   * - ``oceanarray.analysis.clock`` (``analyze_deployment_timing`` → ``deployment_timing``; + ``analysis.temporal.lag_correlation``, ``split_value``)
+     - ``oceanarray.pipeline.clock.offsets``
+   * - ``oceanarray.analysis.vector.progressive_vector``
+     - ``oceanarray.plotters.current.progressive_vector``
+   * - ``oceanarray.utilities`` (``get_dims``, ``check_necessary_variables``, ``get_time_key``)
+     - ``oceanarray.pipeline.gridders.rapid_interp``
+   * - ``oceanarray.utilities`` (``concat_with_scalar_vars``)
+     - ``oceanarray.legacy.mooring_rodb``
+   * - ``oceanarray.utilities`` (``iso8601_duration_from_seconds``, ``is_iso8601_utc``)
+     - ``oceanarray.legacy.convertOS``
+   * - ``oceanarray.config.validation.print_validation_report``
+     - removed (``oceanarray validate`` prints the report)
+   * - ``oceanarray.legacy.find_deployment``
+     - ``oceanarray.pipeline.clock.deployment``
+   * - ``oceanarray.pipeline.caldip`` (``normalize_serial`` → ``canonical_serial``)
+     - ``oceanarray.pipeline.calibration``
+   * - ``oceanarray.pipeline.coordinate.apply_adcp_seabed_qc`` / ``_surface_qc`` / ``_velocity_qc``
+     - ``oceanarray.pipeline.qc.adcp``
+   * - ``oceanarray.analysis.hydrographic``
+     - ``oceanarray.analysis.hydrography``
+   * - ``oceanarray.analysis.science`` QC flaggers (``flag_salinity_outliers``, ``run_qc``, …)
+     - ``oceanarray.legacy.qc_rodb``
+   * - ``oceanarray.analysis.vector.xyz_to_enu_2d``
+     - ``oceanarray.pipeline.coordinate.xyz_to_enu`` (same values; returns ``up`` too)
+   * - ``oceanarray.config.validation.serial_collision_errors``
+     - ``oceanarray.mooring.serial_collision_errors``
+   * - ``oceanarray.pipeline._resolve_mooring``
+     - ``oceanarray.pipeline.resolve_mooring`` (public)
+
 Other changes
 -------------
 
-
+- **Stack and grid files change.** Besides the hourly default above, a ``clamp``
+  ADCP whose height is given only as ``hab_bottom`` / ``hab_top`` is now placed by
+  its ``orientation`` and stacked (before: silently left out). Rebuild stacks and
+  grids with 0.6.
+- **QC override blocks are checked.** A ``qc_ranges``, ``qc_spike``, ``tilt_qc`` or
+  ``qc_flat_line`` block with an unknown field, a span that is not two increasing
+  numbers, a threshold that is not a number, or a new variable without a
+  ``fail_span`` is refused by ``load`` and is an ERROR in ``oceanarray validate``
+  (before: dropped, and QC ran with the defaults). Run ``oceanarray validate`` on
+  each description.
+- **An orientation needs its hab key.** An instrument with ``orientation: up`` and
+  no ``hab_top`` (or ``down`` and no ``hab_bottom``), and no ``hab``, is refused by
+  ``load`` and is an ERROR in ``oceanarray validate``. Add the missing key.
+- **The writer does not overwrite.** ``oceanarray.writers.write(ds, path)`` refuses
+  an existing file unless ``overwrite=True`` and returns the path written.
+- **Exit codes.** ``oceanarray run`` and ``process`` exit 0 when they finish with
+  instruments left out (before: 1); ``--strict`` stops at the first failure with
+  exit 1. A usage error exits 2.
+- **Output names** come from the description's ``name:``, not the folder's name.
+- ``current_direction`` carries ``standard_name = "sea_water_velocity_to_direction"``
+  (CF deprecated ``direction_of_sea_water_velocity``).
+- Stage files without a ``processing_stage`` marker are read with a warning until
+  0.7.0; mark them once with ``oceanarray stamp FILE... --declare N``.

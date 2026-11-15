@@ -976,6 +976,10 @@ def stack(
             "deployment_time": str(deploy_time),
             "recovery_time": str(recover_time),
             "dt_seconds": dt_seconds,
+            # What built this stack, as YAML a description can take back.
+            "deployment_settings": _mooring.settings_yaml(
+                mooring_config, stack={"dt_seconds": dt_seconds}
+            ),
             "Conventions": "CF-1.13",
             "history": (
                 f"Step 1 stack: {n_instr} instruments onto a {dt_seconds} s time axis "

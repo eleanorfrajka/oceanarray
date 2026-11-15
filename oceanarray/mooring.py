@@ -29,6 +29,7 @@ import re
 from collections.abc import Iterable, Mapping
 from os import PathLike
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 import yaml
@@ -116,6 +117,73 @@ _SETTINGS_KEYS: dict[str, dict[str, bool]] = {
 }
 
 REQUIRED_KEYS: list[str] = validation.REQUIRED_MOORING_KEYS
+
+#: The description's settings (as opposed to its facts): what a stack records as
+#: its ``deployment_settings``.
+SETTINGS_BLOCKS: tuple[str, ...] = (
+    "density_reference",
+    "qc_ranges",
+    "qc_spike",
+    "qc_flat_line",
+    "tilt_qc",
+    "stack",
+    "grid",
+    "caldip",
+    "report_sections",
+)
+
+#: Instrument-entry keys that describe hardware only and are left out of
+#: ``deployment_settings``.
+_HARDWARE_ONLY_KEYS: frozenset[str] = frozenset({"image", "label"})
+
+
+def _plain(value: Any) -> Any:
+    """Return *value* with numpy scalars, paths and tuples turned into plain YAML types."""
+    if isinstance(value, Mapping):
+        return {str(k): _plain(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_plain(v) for v in value]
+    if (
+        hasattr(value, "item")
+        and callable(value.item)
+        and getattr(value, "ndim", 1) == 0
+    ):
+        return value.item()
+    if isinstance(value, PathLike):
+        return str(value)
+    return value
+
+
+def settings_yaml(cfg: Mapping, *, stack: Mapping | None = None) -> str:
+    """Return the settings that built a product, as YAML text.
+
+    Parameters
+    ----------
+    cfg : Mapping
+        A loaded mooring description.
+    stack : Mapping, optional
+        The ``stack:`` settings actually used (e.g. a ``dt_seconds`` given on the
+        command line); they replace the description's own ``stack:`` block.
+
+    Returns
+    -------
+    str
+        The :data:`SETTINGS_BLOCKS` the description sets, then its instrument
+        entries as processed (clamp and inline merged, ``hab`` resolved, without
+        the hardware-only keys) under ``instruments``, the key ``load`` also
+        reads. Pasted into a mooring description, it reruns the same product.
+    """
+    from oceanarray.instruments import instrument_entries
+
+    out: dict = {k: cfg[k] for k in SETTINGS_BLOCKS if cfg.get(k) is not None}
+    if stack is not None:
+        out["stack"] = {**(out.get("stack") or {}), **stack}
+    out["instruments"] = [
+        {k: v for k, v in e.items() if k not in _HARDWARE_ONLY_KEYS}
+        for e in instrument_entries(cfg)
+        if isinstance(e, Mapping)
+    ]
+    return yaml.safe_dump(_plain(out), sort_keys=False)
 
 
 def _resolve_path(mooring: str | PathLike, proc_dir: str | PathLike | None) -> Path:

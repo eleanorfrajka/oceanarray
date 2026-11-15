@@ -12,12 +12,14 @@ from pathlib import Path
 import numpy as np
 import pytest
 import xarray as xr
+import yaml
 
 import oceanarray as oa
 from oceanarray import mooring as _mooring
 from oceanarray import paths
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
+from oceanarray.instruments import instrument_entries
 from oceanarray.pipeline import stack as st
 from oceanarray.pipeline.dataset import time_step_seconds
 from oceanarray.pipeline.pressure import _times_to_float
@@ -342,3 +344,22 @@ def test_a_non_numeric_dt_attr_falls_back_to_the_time_axis(stage3, cfg):
     ds = st.stack(stage3, cfg, dt_seconds=3600)
     ds.attrs["dt_seconds"] = "1h"
     assert time_step_seconds(ds) == 3600.0
+
+
+def test_the_stack_records_the_settings_that_built_it(stage3, cfg):
+    """``deployment_settings`` is YAML holding the stack block and every instrument."""
+    ds = st.stack(stage3, _with_stack_block(cfg, 1800))
+    settings = yaml.safe_load(ds.attrs["deployment_settings"])
+    assert settings["stack"] == {"dt_seconds": 1800}
+    serials = [str(e["serial"]) for e in settings["instruments"]]
+    assert serials == [str(e["serial"]) for e in instrument_entries(cfg)]
+    assert all("label" not in e and "image" not in e for e in settings["instruments"])
+
+
+def test_the_recorded_settings_carry_the_step_actually_used(stage3, cfg):
+    """A ``dt_seconds`` from the call wins over the description's in the record too."""
+    ds = st.stack(stage3, _with_stack_block(cfg, 1800), dt_seconds=3600)
+    assert ds.attrs["dt_seconds"] == 3600
+    assert yaml.safe_load(ds.attrs["deployment_settings"])["stack"] == {
+        "dt_seconds": 3600
+    }
