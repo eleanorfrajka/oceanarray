@@ -290,6 +290,8 @@ def test_the_report_page(site):
         page = generate_concat_page(out, out.parent / "report")
     html = page.read_text(encoding="utf-8")
     assert page.name == "egM2_stackcat_report.html"
+    # The breadcrumb is shown by default, with no external ancestors needed.
+    assert '<nav class="breadcrumb">' in html and ">egM2<" in html
     assert "Concatenated stack" in html and "Stack cat" in html
     assert "Instruments (avg)" in html and "3 (MicroCAT 2" in html
     for section in (

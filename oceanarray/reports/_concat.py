@@ -805,8 +805,9 @@ def generate_concat_page(
         (``<report_dir>/<deployment>``); default the ``report`` folder beside each
         deployment's stack. The page links to them.
     breadcrumb : list of (str, str or None) or None, optional
-        The caller's trail of ancestor crumbs shown above the title (hrefs relative
-        to the report root, rebased for this page's depth); the page appends its own.
+        An optional trail of ancestor crumbs shown above the title (hrefs relative to
+        this page's own report directory); the page always shows the site as its own
+        crumb, with the ancestors in front.
     label : str or None, optional
         The site's display name for the title and its own crumb; defaults to the
         file stem.
@@ -938,11 +939,7 @@ def generate_concat_page(
         html = render_template(
             "concat.html",
             mooring_name=label or name,
-            breadcrumb=(
-                page_crumbs(breadcrumb, "../", [(label or name, None)])
-                if breadcrumb
-                else []
-            ),
+            breadcrumb=page_crumbs(breadcrumb, "", [(label or name, None)]),
             nav=_nav(
                 deployment_rows,
                 other=(

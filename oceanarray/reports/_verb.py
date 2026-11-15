@@ -62,10 +62,11 @@ def report(
         A central report root: each mooring's pages go to ``report_dir/<mooring>``
         (and the array index to *report_dir*). Default: ``<mooring_dir>/report``.
     breadcrumb : iterable of (str, str or None), optional
-        The trail of ancestor crumbs shown above each page's title, as
-        ``[(text, href), …]`` with each ``href`` relative to *report_dir*; each page
-        appends its own position (e.g. ``Index › Site egM1 › egM1_2014 › Stack``).
-        ``None`` shows no trail.
+        An optional trail of ancestor crumbs shown above each page's title, as
+        ``[(text, href), …]`` with each ``href`` relative to the page's own report
+        directory. Each page always shows its own position and the ancestors sit in
+        front (e.g. ``Index › Site egM1 › egM1_2014 › Stack``). ``None`` shows just
+        each page's own position.
     instruments, stack, grid : bool, optional
         ``kind="mooring"``: also build these pages (default all three).
     serials : iterable of str or None, optional

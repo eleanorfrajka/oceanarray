@@ -443,8 +443,8 @@ def generate_array_report(
         ``{mooring}/{mooring}_report.html``.  When absent (default), the
         legacy layout ``{mooring}/report/{mooring}_report.html`` is assumed.
     breadcrumb : list of (str, str or None) or None, optional
-        The caller's trail of ancestor crumbs shown above the title; the array
-        index is at the report root, so the hrefs are used as given.
+        An optional trail of ancestor crumbs shown above the title; the array index
+        is the top of its own output, so the hrefs are used as given.
 
     Returns
     -------
@@ -620,8 +620,9 @@ def generate_array_report(
         "masthead": masthead,
         "mooring_completeness": mooring_completeness,
         "generated": datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC"),
-        # The array index sits at the report root, so ancestor hrefs need no rebasing.
-        "breadcrumb": page_crumbs(breadcrumb, "", []) if breadcrumb else [],
+        # The array index is the top of its own output, so ancestor hrefs need no
+        # rebasing; with no ancestors and no own crumbs it shows no trail.
+        "breadcrumb": page_crumbs(breadcrumb, "", []),
     }
 
     html = render_template("array.html", **ctx)

@@ -422,9 +422,9 @@ class MooringReport:
         outdir : str or None, optional
             Where the pages go; overrides the central report directory.
         breadcrumb : list of (str, str or None) or None, optional
-            The caller's trail of ancestor crumbs (hrefs relative to the report
-            root); each page rebases them for its depth and appends its own
-            position. ``None`` shows no trail.
+            An optional trail of ancestor crumbs (hrefs relative to the page's own
+            report directory); each page always shows its own position with the
+            ancestors in front. ``None`` shows just each page's own position.
         serials : list of str or None, optional
             Build instrument pages for these serials only.
         instruments, grid, stack : bool, optional

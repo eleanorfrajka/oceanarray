@@ -234,10 +234,14 @@ def test_concat_writes_the_site_grid_and_both_pages(egm2):
     # per deployment gives no velocity grid (two levels are needed to interpolate).
     assert page.count("data:image/png") == 4
     assert 'href="egM2_stackcat_report.html"' in page
+    # The Grid cat page shows its breadcrumb (site -> Stack cat, then Grid cat) by
+    # default, no external ancestors needed.
+    assert '<nav class="breadcrumb">' in page and ">Grid cat<" in page
     stack_page = (folder / "report" / "egM2_stackcat_report.html").read_text(
         encoding="utf-8"
     )
     assert 'href="egM2_gridcat_report.html"' in stack_page
+    assert '<nav class="breadcrumb">' in stack_page
 
 
 def test_no_grid_writes_the_site_stack_only(egm2, tmp_path):

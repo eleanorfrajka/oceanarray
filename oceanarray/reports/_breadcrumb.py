@@ -1,10 +1,13 @@
 """The breadcrumb trail a report page shows above its masthead title.
 
-The caller of :func:`oceanarray.report` supplies the trail of ancestor crumbs
-(``breadcrumb=[(text, href), …]``, each ``href`` relative to the report root), and
-each page appends its own position. :func:`page_crumbs` rebases the ancestor hrefs
-for the page's depth under the report root and appends the page's own crumbs; it is
-local to oceanarray (the markup matches ctdcast's ``.breadcrumb`` so it can be
+Each page shows its own position by default (``{mooring} › Stack``,
+``{site} › Grid cat``, …), the up-link pointing at the page's landing in the same
+directory. The caller of :func:`oceanarray.report` may supply a trail of ancestor
+crumbs (``breadcrumb=[(text, href), …]``) to sit in front; each ``href`` is relative
+to the page's own report directory (the mooring's or site's directory), so the
+breadcrumb makes no assumption about where a shared report root lives. The one depth
+:func:`page_crumbs` rebases is the instrument subdirectory, a level below its mooring.
+It is local to oceanarray (the markup matches ctdcast's ``.breadcrumb`` so it can be
 vendored later).
 """
 
@@ -24,12 +27,12 @@ def page_crumbs(
     ----------
     ancestors : list of (str, str or None) or None
         The caller's trail of ancestor crumbs; each ``href`` is relative to the
-        report root. ``None`` or empty means no ancestors (the page shows only its
-        own crumbs).
+        page's own report directory. ``None`` or empty means no ancestors (the page
+        shows only its own crumbs).
     prefix : str
-        The page's relative path back to the report root (``""`` for a page at the
-        root, ``"../"`` for one a directory below). Prepended to each ancestor's
-        ``href``; a crumb with ``href=None`` is left as plain text.
+        The page's relative path back to its own report directory (``""`` for a page
+        in it, ``"../"`` for the instrument subdirectory a level below). Prepended to
+        each ancestor's ``href``; a crumb with ``href=None`` is left as plain text.
     own : list of (str, str or None)
         The page's own crumbs, hrefs already relative to the page itself (not the
         report root). The last is usually the current page, with ``href=None``.
@@ -49,28 +52,28 @@ def page_crumbs(
 def crumbs_from_ctx(
     ctx: dict,
     own: list[Crumb],
-    prefix: str = "../",
+    prefix: str = "",
 ) -> list[Crumb]:
-    """Build a mooring page's breadcrumb from the ancestors stored in *ctx*.
+    """Build a mooring page's breadcrumb from its *own* crumbs and any ancestors.
 
     The mooring pages carry the caller's ancestor crumbs under
     ``ctx["_breadcrumb_ancestors"]`` (set once in ``MooringReport.generate``); each
-    page passes its *own* crumbs and the shared *prefix* (``"../"`` — the pages sit
-    one directory below the report root). With no ancestors the page shows no trail.
+    page passes its *own* crumbs, which are always shown, and any ancestors sit in
+    front, rebased by *prefix*. The summary, stack and grid pages share one report
+    directory, so *prefix* is ``""``.
 
     Parameters
     ----------
     ctx : dict
         The page context; reads ``ctx["_breadcrumb_ancestors"]``.
     own : list of (str, str or None)
-        The page's own crumbs (see :func:`page_crumbs`).
+        The page's own crumbs (see :func:`page_crumbs`), always shown.
     prefix : str, optional
-        The page's relative path back to the report root; defaults to ``"../"``.
+        The page's relative path back to its own report directory; defaults to ``""``.
 
     Returns
     -------
     list of (str, str or None)
-        The crumbs to render, or an empty list when no ancestors were given.
+        The crumbs to render: the ancestors (if any) then the page's own.
     """
-    ancestors = ctx.get("_breadcrumb_ancestors")
-    return page_crumbs(ancestors, prefix, own) if ancestors else []
+    return page_crumbs(ctx.get("_breadcrumb_ancestors"), prefix, own)

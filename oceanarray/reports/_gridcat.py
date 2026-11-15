@@ -429,8 +429,9 @@ def generate_gridcat_page(
         Where the deployments' own reports are (see
         :func:`oceanarray.reports._concat.generate_concat_page`).
     breadcrumb : list of (str, str or None) or None, optional
-        The caller's trail of ancestor crumbs shown above the title; the page
-        appends the site (linking to its Stack cat page) and ``Grid cat``.
+        An optional trail of ancestor crumbs shown above the title; the page always
+        shows the site (linking to its Stack cat page) and ``Grid cat``, with the
+        ancestors in front.
     label : str or None, optional
         The site's display name for the title and its own crumb; defaults to the
         file stem.
@@ -501,17 +502,13 @@ def generate_gridcat_page(
         html = render_template(
             "gridcat.html",
             mooring_name=label or name,
-            breadcrumb=(
-                page_crumbs(
-                    breadcrumb,
-                    "../",
-                    [
-                        (label or name, f"{name}_stackcat_report.html"),
-                        ("Grid cat", None),
-                    ],
-                )
-                if breadcrumb
-                else []
+            breadcrumb=page_crumbs(
+                breadcrumb,
+                "",
+                [
+                    (label or name, f"{name}_stackcat_report.html"),
+                    ("Grid cat", None),
+                ],
             ),
             nav=_nav(
                 deployment_rows,

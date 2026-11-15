@@ -389,8 +389,9 @@ def generate_instrument_pages(
     skip_existing : bool
         If True, skip pages whose output file is newer than the source NetCDF.
     breadcrumb : list of (str, str or None) or None, optional
-        The caller's trail of ancestor crumbs (hrefs relative to the report root);
-        each page rebases them for its depth and appends its own position.
+        An optional trail of ancestor crumbs (hrefs relative to the mooring's report
+        directory); each instrument page always shows ``{mooring} › {serial}`` with
+        the ancestors in front, rebased by ``"../"`` for the instrument subdirectory.
 
     """
     mooring_report_link = f"../{mooring_name}_report.html"
@@ -672,15 +673,12 @@ def generate_instrument_pages(
         try:
             ctx["report"] = resolve(INSTRUMENT_DEFAULT, ctx, INSTRUMENT_PANELS)
             # Instrument pages sit a level deeper (instrument/), so ancestors are
-            # rebased by "../../"; the mooring crumb links up to the summary.
-            ctx["breadcrumb"] = (
-                page_crumbs(
-                    breadcrumb,
-                    "../../",
-                    [(mooring_name, mooring_report_link), (serial, None)],
-                )
-                if breadcrumb
-                else []
+            # rebased by "../" back to the mooring directory; the mooring crumb links
+            # up to the summary. Always shown, with ancestors in front when given.
+            ctx["breadcrumb"] = page_crumbs(
+                breadcrumb,
+                "../",
+                [(mooring_name, mooring_report_link), (serial, None)],
             )
             html = render_template("instrument.html", **ctx)
             out_path.parent.mkdir(parents=True, exist_ok=True)
