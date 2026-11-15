@@ -23,6 +23,7 @@ def report(
     raw_dir: PathLike | None = None,
     out_dir: PathLike | None = None,
     report_dir: PathLike | None = None,
+    breadcrumb: Iterable[tuple[str, str | None]] | None = None,
     instruments: bool = True,
     stack: bool = True,
     grid: bool = True,
@@ -60,6 +61,11 @@ def report(
     report_dir : os.PathLike or None, optional
         A central report root: each mooring's pages go to ``report_dir/<mooring>``
         (and the array index to *report_dir*). Default: ``<mooring_dir>/report``.
+    breadcrumb : iterable of (str, str or None), optional
+        The trail of ancestor crumbs shown above each page's title, as
+        ``[(text, href), …]`` with each ``href`` relative to *report_dir*; each page
+        appends its own position (e.g. ``Index › Site egM1 › egM1_2014 › Stack``).
+        ``None`` shows no trail.
     instruments, stack, grid : bool, optional
         ``kind="mooring"``: also build these pages (default all three).
     serials : iterable of str or None, optional
@@ -95,11 +101,13 @@ def report(
     >>> oa.report("proc/dune2_1_2026/dune2_1_2026.mooring.yaml", pdf=True)
     >>> oa.report("proc/odb2026.array.yaml", kind="array")
     """
+    crumbs = list(breadcrumb) if breadcrumb is not None else None
     if kind == "array":
         return _array_report(
             Path(mooring),  # type: ignore[arg-type]
             proc_dir=proc_dir,
             report_dir=report_dir,
+            breadcrumb=crumbs,
             force=force,
         )
     if kind not in ("mooring", "recovery"):
@@ -130,6 +138,7 @@ def report(
             force=force,
             skip_existing=skip_existing,
             outdir=str(out_dir) if out_dir is not None else None,
+            breadcrumb=crumbs,
             serials=serial_list,
             instruments=instruments or serial_list is not None,
             grid=grid,
@@ -262,6 +271,7 @@ def _array_report(
     *,
     proc_dir: PathLike | None,
     report_dir: PathLike | None,
+    breadcrumb: list[tuple[str, str | None]] | None = None,
     force: bool,
 ) -> Path:
     """Build the array index; raise MooringError if it cannot be built."""
@@ -276,6 +286,7 @@ def _array_report(
         proc_dir=root,
         force=force,
         report_dir=Path(report_dir) if report_dir is not None else None,
+        breadcrumb=breadcrumb,
     )
     if not page:
         raise MooringError(f"{array_yaml.name}: the array report could not be built.")

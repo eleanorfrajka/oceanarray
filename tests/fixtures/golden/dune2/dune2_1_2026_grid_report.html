@@ -362,6 +362,12 @@ p, li { max-width: none; }
 .jump-nav a { color:var(--ocean); text-decoration:none; font-weight:600;
               margin:0 0.5rem 0 0; white-space:nowrap; }
 .jump-nav a:hover { text-decoration:underline; }
+/* Caller-supplied breadcrumb trail above the masthead title (matches ctdcast's
+   .breadcrumb so it can be vendored later). */
+.breadcrumb { font-size:var(--fs-top); color:var(--muted); margin:0 0 0.4rem; }
+.breadcrumb a { color:var(--ocean); text-decoration:none; }
+.breadcrumb a:hover { text-decoration:underline; }
+.breadcrumb .sep { color:var(--muted); margin:0 0.25rem; }
 /* Figure collapse toggle (shared report chrome — used by the panel() macro on
    every manifest-ported page). */
 details summary.collapse-toggle { color:var(--muted); font-size:0.76rem; cursor:pointer;
@@ -453,8 +459,8 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
     
     <div><dt>Deployment cruise</dt><dd>OdB</dd></div>
     <div><dt>Deployment ship</dt><dd>Odon de Buen</dd></div>
-    <div class="meta-miss"><dt>Recovery cruise</dt><dd>UNK</dd></div>
-    <div class="meta-miss"><dt>Recovery ship</dt><dd>UNK</dd></div>
+    <div><dt>Recovery cruise</dt><dd>OdB</dd></div>
+    <div><dt>Recovery ship</dt><dd>Odon de Buen</dd></div>
     <div><dt>Latitude</dt><dd>65° 43.91′ N</dd></div>
     <div><dt>Longitude</dt><dd>027° 48.00′ W</dd></div>
     <div><dt>Water depth</dt><dd>745&thinsp;m</dd></div>

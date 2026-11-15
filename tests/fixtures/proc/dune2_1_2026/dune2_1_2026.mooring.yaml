@@ -11,6 +11,8 @@ waterdepth: 745
 cruise: OdB
 status: deployed
 ship: Odon de Buen
+recovery_cruise: OdB
+recovery_ship: Odon de Buen
 deployment_time: '2026-07-11T20:30'
 recovery_time:   '2026-07-25T11:44'
 latitude: 65 43.913
