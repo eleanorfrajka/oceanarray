@@ -85,12 +85,17 @@ def requires_version(
     -------
     bool
         False when the attribute is absent (written before versions were
-        recorded), unreadable, or older than *minimum*.
+        recorded) or names a release older than *minimum*. A development build
+        (``.devN``) passes: its number counts commits since the last tag, which
+        differs between a branch and ``main`` (and is ``0.0`` in a checkout
+        without tags), so it cannot be ordered against *minimum*; the attribute
+        being there is the evidence.
     """
     value = attrs.get(key)
     if value in (None, ""):
         return False
     try:
-        return Version(str(value)) >= Version(minimum)
+        version = Version(str(value))
     except InvalidVersion:
         return False
+    return version.is_devrelease or version >= Version(minimum)

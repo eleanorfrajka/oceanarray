@@ -251,3 +251,24 @@ def test_only_stage1_cleans():
         or "attribution.clean(" in p.read_text(encoding="utf-8")
     )
     assert users == ["pipeline/attribution.py", "pipeline/stage1.py"]
+
+
+@pytest.mark.parametrize(
+    ("written", "ok"),
+    [
+        ("0.0.post1.dev72", True),  # a checkout without tags (CI)
+        ("0.6.0.post1.dev5", True),  # a branch build
+        ("0.7.0", True),
+        ("0.6.0", False),  # the 0.6.0 release did not clean people
+        (None, False),  # written before versions were recorded
+    ],
+)
+def test_the_version_check(written, ok):
+    from oceanarray import provenance
+
+    attrs = {} if written is None else {"stage1_oceanarray_version": written}
+    assert attribution.cleaned_at_stage1(attrs) is ok
+    assert (
+        provenance.requires_version(attrs, "0.7.0", key="stage1_oceanarray_version")
+        is ok
+    )
