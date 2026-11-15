@@ -245,7 +245,7 @@ def test_only_stage1_cleans():
 
     root = Path(oceanarray.__file__).parent
     users = sorted(
-        str(p.relative_to(root))
+        p.relative_to(root).as_posix()
         for p in root.rglob("*.py")
         if "people_from_attrs" in p.read_text(encoding="utf-8")
         or "attribution.clean(" in p.read_text(encoding="utf-8")
