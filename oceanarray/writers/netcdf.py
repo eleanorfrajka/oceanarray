@@ -16,6 +16,7 @@ per-file guess.  Decoded instants are unchanged; raw stored values change.
 from __future__ import annotations
 
 import json
+import logging
 import warnings
 from collections.abc import Mapping
 from pathlib import Path
@@ -25,8 +26,9 @@ import xarray as xr
 from xarray.coding.times import CFDatetimeCoder
 
 from oceanarray import provenance
-from oceanarray.logger import log_info
 from oceanarray.writers.dtypes import cast_output_dtypes
+
+log = logging.getLogger(__name__)
 
 _DATETIME_ENCODING_ATTRS = ("units", "calendar")
 # zlib level 4 with the shuffle filter.  Turning shuffle off for float64 — as
@@ -308,9 +310,10 @@ def write(
     if path.exists():
         if not overwrite:
             raise FileExistsError(f"{path} exists; pass overwrite=True to replace it.")
-        # Re-running a stage is routine, but never silent: a replaced file is logged
-        # so a re-run is visible in the log and the report's run summary.
-        log_info("overwriting %s", path)
+        # Re-running a stage is routine; the overwrite is recorded at DEBUG, so it
+        # shows in the stage log file and under ``-v`` (not at the default level —
+        # a full run overwrites many files).
+        log.debug("overwriting %s", path)
     path.parent.mkdir(parents=True, exist_ok=True)
 
     safe = _prepare(ds)

@@ -9,6 +9,7 @@ test the file verb, the CLI and the page.
 import contextlib
 import io
 import json
+import logging
 import shutil
 import warnings
 from pathlib import Path
@@ -339,13 +340,14 @@ def test_speed_and_direction_come_from_the_gridded_components(dune2):
     assert np.nanmax(np.minimum(gap, 360.0 - gap)) < 1e-3
 
 
-def test_a_deployment_whose_grid_settings_differ_is_named(egm2, capsys):
+def test_a_deployment_whose_grid_settings_differ_is_named(egm2, caplog):
     """egM2 2018's YAML grids 1000–2450 dbar: a site grid on its own range says so."""
     yamls = [egm2 / n / f"{n}.mooring.yaml" for n in _EGM2]
     with contextlib.redirect_stdout(io.StringIO()):
         path = concat_moorings(yamls, name="egM2", overwrite=True)
-    grid_site(path, dp=25, overwrite=True)
-    assert "egM2_2018's own grid: settings (" in capsys.readouterr().out
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
+        grid_site(path, dp=25, overwrite=True)
+    assert "egM2_2018's own grid: settings (" in caplog.text
 
 
 def test_without_a_position_no_isopycnals_are_drawn(egm2, tmp_path):

@@ -6,6 +6,7 @@ call and from the description, carrying on past failures (the default), and the
 strict ``keep_going=False``.
 """
 
+import logging
 import shutil
 from pathlib import Path
 
@@ -158,12 +159,13 @@ def test_strict_run_stops_at_the_failed_stage(tmp_path):
     assert not paths.product_file(yaml_path.parent, _NAME, "stack").exists()
 
 
-def test_keep_going_process_carries_on_without_the_failed_instrument(tmp_path, capsys):
+def test_keep_going_process_carries_on_without_the_failed_instrument(tmp_path, caplog):
     """keep_going: the aquadopp is left out, the microcat goes through all three stages."""
     raw = _without_aquadopp_raw(tmp_path)
-    files = oa.process(_fresh_tree(tmp_path), raw_dir=raw, keep_going=True)
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
+        files = oa.process(_fresh_tree(tmp_path), raw_dir=raw, keep_going=True)
     assert [p.name for p in files] == [f"{_NAME}_2941_stage{n}.nc" for n in (1, 2, 3)]
-    assert "failure(s) left behind by keep_going" in capsys.readouterr().out
+    assert "failure(s) left behind by keep_going" in caplog.text
 
 
 def test_keep_going_stacks_from_stage2_when_stage3_fails(tmp_path, monkeypatch):
@@ -342,17 +344,18 @@ def test_strict_run_removes_a_grid_the_new_stack_no_longer_matches(
     assert paths.stale_file(grid).exists()
 
 
-def test_a_stale_product_keeps_one_copy(tmp_path, capsys):
+def test_a_stale_product_keeps_one_copy(tmp_path, caplog):
     """Setting a product aside twice leaves one stale copy, the newer one."""
     from oceanarray.pipeline._run import _set_aside_stale
 
     grid = tmp_path / f"{_NAME}_grid.nc"
-    for text in ("first", "second"):
-        grid.write_text(text)
-        _set_aside_stale([grid], "a test")
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
+        for text in ("first", "second"):
+            grid.write_text(text)
+            _set_aside_stale([grid], "a test")
     assert sorted(p.name for p in tmp_path.iterdir()) == [f"{_NAME}_grid.stale.nc"]
     assert paths.stale_file(grid).read_text() == "second"
-    assert f"to {_NAME}_grid.stale.nc" in capsys.readouterr().out
+    assert f"to {_NAME}_grid.stale.nc" in caplog.text
     assert not list(tmp_path.glob(paths.product_glob("grid")))
 
 

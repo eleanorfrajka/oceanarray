@@ -3,6 +3,7 @@
 Version: 2.0 - Fixed clock offset tests with proper array comparison and immutability testing
 """
 
+import logging
 import tempfile
 from pathlib import Path
 
@@ -22,6 +23,7 @@ from oceanarray.pipeline.stage2 import (
     _parse_yaml_time,
     _resolve_clock_drift,
     _trim_to_deployment_window,
+    _warn_short_record,
     detect_deployment_window,
 )
 
@@ -456,6 +458,53 @@ class TestResolveClockDrift:
         }
         drift_s, _ = _resolve_clock_drift(cfg)
         assert drift_s == 0.0
+
+
+class TestShortRecordWarning:
+    """``_warn_short_record`` flags a record that misses >5 % of the planned window."""
+
+    # A two-year window: deployed 2014-08-01, recovered 2016-08-11.
+    DEPLOY = np.datetime64("2014-08-01T00:00:00")
+    RECOVER = np.datetime64("2016-08-11T00:00:00")
+
+    def test_record_ending_early_warns_once(self, caplog):
+        # CF1_2014 MC50: record stops 2015-05-17, ~15 months before recovery.
+        with caplog.at_level(logging.INFO, logger="oceanarray"):
+            _warn_short_record(
+                "MC50",
+                "currentmeter",
+                self.DEPLOY,
+                self.RECOVER,
+                np.datetime64("2014-08-02T00:00:00"),
+                np.datetime64("2015-05-17T00:00:00"),
+            )
+        warnings = [r for r in caplog.records if "before recovery" in r.getMessage()]
+        assert len(warnings) == 1
+        assert "months" in warnings[0].getMessage()
+
+    def test_full_record_is_silent(self, caplog):
+        with caplog.at_level(logging.INFO, logger="oceanarray"):
+            _warn_short_record(
+                "MC100",
+                "microcat",
+                self.DEPLOY,
+                self.RECOVER,
+                np.datetime64("2014-08-02T00:00:00"),
+                np.datetime64("2016-08-10T00:00:00"),
+            )
+        assert not [r for r in caplog.records if "recovery" in r.getMessage()]
+
+    def test_unset_window_skips_the_check(self, caplog):
+        with caplog.at_level(logging.INFO, logger="oceanarray"):
+            _warn_short_record(
+                "MC50",
+                "microcat",
+                np.datetime64("NaT"),
+                self.RECOVER,
+                np.datetime64("2014-08-02T00:00:00"),
+                np.datetime64("2015-05-17T00:00:00"),
+            )
+        assert not caplog.records
 
 
 if __name__ == "__main__":

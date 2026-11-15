@@ -1,3 +1,4 @@
+import logging
 import re
 from datetime import datetime
 from pathlib import Path
@@ -6,9 +7,10 @@ import numpy as np
 import xarray as xr
 
 from oceanarray import _deprecated
-from oceanarray.logger import log_debug, log_info, log_warning
 
 from . import rodb
+
+log = logging.getLogger(__name__)
 
 DUMMY_VALUE = -9.99e-29  # adjust if needed
 
@@ -257,7 +259,7 @@ def stage2_trim(
     if deployment_end is None:
         deployment_end = ds.TIME.values[-1]
 
-    log_info(
+    log.info(
         "Trimming dataset to deployment period %s – %s",
         deployment_start,
         deployment_end,
@@ -269,19 +271,19 @@ def stage2_trim(
     # Infer sampling interval
     time_diff = np.diff(ds_trimmed.TIME.values).astype("timedelta64[s]").astype(int)
     if len(time_diff) == 0:
-        log_warning("Only one sample in dataset — no trimming or gap filling possible.")
+        log.warning("Only one sample in dataset — no trimming or gap filling possible.")
         return ds_trimmed
 
     dt_seconds = int(np.median(time_diff))
     sampling_interval = np.timedelta64(dt_seconds, "s")
-    log_debug("Inferred sampling interval: %d seconds", dt_seconds)
+    log.debug("Inferred sampling interval: %d seconds", dt_seconds)
 
     # Create regular time axis and reindex
     time_start = ds_trimmed.TIME.values[0]
     time_end = ds_trimmed.TIME.values[-1]
     full_time = np.arange(time_start, time_end + sampling_interval, sampling_interval)
 
-    log_info("Interpolating to regular time base with %d steps", len(full_time))
+    log.info("Interpolating to regular time base with %d steps", len(full_time))
     ds_uniform = ds_trimmed.reindex(TIME=full_time, method=None)
 
     # Log stats
@@ -289,7 +291,7 @@ def stage2_trim(
         if var in ds_uniform:
             data = ds_uniform[var]
             valid = np.isfinite(data.values)
-            log_info(
+            log.info(
                 "%s: %d samples, mean = %.3f, std = %.3f, min = %.3f, max = %.3f",
                 var,
                 valid.sum(),
@@ -355,7 +357,7 @@ def apply_microcat_calibration_from_txt(txt_file: str, use_file: str) -> xr.Data
         if var not in ds or not flag or pre is None or post is None:
             return ds.get(var, None)
         offset = (pre + post) / 2
-        log_info(f"Applying average offset {offset:+.4f} to {var}")
+        log.info(f"Applying average offset {offset:+.4f} to {var}")
         return ds[var] + offset
 
     # Apply calibration offsets

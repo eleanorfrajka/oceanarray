@@ -10,6 +10,7 @@ Originally written in MATLAB by:
 Ported to Python by E Frajka-Williams, 2025
 """
 
+import logging
 import re
 from datetime import datetime
 from pathlib import Path
@@ -18,9 +19,9 @@ import numpy as np
 import xarray as xr
 import yaml
 
-from oceanarray.logger import log_warning
-
 from .convertOS import parse_rodb_metadata
+
+log = logging.getLogger(__name__)
 
 REVERSE_KEYS = {
     "mooring": "Mooring",
@@ -140,7 +141,7 @@ def rodbload(filepath, variables: list[str] = None) -> xr.Dataset:
     else:
         # Optional: warn if TIME can't be constructed
         missing = [v for v in ["YY", "MM", "DD", "HH"] if v not in col_indices]
-        log_warning("Could not create TIME coordinate. Missing: %s", ", ".join(missing))
+        log.warning("Could not create TIME coordinate. Missing: %s", ", ".join(missing))
 
     ds = xr.Dataset(data_vars, coords=coords)
 

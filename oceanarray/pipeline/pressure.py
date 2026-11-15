@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 import numpy as np
 import xarray as xr
 
+from oceanarray import logger
 from oceanarray.pipeline.qc import set_qc_attrs
+
+log = logging.getLogger(__name__)
 
 HAB_THRESHOLD = 2.0  # metres — use near-neighbour below this Δhab
 
@@ -65,6 +69,11 @@ def interp_pressure_for_hab(
 ) -> tuple[np.ndarray, str]:
     """Interpolate pressure for a single nominal HAB; return (p_array, method_str).
 
+    This logs through the ``oceanarray.pipeline.pressure`` logger; see
+    :func:`_interp_pressure_for_hab` for the full behaviour. The ``log_fn`` callback is
+    deprecated (removed in 0.7.0) — if given, each message is still passed to it and a
+    :class:`DeprecationWarning` is raised; configure logging instead.
+
     Parameters
     ----------
     hab_t : float
@@ -77,7 +86,42 @@ def interp_pressure_for_hab(
     serial : str
         Serial number of the target instrument (used in log messages only).
     log_fn : callable, optional
-        Logging callback; falls back to print when None.
+        Deprecated legacy callback; see above.
+    used : list of dict, optional
+        When given, the source dicts the interpolation drew on are appended to it.
+
+    Returns
+    -------
+    tuple[np.ndarray, str]
+        Interpolated pressure array and a human-readable method string.
+
+    """
+    with logger.deprecated_log_fn(log_fn):
+        return _interp_pressure_for_hab(
+            hab_t, sorted_sources, target_time, serial, used=used
+        )
+
+
+def _interp_pressure_for_hab(
+    hab_t: float,
+    sorted_sources: list[dict[str, Any]],
+    target_time: np.ndarray,
+    serial: str,
+    used: list[dict[str, Any]] | None = None,
+) -> tuple[np.ndarray, str]:
+    """Interpolate pressure for a single nominal HAB; return (p_array, method_str).
+
+    Parameters
+    ----------
+    hab_t : float
+        Target height above bottom in metres.
+    sorted_sources : list of dict
+        Pressure source instrument dicts sorted by hab, each with ``'ds'``,
+        ``'hab'``, ``'pressure_var'``, ``'instrument'``, and ``'serial'`` keys.
+    target_time : np.ndarray
+        Target datetime64 time axis.
+    serial : str
+        Serial number of the target instrument (used in log messages only).
     used : list of dict, optional
         When given, the source dicts the interpolation drew on are appended to it.
 
@@ -109,8 +153,7 @@ def interp_pressure_for_hab(
             f"(Δhab={diffs[nearest_idx]:.1f}m, "
             f"static offset={hab_offset_dbar:+.1f} dbar)"
         )
-        if log_fn:
-            log_fn(f"  {serial} (hab={hab_t:.1f}m): {method}")
+        log.debug(f"  {serial} (hab={hab_t:.1f}m): {method}")
     else:
         below = [
             (s, h) for s, h in zip(sorted_sources, habs, strict=False) if h < hab_t
@@ -143,8 +186,7 @@ def interp_pressure_for_hab(
                 f"{w_above:.2f}×{src_above['instrument']} "
                 f"{src_above['serial']} (hab={h_above:.1f}m)"
             )
-            if log_fn:
-                log_fn(f"  {serial} (hab={hab_t:.1f}m): {method}")
+            log.debug(f"  {serial} (hab={hab_t:.1f}m): {method}")
         else:
             src = below[-1][0] if below else above[0][0]
             if used is not None:
@@ -166,8 +208,7 @@ def interp_pressure_for_hab(
                 f"source (hab {habs.min():.1f}–{habs.max():.1f} m): not bracketed; the "
                 "offset takes 1 m of hab as 1 dbar and assumes the line stays upright"
             )
-            if log_fn:
-                log_fn(f"  WARNING: {serial} (hab={hab_t:.1f}m): {method}")
+            log.warning(f"{serial} (hab={hab_t:.1f}m): {method}")
 
     return p, method
 
@@ -179,6 +220,66 @@ def interpolate_pressure(
     target_time: np.ndarray,
     pressure_bad_flag: bool,
     log_fn: Any | None = None,
+) -> tuple[xr.Dataset, str]:
+    """Interpolate pressure from sources onto target; return (ds, method_str).
+
+    This logs through the ``oceanarray.pipeline.pressure`` logger; see
+    :func:`_interpolate_pressure` for the full behaviour. The ``log_fn`` callback is
+    deprecated (removed in 0.7.0) — if given, each message is still passed to it and a
+    :class:`DeprecationWarning` is raised; configure logging instead.
+
+    If *target_info* contains ``hab_segments`` (a sorted list of
+    ``(breakpoint_datetime64, hab_float)`` pairs), the record is split into
+    time segments and each segment is interpolated with its own HAB, allowing
+    for instruments that physically moved during the deployment.
+
+    HAB convention for segmented deployments
+    -----------------------------------------
+    ``target_info["hab"]`` is the **initial** HAB — the height above bottom
+    at which the instrument was **deployed**.  Segment 0 runs from the start
+    of the record up to (but not including) the first breakpoint, using this
+    value.  Each entry in ``hab_segments`` gives the new HAB **at and after**
+    the breakpoint timestamp (i.e. records with ``T >= breakpoint`` use the
+    new HAB; the breakpoint itself belongs to the new segment).  This matches
+    the YAML convention where ``hab:`` records the as-deployed position and
+    ``hab_segments:`` records subsequent slides, with ``from:`` marking the
+    first timestamp that belongs to the post-slide position.
+
+    Parameters
+    ----------
+    ds : xr.Dataset
+        Stage 2 dataset for the target instrument.
+    target_info : dict
+        Instrument metadata dict with ``'hab'``, ``'hab_segments'``,
+        ``'serial'``, and ``'qc_flags'`` keys.
+    sources : list of dict
+        Pressure source instrument dicts (each must have ``'ds'`` loaded).
+    target_time : np.ndarray
+        Target datetime64 time axis (must match ``ds["time"].values``).
+    pressure_bad_flag : bool
+        When True, the original pressure is preserved as ``pressure_orig``
+        and ``pressure_orig_qc`` before being replaced.
+    log_fn : callable, optional
+        Deprecated legacy callback; see above.
+
+    Returns
+    -------
+    tuple[xr.Dataset, str]
+        Updated dataset and a human-readable method string.
+
+    """
+    with logger.deprecated_log_fn(log_fn):
+        return _interpolate_pressure(
+            ds, target_info, sources, target_time, pressure_bad_flag
+        )
+
+
+def _interpolate_pressure(
+    ds: xr.Dataset,
+    target_info: dict[str, Any],
+    sources: list[dict[str, Any]],
+    target_time: np.ndarray,
+    pressure_bad_flag: bool,
 ) -> tuple[xr.Dataset, str]:
     """Interpolate pressure from sources onto target; return (ds, method_str).
 
@@ -213,8 +314,6 @@ def interpolate_pressure(
     pressure_bad_flag : bool
         When True, the original pressure is preserved as ``pressure_orig``
         and ``pressure_orig_qc`` before being replaced.
-    log_fn : callable, optional
-        Logging callback.
 
     Returns
     -------
@@ -259,20 +358,19 @@ def interpolate_pressure(
             idx = np.where((seg_start_ns <= T) & (seg_end_ns > T))[0]
             if len(idx) == 0:
                 continue
-            p_seg, meth = interp_pressure_for_hab(
-                hab_t, sorted_sources, T[idx], serial, log_fn=log_fn, used=used
+            p_seg, meth = _interp_pressure_for_hab(
+                hab_t, sorted_sources, T[idx], serial, used=used
             )
             p_interp[idx] = p_seg
             bp_str = str(seg_end_ns)[:16]
             method_parts.append(f"hab={hab_t:.1f}m until {bp_str}: {meth}")
         method = "; ".join(method_parts)
     else:
-        p_interp, method = interp_pressure_for_hab(
+        p_interp, method = _interp_pressure_for_hab(
             target_info["hab"],
             sorted_sources,
             target_time,
             serial,
-            log_fn=log_fn,
             used=used,
         )
 
@@ -321,6 +419,97 @@ def compute_adcp_bin_pressure(
     ds: xr.Dataset,
     lat: float,
     log_fn: Any = None,
+) -> xr.Dataset:
+    """Compute pressure at each ADCP bin from transducer pressure and tilt-reduced range.
+
+    This logs through the ``oceanarray.pipeline.pressure`` logger; see
+    :func:`_compute_adcp_bin_pressure` for the full behaviour. The ``log_fn`` callback is
+    deprecated (removed in 0.7.0) — if given, each message is still passed to it and a
+    :class:`DeprecationWarning` is raised; configure logging instead.
+
+    For each time step, adds a pressure offset per bin, ``gsw.p_from_z(-range_eff, lat)``,
+    the hydrostatic pressure of *range_eff* metres of seawater at the given latitude, where
+    *range_eff* is the bin's vertical distance from the transducer reduced for instrument
+    tilt (knock-down).
+
+    **Tilt correction.** The RDI firmware converts slant range to vertical distance using
+    the *nominal* beam angle (RDI Coordinate Transformation manual §4.2, Eq. 8), i.e.
+    assuming the instrument is vertical.  When the mooring is knocked down by an angle θ the
+    true vertical distance of each bin shrinks to ``range × cos(θ)``.  θ is the angle of the
+    instrument axis from vertical, ``arccos(cos(P_true)·cos(roll))``, where ``P_true =
+    arctan(tan(tilt1)·cos(roll))`` converts the raw tilt-1 pitch the RDI variable leader
+    stores into the true pitch.  This is the first-order, ensemble-mean correction: the ADCP
+    averages opposing beams, so the mean vertical bin range is ``range × cos(θ)`` (individual
+    beams differ, consistent with velocity being a beam-averaged quantity); it is not a full
+    3-beam geometry solution.  oceanarray's own BEAM→ENU
+    (:func:`oceanarray.pipeline.coordinate.apply_beam_to_enu`) rotates velocity vectors only
+    and does not bin-map, so beam/XYZ-coordinate bins reach this function at their nominal
+    depth and need this correction; the firmware's earth + bin mapping is the only step in the
+    pipeline that tilt-places the bins (and is the skip case below).
+
+    **Guard — fail closed.** The correction is applied *only* on positive evidence that the
+    bins are not already tilt-placed:
+
+    - earth + bin mapping (``firmware_coordinate_system == "earth"`` and
+      ``firmware_bin_mapping == "yes"``, surfaced by Stage 1 from the RDI ``EX`` command): the
+      firmware already re-selected cells per beam for tilt, so each bin's nominal range is its
+      true vertical distance → **skip** (``cos(tilt)`` would double-correct),
+      ``tilt_correction = "none (firmware bin mapping)"``.
+    - firmware config **unknown** (attrs absent — a non-RDI ADCP, or a file predating this
+      surfacing) → **skip** (``"none (firmware config unknown)"``): absence must not be read as
+      beam input, or a firmware-mapped file whose attrs were lost would be double-corrected.
+    - no pitch/roll → **skip** (``"none (pitch/roll unavailable)"``).
+
+    Every current UHH deployment is earth + bin-mapping, so in practice the apply path is
+    exercised only by beam-coordinate input (none in the current UHH data); it is correct for
+    such input and for future deployments.  Timesteps whose pitch/roll are NaN get a NaN
+    ``bin_pressure`` (the depth is unknown) and a warning naming the count — the correction is
+    never silently applied over missing attitude data.
+
+    **Approximation** (unchanged, separate from tilt): ``gsw.p_from_z`` measures the column
+    pressure from the *sea surface*, not the increment at the ADCP's depth — ~2–3 dbar at
+    300 m range from a 500 m transducer, within the seabed-QC margin.
+
+    The sign follows instrument orientation:
+
+    - Downward-looking (``orientation == "down"``): bins are deeper than the
+      transducer → pressure increases with bin index.
+    - Upward-looking (``orientation == "up"``): bins are shallower than the
+      transducer → pressure decreases with bin index.
+
+    If orientation cannot be determined from dataset attributes a WARNING is emitted
+    and ``"down"`` is assumed.
+
+    Parameters
+    ----------
+    ds : xr.Dataset
+        Stage 3 ADCP dataset.  Must contain ``pressure(time)`` in dbar (pressure at
+        the transducer head) and ``range(N_BINS)`` in metres (bin centre distance from
+        the transducer face).  Orientation is read from the ``orientation_yaml`` global
+        attribute (preferred) or ``orientation_instrument`` (fallback).
+    lat : float
+        Mooring latitude in decimal degrees (positive North), used by
+        ``gsw.p_from_z`` for the gravitational/centrifugal correction.
+    log_fn : callable, optional
+        Deprecated legacy callback; see above.
+
+    Returns
+    -------
+    xr.Dataset
+        Input dataset with ``bin_pressure(time, N_BINS)`` added in dbar.  The variable's
+        ``comment`` records the formula and orientation; ``tilt_correction`` is ``"applied"``,
+        ``"none (firmware bin mapping)"`` or ``"none (pitch/roll unavailable)"``, and
+        ``tilt_definition`` records the tilt formula when applied.
+        Returns *ds* unchanged if ``pressure`` or ``range`` are absent.
+
+    """
+    with logger.deprecated_log_fn(log_fn):
+        return _compute_adcp_bin_pressure(ds, lat)
+
+
+def _compute_adcp_bin_pressure(
+    ds: xr.Dataset,
+    lat: float,
 ) -> xr.Dataset:
     """Compute pressure at each ADCP bin from transducer pressure and tilt-reduced range.
 
@@ -387,8 +576,6 @@ def compute_adcp_bin_pressure(
     lat : float
         Mooring latitude in decimal degrees (positive North), used by
         ``gsw.p_from_z`` for the gravitational/centrifugal correction.
-    log_fn : callable, optional
-        Logging callback (e.g. ``logger.info``).
 
     Returns
     -------
@@ -405,8 +592,7 @@ def compute_adcp_bin_pressure(
     from oceanarray.config import parameters as params
 
     if "pressure" not in ds.data_vars or "range" not in ds.coords:
-        if log_fn:
-            log_fn("  ADCP bin_pressure: skipped (no pressure or range coord)")
+        log.warning("  ADCP bin_pressure: skipped (no pressure or range coord)")
         return ds
 
     orientation = ds.attrs.get("orientation_yaml") or ds.attrs.get(
@@ -414,12 +600,11 @@ def compute_adcp_bin_pressure(
     )
     if not orientation:
         orientation = "down"
-        if log_fn:
-            log_fn(
-                "  WARNING: ADCP orientation unknown (no orientation_yaml or "
-                "orientation_instrument attr) — assuming downward-looking. "
-                "bin_pressure signs may be wrong for upward-looking instruments."
-            )
+        log.warning(
+            "ADCP orientation unknown (no orientation_yaml or "
+            "orientation_instrument attr) — assuming downward-looking. "
+            "bin_pressure signs may be wrong for upward-looking instruments."
+        )
     sign = 1.0 if str(orientation).lower() == "down" else -1.0
 
     p_trans = ds["pressure"].values.astype(float)  # (time,)
@@ -451,7 +636,7 @@ def compute_adcp_bin_pressure(
     if not firmware_known:
         tilt_correction = "none (firmware config unknown)"
         _warn = (
-            "  WARNING: ADCP bin_pressure: firmware coordinate/bin-mapping config unknown "
+            "ADCP bin_pressure: firmware coordinate/bin-mapping config unknown "
             "(not an RDI raw file, or attrs lost) — cos(tilt) NOT applied; bins at nominal "
             "depth."
         )
@@ -476,7 +661,7 @@ def compute_adcp_bin_pressure(
         tilt_source = "pitch,roll"
         _n_nan = int(np.isnan(tilt).sum())
         _warn = (
-            f"  WARNING: ADCP bin_pressure: {_n_nan} of {tilt.size} timesteps have missing "
+            f"ADCP bin_pressure: {_n_nan} of {tilt.size} timesteps have missing "
             "pitch/roll — bin_pressure is NaN there (tilt could not be computed)."
             if _n_nan
             else ""
@@ -484,11 +669,11 @@ def compute_adcp_bin_pressure(
     else:
         tilt_correction = "none (pitch/roll unavailable)"
         _warn = (
-            "  WARNING: ADCP bin_pressure: coordinates are not firmware-mapped but pitch/"
+            "ADCP bin_pressure: coordinates are not firmware-mapped but pitch/"
             "roll are absent — cos(tilt) NOT applied; knocked-down bins sit at nominal depth."
         )
-    if log_fn and _warn:
-        log_fn(_warn)
+    if _warn:
+        log.warning(_warn)
 
     # Tilt-reduced vertical range (2-D when the correction is applied, else the untilted 1-D
     # range broadcast over time).  The correction is the first-order, ensemble-mean form:
@@ -516,13 +701,12 @@ def compute_adcp_bin_pressure(
             "tilt_source": tilt_source,
         },
     )
-    if log_fn:
-        _extra = ""
-        if tilt is not None and np.isfinite(tilt).any():
-            _td = np.rad2deg(tilt)
-            _extra = f", tilt median={np.nanmedian(_td):.1f}° max={np.nanmax(_td):.1f}°"
-        log_fn(
-            f"  ADCP bin_pressure: {ds['range'].size} bins, "
-            f"orientation={orientation}, lat={lat:.2f}°, {tilt_correction}{_extra}"
-        )
+    _extra = ""
+    if tilt is not None and np.isfinite(tilt).any():
+        _td = np.rad2deg(tilt)
+        _extra = f", tilt median={np.nanmedian(_td):.1f}° max={np.nanmax(_td):.1f}°"
+    log.info(
+        f"  ADCP bin_pressure: {ds['range'].size} bins, "
+        f"orientation={orientation}, lat={lat:.2f}°, {tilt_correction}{_extra}"
+    )
     return ds

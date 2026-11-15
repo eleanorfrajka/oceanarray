@@ -19,6 +19,7 @@ References
 
 """
 
+import logging
 import pathlib
 from datetime import datetime
 from typing import Any
@@ -32,9 +33,9 @@ from matplotlib.colors import LinearSegmentedColormap
 from scipy.integrate import cumulative_trapezoid
 from scipy.interpolate import interp1d
 
-from oceanarray import logger
 from oceanarray.config import parameters as params
-from oceanarray.logger import log_info
+
+log = logging.getLogger(__name__)
 
 
 def spacing(p_start: float, p_end: float, step: float) -> np.ndarray:
@@ -117,7 +118,7 @@ def save_climatology(clim_ds: xr.Dataset, output_path: str | pathlib.Path) -> No
     # Save
     clim_ds.to_netcdf(output_path)
 
-    log_info(f"✅ Saved climatology to {output_path}")
+    log.info(f"Saved climatology to {output_path}")
 
 
 def smooth_climatology(clim_ds: xr.Dataset, window: int = 3) -> xr.Dataset:
@@ -956,7 +957,7 @@ def get_time_key(ds: xr.Dataset) -> str:
     # Fallback: look for any variable or coordinate with datetime dtype
     for name in ds.coords:
         if np.issubdtype(ds.coords[name].dtype, np.datetime64):
-            logger.log_warning(
+            log.warning(
                 "No standard time coordinate found. Using first datetime coordinate: %s",
                 name,
             )
@@ -964,7 +965,7 @@ def get_time_key(ds: xr.Dataset) -> str:
 
     for name in ds.variables:
         if np.issubdtype(ds.variables[name].dtype, np.datetime64):
-            logger.log_warning(
+            log.warning(
                 "No standard time coordinate found. Using first datetime coordinate: %s",
                 name,
             )

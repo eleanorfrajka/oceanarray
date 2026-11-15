@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 import numpy as np
 import xarray as xr
+
+from oceanarray import logger
+
+log = logging.getLogger(__name__)
 
 
 def xyz_to_enu(
@@ -62,6 +67,58 @@ def apply_beam_to_enu(
     latlon_source: str = "unknown",
     log_fn: Any = None,
 ) -> xr.Dataset:
+    """Transform BEAM or XYZ Nortek velocities to ENU geographic coordinates (public entry).
+
+    Adds east_velocity, north_velocity, up_velocity, current_speed,
+    current_direction.  Updates coordinate_system attr to 'ENU'.
+    A quiet no-op for instruments already in ENU.  For an unknown ('UNK')
+    coordinate system it refuses loudly and does not rotate — the velocities
+    are in an undetermined frame and must not be treated as geographic.
+    Requires normalized variable names (heading, pitch, roll) — re-run stage1
+    if these are absent.
+
+    This rotates the velocity *vectors* only (and applies magnetic declination).
+    It does not re-select range cells per beam (bin mapping) and does not change
+    bin depths, so a knocked-down profiler's bins stay at their nominal range here;
+    the per-bin *depth* tilt correction is applied separately by
+    :func:`oceanarray.pipeline.pressure.compute_adcp_bin_pressure`.
+
+    This logs through the ``oceanarray.pipeline.coordinate`` logger; see
+    :func:`_beam_to_enu` for the full behaviour.  The ``log_fn`` callback is
+    deprecated (removed in 0.7.0) — if given, each message is still passed to it and a
+    :class:`DeprecationWarning` is raised; configure logging instead.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset to transform in place (also returned).
+    entry : dict
+        The instrument's mooring-YAML entry; its ``serial`` annotates messages.
+    lat : float
+        Deployment latitude, for the magnetic declination.
+    lon : float
+        Deployment longitude, for the magnetic declination.
+    latlon_source : str, optional
+        Where lat/lon came from, used to detect an unknown position and annotate attrs.
+    log_fn : callable, optional
+        Deprecated legacy callback; see above.
+
+    Returns
+    -------
+    xarray.Dataset
+        The same dataset, with ENU velocities when a rotation was applied.
+    """
+    with logger.deprecated_log_fn(log_fn):
+        return _beam_to_enu(ds, entry, lat, lon, latlon_source)
+
+
+def _beam_to_enu(
+    ds: xr.Dataset,
+    entry: dict[str, Any],
+    lat: float,
+    lon: float,
+    latlon_source: str = "unknown",
+) -> xr.Dataset:
     """Transform BEAM or XYZ Nortek velocities to ENU geographic coordinates.
 
     Adds east_velocity, north_velocity, up_velocity, current_speed,
@@ -77,18 +134,29 @@ def apply_beam_to_enu(
     bin depths, so a knocked-down profiler's bins stay at their nominal range here;
     the per-bin *depth* tilt correction is applied separately by
     :func:`oceanarray.pipeline.pressure.compute_adcp_bin_pressure`.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset to transform in place (also returned).
+    entry : dict
+        The instrument's mooring-YAML entry; its ``serial`` annotates messages.
+    lat : float
+        Deployment latitude, for the magnetic declination.
+    lon : float
+        Deployment longitude, for the magnetic declination.
+    latlon_source : str, optional
+        Where lat/lon came from, used to detect an unknown position and annotate attrs.
+
+    Returns
+    -------
+    xarray.Dataset
+        The same dataset, with ENU velocities when a rotation was applied.
     """
-
-    def _warn(msg: str) -> None:
-        if log_fn:
-            log_fn(msg)
-        else:
-            print(msg)
-
     coord_sys = ds.attrs.get("coordinate_system", "ENU")
     if coord_sys == "UNK":
-        _warn(
-            f"  WARNING: coordinate_system is UNK for serial "
+        log.warning(
+            f"coordinate_system is UNK for serial "
             f"{entry.get('serial', '?')} — the Nortek header did not declare "
             "BEAM/XYZ/ENU, so the velocities are in an undetermined frame and are "
             "NOT rotated to ENU. Do not treat east/north/up as geographic; re-run "
@@ -104,8 +172,8 @@ def apply_beam_to_enu(
     # Require normalized heading/pitch/roll (stage1 normalization must have run)
     for vname in ("heading", "pitch", "roll"):
         if vname not in ds.data_vars:
-            _warn(
-                f"  WARNING: BEAM→ENU skipped — '{vname}' not in dataset. "
+            log.warning(
+                f"BEAM→ENU skipped — '{vname}' not in dataset. "
                 "Re-run stage1 to get normalized variable names."
             )
             return ds
@@ -117,8 +185,8 @@ def apply_beam_to_enu(
     # Magnetic declination via ppigrf
     declination = 0.0
     if lat == 0.0 and lon == 0.0 and "unknown" in latlon_source.lower():
-        _warn(
-            f"  WARNING: BEAM→ENU — lat/lon unknown for serial {entry.get('serial', '?')}. "
+        log.warning(
+            f"BEAM→ENU — lat/lon unknown for serial {entry.get('serial', '?')}. "
             "Skipping magnetic declination to avoid silently applying the Gulf of Guinea value. "
             "Set lat/lon in the mooring YAML to get a correct declination correction."
         )
@@ -155,14 +223,14 @@ def apply_beam_to_enu(
             ds.attrs["magnetic_declination_latlon_source"] = (
                 f"mooring YAML ({latlon_source})"
             )
-            _warn(f"  BEAM→ENU: magnetic declination = {declination:.2f}°")
+            log.info(f"  BEAM→ENU: magnetic declination = {declination:.2f}°")
         except Exception as e:  # noqa: BLE001  — ppigrf optional; proceed with 0° declination
-            _warn(f"  WARNING: magnetic declination unavailable ({e}) — using 0°")
+            log.warning(f"magnetic declination unavailable ({e}) — using 0°")
 
     if coord_sys == "BEAM":
         # Stage1 could not apply the T matrix (header file missing or unparseable).
         # Re-run stage1 with the correct header file to produce velocity_x/y/z.
-        _warn(
+        log.warning(
             f"  SKIPPING BEAM→ENU for serial {entry.get('serial', '?')}: "
             "data are still in BEAM coordinates — re-run stage1 with the instrument "
             "header file so the T matrix can be extracted and velocity_x/y/z produced."
@@ -269,7 +337,7 @@ def apply_beam_to_enu(
     ds.attrs["coordinate_system_source"] = (
         f"rotated from {coord_sys} by oceanarray stage3"
     )
-    _warn(
+    log.info(
         f"  BEAM→ENU: produced east/north/up_velocity, current_speed, current_direction "
         f"(coord_sys was {coord_sys}, T matrix: {T_source})"
     )
@@ -282,6 +350,55 @@ def apply_declination_to_enu(
     lon: float,
     latlon_source: str = "unknown",
     log_fn: Any = None,
+) -> xr.Dataset:
+    """Apply magnetic declination rotation to velocities already in ENU frame (public entry).
+
+    When a Nortek instrument is configured to output ENU coordinates internally,
+    the heading reference used is magnetic north.  This function rotates
+    east_velocity and north_velocity by the declination angle so that north
+    aligns with true (geographic) north.
+
+    Rotation (D = declination, positive = east):
+        u_true = u_mag * cos(D) + v_mag * sin(D)
+        v_true = -u_mag * sin(D) + v_mag * cos(D)
+
+    No-ops if east_velocity or north_velocity are absent, or if magnetic
+    declination has already been applied — by oceanarray (``magnetic_declination``
+    attr present) or by the originator of an imported file
+    (``originator_magnetic_declination`` attr present).
+
+    This logs through the ``oceanarray.pipeline.coordinate`` logger; see
+    :func:`_declination_to_enu` for the full behaviour.  The ``log_fn`` callback is
+    deprecated (removed in 0.7.0) — if given, each message is still passed to it and a
+    :class:`DeprecationWarning` is raised; configure logging instead.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset to rotate in place (also returned).
+    lat : float
+        Deployment latitude, for the magnetic declination.
+    lon : float
+        Deployment longitude, for the magnetic declination.
+    latlon_source : str, optional
+        Where lat/lon came from, used to detect an unknown position and annotate attrs.
+    log_fn : callable, optional
+        Deprecated legacy callback; see above.
+
+    Returns
+    -------
+    xarray.Dataset
+        The same dataset, declination-corrected when a rotation was applied.
+    """
+    with logger.deprecated_log_fn(log_fn):
+        return _declination_to_enu(ds, lat, lon, latlon_source)
+
+
+def _declination_to_enu(
+    ds: xr.Dataset,
+    lat: float,
+    lon: float,
+    latlon_source: str = "unknown",
 ) -> xr.Dataset:
     """Apply magnetic declination rotation to velocities already in ENU frame.
 
@@ -298,14 +415,23 @@ def apply_declination_to_enu(
     declination has already been applied — by oceanarray (``magnetic_declination``
     attr present) or by the originator of an imported file
     (``originator_magnetic_declination`` attr present).
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset to rotate in place (also returned).
+    lat : float
+        Deployment latitude, for the magnetic declination.
+    lon : float
+        Deployment longitude, for the magnetic declination.
+    latlon_source : str, optional
+        Where lat/lon came from, used to detect an unknown position and annotate attrs.
+
+    Returns
+    -------
+    xarray.Dataset
+        The same dataset, declination-corrected when a rotation was applied.
     """
-
-    def _warn(msg: str) -> None:
-        if log_fn:
-            log_fn(msg)
-        else:
-            print(msg)
-
     if "magnetic_declination" in ds.attrs:
         return ds  # already applied
     if "originator_magnetic_declination" in ds.attrs:
@@ -315,8 +441,8 @@ def apply_declination_to_enu(
         return ds
 
     if lat == 0.0 and lon == 0.0 and "unknown" in latlon_source.lower():
-        _warn(
-            "  WARNING: ENU declination correction skipped — lat/lon unknown. "
+        log.warning(
+            "ENU declination correction skipped — lat/lon unknown. "
             "Applying declination from (0°N, 0°E) would silently rotate velocities by "
             "the Gulf of Guinea value. Set lat/lon in the mooring YAML."
         )
@@ -362,11 +488,11 @@ def apply_declination_to_enu(
         ds.attrs["coordinate_system_source"] = (
             "ENU from instrument; declination-corrected by oceanarray stage3"
         )
-        _warn(
+        log.info(
             f"  ENU declination correction: {declination:+.2f}° applied to "
             "east_velocity / north_velocity"
         )
     except Exception as e:  # noqa: BLE001  — ppigrf optional
-        _warn(f"  WARNING: declination correction unavailable ({e}) — ENU unchanged")
+        log.warning(f"declination correction unavailable ({e}) — ENU unchanged")
 
     return ds

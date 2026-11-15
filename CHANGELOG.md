@@ -16,11 +16,20 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 - `oceanarray concat` also grids the Stack cat, one mooring per profile, into `<site>_gridcat.nc` with a Grid cat report page; `--no-grid` skips it.
 - `mask_flags` (API, `grid: mask_flags` in the YAML, `--mask-flags` on `run` and `concat`): the QC flags left out before gridding, recorded as `grid_mask_flags`.
 - `<field>_source` in the mooring YAML (waterdepth, deployment/recovery time, latitude, longitude) is written beside the field in every file and in the Stack cat's deployment record.
+- `oceanarray -q` / `-v` set the console log level (warnings only / debug); each run ends with a per-mooring warning summary, also written to `processing_logs/<name>_summary.json`.
+- Stage 2 warns when a record starts well after deployment or ends well before recovery (more than 5 % of the planned window), naming the gap.
+- `thermistor` is a known instrument type (OceanSITES "MT" files).
 
 ### Changed
 
 - Deployments on the Stack cat page are colored red to purple in time order; their start lines are dotted.
 - The Stack cat's depth columns are named for what they are: dimension `N_DEPTHS`, `depth_index`, `nominal_depth`, `depth_family`, `depth_match_value`, `depth_tolerance`, `overlap_depth_index`; the YAML keys are `stack: depth_match` / `depth_tolerance_m`.
+- Pipeline progress goes to stderr via standard logging (one line per step; `-v` for per-instrument detail); a command's result still goes to stdout.
+
+### Deprecated
+
+- `log_fn=` on `to_canonical_units`, `interpolate_pressure`, the ADCP-QC functions and the other transforms — configure logging instead (removed in 0.7.0).
+- `oceanarray.logger.enable_logging` / `disable_logging` — set `logging.getLogger("oceanarray").disabled` or use `logging.disable` (removed in 0.7.0).
 
 ### Breaking changes
 

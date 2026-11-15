@@ -327,7 +327,7 @@ def test_adcp_bin_pressure_unknown_orientation_assumes_down_and_warns():
     out = P.compute_adcp_bin_pressure(_adcp_ds(None), lat=60.0, log_fn=msgs.append)
     bp = out["bin_pressure"].values
     assert (np.diff(bp, axis=1) > 0).all()  # behaves as down
-    assert any("WARNING" in m and "orientation" in m for m in msgs)
+    assert any("orientation" in m for m in msgs)  # warns (now at log.warning level)
 
 
 def test_adcp_bin_pressure_records_formula_in_comment():

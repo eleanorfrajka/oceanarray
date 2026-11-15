@@ -6,6 +6,7 @@ Builds two small moorings in a temp tree from the trimmed fixtures in
 declination alone.
 """
 
+import logging
 import shutil
 from pathlib import Path
 
@@ -260,7 +261,7 @@ _RTWB_INSTRUMENTS = [
 
 
 @pytest.mark.parametrize("dt_seconds", [600, 3600])
-def test_rodb_instruments_stack_by_nearest_sample_only(tmp_path, capsys, dt_seconds):
+def test_rodb_instruments_stack_by_nearest_sample_only(tmp_path, caplog, dt_seconds):
     """30-min MicroCAT and 20-min current meter: each step is a sample or empty.
 
     At 600 s every source sample lands on exactly one step and the steps between
@@ -274,15 +275,16 @@ def test_rodb_instruments_stack_by_nearest_sample_only(tmp_path, capsys, dt_seco
     raw, proc = _mooring(
         tmp_path, name, RTWB, [dict(entry) for entry in _RTWB_INSTRUMENTS]
     )
-    files = oa.run(
-        proc / name / f"{name}.mooring.yaml",
-        raw_dir=raw,
-        dt_seconds=dt_seconds,
-        pmin=70,
-        pmax=110,
-        dp=10,
-    )
-    out = capsys.readouterr().out
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
+        files = oa.run(
+            proc / name / f"{name}.mooring.yaml",
+            raw_dir=raw,
+            dt_seconds=dt_seconds,
+            pmin=70,
+            pmax=110,
+            dp=10,
+        )
+    out = caplog.text
     with xr.open_dataset(files[-2]) as ds:
         ds = ds.load()
     steps = ds["time"].values

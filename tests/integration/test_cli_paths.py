@@ -95,7 +95,7 @@ def test_old_plot_flag_spellings_still_parse(capsys):
 
 
 def test_verbose_lowers_the_stage_console_level(monkeypatch):
-    """-v makes the stage console handler pass DEBUG messages."""
+    """-v sets the command's console handler to DEBUG."""
     from oceanarray import logger
     from oceanarray.cli import main
 
@@ -103,11 +103,14 @@ def test_verbose_lowers_the_stage_console_level(monkeypatch):
     monkeypatch.setattr("sys.argv", ["oceanarray", "-v", "list"])
     with pytest.raises(SystemExit):
         main()
-    handlers = logger.attach_stage_handlers(None)
+    consoles = [
+        h for h in logger.log.handlers if getattr(h, "_oceanarray_console", False)
+    ]
     try:
-        assert handlers[0].level == logging.DEBUG
+        assert consoles and consoles[0].level == logging.DEBUG
     finally:
-        logger.detach_handlers(handlers)
+        for handler in consoles:
+            logger.log.removeHandler(handler)
 
 
 def test_init_writes_the_stack_and_grid_blocks_commented(tmp_path):
@@ -163,8 +166,9 @@ def test_verbose_prints_each_stage_file(folder, monkeypatch, capsys):
         )
         with pytest.raises(SystemExit):
             main()
-        out = capsys.readouterr().out
-        assert ("stage 3 kept:" in out) is shown
+        # Progress (incl. the per-file DEBUG lines) goes to stderr through logging.
+        err = capsys.readouterr().err
+        assert ("stage 3 kept:" in err) is shown
 
 
 def test_report_dry_run_honours_only_and_cruise_table(folder, capsys):
@@ -186,13 +190,14 @@ def test_plot_takes_the_folder_path(folder):
     assert (folder / "overview.png").exists()
 
 
-def test_process_report_on_a_broken_description_is_an_error_line(tmp_path, capsys):
-    """process --report on a description missing waterdepth: an ERROR line and exit 1."""
+def test_process_report_on_a_broken_description_is_an_error_line(tmp_path, caplog):
+    """process --report on a description missing waterdepth: an ERROR and exit 1."""
     moor = tmp_path / "m"
     moor.mkdir()
     (moor / "m.mooring.yaml").write_text("name: m\nclamp: []\n")
-    assert _cli(["process", str(moor), "--report"]) == 1
-    assert "ERROR" in capsys.readouterr().out
+    with caplog.at_level(logging.ERROR, logger="oceanarray"):
+        assert _cli(["process", str(moor), "--report"]) == 1
+    assert any(r.levelno == logging.ERROR for r in caplog.records)
 
 
 def test_animate_output_dir_and_the_old_minus_o_file(

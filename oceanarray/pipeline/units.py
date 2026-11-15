@@ -17,14 +17,18 @@ stored.
 """
 
 import json
+import logging
 from collections.abc import Callable
 
 import numpy as np
 import xarray as xr
 
+from oceanarray import logger
 from oceanarray.config import parameters as params
 from oceanarray.config.unit_tables import TABLES, UNIT_SPELLINGS_KEPT
 from oceanarray.reports._vendored.units import Tables, UnitsError, resolve_units
+
+log = logging.getLogger(__name__)
 
 # Re-exported so existing callers keep importing it from the processing layer.
 __all__ = ["UnitsError", "to_canonical_units"]
@@ -75,6 +79,40 @@ def to_canonical_units(
     log_fn: Callable[[str], None] | None = None,
     stage: int | str | None = None,
 ) -> xr.Dataset:
+    """Rewrite each registered variable's units to its canonical spelling (public entry).
+
+    This logs through the ``oceanarray.pipeline.units`` logger; see
+    :func:`_canonicalise_units` for the full behaviour. The ``log_fn`` callback is
+    deprecated (removed in 0.7.0) — if given, each message is still passed to it and a
+    :class:`DeprecationWarning` is raised; configure logging instead.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset to canonicalise in place (also returned).
+    tables : Tables, optional
+        The accepted spellings to resolve against; defaults to
+        :data:`oceanarray.config.unit_tables.TABLES`.
+    log_fn : callable, optional
+        Deprecated legacy callback; see above.
+    stage : int or str, optional
+        Processing stage, used only to annotate the log and error messages.
+
+    Returns
+    -------
+    xarray.Dataset
+        The same dataset, with canonical units on every registered variable.
+    """
+    with logger.deprecated_log_fn(log_fn):
+        return _canonicalise_units(ds, tables=tables, stage=stage)
+
+
+def _canonicalise_units(
+    ds: xr.Dataset,
+    *,
+    tables: Tables = TABLES,
+    stage: int | str | None = None,
+) -> xr.Dataset:
     """Rewrite each registered variable's units to its canonical spelling.
 
     The canonical spelling comes from the registry, :data:`parameters.VARIABLES` — by
@@ -106,9 +144,6 @@ def to_canonical_units(
         The accepted spellings (aliases and scoped spellings) to resolve against;
         defaults to :data:`oceanarray.config.unit_tables.TABLES`.  The canonical itself
         always comes from the registry.
-    log_fn : callable, optional
-        Called with one message per variable whose units string changed.  A change at
-        any stage other than 1 is annotated as written by a pre-0.5.0 stage 1.
     stage : int or str, optional
         Processing stage, used only to annotate the log and error messages — an int
         (1, 2, 3) or a label (``"stack"``, ``"grid"``).
@@ -172,11 +207,12 @@ def to_canonical_units(
             attrs["units"] = canonical
             ds[var].attrs = attrs
             changed[var] = {"from": current, "to": canonical, "factor": factor}
-            if log_fn:
-                msg = f"  {var}: {current} -> {canonical} (x{factor:g})"
-                if stage is not None and stage != 1:
-                    msg += " - written by a pre-0.5.0 stage 1; regenerate to silence"
-                log_fn(msg)
+            msg = f"  {var}: {current} -> {canonical} (x{factor:g})"
+            if stage is not None and stage != 1:
+                msg += " - written by a pre-0.5.0 stage 1; regenerate to silence"
+            # A real conversion (factor != 1) is worth an INFO line; a pure spelling
+            # rewrite is DEBUG detail.
+            (log.info if factor != 1.0 else log.debug)(msg)
         # CF 1.11: mark the temperature scale so a reader can tell a scale value from
         # a difference.  Landed at every boundary like the units string itself.
         if canonical == "degree_Celsius":

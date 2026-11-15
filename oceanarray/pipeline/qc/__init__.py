@@ -3,13 +3,17 @@
 from __future__ import annotations
 
 import copy
+import logging
 from typing import Any
 
 import numpy as np
 import xarray as xr
 
+from oceanarray import logger
 from oceanarray.config import parameters as params
 from oceanarray.pipeline.units import UnitsError
+
+log = logging.getLogger(__name__)
 
 # Merge priority for combining QC flags (higher priority wins = worse quality).
 # Single source of truth: parameters.QC_MERGE_PRIORITY, shared with
@@ -303,6 +307,32 @@ def compute_salinity_data(
     ds: xr.Dataset,
     log_fn: Any = None,
 ) -> xr.Dataset:
+    """Compute Practical Salinity (SP) data values only — no QC flags yet (public entry).
+
+    This logs through the ``oceanarray.pipeline.qc`` logger; see
+    :func:`_compute_salinity_data` for the full behaviour. The ``log_fn`` callback is
+    deprecated (removed in 0.7.0) — if given, each message is still passed to it and a
+    :class:`DeprecationWarning` is raised; configure logging instead.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset carrying temperature, conductivity and pressure (modified in place).
+    log_fn : callable, optional
+        Deprecated legacy callback; see above.
+
+    Returns
+    -------
+    xarray.Dataset
+        *ds*, with a ``salinity`` variable added when the inputs are present.
+    """
+    with logger.deprecated_log_fn(log_fn):
+        return _compute_salinity_data(ds)
+
+
+def _compute_salinity_data(
+    ds: xr.Dataset,
+) -> xr.Dataset:
     """Compute Practical Salinity (SP) data values only — no QC flags yet.
 
     Call this BEFORE ``apply_qc_tests`` so that salinity participates in the
@@ -313,6 +343,16 @@ def compute_salinity_data(
     :func:`oceanarray.pipeline.units.to_canonical_units` first, which converts any
     S/m input.  A non-canonical unit here means that pass was skipped and the ×10 is
     missing, so this raises rather than compute salinity 10× too small from S/m.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset carrying temperature, conductivity and pressure (modified in place).
+
+    Returns
+    -------
+    xarray.Dataset
+        *ds*, with a ``salinity`` variable added when the inputs are present.
     """
     required = {"temperature", "conductivity", "pressure"}
     if not required.issubset(ds.data_vars):
@@ -328,8 +368,7 @@ def compute_salinity_data(
     try:
         import gsw
     except ImportError:
-        if log_fn:
-            log_fn("  WARNING: gsw not installed — salinity not computed")
+        log.warning("gsw not installed — salinity not computed")
         return ds
 
     C = ds["conductivity"].values.astype(float)  # mS/cm

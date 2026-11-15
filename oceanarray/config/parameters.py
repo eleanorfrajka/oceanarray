@@ -343,6 +343,11 @@ INSTRUMENT_FILE_TYPES: dict = {
     # east/north), e.g. an Aanderaa RCM from an OceanSITES or RODB archive.  Read by
     # oceanarray's own readers (oceanarray.readers), not seasenselib.
     "currentmeter": ["oceansites", "rodb"],
+    # A temperature-only logger delivered already processed as an OceanSITES "MT"
+    # file (e.g. OS_OSNAP-CF1_201408_MT_60m.nc) — WHOI / NIOZ thermistors on the
+    # OSNAP moorings.  Read by oceanarray's own readers, not seasenselib.  Add raw
+    # readers here when a real raw thermistor file needs them.
+    "thermistor": ["oceansites"],
     "tr1050": ["rbr-hex"],  # RBR TR-1050 thermistor chain
     "rbrsolo": ["rbr-rsk"],  # RBR soloT — single-channel temperature
     "rbrduet": ["rbr-rsk"],  # RBR duet — temperature + pressure or T+C
@@ -356,6 +361,31 @@ INSTRUMENT_FILE_TYPES: dict = {
 # Derived: set of allowed ``instrument:`` values in mooring YAML files.
 KNOWN_INSTRUMENT_TYPES: frozenset = frozenset(INSTRUMENT_FILE_TYPES.keys())
 
+_KNOWN_INSTRUMENT_TYPES_LOWER: frozenset = frozenset(
+    t.lower() for t in KNOWN_INSTRUMENT_TYPES
+)
+
+
+def is_known_instrument_type(instrument: str) -> bool:
+    """Return whether *instrument* names a known instrument class.
+
+    The match ignores case: the YAML spelling of an ADCP is upper-case
+    (``ADCP``) and every other type is lower-case, so ``adcp`` and ``ADCP`` are
+    one type.
+
+    Parameters
+    ----------
+    instrument : str
+        The ``instrument:`` value from a mooring YAML.
+
+    Returns
+    -------
+    bool
+        True if *instrument* is one of :data:`KNOWN_INSTRUMENT_TYPES`.
+    """
+    return instrument.lower() in _KNOWN_INSTRUMENT_TYPES_LOWER
+
+
 #: Which instruments may share a depth across deployments in a
 #: concatenated stack. A temperature-only logger is hydrography, so it can sit in
 #: one depth with a CTD of another year. ADCP bins (and the ADCP head) are their
@@ -365,6 +395,7 @@ INSTRUMENT_FAMILIES: dict[str, str] = {
     "microcat": "hydrography",
     "sbe56": "hydrography",
     "sbe16": "hydrography",
+    "thermistor": "hydrography",
     "tr1050": "hydrography",
     "rbrsolo": "hydrography",
     "rbrduet": "hydrography",

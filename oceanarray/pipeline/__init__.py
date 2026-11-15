@@ -600,9 +600,11 @@ def _process_stages(
                 + "\n  - ".join(run.failed)
             )
     if outcome.failures:
-        print(
-            f"WARNING: {name}: {len(outcome.failures)} failure(s) left behind by "
-            "keep_going (see the stage logs):\n  - " + "\n  - ".join(outcome.failures)
+        _log.warning(
+            "%s: %d failure(s) left behind by keep_going (see the stage logs):\n  - %s",
+            name,
+            len(outcome.failures),
+            "\n  - ".join(outcome.failures),
         )
 
 

@@ -1,6 +1,7 @@
 """Grid a mooring's stack onto regular pressure levels: the pure :func:`grid` and MooringGridder."""
 
 import json
+import logging
 import warnings
 from collections.abc import Iterable, Mapping
 from pathlib import Path
@@ -15,6 +16,8 @@ from oceanarray.pipeline.concat import chunks, is_site_stack, own_levels, sha256
 from oceanarray.pipeline.units import to_canonical_units
 from oceanarray.writers import write
 from oceanarray.writers.netcdf import as_stored
+
+log = logging.getLogger(__name__)
 
 #: The velocity variables: one ``mask_flags`` key, ``velocity``, sets the flags
 #: masked in all of them (by ``velocity_flag`` and the ADCP seabed, percent-good and
@@ -195,13 +198,13 @@ def grid(
 
     # Canonicalise the stack's units (idempotent on a 0.5.0 stack; rewrites a
     # pre-0.5.0 one) so the grid inherits one spelling per quantity.
-    ds = to_canonical_units(ds_stack, log_fn=print, stage="grid")
+    ds = to_canonical_units(ds_stack, stage="grid")
     site = is_site_stack(ds)
     level_dim = "N_DEPTHS" if site else "N_LEVELS"
     n_time = ds.sizes["time"]
     n_instr = ds.sizes[level_dim]
 
-    print(
+    log.info(
         f"Gridding {n_instr} {'depths' if site else 'instruments'} → {n_p} pressure "
         f"levels ({pmin:.0f}:{dp:.0f}:{pmax:.0f} dbar) × {n_time} time steps"
     )
@@ -244,7 +247,7 @@ def grid(
     ]
     excluded = sorted(v for v in candidates if v in _GRID_EXCLUDE)
     if excluded:
-        print(
+        log.debug(
             f"  NOTE: {len(excluded)} variable(s) not gridded (instrument-frame, "
             f"diagnostic or flag): {', '.join(excluded)}"
         )
@@ -357,7 +360,7 @@ def grid(
     if site:
         ds_out.attrs.update(_slope_attrs(ds_out, slope_angle))
 
-    return as_stored(to_canonical_units(ds_out, log_fn=print, stage="grid"))
+    return as_stored(to_canonical_units(ds_out, stage="grid"))
 
 
 def _speed_direction(
@@ -429,8 +432,8 @@ def _slope_attrs(ds: xr.Dataset, slope_angle: float | None) -> dict[str, object]
         float(np.hypot(mean_east, mean_north)) / mean_speed if mean_speed > 0 else 0.0
     )
     if not steadiness >= params.SLOPE_STEADINESS_MIN:
-        print(
-            f"  WARNING: no along-slope direction: the mean flow is weak against its "
+        log.warning(
+            f"no along-slope direction: the mean flow is weak against its "
             f"variability (steadiness {steadiness:.2f} < "
             f"{params.SLOPE_STEADINESS_MIN:g}); give slope_angle (--slope-angle)."
         )
@@ -530,8 +533,8 @@ def _warn_other_settings(ds: xr.Dataset, used: Mapping[str, object]) -> None:
             if not same:
                 differ.append(f"{key} {value}")
         if differ:
-            print(
-                f"  WARNING: {name}'s own grid: settings ({', '.join(differ)}) differ "
+            log.warning(
+                f"{name}'s own grid: settings ({', '.join(differ)}) differ "
                 "from the site grid's; the site grid uses the call's (recorded in the file)."
             )
 
@@ -615,7 +618,7 @@ def grid_site(
     out.attrs["stackcat_file"] = stackcat.name
     out.attrs["stackcat_sha256"] = sha256(stackcat)
     write(out, out_path, overwrite=overwrite, chunks=chunks(out))
-    print(f"wrote {out_path}")
+    log.info(f"wrote {out_path}")
     return out_path
 
 
@@ -687,14 +690,17 @@ class MooringGridder:
             stack_found = merge_path.exists()
             output_found = output_path.exists()
         except (TimeoutError, OSError) as exc:
-            print("ERROR: Cannot access data drive — is it connected?")
-            print(f"       Path: {merge_path.parent}")
-            print(f"       ({type(exc).__name__}: {exc})")
+            log.error(
+                "Cannot access data drive — is it connected? "
+                f"Path: {merge_path.parent} ({type(exc).__name__}: {exc})"
+            )
             return False
 
         if not stack_found:
-            print(f"ERROR: Stack file not found: {merge_path}")
-            print("       Run 'oceanarray process MOORING --stage stack' first.")
+            log.error(
+                f"Stack file not found: {merge_path} — run "
+                "'oceanarray process MOORING --stage stack' first."
+            )
             return False
 
         if output_found and not force:
@@ -707,14 +713,16 @@ class MooringGridder:
             ) as ds:
                 ds_stack = ds.load()
         except (TimeoutError, OSError) as exc:
-            print("ERROR: Cannot read stack file — is the data drive connected?")
-            print(f"       ({type(exc).__name__}: {exc})")
+            log.error(
+                "Cannot read stack file — is the data drive connected? "
+                f"({type(exc).__name__}: {exc})"
+            )
             return False
 
         try:
             ds_out = grid(ds_stack, pmin=p_start, pmax=p_end, dp=dp)
         except ValueError as exc:
-            print(f"ERROR: {exc}")
+            log.error(str(exc))
             return False
         # write() replaces atomically (temp file then rename), so the previous
         # output survives a failed write; do not unlink it first.
@@ -727,7 +735,7 @@ def _warn_slow_instruments(ds: xr.Dataset) -> None:
     """Warn for the instruments the stack recorded as sampling slower than its step."""
     slow = ds.attrs.get("instruments_slower_than_step")
     if slow:
-        print(
-            f"  WARNING: sampled slower than the stack step: {slow}; the grid leaves "
+        log.warning(
+            f"sampled slower than the stack step: {slow}; the grid leaves "
             "the steps between their samples empty."
         )

@@ -10,15 +10,11 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from oceanarray import logger
 from oceanarray.readers.nortek import (
     _canonical_nortek_var_name,
     _parse_nortek_csv_columns,
     load_nortek_csv,
 )
-
-logger.disable_logging()
-
 
 # ---------------------------------------------------------------------------
 # Helpers

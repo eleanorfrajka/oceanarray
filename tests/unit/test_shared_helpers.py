@@ -6,7 +6,6 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from oceanarray import logger
 from oceanarray.instruments import extract_inline_instruments, instrument_entries
 from oceanarray.legacy.convertOS import is_iso8601_utc, iso8601_duration_from_seconds
 from oceanarray.legacy.mooring_rodb import concat_with_scalar_vars
@@ -25,8 +24,6 @@ from oceanarray.pipeline.gridders.rapid_interp import (
 )
 from oceanarray.plotters.primitives import nice_colorbar_bounds, nice_colorbar_ticks
 from oceanarray.writers.dtypes import find_best_dtype
-
-logger.disable_logging()
 
 
 def test_concat_with_scalar_vars_preserves_scalars():

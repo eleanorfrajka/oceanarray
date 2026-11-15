@@ -227,3 +227,10 @@ Other changes
   (CF deprecated ``direction_of_sea_water_velocity``).
 - Stage files without a ``processing_stage`` marker are read with a warning until
   0.7.0; mark them once with ``oceanarray stamp FILE... --declare N``.
+- **Logging replaces the ``log_fn`` callback.** The transforms
+  (``to_canonical_units``, ``interpolate_pressure``, the ADCP-QC functions, …) log
+  through the ``oceanarray`` logger hierarchy. A ``log_fn=`` argument still works but
+  warns and is removed in 0.7.0; configure logging instead (the CLI does this — ``-q``
+  / ``-v`` set the level). ``oceanarray.logger.enable_logging`` / ``disable_logging``
+  are likewise deprecated — set ``logging.getLogger("oceanarray").disabled`` or use
+  ``logging.disable``.

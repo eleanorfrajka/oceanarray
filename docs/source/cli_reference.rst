@@ -25,8 +25,13 @@ forms:
    oceanarray run dsG3_1_2026 --proc-dir /data/proc --raw-dir /data/raw   # the same
 
 ``--only SERIAL ...`` restricts a command to those instruments (``--serial`` is the
-old spelling, accepted until 0.7.0).  ``-v`` (before or after the command name)
-also prints the processing stages' debug messages.
+old spelling, accepted until 0.7.0).  Progress goes to stderr through standard
+logging, tagged by level and module, about one line per step; a command's result
+stays on stdout (so ``oceanarray list | grep`` works).  ``-v`` (before or after the
+command name) adds the per-instrument debug detail; ``-q`` prints only warnings and
+errors.  Each ``run`` ends with a per-mooring summary of the warnings it raised,
+also written to ``{proc_dir}/{name}/processing_logs/{name}_summary.json`` so a
+multi-mooring script can combine them.
 
 Without ``--force``, the stages keep a file that already exists (stage 1 also
 rewrites one older than its raw file) and the report pages keep one newer than its

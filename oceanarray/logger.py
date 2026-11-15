@@ -1,112 +1,189 @@
 """Logging configuration and helpers for the oceanarray processing pipeline."""
 
+import contextlib
 import datetime
 import functools
 import logging
 import sys
-from collections.abc import Callable
+import warnings
+from collections.abc import Callable, Iterator
 from pathlib import Path
 from typing import Any
 
-# Global logger instance (will be configured by setup_logger)
+import pandas as pd
+
+#: The package logger. Modules log through ``logging.getLogger(__name__)`` (e.g.
+#: ``oceanarray.pipeline.stack``); those loggers propagate here, where the stage
+#: handlers and the console live. A :class:`~logging.NullHandler` keeps library
+#: use silent until a caller (or the CLI) configures logging.
 log = logging.getLogger("oceanarray")
 log.setLevel(logging.DEBUG)  # capture everything; handlers filter later
+log.addHandler(logging.NullHandler())
 
 #: Level of the console handler a processing stage attaches (``oceanarray -v``: DEBUG).
 CONSOLE_LEVEL = logging.INFO
 
-# Global logging flag
-# Set to True to enable logging, False to disable
-LOGGING_ENABLED = True
+#: Deprecation text for the ``log_fn=`` parameter on the public transform functions.
+LOG_FN_DEPRECATED = (
+    "log_fn= is deprecated and removed in 0.7.0; oceanarray logs through the "
+    "'oceanarray' logger hierarchy — configure logging instead of passing a callback."
+)
 
 
-def enable_logging() -> None:
-    """Enable logging globally."""
-    global LOGGING_ENABLED
-    LOGGING_ENABLED = True
+class _CallbackHandler(logging.Handler):
+    """Forward each record's message to a plain callback (the deprecated ``log_fn``)."""
+
+    def __init__(self, callback: Callable[[str], None]) -> None:
+        """Store *callback* and handle every level."""
+        super().__init__(level=logging.DEBUG)
+        self._callback = callback
+        self._in_callback = False
+
+    def emit(self, record: logging.LogRecord) -> None:
+        """Hand the record's message to the callback.
+
+        A legacy ``log_fn`` may itself log to the ``oceanarray`` logger (the old
+        wrappers did); the reentrancy guard stops that re-emitted record from
+        being forwarded again, which would otherwise loop.
+        """
+        if self._in_callback:
+            return
+        self._in_callback = True
+        try:
+            self._callback(record.getMessage())
+        finally:
+            self._in_callback = False
 
 
-def disable_logging() -> None:
-    """Disable logging globally."""
-    global LOGGING_ENABLED
-    LOGGING_ENABLED = False
+def deprecated_log_fn(
+    log_fn: Callable[[str], None] | None,
+) -> contextlib.AbstractContextManager:
+    """Warn on a legacy ``log_fn`` and forward the package's records to it in the block.
 
-
-def log_info(message: str, *args: Any) -> None:
-    """Log an info message, if logging is enabled."""
-    if LOGGING_ENABLED:
-        log.info(message, *args, stacklevel=2)
-
-
-def log_warning(message: str, *args: Any) -> None:
-    """Log a warning message, if logging is enabled."""
-    if LOGGING_ENABLED:
-        log.warning(message, *args, stacklevel=2)
-
-
-def log_message(message: Any) -> None:
-    """Log a pipeline status line, as a warning when it starts with ``WARNING``.
+    The public transform functions (``to_canonical_units``, ``interpolate_pressure``,
+    the ADCP-QC functions, …) used to take a ``log_fn`` callback. They now log through
+    their module logger; this keeps a caller that still passes ``log_fn`` working for
+    one release — every record is also handed to the callback — while raising a
+    :class:`DeprecationWarning`. A ``None`` callback warns nothing and forwards nothing.
 
     Parameters
     ----------
-    message : Any
-        The line to log; converted with ``str``.
+    log_fn : callable or None
+        The legacy callback, called with each log message; ``None`` is a no-op.
 
-    Examples
-    --------
-    >>> log_message("  SKIP microcat 2941: marked skip")
-    >>> log_message("WARNING: serial 2941 has no 'hab'")
+    Returns
+    -------
+    contextlib.AbstractContextManager
+        A context manager to wrap the function body.
     """
-    text = str(message)
-    if text.lstrip().startswith("WARNING"):
-        log_warning("%s", text)
-    else:
-        log_info("%s", text)
+    if log_fn is not None:
+        warnings.warn(LOG_FN_DEPRECATED, DeprecationWarning, stacklevel=3)
+    return _forward_to_callback(log_fn)
 
 
-def log_error(message: str, *args: Any) -> None:
-    """Log an error message, if logging is enabled."""
-    if LOGGING_ENABLED:
-        log.error(message, *args, stacklevel=2)
+@contextlib.contextmanager
+def _forward_to_callback(log_fn: Callable[[str], None] | None) -> Iterator[None]:
+    """Forward the ``oceanarray`` logger's records to *log_fn* for the length of the block."""
+    if log_fn is None:
+        yield
+        return
+    handler = _CallbackHandler(log_fn)
+    log.addHandler(handler)
+    try:
+        yield
+    finally:
+        log.removeHandler(handler)
 
 
-def log_debug(message: str, *args: Any) -> None:
-    """Log a debug message, if logging is enabled."""
-    if LOGGING_ENABLED:
-        log.debug(message, *args, stacklevel=2)
+def enable_logging() -> None:
+    """Re-enable the ``oceanarray`` logger.
+
+    .. deprecated:: 0.6.1
+        Removed in 0.7.0. The library no longer gates logging on a global flag;
+        the ``oceanarray`` logger is enabled by default. Configure it (or
+        :func:`logging.disable`) directly instead.
+    """
+    warnings.warn(
+        "enable_logging() is deprecated and removed in 0.7.0; the 'oceanarray' "
+        "logger is enabled by default — configure it directly.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    logging.getLogger("oceanarray").disabled = False
+
+
+def disable_logging() -> None:
+    """Silence the ``oceanarray`` logger.
+
+    .. deprecated:: 0.6.1
+        Removed in 0.7.0. Set ``logging.getLogger("oceanarray").disabled = True``
+        (or use :func:`logging.disable`) instead.
+    """
+    warnings.warn(
+        "disable_logging() is deprecated and removed in 0.7.0; set "
+        "logging.getLogger('oceanarray').disabled = True (or logging.disable).",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    logging.getLogger("oceanarray").disabled = True
+
+
+def configure_console(level: int | None = None) -> logging.Handler:
+    """Attach a console handler (stderr, level-tagged) to the package logger.
+
+    The CLI calls this once so every command's messages reach the terminal; the
+    Python API configures logging itself (the library adds only a
+    :class:`~logging.NullHandler`). Progress goes to stderr so a command's result
+    on stdout stays pipeable. Idempotent: it replaces the console handler a prior
+    call attached, so ``-q`` / ``-v`` can set the level without stacking handlers.
+
+    Parameters
+    ----------
+    level : int, optional
+        The console level; defaults to :data:`CONSOLE_LEVEL`.
+
+    Returns
+    -------
+    logging.Handler
+        The console handler attached.
+    """
+    for handler in [
+        h for h in log.handlers if getattr(h, "_oceanarray_console", False)
+    ]:
+        log.removeHandler(handler)
+    console = logging.StreamHandler(sys.stderr)
+    console.setLevel(CONSOLE_LEVEL if level is None else level)
+    console.setFormatter(logging.Formatter("%(levelname)-7s %(name)s: %(message)s"))
+    console._oceanarray_console = True  # type: ignore[attr-defined]  # tag for replacement
+    log.addHandler(console)
+    return console
 
 
 def attach_stage_handlers(log_file: Path | None) -> list[logging.Handler]:
-    """Send the package's INFO-and-above messages to stdout and *log_file*.
+    """Attach a DEBUG file handler for a processing stage's own log.
 
-    The console takes :data:`CONSOLE_LEVEL` and above (DEBUG with
-    ``oceanarray -v``).
-
-    A processing stage calls this when it starts, so the messages its pure
-    functions log reach the console and the stage log as they did when the stage
-    printed them. Detach with :func:`detach_handlers`.
+    The stage log keeps the full DEBUG detail with the bare message. The console
+    is configured separately (:func:`configure_console`, by the CLI or an API
+    caller), so a stage does not add its own console handler and running one never
+    doubles console output. Detach with :func:`detach_handlers`.
 
     Parameters
     ----------
     log_file : pathlib.Path or None
-        The stage log file; None sends to stdout only.
+        The stage log file; None attaches nothing.
 
     Returns
     -------
     list of logging.Handler
         The handlers attached, for :func:`detach_handlers`.
     """
-    formatter = logging.Formatter("%(message)s")
-    handlers: list[logging.Handler] = [logging.StreamHandler(sys.stdout)]
-    if log_file is not None:
-        handlers.append(logging.FileHandler(log_file, encoding="utf-8"))
-    handlers[0].setLevel(CONSOLE_LEVEL)
-    for handler in handlers[1:]:
-        handler.setLevel(logging.INFO)
-    for handler in handlers:
-        handler.setFormatter(formatter)
-        log.addHandler(handler)
-    return handlers
+    if log_file is None:
+        return []
+    file_handler = logging.FileHandler(log_file, encoding="utf-8")
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(logging.Formatter("%(message)s"))
+    log.addHandler(file_handler)
+    return [file_handler]
 
 
 def detach_handlers(handlers: list[logging.Handler]) -> None:
@@ -172,53 +249,6 @@ def with_stage_handlers(method: Callable) -> Callable:
             self._log_handlers = []
 
     return wrapper
-
-
-def setup_logger(array_name: str, output_dir: str = "logs") -> None:
-    """Configure the global logger to output to a file for the given array.
-
-    Parameters
-    ----------
-    array_name : str
-        Name of the observing array (e.g., 'move', 'rapid', etc.).
-    output_dir : str
-        Directory to save log files.
-
-    """
-    if not LOGGING_ENABLED:
-        return
-    # Resolve output directory to project root
-    project_root = Path(__file__).resolve().parent.parent
-    output_path = project_root / output_dir
-    output_path.mkdir(parents=True, exist_ok=True)
-
-    timestamp = datetime.datetime.now().strftime("%Y%m%dT%H")
-    log_filename = f"{array_name.upper()}_{timestamp}_read.log"
-    log_path = output_path / log_filename
-
-    # Prevent duplicate handlers in case of multiple calls
-    if not any(
-        isinstance(h, logging.FileHandler) and h.baseFilename == log_path
-        for h in log.handlers
-    ):
-        file_handler = logging.FileHandler(log_path, encoding="utf-8", mode="w")
-        formatter = logging.Formatter(
-            fmt="%(asctime)s %(levelname)-8s %(funcName)s %(message)s",
-            datefmt="%Y%m%dT%H%M%S",
-        )
-        file_handler.setFormatter(formatter)
-
-        # Optional: console handler
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(formatter)
-
-        # Clear existing handlers first
-        log.handlers.clear()
-
-        log.addHandler(file_handler)
-        log.addHandler(console_handler)
-
-        log.info(f"Logger initialized for array: {array_name}, writing to {log_path}")
 
 
 def load_logging_config() -> dict:
@@ -317,7 +347,11 @@ def setup_stage_logging(mooring_name: str, stage_name: str, proc_dir: Path) -> P
 
 
 def status(kind: str, msg: str, *, char: str = "=") -> None:
-    """Print a formatted status line to stdout.
+    """Log a formatted status line through the package logger.
+
+    A section/instrument heading or an output-kept note is INFO; an output file
+    being created is DEBUG (one per file); an error is ERROR. The console shows
+    these when a stage or the CLI has configured the ``oceanarray`` logger.
 
     Parameters
     ----------
@@ -330,24 +364,18 @@ def status(kind: str, msg: str, *, char: str = "=") -> None:
     char : str, optional
         Border character for ``"section"`` lines; ``"*"`` tells mooring runs apart in a
         multi-mooring script (``*** Stage 1: dsG3_2_2026 ***``).
-
-    Examples
-    --------
-    >>> status("section", "Stage 1: dsG3_2_2026")
-    <BLANKLINE>
-    === Stage 1: dsG3_2_2026 ===
     """
     if kind == "section":
         border = char * 3
-        print(f"\n{border} {msg} {border}")
+        log.info("\n%s %s %s", border, msg, border)
     elif kind == "instr":
-        print(f"\n--- {msg} ---")
+        log.info("\n--- %s ---", msg)
     elif kind == "file":
-        print(f"Creating output file: {msg}")
+        log.debug("Creating output file: %s", msg)
     elif kind == "skip":
-        print(f"  OUTFILE EXISTS: {msg}  (use --force to overwrite)")
+        log.info("OUTFILE EXISTS: %s  (use --force to overwrite)", msg)
     elif kind == "error":
-        print(f"ERROR: {msg}")
+        log.error("%s", msg)
 
 
 def format_rel_path(path: Path, root: Path) -> str:
@@ -380,3 +408,32 @@ def format_rel_path(path: Path, root: Path) -> str:
         return str(path.relative_to(root))
     except ValueError:
         return path.name
+
+
+def format_time(value: Any) -> str:
+    """Return *value* as an ISO-8601 timestamp to whole seconds, for log messages.
+
+    Instrument clocks carry sub-second float noise (``…:59.999996672``); the log
+    rounds to the nearest second. Display only — stored times are unchanged.
+
+    Parameters
+    ----------
+    value : Any
+        A timestamp (``numpy.datetime64``, :class:`pandas.Timestamp`, a string,
+        ...), as accepted by :class:`pandas.Timestamp`.
+
+    Returns
+    -------
+    str
+        ISO-8601 to seconds, or ``"NaT"`` for a missing time.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> format_time(np.datetime64("2016-08-11T09:59:59.999996672"))
+    '2016-08-11T10:00:00'
+    """
+    ts = pd.Timestamp(value)
+    if pd.isna(ts):
+        return "NaT"
+    return ts.round("s").isoformat()

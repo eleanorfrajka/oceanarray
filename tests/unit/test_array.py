@@ -5,6 +5,7 @@ _build_type_summary — all functions with no I/O dependencies that can be
 exercised without fixtures or seasenselib.
 """
 
+import logging
 from pathlib import Path
 
 import pytest
@@ -278,7 +279,7 @@ class TestArrayModeOutputDir:
     """
 
     def test_outdir_warns_but_report_dir_is_honoured(
-        self, tmp_path, capsys, monkeypatch
+        self, tmp_path, caplog, monkeypatch
     ):
         import argparse
 
@@ -308,11 +309,11 @@ class TestArrayModeOutputDir:
             force=False,
         )
 
-        rc = cli.cmd_report(args)
-        out = capsys.readouterr().out
+        with caplog.at_level(logging.ERROR, logger="oceanarray"):
+            rc = cli.cmd_report(args)
 
         assert rc == 0
-        assert "-o/--output-dir is ignored in --array mode" in out
+        assert "-o/--output-dir is ignored in --array mode" in caplog.text
         # The flag that DOES apply in array mode is honoured, not dropped.
         assert seen["report_dir"] == Path(str(central))
 

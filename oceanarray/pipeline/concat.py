@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import contextlib
 import hashlib
+import logging
 import os
 import warnings
 from collections.abc import Mapping, Sequence
@@ -25,6 +26,8 @@ from oceanarray.location import parse_coordinate
 from oceanarray.pipeline import attribution
 from oceanarray.pipeline.dataset import time_axis
 from oceanarray.writers import write
+
+log = logging.getLogger(__name__)
 
 #: Per-level coordinates every stack carries (``N_LEVELS``).
 _LEVEL_COORDS = ("serial", "hab", "instrument_type", "source_stage")
@@ -1023,12 +1026,16 @@ def concat_moorings(
         _check_people_cleaned(stacks, [c["name"] for c in cfgs])
         ds = concat(stacks, name=name, sources=sources, descriptions=cfgs)
     if dry_run:
-        print(
-            f"would write {out_path} ({ds.sizes['time']} steps × {ds.sizes['N_DEPTHS']} "
-            f"depths, {ds.sizes['N_LEVELS']} levels, {ds.sizes['N_OVERLAP']} overlap steps)"
+        log.info(
+            "would write %s (%d steps × %d depths, %d levels, %d overlap steps)",
+            out_path,
+            ds.sizes["time"],
+            ds.sizes["N_DEPTHS"],
+            ds.sizes["N_LEVELS"],
+            ds.sizes["N_OVERLAP"],
         )
         return out_path
     target_dir.mkdir(parents=True, exist_ok=True)
     write(ds, out_path, overwrite=overwrite, chunks=chunks(ds))
-    print(f"wrote {out_path}")
+    log.info("wrote %s", out_path)
     return out_path

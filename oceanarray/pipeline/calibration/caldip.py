@@ -265,9 +265,8 @@ def _warn_unknown_instrument_types(ds: xr.Dataset, path: Path) -> None:
     """Warn on any ``instrument_type`` outside oceanarray's vocabulary."""
     if "instrument_type" not in ds:
         return
-    known = {t.lower() for t in params.KNOWN_INSTRUMENT_TYPES}
     seen = {str(t) for t in np.atleast_1d(ds["instrument_type"].values)}
-    unknown = sorted(t for t in seen if t.lower() not in known)
+    unknown = sorted(t for t in seen if not params.is_known_instrument_type(t))
     if unknown:
         warnings.warn(
             f"{path.name}: instrument_type {unknown} not in oceanarray's vocabulary",

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import math
 from collections.abc import Iterable, Mapping
 from os import PathLike
@@ -10,6 +11,8 @@ from typing import Any
 
 from oceanarray import paths
 from oceanarray.config import parameters as params
+
+log = logging.getLogger(__name__)
 
 #: Stack and grid settings used when neither the call nor the description's
 #: ``stack:`` / ``grid:`` block gives one.
@@ -125,6 +128,7 @@ def run(
     )
     from oceanarray.pipeline.grid import _grid_file
     from oceanarray.pipeline.stack import _stack_file
+    from oceanarray.pipeline.summary import RunSummary
 
     if stack_stage not in (2, 3):
         raise ValueError(f"stack_stage={stack_stage!r}: expected 3 or 2")
@@ -138,87 +142,107 @@ def run(
     name = cfg["name"]
     products = [paths.product_file(moor_dir, name, p) for p in ("stack", "grid")]
     outcome = _Outcome()
+    # Collect the run's warnings on the package logger; the summary is logged and
+    # written to processing_logs/<name>_summary.json at the end, whatever happens.
+    summary = RunSummary()
+    logging.getLogger("oceanarray").addHandler(summary)
     try:
-        _process_stages(
-            cfg,
-            moor_dir,
-            wanted,
-            outcome,
-            serial_list=serial_list,
-            force=force,
-            keep_going=keep_going,
-            raw_dir=raw_dir,
-            caldip_dir=caldip_dir,
-        )
-        print(f"Stack for mooring {name} (dt = {settings['dt_seconds']} s)")
-        stack_path, ds_stack = _stack_file(
-            cfg,
-            moor_dir,
-            dt_seconds=int(settings["dt_seconds"]),
-            keep_going=keep_going,
-            failed=outcome.failed_serials,
-            from_stage2=outcome.stage3_failed or stack_stage == 2,
-            stage2_reason=(
-                "stage 2 requested with stack_stage=2"
-                if stack_stage == 2
-                else "stage 3 failed in this run"
-                if outcome.stage3_failed
-                else None
-            ),
-            failures=outcome.failures,
-        )
-    except Exception:
-        # Whatever stopped the run, a product built from the old stage files no
-        # longer matches the ones it rewrote.
-        if outcome.written:
-            _set_aside_stale(products, "the stage files changed but the run stopped")
-        raise
-    if not keep_going and "instruments_omitted" in ds_stack.attrs:
-        _set_aside_stale(products[1:], "the new stack left instruments out")
-        raise MooringError(
-            f"{name}: the stack left instruments out "
-            f"({ds_stack.attrs['instruments_omitted']}); {stack_path.name} is "
-            "written but not gridded. Fix them, or use keep_going=True."
-        )
-    print(
-        f"Grid for mooring {name} ({settings['pmin']:g}–"
-        f"{settings['pmax']:g} dbar every {settings['dp']:g} dbar)"
-    )
-    try:
-        grid_path = _grid_file(
-            ds_stack,
-            cfg,
-            moor_dir,
-            pmin=settings["pmin"],
-            pmax=settings["pmax"],
-            dp=settings["dp"],
-            mask_flags=flags,
-        )
-    except ValueError as e:
-        if not keep_going:
-            _set_aside_stale(products[1:], "the stack changed but could not be gridded")
-            raise MooringError(f"{name}: cannot grid the stack: {e}") from e
-        print(f"WARNING: keep_going: no grid — {e}")
-        _set_aside_stale(products[1:], "the stack changed but could not be gridded")
-        files = [*outcome.files, stack_path]
-    except Exception:
-        _set_aside_stale(products[1:], "the stack changed but could not be gridded")
-        raise
-    else:
-        files = [*outcome.files, stack_path, grid_path]
-    if report:
-        from oceanarray.reports import report as _report
-
-        files.append(
-            _report(
+        try:
+            _process_stages(
                 cfg,
-                mooring_dir=moor_dir,
-                raw_dir=raw_dir,
-                serials=serial_list,
+                moor_dir,
+                wanted,
+                outcome,
+                serial_list=serial_list,
                 force=force,
+                keep_going=keep_going,
+                raw_dir=raw_dir,
+                caldip_dir=caldip_dir,
             )
+            log.info("Stack for mooring %s (dt = %s s)", name, settings["dt_seconds"])
+            stack_path, ds_stack = _stack_file(
+                cfg,
+                moor_dir,
+                dt_seconds=int(settings["dt_seconds"]),
+                keep_going=keep_going,
+                failed=outcome.failed_serials,
+                from_stage2=outcome.stage3_failed or stack_stage == 2,
+                stage2_reason=(
+                    "stage 2 requested with stack_stage=2"
+                    if stack_stage == 2
+                    else "stage 3 failed in this run"
+                    if outcome.stage3_failed
+                    else None
+                ),
+                failures=outcome.failures,
+            )
+        except Exception:
+            # Whatever stopped the run, a product built from the old stage files no
+            # longer matches the ones it rewrote.
+            if outcome.written:
+                _set_aside_stale(
+                    products, "the stage files changed but the run stopped"
+                )
+            raise
+        if not keep_going and "instruments_omitted" in ds_stack.attrs:
+            _set_aside_stale(products[1:], "the new stack left instruments out")
+            raise MooringError(
+                f"{name}: the stack left instruments out "
+                f"({ds_stack.attrs['instruments_omitted']}); {stack_path.name} is "
+                "written but not gridded. Fix them, or use keep_going=True."
+            )
+        log.info(
+            "Grid for mooring %s (%g-%g dbar every %g dbar)",
+            name,
+            settings["pmin"],
+            settings["pmax"],
+            settings["dp"],
         )
-    return files
+        try:
+            grid_path = _grid_file(
+                ds_stack,
+                cfg,
+                moor_dir,
+                pmin=settings["pmin"],
+                pmax=settings["pmax"],
+                dp=settings["dp"],
+                mask_flags=flags,
+            )
+        except ValueError as e:
+            if not keep_going:
+                _set_aside_stale(
+                    products[1:], "the stack changed but could not be gridded"
+                )
+                raise MooringError(f"{name}: cannot grid the stack: {e}") from e
+            log.warning("keep_going: no grid — %s", e)
+            _set_aside_stale(products[1:], "the stack changed but could not be gridded")
+            files = [*outcome.files, stack_path]
+        except Exception:
+            _set_aside_stale(products[1:], "the stack changed but could not be gridded")
+            raise
+        else:
+            files = [*outcome.files, stack_path, grid_path]
+        if report:
+            from oceanarray.reports import report as _report
+
+            files.append(
+                _report(
+                    cfg,
+                    mooring_dir=moor_dir,
+                    raw_dir=raw_dir,
+                    serials=serial_list,
+                    force=force,
+                )
+            )
+        return files
+    finally:
+        logging.getLogger("oceanarray").removeHandler(summary)
+        # A summary-write failure (e.g. a read-only processing_logs) must not mask
+        # the run's own outcome — whether it returned files or is raising.
+        try:
+            summary.finish(name, moor_dir)
+        except OSError as exc:
+            log.warning("could not write the run summary for %s: %s", name, exc)
 
 
 def _resolve_stages(
@@ -293,8 +317,11 @@ def _set_aside_stale(paths_: list[Path], why: str) -> None:
             stale = paths.stale_file(path)
             # One stale copy per product: a later rename replaces it.
             path.replace(stale)
-            print(
-                f"  renamed {path.name} to {stale.name}: {why}, so it no longer matched."
+            log.warning(
+                "renamed %s to %s: %s, so it no longer matched.",
+                path.name,
+                stale.name,
+                why,
             )
 
 

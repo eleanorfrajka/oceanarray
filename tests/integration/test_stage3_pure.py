@@ -6,6 +6,7 @@ the committed stage-3 fixtures. Also covers the stage-marker guard and the
 ``mooring_name`` identity check ``read_mooring`` applies to stage files.
 """
 
+import logging
 import shutil
 from pathlib import Path
 
@@ -128,9 +129,8 @@ def test_stage3_leaves_its_input_datasets_unchanged():
         assert _values_identical(ds, before[serial]) == [], serial
 
 
-def test_stage3_processor_logs_to_console_and_stage_log(tmp_path, capsys, monkeypatch):
-    """The pure function's messages reach stdout and the stage log, as before the carve."""
-    monkeypatch.setattr("oceanarray.logger.LOGGING_ENABLED", True)
+def test_stage3_processor_logs_to_console_and_stage_log(tmp_path, caplog):
+    """The pure function's messages reach the logger and the stage log, as before the carve."""
     from oceanarray.pipeline.stage3 import Stage3Processor
 
     shutil.copytree(
@@ -138,11 +138,11 @@ def test_stage3_processor_logs_to_console_and_stage_log(tmp_path, capsys, monkey
         tmp_path / "dune2_1_2026",
         ignore=shutil.ignore_patterns("*_stack.nc", "*_grid.nc"),
     )
-    assert Stage3Processor(proc_dir=str(tmp_path)).process_mooring(
-        "dune2_1_2026", force=True
-    )
-    out = capsys.readouterr().out
-    assert "Pressure sources (1): aquadopp 9920" in out
+    with caplog.at_level(logging.INFO, logger="oceanarray"):
+        assert Stage3Processor(proc_dir=str(tmp_path)).process_mooring(
+            "dune2_1_2026", force=True
+        )
+    assert "Pressure sources (1): aquadopp 9920" in caplog.text
     logs = list((tmp_path / "dune2_1_2026").rglob("*stage3*.log"))
     assert logs, "no stage-3 log written"
     assert "Pressure sources (1): aquadopp 9920" in logs[0].read_text()

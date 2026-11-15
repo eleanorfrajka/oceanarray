@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 import numpy as np
 import xarray as xr
+
+from oceanarray import logger
+
+log = logging.getLogger(__name__)
 
 
 def apply_adcp_seabed_qc(
@@ -47,7 +52,9 @@ def apply_adcp_seabed_qc(
         Default 20 m.  Bins between 0 and *fail_margin_m* below the seabed receive
         flag 3; bins more than *fail_margin_m* below receive flag 4.
     log_fn : callable, optional
-        Logging callback.
+        Deprecated legacy callback (removed in 0.7.0); messages now log through the
+        ``oceanarray.pipeline.qc.adcp`` logger. A passed callback still receives each
+        message for one release and raises a :class:`DeprecationWarning`.
 
     Returns
     -------
@@ -56,13 +63,22 @@ def apply_adcp_seabed_qc(
         Returns *ds* unchanged if ``water_depth_m <= 0`` or ``bin_pressure`` is absent.
 
     """
+    with logger.deprecated_log_fn(log_fn):
+        return _apply_adcp_seabed_qc(ds, water_depth_m, lat, fail_margin_m)
+
+
+def _apply_adcp_seabed_qc(
+    ds: xr.Dataset,
+    water_depth_m: float,
+    lat: float,
+    fail_margin_m: float = 20.0,
+) -> xr.Dataset:
+    """Flag ADCP bins at or below the seabed; see :func:`apply_adcp_seabed_qc`."""
     if water_depth_m <= 0:
-        if log_fn:
-            log_fn("  seabed QC: skipped (waterdepth not set in mooring YAML)")
+        log.warning("  seabed QC: skipped (waterdepth not set in mooring YAML)")
         return ds
     if "bin_pressure" not in ds.data_vars:
-        if log_fn:
-            log_fn("  seabed QC: skipped (bin_pressure not in dataset)")
+        log.warning("  seabed QC: skipped (bin_pressure not in dataset)")
         return ds
 
     import gsw
@@ -96,13 +112,12 @@ def apply_adcp_seabed_qc(
         },
     )
 
-    if log_fn:
-        log_fn(
-            f"  seabed QC: water_depth={water_depth_m:.0f} m, "
-            f"p_seabed={p_seabed:.1f} dbar, "
-            f"p_fail={p_fail:.1f} dbar (+{fail_margin_m:.0f} m), "
-            f"suspect={n_suspect}, bad={n_bad}"
-        )
+    log.info(
+        f"  seabed QC: water_depth={water_depth_m:.0f} m, "
+        f"p_seabed={p_seabed:.1f} dbar, "
+        f"p_fail={p_fail:.1f} dbar (+{fail_margin_m:.0f} m), "
+        f"suspect={n_suspect}, bad={n_bad}"
+    )
     return ds
 
 
@@ -142,7 +157,9 @@ def apply_adcp_surface_qc(
         0 < bin_pressure < p_from_z(-suspect_margin_m) receive flag 3; bins
         with bin_pressure ≤ 0 receive flag 4.  Default 20 m.
     log_fn : callable, optional
-        Logging callback.
+        Deprecated legacy callback (removed in 0.7.0); messages now log through the
+        ``oceanarray.pipeline.qc.adcp`` logger. A passed callback still receives each
+        message for one release and raises a :class:`DeprecationWarning`.
 
     Returns
     -------
@@ -151,9 +168,18 @@ def apply_adcp_surface_qc(
         Returns *ds* unchanged if ``bin_pressure`` is absent.
 
     """
+    with logger.deprecated_log_fn(log_fn):
+        return _apply_adcp_surface_qc(ds, lat, suspect_margin_m)
+
+
+def _apply_adcp_surface_qc(
+    ds: xr.Dataset,
+    lat: float,
+    suspect_margin_m: float = 20.0,
+) -> xr.Dataset:
+    """Flag ADCP bins at or above the sea surface; see :func:`apply_adcp_surface_qc`."""
     if "bin_pressure" not in ds.data_vars:
-        if log_fn:
-            log_fn("  surface QC: skipped (bin_pressure not in dataset)")
+        log.warning("  surface QC: skipped (bin_pressure not in dataset)")
         return ds
 
     import gsw
@@ -184,11 +210,10 @@ def apply_adcp_surface_qc(
         },
     )
 
-    if log_fn:
-        log_fn(
-            f"  surface QC: p_suspect={p_suspect:.1f} dbar ({suspect_margin_m:.0f} m), "
-            f"suspect={n_suspect}, bad={n_bad}"
-        )
+    log.info(
+        f"  surface QC: p_suspect={p_suspect:.1f} dbar ({suspect_margin_m:.0f} m), "
+        f"suspect={n_suspect}, bad={n_bad}"
+    )
     return ds
 
 
@@ -263,7 +288,9 @@ def apply_adcp_velocity_qc(
     error_vel_threshold : float
         ``|error_velocity|`` above this → flag 4 (bad). m s⁻¹.
     log_fn : callable, optional
-        Logging callback.
+        Deprecated legacy callback (removed in 0.7.0); messages now log through the
+        ``oceanarray.pipeline.qc.adcp`` logger. A passed callback still receives each
+        message for one release and raises a :class:`DeprecationWarning`.
 
     Returns
     -------
@@ -281,6 +308,20 @@ def apply_adcp_velocity_qc(
         Variables are standalone; no merging across criteria is performed.
 
     """
+    with logger.deprecated_log_fn(log_fn):
+        return _apply_adcp_velocity_qc(
+            ds, gr_cfg, prcnt_gd_bad, prcnt_gd_suspect, error_vel_threshold
+        )
+
+
+def _apply_adcp_velocity_qc(
+    ds: xr.Dataset,
+    gr_cfg: dict[str, Any],
+    prcnt_gd_bad: float,
+    prcnt_gd_suspect: float,
+    error_vel_threshold: float,
+) -> xr.Dataset:
+    """Apply QC to ADCP 2D velocity variables; see :func:`apply_adcp_velocity_qc`."""
     # 1. Gross-range on each ENU velocity component independently.
     #    Flags only reflect whether that component's value is out of range.
     for varname in ("east_velocity", "north_velocity", "up_velocity"):
@@ -340,11 +381,10 @@ def apply_adcp_velocity_qc(
         ).astype(np.int8)
         n_bad_pg = int(np.sum(pg_flags == 4))
         n_susp_pg = int(np.sum(pg_flags == 3))
-        if log_fn:
-            log_fn(
-                f"  ADCP percent_good QC (col-3 4-beam): bad={n_bad_pg}, suspect={n_susp_pg} "
-                f"(thresholds: bad<{prcnt_gd_bad}%, suspect<{prcnt_gd_suspect}%)"
-            )
+        log.info(
+            f"  ADCP percent_good QC (col-3 4-beam): bad={n_bad_pg}, suspect={n_susp_pg} "
+            f"(thresholds: bad<{prcnt_gd_bad}%, suspect<{prcnt_gd_suspect}%)"
+        )
         from oceanarray.config import parameters as params
 
         ds["percent_good_qc"] = xr.Variable(
@@ -369,11 +409,10 @@ def apply_adcp_velocity_qc(
             np.where(np.abs(ev) > error_vel_threshold, np.int8(4), np.int8(1)),
         ).astype(np.int8)
         n_ev_bad = int(np.sum(ev_flags == 4))
-        if log_fn:
-            log_fn(
-                f"  ADCP error_velocity QC: bad={n_ev_bad} "
-                f"(threshold: |ev|>{error_vel_threshold:.2f} m s-1). Standalone."
-            )
+        log.info(
+            f"  ADCP error_velocity QC: bad={n_ev_bad} "
+            f"(threshold: |ev|>{error_vel_threshold:.2f} m s-1). Standalone."
+        )
         ds["error_velocity_qc"] = xr.Variable(
             ds["error_velocity"].dims,
             ev_flags,

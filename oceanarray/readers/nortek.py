@@ -6,6 +6,7 @@ tidies the dataset seasenselib produces; :func:`load_nortek_csv` reads the
 AquaPro CSV export directly.
 """
 
+import logging
 import re
 from pathlib import Path
 
@@ -13,7 +14,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from oceanarray.logger import log_info
+log = logging.getLogger(__name__)
 
 
 def _parse_nortek_coord_system(hdr_path: Path) -> str:
@@ -500,5 +501,5 @@ def load_nortek_csv(
 
     ds = _add_nortek_csv_attributes(ds)
 
-    log_info("Nortek CSV: loaded %d samples from %s", len(times), file_path.name)
+    log.debug("Nortek CSV: loaded %d samples from %s", len(times), file_path.name)
     return ds

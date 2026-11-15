@@ -5,6 +5,7 @@ On the committed dune2 stage-3 fixtures (MicroCAT 2941 at 60 s, Aquadopp 9920 at
 """
 
 import copy
+import logging
 import shutil
 import warnings
 from pathlib import Path
@@ -277,27 +278,29 @@ def test_a_sample_half_a_step_from_two_steps_lands_on_one(stage3, cfg):
     assert np.isfinite(old).sum() > np.isfinite(out).sum()
 
 
-def test_a_slower_instrument_warns_and_leaves_its_gaps(stage3, cfg, capsys):
+def test_a_slower_instrument_warns_and_leaves_its_gaps(stage3, cfg, caplog):
     """At 60 s the 120 s Aquadopp fills every other step and is named once."""
-    ds = st.stack(stage3, cfg, dt_seconds=60)
-    out = capsys.readouterr().out
-    assert out.count("WARNING: aquadopp s/n 9920 samples every 120 s") == 1
-    assert "s/n 2941 samples every" not in out
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
+        ds = st.stack(stage3, cfg, dt_seconds=60)
+    assert caplog.text.count("aquadopp s/n 9920 samples every 120 s") == 1
+    assert "s/n 2941 samples every" not in caplog.text
     lev = ds["serial"].values.tolist().index("9920")
     p = ds["pressure"].isel(N_LEVELS=lev).values
     assert 0.4 < np.isfinite(p).mean() < 0.6
-    st.stack(stage3, cfg, dt_seconds=3600)
-    assert "samples every" not in capsys.readouterr().out
+    caplog.clear()
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
+        st.stack(stage3, cfg, dt_seconds=3600)
+    assert "samples every" not in caplog.text
 
 
-def test_the_grid_warns_on_a_level_sampled_every_other_step(stage3, cfg, capsys):
+def test_the_grid_warns_on_a_level_sampled_every_other_step(stage3, cfg, caplog):
     """Gridding the 60 s stack names the 120 s Aquadopp the stack recorded, not the MicroCAT."""
     ds = st.stack(stage3, cfg, dt_seconds=60)
-    capsys.readouterr()
-    oa.grid(ds, pmin=400, pmax=440, dp=20)
-    out = capsys.readouterr().out
-    assert out.count("aquadopp s/n 9920 (120 s)") == 1
-    assert "2941" not in out
+    caplog.clear()
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
+        oa.grid(ds, pmin=400, pmax=440, dp=20)
+    assert caplog.text.count("aquadopp s/n 9920 (120 s)") == 1
+    assert "2941" not in caplog.text
     assert ds.attrs["instruments_slower_than_step"] == "aquadopp s/n 9920 (120 s)"
 
 

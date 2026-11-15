@@ -1,5 +1,6 @@
 """Stack all instruments on a mooring onto a common time axis (nearest sample per step)."""
 
+import logging
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 
@@ -21,6 +22,8 @@ from oceanarray.pipeline.read_mooring import read_mooring
 from oceanarray.pipeline.units import UnitsError, to_canonical_units
 from oceanarray.writers import write
 from oceanarray.writers.netcdf import as_stored
+
+log = logging.getLogger(__name__)
 
 STACK_VARS = [
     "temperature",
@@ -372,16 +375,16 @@ def stack(
             continue
         serial = safe_serial(entry.get("serial", ""))
         instr_type = entry.get("instrument", "unknown")
-        if instr_type not in KNOWN_INSTRUMENT_TYPES:
-            print(
-                f"  WARNING: instrument '{instr_type}' (s/n {serial}) is not in "
+        if not params.is_known_instrument_type(instr_type):
+            log.warning(
+                f"  instrument '{instr_type}' (s/n {serial}) is not in "
                 f"KNOWN_INSTRUMENT_TYPES {sorted(KNOWN_INSTRUMENT_TYPES)}; "
                 "it will be stacked as a generic instrument (Aquadopp/ADCP-specific "
                 "handling skipped)."
             )
         if entry.get("stack", True) is False:
             excluded.append(f"{instr_type} s/n {serial}")
-            print(f"  EXCLUDE {instr_type} s/n {serial}: stack: false in the YAML")
+            log.debug(f"  EXCLUDE {instr_type} s/n {serial}: stack: false in the YAML")
             continue
         hab = entry.get("hab")
         if hab is None:
@@ -390,14 +393,14 @@ def stack(
             if not entry.get("skip"):
                 reason = "no hab in the mooring YAML; set hab, or stack: false"
                 omitted.append(f"{instr_type} s/n {serial} ({reason})")
-                print(f"  ERROR: omitting {instr_type} s/n {serial} — {reason}")
+                log.warning(f"  omitting {instr_type} s/n {serial} — {reason}")
             continue
         if serial not in datasets:
             why = next(
                 (o for o in omitted or () if f"s/n {serial} " in f"{o} "),
                 None,
             )
-            print(
+            log.debug(
                 f"  SKIP {instr_type} s/n {serial}: "
                 + ("left out, see below" if why else "no stage2/stage3 file")
             )
@@ -437,8 +440,8 @@ def stack(
         ds_adcp = info["ds"]
         bin_dim = params.ADCP_BIN_DIM
         if bin_dim not in ds_adcp.dims:
-            print(
-                f"  WARNING: ADCP s/n {info['serial']} has no {bin_dim} dim "
+            log.warning(
+                f"  ADCP s/n {info['serial']} has no {bin_dim} dim "
                 "— treating as point instrument"
             )
             expanded.append(info)
@@ -454,8 +457,8 @@ def stack(
         )
         if not orientation:
             orientation = "down"
-            print(
-                f"  WARNING: ADCP {info['serial']} has no orientation attr — "
+            log.warning(
+                f"  ADCP {info['serial']} has no orientation attr — "
                 "assuming downward-looking. HAB offsets may be wrong for "
                 "upward-looking instruments."
             )
@@ -475,7 +478,7 @@ def stack(
             else:
                 valid_bins.append(i)
 
-        print(
+        log.debug(
             f"  ADCP s/n {info['serial']}: expanding {len(valid_bins)} of {n_bins} bins "
             f"({orientation}-looking) into stack + head entry"
             + (f" [{n_skipped} bins always below seabed, skipped]" if n_skipped else "")
@@ -510,7 +513,7 @@ def stack(
 
     n_instr = len(instruments)
 
-    print(
+    log.info(
         f"Merging {n_instr} instruments onto {n_time}-point {dt_seconds}s time grid "
         f"({mooring_name})"
     )
@@ -555,7 +558,7 @@ def stack(
                 ds = info["ds"]
             # Canonicalise each instrument's units before stacking, so a
             # pre-0.5.0 input (degC, S/m, …) joins the stack already canonical.
-            ds = to_canonical_units(ds, log_fn=print, stage="stack")
+            ds = to_canonical_units(ds, stage="stack")
             # A low-passed file (e.g. RODB .lowedt) would be sampled onto the
             # stack's steps as if it were full-rate data.
             if "originator_low_passed" in ds.attrs:
@@ -571,8 +574,8 @@ def stack(
                 reason = str(e)
             else:
                 reason = f"could not stack it: {e}"
-            print(
-                f"  ERROR: omitting {info['instrument']} s/n {info['serial']} — {reason}"
+            log.warning(
+                f"  omitting {info['instrument']} s/n {info['serial']} — {reason}"
             )
             omitted.append(f"{info['instrument']} s/n {info['serial']} ({reason})")
             omitted_idx.append(i)
@@ -583,7 +586,7 @@ def stack(
 
         interval_s = _sample_interval_s(ds["time"].values)
         interval_txt = f"{interval_s:.0f}s" if np.isfinite(interval_s) else "?"
-        print(
+        log.debug(
             f"  [{i:2d}] {info['instrument']:10s} s/n {info['serial']:<8}  "
             f"hab={info['hab']:6.1f} m  dt={interval_txt}  "
             f"({stage_labels[-1]})"
@@ -595,8 +598,8 @@ def stack(
             # An ADCP warns once, not once per bin.
             slow_warned.add(base)
             slow.append(f"{info['instrument']} s/n {base} ({interval_s:.0f} s)")
-            print(
-                f"  WARNING: {info['instrument']} s/n {base} samples every "
+            log.warning(
+                f"  {info['instrument']} s/n {base} samples every "
                 f"{interval_s:.0f} s, slower than the {dt_seconds} s step: the steps "
                 f"between its samples are empty in the stack and the grid (set "
                 f"stack: dt_seconds to at least {interval_s:.0f} to avoid them)."
@@ -659,7 +662,7 @@ def stack(
                 scalar_meta[vname].append(None)
 
     if dropped_ts_vars:
-        print(
+        log.info(
             f"  NOTE: {len(dropped_ts_vars)} stage-3 time-series variable(s) not in "
             f"STACK_VARS were dropped from the stack: "
             f"{', '.join(sorted(dropped_ts_vars))}. "
@@ -743,7 +746,7 @@ def stack(
                     },
                 )
         except Exception as exc:  # noqa: BLE001  — gsw failure must not abort stack
-            print(f"  WARNING: could not compute potential density: {exc}")
+            log.warning(f"  could not compute potential density: {exc}")
 
     # velocity_flag: element-wise worst QC flag across east/north/up velocity.
     # Velocity is stored unmasked in the stack; this combined flag is what the
@@ -823,7 +826,7 @@ def stack(
                 ratio = np.clip(delta_p / rope, 0.0, 1.0)
                 tilt_p[i, :] = np.degrees(np.arccos(ratio))
                 tilt_p[i, ~np.isfinite(delta_p)] = np.nan
-                print(
+                log.debug(
                     f"  tilt_from_pressure[{i}] s/n {serials[i]} ({habs[i]:.0f} m): "
                     f"ref s/n {serials[ref_j]} ({habs[ref_j]:.0f} m, "
                     f"rope={rope:.0f} m)"
@@ -857,7 +860,7 @@ def stack(
                 },
             )
         except Exception as exc:  # noqa: BLE001  — optional derived var; must not abort stack
-            print(f"  WARNING: could not compute tilt_from_pressure: {exc}")
+            log.warning(f"  could not compute tilt_from_pressure: {exc}")
 
     # Coordinate names — exclude these from scalar metadata to avoid name conflicts
     _coord_names = {"serial", "hab", "instrument_type", "instrument", "time"}
@@ -1007,8 +1010,8 @@ def stack(
     )
     if not_cleaned:
         ds_out.attrs["people_not_cleaned"] = "; ".join(not_cleaned)
-        print(
-            f"  WARNING: {len(not_cleaned)} stage file(s) were written before stage 1 "
+        log.warning(
+            f"  {len(not_cleaned)} stage file(s) were written before stage 1 "
             f"cleaned people; their people are left out (rerun from stage 1): "
             f"{'; '.join(not_cleaned)}"
         )
@@ -1020,7 +1023,7 @@ def stack(
     ds_out = drop_all_zero_vars(ds_out, ["amplitude_beam", "analog_input_"])
     # OceanSITES convention: time is the unlimited (first) dimension.
     ds_out = ds_out.transpose("time", "N_LEVELS")
-    ds_out = to_canonical_units(ds_out, log_fn=print, stage="stack")
+    ds_out = to_canonical_units(ds_out, stage="stack")
     ds_out.attrs["data_mode"] = "P"
     at_stage2 = sorted(
         {s for s, label in zip(serials, stage_labels, strict=True) if label == "stage2"}
@@ -1068,9 +1071,7 @@ def stack(
             )
             if no_velocity:
                 ds_out.attrs["stage2_no_velocity"] = " ".join(no_velocity)
-        print(
-            f"  WARNING: stacked from stage 2 ({stage2_reason}): {' '.join(at_stage2)}"
-        )
+        log.warning(f"  stacked from stage 2 ({stage2_reason}): {' '.join(at_stage2)}")
     if excluded:
         ds_out.attrs["instruments_excluded"] = "; ".join(excluded)
     if slow:
@@ -1081,12 +1082,11 @@ def stack(
         # Record the omission in the file so the stack report and the grid
         # (which reads this file) inherit it, and summarise it loudly.
         ds_out.attrs["instruments_omitted"] = "; ".join(omitted)
-        print(
-            f"  WARNING: {len(omitted)} instrument(s) omitted from the stack "
-            f"(recorded in instruments_omitted):"
+        log.warning(
+            f"  {len(omitted)} instrument(s) omitted from the stack "
+            f"(recorded in instruments_omitted):\n"
+            + "\n".join(f"    - {line}" for line in omitted)
         )
-        for line in omitted:
-            print(f"    - {line}")
     return as_stored(ds_out)
 
 
@@ -1115,7 +1115,7 @@ def _read_best_stage(
                 datasets[serial] = ds.load()
             except Exception as e:  # noqa: BLE001  — one bad file must not abort the stack
                 reason = f"could not load {path.name}: {e}"
-                print(f"  ERROR: omitting {instr_type} s/n {serial} — {reason}")
+                log.warning(f"  omitting {instr_type} s/n {serial} — {reason}")
                 omitted.append(f"{instr_type} s/n {serial} ({reason})")
             break
     return datasets, omitted
@@ -1265,13 +1265,15 @@ class MooringStacker:
         try:
             proc_dir_exists = proc_dir.exists()
         except (TimeoutError, OSError) as exc:
-            print("ERROR: Cannot access data drive — is it connected?")
-            print(f"       Path: {proc_dir}")
-            print(f"       ({type(exc).__name__}: {exc})")
+            log.warning(
+                f"Cannot access data drive — is it connected?\n"
+                f"       Path: {proc_dir}\n"
+                f"       ({type(exc).__name__}: {exc})"
+            )
             return False
 
         if not proc_dir_exists:
-            print(f"ERROR: Processing directory not found: {proc_dir}")
+            log.warning(f"Processing directory not found: {proc_dir}")
             return False
 
         output_path = paths.product_file(proc_dir, mooring_name, "stack")
@@ -1281,7 +1283,7 @@ class MooringStacker:
 
         config_file = proc_dir / f"{mooring_name}.mooring.yaml"
         if not config_file.exists():
-            print(f"ERROR: Config not found: {config_file}")
+            log.warning(f"Config not found: {config_file}")
             return False
 
         mooring_config = _mooring.load(config_file)
@@ -1293,7 +1295,7 @@ class MooringStacker:
         except MooringError as e:
             if "deployment_time" in str(e):
                 raise
-            print(f"ERROR: {e}")
+            log.warning(f"{e}")
             return False
         write(ds_out, output_path, overwrite=True)
         logger.status("file", self._rel(output_path))

@@ -392,10 +392,7 @@ def validate_mooring(
                     f"{prefix} instrument='{instrument}' is deprecated — use '{correct}' instead",
                 )
             )
-        elif (
-            instrument not in params.KNOWN_INSTRUMENT_TYPES
-            and instrument.upper() != "ADCP"  # accept both 'adcp' and 'ADCP'
-        ):
+        elif not params.is_known_instrument_type(instrument):
             issues.append(
                 ValidationIssue(
                     "WARNING",

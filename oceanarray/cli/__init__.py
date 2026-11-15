@@ -81,6 +81,13 @@ def build_parser() -> argparse.ArgumentParser:
         default=False,
         help="Also print the processing stages' debug messages.",
     )
+    parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        default=False,
+        help="Only print warnings and errors.",
+    )
     sub = parser.add_subparsers(
         dest="command", title="commands", metavar="<command>", required=True
     )
@@ -122,8 +129,10 @@ def main() -> None:
             elif _tok.startswith("--raw-dir="):
                 _raw_dir_unknowns.append(_tok)
             elif _tok in ("-v", "--verbose"):
-                # -v is accepted after the command name as well as before it.
+                # -v / -q are accepted after the command name as well as before it.
                 args.verbose = True
+            elif _tok in ("-q", "--quiet"):
+                args.quiet = True
             else:
                 _other_unknowns.append(_tok)
         if _raw_dir_unknowns:
@@ -134,10 +143,23 @@ def main() -> None:
             )
         if _other_unknowns:
             parser.error(f"unrecognized arguments: {' '.join(_other_unknowns)}")
-    if args.verbose:
-        from oceanarray import logger
+    import logging
 
-        logger.CONSOLE_LEVEL = logger.logging.DEBUG
+    from oceanarray import logger
+
+    # One console (stderr) for the whole command: -v → DEBUG, -q → WARNING, else INFO.
+    # captureWarnings sends a stray warnings.warn to the root logger (so it reaches
+    # stderr once, not as a raw source line); those go through the root, not this
+    # package handler, so they are not re-formatted or counted in the run summary.
+    logger.CONSOLE_LEVEL = (
+        logging.DEBUG
+        if args.verbose
+        else logging.WARNING
+        if args.quiet
+        else logging.INFO
+    )
+    logging.captureWarnings(True)
+    logger.configure_console(logger.CONSOLE_LEVEL)
     try:
         sys.exit(args.func(args))
     except paths.LegacyLayoutError as e:
