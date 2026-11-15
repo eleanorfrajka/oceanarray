@@ -32,19 +32,15 @@ def test_a_title_after_a_name_is_not_a_person():
     out = _clean(_OSNAP / "CF7_MCTD_2020_22225_50m.nc")
     assert out["principal_investigator"] == "Fiamma Straneo"
     assert out["contributor_name"] == "Fiamma Straneo; Fiamma Straneo; Jamie Holte"
-    assert (
-        out["contributor_role"] == "originator; Principal Investigator; Data Processor"
-    )
+    assert out["contributor_role"] == "originator; PI; Data Processor"
 
 
 def test_the_publisher_is_a_contributor_with_one_slot_per_role():
     """WHOI CF7 2020: Adam Houk as publisher and as processor, two slots."""
     out = _clean(_OSNAP / "OS_OSNAP_WHOI_CF7_202007_CM_500m.nc")
-    assert out["contributor_name"] == "Adam Houk; Fiamma Straneo; Adam Houk"
-    assert (
-        out["contributor_role"]
-        == "publisher; principal investigator; data processing and interpretation"
-    )
+    # "data processing and interpretation" is two roles: two slots.
+    assert out["contributor_name"] == "Adam Houk; Fiamma Straneo; Adam Houk; Adam Houk"
+    assert out["contributor_role"] == "publisher; PI; data processing; interpretation"
 
 
 def test_every_parallel_list_has_one_entry_per_slot():
@@ -56,7 +52,7 @@ def test_every_parallel_list_has_one_entry_per_slot():
 
 
 def test_a_role_that_does_not_pair_is_left_out():
-    """GEOMAR K7 2014: one role for two contributors is not given to both."""
+    """GEOMAR K7 2014: one role for two contributors is given to neither."""
     with pytest.warns(UserWarning, match="1 entries for 2 names; left out"):
         people = attribution.people_from_attrs(
             read_oceansites(
@@ -65,13 +61,11 @@ def test_a_role_that_does_not_pair_is_left_out():
             ).attrs,
             prefix="originator_",
         )
-    named = [p for p in people["contributor"] if p["role"] != "publisher"]
-    assert [p["name"] for p in named] == ["Johannes Karstensen", "Marilena Oltmanns"]
-    assert [p["role"] for p in named] == ["", ""]
-    assert [p["email"] for p in named] == [
-        "jkarstensen@geomar.de",
-        "moltmanns@geomar.de",
-    ]
+    out = attribution.to_attrs(attribution.union([people]))
+    # Marilena Oltmanns's blank-role slot merges into her publisher slot.
+    assert out["contributor_name"] == "Marilena Oltmanns; Johannes Karstensen"
+    assert out["contributor_role"] == "publisher; "
+    assert out["contributor_email"] == "moltmanns@geomar.de; jkarstensen@geomar.de"
 
 
 def test_each_field_is_split_on_its_own_separator():
@@ -84,8 +78,9 @@ def test_each_field_is_split_on_its_own_separator():
         }
     )
     assert [(p["name"], p["role"]) for p in people["contributor"]] == [
-        ("M. Femke de Jong", "project PI"),
-        ("Nora Fried", "data processing and interpretation"),
+        ("M. Femke de Jong", "PI"),
+        ("Nora Fried", "data processing"),
+        ("Nora Fried", "interpretation"),
     ]
 
 
@@ -195,8 +190,28 @@ def test_a_shared_contact_email_keeps_both_people():
     assert [p["name"] for p in people["contributor"]] == [
         "M. Femke de Jong",
         "Nora Fried",
+        "Nora Fried",
     ]
-    assert [p["email"] for p in people["contributor"]] == ["", ""]
+    # Every slot empty: the attribute is still written, one empty entry per slot.
+    assert attribution.to_attrs(people)["contributor_email"] == "; ; "
+
+
+def test_and_splits_a_role_and_pi_reads_pi():
+    """IC1 2020: "project PI, data processing and interpretation" for two names."""
+    out = attribution.to_attrs(
+        _people(
+            {
+                "contributor_name": "M. Femke de Jong; Nora Fried",
+                "contributor_role": "project PI, data processing and interpretation",
+                "contributor_email": "femke.de.jong@nioz.nl; nora.fried@nioz.nl",
+            }
+        )
+    )
+    assert out["contributor_name"] == "M. Femke de Jong; Nora Fried; Nora Fried"
+    assert out["contributor_role"] == "PI; data processing; interpretation"
+    assert out["contributor_email"] == (
+        "femke.de.jong@nioz.nl; nora.fried@nioz.nl; nora.fried@nioz.nl"
+    )
 
 
 def test_the_written_lists_round_trip():

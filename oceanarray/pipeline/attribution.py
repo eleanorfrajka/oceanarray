@@ -232,8 +232,9 @@ def people_from_attrs(
     roles = _aligned(len(names), _split(role), f"{prefix}contributor_role")
     emails = _aligned(len(names), _split(email), f"{prefix}contributor_email")
     named = [
-        {"name": n, "role": r, "email": e}
+        {"name": n, "role": one, "email": e}
         for n, r, e in zip(names, roles, emails, strict=True)
+        for one in split_roles(r)
     ]
     contributors += named
     if not pis:
@@ -244,6 +245,33 @@ def people_from_attrs(
             if _PI_ROLE.search(c["role"])
         ]
     return {"principal_investigator": pis, "contributor": contributors}
+
+
+def split_roles(role: str) -> list[str]:
+    """Return the roles one contributor entry names, each its own slot.
+
+    ``"data processing and interpretation"`` is two roles, ``"data processing"``
+    and ``"interpretation"``; a principal-investigator role (``"project PI"``,
+    ``"Principal Investigator"``) reads ``"PI"``. An empty role stays one empty
+    slot.
+
+    Parameters
+    ----------
+    role : str
+        One contributor's role, as the originator wrote it.
+
+    Returns
+    -------
+    list of str
+        The roles, in order, without repeats.
+    """
+    parts = [p.strip() for p in re.split(r"\s+and\s+|\s*&\s*", role or "")]
+    out: list[str] = []
+    for part in parts:
+        one = "PI" if _PI_ROLE.search(part) else part
+        if one.casefold() not in (o.casefold() for o in out):
+            out.append(one)
+    return [o for o in out if o] or [""]
 
 
 def _name_key(person: Mapping[str, str]) -> str:
@@ -279,8 +307,8 @@ def union(
     """Join several people lists without repeats, in order of first appearance.
 
     See :func:`_same` for when two entries are one person. A principal
-    investigator appears once; a contributor appears once per role (case aside).
-    A person's first name, url and id are kept (a missing one filled from a later
+    investigator appears once; a contributor appears once per role (case aside),
+    and a blank role merges into the person's other slot. A person's first name, url and id are kept (a missing one filled from a later
     entry); their newest email is kept, the earlier one named in a warning.
 
     Parameters
@@ -320,9 +348,14 @@ def union(
                         elif not p[f]:
                             p[f] = entry[f]
                 if kind == "contributor" and same:
-                    if any(
-                        p["role"].casefold() == entry["role"].casefold() for p in same
-                    ):
+                    role = entry["role"].casefold()
+                    if not role or any(p["role"].casefold() == role for p in same):
+                        # A repeat, or a blank role for someone already listed.
+                        continue
+                    blank = next((p for p in same if not p["role"]), None)
+                    if blank is not None:
+                        # A blank-role slot of this person takes the role.
+                        blank["role"] = entry["role"]
                         continue
                     # The same person in a new role: a slot of its own, with the
                     # name and email of their first slot.
@@ -369,8 +402,9 @@ def to_attrs(people: Mapping[str, list[dict[str, str]]]) -> dict[str, str]:
     """Return the OceanSITES attributes for a people list.
 
     Every parallel attribute of a list has one entry per slot, empty entries
-    kept, so the *n*-th entries always describe one person; a field nobody has
-    is left out.
+    kept, so the *n*-th entries always describe one person. ``contributor_name``,
+    ``_role`` and ``_email`` are written whenever there is a contributor (an
+    empty field as ``"; ; "``); a PI field nobody has is left out.
 
     Parameters
     ----------
@@ -391,6 +425,8 @@ def to_attrs(people: Mapping[str, list[dict[str, str]]]) -> dict[str, str]:
         entries = people.get(kind, [])
         for field, attr in names.items():
             values = [_clean(e.get(field, ""), sep, attr) for e in entries]
-            if any(values):
+            # Contributor fields are written whenever there is a contributor, so
+            # their entry counts always show; a PI field nobody has is left out.
+            if any(values) or (kind == "contributor" and entries):
                 out[attr] = sep.join(values)
     return out

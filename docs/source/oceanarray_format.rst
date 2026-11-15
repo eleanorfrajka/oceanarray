@@ -177,13 +177,20 @@ roles takes two slots. Reading an originator's lists:
   is one person, ``Fiamma Straneo``); ``"Surname, Given"`` is written ``"Given
   Surname"``;
 - a role, email, url or id without one entry per name is left out, with a
-  warning (never guessed);
+  warning (never guessed); a role joined by "and" is two roles, each its own
+  slot (``"data processing and interpretation"``), and a principal-investigator
+  role reads ``PI``;
 - the file's creator and publisher join the contributors (roles ``originator`` and
   ``publisher``); a file with no ``principal_investigator`` takes its PIs from the
   contributors whose role says principal investigator or PI;
 - across files, two entries are one person when they share an id, or a name
   (titles, initials, case, dots and spaces aside), so a changed or mistyped email
-  does not split a person; the newest email is kept.
+  does not split a person; the newest email is kept; a blank-role slot merges
+  into the same person's other slot.
+
+``contributor_name``, ``_role`` and ``_email`` are written whenever there is a
+contributor, an empty field as empty entries (``"; ; "``), so the three always
+show the same count.
 
 The stack and the concatenated stack join these lists without repeats. The rest
 of the attribution (``creator_*``, ``institution``, ``citation``, ``license``,
