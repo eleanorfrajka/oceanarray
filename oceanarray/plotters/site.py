@@ -15,7 +15,7 @@ import numpy as np
 from oceanarray.reports._vendored import design_tokens as report_tokens
 
 from ..config import parameters as params
-from .helpers import _velocity_panel_style, deployment_line
+from .helpers import _velocity_panel_style, deployment_color, deployment_line
 from .primitives import date_axis, pcolormesh_panel
 from .timeseries import _mark_deployments
 
@@ -56,6 +56,11 @@ def symmetric_limit(*fields: np.ndarray) -> float:
         return 1.0
     lo, hi = np.percentile(values, [2, 98])
     return max(abs(float(lo)), abs(float(hi)), 1e-6)
+
+
+#: The lines marking each instrument's pressure on a section: grey, a little
+#: darker and wider than a hairline so they read over both ends of a colormap.
+INSTRUMENT_LINE: dict = {"color": "0.55", "lw": 0.6}
 
 
 def _edges(centers: np.ndarray) -> np.ndarray:
@@ -117,9 +122,10 @@ def draw_site_sections(
 
     Each panel is drawn with 20 discrete color levels, each cell between its
     time edges so a deployment's last, shorter bin ends exactly at the change.
-    Turnarounds are shaded, each deployment's start is a thin dotted line and
-    each deployment is named along the top; the instruments measuring the
-    panel's variable are thin pale lines at their pressures; isopycnals are black
+    Turnarounds are shaded, each deployment's start is a thin dotted line
+    marked by a ▼ above the top panel, and each deployment is named along the
+    top; there are no horizontal gridlines, and the instruments measuring the
+    panel's variable are grey lines at their pressures (:data:`INSTRUMENT_LINE`); isopycnals are black
     contours drawn within each deployment (no line runs across a change),
     labeled once.
 
@@ -141,7 +147,8 @@ def draw_site_sections(
         ``(start, end, name)`` per deployment.
     isopycnals : sequence of tuple, optional
         ``(field on (time, pressure), levels, label format)`` per density
-        reference, e.g. ``(sigma0, [27.6, 27.7], "σ0 %g")``.
+        reference, e.g. ``(sigma0, [27.6, 27.7], "%g")``; the labels carry the
+        value only, so the caption says which levels are σ0 and which σ2.
     crop : bool, optional
         Show only the pressures the panels have data at, in panels made shorter
         in proportion, so a dbar spans the same height as in an uncropped
@@ -207,7 +214,13 @@ def draw_site_sections(
             for field, levels, fmt in isopycnals:
                 _contour_by_deployment(ax, time, pressure, field, levels, fmt, owner)
         if panel.get("instruments") is not None:
-            ax.plot(time, panel["instruments"], color="0.7", lw=0.3, zorder=3)
+            ax.plot(
+                time,
+                panel["instruments"],
+                color=INSTRUMENT_LINE["color"],
+                lw=INSTRUMENT_LINE["lw"],
+                zorder=3,
+            )
         ax.set_ylim(p_range[1], p_range[0])
     if deployments:
         _mark_deployments(axes, list(deployments))
@@ -263,7 +276,13 @@ def draw_site_profiles(
         medians = column["medians"]
         for k, row in enumerate(medians):
             if np.isfinite(row).any():
-                ax.plot(row, pressure, lw=1.2, label=names[k], **deployment_line(k))
+                ax.plot(
+                    row,
+                    pressure,
+                    lw=1.2,
+                    label=names[k],
+                    **deployment_line(k, len(names)),
+                )
         finite = medians[np.isfinite(medians)]
         lo, hi = np.percentile(finite, [0.5, 99.5])
         pad = 0.05 * (hi - lo) if hi > lo else 0.1
@@ -285,13 +304,21 @@ def draw_site_ts(
     *,
     sigma0_levels: Sequence[float] = (),
     sigma2_levels: Sequence[float] = (),
+    pressure: np.ndarray | None = None,
+    pins: Sequence[Sequence[float]] | None = None,
     width_in: float = report_tokens.W_HALF,
 ) -> plt.Figure | None:
     """θ-S of each deployment's median profile, one line per deployment; return a Figure.
 
     Potential temperature, so the σ0 and σ2 contours (gray, labeled), computed
     from it at the site's position, hold at every depth. The axes span the 1–99 %
-    range of the medians.
+    range of the medians. With *pressure* and *pins*, a small circle in the
+    deployment's color marks the curve at each T-and-S instrument's mean
+    pressure: where the curve is pinned by data rather than filled by the grid.
+    An instrument up to half a grid step beyond the curve's shallowest or deepest
+    level (its own level's median sits there) is marked at that end. The
+    isopycnals are labeled with their value only (σ0 and σ2 levels do not
+    overlap; the caption names them).
 
     Parameters
     ----------
@@ -305,6 +332,11 @@ def draw_site_ts(
         then in-situ temperature, labeled so, and no isopycnals are drawn.
     sigma0_levels, sigma2_levels : sequence of float, optional
         The isopycnals to draw (kg m⁻³).
+    pressure : numpy.ndarray, optional
+        The grid's pressure levels (dbar), the second axis of *theta*.
+    pins : sequence of sequence of float, optional
+        Per deployment, the mean pressures of its T-and-S instruments (see
+        :func:`oceanarray.analysis.site.instrument_mean_pressures`).
     width_in : float, optional
         Figure width in inches (the report slot's).
 
@@ -327,8 +359,29 @@ def draw_site_ts(
                 np.where(ok[k], theta[k], np.nan),
                 lw=1.3,
                 label=names[k],
-                **deployment_line(k),
+                **deployment_line(k, len(names)),
             )
+            if pins is not None and pressure is not None and k < len(pins):
+                p_all = np.asarray(pressure, dtype=float)
+                p_ok = p_all[ok[k]]
+                half = 0.5 * float(np.median(np.diff(p_all))) if p_all.size > 1 else 0.0
+                at = [
+                    float(np.clip(x, p_ok.min(), p_ok.max()))
+                    for x in pins[k]
+                    if p_ok.size and p_ok.min() - half <= x <= p_ok.max() + half
+                ]
+                if at:
+                    ax.plot(
+                        np.interp(at, p_ok, salinity[k][ok[k]]),
+                        np.interp(at, p_ok, theta[k][ok[k]]),
+                        ls="none",
+                        marker="o",
+                        ms=4,
+                        color=deployment_color(k, len(names)),
+                        mec="black",
+                        mew=0.4,
+                        zorder=4,
+                    )
     s_lo, s_hi = np.percentile(salinity[ok], [1, 99])
     t_lo, t_hi = np.percentile(theta[ok], [1, 99])
     s_pad = max(0.1 * (s_hi - s_lo), 0.01)
@@ -340,8 +393,8 @@ def draw_site_ts(
     sa = gsw.SA_from_SP(sg, 0.0, longitude, latitude) if known else None
     ct = gsw.CT_from_pt(sa, tg) if known else None
     for levels, sigma, fmt in (
-        (sigma2_levels, gsw.sigma2, "σ2 %g"),
-        (sigma0_levels, gsw.sigma0, "σ0 %g"),
+        (sigma2_levels, gsw.sigma2, "%g"),
+        (sigma0_levels, gsw.sigma0, "%g"),
     ):
         if levels and known:
             cs = ax.contour(

@@ -642,6 +642,15 @@ def _make_speed_profile_by_deployment_b64(ds: xr.Dataset) -> str | None:
     return render_slot(draw_speed_profile_by_deployment, ds, slot="half", optional=True)
 
 
+def _make_direction_profile_by_deployment_b64(ds: xr.Dataset) -> str | None:
+    """Render current direction per depth and deployment, half width, for the concatenated page."""
+    from oceanarray.plotters.current import draw_direction_profile_by_deployment
+
+    return render_slot(
+        draw_direction_profile_by_deployment, ds, slot="half", optional=True
+    )
+
+
 def _make_site_sections_b64(
     panels: list[dict],
     time: np.ndarray,
@@ -687,6 +696,8 @@ def _make_site_ts_b64(
     position: tuple[float, float] | None,
     sigma0_levels: tuple,
     sigma2_levels: tuple,
+    pressure: np.ndarray | None = None,
+    pins: list | None = None,
 ) -> str | None:
     """θ-S of each deployment's median profile, half width, for the site grid page."""
     from oceanarray.plotters.site import draw_site_ts
@@ -699,6 +710,8 @@ def _make_site_ts_b64(
         *(position or (None, None)),
         sigma0_levels=sigma0_levels,
         sigma2_levels=sigma2_levels,
+        pressure=pressure,
+        pins=pins,
         slot="half",
         optional=True,
     )

@@ -116,8 +116,19 @@ def display_bins(
     return DisplayBins(edges, centers, bins, owner)
 
 
-def bin_means(values: np.ndarray, bins: np.ndarray, n_bins: int) -> np.ndarray:
+#: A display bin of a section is shown only when its cell has finite values for at
+#: least this fraction of the bin's time steps; an edge level that the grid fills
+#: only part of the time (an instrument riding across it) is left blank instead of
+#: showing a chequer of partial means.
+DISPLAY_MIN_FRACTION: float = 0.5
+
+
+def bin_means(
+    values: np.ndarray, bins: np.ndarray, n_bins: int, *, min_fraction: float = 0.0
+) -> np.ndarray:
     """Return the mean of the finite values of each bin.
+
+    Sums are accumulated in float64 whatever the input type.
 
     Parameters
     ----------
@@ -127,23 +138,31 @@ def bin_means(values: np.ndarray, bins: np.ndarray, n_bins: int) -> np.ndarray:
         Each step's bin (``DisplayBins.step_bin``).
     n_bins : int
         Number of bins.
+    min_fraction : float, optional
+        Leave a bin NaN unless its finite values cover at least this fraction of
+        the bin's time steps (default 0: any finite value counts).
 
     Returns
     -------
     numpy.ndarray
-        ``(n_bins, n)``; NaN for a bin with no finite value.
+        ``(n_bins, n)``; NaN for a bin with no finite value, or with too few.
     """
     finite = np.isfinite(values)
-    total = np.zeros((n_bins, values.shape[1]))
+    total = np.zeros((n_bins, values.shape[1]), dtype=np.float64)
     count = np.zeros((n_bins, values.shape[1]))
-    np.add.at(total, bins, np.where(finite, values, 0.0))
+    np.add.at(total, bins, np.where(finite, values, 0.0).astype(np.float64))
     np.add.at(count, bins, finite)
+    steps = np.bincount(bins, minlength=n_bins)[:, None]
+    keep = (count > 0) & (count >= min_fraction * steps)
     with np.errstate(invalid="ignore", divide="ignore"):
-        return np.where(count > 0, total / count, np.nan)
+        return np.where(keep, total / count, np.nan)
 
 
 def display_means(ds: xr.Dataset, bins: DisplayBins) -> xr.Dataset:
     """Return the ``(time, pressure)`` variables of a grid averaged in deployment-bound bins.
+
+    A cell is shown only where it has data for at least
+    :data:`DISPLAY_MIN_FRACTION` of its bin.
 
     Parameters
     ----------
@@ -162,7 +181,12 @@ def display_means(ds: xr.Dataset, bins: DisplayBins) -> xr.Dataset:
         {
             v: (
                 ("time", "pressure"),
-                bin_means(ds[v].values, bins.step_bin, len(bins.centers)),
+                bin_means(
+                    ds[v].values,
+                    bins.step_bin,
+                    len(bins.centers),
+                    min_fraction=DISPLAY_MIN_FRACTION,
+                ),
                 dict(ds[v].attrs),
             )
             for v in fields
@@ -343,3 +367,40 @@ def potential_temperature(
     p = np.broadcast_to(pressure, temperature.shape)
     sa = gsw.SA_from_SP(salinity, p, longitude, latitude)
     return gsw.pt0_from_t(sa, temperature, p)
+
+
+def instrument_mean_pressures(stackcat: xr.Dataset) -> list[list[float]]:
+    """Return, per deployment, the mean pressure of each level that measures both T and S.
+
+    For marking where a deployment's T-S curve is pinned by an instrument (the
+    Grid cat T-S diagram); levels that measure temperature only (thermistors)
+    are left out.
+
+    Parameters
+    ----------
+    stackcat : xarray.Dataset
+        A site stack with ``temperature``, ``salinity``, ``pressure`` and
+        ``deployment_name``.
+
+    Returns
+    -------
+    list of list of float
+        One list per deployment, in deployment order: the mean pressures (dbar)
+        of its T-and-S levels, shallow to deep.
+    """
+    from oceanarray.pipeline.concat import cell_deployment
+
+    cells = cell_deployment(stackcat)
+    t = stackcat["temperature"].values
+    s = stackcat["salinity"].values
+    p = stackcat["pressure"].values.astype(np.float64)
+    both = np.isfinite(t) & np.isfinite(s) & np.isfinite(p)
+    out: list[list[float]] = []
+    for k in range(stackcat["deployment_name"].size):
+        means = []
+        for j in range(cells.shape[1]):
+            rows = (cells[:, j] == k) & both[:, j]
+            if rows.any():
+                means.append(float(p[rows, j].mean()))
+        out.append(sorted(means))
+    return out

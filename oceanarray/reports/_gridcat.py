@@ -75,14 +75,17 @@ def _captions(
     shown = (
         f"Shown as {words} means of the hourly grid ({site.display_steps_text()}); "
         "the bins restart at each deployment's start, so none spans two "
-        "deployments and a step between deployments shows as a sharp edge. Gray "
-        "bands are the turnarounds; a dotted line marks each deployment's start; "
-        "thin pale lines are the pressures of the instruments measuring the "
-        "variable shown. "
+        "deployments and a step between deployments shows as a sharp edge. A bin "
+        f"with data for less than {site.DISPLAY_MIN_FRACTION:.0%} of its time "
+        "is left blank. Gray bands are the turnarounds; a dotted line and a ▼ above "
+        "the panel mark each deployment's start; gray lines are the pressures of "
+        "the instruments measuring the variable shown (between them the grid is "
+        "interpolated, so where the instruments' depths change between deployments, "
+        "part of a difference between deployments is the change in sampling). "
     )
     isopycnals = (
-        f"Black contours: σ0 {s0} and σ2 {s2} {density}, each over the whole "
-        "depth, drawn within each deployment. "
+        f"Black contours: σ0 {s0} and σ2 {s2} {density} (labeled with the value "
+        "only), each over the whole depth, drawn within each deployment. "
         if positioned
         else "No isopycnals: no deployment has a position. "
     )
@@ -97,7 +100,8 @@ def _captions(
         ),
         "profiles_ts": (
             "Median of the hourly values at each level, one line per deployment "
-            "(red to purple in time order, each color solid then dashed). " + flags
+            "(red to purple in time order; with more than seven deployments each "
+            "color twice, solid then dashed). " + flags
         ),
         "profiles_uv": (
             "Median velocity at each level, one line per deployment. Along-slope "
@@ -117,12 +121,15 @@ def _captions(
         "site_ts": (
             "Potential temperature and salinity of the median temperature and "
             "salinity at each grid level, one line per deployment; a median is not "
-            "moved by a spike. Axes span the 1–99 % range of the medians. Gray "
-            f"contours: σ0 {s0} and σ2 {s2} {density}."
+            "moved by a spike. Axes span the 1–99 % range of the medians. Circles: "
+            "each deployment's instruments measuring both T and S, at their mean "
+            "pressure, so the curve between circles is the grid's interpolation. Gray "
+            f"contours: σ0 {s0} and σ2 {s2} {density} (labeled with the value only)."
             if positioned
             else "Median in-situ temperature and salinity at each grid level, one "
-            "line per deployment. No deployment has a position, so no potential "
-            "temperature and no isopycnals."
+            "line per deployment. Circles: each deployment's instruments measuring "
+            "both T and S, at their mean pressure. No deployment has a position, so "
+            "no potential temperature and no isopycnals."
         ),
     }
 
@@ -238,8 +245,8 @@ def _figures(grid: Any, stackcat: Any) -> tuple[dict, str, str]:
             shown["temperature"].values, shown["salinity"].values, pressure, *position
         )
         isopycnals = [
-            (s0, params.SITE_SIGMA0_LEVELS, "σ0 %g"),
-            (s2, params.SITE_SIGMA2_LEVELS, "σ2 %g"),
+            (s0, params.SITE_SIGMA0_LEVELS, "%g"),
+            (s2, params.SITE_SIGMA2_LEVELS, "%g"),
         ]
 
     from oceanarray.plotters.site import section_cmap, symmetric_limit
@@ -311,9 +318,21 @@ def _figures(grid: Any, stackcat: Any) -> tuple[dict, str, str]:
         if "temperature" not in hourly or "salinity" not in hourly:
             return None
         salinity = medians("salinity")
+        pins = (
+            site.instrument_mean_pressures(stackcat)
+            if "temperature" in stackcat and "salinity" in stackcat
+            else None
+        )
         if position is None:
             return _make_site_ts_b64(
-                medians("temperature"), salinity, names, None, (), ()
+                medians("temperature"),
+                salinity,
+                names,
+                None,
+                (),
+                (),
+                pressure=pressure,
+                pins=pins,
             )
         theta = site.potential_temperature(
             medians("temperature"), salinity, pressure, *position
@@ -325,6 +344,8 @@ def _figures(grid: Any, stackcat: Any) -> tuple[dict, str, str]:
             position,
             params.SITE_SIGMA0_LEVELS,
             params.SITE_SIGMA2_LEVELS,
+            pressure=pressure,
+            pins=pins,
         )
 
     figs = {

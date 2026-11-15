@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -19,23 +20,38 @@ if TYPE_CHECKING:
     import xarray as xr
 
 
+@lru_cache(maxsize=32)
+def _sigma0_grid(
+    s_lo: float, s_hi: float, t_lo: float, t_hi: float, n_grid: int
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Return S, T and σ0 on an *n_grid* × *n_grid* grid (cached: ~3 calls per figure share one)."""
+    import gsw
+
+    Sg, Tg = np.meshgrid(
+        np.linspace(s_lo, s_hi, n_grid), np.linspace(t_lo, t_hi, n_grid)
+    )
+    SA = gsw.SA_from_SP(Sg, 0.0, 0.0, 0.0)
+    CT = gsw.CT_from_t(SA, Tg, 0.0)
+    return Sg, Tg, gsw.sigma0(SA, CT)
+
+
 def _add_sigma0_contours(
     ax: plt.Axes, S_data: np.ndarray, T_data: np.ndarray, n_grid: int = 200
 ) -> None:
     """Overlay sigma-0 contour lines on a T-S axes."""
     try:
-        import gsw
-
         s_min, s_max = np.nanmin(S_data), np.nanmax(S_data)
         t_min, t_max = np.nanmin(T_data), np.nanmax(T_data)
         s_pad = max((s_max - s_min) * 0.05, 0.05)
         t_pad = max((t_max - t_min) * 0.05, 0.05)
-        s_c = np.linspace(s_min - s_pad, s_max + s_pad, n_grid)
-        t_c = np.linspace(t_min - t_pad, t_max + t_pad, n_grid)
-        Sg, Tg = np.meshgrid(s_c, t_c)
-        SA = gsw.SA_from_SP(Sg, 0.0, 0.0, 0.0)
-        CT = gsw.CT_from_t(SA, Tg, 0.0)
-        sigma0 = gsw.sigma0(SA, CT)
+        # Limits rounded (to 0.001) so panels of one figure share the cached grid.
+        Sg, Tg, sigma0 = _sigma0_grid(
+            round(float(s_min - s_pad), 3),
+            round(float(s_max + s_pad), 3),
+            round(float(t_min - t_pad), 3),
+            round(float(t_max + t_pad), 3),
+            n_grid,
+        )
         cs = ax.contour(
             Sg,
             Tg,
@@ -597,31 +613,115 @@ def draw_grid_ts_diagram(
     return fig, ts_bounds
 
 
+#: Share of a level's T-S points enclosed by its outline on the T-S by deployment figure.
+TS_OUTLINE_FRACTION: float = 0.5
+#: Bins of the 2-D histogram behind each outline, along S and T.
+TS_OUTLINE_BINS: tuple[int, int] = (140, 135)
+#: A level gets an outline and a median only with at least this many days of T and S.
+TS_MIN_LEVEL_DAYS: float = 30.0
+#: Above this many level outlines the figure draws medians and lines only (a site with
+#: many deployments and many variable shallow levels becomes unreadable otherwise).
+TS_MAX_OUTLINES: int = 40
+#: Levels whose median pressures are closer than this (dbar) are averaged for the
+#: median line, so co-located instruments do not make it zigzag.
+TS_COLOCATED_DBAR: float = 10.0
+
+
+def _outline_level(H: np.ndarray, fraction: float) -> float:
+    """Return the histogram value whose higher bins hold *fraction* of the counts."""
+    flat = np.sort(H.ravel())[::-1]
+    cumulative = np.cumsum(flat) / flat.sum()
+    return float(flat[min(np.searchsorted(cumulative, fraction), flat.size - 1)])
+
+
+def _smooth3(H: np.ndarray) -> np.ndarray:
+    """Return *H* averaged over each bin's 3 × 3 neighbourhood (edges padded with zeros)."""
+    from numpy.lib.stride_tricks import sliding_window_view
+
+    return sliding_window_view(np.pad(H, 1), (3, 3)).mean(axis=(-1, -2))
+
+
+def _cover(limits: tuple[float, float], values: list[float]) -> tuple[float, float]:
+    """Return *limits* widened (by 5 % of the span) to include every value."""
+    lo, hi = limits
+    vmin, vmax = min(values), max(values)
+    pad = 0.05 * (max(hi, vmax) - min(lo, vmin))
+    return (
+        min(lo, vmin - pad) if vmin < lo else lo,
+        max(hi, vmax + pad) if vmax > hi else hi,
+    )
+
+
+def _median_line(
+    levels: list[tuple[float, float, float]],
+) -> tuple[np.ndarray, np.ndarray]:
+    """Return S and T of a deployment's median line through its levels in pressure order.
+
+    Parameters
+    ----------
+    levels : list of (float, float, float)
+        ``(median pressure, median S, median T)`` per level.
+
+    Returns
+    -------
+    tuple of numpy.ndarray
+        S and T of the line's vertices; levels closer than
+        :data:`TS_COLOCATED_DBAR` in pressure are averaged into one vertex.
+    """
+    levels = sorted(levels)
+    groups = [[levels[0]]]
+    for item in levels[1:]:
+        if item[0] - groups[-1][-1][0] < TS_COLOCATED_DBAR:
+            groups[-1].append(item)
+        else:
+            groups.append([item])
+    vertices = np.array([np.mean(g, axis=0) for g in groups])
+    return vertices[:, 1], vertices[:, 2]
+
+
 def draw_ts_by_deployment(
     ds: xr.Dataset, *, width_in: float = report_tokens.W_HALF
 ) -> plt.Figure | None:
-    """T-S scatter of a concatenated stack, one color per deployment.
+    """T-S of a concatenated stack by deployment: an outline and a median per instrument level.
 
-    Values flagged 3, 4 or 9 (``parameters.QC_BAD_FLAGS``) are left out. A shift
-    between the deployments' clouds at the same depth is what this panel is for.
+    For each depth and deployment with at least :data:`TS_MIN_LEVEL_DAYS` days of
+    temperature and salinity, the outline encloses :data:`TS_OUTLINE_FRACTION` of
+    that level's points (the densest region of its T-S histogram, smoothed over
+    3 × 3 bins), and a dot marks its median S and T. With more than
+    :data:`TS_MAX_OUTLINES` such levels the outlines are left out and only the
+    medians and lines are drawn. A line joins each
+    deployment's medians in pressure order (levels within
+    :data:`TS_COLOCATED_DBAR` averaged): a guide to the eye along the profile, not
+    interpolated data. Two consecutive deployments share a color; the second has
+    dashed outlines and line and a square marker. Values flagged 3, 4 or 9
+    (``parameters.QC_BAD_FLAGS``) are left out. A shift between the deployments at
+    the same depth is what this panel is for.
 
     Parameters
     ----------
     ds : xr.Dataset
         A concatenated stack, one column per depth (``time, N_LEVELS``), with
         ``temperature``, ``salinity``, ``cell_deployment(time, N_LEVELS)`` (the
-        deployment behind each value, -1 none) and ``deployment_name(DEPLOYMENT)``.
+        deployment behind each value, -1 none) and ``deployment_name(DEPLOYMENT)``;
+        ``pressure`` orders the median line (else the column order).
     width_in : float, optional
         Figure width in inches.
 
     Returns
     -------
     plt.Figure or None
-        None without temperature, salinity or the deployment record.
+        None without temperature, salinity or the deployment record, or when no
+        level has enough data.
     """
     import matplotlib.pyplot as plt
 
-    from .helpers import deployment_color
+    from .helpers import (
+        deployment_color,
+        deployment_line,
+        deployment_marker,
+        legend_below,
+        short_names,
+    )
 
     needed = ("temperature", "salinity", "cell_deployment", "deployment_name")
     if any(v not in ds.variables for v in needed):
@@ -631,38 +731,105 @@ def draw_ts_by_deployment(
     for var, arr in (("temperature", T), ("salinity", S)):
         if f"{var}_qc" in ds.data_vars:
             arr[np.isin(ds[f"{var}_qc"].values, params.QC_BAD_FLAGS)] = np.nan
-    names = [str(n) for n in ds["deployment_name"].values]
+    P = (
+        ds["pressure"].values.astype(float)
+        if "pressure" in ds and ds["pressure"].shape == T.shape
+        else None
+    )
+    names = short_names([str(n) for n in ds["deployment_name"].values])
+    n_dep = len(names)
     cell_dep = ds["cell_deployment"].values
-    fig, ax = plt.subplots(figsize=(width_in, width_in), layout="constrained")
-    all_s, all_t = [], []
-    for k, name in enumerate(names):
-        cells = cell_dep == k
-        s, t = S[cells], T[cells]
-        ok = np.isfinite(s) & np.isfinite(t)
-        if not ok.any():
-            continue
-        ax.scatter(
-            s[ok],
-            t[ok],
-            s=2,
-            linewidths=0,
-            alpha=0.5,
-            color=deployment_color(k),
-            label=name,
-            rasterized=True,
-        )
-        all_s.append(s[ok])
-        all_t.append(t[ok])
-    if not all_s:
-        plt.close(fig)
+    time = ds["time"].values
+    step_s = (
+        float(np.median(np.diff(time)) / np.timedelta64(1, "s"))
+        if time.size > 1
+        else 3600.0
+    )
+    min_points = TS_MIN_LEVEL_DAYS * 86400.0 / step_s
+
+    # (k, column, S, T) of every level that is drawn.
+    cells = []
+    for j in range(cell_dep.shape[1]):
+        for k in np.unique(cell_dep[:, j][cell_dep[:, j] >= 0]):
+            ok = (cell_dep[:, j] == k) & np.isfinite(S[:, j]) & np.isfinite(T[:, j])
+            if ok.sum() >= min_points:
+                cells.append((int(k), j, S[ok, j], T[ok, j], ok))
+    if not cells:
         return None
-    s_all, t_all = np.concatenate(all_s), np.concatenate(all_t)
+    s_all = np.concatenate([c[2] for c in cells])
+    t_all = np.concatenate([c[3] for c in cells])
+    # Axis limits from the points, widened to every level's median so no
+    # median line runs off the panel.
+    s_med = [float(np.median(c[2])) for c in cells]
+    t_med = [float(np.median(c[3])) for c in cells]
+    s_lim = _cover(_nice_axis_limits(s_all), s_med)
+    t_lim = _cover(_nice_axis_limits(t_all), t_med)
+    s_edges = np.linspace(*s_lim, TS_OUTLINE_BINS[0] + 1)
+    t_edges = np.linspace(*t_lim, TS_OUTLINE_BINS[1] + 1)
+    s_mid, t_mid = (s_edges[:-1] + s_edges[1:]) / 2, (t_edges[:-1] + t_edges[1:]) / 2
+
+    fig, ax = plt.subplots(figsize=(width_in, width_in), layout="constrained")
+    outlines = len(cells) <= TS_MAX_OUTLINES
+    medians: dict[int, list[tuple[float, float, float]]] = {}
+    for k, j, s, t, ok in cells:
+        style = deployment_line(k, n_dep)
+        H = (
+            _smooth3(np.histogram2d(s, t, bins=[s_edges, t_edges])[0])
+            if outlines
+            else None
+        )
+        if H is not None and H.sum() > 0:
+            ax.contour(
+                s_mid,
+                t_mid,
+                H.T,
+                levels=[_outline_level(H, TS_OUTLINE_FRACTION)],
+                colors=[style["color"]],
+                linestyles=[style["ls"]],
+                linewidths=0.9,
+                zorder=3,
+            )
+        order = float(np.nanmedian(P[ok, j])) if P is not None else float(j)
+        medians.setdefault(k, []).append(
+            (order, float(np.median(s)), float(np.median(t)))
+        )
+    for k, levels in medians.items():
+        style = deployment_line(k, n_dep)
+        line_s, line_t = _median_line(levels)
+        ax.plot(
+            line_s, line_t, lw=1.8, alpha=0.5, zorder=4, solid_capstyle="round", **style
+        )
+        ax.plot(
+            [m[1] for m in levels],
+            [m[2] for m in levels],
+            ls="none",
+            marker=deployment_marker(k, n_dep),
+            color=deployment_color(k, n_dep),
+            mec="black",
+            mew=0.4,
+            ms=4.5,
+            zorder=5,
+        )
     _add_sigma0_contours(ax, s_all, t_all)
-    ax.set_xlim(*_nice_axis_limits(s_all))
-    ax.set_ylim(*_nice_axis_limits(t_all))
+    ax.set_xlim(*s_lim)
+    ax.set_ylim(*t_lim)
     ax.set_xlabel(params.vlabel("salinity"))
     ax.set_ylabel(params.vlabel("temperature"))
-    ax.legend(markerscale=4, loc="best", fontsize="small")
+    legend_below(
+        fig,
+        [
+            plt.Line2D(
+                [],
+                [],
+                marker=deployment_marker(k, n_dep),
+                mec="black",
+                mew=0.4,
+                label=names[k],
+                **deployment_line(k, n_dep),
+            )
+            for k in sorted(medians)
+        ],
+    )
     plot_title(ax, "T-S by deployment")
     return fig
 
@@ -692,7 +859,7 @@ def draw_ts_medians(
     """
     import matplotlib.pyplot as plt
 
-    from .helpers import deployment_color
+    from .helpers import deployment_color, deployment_marker
 
     needed = ("temperature", "salinity", "cell_deployment", "deployment_name")
     if any(v not in ds.variables for v in needed):
@@ -704,6 +871,7 @@ def draw_ts_medians(
             arr[np.isin(ds[f"{var}_qc"].values, params.QC_BAD_FLAGS)] = np.nan
         arrays[var] = arr
     names = [str(n) for n in ds["deployment_name"].values]
+    n_dep = len(names)
     cell_dep = ds["cell_deployment"].values
     rows = []
     for j in range(cell_dep.shape[1]):
@@ -723,13 +891,13 @@ def draw_ts_medians(
         return None
     fig, ax = plt.subplots(figsize=(width_in, width_in), layout="constrained")
     for k, sq, tq in rows:
-        color = deployment_color(k)
+        color = deployment_color(k, n_dep)
         ax.errorbar(
             sq[1],
             tq[1],
             xerr=[[sq[1] - sq[0]], [sq[2] - sq[1]]],
             yerr=[[tq[1] - tq[0]], [tq[2] - tq[1]]],
-            fmt="o",
+            fmt=deployment_marker(k, n_dep),
             color=color,
             ecolor=color,
             elinewidth=1.0,
@@ -751,8 +919,8 @@ def draw_ts_medians(
                 [],
                 [],
                 ls="",
-                marker="o",
-                color=deployment_color(k),
+                marker=deployment_marker(k, n_dep),
+                color=deployment_color(k, n_dep),
                 markeredgecolor="black",
                 markeredgewidth=0.4,
                 label=names[k],

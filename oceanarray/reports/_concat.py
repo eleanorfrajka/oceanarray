@@ -18,6 +18,8 @@ from oceanarray import location, logger, paths
 from oceanarray.pipeline.concat import cell_deployment
 
 from ..config import parameters as params
+from ..plotters import helpers as _helpers
+from ..plotters import ts as _ts
 from . import _masthead
 from ._env import render_history, render_template
 from ._figdebug import as_panel
@@ -25,6 +27,7 @@ from ._html_helpers import _format_dt, _format_duration, _parse_dt, _parse_histo
 from ._plots import (
     _make_adcp_trajectories_b64,
     _make_analog_timeseries_b64,
+    _make_direction_profile_by_deployment_b64,
     _make_multi_aquadopp_trajectories_b64,
     _make_rose_outlines_b64,
     _make_speed_profile_by_deployment_b64,
@@ -39,8 +42,9 @@ from ._vendored.page_model import Panel, Profile, Section, resolve, validate_nav
 
 #: Shading note added to the time-series captions on the concatenated page.
 _TURNAROUND = (
-    " Grey bands are the turnarounds (no instrument in the water); a thin line marks "
-    "each deployment's start, and each deployment is named along the top."
+    " Grey bands are the turnarounds (no instrument in the water); a thin line and a "
+    "▼ above the panel mark each deployment's start, and each deployment is named "
+    "along the top."
 )
 
 #: Added to the captions of the figures drawn per deployment.
@@ -57,16 +61,24 @@ CONCAT_CAPTIONS: dict[str, str] = {
     "vel_uvw": STACK_CAPTIONS["vel_uvw"] + _TURNAROUND,
     "turbidity": STACK_CAPTIONS["turbidity"] + _TURNAROUND,
     "ts_by_deployment": (
-        "Temperature against salinity, one color per deployment; values flagged "
-        "3, 4 or 9 left out. A shift between the clouds at the same depth is a "
-        "difference between deployments (sensor offset or a change in the water)."
-        + _OVERLAP_NOTE
+        "Temperature against salinity, one color per deployment. For each "
+        f"instrument level, the outline encloses the densest {_ts.TS_OUTLINE_FRACTION:.0%} "
+        "of its T-S values (a 2-D histogram smoothed over 3 × 3 bins) and the dot is "
+        "its median; levels with less than "
+        f"{_ts.TS_MIN_LEVEL_DAYS:g} days of both T and S are left out. Lines join each "
+        "deployment's medians in order of pressure (a guide to the eye, not "
+        "interpolated data; levels less than "
+        f"{_ts.TS_COLOCATED_DBAR:g} dbar apart are averaged for the line). With more "
+        f"than {_ts.TS_MAX_OUTLINES} levels the outlines are left out. Values flagged "
+        "3, 4 or 9 left out. A shift between deployments at the same depth is a "
+        "sensor offset or a change in the water." + _OVERLAP_NOTE
     ),
     "ts_medians": (
         "Draft. Median salinity and temperature of each depth in each "
-        "deployment, with interquartile whiskers, one color per deployment. Values "
-        "flagged 3, 4 or 9 left out; the scatter below carries the pressure."
-        + _OVERLAP_NOTE
+        "deployment, with interquartile whiskers, one color per deployment (with "
+        "more than seven deployments, colors repeat in pairs, the second of a pair "
+        "with a square marker). Values flagged 3, 4 or 9 left out; the scatter below "
+        "carries the pressure." + _OVERLAP_NOTE
     ),
     "roses": (
         "One rose per depth, one outline per "
@@ -76,8 +88,24 @@ CONCAT_CAPTIONS: dict[str, str] = {
     ),
     "speed_profile": (
         "Current speed per depth, one box per deployment in its color "
-        "(median, interquartile range, whiskers to 1.5 × IQR), overlaid at the "
-        "depth's nominal depth. Values flagged 3, 4 or 9 left out." + _OVERLAP_NOTE
+        "(median, interquartile range, whiskers to 1.5 × IQR), side by side at the "
+        "depth's nominal depth; with more than seven deployments colors repeat in "
+        "pairs, the second of a pair hatched. A deployment is drawn at a depth only "
+        "where it has velocity for at least "
+        f"{_helpers.PROFILE_MIN_FRACTION:.0%} of its time steps. Values flagged "
+        "3, 4 or 9 left out." + _OVERLAP_NOTE
+    ),
+    "direction_profile": (
+        "Current direction per depth, one marker per deployment in its color: the "
+        "direction the water flows toward (degrees clockwise from true north) of the "
+        "deployment's mean velocity, from daily means so tides do not count; the bar "
+        "is the circular standard deviation of the daily-mean directions. Hollow "
+        "markers: the flow is not steady enough for a mean direction to mean much "
+        "(mean velocity less than "
+        + f"{params.SLOPE_STEADINESS_MIN:g}"
+        + " of the mean speed). The axis is centred on the mean direction of all "
+        "depths, ±180°. Same depths, data rule and flags as the speed panel."
+        + _OVERLAP_NOTE
     ),
     "trajectories_aquadopp": (
         "Pseudo-Lagrangian trajectories integrated from east/north velocity, one per "
@@ -194,6 +222,13 @@ CONCAT_PANELS: dict[str, Panel] = {
         ),
         slot="half",
     ),
+    "direction_profile": _figure_panel(
+        "direction_profile",
+        lambda c: (
+            "east_velocity" in c.present_vars and "north_velocity" in c.present_vars
+        ),
+        slot="half",
+    ),
     "trajectories_aquadopp": _figure_panel("trajectories_aquadopp"),
     "ts_medians": _figure_panel(
         "ts_medians",
@@ -235,7 +270,10 @@ CONCAT_SECTIONS: dict[str, Section] = {
         ),
     ),
     "speed_profile": Section(
-        "speed_profile", "Current speed by depth", ("speed_profile",)
+        "speed_profile",
+        "Current speed and direction by depth",
+        ("speed_profile", "direction_profile"),
+        layout="row",
     ),
     "ts_diagram": Section(
         "ts_diagram",
@@ -807,6 +845,9 @@ def generate_concat_page(
             "trajectories_adcp": as_panel(lambda: _make_adcp_trajectories_b64(view)),
             "speed_profile": as_panel(
                 lambda: _make_speed_profile_by_deployment_b64(view)
+            ),
+            "direction_profile": as_panel(
+                lambda: _make_direction_profile_by_deployment_b64(view)
             ),
         }
         deployment_rows = _deployment_rows(ds, stack_path, out_dir, report_dir)

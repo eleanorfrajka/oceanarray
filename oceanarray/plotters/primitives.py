@@ -181,6 +181,9 @@ def pcolormesh_panel(
     else:
         cb.set_label(title)
     pressure_axis(ax)
+    # Sections: no horizontal gridlines, which would read as instrument depths
+    # (instruments are drawn as their own lines); the vertical time grid stays.
+    ax.grid(False, axis="y")
     if date_fmt:
         date_axis(ax)
     plot_title(ax, title, loc=title_loc)
