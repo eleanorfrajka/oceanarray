@@ -137,6 +137,17 @@ def test_axis_starts_on_a_whole_multiple_of_the_step(cfg, dt_seconds):
     assert t[-1] <= np.datetime64(cfg["recovery_time"], "ns")
 
 
+def test_a_window_ending_on_a_whole_step_keeps_that_step():
+    """FLMB 2016–2018 (OSNAP East): 16 756 hours, the last on the window's end."""
+    t = time_axis(
+        np.datetime64("2016-07-13T16:00", "ns"),
+        np.datetime64("2018-06-11T19:00", "ns"),
+        3600,
+    )
+    assert t.size == 16756
+    assert t[-1] == np.datetime64("2018-06-11T19:00", "ns")
+
+
 def test_a_window_with_no_whole_step_is_refused(stage3, cfg):
     """20:30–20:50 holds no whole hour: the stack says so instead of writing nothing."""
     short = copy.deepcopy(cfg)

@@ -165,6 +165,9 @@ Manual §2.2.
      - the stage-3 or grid file's history, then a line naming the source file (and,
        for a gridded file, the stage files it was built from)
 
-Attribution (``creator_*``, ``principal_investigator_*``, ``institution``,
-``citation``, ``license``, ``references``) is not written yet; it will come from the
-array description.
+A stack (and a concatenated stack) carries ``principal_investigator*`` and
+``contributor_*``: the people its imported files name (their ``originator_*``
+attributes), joined without repeats; a source file's creator is a contributor with
+the role ``originator``. The rest of the attribution (``creator_*``,
+``institution``, ``citation``, ``license``, ``references``) is not written yet; it
+will come from the array description.

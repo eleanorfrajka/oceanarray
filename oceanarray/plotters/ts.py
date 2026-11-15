@@ -608,8 +608,9 @@ def draw_ts_by_deployment(
     Parameters
     ----------
     ds : xr.Dataset
-        A concatenated stack (``oceanarray.concat``) with ``temperature``,
-        ``salinity``, ``deployment(N_LEVELS)`` and ``deployment_name(DEPLOYMENT)``.
+        A concatenated stack, one column per slot (``time, N_LEVELS``), with
+        ``temperature``, ``salinity``, ``cell_deployment(time, N_LEVELS)`` (the
+        deployment behind each value, -1 none) and ``deployment_name(DEPLOYMENT)``.
     width_in : float, optional
         Figure width in inches.
 
@@ -622,7 +623,7 @@ def draw_ts_by_deployment(
 
     from .helpers import deployment_color
 
-    needed = ("temperature", "salinity", "deployment", "deployment_name")
+    needed = ("temperature", "salinity", "cell_deployment", "deployment_name")
     if any(v not in ds.variables for v in needed):
         return None
     T = ds["temperature"].values.astype(float)
@@ -631,12 +632,12 @@ def draw_ts_by_deployment(
         if f"{var}_qc" in ds.data_vars:
             arr[np.isin(ds[f"{var}_qc"].values, params.QC_BAD_FLAGS)] = np.nan
     names = [str(n) for n in ds["deployment_name"].values]
-    level_dep = ds["deployment"].values
+    cell_dep = ds["cell_deployment"].values
     fig, ax = plt.subplots(figsize=(width_in, width_in), layout="constrained")
     all_s, all_t = [], []
     for k, name in enumerate(names):
-        cols = level_dep == k
-        s, t = S[:, cols].ravel(), T[:, cols].ravel()
+        cells = cell_dep == k
+        s, t = S[cells], T[cells]
         ok = np.isfinite(s) & np.isfinite(t)
         if not ok.any():
             continue
@@ -671,14 +672,16 @@ def draw_ts_medians(
 ) -> plt.Figure | None:
     """Median T and S of each instrument in each deployment, with interquartile whiskers.
 
-    One point per level of a concatenated stack, in its deployment's color
-    (Okabe-Ito). Values flagged 3, 4 or 9 (``parameters.QC_BAD_FLAGS``) are left out.
+    One point per slot and deployment of a concatenated stack, in the deployment's
+    color (Okabe-Ito). Values flagged 3, 4 or 9 (``parameters.QC_BAD_FLAGS``) are
+    left out.
 
     Parameters
     ----------
     ds : xr.Dataset
-        A concatenated stack with ``temperature``, ``salinity``,
-        ``deployment(N_LEVELS)`` and ``deployment_name(DEPLOYMENT)``.
+        A concatenated stack, one column per slot, with ``temperature``,
+        ``salinity``, ``cell_deployment(time, N_LEVELS)`` and
+        ``deployment_name(DEPLOYMENT)``.
     width_in : float, optional
         Figure width in inches.
 
@@ -691,7 +694,7 @@ def draw_ts_medians(
 
     from .helpers import deployment_color
 
-    needed = ("temperature", "salinity", "deployment", "deployment_name")
+    needed = ("temperature", "salinity", "cell_deployment", "deployment_name")
     if any(v not in ds.variables for v in needed):
         return None
     arrays = {}
@@ -701,19 +704,21 @@ def draw_ts_medians(
             arr[np.isin(ds[f"{var}_qc"].values, params.QC_BAD_FLAGS)] = np.nan
         arrays[var] = arr
     names = [str(n) for n in ds["deployment_name"].values]
+    cell_dep = ds["cell_deployment"].values
     rows = []
-    for j, k in enumerate(ds["deployment"].values):
+    for j in range(cell_dep.shape[1]):
         t, s = arrays["temperature"][:, j], arrays["salinity"][:, j]
-        ok = np.isfinite(t) & np.isfinite(s)
-        if ok.sum() < 3:
-            continue
-        rows.append(
-            (
-                int(k),
-                np.percentile(s[ok], [25, 50, 75]),
-                np.percentile(t[ok], [25, 50, 75]),
+        for k in np.unique(cell_dep[:, j][cell_dep[:, j] >= 0]):
+            ok = np.isfinite(t) & np.isfinite(s) & (cell_dep[:, j] == k)
+            if ok.sum() < 3:
+                continue
+            rows.append(
+                (
+                    int(k),
+                    np.percentile(s[ok], [25, 50, 75]),
+                    np.percentile(t[ok], [25, 50, 75]),
+                )
             )
-        )
     if not rows:
         return None
     fig, ax = plt.subplots(figsize=(width_in, width_in), layout="constrained")

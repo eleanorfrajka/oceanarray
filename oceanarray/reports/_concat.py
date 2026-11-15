@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import math
 import os
-import re
 import warnings
 from collections import Counter
 from dataclasses import dataclass, field
@@ -43,6 +42,12 @@ _TURNAROUND = (
     "each deployment's start, and each deployment is named along the top."
 )
 
+#: Added to the captions of the figures drawn per deployment.
+_OVERLAP_NOTE = (
+    " Where two deployments overlap, only the one filling the slot is drawn; the "
+    "other's values are in the file's overlap block."
+)
+
 CONCAT_CAPTIONS: dict[str, str] = {
     "hydro_pts": STACK_CAPTIONS["hydro_pts"].replace(
         "for the full deployment", "for every deployment"
@@ -54,27 +59,30 @@ CONCAT_CAPTIONS: dict[str, str] = {
         "Temperature against salinity, one color per deployment; values flagged "
         "3, 4 or 9 left out. A shift between the clouds at the same depth is a "
         "difference between deployments (sensor offset or a change in the water)."
+        + _OVERLAP_NOTE
     ),
     "ts_medians": (
-        "Draft. Median salinity and temperature of each instrument in each "
+        "Draft. Median salinity and temperature of each depth slot in each "
         "deployment, with interquartile whiskers, one color per deployment. Values "
         "flagged 3, 4 or 9 left out; the scatter below carries the pressure."
+        + _OVERLAP_NOTE
     ),
     "roses": (
-        "One rose per depth slot (or per level without a slot), one outline per "
+        "One rose per depth slot, one outline per "
         "deployment: the share of that deployment's samples flowing toward each "
         "direction (oceanographic convention, 0° = N). Values flagged 3, 4 or 9 "
-        "left out."
+        "left out." + _OVERLAP_NOTE
     ),
     "speed_profile": (
         "Current speed per depth slot, one box per deployment in its color "
         "(median, interquartile range, whiskers to 1.5 × IQR), overlaid at the "
-        "slot's nominal depth. Values flagged 3, 4 or 9 left out."
+        "slot's nominal depth. Values flagged 3, 4 or 9 left out." + _OVERLAP_NOTE
     ),
     "trajectories_aquadopp": (
         "Pseudo-Lagrangian trajectories integrated from east/north velocity, one per "
         "depth slot, running through every deployment in the slot (a turnaround "
-        "adds no displacement). Start at the origin; the label marks the end."
+        "adds no displacement; where two deployments overlap, the one filling the "
+        "slot counts). Start at the origin; the label marks the end."
     ),
 }
 
@@ -194,9 +202,11 @@ CONCAT_SECTIONS: dict[str, Section] = {
         "Instruments by depth slot (deep-first)",
         ("instr_table",),
         intro=(
-            "A slot holds the instruments of one family (hydrography or point "
-            "velocity) whose nominal depth (water depth − HAB) is within the slot "
-            "tolerance, one per deployment. ADCP levels have no slot."
+            "A slot holds the instruments of one family (hydrography, point "
+            "velocity, or ADCP bins) whose nominal depth (water depth − HAB) is "
+            "within the slot tolerance (half the bin size for ADCP bins), one per "
+            "deployment. Slots are named by their depth: their numbers change when "
+            "a deployment is added."
         ),
     ),
     "speed_profile": Section(
@@ -250,7 +260,7 @@ def _physical_instruments(ds: Any) -> list[tuple[int, str]]:
         strict=True,
     ):
         base = (
-            re.sub(r"_(hd|b\d+)$", "", str(serial))
+            paths.adcp_parent_serial(serial)
             if str(itype).lower() == "adcp"
             else str(serial)
         )
@@ -331,20 +341,41 @@ def _masthead_facts(ds: Any, stack_path: Path) -> list:
     ]
 
 
-def _deployment_href(
-    source: str, site_dir: Path, out_dir: Path, name: str
-) -> str | None:
-    """Return the relative link from this page to a deployment's own stack report."""
+def _report_folder(
+    source: str, site_dir: Path, name: str, report_dir: Path | None
+) -> Path | None:
+    """Return the folder of a deployment's own reports.
+
+    ``<report_dir>/<deployment>`` when *report_dir* is given, else the ``report``
+    folder beside the deployment's stack.
+    """
+    if report_dir is not None:
+        return Path(report_dir) / name
     if not source:
         return None
-    dep_dir = (site_dir / source).parent
-    page = dep_dir / "report" / f"{name}_stack_report.html"
+    return (site_dir / source).parent / "report"
+
+
+def _deployment_href(
+    source: str,
+    site_dir: Path,
+    out_dir: Path,
+    name: str,
+    report_dir: Path | None = None,
+) -> str | None:
+    """Return the relative link from this page to a deployment's own stack report."""
+    folder = _report_folder(source, site_dir, name, report_dir)
+    if folder is None:
+        return None
+    page = folder / f"{name}_stack_report.html"
     if not page.exists():
         return None
     return Path(os.path.relpath(page.resolve(), out_dir.resolve())).as_posix()
 
 
-def _deployment_rows(ds: Any, stack_path: Path, out_dir: Path) -> list[dict]:
+def _deployment_rows(
+    ds: Any, stack_path: Path, out_dir: Path, report_dir: Path | None = None
+) -> list[dict]:
     """Return one Deployments-table row per deployment."""
     names = [str(n) for n in ds["deployment_name"].values]
     get = {
@@ -376,7 +407,11 @@ def _deployment_rows(ds: Any, stack_path: Path, out_dir: Path) -> list[dict]:
                 "name": name,
                 "years": years,
                 "href": _deployment_href(
-                    _text(get["source_file"], k), stack_path.parent, out_dir, name
+                    _text(get["source_file"], k),
+                    stack_path.parent,
+                    out_dir,
+                    name,
+                    report_dir,
                 ),
                 "deployed": _format_dt(start),
                 "recovered": _format_dt(end),
@@ -392,29 +427,29 @@ def _deployment_rows(ds: Any, stack_path: Path, out_dir: Path) -> list[dict]:
     return rows
 
 
-def _instrument_href(ds: Any, i: int, stack_path: Path, out_dir: Path) -> str | None:
+def _instrument_href(
+    ds: Any, i: int, stack_path: Path, out_dir: Path, report_dir: Path | None = None
+) -> str | None:
     """Return the link from this page to level *i*'s own instrument page, if it exists."""
     k = int(ds["deployment"].values[i])
     source = _text(ds["source_file"].values if "source_file" in ds else None, k)
-    if not source:
-        return None
     name = str(ds["deployment_name"].values[k])
+    folder = _report_folder(source, stack_path.parent, name, report_dir)
+    if folder is None:
+        return None
     serial = str(ds["serial"].values[i])
     if str(ds["instrument_type"].values[i]).lower() == "adcp":
-        serial = re.sub(r"_(hd|b\d+)$", "", serial)
-    page = (
-        (stack_path.parent / source).parent
-        / "report"
-        / "instrument"
-        / f"{name}_{paths.safe_serial(serial)}_report.html"
-    )
+        serial = paths.adcp_parent_serial(serial)
+    page = folder / "instrument" / f"{name}_{paths.safe_serial(serial)}_report.html"
     if not page.exists():
         return None
     return Path(os.path.relpath(page.resolve(), out_dir.resolve())).as_posix()
 
 
-def _slot_rows(ds: Any, stack_path: Path, out_dir: Path) -> list[dict]:
-    """Return the site inventory: one row per depth slot (deep-first), then one per unslotted level.
+def _slot_rows(
+    ds: Any, stack_path: Path, out_dir: Path, report_dir: Path | None = None
+) -> list[dict]:
+    """Return the site inventory: one row per depth slot, deep-first by depth.
 
     Each cell lists that deployment's instruments in the slot, each linked to its
     own instrument page in that deployment's report when the page exists.
@@ -428,30 +463,20 @@ def _slot_rows(ds: Any, stack_path: Path, out_dir: Path) -> list[dict]:
             "type": str(ds["instrument_type"].values[i]),
             "serial": str(ds["serial"].values[i]),
             "depth": f"{float(ds['depth'].values[i]):.0f}",
-            "href": _instrument_href(ds, i, stack_path, out_dir),
+            "href": _instrument_href(ds, i, stack_path, out_dir, report_dir),
         }
 
     rows = []
     depths = slot_depths(ds)
-    for k in np.argsort(-depths, kind="stable"):
+    for k in np.argsort(np.where(np.isfinite(depths), -depths, np.inf), kind="stable"):
         rows.append(
             {
-                "slot": int(k),
                 "family": str(ds["slot_family"].values[k]).replace("_", " "),
-                "depth": f"{depths[k]:.0f}",
+                "depth": f"{depths[k]:.0f}" if np.isfinite(depths[k]) else "—",
                 "cells": [
                     [entry(i) for i in np.flatnonzero((slot == k) & (dep == d))]
                     for d in range(len(names))
                 ],
-            }
-        )
-    for i in np.flatnonzero(slot < 0):
-        rows.append(
-            {
-                "slot": "—",
-                "family": str(ds["instrument_type"].values[i]),
-                "depth": f"{float(ds['depth'].values[i]):.0f}",
-                "cells": [[entry(i)] if dep[i] == d else [] for d in range(len(names))],
             }
         )
     return rows
@@ -484,118 +509,117 @@ def _nav(rows: list[dict]) -> dict:
 
 
 #: Short family names for the slot labels in figure legends.
-_FAMILY_SHORT = {"hydrography": "T/S", "point_velocity": "vel"}
+_FAMILY_SHORT = {
+    "hydrography": "T/S",
+    "point_velocity": "vel",
+    "adcp": "ADCP",
+    "adcp_head": "ADCP head",
+}
 
 
 def slot_depths(ds: Any) -> np.ndarray:
-    """Return each slot's depth: the mean nominal depth of its levels.
+    """Return each slot's depth: the mean nominal depth of its levels (``slot_depth``).
 
     Whatever the slot reference (depth or hab), the page orders and labels slots by
-    depth.
+    depth, never by their number.
     """
-    slot = ds["slot"].values
-    depth = ds["depth"].values.astype(float)
-    return np.array(
-        [
-            float(np.nanmean(depth[slot == k])) if (slot == k).any() else np.nan
-            for k in range(ds.sizes["SLOT"])
-        ]
-    )
+    return ds["slot_depth"].values.astype(float)
 
 
-def _slot_names(ds: Any) -> dict[int, str]:
-    """Return each slot's label, ``≈1500 m T/S``; two slots that round alike get their number."""
+def _slot_names(ds: Any) -> list[str]:
+    """Return each slot's label, ``≈1500 m T/S``; two slots that round alike are told apart.
+
+    The second and later of a clash get ``(2)``, ``(3)`` in depth order, so the
+    label never carries the slot's number.
+    """
     depths = slot_depths(ds)
-    base = {
-        k: f"≈{round(d, -1):.0f} m {_FAMILY_SHORT.get(str(ds['slot_family'].values[k]), '')}".strip()
+    base = [
+        (f"≈{round(d, -1):.0f} m" if np.isfinite(d) else "depth ?")
+        + f" {_FAMILY_SHORT.get(str(ds['slot_family'].values[k]), str(ds['slot_family'].values[k]))}"
         for k, d in enumerate(depths)
-    }
-    counts = Counter(base.values())
-    return {k: (f"{b} (slot {k})" if counts[b] > 1 else b) for k, b in base.items()}
+    ]
+    seen: Counter = Counter()
+    out = []
+    for k in np.argsort(np.where(np.isfinite(depths), -depths, np.inf), kind="stable"):
+        seen[base[k]] += 1
+        out.append(
+            (k, base[k] if seen[base[k]] == 1 else f"{base[k]} ({seen[base[k]]})")
+        )
+    return [label for _, label in sorted(out)]
 
 
-def _slot_labels(ds: Any) -> np.ndarray:
-    """Return each level's legend label: its slot's name or, without one, its ``level_id``."""
-    names = _slot_names(ds)
-    return np.array(
-        [
-            names[int(k)] if k >= 0 else str(ds["level_id"].values[j])
-            for j, k in enumerate(ds["slot"].values)
-        ]
-    )
+def _report_view(ds: Any) -> Any:
+    """Return the site stack with one column per slot, named by depth, deep-first.
 
-
-def _view_by_slot(ds: Any) -> Any:
-    """Return the stack with each level named by its slot and ordered deep-first by depth.
-
-    Levels of one slot share a name, so the time-series figures give them one
-    color and line style (and one legend entry); levels in different slots differ.
-    """
-    view = ds.assign_coords(serial=("N_LEVELS", _slot_labels(ds)))
-    # Order by the slot's depth (the depth its label shows), else the level's own.
-    slots = ds["slot"].values
-    depths = slot_depths(ds)
-    key = np.where(
-        slots >= 0,
-        depths[np.clip(slots, 0, None)] if depths.size else np.nan,
-        ds["depth"].values,
-    )
-    return view.isel(N_LEVELS=np.argsort(-key, kind="stable"))
-
-
-def _slot_view(ds: Any) -> Any:
-    """Return one level per velocity slot, its deployments joined end to end in time.
-
-    For the trajectories: each slot's members are merged step by step (the
-    ``deployment_index`` deployment where two overlap), so one path runs through
-    every deployment of the slot.
+    The figures read it like a stack (``time, N_LEVELS``): ``serial`` is the slot's
+    label, ``instrument_type`` its most common type, ``hab`` and ``depth`` its
+    members' means, and ``cell_deployment`` the deployment behind each value (-1
+    none), so a figure can color by deployment.
     """
     import xarray as xr
 
-    if "east_velocity" not in ds or "north_velocity" not in ds:
-        return None
-    u = ds["east_velocity"].values
-    # ADCP bins have their own trajectory panel.
-    point = np.array([str(t).lower() != "adcp" for t in ds["instrument_type"].values])
-    has = np.isfinite(u).any(axis=0) & point
-    labels = _slot_labels(ds)
-    slot = ds["slot"].values
-    # Grouped by slot number (two slots may share a rounded label), named by label.
-    groups: dict[object, list[int]] = {}
-    for j in np.flatnonzero(has):
-        groups.setdefault(int(slot[j]) if slot[j] >= 0 else f"level {j}", []).append(
-            int(j)
-        )
-    if not groups:
-        return None
-    index = ds["deployment_index"].values
-    dep = ds["deployment"].values
-    order = sorted(
-        groups, key=lambda g: -float(np.nanmean(ds["depth"].values[groups[g]]))
-    )
-    data = {}
-    # Temperature is left out: a slot whose instruments have none would draw an
-    # invisible path when the others are colored by it.
-    for var in ("east_velocity", "north_velocity"):
-        if var not in ds:
-            continue
-        values = ds[var].values
-        merged = np.full((ds.sizes["time"], len(order)), np.nan)
-        for c, key in enumerate(order):
-            for j in groups[key]:
-                take = (index == dep[j]) & np.isfinite(values[:, j])
-                merged[take, c] = values[take, j]
-        data[var] = (("time", "N_LEVELS"), merged, dict(ds[var].attrs))
-    return xr.Dataset(
+    labels = _slot_names(ds)
+    level_slot = ds["slot"].values
+    types, habs = [], []
+    for k in range(ds.sizes["SLOT"]):
+        members = np.flatnonzero(level_slot == k)
+        kinds = Counter(str(x) for x in ds["instrument_type"].values[members])
+        types.append(kinds.most_common(1)[0][0] if kinds else "")
+        hab = ds["hab"].values.astype(float)[members]
+        habs.append(float(np.nanmean(hab)) if np.isfinite(hab).any() else np.nan)
+    index = ds["level_index"].values
+    cell = np.where(
+        index >= 0, ds["deployment"].values[np.clip(index, 0, None)], -1
+    ).astype(np.int16)
+    data = {
+        v: (("time", "N_LEVELS"), ds[v].values, dict(ds[v].attrs))
+        for v in ds.data_vars
+        if ds[v].dims == ("time", "SLOT") and v != "level_index"
+    }
+    data["cell_deployment"] = (("time", "N_LEVELS"), cell)
+    for v in ds.data_vars:
+        if ds[v].dims in (("DEPLOYMENT",), ("time",)):
+            data[v] = ds[v].variable
+    depths = slot_depths(ds)
+    view = xr.Dataset(
         data,
         coords={
             "time": ds["time"],
-            "serial": (
-                "N_LEVELS",
-                np.array([str(labels[groups[g][0]]) for g in order]),
-            ),
-            "instrument_type": ("N_LEVELS", np.array(["aquadopp"] * len(order))),
+            "serial": ("N_LEVELS", np.array(labels)),
+            "level_id": ("N_LEVELS", np.array(labels)),
+            "instrument_type": ("N_LEVELS", np.array(types)),
+            "hab": ("N_LEVELS", np.array(habs), {"units": "m"}),
+            "depth": ("N_LEVELS", depths, {"units": "m"}),
         },
+        attrs=dict(ds.attrs),
+    )
+    order = np.argsort(np.where(np.isfinite(depths), -depths, np.inf), kind="stable")
+    return view.isel(N_LEVELS=order)
+
+
+def _slot_view(view: Any) -> Any:
+    """Return the point-velocity slots of the report view, for the trajectories.
+
+    One path per slot runs through every deployment in it; ADCP bins have their own
+    trajectory panel.
+    """
+    if "east_velocity" not in view or "north_velocity" not in view:
+        return None
+    u = view["east_velocity"].values
+    point = np.array(
+        [
+            params.INSTRUMENT_FAMILIES.get(str(t).lower()) == "point_velocity"
+            for t in view["instrument_type"].values
+        ]
+    )
+    keep = np.flatnonzero(np.isfinite(u).any(axis=0) & point)
+    if not keep.size:
+        return None
+    # Temperature is left out: a slot whose instruments have none would draw an
+    # invisible path when the others are colored by it.
+    out = view[["east_velocity", "north_velocity"]].isel(N_LEVELS=keep)
+    return out.assign_coords(
+        instrument_type=("N_LEVELS", np.array(["aquadopp"] * keep.size))
     )
 
 
@@ -628,6 +652,7 @@ def generate_concat_page(
     out_dir: Path,
     *,
     generated: str | None = None,
+    report_dir: Path | None = None,
 ) -> Path | None:
     """Write the concatenated-stack report page for a site stack.
 
@@ -639,6 +664,10 @@ def generate_concat_page(
         Where the page goes (``<site_dir>/report`` by default in the file verb).
     generated : str, optional
         The page's "generated" timestamp; default now (UTC).
+    report_dir : Path, optional
+        Where the deployments' own reports are, one folder per deployment
+        (``<report_dir>/<deployment>``); default the ``report`` folder beside each
+        deployment's stack. The page links to them.
 
     Returns
     -------
@@ -653,8 +682,8 @@ def generate_concat_page(
             ds = opened.load()
         name = str(ds.attrs.get("site_name", stack_path.stem))
         out_path = out_dir / f"{name}_stackcat_report.html"
-        view = _view_by_slot(ds)
-        slot_view = _slot_view(ds)
+        view = _report_view(ds)
+        slot_view = _slot_view(view)
         names = [str(n) for n in ds["deployment_name"].values]
         windows = _deployment_windows(ds)
         figs = {
@@ -698,10 +727,10 @@ def generate_concat_page(
                 deployments=windows,
                 legend_shallow_first=True,
             ),
-            "roses": as_panel(lambda: _make_rose_outlines_b64(ds)),
+            "roses": as_panel(lambda: _make_rose_outlines_b64(view)),
             "ts_diagram": as_panel(lambda: _make_stack_ts_diagram_b64(view)),
-            "ts_by_deployment": as_panel(lambda: _make_ts_by_deployment_b64(ds)),
-            "ts_medians": as_panel(lambda: _make_ts_medians_b64(ds)),
+            "ts_by_deployment": as_panel(lambda: _make_ts_by_deployment_b64(view)),
+            "ts_medians": as_panel(lambda: _make_ts_medians_b64(view)),
             "trajectories_aquadopp": as_panel(
                 lambda: (
                     _make_multi_aquadopp_trajectories_b64(slot_view)
@@ -711,10 +740,10 @@ def generate_concat_page(
             ),
             "trajectories_adcp": as_panel(lambda: _make_adcp_trajectories_b64(view)),
             "speed_profile": as_panel(
-                lambda: _make_speed_profile_by_deployment_b64(ds)
+                lambda: _make_speed_profile_by_deployment_b64(view)
             ),
         }
-        deployment_rows = _deployment_rows(ds, stack_path, out_dir)
+        deployment_rows = _deployment_rows(ds, stack_path, out_dir, report_dir)
         nc_meta = _read_nc_metadata(stack_path)
         analog_vars = nc_meta.get("analog_vars", [])
         figs["analog"] = (
@@ -737,7 +766,7 @@ def generate_concat_page(
             rose_missing_serials=[],
             deployment_rows=deployment_rows,
             deployment_names=names,
-            slot_rows=_slot_rows(ds, stack_path, out_dir),
+            slot_rows=_slot_rows(ds, stack_path, out_dir, report_dir),
             concat_history=_parse_history(ds.attrs.get("history", "")),
             deployment_histories=[
                 (names[k], _parse_history(str(ds["deployment_history"].values[k])))

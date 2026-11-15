@@ -9,7 +9,13 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Added
 
-- `oceanarray concat` / `oa.concat` join one site's deployment stacks end to end (`<site>_stackcat.nc`, every level kept, nothing filled across a turnaround), with a Stack cat report page and depth slots set by `stack: slot_reference / slot_tolerance_m` (#135).
+- `oceanarray concat` / `oa.concat` join one site's deployment stacks by depth slot into `<site>_stackcat.nc`, with a Stack cat report page (#135).
+- Stacks carry the principal investigators and contributors their imported files name (OceanSITES `principal_investigator*`, `contributor_*`) (#135).
+- `writers.write(chunks=)` sets the chunk length along a dimension (#135).
+
+### Fixed
+
+- The stack time axis keeps a last step that falls exactly on the recovery time (#135).
 
 ---
 

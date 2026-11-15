@@ -19,36 +19,61 @@ stack, grid and report; the concatenated stack (``<site>_stackcat.nc``) and its 
 What it does
 ------------
 
-- **Every level of every deployment is kept.** A level is one instrument in one
-  deployment; it is empty (NaN, QC flag 9) outside its own deployment's steps.
-  Serials repeat across deployments, so ``level_id`` (``<deployment>/<serial>``)
-  names each level.
+- **Every level of every deployment is kept.** A level is one instrument (or one
+  ADCP bin) in one deployment. Serials repeat across deployments, so ``level_id``
+  (``<deployment>/<serial>``) names each level.
+- **Stored by depth slot.** The time series are on ``(time, SLOT)``: a slot holds
+  the levels at about the same depth across deployments (see Slots), so one
+  depth is one column through the years. ``level_index(time, SLOT)`` names the
+  level behind each value (−1: none); a slot is empty (NaN, QC flag 9) outside its
+  levels' deployments.
 - **Nothing is filled across a turnaround.** The steps between two deployments stay
   empty; ``deployment_index(time)`` is −1 there.
-- **Overlaps keep both.** Where two deployments are in the water at once, both are
-  kept; ``deployment_index`` names the newer one as the one that counts.
+- **Overlaps lose nothing.** Where two deployments are in the water at once, the
+  newer one fills the slot (``overlap="older"`` for the other way round) and the
+  other's values go to the *overlap block* on ``N_OVERLAP``: ``overlap_time``,
+  ``overlap_slot``, ``overlap_level_index`` and ``overlap_<variable>``.
+- **Segments.** ``segment_slot``, ``segment_level_index``, ``segment_start`` and
+  ``segment_end`` (on ``N_SEGMENTS``) list each run of one level in one slot, so a
+  reader can find a level's values without scanning ``level_index``.
 - **One time step.** The stacks must share ``stack: dt_seconds`` and sit on whole
   steps (any stack made by oceanarray 0.6 or later); otherwise ``concat`` refuses.
 - **A record per deployment** on the ``DEPLOYMENT`` dimension: name, deployment
   and recovery time, position, water depth, cruises and ships, the source stack's
-  file name and SHA-256, its ``history`` and the settings that built it
-  (``deployment_settings``, YAML).
+  file name and SHA-256, its ``history``, the settings that built it
+  (``deployment_settings``, YAML) and its people. A stack attribute the
+  deployments agree on is kept once; one that differs becomes a
+  ``deployment_<name>`` variable.
+- **People.** ``principal_investigator*`` and ``contributor_*`` (OceanSITES) are
+  the union of every deployment's, without repeats. A stack takes them from its
+  imported files' own attributes (``originator_*``); a source file's creator joins
+  the contributors with the role ``originator``. An email or url that does not pair
+  one-to-one with the names stays with the first name. ``creator_*`` is left to whoever
+  produces the file.
+- **Memory.** Each variable of each stack is read once and placed by integer
+  slicing, so the peak is about the result plus one variable of one stack. The file
+  is chunked by about a year along time.
 
 Slots
 -----
 
-A *slot* labels the levels at about the same depth across deployments, so one depth
-can be followed through the years. A level joins the nearest slot of its family
-(hydrography: MicroCATs, temperature loggers and CTDs; point velocity: Aquadopps and
-current meters) within the slot tolerance of the slot's center (the mean of its
-levels so far), at most one level per deployment; otherwise it opens a new slot.
-A level that ends up farther than the tolerance from its slot's final center is
-named in a warning. ADCP levels get no slot. Slots are numbered deep-first.
+A level joins the nearest slot of its family (hydrography: MicroCATs, temperature
+loggers and CTDs; point velocity: Aquadopps and current meters; ADCP bins; ADCP heads, which never share a slot with a bin)
+within the slot tolerance of the slot's center (the mean of its levels so far), at most
+one level per deployment; otherwise it opens a new slot. The tolerance is
+``slot_tolerance_m`` (default 50 m), or half the bin size for ADCP bins. A level
+that ends up farther than the tolerance from its slot's final center is named in a
+warning.
 
-Slots are a label only: they group the levels on the report page (the instrument
-table, line colors, roses, speed boxes) and in the file (``slot``, ``slot_family``,
-``slot_reference_value``); the data are the same whatever the slot rule. The rule is
-set in each mooring YAML's ``stack:`` block and must agree across the deployments:
+.. warning::
+
+   Slot numbers are not stable. Adding a deployment or changing the slot rule
+   renumbers them, so nothing should read a slot's number as a depth: a slot's
+   depth is ``slot_depth`` (the mean nominal depth of its levels). The report
+   names slots by depth.
+
+The rule is set in each mooring YAML's ``stack:`` block and must agree across the
+deployments:
 
 .. code-block:: yaml
 
@@ -67,6 +92,10 @@ page), hydrography and velocity with the turnarounds shaded, trajectories and
 current speed per slot, T-S diagrams colored by deployment, and current roses with
 one outline per deployment. Tilt, instrument spacing and the clock check stay in each
 deployment's own report.
+
+The links look for each deployment's reports in the ``report`` folder beside its
+stack, or in ``<DIR>/<deployment>`` with ``--report-dir DIR`` (``report_dir=`` in
+Python).
 
 Legacy Context (RAPID)
 ----------------------

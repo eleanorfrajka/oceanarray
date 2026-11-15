@@ -1,16 +1,17 @@
 {# The site inventory: levels of a concatenated stack by depth slot, one column per
-   deployment; each serial links to its instrument page in that deployment's report. #}
+   deployment, deep-first by depth (never by slot number); each serial links to its instrument page in that deployment's report. #}
 <table class="instr-table">
-  <thead><tr><th>Slot</th><th>Family</th><th>~Depth (m)</th>
-  {% for name in deployments %}<th>{{ name }}</th>{% endfor %}</tr></thead>
+  <thead><tr><th>~Depth (m)</th><th>Type</th>
+  {% for name in deployments %}<th>{{ name }}</th><th>Serial</th>{% endfor %}</tr></thead>
   <tbody>
   {% for row in rows %}
   <tr>
-    <td>{{ row.slot }}</td>
-    <td>{{ row.family }}</td>
     <td>{{ row.depth }}</td>
+    <td>{{ row.family }}</td>
     {% for cell in row.cells %}<td>
-      {%- for e in cell %}{% if not loop.first %}<br>{% endif %}{{ e.type }} {% if e.href %}<a href="{{ e.href }}">{{ e.serial }}</a>{% else %}{{ e.serial }}{% endif %} ({{ e.depth }} m){% else %}—{% endfor -%}
+      {%- for e in cell %}{% if not loop.first %}<br>{% endif %}{{ e.type }} ({{ e.depth }} m){% else %}—{% endfor -%}
+    </td><td>
+      {%- for e in cell %}{% if not loop.first %}<br>{% endif %}{% if e.href %}<a href="{{ e.href }}">{{ e.serial }}</a>{% else %}{{ e.serial }}{% endif %}{% else %}—{% endfor -%}
     </td>{% endfor %}
   </tr>
   {% endfor %}

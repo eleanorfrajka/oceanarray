@@ -58,9 +58,10 @@ def time_axis(start: np.datetime64, end: np.datetime64, dt_seconds: int) -> np.n
     start_ns = int(np.datetime64(start, "ns").astype(np.int64))
     end_ns = int(np.datetime64(end, "ns").astype(np.int64))
     first_ns = -(-start_ns // step_ns) * step_ns
-    return np.arange(first_ns, end_ns + 1, step_ns, dtype=np.int64).astype(
-        "datetime64[ns]"
-    )
+    # Counted in integers: np.arange sizes its result in floating point, which at
+    # nanosecond magnitudes can drop a last step that falls exactly on *end*.
+    n = max(0, (end_ns - first_ns) // step_ns + 1)
+    return (first_ns + step_ns * np.arange(n, dtype=np.int64)).astype("datetime64[ns]")
 
 
 def time_step_seconds(ds: xr.Dataset) -> float:

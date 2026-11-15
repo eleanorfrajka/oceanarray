@@ -353,8 +353,9 @@ KNOWN_INSTRUMENT_TYPES: frozenset = frozenset(INSTRUMENT_FILE_TYPES.keys())
 
 #: Which instruments may share a depth slot across deployments in a
 #: concatenated stack. A temperature-only logger is hydrography, so it can sit in
-#: one slot with a CTD of another year. ADCPs have no family: their bins get no
-#: slot. Keys are lower-case instrument types.
+#: one slot with a CTD of another year. ADCP bins (and the ADCP head) are their
+#: own family, matched within half the bin size; an unlisted type is a family of
+#: its own. Keys are lower-case instrument types.
 INSTRUMENT_FAMILIES: dict[str, str] = {
     "microcat": "hydrography",
     "sbe56": "hydrography",
@@ -364,6 +365,7 @@ INSTRUMENT_FAMILIES: dict[str, str] = {
     "rbrduet": "hydrography",
     "aquadopp": "point_velocity",
     "currentmeter": "point_velocity",
+    "adcp": "adcp",
 }
 
 #: Default slot rule for ``concat``: match levels by depth (water depth − hab)

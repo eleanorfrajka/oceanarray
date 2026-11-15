@@ -29,7 +29,7 @@ def cmd_concat(args: argparse.Namespace) -> int:
     if not args.dry_run and not args.no_report:
         from oceanarray.reports._concat import generate_concat_page
 
-        generate_concat_page(out, out.parent / "report")
+        generate_concat_page(out, out.parent / "report", report_dir=args.report_dir)
     return 0
 
 
@@ -40,8 +40,10 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
         help="Join one site's deployment stacks end to end in time.",
         description=(
             "Read each named mooring's stack (<name>_stack.nc beside its description)\n"
-            "and join them on one time axis: every level of every deployment, each\n"
-            "empty outside its deployment; nothing is filled across a turnaround. The\n"
+            "and join them on one time axis by depth slot: every level of every\n"
+            "deployment, each slot empty outside its levels' deployments; nothing is\n"
+            "filled across a turnaround, and where two deployments overlap the newer\n"
+            "fills the slot and the older is kept in the overlap block. The\n"
             "stacks must share stack: dt_seconds. Writes <NAME>_stackcat.nc and its report\n"
             "page (report/<NAME>_stackcat_report.html). Exits 1 when the stacks cannot be\n"
             "joined."
@@ -77,5 +79,15 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
         "--force", action="store_true", help="Replace an existing site stack."
     )
     p.add_argument("--no-report", action="store_true", help="Write the stack only.")
+    p.add_argument(
+        "--report-dir",
+        type=Path,
+        default=None,
+        help=(
+            "Where the deployments' own reports are, one folder per deployment "
+            "(<DIR>/<deployment>), for the page's links (default: the report folder "
+            "beside each deployment's stack)."
+        ),
+    )
     _add_dir_args(p, raw_needed=False)
     p.set_defaults(func=cmd_concat)

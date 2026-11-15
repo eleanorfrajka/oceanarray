@@ -2130,40 +2130,24 @@ def draw_aquadopp_tilt_panels(
     return fig
 
 
-def _velocity_groups(ds: xr.Dataset) -> list[tuple[str, list[int]]]:
-    """Return ``(label, level indices)`` per velocity slot of a concatenated stack, deep-first.
+def _velocity_groups(ds: xr.Dataset) -> list[tuple[str, int]]:
+    """Return ``(label, column)`` per velocity slot of a concatenated stack, deep-first.
 
-    Levels in one slot share a group; a level without a slot (an ADCP bin, or an
-    instrument with no family) is a group of its own, labelled by its ``level_id``.
-    Only levels with finite east and north velocity are kept.
+    One column per slot (its ``serial`` is the slot's label); only columns with
+    finite east and north velocity are kept, and a slot with no known depth goes
+    last.
     """
     if "east_velocity" not in ds or "north_velocity" not in ds:
         return []
     u, v = ds["east_velocity"].values, ds["north_velocity"].values
     has = np.isfinite(u).any(axis=0) & np.isfinite(v).any(axis=0)
-    slots = ds["slot"].values
     depth = ds["depth"].values.astype(float)
-    ids = [str(x) for x in ds["level_id"].values]
-    groups: dict[object, list[int]] = {}
-    for j in np.flatnonzero(has):
-        key = int(slots[j]) if slots[j] >= 0 else ids[j]
-        groups.setdefault(key, []).append(int(j))
-    out = []
-    for key, members in groups.items():
-        mean_depth = float(np.nanmean(depth[members]))
-        label = f"≈{round(mean_depth, -1):.0f} m" if isinstance(key, int) else key
-        out.append((label, members, mean_depth, key))
-    # Two slots whose depths round alike keep apart by their number.
-    counts: dict[str, int] = {}
-    for label, *_ in out:
-        counts[label] = counts.get(label, 0) + 1
-    out = [
-        (f"{label} (slot {key})" if counts[label] > 1 else label, members, d)
-        for label, members, d, key in out
-    ]
-    # Deep-first; a group with no known depth (no water depth) goes last.
-    out.sort(key=lambda g: -g[2] if np.isfinite(g[2]) else np.inf)
-    return [(label, members) for label, members, _ in out]
+    labels = [str(x) for x in ds["serial"].values]
+    cols = sorted(
+        np.flatnonzero(has),
+        key=lambda j: -depth[j] if np.isfinite(depth[j]) else np.inf,
+    )
+    return [(labels[j], int(j)) for j in cols]
 
 
 def draw_rose_outlines(
@@ -2182,8 +2166,9 @@ def draw_rose_outlines(
     Parameters
     ----------
     ds : xr.Dataset
-        A concatenated stack (``oceanarray.concat``) with east/north velocity,
-        ``slot``, ``depth``, ``level_id``, ``deployment`` and ``deployment_name``.
+        A concatenated stack, one column per slot, with east/north velocity,
+        ``depth``, ``serial`` (the slot's label), ``cell_deployment(time, N_LEVELS)``
+        and ``deployment_name``.
     n_sectors : int, optional
         Number of direction sectors.
     width_in : float, optional
@@ -2204,7 +2189,7 @@ def draw_rose_outlines(
     for var, arr in (("east_velocity", u), ("north_velocity", v)):
         if f"{var}_qc" in ds.data_vars:
             arr[np.isin(ds[f"{var}_qc"].values, params.QC_BAD_FLAGS)] = np.nan
-    level_dep = ds["deployment"].values
+    cell_dep = ds["cell_deployment"].values
     names = [str(n) for n in ds["deployment_name"].values]
     edges = np.linspace(0.0, 2 * np.pi, n_sectors + 1)
     ncols = min(4, len(groups))
@@ -2219,15 +2204,15 @@ def draw_rose_outlines(
         layout="constrained",
     )
     used: set[int] = set()
-    for ax, (label, members) in zip(axs.ravel(), groups, strict=False):
+    for ax, (label, j) in zip(axs.ravel(), groups, strict=False):
         ax.set_theta_zero_location("N")
         ax.set_theta_direction(-1)
         ax.set_xticks(np.radians([0, 90, 180, 270]))
         ax.set_xticklabels(["N", "E", "S", "W"])
         ax.tick_params(axis="y", labelsize="x-small")
-        for j in members:
-            k = int(level_dep[j])
-            ok = np.isfinite(u[:, j]) & np.isfinite(v[:, j])
+        for k in np.unique(cell_dep[:, j][cell_dep[:, j] >= 0]):
+            k = int(k)
+            ok = np.isfinite(u[:, j]) & np.isfinite(v[:, j]) & (cell_dep[:, j] == k)
             if ok.sum() < 2:
                 continue
             direction = np.mod(np.arctan2(u[ok, j], v[ok, j]), 2 * np.pi)
@@ -2273,8 +2258,9 @@ def draw_speed_profile_by_deployment(
     Parameters
     ----------
     ds : xr.Dataset
-        A concatenated stack with east/north velocity, ``slot``, ``depth``,
-        ``level_id``, ``deployment`` and ``deployment_name``.
+        A concatenated stack, one column per slot, with east/north velocity,
+        ``depth``, ``serial`` (the slot's label), ``cell_deployment(time, N_LEVELS)``
+        and ``deployment_name``.
     width_in : float, optional
         Figure width in inches.
 
@@ -2287,12 +2273,7 @@ def draw_speed_profile_by_deployment(
 
     depth = ds["depth"].values.astype(float)
     # Boxes are placed at depth: a slot with no known depth cannot be drawn.
-    groups = [
-        (label, members)
-        for label, members in _velocity_groups(ds)
-        if np.isfinite(np.nanmean(depth[members]))
-        if np.isfinite(depth[members]).any()
-    ]
+    groups = [(label, j) for label, j in _velocity_groups(ds) if np.isfinite(depth[j])]
     if not groups:
         return None
     u = ds["east_velocity"].values.astype(float)
@@ -2301,9 +2282,9 @@ def draw_speed_profile_by_deployment(
         if f"{var}_qc" in ds.data_vars:
             arr[np.isin(ds[f"{var}_qc"].values, params.QC_BAD_FLAGS)] = np.nan
     speed = np.hypot(u, v)
-    level_dep = ds["deployment"].values
+    cell_dep = ds["cell_deployment"].values
     names = [str(n) for n in ds["deployment_name"].values]
-    group_depth = [float(np.nanmean(depth[m])) for _, m in groups]
+    group_depth = [float(depth[j]) for _, j in groups]
     spacing = (
         np.diff(sorted(group_depth)) if len(group_depth) > 1 else np.array([200.0])
     )
@@ -2311,13 +2292,13 @@ def draw_speed_profile_by_deployment(
 
     fig, ax = plt.subplots(figsize=(width_in, width_in * 0.9), layout="constrained")
     used: set[int] = set()
-    for (_label, members), y in zip(groups, group_depth, strict=True):
-        for j in members:
-            s = speed[:, j]
+    for (_label, j), y in zip(groups, group_depth, strict=True):
+        for k in np.unique(cell_dep[:, j][cell_dep[:, j] >= 0]):
+            k = int(k)
+            s = speed[:, j][cell_dep[:, j] == k]
             s = s[np.isfinite(s)]
             if s.size < 3:
                 continue
-            k = int(level_dep[j])
             color = deployment_color(k)
             ax.boxplot(
                 s,

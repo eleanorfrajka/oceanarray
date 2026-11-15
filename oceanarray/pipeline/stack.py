@@ -13,6 +13,7 @@ from oceanarray.exceptions import MooringError
 from oceanarray.instruments import instrument_entries
 from oceanarray.location import parse_latlon
 from oceanarray.paths import safe_serial
+from oceanarray.pipeline import attribution
 from oceanarray.pipeline.dataset import drop_all_zero_vars, time_axis
 from oceanarray.pipeline.pressure import _times_to_float
 from oceanarray.pipeline.qc import _apply_qc_mask, _worst_flag
@@ -973,6 +974,18 @@ def stack(
                 f"in time); steps with no sample are empty"
             ),
         }
+    )
+
+    # The people behind imported files (their originator_* attributes), joined
+    # without repeats; files processed from raw carry none.
+    ds_out.attrs.update(
+        attribution.to_attrs(
+            attribution.union(
+                attribution.people_from_attrs(info["ds"].attrs, prefix="originator_")
+                for i, info in enumerate(instruments)
+                if i not in _omitted_set and info.get("ds") is not None
+            )
+        )
     )
 
     # Beam velocities are superseded by ENU components in the stacked file.
