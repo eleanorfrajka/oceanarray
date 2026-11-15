@@ -165,9 +165,26 @@ Manual §2.2.
      - the stage-3 or grid file's history, then a line naming the source file (and,
        for a gridded file, the stage files it was built from)
 
-A stack (and a concatenated stack) carries ``principal_investigator*`` and
-``contributor_*``: the people its imported files name (their ``originator_*``
-attributes), joined without repeats; a source file's creator is a contributor with
-the role ``originator``. The rest of the attribution (``creator_*``,
-``institution``, ``citation``, ``license``, ``references``) is not written yet; it
-will come from the array description.
+Stage 1 cleans the people an imported file names (its ``originator_*``
+attributes stay as given) and writes them as OceanSITES 1.4 lists:
+``principal_investigator``, ``_email``, ``_url``, ``_id`` separated by commas, and
+``contributor_name``, ``_role``, ``_email`` separated by semicolons. Every parallel
+attribute has one entry per slot (empty entries kept), and a contributor with two
+roles takes two slots. Reading an originator's lists:
+
+- each field is split on its own separator (``;`` when it has one, else ``,``);
+- titles before or after a name are dropped (``"Dr. Fiamma Straneo, Professor"``
+  is one person, ``Fiamma Straneo``); ``"Surname, Given"`` is written ``"Given
+  Surname"``;
+- a role, email, url or id without one entry per name is left out, with a
+  warning (never guessed);
+- the file's creator and publisher join the contributors (roles ``originator`` and
+  ``publisher``); a file with no ``principal_investigator`` takes its PIs from the
+  contributors whose role says principal investigator or PI;
+- across files, two entries are one person when they share an id, or a name
+  (titles, initials, case, dots and spaces aside), so a changed or mistyped email
+  does not split a person; the newest email is kept.
+
+The stack and the concatenated stack join these lists without repeats. The rest
+of the attribution (``creator_*``, ``institution``, ``citation``, ``license``,
+``references``) is not written yet; it will come from the array description.

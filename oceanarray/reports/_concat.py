@@ -101,6 +101,8 @@ class ConcatContext(StackContext):
         One row per depth slot (and per unslotted level) for the Instruments table.
     concat_history : list
         Parsed history entries of the concat step.
+    n_overlap : int
+        Length of the overlap block (``N_OVERLAP``); 0 when no deployments overlap.
     deployment_histories : list of (str, list)
         Each deployment's name and parsed stack history.
     """
@@ -110,6 +112,7 @@ class ConcatContext(StackContext):
     slot_rows: list = field(default_factory=list)
     concat_history: list = field(default_factory=list)
     deployment_histories: list = field(default_factory=list)
+    n_overlap: int = 0
 
 
 def _render_histories(c: ConcatContext) -> str:
@@ -154,6 +157,15 @@ CONCAT_PANELS: dict[str, Panel] = {
             else "No processing history recorded in the file attributes."
         ),
     ),
+    "nc_overlap_note": Panel(
+        "nc_overlap_note",
+        render=lambda _c: Markup(
+            '<p class="none-note">No deployments overlap: the overlap block '
+            "(<code>N_OVERLAP</code>) is empty, so its variables are not listed.</p>"
+        ),
+        kind="html",
+        applies_to=lambda c: c.n_overlap == 0,
+    ),
     "deployments": Panel(
         "deployments",
         render=lambda c: render_template(
@@ -174,7 +186,13 @@ CONCAT_PANELS: dict[str, Panel] = {
     "vel_uvw": _figure_panel("vel_uvw"),
     "turbidity": _figure_panel("turbidity"),
     "roses": _figure_panel("roses"),
-    "speed_profile": _figure_panel("speed_profile", slot="half"),
+    "speed_profile": _figure_panel(
+        "speed_profile",
+        lambda c: (
+            "east_velocity" in c.present_vars and "north_velocity" in c.present_vars
+        ),
+        slot="half",
+    ),
     "trajectories_aquadopp": _figure_panel("trajectories_aquadopp"),
     "ts_medians": _figure_panel(
         "ts_medians",
@@ -190,6 +208,12 @@ CONCAT_PANELS: dict[str, Panel] = {
 }
 
 CONCAT_SECTIONS: dict[str, Section] = {
+    "netcdf_variables": Section(
+        "netcdf_variables",
+        "NetCDF variables",
+        ("nc_coords", "nc_variables", "nc_overlap_note", "nc_scalars"),
+        role="appendix",
+    ),
     "deployments": Section(
         "deployments",
         "Deployments",
@@ -236,7 +260,7 @@ CONCAT_DEFAULT = Profile(
         STACK_SECTIONS["analog"],
         CONCAT_SECTIONS["ts_diagram"],
         STACK_SECTIONS["roses"],
-        STACK_SECTIONS["netcdf_variables"],
+        CONCAT_SECTIONS["netcdf_variables"],
         STACK_SECTIONS["netcdf_attributes"],
     ),
 )
@@ -418,7 +442,11 @@ def _deployment_rows(
                 "duration": _format_duration(start, end),
                 "lat": _ddm(float(ds["deployment_latitude"].values[k]), is_lat=True),
                 "lon": _ddm(float(ds["deployment_longitude"].values[k]), is_lat=False),
-                "waterdepth": f"{float(ds['deployment_waterdepth'].values[k]):.0f}",
+                "waterdepth": (
+                    f"{float(ds['deployment_waterdepth'].values[k]):.0f}"
+                    if np.isfinite(float(ds["deployment_waterdepth"].values[k]))
+                    else _masthead.MISSING
+                ),
                 "n_instr": instruments.get(k, 0),
                 "cruises": " → ".join(cruises) if cruises else _masthead.MISSING,
                 "to_next": to_next,
@@ -468,7 +496,7 @@ def _slot_rows(
 
     rows = []
     depths = slot_depths(ds)
-    for k in np.argsort(np.where(np.isfinite(depths), -depths, np.inf), kind="stable"):
+    for k in _slot_order(ds):
         rows.append(
             {
                 "family": str(ds["slot_family"].values[k]).replace("_", " "),
@@ -526,6 +554,12 @@ def slot_depths(ds: Any) -> np.ndarray:
     return ds["slot_depth"].values.astype(float)
 
 
+def _slot_order(ds: Any) -> np.ndarray:
+    """Return the slots deep-first by depth; a slot with no known depth goes last."""
+    depths = slot_depths(ds)
+    return np.argsort(np.where(np.isfinite(depths), -depths, np.inf), kind="stable")
+
+
 def _slot_names(ds: Any) -> list[str]:
     """Return each slot's label, ``≈1500 m T/S``; two slots that round alike are told apart.
 
@@ -540,7 +574,7 @@ def _slot_names(ds: Any) -> list[str]:
     ]
     seen: Counter = Counter()
     out = []
-    for k in np.argsort(np.where(np.isfinite(depths), -depths, np.inf), kind="stable"):
+    for k in _slot_order(ds):
         seen[base[k]] += 1
         out.append(
             (k, base[k] if seen[base[k]] == 1 else f"{base[k]} ({seen[base[k]]})")
@@ -593,8 +627,7 @@ def _report_view(ds: Any) -> Any:
         },
         attrs=dict(ds.attrs),
     )
-    order = np.argsort(np.where(np.isfinite(depths), -depths, np.inf), kind="stable")
-    return view.isel(N_LEVELS=order)
+    return view.isel(N_LEVELS=_slot_order(ds))
 
 
 def _slot_view(view: Any) -> Any:
@@ -745,6 +778,17 @@ def generate_concat_page(
         }
         deployment_rows = _deployment_rows(ds, stack_path, out_dir, report_dir)
         nc_meta = _read_nc_metadata(stack_path)
+        n_overlap = int(ds.sizes.get("N_OVERLAP", 0))
+        if n_overlap == 0 and nc_meta.get("var_groups"):
+            # An empty overlap block is said in one line, not listed as a table.
+            nc_meta = {
+                **nc_meta,
+                "var_groups": [
+                    g
+                    for g in nc_meta["var_groups"]
+                    if not str(g[0]).startswith("N_OVERLAP")
+                ],
+            }
         analog_vars = nc_meta.get("analog_vars", [])
         figs["analog"] = (
             as_panel(lambda: _make_analog_timeseries_b64(stack_path, analog_vars))
@@ -768,6 +812,7 @@ def generate_concat_page(
             deployment_names=names,
             slot_rows=_slot_rows(ds, stack_path, out_dir, report_dir),
             concat_history=_parse_history(ds.attrs.get("history", "")),
+            n_overlap=n_overlap,
             deployment_histories=[
                 (names[k], _parse_history(str(ds["deployment_history"].values[k])))
                 for k in range(len(names))

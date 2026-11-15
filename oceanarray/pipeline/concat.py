@@ -92,7 +92,7 @@ def _check_time_steps(stacks: Sequence[xr.Dataset], names: Sequence[str]) -> int
     ------
     MooringError
         A stack without ``dt_seconds``, two different steps, or a time axis that
-        does not start on a whole multiple of the step.
+        does not start on a whole multiple of the step or skips a step.
     """
     steps = {n: ds.attrs.get("dt_seconds") for n, ds in zip(names, stacks, strict=True)}
     if any(v is None for v in steps.values()) or len(set(steps.values())) > 1:
@@ -104,11 +104,16 @@ def _check_time_steps(stacks: Sequence[xr.Dataset], names: Sequence[str]) -> int
     dt = int(next(iter(steps.values())))
     step_ns = np.int64(dt) * 1_000_000_000
     for name, ds in zip(names, stacks, strict=True):
-        t0 = ds["time"].values[0].astype("datetime64[ns]").astype(np.int64)
-        if t0 % step_ns:
+        times = ds["time"].values.astype("datetime64[ns]").astype(np.int64)
+        if np.any(times % step_ns):
             raise MooringError(
                 f"{name}: its stack's time axis is not on whole multiples of {dt} s "
                 "(stacked by an older oceanarray); restack it before concatenating."
+            )
+        if np.any(np.diff(times) != step_ns):
+            raise MooringError(
+                f"{name}: its stack's time axis skips steps; concat places each "
+                "stack as one run of whole steps, so restack it."
             )
     return dt
 
@@ -263,10 +268,11 @@ def _join_level_values(parts: list[np.ndarray | None], sizes: list[int]) -> np.n
         ]
     else:
         filled = [
-            p.astype(str) if p is not None else np.full(n, "", dtype=object)
+            p.astype(str).astype(object)
+            if p is not None
+            else np.full(n, "", dtype=object)
             for p, n in zip(parts, sizes, strict=True)
         ]
-        filled = [f.astype(object) for f in filled]
     return np.concatenate(filled)
 
 
@@ -353,6 +359,14 @@ def _segments(level_index: np.ndarray, time: np.ndarray) -> dict[str, xr.Variabl
             {"long_name": "last step of the run"},
         ),
     }
+
+
+def _same_value(a: object, b: object) -> bool:
+    """Return whether two attribute values agree: as numbers when both are, else as text."""
+    try:
+        return float(a) == float(b)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return str(a).strip() == str(b).strip()
 
 
 #: Global attributes concat writes itself (or as its own DEPLOYMENT variables);
@@ -678,7 +692,10 @@ def concat(
         index,
         {
             "long_name": "deployment whose levels count at this step (-1: none in the water)",
-            "comment": f"where two deployments overlap, the {overlap} one counts",
+            "comment": (
+                f"where two deployments overlap, the {overlap} one counts; a slot "
+                "that deployment has no level in keeps the other's (see level_index)"
+            ),
         },
     )
 
@@ -741,7 +758,7 @@ def concat(
     for key in sorted({k for ds in stacks for k in ds.attrs} - _OWN_ATTRS):
         values = [ds.attrs.get(key) for ds in stacks]
         if all(v is not None for v in values) and all(
-            str(v) == str(values[0]) for v in values
+            _same_value(v, values[0]) for v in values
         ):
             shared[key] = values[0]
         else:

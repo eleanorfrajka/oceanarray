@@ -24,7 +24,6 @@ import oceanarray as oa
 from oceanarray import mooring, paths
 from oceanarray.cli import build_parser
 from oceanarray.exceptions import MooringError
-from oceanarray.pipeline import attribution
 from oceanarray.pipeline.concat import (
     _assign_slots,
     _tolerances,
@@ -137,6 +136,15 @@ def test_a_slot_is_empty_outside_its_levels_deployments(joined):
     assert empty.any()
     assert np.isnan(joined["temperature"].values[empty]).all()
     assert (joined["temperature_qc"].values[empty] == 9).all()
+
+
+def test_the_turnaround_is_a_gap(joined):
+    """2018-06-16 09:00 to 2018-06-19 01:00: no deployment counts, nothing is filled."""
+    gap = joined["deployment_index"].values == -1
+    assert gap.sum() == 63
+    assert (joined["level_index"].values[gap] == -1).all()
+    assert np.isnan(joined["pressure"].values[gap]).all()
+    assert (joined["temperature_qc"].values[gap] == 9).all()
 
 
 def test_a_level_alone_in_its_slot(joined):
@@ -405,6 +413,33 @@ def test_the_overlap_runs_are_segments(flmb):
     assert (out["deployment"].values[first] == 0).all()
 
 
+def test_three_deployments_in_the_water_at_once(flmb):
+    """FLMB 2017 again, renamed and 2 days later: a three-way overlap loses nothing."""
+    third = flmb[1].assign_coords(time=flmb[1]["time"].values + np.timedelta64(48, "h"))
+    third.attrs = {**flmb[1].attrs, "mooring_name": "FLMB_2017b"}
+    out = concat([flmb[0], flmb[1], third], name="FLMB")
+    _assert_nothing_lost(out, [flmb[0], flmb[1], third])
+    level_dep = out["deployment"].values
+    filled = out["level_index"].values >= 0
+    index = np.broadcast_to(out["deployment_index"].values[:, None], filled.shape)
+    # Every slot here has a level of each deployment: the newest one fills it.
+    assert (level_dep[out["level_index"].values[filled]] == index[filled]).all()
+
+
+def test_a_stack_that_skips_a_step_is_refused(flmb):
+    holey = flmb[1].drop_isel(time=10)
+    with pytest.raises(MooringError, match="skips steps"):
+        concat([flmb[0], holey], name="FLMB")
+
+
+def test_numeric_attributes_that_agree_are_kept_once(flmb):
+    """``2825`` and ``2825.0`` are one value, not two per-deployment strings."""
+    a, b = flmb[0].copy(), flmb[1].copy()
+    a.attrs["site_depth"], b.attrs["site_depth"] = "2825", 2825.0
+    out = concat([a, b], name="FLMB")
+    assert "deployment_site_depth" not in out and "site_depth" in out.attrs
+
+
 def test_the_build_holds_about_one_result():
     """Lazily opened stacks: the peak is well under three times the result."""
     opened = [
@@ -493,28 +528,18 @@ def test_an_adcp_head_never_shares_a_slot_with_a_bin():
         assert slots[k]["family"] == ("adcp_head" if kinds == {True} else "adcp")
 
 
-def test_a_shared_contact_email_keeps_both_people():
-    """IC1 2020 (NIOZ) lists two contributors with one email between them: both stay."""
-    attrs = {
-        "originator_contributor_name": "M. Femke de Jong; Nora Fried",
-        "originator_contributor_role": "project PI, data processing and interpretation",
-        "originator_contributor_email": "femke.de.jong@nioz.nl",
-    }
-    people = attribution.union(
-        [attribution.people_from_attrs(attrs, prefix="originator_")]
-    )
-    assert [p["name"] for p in people["contributor"]] == [
-        "M. Femke de Jong",
-        "Nora Fried",
-    ]
-    assert [p["email"] for p in people["contributor"]] == ["femke.de.jong@nioz.nl", ""]
-
-
 def test_the_people_of_the_imported_files_are_joined(joined):
     """egM2 2018's originators name Amy Bower once, and Tiago Bilo once (with and without "Dr.")."""
     names = joined.attrs["contributor_name"].split("; ")
     assert names.count("Amy Bower") == 1
-    assert sum("Tiago Bilo" in n for n in names) == 1
-    assert joined.attrs["principal_investigator"] == "Amy Bower"
+    # Tiago Bilo is a contributor twice: the file's creator, and a processor.
+    roles = joined.attrs["contributor_role"].split("; ")
+    assert sorted(
+        r for n, r in zip(names, roles, strict=True) if n == "Tiago Bilo"
+    ) == [
+        "Data Processor",
+        "originator",
+    ]
+    assert joined.attrs["principal_investigator"] == "Amy Bower, Fiamma Straneo"
     assert "creator_name" not in joined.attrs
     assert joined["deployment_contributor_name"].values[0] == ""

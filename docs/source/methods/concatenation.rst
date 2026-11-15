@@ -44,12 +44,10 @@ What it does
   (``deployment_settings``, YAML) and its people. A stack attribute the
   deployments agree on is kept once; one that differs becomes a
   ``deployment_<name>`` variable.
-- **People.** ``principal_investigator*`` and ``contributor_*`` (OceanSITES) are
-  the union of every deployment's, without repeats. A stack takes them from its
-  imported files' own attributes (``originator_*``); a source file's creator joins
-  the contributors with the role ``originator``. An email or url that does not pair
-  one-to-one with the names stays with the first name. ``creator_*`` is left to whoever
-  produces the file.
+- **People.** ``principal_investigator*`` and ``contributor_*`` (OceanSITES 1.4:
+  commas between PIs, semicolons between contributors, one entry per slot in every
+  parallel attribute) are the union of every deployment's, without repeats; a
+  contributor with two roles takes two slots. See :doc:`../oceanarray_format`.
 - **Memory.** Each variable of each stack is read once and placed by integer
   slicing, so the peak is about the result plus one variable of one stack. The file
   is chunked by about a year along time.

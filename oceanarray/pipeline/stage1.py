@@ -22,7 +22,7 @@ from oceanarray.exceptions import MooringError
 from oceanarray.instruments import extract_inline_instruments, instrument_entries
 from oceanarray.logger import log_message, with_stage_handlers
 from oceanarray.paths import safe_serial, should_skip_regeneration
-from oceanarray.pipeline import _stage
+from oceanarray.pipeline import _stage, attribution
 from oceanarray.pipeline.raw_files import read_raw_file, resolve_raw_file
 from oceanarray.pipeline.read_mooring import join_raw
 from oceanarray.pipeline.units import UnitsError, to_canonical_units
@@ -533,6 +533,14 @@ def _stage1_instrument(
     dataset = _drop_file_type_variables(dataset, file_type)
     dataset = _add_global_attributes(dataset, mooring)
     dataset = _add_instrument_metadata(dataset, entry, mooring)
+    # An imported file's people, cleaned once here (its originator_* stay as given).
+    dataset.attrs.update(
+        attribution.to_attrs(
+            attribution.union(
+                [attribution.people_from_attrs(dataset.attrs, prefix="originator_")]
+            )
+        )
+    )
     dataset = _apply_analog_and_unit_hygiene(dataset, entry)
 
     # A file whose units attribute is known to be wrong is corrected from the

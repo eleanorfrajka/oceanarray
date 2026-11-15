@@ -10,7 +10,7 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 ### Added
 
 - `oceanarray concat` / `oa.concat` join one site's deployment stacks by depth slot into `<site>_stackcat.nc`, with a Stack cat report page (#135).
-- Stacks carry the principal investigators and contributors their imported files name (OceanSITES `principal_investigator*`, `contributor_*`) (#135).
+- Stage 1 writes an imported file's principal investigators and contributors as OceanSITES lists; the stack and Stack cat join them (#135).
 - `writers.write(chunks=)` sets the chunk length along a dimension (#135).
 
 ### Fixed

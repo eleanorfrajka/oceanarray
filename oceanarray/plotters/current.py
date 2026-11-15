@@ -2288,21 +2288,25 @@ def draw_speed_profile_by_deployment(
     spacing = (
         np.diff(sorted(group_depth)) if len(group_depth) > 1 else np.array([200.0])
     )
-    box_w = 0.35 * float(np.min(spacing[spacing > 0])) if (spacing > 0).any() else 50.0
+    n_dep = max(1, ds.sizes.get("DEPLOYMENT", 1))
+    box_w = (
+        0.8 * float(np.min(spacing[spacing > 0])) if (spacing > 0).any() else 100.0
+    ) / n_dep
 
     fig, ax = plt.subplots(figsize=(width_in, width_in * 0.9), layout="constrained")
     used: set[int] = set()
     for (_label, j), y in zip(groups, group_depth, strict=True):
-        for k in np.unique(cell_dep[:, j][cell_dep[:, j] >= 0]):
-            k = int(k)
+        present = [int(k) for k in np.unique(cell_dep[:, j][cell_dep[:, j] >= 0])]
+        for m, k in enumerate(present):
             s = speed[:, j][cell_dep[:, j] == k]
             s = s[np.isfinite(s)]
             if s.size < 3:
                 continue
             color = deployment_color(k)
+            # Side by side about the slot's depth, so deployments do not overlap.
             ax.boxplot(
                 s,
-                positions=[y],
+                positions=[y + (m - (len(present) - 1) / 2) * box_w],
                 widths=box_w,
                 orientation="horizontal",
                 patch_artist=True,
@@ -2319,7 +2323,7 @@ def draw_speed_profile_by_deployment(
     ax.set_yticks(group_depth)
     ax.set_yticklabels([label for label, _ in groups])
     ax.invert_yaxis()
-    ax.set_ylabel("Slot (nominal depth)")
+    ax.set_ylabel("Nominal depth (m)")
     ax.set_xlabel(
         params.vlabel("current_speed")
         if "current_speed" in params.VARIABLES

@@ -136,6 +136,13 @@ def _build_adcp_head_ds(ds_parent: xr.Dataset) -> xr.Dataset:
     return ds_parent[keep]
 
 
+#: The cleaned people attributes stage 1 writes.
+_PEOPLE_ATTRS = (
+    *attribution.PI_ATTRS.values(),
+    *attribution.CONTRIBUTOR_ATTRS.values(),
+)
+
+
 def _build_adcp_bin_ds(ds_parent: xr.Dataset, bin_idx: int) -> xr.Dataset:
     """Create a 1-D (time-only) point-instrument view of one ADCP range bin."""
     # bin_idx is zero-based; 0 is the bin nearest the transducer face.
@@ -976,12 +983,20 @@ def stack(
         }
     )
 
-    # The people behind imported files (their originator_* attributes), joined
-    # without repeats; files processed from raw carry none.
+    # The people stage 1 cleaned from each imported file, joined without repeats;
+    # files processed from raw carry none. A stage file written before stage 1
+    # cleaned them is read from its originator_* attributes instead.
     ds_out.attrs.update(
         attribution.to_attrs(
             attribution.union(
-                attribution.people_from_attrs(info["ds"].attrs, prefix="originator_")
+                attribution.people_from_attrs(
+                    info["ds"].attrs,
+                    prefix=(
+                        ""
+                        if any(k in info["ds"].attrs for k in _PEOPLE_ATTRS)
+                        else "originator_"
+                    ),
+                )
                 for i, info in enumerate(instruments)
                 if i not in _omitted_set and info.get("ds") is not None
             )
