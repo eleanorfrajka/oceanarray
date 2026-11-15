@@ -136,13 +136,6 @@ def _build_adcp_head_ds(ds_parent: xr.Dataset) -> xr.Dataset:
     return ds_parent[keep]
 
 
-#: The cleaned people attributes stage 1 writes.
-_PEOPLE_ATTRS = (
-    *attribution.PI_ATTRS.values(),
-    *attribution.CONTRIBUTOR_ATTRS.values(),
-)
-
-
 def _build_adcp_bin_ds(ds_parent: xr.Dataset, bin_idx: int) -> xr.Dataset:
     """Create a 1-D (time-only) point-instrument view of one ADCP range bin."""
     # bin_idx is zero-based; 0 is the bin nearest the transducer face.
@@ -983,25 +976,37 @@ def stack(
         }
     )
 
-    # The people stage 1 cleaned from each imported file, joined without repeats;
-    # files processed from raw carry none. A stage file written before stage 1
-    # cleaned them is read from its originator_* attributes instead.
+    # The people stage 1 cleaned for each instrument, joined without repeats. A
+    # stage file whose stage 1 predates people cleaning contributes none: it is
+    # named in people_not_cleaned, and concat refuses the stack.
+    kept_infos = [
+        info
+        for i, info in enumerate(instruments)
+        if i not in _omitted_set and info.get("ds") is not None
+    ]
+    not_cleaned = sorted(
+        {
+            f"{info['instrument']} s/n {paths.adcp_parent_serial(info['serial'])}"
+            for info in kept_infos
+            if not attribution.cleaned_at_stage1(info["ds"].attrs)
+        }
+    )
     ds_out.attrs.update(
         attribution.to_attrs(
             attribution.union(
-                attribution.people_from_attrs(
-                    info["ds"].attrs,
-                    prefix=(
-                        ""
-                        if any(k in info["ds"].attrs for k in _PEOPLE_ATTRS)
-                        else "originator_"
-                    ),
-                )
-                for i, info in enumerate(instruments)
-                if i not in _omitted_set and info.get("ds") is not None
+                attribution.read_own(info["ds"].attrs)
+                for info in kept_infos
+                if attribution.cleaned_at_stage1(info["ds"].attrs)
             )
         )
     )
+    if not_cleaned:
+        ds_out.attrs["people_not_cleaned"] = "; ".join(not_cleaned)
+        print(
+            f"  WARNING: {len(not_cleaned)} stage file(s) were written before stage 1 "
+            f"cleaned people; their people are left out (rerun from stage 1): "
+            f"{'; '.join(not_cleaned)}"
+        )
 
     # Beam velocities are superseded by ENU components in the stacked file.
     beam_vel_vars = [v for v in ds_out.data_vars if v.startswith("velocity_beam")]

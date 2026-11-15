@@ -10,8 +10,9 @@ Reading another file's lists is lenient (originators use either separator, add
 titles, spell a name or an email two ways); writing is strict (the manual's
 separators, no separator inside a value, every parallel attribute the same
 length). A contributor with two roles takes two slots. Stage 1 cleans an
-imported file's own lists (its ``originator_*`` attributes); the stack and
-concat only join cleaned lists.
+imported file's own lists (its ``originator_*`` attributes) with the lenient
+reader, once; every later step reads oceanarray's own lists with the strict
+reader (:func:`read_own`) and only joins them.
 """
 
 from __future__ import annotations
@@ -33,6 +34,10 @@ CONTRIBUTOR_ATTRS = {f: f"contributor_{f}" for f in CONTRIBUTOR_FIELDS}
 #: The separator each list is written with (OceanSITES 1.4).
 PI_SEPARATOR = ", "
 CONTRIBUTOR_SEPARATOR = "; "
+
+#: The first oceanarray whose stage 1 cleans people (a stage file's
+#: ``stage1_oceanarray_version``); files from before carry no such attribute.
+CLEANED_SINCE = "0.6.0.post1.dev0"
 
 #: The contributor role of a source file's creator, and of its publisher (NERC
 #: G04 / ISO 19115).
@@ -430,3 +435,95 @@ def to_attrs(people: Mapping[str, list[dict[str, str]]]) -> dict[str, str]:
             if any(values) or (kind == "contributor" and entries):
                 out[attr] = sep.join(values)
     return out
+
+
+def clean(attrs: Mapping[str, object]) -> dict[str, str]:
+    """Return the people attributes stage 1 writes for a file.
+
+    The lenient reading of the file's ``originator_*`` lists, joined without
+    repeats; empty for a file that names nobody.
+
+    Parameters
+    ----------
+    attrs : Mapping
+        The file's global attributes as read (``originator_*`` from an import).
+
+    Returns
+    -------
+    dict of str to str
+        ``principal_investigator*`` and ``contributor_*``.
+    """
+    return to_attrs(union([people_from_attrs(attrs, prefix="originator_")]))
+
+
+def read_own(attrs: Mapping[str, object]) -> dict[str, list[dict[str, str]]]:
+    """Read the people lists oceanarray wrote, strictly.
+
+    PIs split on ``", "``, contributors on ``"; "``; every parallel attribute of a
+    list must have as many entries as its names. No titles, pairs or roles are
+    interpreted: these lists were cleaned once, at stage 1.
+
+    Parameters
+    ----------
+    attrs : Mapping
+        A stage, stack or Stack cat file's global attributes.
+
+    Returns
+    -------
+    dict
+        The same shape as :func:`people_from_attrs` returns.
+
+    Raises
+    ------
+    ValueError
+        A list whose parallel attributes have different entry counts.
+    """
+    out: dict[str, list[dict[str, str]]] = {}
+    for kind, names, sep in (
+        ("principal_investigator", PI_ATTRS, PI_SEPARATOR),
+        ("contributor", CONTRIBUTOR_ATTRS, CONTRIBUTOR_SEPARATOR),
+    ):
+        columns = {
+            field: str(attrs[attr]).split(sep)
+            if attrs.get(attr) not in (None, "")
+            else None
+            for field, attr in names.items()
+        }
+        n = len(columns["name"]) if columns["name"] is not None else 0
+        for field, values in columns.items():
+            if values is not None and len(values) != n:
+                raise ValueError(
+                    f"{names[field]} has {len(values)} entries for {n} names; the "
+                    "people lists of an oceanarray file must line up (rerun from "
+                    "stage 1)."
+                )
+        out[kind] = [
+            {
+                field: (values[i].strip() if values is not None else "")
+                for field, values in columns.items()
+            }
+            for i in range(n)
+        ]
+    return out
+
+
+def cleaned_at_stage1(attrs: Mapping[str, object]) -> bool:
+    """Return whether a stage file's people were cleaned by its stage 1.
+
+    Parameters
+    ----------
+    attrs : Mapping
+        A stage file's global attributes.
+
+    Returns
+    -------
+    bool
+        True when stage 1 was run by an oceanarray that cleans people
+        (``stage1_oceanarray_version`` at least :data:`CLEANED_SINCE`); an empty
+        people list then means the source named no one.
+    """
+    from oceanarray import provenance
+
+    return provenance.requires_version(
+        attrs, CLEANED_SINCE, key=provenance.stage_version_attr(1)
+    )

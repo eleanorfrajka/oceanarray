@@ -548,12 +548,12 @@ def stage3(
 
 
 def _source_provenance(nc_path: Path) -> dict[str, str]:
-    """Return the stage-2 file's name, modification time and short SHA-256 as attributes."""
+    """Return the stage-2 file's name, modification time and SHA-256 as attributes."""
     mtime = datetime.datetime.fromtimestamp(
         nc_path.stat().st_mtime, datetime.UTC
     ).strftime("%Y-%m-%dT%H:%M:%SZ")
     with nc_path.open("rb") as f:
-        sha = hashlib.sha256(f.read()).hexdigest()[:8]
+        sha = hashlib.sha256(f.read()).hexdigest()
     return {
         "stage2_source_file": nc_path.name,
         "stage2_source_mtime": mtime,

@@ -236,12 +236,38 @@ def test_the_file_verb_writes_the_stackcat_and_its_cruises(site):
         out = concat_moorings(yamls, name="egM2", overwrite=True)
     assert out == site / "egM2" / "egM2_stackcat.nc"
     with xr.open_dataset(out, engine="netcdf4") as ds:
+        assert ds.attrs["oceanarray_version"]
+        assert all(len(h) == 64 for h in ds["source_sha256"].values)
         assert list(ds["deployment_cruise"].values) == ["DY054", "AR30-03"]
         assert list(ds["recovery_cruise"].values) == ["MSM74", "AR46"]
         assert list(ds["source_file"].values) == [
             "../egM2_2016/egM2_2016_stack.nc",
             "../egM2_2018/egM2_2018_stack.nc",
         ]
+
+
+def test_a_stack_whose_people_were_not_cleaned_is_refused(site, tmp_path):
+    """egM2 2018 restacked from stage files without their stage-1 version (as files
+    from before stage 1 cleaned people): concat names it and asks for stage 1."""
+    root = tmp_path / "osnap"
+    for n in _NAMES:
+        shutil.copytree(site / n, root / n)
+    cfg = mooring.load(root / "egM2_2018" / "egM2_2018.mooring.yaml")
+    with warnings.catch_warnings(), contextlib.redirect_stdout(io.StringIO()):
+        warnings.simplefilter("ignore")
+        data = read_mooring(cfg, stage=3, mooring_dir=root / "egM2_2018")
+        for ds in data.values():
+            del ds.attrs["stage1_oceanarray_version"]
+        stale = oa.stack(data, cfg)
+    assert stale.attrs["people_not_cleaned"]
+    oa.write(
+        stale,
+        paths.product_file(root / "egM2_2018", "egM2_2018", "stack"),
+        overwrite=True,
+    )
+    yamls = [root / n / f"{n}.mooring.yaml" for n in _NAMES]
+    with pytest.raises(MooringError, match="egM2_2018: built from stage files"):
+        concat_moorings(yamls, name="egM2")
 
 
 def test_the_file_verb_will_not_write_into_a_deployment_folder(site):

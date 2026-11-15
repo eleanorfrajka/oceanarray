@@ -18,7 +18,7 @@ import numpy as np
 import xarray as xr
 
 from oceanarray import mooring as _mooring
-from oceanarray import paths
+from oceanarray import paths, provenance
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
 from oceanarray.location import parse_coordinate
@@ -116,6 +116,30 @@ def _check_time_steps(stacks: Sequence[xr.Dataset], names: Sequence[str]) -> int
                 "stack as one run of whole steps, so restack it."
             )
     return dt
+
+
+def _check_people_cleaned(stacks: Sequence[xr.Dataset], names: Sequence[str]) -> None:
+    """Refuse a stack whose stage files' people were not cleaned at stage 1.
+
+    Raises
+    ------
+    MooringError
+        A stack written by an oceanarray older than
+        :data:`~oceanarray.pipeline.attribution.CLEANED_SINCE`, or built from
+        stage files whose stage 1 did not clean people (``people_not_cleaned``).
+    """
+    stale = [
+        n
+        for n, ds in zip(names, stacks, strict=True)
+        if ds.attrs.get("people_not_cleaned")
+        or not provenance.requires_version(ds.attrs, attribution.CLEANED_SINCE)
+    ]
+    if stale:
+        raise MooringError(
+            f"{', '.join(stale)}: built from stage files whose people were not "
+            "cleaned at stage 1; rerun from stage 1, then stack, before "
+            "concatenating."
+        )
 
 
 def _waterdepth(ds: xr.Dataset) -> float:
@@ -387,6 +411,9 @@ _OWN_ATTRS = frozenset(
         "Conventions",
         "featureType",
         "data_mode",
+        "oceanarray_version",
+        "oceanarray_commit",
+        "people_not_cleaned",
         *attribution.PI_ATTRS.values(),
         *attribution.CONTRIBUTOR_ATTRS.values(),
     }
@@ -707,10 +734,7 @@ def concat(
 
     lats = [parse_coordinate(ds.attrs.get("latitude")) for ds in stacks]
     lons = [parse_coordinate(ds.attrs.get("longitude")) for ds in stacks]
-    people = [
-        attribution.people_from_attrs(ds.attrs, creator_role="processor")
-        for ds in stacks
-    ]
+    people = [attribution.read_own(ds.attrs) for ds in stacks]
     data_vars.update(
         {
             "deployment_name": _deployment_var(names),
@@ -926,8 +950,9 @@ def concat_moorings(
     Raises
     ------
     MooringError
-        A stack is missing, the output exists without *overwrite*, or
-        :func:`concat` refuses.
+        A stack is missing, the output exists without *overwrite*, a stack was
+        written by an oceanarray that did not clean people at stage 1 (rerun
+        from stage 1), or :func:`concat` refuses.
     """
     first_dir = Path(descriptions[0]).parent
     target_dir = Path(out_dir) if out_dir is not None else first_dir.parent / name
@@ -959,6 +984,7 @@ def concat_moorings(
             rel = os.path.relpath(stack_path.resolve(), target_dir.resolve())
             sources.append((Path(rel).as_posix(), _sha256(stack_path)))
             cfgs.append(cfg)
+        _check_people_cleaned(stacks, [c["name"] for c in cfgs])
         ds = concat(stacks, name=name, sources=sources, descriptions=cfgs)
     if dry_run:
         print(

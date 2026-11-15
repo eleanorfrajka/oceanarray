@@ -12,9 +12,11 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 - `oceanarray concat` / `oa.concat` join one site's deployment stacks by depth slot into `<site>_stackcat.nc`, with a Stack cat report page (#135).
 - Stage 1 writes an imported file's principal investigators and contributors as OceanSITES lists; the stack and Stack cat join them (#135).
 - `writers.write(chunks=)` sets the chunk length along a dimension (#135).
+- Every file names the oceanarray that wrote it (`oceanarray_version`, `oceanarray_commit`, `stage<n>_oceanarray_version`); units changes are recorded in `units_converted` (#135).
 
 ### Fixed
 
+- `stage2_source_sha256` is the full SHA-256, not its first 8 digits (#135).
 - The stack time axis keeps a last step that falls exactly on the recovery time (#135).
 
 ---

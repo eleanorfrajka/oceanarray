@@ -24,6 +24,7 @@ import numpy as np
 import xarray as xr
 from xarray.coding.times import CFDatetimeCoder
 
+from oceanarray import provenance
 from oceanarray.logger import log_info
 from oceanarray.writers.dtypes import cast_output_dtypes
 
@@ -202,6 +203,8 @@ def _has_cf_time_encoding(var: xr.Variable | xr.DataArray) -> bool:
 def _prepare(ds: xr.Dataset, *, compress: bool = True) -> xr.Dataset:
     """Return a copy of *ds* ready to write: dtypes cast, cleaned, encoding set."""
     safe = _netcdf_safe_attrs(_netcdf_safe_names(cast_output_dtypes(ds)))
+    # Every file names the oceanarray that wrote it.
+    safe.attrs.update(provenance.version_attrs())
     for name, var in safe.variables.items():
         if _is_datetime(var):
             # Pin datetime variables; do not inherit xarray's per-file guess.

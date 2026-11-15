@@ -192,6 +192,25 @@ roles takes two slots. Reading an originator's lists:
 contributor, an empty field as empty entries (``"; ; "``), so the three always
 show the same count.
 
-The stack and the concatenated stack join these lists without repeats. The rest
+The stack and the concatenated stack join these lists without repeats; they read
+them strictly and never clean them again. A stage file whose stage 1 predates this
+cleaning (no ``stage1_oceanarray_version``) gives no people: the stack names it in
+``people_not_cleaned`` and asks for a rerun from stage 1, and ``oceanarray concat``
+refuses such a stack. An empty list from a newer stage 1 means the source named no
+one (the RODB files).
+
+Which oceanarray wrote a file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Every file oceanarray writes (stage files, stack, grid, Stack cat, OceanSITES
+export) carries ``oceanarray_version`` and, when the package runs from a git
+checkout, ``oceanarray_commit`` (the short hash, ``-dirty`` with uncommitted
+changes). Each stage also keeps ``stage<n>_oceanarray_version``, so a stage-3 file
+still says which code ran stage 1. ``stage2_source_sha256`` is the full SHA-256 of
+the stage-2 file.
+
+Every units change (a new spelling or a conversion) is recorded in the file's
+``units_converted`` attribute, JSON ``{variable: {"from", "to", "factor"}}``,
+written at stage 1 and carried forward. The rest
 of the attribution (``creator_*``, ``institution``, ``citation``, ``license``,
 ``references``) is not written yet; it will come from the array description.

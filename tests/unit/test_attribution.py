@@ -222,3 +222,32 @@ def test_the_written_lists_round_trip():
     attrs = attribution.to_attrs(first)
     again = attribution.to_attrs(_people(attrs))
     assert again == attrs
+
+
+def test_the_strict_reader_refuses_lists_that_do_not_line_up():
+    with pytest.raises(ValueError, match="must line up"):
+        attribution.read_own(
+            {"contributor_name": "Amy Bower; Adam Houk", "contributor_role": "PI"}
+        )
+    with pytest.raises(ValueError, match="must line up"):
+        # A comma inside a PI's name shifts every entry after it.
+        attribution.read_own(
+            {
+                "principal_investigator": "de Jong, Femke",
+                "principal_investigator_email": "femke.de.jong@nioz.nl",
+            }
+        )
+
+
+def test_only_stage1_cleans():
+    """The lenient reader of other people's lists is used in one place: stage 1."""
+    import oceanarray
+
+    root = Path(oceanarray.__file__).parent
+    users = sorted(
+        str(p.relative_to(root))
+        for p in root.rglob("*.py")
+        if "people_from_attrs" in p.read_text(encoding="utf-8")
+        or "attribution.clean(" in p.read_text(encoding="utf-8")
+    )
+    assert users == ["pipeline/attribution.py", "pipeline/stage1.py"]
