@@ -1,0 +1,23 @@
+{# One row per deployment of a concatenated stack (the `deployments` panel). #}
+<table class="instr-table">
+  <thead><tr><th>#</th><th>Deployment</th><th>Deployed</th><th>Recovered</th><th>Duration</th>
+  <th>Latitude</th><th>Longitude</th><th>Water depth (m)</th><th>Instruments</th>
+  <th>Cruises</th><th>To next</th></tr></thead>
+  <tbody>
+  {% for row in rows %}
+  <tr>
+    <td>{{ loop.index0 }}</td>
+    <td>{% if row.href %}<a href="{{ row.href }}">{{ row.name }}</a>{% else %}{{ row.name }}{% endif %}</td>
+    <td>{{ row.deployed }}</td>
+    <td>{{ row.recovered }}</td>
+    <td>{{ row.duration }}</td>
+    <td>{{ row.lat }}</td>
+    <td>{{ row.lon }}</td>
+    <td>{{ row.waterdepth }}</td>
+    <td>{{ row.n_instr }}</td>
+    <td>{{ row.cruises }}</td>
+    <td>{{ row.to_next }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>

@@ -16,6 +16,7 @@ from pathlib import Path
 
 import xarray as xr
 
+from oceanarray import provenance
 from oceanarray.exceptions import MooringError
 
 STAGE_ATTR = "processing_stage"
@@ -112,6 +113,10 @@ def stamp(
     append_history(out, note)
     if source is not None:
         out.attrs["source_file"] = source
+    # The version that ran this stage stays with the file through later stages.
+    out.attrs[provenance.stage_version_attr(stage)] = provenance.version_attrs()[
+        provenance.VERSION_ATTR
+    ]
     return out
 
 

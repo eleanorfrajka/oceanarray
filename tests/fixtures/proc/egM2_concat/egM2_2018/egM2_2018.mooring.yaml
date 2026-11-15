@@ -1,0 +1,45 @@
+# Test fixture: three of this deployment's instruments, 10 days either side of the 2018 turnaround.
+name: egM2_2018
+status: recovered
+year: 2018
+waterdepth: 2436.0
+cruise: AR30-03
+ship: RV Neil Armstrong
+recovery_cruise: AR46
+recovery_ship: RV Neil Armstrong
+cruise_confidence: report
+deployment_time: '2018-06-19T00:30:00'
+recovery_time: '2018-06-29T01:00:00'  # fixture: real 2020-08-21T15:00:00, trimmed to 10 days
+latitude: 59.9
+longitude: -40.7
+sources:
+  instruments: data files
+  hardware: not yet entered
+stack:
+  dt_seconds: 3600
+grid:
+  pmin: 1000
+  pmax: 2450
+  dp: 50
+clamp:
+- serial: '13220'
+  label: SBE37
+  nominal_depth: 1500
+  instrument: microcat
+  file_type: oceansites
+  filename: M2_MC_2018_2020_SN13220_1500m.nc
+  hab: 936.0
+- serial: CM2000
+  label: Aquadopp
+  nominal_depth: 2000
+  instrument: aquadopp
+  file_type: oceansites
+  filename: AQD_OSNAP-MM2_201806_CM_2000m.nc
+  hab: 436.0
+- serial: '11514'
+  label: SBE37
+  nominal_depth: 2385
+  instrument: microcat
+  file_type: oceansites
+  filename: M2_MC_2018_2020_SN11514_2385m.nc
+  hab: 51.0

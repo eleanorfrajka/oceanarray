@@ -27,6 +27,7 @@ from oceanarray.config import parameters as params
 from oceanarray.instruments import instrument_entries
 from oceanarray.mooring import DEPLOYMENT_CODE_PATTERN
 from oceanarray.paths import safe_serial
+from oceanarray.pipeline import attribution
 from oceanarray.pipeline.calibration import CALDIP_STUB_APPLIED
 from oceanarray.pipeline.stage1 import ADCP_BIN_DIM
 from oceanarray.readers.oceansites import OCEANSITES_VARIABLES
@@ -452,6 +453,22 @@ def _globals(
     return attrs
 
 
+def _people(ds: xr.Dataset, file_id: str) -> dict[str, str]:
+    """Return the people a stage-3 or grid file names, as stage 1 cleaned them.
+
+    Read strictly (no cleaning here); a file whose stage 1 predates people
+    cleaning names nobody in the export, with a warning.
+    """
+    if not attribution.cleaned_at_stage1(ds.attrs):
+        logger.warning(
+            "%s: the source file's people were not cleaned at stage 1; left out "
+            "(rerun from stage 1)",
+            file_id,
+        )
+        return {}
+    return attribution.to_attrs(attribution.read_own(ds.attrs))
+
+
 def _source_name(ds: xr.Dataset, given: str | None, fallback: str) -> str:
     """Return the name of the file *ds* came from, for ``history``."""
     return given or Path(str(ds.encoding.get("source", ""))).name or fallback
@@ -632,6 +649,7 @@ def _deployment_file(
         history=str(ds.attrs.get("history", "")),
         note=f"OceanSITES {FORMAT_VERSION} deployment file written by oceanarray from {source}",
     )
+    out.attrs.update(_people(ds, file_id))
     if "sample_interval_seconds" in ds.attrs:
         out.attrs["time_coverage_resolution"] = _iso_duration(
             ds.attrs["sample_interval_seconds"]
@@ -747,6 +765,7 @@ def _grid_file(
             f"{source}; source files: {_stack_sources(stack, mooring)}"
         ),
     )
+    out.attrs.update(_people(ds, file_id))
     if interval:
         out.attrs["time_coverage_resolution"] = interval
     return out

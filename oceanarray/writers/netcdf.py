@@ -17,12 +17,14 @@ from __future__ import annotations
 
 import json
 import warnings
+from collections.abc import Mapping
 from pathlib import Path
 
 import numpy as np
 import xarray as xr
 from xarray.coding.times import CFDatetimeCoder
 
+from oceanarray import provenance
 from oceanarray.logger import log_info
 from oceanarray.writers.dtypes import cast_output_dtypes
 
@@ -201,6 +203,8 @@ def _has_cf_time_encoding(var: xr.Variable | xr.DataArray) -> bool:
 def _prepare(ds: xr.Dataset, *, compress: bool = True) -> xr.Dataset:
     """Return a copy of *ds* ready to write: dtypes cast, cleaned, encoding set."""
     safe = _netcdf_safe_attrs(_netcdf_safe_names(cast_output_dtypes(ds)))
+    # Every file names the oceanarray that wrote it.
+    safe.attrs.update(provenance.version_attrs())
     for name, var in safe.variables.items():
         if _is_datetime(var):
             # Pin datetime variables; do not inherit xarray's per-file guess.
@@ -258,7 +262,13 @@ def as_stored(ds: xr.Dataset) -> xr.Dataset:
     return out
 
 
-def write(ds: xr.Dataset, path: Path | str, *, overwrite: bool = False) -> Path:
+def write(
+    ds: xr.Dataset,
+    path: Path | str,
+    *,
+    overwrite: bool = False,
+    chunks: Mapping[str, int] | None = None,
+) -> Path:
     """Write *ds* to *path* as compressed CF-NetCDF, one seam for every stage.
 
     Casts variables to their storage dtypes, sanitizes names and attributes to
@@ -279,6 +289,10 @@ def write(ds: xr.Dataset, path: Path | str, *, overwrite: bool = False) -> Path:
         When False (the default), refuse to replace an existing *path*; the
         processing stages pass ``overwrite=True`` so re-running a stage replaces
         its output.
+    chunks : Mapping of str to int, optional
+        Chunk length along a dimension, e.g. ``{"time": 8760}``: every compressed
+        variable with that dimension is stored in chunks that long (the whole
+        length along its other dimensions). Default: netCDF4's own chunking.
 
     Returns
     -------
@@ -300,6 +314,13 @@ def write(ds: xr.Dataset, path: Path | str, *, overwrite: bool = False) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
 
     safe = _prepare(ds)
+    if chunks:
+        for var in safe.variables.values():
+            if "zlib" in var.encoding and any(d in chunks for d in var.dims):
+                var.encoding["chunksizes"] = tuple(
+                    max(1, min(int(chunks.get(d, n)), n))
+                    for d, n in zip(var.dims, var.shape, strict=True)
+                )
 
     # Atomic write: to_netcdf creates a sibling temp file, then rename over the
     # target.  The temp path is deterministic and let netCDF4 create it fresh —

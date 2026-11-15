@@ -16,6 +16,7 @@ canonical string by :func:`oceanarray.config.unit_tables.unit_label`; it is neve
 stored.
 """
 
+import json
 from collections.abc import Callable
 
 import numpy as np
@@ -63,6 +64,10 @@ def _canonical_units_for(
     return sn_map.get(sn)
 
 
+#: The global attribute holding the in-file ledger of units changes.
+UNITS_LEDGER_ATTR = "units_converted"
+
+
 def to_canonical_units(
     ds: xr.Dataset,
     *,
@@ -80,7 +85,9 @@ def to_canonical_units(
     ``standard_name`` for a registered variable).  The value is multiplied by the factor
     and the attribute rewritten to the canonical string.  A genuine conversion (factor ≠
     1) stamps ``units_converted_from`` and ``units_conversion_factor`` for provenance; a
-    pure spelling rewrite does not (the value is unchanged).  Temperature variables
+    pure spelling rewrite does not (the value is unchanged).  Every change, spelling
+    or conversion, is also recorded in the dataset's ``units_converted`` attribute,
+    JSON ``{variable: {"from", "to", "factor"}}``, kept from earlier stages.  Temperature variables
     additionally get the CF-1.11 ``units_metadata = "temperature: on_scale"`` attribute.
 
     The pass is idempotent — a variable already carrying the canonical string is left
@@ -120,6 +127,7 @@ def to_canonical_units(
 
     """
     sn_map = _canonical_by_standard_name()  # built once per call, not per variable
+    changed: dict[str, dict[str, object]] = {}
     for var in list(ds.variables):
         canonical = _canonical_units_for(var, ds, sn_map)
         if canonical is None:
@@ -163,6 +171,7 @@ def to_canonical_units(
                 attrs["units_conversion_factor"] = factor
             attrs["units"] = canonical
             ds[var].attrs = attrs
+            changed[var] = {"from": current, "to": canonical, "factor": factor}
             if log_fn:
                 msg = f"  {var}: {current} -> {canonical} (x{factor:g})"
                 if stage is not None and stage != 1:
@@ -172,4 +181,10 @@ def to_canonical_units(
         # a difference.  Landed at every boundary like the units string itself.
         if canonical == "degree_Celsius":
             ds[var].attrs["units_metadata"] = "temperature: on_scale"
+    if changed:
+        # In-file ledger of every units change, carried forward through the stages
+        # (a later change of the same variable replaces its entry).
+        ledger = json.loads(str(ds.attrs.get(UNITS_LEDGER_ATTR, "{}")) or "{}")
+        ledger.update(changed)
+        ds.attrs[UNITS_LEDGER_ATTR] = json.dumps(ledger, sort_keys=True)
     return ds

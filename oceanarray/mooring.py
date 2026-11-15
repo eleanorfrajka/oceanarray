@@ -110,9 +110,13 @@ OPTIONAL_REPORT_SECTIONS: dict[str, frozenset[str]] = {"grid": frozenset({"overf
 DEPLOYMENT_CODE_PATTERN = r"\d{4}(0[1-9]|1[0-2])"
 
 #: The keys each optional settings block may hold, and whether the value must be
-#: an integer.
-_SETTINGS_KEYS: dict[str, dict[str, bool]] = {
-    "stack": {"dt_seconds": True},
+#: an integer (True), any non-negative number (False) or one of a few words (a tuple).
+_SETTINGS_KEYS: dict[str, dict[str, bool | tuple[str, ...]]] = {
+    "stack": {
+        "dt_seconds": True,
+        "slot_reference": ("depth", "hab"),
+        "slot_tolerance_m": False,
+    },
     "grid": {"pmin": False, "pmax": False, "dp": False},
 }
 
@@ -184,6 +188,26 @@ def settings_yaml(cfg: Mapping, *, stack: Mapping | None = None) -> str:
         if isinstance(e, Mapping)
     ]
     return yaml.safe_dump(_plain(out), sort_keys=False)
+
+
+def settings_from_yaml(text: str) -> dict:
+    """Return the settings a product recorded (``deployment_settings``) as a mapping.
+
+    Parameters
+    ----------
+    text : str
+        The YAML text :func:`settings_yaml` wrote.
+
+    Returns
+    -------
+    dict
+        The settings; empty when the text is blank, not YAML, or not a mapping.
+    """
+    try:
+        parsed = yaml.safe_load(text or "")
+    except yaml.YAMLError:
+        return {}
+    return parsed if isinstance(parsed, dict) else {}
 
 
 def _resolve_path(mooring: str | PathLike, proc_dir: str | PathLike | None) -> Path:
@@ -674,6 +698,16 @@ def _check_settings(data: Mapping) -> list[ValidationIssue]:
                 )
                 continue
             integer = allowed[key]
+            if isinstance(integer, tuple):
+                if setting not in integer:
+                    issues.append(
+                        ValidationIssue(
+                            "ERROR",
+                            f"'{block}: {key}' must be one of {', '.join(integer)}; "
+                            f"got {setting!r}.",
+                        )
+                    )
+                continue
             ok = (
                 isinstance(setting, int)
                 if integer

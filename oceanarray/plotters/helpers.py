@@ -34,6 +34,15 @@ OKABE_ITO: list[str] = [
     "#CC79A7",  # reddish purple
 ]
 
+#: One color per deployment on a concatenated page: Okabe-Ito without black, which
+#: stays for markers and text.
+DEPLOYMENT_COLORS: list[str] = OKABE_ITO[1:]
+
+
+def deployment_color(k: int) -> str:
+    """Return deployment *k*'s color (cycling through :data:`DEPLOYMENT_COLORS`)."""
+    return DEPLOYMENT_COLORS[k % len(DEPLOYMENT_COLORS)]
+
 
 def distinct_line_styles(n: int) -> list[tuple[str, str, float]]:
     """Return *n* colourblind-safe ``(color, linestyle, linewidth)`` line styles.

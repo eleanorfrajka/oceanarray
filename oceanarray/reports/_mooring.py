@@ -337,8 +337,6 @@ def _build_issues(
 
 def _serials_in_nc(nc_path: Path) -> frozenset:
     """Return the serials on the ``N_LEVELS`` dim of a stack/grid file, or empty."""
-    import re
-
     try:
         import xarray as xr
 
@@ -347,7 +345,7 @@ def _serials_in_nc(nc_path: Path) -> frozenset:
             raw = frozenset(str(s) for s in ds["serial"].values)
             # ADCP serials carry suffixes (16430_hd, 16430_b03); add the base serial
             # so the YAML instrument serial matches.
-            base = frozenset(re.sub(r"_(hd|b\d+)$", "", s) for s in raw)
+            base = frozenset(paths.adcp_parent_serial(s) for s in raw)
             return raw | base
     except Exception:
         pass

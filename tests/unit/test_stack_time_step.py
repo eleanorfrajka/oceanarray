@@ -21,7 +21,7 @@ from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
 from oceanarray.instruments import instrument_entries
 from oceanarray.pipeline import stack as st
-from oceanarray.pipeline.dataset import time_step_seconds
+from oceanarray.pipeline.dataset import time_axis, time_step_seconds
 from oceanarray.pipeline.pressure import _times_to_float
 from oceanarray.pipeline.qc import _apply_qc_mask
 from oceanarray.pipeline.read_mooring import read_mooring
@@ -100,7 +100,7 @@ def _loop_nearest(ds: xr.Dataset, common_time: np.ndarray, half_window_s: float)
 
 def _axis(cfg: dict, dt_seconds: int) -> np.ndarray:
     """Return the stack time axis for the description's window at *dt_seconds*."""
-    return st._time_axis(
+    return time_axis(
         np.datetime64(cfg["deployment_time"], "ns"),
         np.datetime64(cfg["recovery_time"], "ns"),
         dt_seconds,
@@ -135,6 +135,17 @@ def test_axis_starts_on_a_whole_multiple_of_the_step(cfg, dt_seconds):
     deploy = np.datetime64(cfg["deployment_time"], "ns")
     assert deploy <= t[0] < deploy + np.timedelta64(dt_seconds, "s")
     assert t[-1] <= np.datetime64(cfg["recovery_time"], "ns")
+
+
+def test_a_window_ending_on_a_whole_step_keeps_that_step():
+    """FLMB 2016–2018 (OSNAP East): 16 756 hours, the last on the window's end."""
+    t = time_axis(
+        np.datetime64("2016-07-13T16:00", "ns"),
+        np.datetime64("2018-06-11T19:00", "ns"),
+        3600,
+    )
+    assert t.size == 16756
+    assert t[-1] == np.datetime64("2018-06-11T19:00", "ns")
 
 
 def test_a_window_with_no_whole_step_is_refused(stage3, cfg):

@@ -351,6 +351,28 @@ INSTRUMENT_FILE_TYPES: dict = {
 # Derived: set of allowed ``instrument:`` values in mooring YAML files.
 KNOWN_INSTRUMENT_TYPES: frozenset = frozenset(INSTRUMENT_FILE_TYPES.keys())
 
+#: Which instruments may share a depth slot across deployments in a
+#: concatenated stack. A temperature-only logger is hydrography, so it can sit in
+#: one slot with a CTD of another year. ADCP bins (and the ADCP head) are their
+#: own family, matched within half the bin size; an unlisted type is a family of
+#: its own. Keys are lower-case instrument types.
+INSTRUMENT_FAMILIES: dict[str, str] = {
+    "microcat": "hydrography",
+    "sbe56": "hydrography",
+    "sbe16": "hydrography",
+    "tr1050": "hydrography",
+    "rbrsolo": "hydrography",
+    "rbrduet": "hydrography",
+    "aquadopp": "point_velocity",
+    "currentmeter": "point_velocity",
+    "adcp": "adcp",
+}
+
+#: Default slot rule for ``concat``: match levels by depth (water depth − hab)
+#: within this many metres. Both can be set per mooring in ``stack:``.
+CONCAT_SLOT_REFERENCE: str = "depth"
+CONCAT_SLOT_TOLERANCE_M: float = 50.0
+
 # File types that seasenselib accepts but are deprecated, experimental, or
 # not tied to a primary ``instrument:`` value above.  These remain valid in a
 # mooring YAML but are not the recommended key for any current instrument class.

@@ -215,7 +215,7 @@ def stage_output_name(mooring: str, serial: Any, stage: int, tag: str = "") -> s
 
 #: The multi-instrument products a mooring directory holds, each named
 #: ``{name}_{product}.nc`` at the top of the mooring directory.
-PRODUCTS: frozenset[str] = frozenset({"stack", "grid"})
+PRODUCTS: frozenset[str] = frozenset({"stack", "grid", "stackcat"})
 
 
 def stage_file(
@@ -436,6 +436,25 @@ def safe_serial(serial: Any) -> str:
     """
     primary = str(serial).split(",")[0]
     return re.sub(r"[^\w\-]", "", primary)
+
+
+def adcp_parent_serial(serial: Any) -> str:
+    """Return the ADCP serial a stack level came from, without its ``_hd`` / ``_bNN`` suffix.
+
+    A stack splits an ADCP into a head level (``<serial>_hd``) and one level per
+    bin (``<serial>_b00``, ``_b01``, ...); any other serial is returned unchanged.
+
+    Parameters
+    ----------
+    serial : Any
+        A stack level's serial.
+
+    Returns
+    -------
+    str
+        The instrument's own serial.
+    """
+    return re.sub(r"_(hd|b\d+)$", "", str(serial))
 
 
 def should_skip_regeneration(

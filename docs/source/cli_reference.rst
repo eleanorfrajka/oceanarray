@@ -293,6 +293,31 @@ reports.
 
 ----
 
+``oceanarray concat``
+---------------------
+
+Join one site's deployment stacks end to end in time, by depth slot (see
+:doc:`methods/concatenation`).  Writes ``<NAME>_stackcat.nc`` in its own folder
+and its page ``report/<NAME>_stackcat_report.html``.  ``--report-dir`` says where
+the deployments' own reports already are (``<DIR>/<deployment>``), for the page's
+links; it does not move where the page is written.
+
+.. argparse::
+   :module: oceanarray.cli
+   :func: build_parser
+   :prog: oceanarray
+   :path: concat
+   :nodescription:
+   :noepilog:
+
+**Example**
+
+.. code-block:: bash
+
+   oceanarray concat egM2_2016 egM2_2018 --name egM2 --proc-dir /data/proc
+
+----
+
 ``oceanarray export``
 ---------------------
 

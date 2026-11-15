@@ -22,7 +22,7 @@ from oceanarray.exceptions import MooringError
 from oceanarray.instruments import extract_inline_instruments, instrument_entries
 from oceanarray.logger import log_message, with_stage_handlers
 from oceanarray.paths import safe_serial, should_skip_regeneration
-from oceanarray.pipeline import _stage
+from oceanarray.pipeline import _stage, attribution
 from oceanarray.pipeline.raw_files import read_raw_file, resolve_raw_file
 from oceanarray.pipeline.read_mooring import join_raw
 from oceanarray.pipeline.units import UnitsError, to_canonical_units
@@ -506,6 +506,35 @@ def _apply_analog_and_unit_hygiene(
     return dataset
 
 
+def _add_people(dataset: xr.Dataset) -> xr.Dataset:
+    """Add the people an imported file names, cleaned per OceanSITES 1.4, with a history line."""
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        people = attribution.clean(dataset.attrs)
+    for w in caught:
+        log_message(f"  people: {w.message}")
+    dataset.attrs.update(people)
+    has_originator = any(k.startswith("originator_") for k in dataset.attrs)
+    if has_originator:
+        n_pi = (
+            len(people.get("principal_investigator", "").split(", "))
+            if people.get("principal_investigator")
+            else 0
+        )
+        n_c = (
+            len(people["contributor_name"].split("; "))
+            if "contributor_name" in people
+            else 0
+        )
+        _stage.append_history(
+            dataset,
+            f"people: cleaned per OceanSITES 1.4 from originator_* ({n_pi} PI, "
+            f"{n_c} contributor slots; {len(caught)} warning"
+            f"{'' if len(caught) == 1 else 's'})",
+        )
+    return dataset
+
+
 def _stage1_instrument(
     dataset: xr.Dataset, entry: dict[str, Any], mooring: dict[str, Any]
 ) -> xr.Dataset:
@@ -533,6 +562,9 @@ def _stage1_instrument(
     dataset = _drop_file_type_variables(dataset, file_type)
     dataset = _add_global_attributes(dataset, mooring)
     dataset = _add_instrument_metadata(dataset, entry, mooring)
+    # The people an imported file names, cleaned once, here (its originator_*
+    # stay as given).
+    dataset = _add_people(dataset)
     dataset = _apply_analog_and_unit_hygiene(dataset, entry)
 
     # A file whose units attribute is known to be wrong is corrected from the

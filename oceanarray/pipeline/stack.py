@@ -13,7 +13,8 @@ from oceanarray.exceptions import MooringError
 from oceanarray.instruments import instrument_entries
 from oceanarray.location import parse_latlon
 from oceanarray.paths import safe_serial
-from oceanarray.pipeline.dataset import drop_all_zero_vars
+from oceanarray.pipeline import attribution
+from oceanarray.pipeline.dataset import drop_all_zero_vars, time_axis
 from oceanarray.pipeline.pressure import _times_to_float
 from oceanarray.pipeline.qc import _apply_qc_mask, _worst_flag
 from oceanarray.pipeline.read_mooring import read_mooring
@@ -236,21 +237,6 @@ def _nearest_subsample(
     return result
 
 
-def _time_axis(
-    deploy_time: np.datetime64, recover_time: np.datetime64, dt_seconds: int
-) -> np.ndarray:
-    """Return the steps of dt_seconds that are whole multiples of it within the window."""
-    # Whole multiples of the step since the Unix epoch (on the hour at 3600 s),
-    # so deployments of one site share their steps.
-    step_ns = int(dt_seconds) * 1_000_000_000
-    start_ns = int(deploy_time.astype("datetime64[ns]").astype(np.int64))
-    end_ns = int(recover_time.astype("datetime64[ns]").astype(np.int64))
-    first_ns = -(-start_ns // step_ns) * step_ns
-    return np.arange(first_ns, end_ns + 1, step_ns, dtype=np.int64).astype(
-        "datetime64[ns]"
-    )
-
-
 KNOWN_INSTRUMENT_TYPES: frozenset = params.KNOWN_INSTRUMENT_TYPES
 
 
@@ -365,7 +351,7 @@ def stack(
     recover_time = np.datetime64(mooring_config["recovery_time"], "ns")
 
     dt_seconds = resolve_dt_seconds(mooring_config, dt_seconds)
-    common_time = _time_axis(deploy_time, recover_time, dt_seconds)
+    common_time = time_axis(deploy_time, recover_time, dt_seconds)
     n_time = len(common_time)
     if n_time == 0:
         raise MooringError(
@@ -989,6 +975,38 @@ def stack(
             ),
         }
     )
+
+    # The people stage 1 cleaned for each instrument, joined without repeats. A
+    # stage file whose stage 1 predates people cleaning contributes none: it is
+    # named in people_not_cleaned, and concat refuses the stack.
+    kept_infos = [
+        info
+        for i, info in enumerate(instruments)
+        if i not in _omitted_set and info.get("ds") is not None
+    ]
+    not_cleaned = sorted(
+        {
+            f"{info['instrument']} s/n {paths.adcp_parent_serial(info['serial'])}"
+            for info in kept_infos
+            if not attribution.cleaned_at_stage1(info["ds"].attrs)
+        }
+    )
+    ds_out.attrs.update(
+        attribution.to_attrs(
+            attribution.union(
+                attribution.read_own(info["ds"].attrs)
+                for info in kept_infos
+                if attribution.cleaned_at_stage1(info["ds"].attrs)
+            )
+        )
+    )
+    if not_cleaned:
+        ds_out.attrs["people_not_cleaned"] = "; ".join(not_cleaned)
+        print(
+            f"  WARNING: {len(not_cleaned)} stage file(s) were written before stage 1 "
+            f"cleaned people; their people are left out (rerun from stage 1): "
+            f"{'; '.join(not_cleaned)}"
+        )
 
     # Beam velocities are superseded by ENU components in the stacked file.
     beam_vel_vars = [v for v in ds_out.data_vars if v.startswith("velocity_beam")]

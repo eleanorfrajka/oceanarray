@@ -1,0 +1,45 @@
+# Test fixture: three of this deployment's instruments, 10 days either side of the 2018 turnaround.
+name: egM2_2016
+status: recovered
+year: 2016
+waterdepth: 2459.0
+cruise: DY054
+ship: RRS Discovery
+recovery_cruise: MSM74
+recovery_ship: RV Maria S. Merian
+cruise_confidence: report
+deployment_time: '2018-06-06T09:00:00'  # fixture: real 2016-08-01T00:00:00, trimmed to 10 days
+recovery_time: '2018-06-16T09:30:00'
+latitude: 59.85916666666667
+longitude: -40.688833333333335
+sources:
+  instruments: data files
+  hardware: not yet entered
+stack:
+  dt_seconds: 3600
+grid:
+  pmin: 1450
+  pmax: 2400
+  dp: 50
+clamp:
+- serial: '11331'
+  label: SBE37
+  nominal_depth: 1500
+  instrument: microcat
+  file_type: rodb
+  filename: nocm2_03_2016_001.microcat
+  hab: 959.0
+- serial: '8364'
+  label: Current meter
+  nominal_depth: 1926
+  instrument: currentmeter
+  file_type: rodb
+  filename: nocm2_03_2016_8364.edt
+  hab: 533.0
+- serial: '13020'
+  label: SBE37
+  nominal_depth: 2354
+  instrument: microcat
+  file_type: rodb
+  filename: nocm2_03_2016_005.microcat
+  hab: 105.0

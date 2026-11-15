@@ -314,3 +314,121 @@ def test_rodb_instruments_stack_by_nearest_sample_only(tmp_path, capsys, dt_seco
             inside = (src_t >= steps[0] - half) & (src_t < steps[-1] + half)
             assert used == np.isfinite(src_v[inside]).sum()
             assert used < 0.6 * len(steps)
+
+
+def test_people_are_cleaned_once_at_stage1_and_joined_after(tmp_path):
+    """CF7 2020 (WHOI current meter, Scripps MicroCAT): stage 1 cleans the people and
+    says so in history; every file names its oceanarray; the stack and the export
+    only join, and name the same people."""
+    import oceanarray as oa
+    from oceanarray import mooring, provenance
+    from oceanarray.pipeline import attribution
+    from oceanarray.pipeline.oceansites import _people
+    from oceanarray.pipeline.read_mooring import read_mooring
+
+    raw, proc = _mooring(
+        tmp_path,
+        "cf7",
+        CF7,
+        [
+            {
+                "serial": 500,
+                "instrument": "currentmeter",
+                "file_type": "oceansites",
+                "filename": "OS_OSNAP_WHOI_CF7_202007_CM_500m.nc",
+                "hab": 1401,
+            },
+            {
+                "serial": 22225,
+                "instrument": "microcat",
+                "file_type": "oceansites",
+                "filename": "CF7_MCTD_2020_22225_50m.nc",
+                "hab": 1851,
+                "units_override": {"conductivity": "mS/cm"},
+            },
+        ],
+    )
+    assert process("cf7", [1, 2, 3], proc_dir=proc, raw_dir=raw, force=True)
+    s1 = _open(proc, "cf7", "microcat", 22225, 1)
+    s3 = _open(proc, "cf7", "microcat", 22225, 3)
+    assert s1.attrs["principal_investigator"] == "Fiamma Straneo"
+    assert (
+        "people: cleaned per OceanSITES 1.4 from originator_* (1 PI"
+        in s1.attrs["history"]
+    )
+    for ds in (s1, s3):
+        assert ds.attrs[provenance.VERSION_ATTR]
+    assert s3.attrs["stage1_oceanarray_version"] == s1.attrs["oceanarray_version"]
+    assert len(s3.attrs["stage2_source_sha256"]) == 64
+
+    cfg = mooring.load(proc / "cf7" / "cf7.mooring.yaml")
+    data = read_mooring(cfg, stage=3, mooring_dir=proc / "cf7")
+    stacked = oa.stack(data, cfg)
+    assert "people_not_cleaned" not in stacked.attrs
+    exported = attribution.to_attrs(
+        attribution.union(
+            attribution.read_own(_people(ds, "test")) for ds in data.values()
+        )
+    )
+    people = set(attribution.PI_ATTRS.values()) | set(
+        attribution.CONTRIBUTOR_ATTRS.values()
+    )
+    assert {k: v for k, v in stacked.attrs.items() if k in people} == exported
+
+
+def test_a_stage_file_from_before_people_cleaning_gives_no_people(tmp_path):
+    """The same stage-3 file without its stage-1 version (as a file from before
+    stage 1 cleaned people): the stack names it and writes no people from it."""
+    import oceanarray as oa
+    from oceanarray import mooring
+    from oceanarray.pipeline.read_mooring import read_mooring
+
+    raw, proc = _mooring(
+        tmp_path,
+        "cf7",
+        CF7,
+        [
+            {
+                "serial": 500,
+                "instrument": "currentmeter",
+                "file_type": "oceansites",
+                "filename": "OS_OSNAP_WHOI_CF7_202007_CM_500m.nc",
+                "hab": 1401,
+            }
+        ],
+    )
+    assert process("cf7", [1, 2, 3], proc_dir=proc, raw_dir=raw, force=True)
+    cfg = mooring.load(proc / "cf7" / "cf7.mooring.yaml")
+    data = read_mooring(cfg, stage=3, mooring_dir=proc / "cf7")
+    for ds in data.values():
+        del ds.attrs["stage1_oceanarray_version"]
+    stacked = oa.stack(data, cfg)
+    assert stacked.attrs["people_not_cleaned"] == "currentmeter s/n 500"
+    assert "principal_investigator" not in stacked.attrs
+
+
+def test_units_converted_is_recorded_in_the_file(tmp_path):
+    """The WHOI current meter: pressure decibar -> dbar and velocity meter/second -> m s-1."""
+    import json
+
+    raw, proc = _mooring(
+        tmp_path,
+        "cf7",
+        CF7,
+        [
+            {
+                "serial": 500,
+                "instrument": "currentmeter",
+                "file_type": "oceansites",
+                "filename": "OS_OSNAP_WHOI_CF7_202007_CM_500m.nc",
+                "hab": 1401,
+            }
+        ],
+    )
+    assert process("cf7", [1, 2, 3], proc_dir=proc, raw_dir=raw, force=True)
+    for stage in (1, 3):
+        ledger = json.loads(
+            _open(proc, "cf7", "currentmeter", 500, stage).attrs["units_converted"]
+        )
+        assert ledger["pressure"] == {"factor": 1.0, "from": "decibar", "to": "dbar"}
+        assert ledger["east_velocity"]["from"] == "meter/second"

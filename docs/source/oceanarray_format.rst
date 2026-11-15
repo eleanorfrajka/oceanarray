@@ -165,6 +165,52 @@ Manual §2.2.
      - the stage-3 or grid file's history, then a line naming the source file (and,
        for a gridded file, the stage files it was built from)
 
-Attribution (``creator_*``, ``principal_investigator_*``, ``institution``,
-``citation``, ``license``, ``references``) is not written yet; it will come from the
-array description.
+Stage 1 cleans the people an imported file names (its ``originator_*``
+attributes stay as given) and writes them as OceanSITES 1.4 lists:
+``principal_investigator``, ``_email``, ``_url``, ``_id`` separated by commas, and
+``contributor_name``, ``_role``, ``_email`` separated by semicolons. Every parallel
+attribute has one entry per slot (empty entries kept), and a contributor with two
+roles takes two slots. Reading an originator's lists:
+
+- each field is split on its own separator (``;`` when it has one, else ``,``);
+- titles before or after a name are dropped (``"Dr. Fiamma Straneo, Professor"``
+  is one person, ``Fiamma Straneo``); ``"Surname, Given"`` is written ``"Given
+  Surname"``;
+- a role, email, url or id without one entry per name is left out, with a
+  warning (never guessed); a role joined by "and" is two roles, each its own
+  slot (``"data processing and interpretation"``), and a principal-investigator
+  role reads ``PI``;
+- the file's creator and publisher join the contributors (roles ``originator`` and
+  ``publisher``); a file with no ``principal_investigator`` takes its PIs from the
+  contributors whose role says principal investigator or PI;
+- across files, two entries are one person when they share an id, or a name
+  (titles, initials, case, dots and spaces aside), so a changed or mistyped email
+  does not split a person; the newest email is kept; a blank-role slot merges
+  into the same person's other slot.
+
+``contributor_name``, ``_role`` and ``_email`` are written whenever there is a
+contributor, an empty field as empty entries (``"; ; "``), so the three always
+show the same count.
+
+The stack and the concatenated stack join these lists without repeats; they read
+them strictly and never clean them again. A stage file whose stage 1 predates this
+cleaning (no ``stage1_oceanarray_version``) gives no people: the stack names it in
+``people_not_cleaned`` and asks for a rerun from stage 1, and ``oceanarray concat``
+refuses such a stack. An empty list from a newer stage 1 means the source named no
+one (the RODB files).
+
+Which oceanarray wrote a file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Every file oceanarray writes (stage files, stack, grid, Stack cat, OceanSITES
+export) carries ``oceanarray_version`` and, when the package runs from a git
+checkout, ``oceanarray_commit`` (the short hash, ``-dirty`` with uncommitted
+changes). Each stage also keeps ``stage<n>_oceanarray_version``, so a stage-3 file
+still says which code ran stage 1. ``stage2_source_sha256`` is the full SHA-256 of
+the stage-2 file.
+
+Every units change (a new spelling or a conversion) is recorded in the file's
+``units_converted`` attribute, JSON ``{variable: {"from", "to", "factor"}}``,
+written at stage 1 and carried forward. The rest
+of the attribution (``creator_*``, ``institution``, ``citation``, ``license``,
+``references``) is not written yet; it will come from the array description.

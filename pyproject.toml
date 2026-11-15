@@ -50,6 +50,7 @@ dependencies = [
   "seasenselib",          # raw instrument-file readers (stage 1); pulls mhkit[dolfyn] for RDI
   "jinja2>=3.0",          # template rendering (reports)
   "ruamel.yaml>=0.18",    # YAML stub generation (preserves inline comments)
+  "packaging>=23",        # oceanarray_version comparisons (provenance.requires_version)
 ]
 dynamic = [
   "version",
