@@ -623,6 +623,13 @@ def _make_ts_by_deployment_b64(ds: xr.Dataset) -> str | None:
     return render_slot(draw_ts_by_deployment, ds, slot="half", optional=True)
 
 
+def _make_ts_points_by_deployment_b64(ds: xr.Dataset) -> str | None:
+    """Render the thinned T-S point cloud by deployment, half width, for the concatenated page."""
+    from oceanarray.plotters.ts import draw_ts_points_by_deployment
+
+    return render_slot(draw_ts_points_by_deployment, ds, slot="half", optional=True)
+
+
 def _make_ts_medians_b64(ds: xr.Dataset) -> str | None:
     """T-S medians with IQR whiskers per level, half width, for the concatenated page."""
     return render_slot(draw_ts_medians, ds, slot="half", optional=True)

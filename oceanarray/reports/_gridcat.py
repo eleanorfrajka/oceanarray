@@ -102,10 +102,15 @@ def _captions(
         "profiles_ts": (
             "Median of the hourly values at each level, one line per deployment "
             "(red to purple in time order; with more than seven deployments each "
-            "color twice, solid then dashed). " + flags
+            "color twice, solid then dashed). A level is drawn only where the "
+            f"deployment has values for at least {site.DISPLAY_MIN_FRACTION:.0%} of its "
+            "time: a level reached only when the mooring is knocked down sees only "
+            "the strong-flow hours. " + flags
         ),
         "profiles_uv": (
-            "Median velocity at each level, one line per deployment. Along-slope "
+            "Median velocity at each level, one line per deployment, where the "
+            f"deployment has velocity for at least {site.DISPLAY_MIN_FRACTION:.0%} of its "
+            "time. Along-slope "
             f"direction: {angle_source}. " + flags
         ),
         "sections_uv": (
@@ -122,7 +127,8 @@ def _captions(
         "site_ts": (
             "Potential temperature and salinity of the median temperature and "
             "salinity at each grid level, one line per deployment; a median is not "
-            "moved by a spike. Axes span the 1–99 % range of the medians. Circles: "
+            "moved by a spike. Levels with values for less than "
+            f"{site.DISPLAY_MIN_FRACTION:.0%} of the deployment's time are left out. Axes span the 1–99 % range of the medians. Circles: "
             "each deployment's instruments measuring both T and S, at their mean "
             "pressure, so the curve between circles is the grid's interpolation. Gray "
             f"contours: σ0 {s0} and σ2 {s2} {density} (labeled with the value only)."
@@ -302,7 +308,12 @@ def _figures(grid: Any, stackcat: Any) -> tuple[dict, str, str]:
     ]
 
     def medians(var: str) -> np.ndarray:
-        return site.deployment_medians(hourly[var].values, index, len(names))
+        return site.deployment_medians(
+            hourly[var].values,
+            index,
+            len(names),
+            min_fraction=site.DISPLAY_MIN_FRACTION,
+        )
 
     def sections_b64(panels: list[dict], contours: list, crop: bool = False) -> Any:
         return as_panel(
@@ -322,11 +333,15 @@ def _figures(grid: Any, stackcat: Any) -> tuple[dict, str, str]:
         if "temperature" not in hourly or "salinity" not in hourly:
             return None
         salinity = medians("salinity")
-        pins = (
-            site.instrument_mean_pressures(stackcat)
-            if "temperature" in stackcat and "salinity" in stackcat
-            else None
-        )
+        pins = None
+        if "temperature" in stackcat and "salinity" in stackcat:
+            # pins (stackcat deployment order) line up positionally with the curves
+            # (grid order) because the grid carries the stack's whole deployment
+            # record unchanged; guard that invariant rather than assume it.
+            assert list(grid["deployment_name"].values) == list(
+                stackcat["deployment_name"].values
+            ), "grid and stackcat deployments differ; T-S pins would misalign"
+            pins = site.instrument_mean_pressures(stackcat)
         if position is None:
             return _make_site_ts_b64(
                 medians("temperature"),

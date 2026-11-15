@@ -15,7 +15,12 @@ import numpy as np
 from oceanarray.reports._vendored import design_tokens as report_tokens
 
 from ..config import parameters as params
-from .helpers import _velocity_panel_style, deployment_color, deployment_line
+from .helpers import (
+    _velocity_panel_style,
+    deployment_color,
+    deployment_line,
+    legend_below,
+)
 from .primitives import date_axis, pcolormesh_panel
 from .timeseries import _mark_deployments
 
@@ -291,7 +296,9 @@ def draw_site_profiles(
         ax.grid(alpha=0.3)
     axes[0].set_ylim(float(pressure.max()), float(pressure.min()))
     axes[0].set_ylabel(params.vlabel("pressure"))
-    axes[-1].legend(fontsize=report_tokens.ANNOT_FS, ncols=2, loc="best")
+    # Below the axes, so no deployment's line is hidden behind it.
+    handles, _ = axes[-1].get_legend_handles_labels()
+    legend_below(fig, handles)
     return fig
 
 

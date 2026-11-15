@@ -2268,13 +2268,14 @@ def _velocity_by_depth(ds: xr.Dataset) -> dict | None:
         ``names``, ``offset`` (spacing of side-by-side markers, m) and ``cells``:
         for each group, the deployments drawn there as ``(k, rows)``, ``rows`` the
         boolean time mask of that deployment's finite velocity. A deployment is
-        drawn at a depth only when it has velocity for at least
-        :data:`~oceanarray.plotters.helpers.PROFILE_MIN_FRACTION` of its time
-        steps. None when no depth has velocity.
+        drawn at a depth only when at least
+        :data:`~oceanarray.plotters.helpers.PROFILE_MIN_FRACTION` of its own steps
+        at that depth have valid velocity, so a depth sampled for only part of a
+        deployment is judged on its own record, not the whole deployment window.
+        None when no depth has velocity.
     """
     from oceanarray.plotters.helpers import (
         PROFILE_MIN_FRACTION,
-        deployment_steps,
         short_names,
     )
 
@@ -2289,16 +2290,14 @@ def _velocity_by_depth(ds: xr.Dataset) -> dict | None:
         if f"{var}_qc" in ds.data_vars:
             arr[np.isin(ds[f"{var}_qc"].values, params.QC_BAD_FLAGS)] = np.nan
     cell_dep = ds["cell_deployment"].values
-    steps: dict[int, int] = {}
     cells = []
     for _label, j in groups:
         drawn = []
         for k in np.unique(cell_dep[:, j][cell_dep[:, j] >= 0]):
             k = int(k)
-            if k not in steps:
-                steps[k] = deployment_steps(ds, k)
-            rows = (cell_dep[:, j] == k) & np.isfinite(u[:, j]) & np.isfinite(v[:, j])
-            if rows.sum() >= max(3, PROFILE_MIN_FRACTION * steps[k]):
+            in_dep = cell_dep[:, j] == k
+            rows = in_dep & np.isfinite(u[:, j]) & np.isfinite(v[:, j])
+            if rows.sum() >= max(3, PROFILE_MIN_FRACTION * int(in_dep.sum())):
                 drawn.append((k, rows))
         cells.append(drawn)
     group_depth = [float(depth[j]) for _, j in groups]
@@ -2339,9 +2338,10 @@ def draw_speed_profile_by_deployment(
     color (two consecutive deployments share a color, the second hatched), so a
     change in speed between deployments shows as boxes that do not overlap.
     Values flagged 3, 4 or 9 are left out, and a deployment's box is drawn at a
-    depth only when that depth has velocity for at least
-    :data:`~oceanarray.plotters.helpers.PROFILE_MIN_FRACTION` of the deployment's
-    time steps (levels that only have data part of the time are not compared).
+    depth only when at least
+    :data:`~oceanarray.plotters.helpers.PROFILE_MIN_FRACTION` of that depth's own
+    steps in the deployment have valid velocity (a depth sampled for only part of
+    the deployment is judged on its own record, not the whole window).
 
     Parameters
     ----------

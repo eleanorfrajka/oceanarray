@@ -129,7 +129,7 @@ def test_the_stack_cat_ts_caption_describes_the_outlines():
 
     caption = CONCAT_CAPTIONS["ts_by_deployment"]
     assert f"densest {ts.TS_OUTLINE_FRACTION:.0%}" in caption
-    assert f"less than {ts.TS_MIN_LEVEL_DAYS:g} days" in caption
+    assert f"fewer than {ts.TS_MIN_LEVEL_POINTS:g} points" in caption
     assert f"more than {ts.TS_MAX_OUTLINES} levels" in caption
 
 
@@ -187,3 +187,45 @@ def test_a_pin_within_half_a_step_of_the_curves_end_is_marked_there(flmb_site):
     assert len(xs) == len(inside) + 1
     assert np.isclose(xs[-1], sa[k][ok][-1])
     plt.close(fig)
+
+
+# Stack cat T-S points, Grid cat coverage rule ---------------------------------
+
+
+def test_ts_points_are_thinned_the_same_way_each_time(flmb_site, monkeypatch):
+    from oceanarray.plotters import ts
+
+    ds = flmb_site.assign(
+        cell_deployment=(("time", "N_DEPTHS"), cell_deployment(flmb_site))
+    )
+    monkeypatch.setattr(ts, "TS_MAX_POINTS", 200)
+
+    def drawn(fig):
+        from matplotlib.collections import PathCollection
+
+        return np.concatenate(
+            [
+                c.get_offsets()
+                for c in fig.axes[0].collections
+                if type(c) is PathCollection  # the scatters, not the σ0 contours
+            ]
+        )
+
+    first, second = (ts.draw_ts_points_by_deployment(ds) for _ in range(2))
+    a, b = drawn(first), drawn(second)
+    assert len(a) <= 200 * ds["deployment_name"].size
+    np.testing.assert_array_equal(a, b)
+    plt.close("all")
+
+
+def test_a_level_filled_part_of_the_time_has_no_median(flmb_site):
+    values = flmb_site["temperature"].values[:, :1].copy()
+    index = flmb_site["deployment_index"].values
+    k = int(index[np.isfinite(values[:, 0])][0])
+    rows = np.flatnonzero(index == k)
+    values[rows[: int(0.6 * rows.size)], 0] = np.nan  # 40 % of the deployment left
+    kept = site.deployment_medians(values, index, flmb_site["deployment_name"].size)
+    ruled = site.deployment_medians(
+        values, index, flmb_site["deployment_name"].size, min_fraction=0.5
+    )
+    assert np.isfinite(kept[k, 0]) and np.isnan(ruled[k, 0])

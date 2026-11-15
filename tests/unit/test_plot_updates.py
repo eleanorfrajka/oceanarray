@@ -75,13 +75,16 @@ def test_short_names_drop_the_shared_site_prefix():
 # Velocity by depth -----------------------------------------------------------
 
 
-def test_a_level_is_drawn_only_with_half_its_deployments_steps(flmb_site):
+def test_a_level_is_drawn_only_with_half_its_own_deployment_steps(flmb_site):
     by = current._velocity_by_depth(flmb_site)
     assert by is not None
-    for drawn in by["cells"]:
+    cell_dep = flmb_site["cell_deployment"].values
+    for (_label, j), drawn in zip(by["groups"], by["cells"], strict=True):
         for k, rows in drawn:
-            steps = helpers.deployment_steps(flmb_site, k)
-            assert rows.sum() >= helpers.PROFILE_MIN_FRACTION * steps
+            # Judged on the depth's own steps in that deployment, not the whole
+            # deployment window, so a depth sampled part of the time is not penalised.
+            own = int((cell_dep[:, j] == k).sum())
+            assert rows.sum() >= helpers.PROFILE_MIN_FRACTION * own
 
 
 def test_no_level_is_drawn_when_none_has_enough_data(flmb_site, monkeypatch):
@@ -121,8 +124,8 @@ def test_the_median_line_averages_colocated_levels():
 
 
 def test_ts_by_deployment_draws_outlines_medians_and_lines(flmb_site, monkeypatch):
-    # The fixture holds ~3 weeks: lower the per-level minimum to draw it.
-    monkeypatch.setattr(ts, "TS_MIN_LEVEL_DAYS", 1.0)
+    # Draw every level regardless of size, to check the outline/median/line logic.
+    monkeypatch.setattr(ts, "TS_MIN_LEVEL_POINTS", 1)
     fig = ts.draw_ts_by_deployment(flmb_site)
     assert fig is not None
     ax = fig.axes[0]
@@ -133,8 +136,17 @@ def test_ts_by_deployment_draws_outlines_medians_and_lines(flmb_site, monkeypatc
     plt.close(fig)
 
 
+def test_a_short_full_deployment_is_not_dropped(flmb_site):
+    # The fixture's deployments are ~2 weeks each; at the default minimum they are
+    # still drawn (a short but complete deployment is kept, not dropped for being
+    # shorter than some duration — which would lose a mooring like dune2).
+    fig = ts.draw_ts_by_deployment(flmb_site)
+    assert fig is not None
+    plt.close(fig)
+
+
 def test_too_many_outlines_leave_medians_and_lines_only(flmb_site, monkeypatch):
-    monkeypatch.setattr(ts, "TS_MIN_LEVEL_DAYS", 1.0)
+    monkeypatch.setattr(ts, "TS_MIN_LEVEL_POINTS", 1)
     monkeypatch.setattr(ts, "TS_MAX_OUTLINES", 0)
     fig = ts.draw_ts_by_deployment(flmb_site)
     contours = [c for c in fig.axes[0].collections if "Contour" in c.__class__.__name__]

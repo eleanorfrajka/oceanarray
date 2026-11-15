@@ -251,9 +251,18 @@ def slope_components(
 
 
 def deployment_medians(
-    values: np.ndarray, deployment_index: np.ndarray, n_deployments: int
+    values: np.ndarray,
+    deployment_index: np.ndarray,
+    n_deployments: int,
+    *,
+    min_fraction: float = 0.0,
 ) -> np.ndarray:
     """Return each deployment's median at each level.
+
+    A level the deployment fills only part of the time is left out when it has
+    values for less than *min_fraction* of the deployment's steps: at the edge of
+    an instrument's range, a level is reached only when the mooring is knocked
+    down, i.e. in strong flow, and its median would describe those hours only.
 
     Parameters
     ----------
@@ -263,11 +272,15 @@ def deployment_medians(
         The deployment counted at each step (-1 none).
     n_deployments : int
         Number of deployments.
+    min_fraction : float, optional
+        The share of a deployment's steps a level needs values for (0 to 1);
+        0 keeps every level with a value.
 
     Returns
     -------
     numpy.ndarray
-        ``(n_deployments, pressure)``; NaN where a deployment has no value.
+        ``(n_deployments, pressure)``; NaN where a deployment has no value, or
+        too few.
     """
     out = np.full((n_deployments, values.shape[1]), np.nan)
     with warnings.catch_warnings():
@@ -275,7 +288,9 @@ def deployment_medians(
         for k in range(n_deployments):
             rows = values[deployment_index == k]
             if rows.size:
-                out[k] = np.nanmedian(rows, axis=0)
+                med = np.nanmedian(rows, axis=0)
+                covered = np.isfinite(rows).sum(axis=0) >= min_fraction * rows.shape[0]
+                out[k] = np.where(covered, med, np.nan)
     return out
 
 

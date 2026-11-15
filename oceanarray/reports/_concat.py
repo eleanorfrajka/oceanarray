@@ -36,6 +36,7 @@ from ._plots import (
     _make_stack_ts_diagram_b64,
     _make_ts_by_deployment_b64,
     _make_ts_medians_b64,
+    _make_ts_points_by_deployment_b64,
 )
 from ._read import _read_nc_metadata
 from ._stack import STACK_CAPTIONS, STACK_PANELS, STACK_SECTIONS, StackContext
@@ -65,14 +66,21 @@ CONCAT_CAPTIONS: dict[str, str] = {
         "Temperature against salinity, one color per deployment. For each "
         f"instrument level, the outline encloses the densest {_ts.TS_OUTLINE_FRACTION:.0%} "
         "of its T-S values (a 2-D histogram smoothed over 3 × 3 bins) and the dot is "
-        "its median; levels with less than "
-        f"{_ts.TS_MIN_LEVEL_DAYS:g} days of both T and S are left out. Lines join each "
+        "its median; levels with fewer than "
+        f"{_ts.TS_MIN_LEVEL_POINTS:g} points of both T and S are left out. Lines join each "
         "deployment's medians in order of pressure (a guide to the eye, not "
         "interpolated data; levels less than "
         f"{_ts.TS_COLOCATED_DBAR:g} dbar apart are averaged for the line). With more "
         f"than {_ts.TS_MAX_OUTLINES} levels the outlines are left out. Values flagged "
         "3, 4 or 9 left out. A shift between deployments at the same depth is a "
         "sensor offset or a change in the water." + _OVERLAP_NOTE
+    ),
+    "ts_points": (
+        "Temperature against salinity, one color per deployment: at most "
+        f"{_ts.TS_MAX_POINTS:,} values per deployment, picked at random (the same "
+        "ones each time the page is drawn), drawn in random order so no deployment "
+        "covers the others. Values flagged 3, 4 or 9 left out. Dashed: σ0."
+        + _OVERLAP_NOTE
     ),
     "ts_medians": (
         "Draft. Median salinity and temperature of each depth in each "
@@ -231,6 +239,11 @@ CONCAT_PANELS: dict[str, Panel] = {
         slot="half",
     ),
     "trajectories_aquadopp": _figure_panel("trajectories_aquadopp"),
+    "ts_points": _figure_panel(
+        "ts_points",
+        lambda c: "temperature" in c.present_vars and "salinity" in c.present_vars,
+        slot="half",
+    ),
     "ts_medians": _figure_panel(
         "ts_medians",
         lambda c: "temperature" in c.present_vars and "salinity" in c.present_vars,
@@ -282,7 +295,7 @@ CONCAT_SECTIONS: dict[str, Section] = {
     "ts_diagram": Section(
         "ts_diagram",
         "T-S diagram",
-        ("ts_by_deployment", "ts_medians", "ts_diagram"),
+        ("ts_points", "ts_by_deployment", "ts_medians", "ts_diagram"),
         layout="row",
     ),
 }
@@ -862,6 +875,7 @@ def generate_concat_page(
             "roses": as_panel(lambda: _make_rose_outlines_b64(view)),
             "ts_diagram": as_panel(lambda: _make_stack_ts_diagram_b64(view)),
             "ts_by_deployment": as_panel(lambda: _make_ts_by_deployment_b64(view)),
+            "ts_points": as_panel(lambda: _make_ts_points_by_deployment_b64(view)),
             "ts_medians": as_panel(lambda: _make_ts_medians_b64(view)),
             "trajectories_aquadopp": as_panel(
                 lambda: (

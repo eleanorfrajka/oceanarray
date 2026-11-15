@@ -26,10 +26,11 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 - Site figures: up to seven deployments get a color each; more share colors in pairs, the second dashed, hatched or with a square marker.
 - A ▼ above each Stack cat and Grid cat time axis marks a deployment's start.
 - The Stack cat T-S diagram shows each level's 50 % outline and median, joined per deployment, instead of every point.
-- The Stack cat has current direction by depth beside speed; both are drawn only at depths with velocity for at least half a deployment.
+- The Stack cat has current direction by depth beside speed; both are drawn at a depth only when at least half of that depth's own samples in the deployment have valid velocity (so a depth sampled for only part of a deployment is judged on its own record).
 - The Grid cat T-S diagram marks each T-and-S instrument at its mean pressure.
 - Grid cat isopycnals are labeled with the value only; display bins with data for less than half their time are blank; sections have no horizontal grid.
 - Site time means are summed in float64.
+- Minimum matplotlib raised to 3.10 (the by-deployment speed panel uses `boxplot(orientation=)`, added in 3.10).
 - The Stack cat's depth columns are named for what they are: dimension `N_DEPTHS`, `depth_index`, `nominal_depth`, `depth_family`, `depth_match_value`, `depth_tolerance`, `overlap_depth_index`; the YAML keys are `stack: depth_match` / `depth_tolerance_m`.
 - Pipeline progress goes to stderr via standard logging (one line per step; `-v` for per-instrument detail); a command's result still goes to stdout.
 

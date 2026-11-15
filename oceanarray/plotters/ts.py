@@ -617,14 +617,23 @@ def draw_grid_ts_diagram(
 TS_OUTLINE_FRACTION: float = 0.5
 #: Bins of the 2-D histogram behind each outline, along S and T.
 TS_OUTLINE_BINS: tuple[int, int] = (140, 135)
-#: A level gets an outline and a median only with at least this many days of T and S.
-TS_MIN_LEVEL_DAYS: float = 30.0
+#: A level gets an outline and a median only with at least this many T-S points: a
+#: small floor so a short but complete deployment (e.g. a two-week mooring) is kept,
+#: while a level with almost no data is left out. A count, not a duration, so the
+#: sampling rate does not decide it.
+TS_MIN_LEVEL_POINTS: int = 24
 #: Above this many level outlines the figure draws medians and lines only (a site with
 #: many deployments and many variable shallow levels becomes unreadable otherwise).
 TS_MAX_OUTLINES: int = 40
 #: Levels whose median pressures are closer than this (dbar) are averaged for the
 #: median line, so co-located instruments do not make it zigzag.
 TS_COLOCATED_DBAR: float = 10.0
+
+#: Most points drawn per deployment in the T-S point cloud, picked at random.
+TS_MAX_POINTS: int = 5000
+
+#: Seed for that pick, so a page drawn twice shows the same points.
+TS_POINTS_SEED: int = 0
 
 
 def _outline_level(H: np.ndarray, fraction: float) -> float:
@@ -684,7 +693,7 @@ def draw_ts_by_deployment(
 ) -> plt.Figure | None:
     """T-S of a concatenated stack by deployment: an outline and a median per instrument level.
 
-    For each depth and deployment with at least :data:`TS_MIN_LEVEL_DAYS` days of
+    For each depth and deployment with at least :data:`TS_MIN_LEVEL_POINTS` points of
     temperature and salinity, the outline encloses :data:`TS_OUTLINE_FRACTION` of
     that level's points (the densest region of its T-S histogram, smoothed over
     3 × 3 bins), and a dot marks its median S and T. With more than
@@ -739,20 +748,13 @@ def draw_ts_by_deployment(
     names = short_names([str(n) for n in ds["deployment_name"].values])
     n_dep = len(names)
     cell_dep = ds["cell_deployment"].values
-    time = ds["time"].values
-    step_s = (
-        float(np.median(np.diff(time)) / np.timedelta64(1, "s"))
-        if time.size > 1
-        else 3600.0
-    )
-    min_points = TS_MIN_LEVEL_DAYS * 86400.0 / step_s
 
     # (k, column, S, T) of every level that is drawn.
     cells = []
     for j in range(cell_dep.shape[1]):
         for k in np.unique(cell_dep[:, j][cell_dep[:, j] >= 0]):
             ok = (cell_dep[:, j] == k) & np.isfinite(S[:, j]) & np.isfinite(T[:, j])
-            if ok.sum() >= min_points:
+            if ok.sum() >= TS_MIN_LEVEL_POINTS:
                 cells.append((int(k), j, S[ok, j], T[ok, j], ok))
     if not cells:
         return None
@@ -831,6 +833,108 @@ def draw_ts_by_deployment(
         ],
     )
     plot_title(ax, "T-S by deployment")
+    return fig
+
+
+def draw_ts_points_by_deployment(
+    ds: xr.Dataset, *, width_in: float = report_tokens.W_HALF
+) -> plt.Figure | None:
+    """T-S point cloud of a concatenated stack, one color per deployment, thinned.
+
+    At most :data:`TS_MAX_POINTS` values per deployment, picked at random with a
+    fixed seed (:data:`TS_POINTS_SEED`), so years of hourly values do not bury one
+    another and the page is the same each time it is drawn. Values flagged 3, 4 or
+    9 (``parameters.QC_BAD_FLAGS``) are left out. Deployments are drawn in
+    random order, point by point, so none sits on top of all the others.
+
+    Parameters
+    ----------
+    ds : xr.Dataset
+        A concatenated stack, one column per depth (``time, N_LEVELS``), with
+        ``temperature``, ``salinity``, ``cell_deployment(time, N_LEVELS)`` (the
+        deployment behind each value, -1 none) and ``deployment_name(DEPLOYMENT)``.
+    width_in : float, optional
+        Figure width in inches.
+
+    Returns
+    -------
+    plt.Figure or None
+        None without temperature, salinity or the deployment record, or with no
+        value left.
+    """
+    import matplotlib.pyplot as plt
+    from matplotlib.lines import Line2D
+
+    from .helpers import (
+        deployment_color,
+        deployment_marker,
+        legend_below,
+        short_names,
+    )
+
+    needed = ("temperature", "salinity", "cell_deployment", "deployment_name")
+    if any(v not in ds.variables for v in needed):
+        return None
+    T = ds["temperature"].values.astype(float)
+    S = ds["salinity"].values.astype(float)
+    for var, arr in (("temperature", T), ("salinity", S)):
+        if f"{var}_qc" in ds.data_vars:
+            arr[np.isin(ds[f"{var}_qc"].values, params.QC_BAD_FLAGS)] = np.nan
+    names = short_names([str(n) for n in ds["deployment_name"].values])
+    n_dep = len(names)
+    cell_dep = ds["cell_deployment"].values
+    rng = np.random.default_rng(TS_POINTS_SEED)
+    s_pts, t_pts, k_pts = [], [], []
+    for k in range(n_dep):
+        cells = cell_dep == k
+        s, t = S[cells], T[cells]
+        ok = np.flatnonzero(np.isfinite(s) & np.isfinite(t))
+        if ok.size > TS_MAX_POINTS:
+            ok = np.sort(rng.choice(ok, TS_MAX_POINTS, replace=False))
+        s_pts.append(s[ok])
+        t_pts.append(t[ok])
+        k_pts.append(np.full(ok.size, k))
+    s_all, t_all = np.concatenate(s_pts), np.concatenate(t_pts)
+    if not s_all.size:
+        return None
+    k_all = np.concatenate(k_pts)
+    order = rng.permutation(s_all.size)
+    fig, ax = plt.subplots(figsize=(width_in, width_in), layout="constrained")
+    # One scatter call per marker shape; points of every deployment interleaved.
+    markers = np.array([deployment_marker(k, n_dep) for k in range(n_dep)])
+    colors = np.array([deployment_color(k, n_dep) for k in range(n_dep)])
+    for marker in np.unique(markers):
+        pick = order[markers[k_all[order]] == marker]
+        ax.scatter(
+            s_all[pick],
+            t_all[pick],
+            s=3,
+            linewidths=0,
+            alpha=0.5,
+            marker=marker,
+            c=colors[k_all[pick]],
+            rasterized=True,
+        )
+    _add_sigma0_contours(ax, s_all, t_all)
+    ax.set_xlim(*_nice_axis_limits(s_all))
+    ax.set_ylim(*_nice_axis_limits(t_all))
+    ax.set_xlabel(params.vlabel("salinity"))
+    ax.set_ylabel(params.vlabel("temperature"))
+    handles = [
+        Line2D(
+            [],
+            [],
+            ls="none",
+            marker=deployment_marker(k, n_dep),
+            ms=6,
+            color=deployment_color(k, n_dep),
+            label=names[k],
+        )
+        for k in range(n_dep)
+        if (k_all == k).any()
+    ]
+    legend_below(fig, handles)
+    plot_title(ax, f"T-S by deployment (≤ {TS_MAX_POINTS:,} points each)")
     return fig
 
 
