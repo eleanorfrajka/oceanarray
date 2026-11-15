@@ -35,6 +35,34 @@ def drop_all_zero_vars(ds: xr.Dataset, prefixes: list[str]) -> xr.Dataset:
     return ds.drop_vars(to_drop) if to_drop else ds
 
 
+def time_axis(start: np.datetime64, end: np.datetime64, dt_seconds: int) -> np.ndarray:
+    """Return the steps of *dt_seconds* that are whole multiples of it within a window.
+
+    Whole multiples of the step since the Unix epoch (on the hour at 3600 s), so a
+    mooring's stack and the stacks of every deployment of one site share their
+    steps; ``concat`` joins them on this axis.
+
+    Parameters
+    ----------
+    start, end : numpy.datetime64
+        The window, both ends included.
+    dt_seconds : int
+        The step in seconds.
+
+    Returns
+    -------
+    numpy.ndarray
+        ``datetime64[ns]`` steps; empty when no whole step falls in the window.
+    """
+    step_ns = int(dt_seconds) * 1_000_000_000
+    start_ns = int(np.datetime64(start, "ns").astype(np.int64))
+    end_ns = int(np.datetime64(end, "ns").astype(np.int64))
+    first_ns = -(-start_ns // step_ns) * step_ns
+    return np.arange(first_ns, end_ns + 1, step_ns, dtype=np.int64).astype(
+        "datetime64[ns]"
+    )
+
+
 def time_step_seconds(ds: xr.Dataset) -> float:
     """Return a stack or grid file's time step in seconds.
 

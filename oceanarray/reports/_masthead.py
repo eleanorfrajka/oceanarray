@@ -132,7 +132,10 @@ def format_position(cfg: Mapping[str, Any]) -> tuple[str, str]:
 
 
 def format_instrument_counts(
-    entries: Iterable[Any], *, labels: Mapping[str, str] | None = None
+    entries: Iterable[Any],
+    *,
+    labels: Mapping[str, str] | None = None,
+    per: int = 1,
 ) -> str:
     """Return an instrument count broken down by type.
 
@@ -144,6 +147,10 @@ def format_instrument_counts(
     labels : Mapping, optional
         Display labels by lower-case instrument type, consulted before the
         package's own type labels.
+    per : int, optional
+        Divide every count by this (the number of deployments, for the average
+        per deployment of a concatenated site); a count that is not whole shows
+        one decimal.
 
     Returns
     -------
@@ -167,10 +174,15 @@ def format_instrument_counts(
     types = [t for t in order if t in counts] + sorted(
         t for t in counts if t not in order
     )
-    text = str(sum(counts.values()))
+
+    def _count(n: int) -> str:
+        value = n / per
+        return f"{value:.0f}" if float(value).is_integer() else f"{value:.1f}"
+
+    text = _count(sum(counts.values()))
     if types:
         by_type = " · ".join(
-            f"{labels.get(t) or _type_label(t)} {counts[t]}" for t in types
+            f"{labels.get(t) or _type_label(t)} {_count(counts[t])}" for t in types
         )
         text += f" ({by_type})"
     if skipped:

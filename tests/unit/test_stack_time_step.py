@@ -21,7 +21,7 @@ from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
 from oceanarray.instruments import instrument_entries
 from oceanarray.pipeline import stack as st
-from oceanarray.pipeline.dataset import time_step_seconds
+from oceanarray.pipeline.dataset import time_axis, time_step_seconds
 from oceanarray.pipeline.pressure import _times_to_float
 from oceanarray.pipeline.qc import _apply_qc_mask
 from oceanarray.pipeline.read_mooring import read_mooring
@@ -100,7 +100,7 @@ def _loop_nearest(ds: xr.Dataset, common_time: np.ndarray, half_window_s: float)
 
 def _axis(cfg: dict, dt_seconds: int) -> np.ndarray:
     """Return the stack time axis for the description's window at *dt_seconds*."""
-    return st._time_axis(
+    return time_axis(
         np.datetime64(cfg["deployment_time"], "ns"),
         np.datetime64(cfg["recovery_time"], "ns"),
         dt_seconds,

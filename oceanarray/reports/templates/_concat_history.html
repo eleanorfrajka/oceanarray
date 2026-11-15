@@ -1,0 +1,7 @@
+{# The concat step's own history, then each deployment's stack history folded under its name. #}
+{{ concat_html }}
+{% for name, html in deployments %}
+<details class="deployment-history"><summary>{{ name }}</summary>
+{{ html }}
+</details>
+{% endfor %}

@@ -174,6 +174,9 @@ mooring as a whole.
      - ``dt_seconds``: the stack's time step in whole seconds (default 3600).
        ``--dt-seconds`` / ``dt_seconds=`` override it.  Each step takes every
        instrument's nearest sample within ±dt/2; nothing is interpolated in time.
+       ``slot_reference`` (``depth`` or ``hab``) and ``slot_tolerance_m`` (default
+       ``depth``, 50): how ``oceanarray concat`` labels the same depth across
+       deployments (see *Concatenate Deployments*).
    * - ``grid``
      - mapping
      - Optional

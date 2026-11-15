@@ -5,6 +5,14 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- `oceanarray concat` / `oa.concat` join one site's deployment stacks end to end (`<site>_stackcat.nc`, every level kept, nothing filled across a turnaround), with a Stack cat report page and depth slots set by `stack: slot_reference / slot_tolerance_m` (#135).
+
+---
+
 ## [0.6.0] — 2026-11-15
 
 ### Added

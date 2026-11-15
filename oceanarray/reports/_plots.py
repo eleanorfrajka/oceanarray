@@ -64,7 +64,9 @@ from ..plotters.timeseries import (
 from ..plotters.ts import (
     draw_grid_ts_diagram,
     draw_stack_ts_diagram,
+    draw_ts_by_deployment,
     draw_ts_diagram,
+    draw_ts_medians,
 )
 from ._figdebug import render_b64
 from ._read import _QC_LABELS
@@ -600,6 +602,8 @@ def _make_stack_timeseries_b64(
     *,
     color_var: str,
     dot_overlay: bool = False,
+    deployments: list | None = None,
+    legend_shallow_first: bool = False,
 ) -> str | None:
     """Stack time series (one row per variable, one line per level), full width, for the stack page."""
     return render_slot(
@@ -608,8 +612,34 @@ def _make_stack_timeseries_b64(
         rows,
         color_var=color_var,
         dot_overlay=dot_overlay,
+        deployments=deployments,
+        legend_shallow_first=legend_shallow_first,
         optional=True,
     )
+
+
+def _make_ts_by_deployment_b64(ds: xr.Dataset) -> str | None:
+    """T-S scatter colored by deployment, half width, for the concatenated page."""
+    return render_slot(draw_ts_by_deployment, ds, slot="half", optional=True)
+
+
+def _make_ts_medians_b64(ds: xr.Dataset) -> str | None:
+    """T-S medians with IQR whiskers per level, half width, for the concatenated page."""
+    return render_slot(draw_ts_medians, ds, slot="half", optional=True)
+
+
+def _make_rose_outlines_b64(ds: xr.Dataset) -> str | None:
+    """One rose per velocity slot, one outline per deployment, for the concatenated page."""
+    from oceanarray.plotters.current import draw_rose_outlines
+
+    return render_slot(draw_rose_outlines, ds, optional=True)
+
+
+def _make_speed_profile_by_deployment_b64(ds: xr.Dataset) -> str | None:
+    """Speed boxes per slot and deployment, half width, for the concatenated page."""
+    from oceanarray.plotters.current import draw_speed_profile_by_deployment
+
+    return render_slot(draw_speed_profile_by_deployment, ds, slot="half", optional=True)
 
 
 def _make_aquadopp_tilt_panels_b64(ds: xr.Dataset, step: int = 1) -> str | None:

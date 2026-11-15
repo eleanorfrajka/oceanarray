@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     from oceanarray.exceptions import MooringError
     from oceanarray.pipeline import process, run
     from oceanarray.pipeline._stage import StageError
+    from oceanarray.pipeline.concat import concat
     from oceanarray.pipeline.export import export
     from oceanarray.pipeline.grid import grid
     from oceanarray.pipeline.read_mooring import read_mooring
@@ -48,6 +49,7 @@ __all__ = [
     "MooringError",
     "StageError",
     "__version__",
+    "concat",
     "export",
     "grid",
     "mooring",
@@ -68,6 +70,7 @@ __all__ = [
 _EXPORTS: dict[str, tuple[str, str | None]] = {
     "MooringError": ("oceanarray.exceptions", "MooringError"),
     "StageError": ("oceanarray.pipeline._stage", "StageError"),
+    "concat": ("oceanarray.pipeline.concat", "concat"),
     "export": ("oceanarray.pipeline.export", "export"),
     "grid": ("oceanarray.pipeline.grid", "grid"),
     "mooring": ("oceanarray.mooring", None),

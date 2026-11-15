@@ -595,3 +595,167 @@ def draw_grid_ts_diagram(
         plot_title(axes[1], "Median O₂ saturation per T-S bin")
 
     return fig, ts_bounds
+
+
+def draw_ts_by_deployment(
+    ds: xr.Dataset, *, width_in: float = report_tokens.W_HALF
+) -> plt.Figure | None:
+    """T-S scatter of a concatenated stack, one color per deployment.
+
+    Values flagged 3, 4 or 9 (``parameters.QC_BAD_FLAGS``) are left out. A shift
+    between the deployments' clouds at the same depth is what this panel is for.
+
+    Parameters
+    ----------
+    ds : xr.Dataset
+        A concatenated stack (``oceanarray.concat``) with ``temperature``,
+        ``salinity``, ``deployment(N_LEVELS)`` and ``deployment_name(DEPLOYMENT)``.
+    width_in : float, optional
+        Figure width in inches.
+
+    Returns
+    -------
+    plt.Figure or None
+        None without temperature, salinity or the deployment record.
+    """
+    import matplotlib.pyplot as plt
+
+    from .helpers import deployment_color
+
+    needed = ("temperature", "salinity", "deployment", "deployment_name")
+    if any(v not in ds.variables for v in needed):
+        return None
+    T = ds["temperature"].values.astype(float)
+    S = ds["salinity"].values.astype(float)
+    for var, arr in (("temperature", T), ("salinity", S)):
+        if f"{var}_qc" in ds.data_vars:
+            arr[np.isin(ds[f"{var}_qc"].values, params.QC_BAD_FLAGS)] = np.nan
+    names = [str(n) for n in ds["deployment_name"].values]
+    level_dep = ds["deployment"].values
+    fig, ax = plt.subplots(figsize=(width_in, width_in), layout="constrained")
+    all_s, all_t = [], []
+    for k, name in enumerate(names):
+        cols = level_dep == k
+        s, t = S[:, cols].ravel(), T[:, cols].ravel()
+        ok = np.isfinite(s) & np.isfinite(t)
+        if not ok.any():
+            continue
+        ax.scatter(
+            s[ok],
+            t[ok],
+            s=2,
+            linewidths=0,
+            alpha=0.5,
+            color=deployment_color(k),
+            label=name,
+            rasterized=True,
+        )
+        all_s.append(s[ok])
+        all_t.append(t[ok])
+    if not all_s:
+        plt.close(fig)
+        return None
+    s_all, t_all = np.concatenate(all_s), np.concatenate(all_t)
+    _add_sigma0_contours(ax, s_all, t_all)
+    ax.set_xlim(*_nice_axis_limits(s_all))
+    ax.set_ylim(*_nice_axis_limits(t_all))
+    ax.set_xlabel(params.vlabel("salinity"))
+    ax.set_ylabel(params.vlabel("temperature"))
+    ax.legend(markerscale=4, loc="best", fontsize="small")
+    plot_title(ax, "T-S by deployment")
+    return fig
+
+
+def draw_ts_medians(
+    ds: xr.Dataset, *, width_in: float = report_tokens.W_HALF
+) -> plt.Figure | None:
+    """Median T and S of each instrument in each deployment, with interquartile whiskers.
+
+    One point per level of a concatenated stack, in its deployment's color
+    (Okabe-Ito). Values flagged 3, 4 or 9 (``parameters.QC_BAD_FLAGS``) are left out.
+
+    Parameters
+    ----------
+    ds : xr.Dataset
+        A concatenated stack with ``temperature``, ``salinity``,
+        ``deployment(N_LEVELS)`` and ``deployment_name(DEPLOYMENT)``.
+    width_in : float, optional
+        Figure width in inches.
+
+    Returns
+    -------
+    plt.Figure or None
+        None when no level has both temperature and salinity.
+    """
+    import matplotlib.pyplot as plt
+
+    from .helpers import deployment_color
+
+    needed = ("temperature", "salinity", "deployment", "deployment_name")
+    if any(v not in ds.variables for v in needed):
+        return None
+    arrays = {}
+    for var in ("temperature", "salinity"):
+        arr = ds[var].values.astype(float)
+        if f"{var}_qc" in ds.data_vars:
+            arr[np.isin(ds[f"{var}_qc"].values, params.QC_BAD_FLAGS)] = np.nan
+        arrays[var] = arr
+    names = [str(n) for n in ds["deployment_name"].values]
+    rows = []
+    for j, k in enumerate(ds["deployment"].values):
+        t, s = arrays["temperature"][:, j], arrays["salinity"][:, j]
+        ok = np.isfinite(t) & np.isfinite(s)
+        if ok.sum() < 3:
+            continue
+        rows.append(
+            (
+                int(k),
+                np.percentile(s[ok], [25, 50, 75]),
+                np.percentile(t[ok], [25, 50, 75]),
+            )
+        )
+    if not rows:
+        return None
+    fig, ax = plt.subplots(figsize=(width_in, width_in), layout="constrained")
+    for k, sq, tq in rows:
+        color = deployment_color(k)
+        ax.errorbar(
+            sq[1],
+            tq[1],
+            xerr=[[sq[1] - sq[0]], [sq[2] - sq[1]]],
+            yerr=[[tq[1] - tq[0]], [tq[2] - tq[1]]],
+            fmt="o",
+            color=color,
+            ecolor=color,
+            elinewidth=1.0,
+            markersize=5,
+            markeredgecolor="black",
+            markeredgewidth=0.4,
+        )
+    all_s = np.concatenate([[r[1][0], r[1][2]] for r in rows])
+    all_t = np.concatenate([[r[2][0], r[2][2]] for r in rows])
+    _add_sigma0_contours(ax, all_s, all_t)
+    ax.set_xlim(*_nice_axis_limits(all_s))
+    ax.set_ylim(*_nice_axis_limits(all_t))
+    ax.set_xlabel(params.vlabel("salinity"))
+    ax.set_ylabel(params.vlabel("temperature"))
+    used = sorted({r[0] for r in rows})
+    ax.legend(
+        handles=[
+            plt.Line2D(
+                [],
+                [],
+                ls="",
+                marker="o",
+                color=deployment_color(k),
+                markeredgecolor="black",
+                markeredgewidth=0.4,
+                label=names[k],
+            )
+            for k in used
+        ],
+        loc="best",
+        fontsize="small",
+    )
+    plot_title(ax, "T-S medians (IQR whiskers)")
+    return fig

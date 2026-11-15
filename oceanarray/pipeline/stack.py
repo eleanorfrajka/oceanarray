@@ -13,7 +13,7 @@ from oceanarray.exceptions import MooringError
 from oceanarray.instruments import instrument_entries
 from oceanarray.location import parse_latlon
 from oceanarray.paths import safe_serial
-from oceanarray.pipeline.dataset import drop_all_zero_vars
+from oceanarray.pipeline.dataset import drop_all_zero_vars, time_axis
 from oceanarray.pipeline.pressure import _times_to_float
 from oceanarray.pipeline.qc import _apply_qc_mask, _worst_flag
 from oceanarray.pipeline.read_mooring import read_mooring
@@ -236,21 +236,6 @@ def _nearest_subsample(
     return result
 
 
-def _time_axis(
-    deploy_time: np.datetime64, recover_time: np.datetime64, dt_seconds: int
-) -> np.ndarray:
-    """Return the steps of dt_seconds that are whole multiples of it within the window."""
-    # Whole multiples of the step since the Unix epoch (on the hour at 3600 s),
-    # so deployments of one site share their steps.
-    step_ns = int(dt_seconds) * 1_000_000_000
-    start_ns = int(deploy_time.astype("datetime64[ns]").astype(np.int64))
-    end_ns = int(recover_time.astype("datetime64[ns]").astype(np.int64))
-    first_ns = -(-start_ns // step_ns) * step_ns
-    return np.arange(first_ns, end_ns + 1, step_ns, dtype=np.int64).astype(
-        "datetime64[ns]"
-    )
-
-
 KNOWN_INSTRUMENT_TYPES: frozenset = params.KNOWN_INSTRUMENT_TYPES
 
 
@@ -365,7 +350,7 @@ def stack(
     recover_time = np.datetime64(mooring_config["recovery_time"], "ns")
 
     dt_seconds = resolve_dt_seconds(mooring_config, dt_seconds)
-    common_time = _time_axis(deploy_time, recover_time, dt_seconds)
+    common_time = time_axis(deploy_time, recover_time, dt_seconds)
     n_time = len(common_time)
     if n_time == 0:
         raise MooringError(

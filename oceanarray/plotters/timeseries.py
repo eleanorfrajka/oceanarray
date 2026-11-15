@@ -706,6 +706,8 @@ def draw_stack_timeseries(
     *,
     color_var: str,
     dot_overlay: bool = False,
+    deployments: list[tuple[np.datetime64, np.datetime64, str]] | None = None,
+    legend_shallow_first: bool = False,
     width_in: float = report_tokens.W_FULL,
 ) -> plt.Figure | None:
     """Stack time series: one row per variable, one line per instrument level.
@@ -732,6 +734,13 @@ def draw_stack_timeseries(
         The variable whose line colormap colours the instruments.
     dot_overlay : bool, optional
         Also mark each sample with a dot (for sparse, spiky records).
+    deployments : list of (start, end, name), optional
+        For a concatenated stack: each deployment's window. The gaps between them
+        are shaded, each boundary gets a thin line, and each deployment is named
+        along the top.
+    legend_shallow_first : bool, optional
+        List the levels shallowest first in the legend (the colors keep the
+        deep-first order of *ds*).
     width_in : float, optional
         Figure width in inches -- the display-slot width the report builder
         resolves; standalone callers get the full content width.
@@ -809,10 +818,15 @@ def draw_stack_timeseries(
     if not handles:
         plt.close(fig)
         return None
+    if deployments:
+        _mark_deployments(list(axs[:, 0]), deployments)
     date_axis(axs[-1, 0])
     axs[-1, 0].set_xlabel("Time")
     fig.align_ylabels(axs[:, 0])
-    ordered = [s for s in serials if s in handles]
+    # Levels that share a name (a slot across deployments) share one legend entry.
+    ordered = [s for s in dict.fromkeys(serials) if s in handles]
+    if legend_shallow_first:
+        ordered.reverse()
     fig.legend(
         handles=[handles[s] for s in ordered],
         labels=ordered,
@@ -820,6 +834,34 @@ def draw_stack_timeseries(
         framealpha=0.8,
     )
     return fig
+
+
+def _mark_deployments(
+    axes: list, deployments: list[tuple[np.datetime64, np.datetime64, str]]
+) -> None:
+    """Shade the gaps between deployments, line each boundary, name each deployment on top."""
+    import matplotlib.dates as mdates
+    import matplotlib.transforms as mtransforms
+
+    spans = sorted(deployments, key=lambda d: d[0])
+    for ax in axes:
+        for (_s0, e0, _n0), (s1, _e1, _n1) in zip(spans, spans[1:], strict=False):
+            if s1 > e0:
+                ax.axvspan(e0, s1, color="0.85", alpha=0.7, lw=0, zorder=0)
+            ax.axvline(s1, color="0.45", lw=0.6, zorder=1)
+    top = axes[0]
+    trans = mtransforms.blended_transform_factory(top.transData, top.transAxes)
+    for start, end, label in spans:
+        mid = mdates.date2num(start + (end - start) / 2)
+        top.text(
+            mid,
+            1.02,
+            label,
+            transform=trans,
+            ha="center",
+            va="bottom",
+            fontsize="small",
+        )
 
 
 draw_grid = _deprecated.alias("oceanarray.plotters.timeseries.draw_grid", _draw_grid)

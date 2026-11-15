@@ -215,7 +215,7 @@ def stage_output_name(mooring: str, serial: Any, stage: int, tag: str = "") -> s
 
 #: The multi-instrument products a mooring directory holds, each named
 #: ``{name}_{product}.nc`` at the top of the mooring directory.
-PRODUCTS: frozenset[str] = frozenset({"stack", "grid"})
+PRODUCTS: frozenset[str] = frozenset({"stack", "grid", "stackcat"})
 
 
 def stage_file(
