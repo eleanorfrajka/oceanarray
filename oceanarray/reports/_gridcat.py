@@ -196,7 +196,10 @@ GRIDCAT_DEFAULT = Profile(
 
 def _figures(grid: Any, stackcat: Any) -> tuple[dict, str, str]:
     """Return the page's figures, the averaging in words and where the slope angle came from."""
-    names = [str(n) for n in grid["deployment_name"].values]
+    from oceanarray.plotters.helpers import short_names
+
+    # Legends name each deployment without the site's prefix (egM4_2014 → 2014).
+    names = short_names([str(n) for n in grid["deployment_name"].values])
     pressure = grid["pressure"].values.astype(float)
     index = grid["deployment_index"].values
     freq, words = site.display_step(grid["time"].values)

@@ -9,6 +9,7 @@ trimmed to 10 days either side of their four-day overlap, test the overlap block
 import contextlib
 import copy
 import io
+import re
 import shutil
 import tracemalloc
 import warnings
@@ -403,8 +404,12 @@ def test_depths_by_hab_are_still_listed_deep_first(stacks, tmp_path):
     with contextlib.redirect_stdout(io.StringIO()):
         page = generate_concat_page(out, tmp_path / "report")
     html = page.read_text(encoding="utf-8")
-    first = html.index(">11514<")
-    assert first < html.index(">13220<")  # 2385 m before 1500 m
+
+    # An Instruments-table cell: type, serial (linked when its page exists), depth.
+    def cell(serial: str) -> int:
+        return re.search(rf"[> ]{serial}(</a>)?<br><small>", html).start()
+
+    assert cell("11514") < cell("13220")  # 2385 m before 1500 m
 
 
 def test_an_overlap_goes_to_the_overlap_block(flmb):

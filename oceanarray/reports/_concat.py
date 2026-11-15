@@ -267,7 +267,10 @@ CONCAT_SECTIONS: dict[str, Section] = {
             "velocity, or ADCP bins) whose nominal depth (water depth − HAB) is "
             "within the depth tolerance (half the bin size for ADCP bins), one per "
             "deployment. Depths are named by their depth: their numbers change when "
-            "a deployment is added."
+            "a deployment is added. Each cell: the instrument (MC MicroCAT, CM "
+            "current meter, MT thermistor), its serial linked to its own page, and "
+            "its depth; columns are the deployments, named as in the Deployments table "
+            "without the site's prefix."
         ),
     ),
     "speed_profile": Section(
@@ -514,6 +517,15 @@ def _instrument_href(
     return Path(os.path.relpath(page.resolve(), out_dir.resolve())).as_posix()
 
 
+#: Short instrument types for the Instruments table's cells; others are shown whole.
+_TYPE_ABBR: dict[str, str] = {
+    "microcat": "MC",
+    "currentmeter": "CM",
+    "thermistor": "MT",
+    "adcp": "ADCP",
+}
+
+
 def _depth_rows(
     ds: Any, stack_path: Path, out_dir: Path, report_dir: Path | None = None
 ) -> list[dict]:
@@ -529,6 +541,10 @@ def _depth_rows(
     def entry(i: int) -> dict:
         return {
             "type": str(ds["instrument_type"].values[i]),
+            "abbr": _TYPE_ABBR.get(
+                str(ds["instrument_type"].values[i]).lower(),
+                str(ds["instrument_type"].values[i]),
+            ),
             "serial": str(ds["serial"].values[i]),
             "depth": f"{float(ds['depth'].values[i]):.0f}",
             "href": _instrument_href(ds, i, stack_path, out_dir, report_dir),
@@ -798,7 +814,10 @@ def generate_concat_page(
         view = _report_view(ds)
         depth_view = _depth_view(view)
         names = [str(n) for n in ds["deployment_name"].values]
-        windows = _deployment_windows(ds)
+        # Deployments named without the site's prefix on the figures and in the
+        # Instruments table (egM4_2014 → 2014); the Deployments table keeps the full name.
+        short = dict(zip(names, _helpers.short_names(names), strict=True))
+        windows = [(start, end, short[n]) for start, end, n in _deployment_windows(ds)]
         figs = {
             "hydro_pts": _make_stack_timeseries_b64(
                 view,
@@ -892,7 +911,7 @@ def generate_concat_page(
             rose_warn=False,
             rose_missing_serials=[],
             deployment_rows=deployment_rows,
-            deployment_names=names,
+            deployment_names=[short[n] for n in names],
             depth_rows=_depth_rows(ds, stack_path, out_dir, report_dir),
             concat_history=_parse_history(ds.attrs.get("history", "")),
             n_overlap=n_overlap,
