@@ -362,6 +362,12 @@ p, li { max-width: none; }
 .jump-nav a { color:var(--ocean); text-decoration:none; font-weight:600;
               margin:0 0.5rem 0 0; white-space:nowrap; }
 .jump-nav a:hover { text-decoration:underline; }
+/* Caller-supplied breadcrumb trail above the masthead title (matches ctdcast's
+   .breadcrumb so it can be vendored later). */
+.breadcrumb { font-size:var(--fs-top); color:var(--muted); margin:0 0 0.4rem; }
+.breadcrumb a { color:var(--ocean); text-decoration:none; }
+.breadcrumb a:hover { text-decoration:underline; }
+.breadcrumb .sep { color:var(--muted); margin:0 0.25rem; }
 /* Figure collapse toggle (shared report chrome — used by the panel() macro on
    every manifest-ported page). */
 details summary.collapse-toggle { color:var(--muted); font-size:0.76rem; cursor:pointer;
@@ -419,6 +425,7 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 
 </head>
 <body>
+<nav class="breadcrumb"><a href="../dune2_1_2026_report.html">dune2_1_2026</a><span class="sep">›</span><span>2941</span></nav>
 
 <div id="top" class="masthead ">
   <h1 class="masthead-title"><span>Microcat&ensp;&mdash;&ensp;s/n&nbsp;2941</span><span class="masthead-type"></span></h1>

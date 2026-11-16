@@ -1,4 +1,4 @@
-{% import "_nav.html" as nav_m %}<!DOCTYPE html>
+{% import "_nav.html" as nav_m %}{% import "_breadcrumb.html" as bc_m %}<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -47,6 +47,12 @@ p, li { max-width: none; }
 .jump-nav a { color:var(--ocean); text-decoration:none; font-weight:600;
               margin:0 0.5rem 0 0; white-space:nowrap; }
 .jump-nav a:hover { text-decoration:underline; }
+/* Caller-supplied breadcrumb trail above the masthead title (matches ctdcast's
+   .breadcrumb so it can be vendored later). */
+.breadcrumb { font-size:var(--fs-top); color:var(--muted); margin:0 0 0.4rem; }
+.breadcrumb a { color:var(--ocean); text-decoration:none; }
+.breadcrumb a:hover { text-decoration:underline; }
+.breadcrumb .sep { color:var(--muted); margin:0 0.25rem; }
 /* Figure collapse toggle (shared report chrome — used by the panel() macro on
    every manifest-ported page). */
 details summary.collapse-toggle { color:var(--muted); font-size:0.76rem; cursor:pointer;
@@ -88,6 +94,9 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 {% block head_extra %}{% endblock %}
 </head>
 <body>
+{%- if breadcrumb %}
+{{ bc_m.breadcrumb(breadcrumb) }}
+{%- endif %}
 {% block masthead %}
 <div id="top" class="masthead {% block masthead_class %}{% endblock %}">
   <h1 class="masthead-title"><span>{% block masthead_title %}{{ mooring_name }}{% endblock %}</span><span class="masthead-type">{% block masthead_type %}{% endblock %}</span></h1>

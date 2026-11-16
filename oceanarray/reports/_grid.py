@@ -17,6 +17,7 @@ from oceanarray.pipeline.dataset import time_step_seconds
 
 from ..config import parameters as params
 from . import _masthead
+from ._breadcrumb import crumbs_from_ctx
 from ._env import (
     render_history,
     render_nc_coords,
@@ -666,6 +667,9 @@ def generate_grid_page(
         html = render_template(
             "grid.html",
             mooring_name=mooring_name,
+            breadcrumb=crumbs_from_ctx(
+                ctx, [(mooring_name, f"{mooring_name}_report.html"), ("Grid", None)]
+            ),
             nav=mooring_nav(
                 mooring_name,
                 ctx.get("instruments", []),

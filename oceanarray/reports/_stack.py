@@ -15,6 +15,7 @@ from oceanarray.paths import should_skip_regeneration
 
 from ..config import parameters as params
 from . import _masthead
+from ._breadcrumb import crumbs_from_ctx
 from ._env import (
     render_history,
     render_nc_coords,
@@ -669,6 +670,9 @@ def generate_stack_page(
         html = render_template(
             "stack.html",
             mooring_name=mooring_name,
+            breadcrumb=crumbs_from_ctx(
+                ctx, [(mooring_name, f"{mooring_name}_report.html"), ("Stack", None)]
+            ),
             nav=mooring_nav(
                 mooring_name,
                 ctx.get("instruments", []),

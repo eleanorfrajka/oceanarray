@@ -84,4 +84,17 @@ stratification and spectra.
 the turnarounds shaded; and the gridded sections, their anomalies, each deployment's
 median profile and T-S.
 
+Deployments are told apart by color, early to late; with more than seven, colors
+come in pairs, the second of a pair dashed, hatched or with a square marker. A ▼
+above each time axis marks a deployment's start. On the Stack cat, the T-S diagram
+outlines the densest half of each instrument level's values with the level's median
+and a line through each deployment's medians; current speed and direction by depth
+sit side by side (direction of the mean flow, from daily means; hollow where the flow
+is not steady), each drawn only at depths with velocity for at least half of a
+deployment. On the Grid cat, gray lines on the sections and circles on the T-S
+diagram mark the instruments: between them the grid is interpolated, so where a
+site's mooring design changes, part of a difference between deployments is the
+change in sampling. Isopycnals are labeled with their value; the caption says which
+are σ0 and which σ2.
+
 Each page ends with its file's variables and attributes.

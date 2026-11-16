@@ -563,7 +563,7 @@ def draw_grid_timeseries(
     spd = np.sqrt(east**2 + north**2)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", RuntimeWarning)
-        mean_spd = np.nanmean(spd, axis=0)  # (pressure,)
+        mean_spd = np.nanmean(spd, axis=0, dtype=np.float64)  # (pressure,); float64 sum
     if not np.any(np.isfinite(mean_spd)):
         return None
 
@@ -835,7 +835,11 @@ def draw_stack_timeseries(
 def _mark_deployments(
     axes: list, deployments: list[tuple[np.datetime64, np.datetime64, str]]
 ) -> None:
-    """Shade the gaps between deployments, line each boundary, name each deployment on top."""
+    """Shade the gaps between deployments, line each boundary, name each deployment on top.
+
+    Each boundary line also gets a ▼ just above the top axes, pointing down at it,
+    on the strip where the deployment names are.
+    """
     import matplotlib.dates as mdates
     import matplotlib.transforms as mtransforms
 
@@ -847,6 +851,20 @@ def _mark_deployments(
             ax.axvline(s1, **DEPLOYMENT_BOUNDARY, zorder=1)
     top = axes[0]
     trans = mtransforms.blended_transform_factory(top.transData, top.transAxes)
+    # The triangle's tip touches the top of the axes: its center sits half a
+    # marker above.
+    above = mtransforms.offset_copy(trans, fig=top.figure, y=2.5, units="points")
+    for start, _end, _label in spans[1:]:
+        top.plot(
+            mdates.date2num(start),
+            1.0,
+            marker="v",
+            ms=5,
+            color=DEPLOYMENT_BOUNDARY["color"],
+            transform=above,
+            clip_on=False,
+            zorder=5,
+        )
     for start, end, label in spans:
         mid = mdates.date2num(start + (end - start) / 2)
         top.text(

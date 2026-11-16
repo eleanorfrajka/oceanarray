@@ -2179,7 +2179,7 @@ def draw_rose_outlines(
     plt.Figure or None
         None when no level has velocity.
     """
-    from oceanarray.plotters.helpers import deployment_color
+    from oceanarray.plotters.helpers import deployment_line
 
     groups = _velocity_groups(ds)
     if not groups:
@@ -2191,6 +2191,7 @@ def draw_rose_outlines(
             arr[np.isin(ds[f"{var}_qc"].values, params.QC_BAD_FLAGS)] = np.nan
     cell_dep = ds["cell_deployment"].values
     names = [str(n) for n in ds["deployment_name"].values]
+    n_dep = len(names)
     edges = np.linspace(0.0, 2 * np.pi, n_sectors + 1)
     ncols = min(4, len(groups))
     nrows = int(np.ceil(len(groups) / ncols))
@@ -2227,8 +2228,8 @@ def draw_rose_outlines(
             ax.plot(
                 np.r_[theta, theta[0]],
                 np.r_[radius, radius[0]],
-                color=deployment_color(k),
                 linewidth=1.6,
+                **deployment_line(k, n_dep),
             )
             used.add(k)
         plot_title(ax, label)
@@ -2236,7 +2237,9 @@ def draw_rose_outlines(
         ax.set_visible(False)
     fig.legend(
         handles=[
-            plt.Line2D([], [], color=deployment_color(k), linewidth=1.6, label=names[k])
+            plt.Line2D(
+                [], [], linewidth=1.6, label=names[k], **deployment_line(k, n_dep)
+            )
             for k in sorted(used)
         ],
         loc="outside lower center",
@@ -2246,14 +2249,99 @@ def draw_rose_outlines(
     return fig
 
 
+def _velocity_by_depth(ds: xr.Dataset) -> dict | None:
+    """Return the velocity depths of a concatenated stack and what each deployment has there.
+
+    Shared by the speed and direction panels so both use the same depths, the
+    same flags left out and the same data rule.
+
+    Parameters
+    ----------
+    ds : xr.Dataset
+        A concatenated stack (see :func:`draw_speed_profile_by_deployment`).
+
+    Returns
+    -------
+    dict or None
+        ``groups`` (``(label, column)`` with a known depth), ``depth`` (per group),
+        ``u``, ``v`` (time × column, flags 3, 4 and 9 set to NaN), ``cell_dep``,
+        ``names``, ``offset`` (spacing of side-by-side markers, m) and ``cells``:
+        for each group, the deployments drawn there as ``(k, rows)``, ``rows`` the
+        boolean time mask of that deployment's finite velocity. A deployment is
+        drawn at a depth only when at least
+        :data:`~oceanarray.plotters.helpers.PROFILE_MIN_FRACTION` of its own steps
+        at that depth have valid velocity, so a depth sampled for only part of a
+        deployment is judged on its own record, not the whole deployment window.
+        None when no depth has velocity.
+    """
+    from oceanarray.plotters.helpers import (
+        PROFILE_MIN_FRACTION,
+        short_names,
+    )
+
+    depth = ds["depth"].values.astype(float)
+    # Placed at depth: a depth with no known depth cannot be drawn.
+    groups = [(label, j) for label, j in _velocity_groups(ds) if np.isfinite(depth[j])]
+    if not groups:
+        return None
+    u = ds["east_velocity"].values.astype(float)
+    v = ds["north_velocity"].values.astype(float)
+    for var, arr in (("east_velocity", u), ("north_velocity", v)):
+        if f"{var}_qc" in ds.data_vars:
+            arr[np.isin(ds[f"{var}_qc"].values, params.QC_BAD_FLAGS)] = np.nan
+    cell_dep = ds["cell_deployment"].values
+    cells = []
+    for _label, j in groups:
+        drawn = []
+        for k in np.unique(cell_dep[:, j][cell_dep[:, j] >= 0]):
+            k = int(k)
+            in_dep = cell_dep[:, j] == k
+            rows = in_dep & np.isfinite(u[:, j]) & np.isfinite(v[:, j])
+            if rows.sum() >= max(3, PROFILE_MIN_FRACTION * int(in_dep.sum())):
+                drawn.append((k, rows))
+        cells.append(drawn)
+    group_depth = [float(depth[j]) for _, j in groups]
+    spacing = (
+        np.diff(sorted(group_depth)) if len(group_depth) > 1 else np.array([200.0])
+    )
+    n_dep = max(1, ds.sizes.get("DEPLOYMENT", 1))
+    offset = (
+        0.8 * float(np.min(spacing[spacing > 0])) if (spacing > 0).any() else 100.0
+    ) / n_dep
+    return {
+        "groups": groups,
+        "depth": group_depth,
+        "u": u,
+        "v": v,
+        "cell_dep": cell_dep,
+        "names": short_names([str(n) for n in ds["deployment_name"].values]),
+        "n": int(ds["deployment_name"].size),
+        "offset": offset,
+        "cells": cells,
+    }
+
+
+def _depth_axis(ax: plt.Axes, by: dict) -> None:
+    """Label a depth axis with the velocity depths, in metres, deepest at the bottom."""
+    ax.set_yticks(by["depth"])
+    ax.set_yticklabels([f"{d:.0f}" for d in by["depth"]])
+    ax.invert_yaxis()
+    ax.set_ylabel("Nominal depth (m)")
+
+
 def draw_speed_profile_by_deployment(
     ds: xr.Dataset, *, width_in: float = report_tokens.W_HALF
 ) -> plt.Figure | None:
     """Current-speed box per velocity depth and deployment of a concatenated stack, overlaid.
 
     Boxes of one depth sit at the depth's nominal depth, one per deployment in its
-    color, so a change in speed between deployments shows as boxes that do not
-    overlap. Values flagged 3, 4 or 9 are left out.
+    color (two consecutive deployments share a color, the second hatched), so a
+    change in speed between deployments shows as boxes that do not overlap.
+    Values flagged 3, 4 or 9 are left out, and a deployment's box is drawn at a
+    depth only when at least
+    :data:`~oceanarray.plotters.helpers.PROFILE_MIN_FRACTION` of that depth's own
+    steps in the deployment have valid velocity (a depth sampled for only part of
+    the deployment is judged on its own record, not the whole window).
 
     Parameters
     ----------
@@ -2269,49 +2357,41 @@ def draw_speed_profile_by_deployment(
     plt.Figure or None
         None when no level has velocity.
     """
-    from oceanarray.plotters.helpers import deployment_color
+    from matplotlib.patches import Patch
 
-    depth = ds["depth"].values.astype(float)
-    # Boxes are placed at depth: a depth with no known depth cannot be drawn.
-    groups = [(label, j) for label, j in _velocity_groups(ds) if np.isfinite(depth[j])]
-    if not groups:
-        return None
-    u = ds["east_velocity"].values.astype(float)
-    v = ds["north_velocity"].values.astype(float)
-    for var, arr in (("east_velocity", u), ("north_velocity", v)):
-        if f"{var}_qc" in ds.data_vars:
-            arr[np.isin(ds[f"{var}_qc"].values, params.QC_BAD_FLAGS)] = np.nan
-    speed = np.hypot(u, v)
-    cell_dep = ds["cell_deployment"].values
-    names = [str(n) for n in ds["deployment_name"].values]
-    group_depth = [float(depth[j]) for _, j in groups]
-    spacing = (
-        np.diff(sorted(group_depth)) if len(group_depth) > 1 else np.array([200.0])
+    from oceanarray.plotters.helpers import (
+        deployment_color,
+        deployment_hatch,
+        legend_below,
     )
-    n_dep = max(1, ds.sizes.get("DEPLOYMENT", 1))
-    box_w = (
-        0.8 * float(np.min(spacing[spacing > 0])) if (spacing > 0).any() else 100.0
-    ) / n_dep
+
+    by = _velocity_by_depth(ds)
+    if by is None:
+        return None
+    speed = np.hypot(by["u"], by["v"])
+    box_w = by["offset"]
 
     fig, ax = plt.subplots(figsize=(width_in, width_in * 0.9), layout="constrained")
     used: set[int] = set()
-    for (_label, j), y in zip(groups, group_depth, strict=True):
-        present = [int(k) for k in np.unique(cell_dep[:, j][cell_dep[:, j] >= 0])]
-        for m, k in enumerate(present):
-            s = speed[:, j][cell_dep[:, j] == k]
-            s = s[np.isfinite(s)]
-            if s.size < 3:
-                continue
-            color = deployment_color(k)
+    for (_label, j), y, drawn in zip(
+        by["groups"], by["depth"], by["cells"], strict=True
+    ):
+        for m, (k, rows) in enumerate(drawn):
+            color = deployment_color(k, by["n"])
             # Side by side about the depth's value, so deployments do not overlap.
             ax.boxplot(
-                s,
-                positions=[y + (m - (len(present) - 1) / 2) * box_w],
+                speed[rows, j],
+                positions=[y + (m - (len(drawn) - 1) / 2) * box_w],
                 widths=box_w,
                 orientation="horizontal",
                 patch_artist=True,
                 showfliers=False,
-                boxprops={"facecolor": color, "alpha": 0.45, "edgecolor": color},
+                boxprops={
+                    "facecolor": color,
+                    "alpha": 0.45,
+                    "edgecolor": color,
+                    "hatch": deployment_hatch(k, by["n"]),
+                },
                 medianprops={"color": color, "linewidth": 1.5},
                 whiskerprops={"color": color},
                 capprops={"color": color},
@@ -2320,10 +2400,7 @@ def draw_speed_profile_by_deployment(
     if not used:
         plt.close(fig)
         return None
-    ax.set_yticks(group_depth)
-    ax.set_yticklabels([label for label, _ in groups])
-    ax.invert_yaxis()
-    ax.set_ylabel("Nominal depth (m)")
+    _depth_axis(ax, by)
     ax.set_xlabel(
         params.vlabel("current_speed")
         if "current_speed" in params.VARIABLES
@@ -2331,20 +2408,148 @@ def draw_speed_profile_by_deployment(
     )
     ax.set_xlim(left=0)
     grid_despine(ax, axis="x")
-    ax.legend(
-        handles=[
-            plt.Line2D(
-                [],
-                [],
-                color=deployment_color(k),
-                linewidth=6,
+    legend_below(
+        fig,
+        [
+            Patch(
+                facecolor=deployment_color(k, by["n"]),
+                edgecolor=deployment_color(k, by["n"]),
                 alpha=0.45,
-                label=names[k],
+                hatch=deployment_hatch(k, by["n"]),
+                label=by["names"][k],
             )
             for k in sorted(used)
         ],
-        loc="best",
-        fontsize="small",
     )
     plot_title(ax, "Current speed by depth and deployment")
+    return fig
+
+
+def _daily_mean(time: np.ndarray, values: np.ndarray) -> np.ndarray:
+    """Return the means of *values* in each UTC day of *time* that has a finite value."""
+    import pandas as pd
+
+    series = pd.Series(values.astype(np.float64), index=pd.to_datetime(time))
+    return series.resample("1D").mean().dropna().to_numpy()
+
+
+def draw_direction_profile_by_deployment(
+    ds: xr.Dataset, *, width_in: float = report_tokens.W_HALF
+) -> plt.Figure | None:
+    """Draw the current direction per velocity depth and deployment of a concatenated stack.
+
+    The companion of :func:`draw_speed_profile_by_deployment`: the same depths,
+    flags and data rule, the same deployment colors and side-by-side placement.
+    Direction is where the water flows **to**, degrees clockwise from true north.
+    Each marker is the direction of the deployment's mean velocity at that depth
+    (from daily means, so tides do not count); its bar is the circular standard
+    deviation of the daily-mean directions. Where the mean flow is weak against
+    its variability (steadiness, the mean velocity's speed over the mean speed,
+    below :data:`~oceanarray.config.parameters.SLOPE_STEADINESS_MIN`) the marker
+    is hollow: the mean direction is not meaningful there. The direction axis is
+    centred on the mean direction of all depths and deployments, ±180°, so a flow
+    near north is not split across 0°/360°.
+
+    Parameters
+    ----------
+    ds : xr.Dataset
+        A concatenated stack (see :func:`draw_speed_profile_by_deployment`).
+    width_in : float, optional
+        Figure width in inches.
+
+    Returns
+    -------
+    plt.Figure or None
+        None when no level has velocity.
+    """
+    from oceanarray.plotters.helpers import (
+        deployment_color,
+        deployment_marker,
+        legend_below,
+    )
+
+    by = _velocity_by_depth(ds)
+    if by is None:
+        return None
+    time = ds["time"].values
+    points = []  # (k, y, direction °, spread °, steady)
+    sum_u = sum_v = 0.0
+    for (_label, j), y, drawn in zip(
+        by["groups"], by["depth"], by["cells"], strict=True
+    ):
+        for m, (k, rows) in enumerate(drawn):
+            du = _daily_mean(time[rows], by["u"][rows, j])
+            dv = _daily_mean(time[rows], by["v"][rows, j])
+            n = min(du.size, dv.size)
+            if n < 3:
+                continue
+            du, dv = du[:n], dv[:n]
+            mu, mv = float(du.mean()), float(dv.mean())
+            mean_speed = float(np.hypot(du, dv).mean())
+            steadiness = float(np.hypot(mu, mv)) / mean_speed if mean_speed > 0 else 0.0
+            angle = np.arctan2(du, dv)
+            resultant = float(np.hypot(np.cos(angle).mean(), np.sin(angle).mean()))
+            spread = (
+                float(np.degrees(np.sqrt(-2.0 * np.log(resultant))))
+                if resultant > 0
+                else 180.0
+            )
+            offset = (m - (len(drawn) - 1) / 2) * by["offset"]
+            points.append(
+                (
+                    k,
+                    y + offset,
+                    float(np.degrees(np.arctan2(mu, mv)) % 360.0),
+                    min(spread, 180.0),
+                    steadiness >= params.SLOPE_STEADINESS_MIN,
+                )
+            )
+            sum_u += mu
+            sum_v += mv
+    if not points:
+        return None
+    centre = float(np.degrees(np.arctan2(sum_u, sum_v)) % 360.0)
+
+    fig, ax = plt.subplots(figsize=(width_in, width_in * 0.9), layout="constrained")
+    used: set[int] = set()
+    for k, y, direction, spread, steady in points:
+        x = centre + ((direction - centre + 180.0) % 360.0) - 180.0
+        color = deployment_color(k, by["n"])
+        ax.errorbar(
+            x,
+            y,
+            xerr=spread,
+            fmt=deployment_marker(k, by["n"]),
+            color=color,
+            mfc=color if steady else "white",
+            mec=color,
+            ms=5,
+            elinewidth=1.0,
+            capsize=2,
+        )
+        used.add(k)
+    _depth_axis(ax, by)
+    ax.set_xlim(centre - 180.0, centre + 180.0)
+    ticks = np.arange(
+        np.ceil((centre - 180.0) / 90.0) * 90.0, centre + 180.0 + 1e-9, 90.0
+    )
+    ax.set_xticks(ticks)
+    ax.set_xticklabels([f"{t % 360:.0f}" for t in ticks])
+    ax.set_xlabel("Current direction, toward (°T)")
+    grid_despine(ax, axis="x")
+    legend_below(
+        fig,
+        [
+            plt.Line2D(
+                [],
+                [],
+                ls="none",
+                marker=deployment_marker(k, by["n"]),
+                color=deployment_color(k, by["n"]),
+                label=by["names"][k],
+            )
+            for k in sorted(used)
+        ],
+    )
+    plot_title(ax, "Current direction by depth and deployment")
     return fig

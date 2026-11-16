@@ -15,6 +15,7 @@ from oceanarray.analysis import site
 
 from ..config import parameters as params
 from . import _masthead
+from ._breadcrumb import page_crumbs
 from ._concat import (
     CONCAT_PANELS,
     CONCAT_SECTIONS,
@@ -75,14 +76,17 @@ def _captions(
     shown = (
         f"Shown as {words} means of the hourly grid ({site.display_steps_text()}); "
         "the bins restart at each deployment's start, so none spans two "
-        "deployments and a step between deployments shows as a sharp edge. Gray "
-        "bands are the turnarounds; a dotted line marks each deployment's start; "
-        "thin pale lines are the pressures of the instruments measuring the "
-        "variable shown. "
+        "deployments and a step between deployments shows as a sharp edge. A bin "
+        f"with data for less than {site.DISPLAY_MIN_FRACTION:.0%} of its time "
+        "is left blank. Gray bands are the turnarounds; a dotted line and a ▼ above "
+        "the panel mark each deployment's start; gray lines are the pressures of "
+        "the instruments measuring the variable shown (between them the grid is "
+        "interpolated, so where the instruments' depths change between deployments, "
+        "part of a difference between deployments is the change in sampling). "
     )
     isopycnals = (
-        f"Black contours: σ0 {s0} and σ2 {s2} {density}, each over the whole "
-        "depth, drawn within each deployment. "
+        f"Black contours: σ0 {s0} and σ2 {s2} {density} (labeled with the value "
+        "only), each over the whole depth, drawn within each deployment. "
         if positioned
         else "No isopycnals: no deployment has a position. "
     )
@@ -97,10 +101,16 @@ def _captions(
         ),
         "profiles_ts": (
             "Median of the hourly values at each level, one line per deployment "
-            "(red to purple in time order, each color solid then dashed). " + flags
+            "(red to purple in time order; with more than seven deployments each "
+            "color twice, solid then dashed). A level is drawn only where the "
+            f"deployment has values for at least {site.DISPLAY_MIN_FRACTION:.0%} of its "
+            "time: a level reached only when the mooring is knocked down sees only "
+            "the strong-flow hours. " + flags
         ),
         "profiles_uv": (
-            "Median velocity at each level, one line per deployment. Along-slope "
+            "Median velocity at each level, one line per deployment, where the "
+            f"deployment has velocity for at least {site.DISPLAY_MIN_FRACTION:.0%} of its "
+            "time. Along-slope "
             f"direction: {angle_source}. " + flags
         ),
         "sections_uv": (
@@ -117,12 +127,16 @@ def _captions(
         "site_ts": (
             "Potential temperature and salinity of the median temperature and "
             "salinity at each grid level, one line per deployment; a median is not "
-            "moved by a spike. Axes span the 1–99 % range of the medians. Gray "
-            f"contours: σ0 {s0} and σ2 {s2} {density}."
+            "moved by a spike. Levels with values for less than "
+            f"{site.DISPLAY_MIN_FRACTION:.0%} of the deployment's time are left out. Axes span the 1–99 % range of the medians. Circles: "
+            "each deployment's instruments measuring both T and S, at their mean "
+            "pressure, so the curve between circles is the grid's interpolation. Gray "
+            f"contours: σ0 {s0} and σ2 {s2} {density} (labeled with the value only)."
             if positioned
             else "Median in-situ temperature and salinity at each grid level, one "
-            "line per deployment. No deployment has a position, so no potential "
-            "temperature and no isopycnals."
+            "line per deployment. Circles: each deployment's instruments measuring "
+            "both T and S, at their mean pressure. No deployment has a position, so "
+            "no potential temperature and no isopycnals."
         ),
     }
 
@@ -188,7 +202,10 @@ GRIDCAT_DEFAULT = Profile(
 
 def _figures(grid: Any, stackcat: Any) -> tuple[dict, str, str]:
     """Return the page's figures, the averaging in words and where the slope angle came from."""
-    names = [str(n) for n in grid["deployment_name"].values]
+    from oceanarray.plotters.helpers import short_names
+
+    # Legends name each deployment without the site's prefix (egM4_2014 → 2014).
+    names = short_names([str(n) for n in grid["deployment_name"].values])
     pressure = grid["pressure"].values.astype(float)
     index = grid["deployment_index"].values
     freq, words = site.display_step(grid["time"].values)
@@ -238,8 +255,8 @@ def _figures(grid: Any, stackcat: Any) -> tuple[dict, str, str]:
             shown["temperature"].values, shown["salinity"].values, pressure, *position
         )
         isopycnals = [
-            (s0, params.SITE_SIGMA0_LEVELS, "σ0 %g"),
-            (s2, params.SITE_SIGMA2_LEVELS, "σ2 %g"),
+            (s0, params.SITE_SIGMA0_LEVELS, "%g"),
+            (s2, params.SITE_SIGMA2_LEVELS, "%g"),
         ]
 
     from oceanarray.plotters.site import section_cmap, symmetric_limit
@@ -291,7 +308,12 @@ def _figures(grid: Any, stackcat: Any) -> tuple[dict, str, str]:
     ]
 
     def medians(var: str) -> np.ndarray:
-        return site.deployment_medians(hourly[var].values, index, len(names))
+        return site.deployment_medians(
+            hourly[var].values,
+            index,
+            len(names),
+            min_fraction=site.DISPLAY_MIN_FRACTION,
+        )
 
     def sections_b64(panels: list[dict], contours: list, crop: bool = False) -> Any:
         return as_panel(
@@ -311,9 +333,25 @@ def _figures(grid: Any, stackcat: Any) -> tuple[dict, str, str]:
         if "temperature" not in hourly or "salinity" not in hourly:
             return None
         salinity = medians("salinity")
+        pins = None
+        if "temperature" in stackcat and "salinity" in stackcat:
+            # pins (stackcat deployment order) line up positionally with the curves
+            # (grid order) because the grid carries the stack's whole deployment
+            # record unchanged; guard that invariant rather than assume it.
+            assert list(grid["deployment_name"].values) == list(
+                stackcat["deployment_name"].values
+            ), "grid and stackcat deployments differ; T-S pins would misalign"
+            pins = site.instrument_mean_pressures(stackcat)
         if position is None:
             return _make_site_ts_b64(
-                medians("temperature"), salinity, names, None, (), ()
+                medians("temperature"),
+                salinity,
+                names,
+                None,
+                (),
+                (),
+                pressure=pressure,
+                pins=pins,
             )
         theta = site.potential_temperature(
             medians("temperature"), salinity, pressure, *position
@@ -325,6 +363,8 @@ def _figures(grid: Any, stackcat: Any) -> tuple[dict, str, str]:
             position,
             params.SITE_SIGMA0_LEVELS,
             params.SITE_SIGMA2_LEVELS,
+            pressure=pressure,
+            pins=pins,
         )
 
     figs = {
@@ -370,6 +410,8 @@ def generate_gridcat_page(
     *,
     generated: str | None = None,
     report_dir: Path | None = None,
+    breadcrumb: list[tuple[str, str | None]] | None = None,
+    label: str | None = None,
 ) -> Path | None:
     """Write the site grid page for a site grid.
 
@@ -386,6 +428,13 @@ def generate_gridcat_page(
     report_dir : Path, optional
         Where the deployments' own reports are (see
         :func:`oceanarray.reports._concat.generate_concat_page`).
+    breadcrumb : list of (str, str or None) or None, optional
+        An optional trail of ancestor crumbs shown above the title; the page always
+        shows the site (linking to its Stack cat page) and ``Grid cat``, with the
+        ancestors in front.
+    label : str or None, optional
+        The site's display name for the title and its own crumb; defaults to the
+        file stem.
 
     Returns
     -------
@@ -452,7 +501,15 @@ def generate_gridcat_page(
         stack_page = out_dir / f"{name}_stackcat_report.html"
         html = render_template(
             "gridcat.html",
-            mooring_name=name,
+            mooring_name=label or name,
+            breadcrumb=page_crumbs(
+                breadcrumb,
+                "",
+                [
+                    (label or name, f"{name}_stackcat_report.html"),
+                    ("Grid cat", None),
+                ],
+            ),
             nav=_nav(
                 deployment_rows,
                 current="gridcat",

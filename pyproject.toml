@@ -41,7 +41,7 @@ dependencies = [
   "xarray>=2023.12.0",
   "netcdf4>=1.6",         # xarray NetCDF read/write engine (used implicitly, no direct import)
   "scipy>=1.10",
-  "matplotlib>=3.7",
+  "matplotlib>=3.10",     # boxplot(orientation=) in the by-deployment panels (added 3.10)
   "pillow>=9.0",          # report figure PNG palette-quantization in _fig_to_base64
   "gsw>=3.6.16",          # seawater properties (TEOS-10)
   "ppigrf",               # IGRF magnetic declination (stage3 BEAM->ENU correction)

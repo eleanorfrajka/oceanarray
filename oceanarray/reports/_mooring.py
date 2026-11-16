@@ -17,6 +17,7 @@ from oceanarray.paths import should_skip_regeneration
 
 from ..paths import safe_serial
 from . import _figdebug, _masthead
+from ._breadcrumb import crumbs_from_ctx
 from ._env import render_template
 from ._grid import generate_grid_page
 from ._html_helpers import (
@@ -400,6 +401,7 @@ class MooringReport:
         force: bool = False,
         skip_existing: bool = False,
         outdir: str | None = None,
+        breadcrumb: list[tuple[str, str | None]] | None = None,
         serials: list[str] | None = None,
         instruments: bool = False,
         grid: bool = False,
@@ -419,6 +421,10 @@ class MooringReport:
             Rebuild pages newer than their inputs / keep any page that exists.
         outdir : str or None, optional
             Where the pages go; overrides the central report directory.
+        breadcrumb : list of (str, str or None) or None, optional
+            An optional trail of ancestor crumbs (hrefs relative to the page's own
+            report directory); each page always shows its own position with the
+            ancestors in front. ``None`` shows just each page's own position.
         serials : list of str or None, optional
             Build instrument pages for these serials only.
         instruments, grid, stack : bool, optional
@@ -511,6 +517,10 @@ class MooringReport:
         display_root = self._proc_dir or proc_dir.parent
 
         ctx = self._build_context(mooring_name, cfg, proc_dir, yaml_path, out_dir)
+        # The caller's breadcrumb ancestors ride in the context so every page (the
+        # summary here and the stack/grid/instrument pages below) builds its own
+        # trail from the same ancestors with page_breadcrumb().
+        ctx["_breadcrumb_ancestors"] = breadcrumb
         # A fresh summary is kept, but the stack, grid and instrument pages are
         # still checked against their own inputs below (each skips when fresh).
         if summary_fresh:
@@ -530,6 +540,7 @@ class MooringReport:
                 serials=serials,
                 raw_dir=self._raw_dir,
                 skip_existing=skip_existing,
+                breadcrumb=breadcrumb,
             )
             # Instrument pages are now on disk — re-check existence and re-render
             # the mooring summary so serial-number links work on first run.  A
@@ -939,4 +950,6 @@ class MooringReport:
 
     def _render(self, ctx: dict[str, Any]) -> str:
         ctx["report"] = resolve(MOORING_DEFAULT, ctx, MOORING_PANELS)
+        # The summary is the mooring's own page, so the mooring is the current crumb.
+        ctx["breadcrumb"] = crumbs_from_ctx(ctx, [(ctx["mooring_name"], None)])
         return render_template("mooring.html", **ctx)

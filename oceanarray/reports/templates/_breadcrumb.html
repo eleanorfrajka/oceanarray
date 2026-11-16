@@ -1,0 +1,11 @@
+{# Local breadcrumb trail (oceanarray-only; not the vendored nav). Each crumb is a
+   (text, href) pair; a crumb with no href is the current page. Matches ctdcast's
+   .breadcrumb markup/CSS so it can be vendored later. #}
+{% macro breadcrumb(crumbs) %}
+{%- if crumbs %}<nav class="breadcrumb">
+{%- for text, href in crumbs %}
+{%- if not loop.first %}<span class="sep">›</span>{% endif %}
+{%- if href %}<a href="{{ href }}">{{ text }}</a>{% else %}<span>{{ text }}</span>{% endif %}
+{%- endfor %}</nav>
+{%- endif %}
+{%- endmacro %}

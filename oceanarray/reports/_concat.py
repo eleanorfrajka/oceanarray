@@ -18,13 +18,17 @@ from oceanarray import location, logger, paths
 from oceanarray.pipeline.concat import cell_deployment
 
 from ..config import parameters as params
+from ..plotters import helpers as _helpers
+from ..plotters import ts as _ts
 from . import _masthead
+from ._breadcrumb import page_crumbs
 from ._env import render_history, render_template
 from ._figdebug import as_panel
 from ._html_helpers import _format_dt, _format_duration, _parse_dt, _parse_history
 from ._plots import (
     _make_adcp_trajectories_b64,
     _make_analog_timeseries_b64,
+    _make_direction_profile_by_deployment_b64,
     _make_multi_aquadopp_trajectories_b64,
     _make_rose_outlines_b64,
     _make_speed_profile_by_deployment_b64,
@@ -32,6 +36,7 @@ from ._plots import (
     _make_stack_ts_diagram_b64,
     _make_ts_by_deployment_b64,
     _make_ts_medians_b64,
+    _make_ts_points_by_deployment_b64,
 )
 from ._read import _read_nc_metadata
 from ._stack import STACK_CAPTIONS, STACK_PANELS, STACK_SECTIONS, StackContext
@@ -39,8 +44,9 @@ from ._vendored.page_model import Panel, Profile, Section, resolve, validate_nav
 
 #: Shading note added to the time-series captions on the concatenated page.
 _TURNAROUND = (
-    " Grey bands are the turnarounds (no instrument in the water); a thin line marks "
-    "each deployment's start, and each deployment is named along the top."
+    " Grey bands are the turnarounds (no instrument in the water); a thin line and a "
+    "▼ above the panel mark each deployment's start, and each deployment is named "
+    "along the top."
 )
 
 #: Added to the captions of the figures drawn per deployment.
@@ -57,16 +63,31 @@ CONCAT_CAPTIONS: dict[str, str] = {
     "vel_uvw": STACK_CAPTIONS["vel_uvw"] + _TURNAROUND,
     "turbidity": STACK_CAPTIONS["turbidity"] + _TURNAROUND,
     "ts_by_deployment": (
-        "Temperature against salinity, one color per deployment; values flagged "
-        "3, 4 or 9 left out. A shift between the clouds at the same depth is a "
-        "difference between deployments (sensor offset or a change in the water)."
+        "Temperature against salinity, one color per deployment. For each "
+        f"instrument level, the outline encloses the densest {_ts.TS_OUTLINE_FRACTION:.0%} "
+        "of its T-S values (a 2-D histogram smoothed over 3 × 3 bins) and the dot is "
+        "its median; levels with fewer than "
+        f"{_ts.TS_MIN_LEVEL_POINTS:g} points of both T and S are left out. Lines join each "
+        "deployment's medians in order of pressure (a guide to the eye, not "
+        "interpolated data; levels less than "
+        f"{_ts.TS_COLOCATED_DBAR:g} dbar apart are averaged for the line). With more "
+        f"than {_ts.TS_MAX_OUTLINES} levels the outlines are left out. Values flagged "
+        "3, 4 or 9 left out. A shift between deployments at the same depth is a "
+        "sensor offset or a change in the water." + _OVERLAP_NOTE
+    ),
+    "ts_points": (
+        "Temperature against salinity, one color per deployment: at most "
+        f"{_ts.TS_MAX_POINTS:,} values per deployment, picked at random (the same "
+        "ones each time the page is drawn), drawn in random order so no deployment "
+        "covers the others. Values flagged 3, 4 or 9 left out. Dashed: σ0."
         + _OVERLAP_NOTE
     ),
     "ts_medians": (
         "Draft. Median salinity and temperature of each depth in each "
-        "deployment, with interquartile whiskers, one color per deployment. Values "
-        "flagged 3, 4 or 9 left out; the scatter below carries the pressure."
-        + _OVERLAP_NOTE
+        "deployment, with interquartile whiskers, one color per deployment (with "
+        "more than seven deployments, colors repeat in pairs, the second of a pair "
+        "with a square marker). Values flagged 3, 4 or 9 left out; the scatter below "
+        "carries the pressure." + _OVERLAP_NOTE
     ),
     "roses": (
         "One rose per depth, one outline per "
@@ -76,8 +97,24 @@ CONCAT_CAPTIONS: dict[str, str] = {
     ),
     "speed_profile": (
         "Current speed per depth, one box per deployment in its color "
-        "(median, interquartile range, whiskers to 1.5 × IQR), overlaid at the "
-        "depth's nominal depth. Values flagged 3, 4 or 9 left out." + _OVERLAP_NOTE
+        "(median, interquartile range, whiskers to 1.5 × IQR), side by side at the "
+        "depth's nominal depth; with more than seven deployments colors repeat in "
+        "pairs, the second of a pair hatched. A deployment is drawn at a depth only "
+        "where it has velocity for at least "
+        f"{_helpers.PROFILE_MIN_FRACTION:.0%} of its time steps. Values flagged "
+        "3, 4 or 9 left out." + _OVERLAP_NOTE
+    ),
+    "direction_profile": (
+        "Current direction per depth, one marker per deployment in its color: the "
+        "direction the water flows toward (degrees clockwise from true north) of the "
+        "deployment's mean velocity, from daily means so tides do not count; the bar "
+        "is the circular standard deviation of the daily-mean directions. Hollow "
+        "markers: the flow is not steady enough for a mean direction to mean much "
+        "(mean velocity less than "
+        + f"{params.SLOPE_STEADINESS_MIN:g}"
+        + " of the mean speed). The axis is centred on the mean direction of all "
+        "depths, ±180°. Same depths, data rule and flags as the speed panel."
+        + _OVERLAP_NOTE
     ),
     "trajectories_aquadopp": (
         "Pseudo-Lagrangian trajectories integrated from east/north velocity, one per "
@@ -194,7 +231,19 @@ CONCAT_PANELS: dict[str, Panel] = {
         ),
         slot="half",
     ),
+    "direction_profile": _figure_panel(
+        "direction_profile",
+        lambda c: (
+            "east_velocity" in c.present_vars and "north_velocity" in c.present_vars
+        ),
+        slot="half",
+    ),
     "trajectories_aquadopp": _figure_panel("trajectories_aquadopp"),
+    "ts_points": _figure_panel(
+        "ts_points",
+        lambda c: "temperature" in c.present_vars and "salinity" in c.present_vars,
+        slot="half",
+    ),
     "ts_medians": _figure_panel(
         "ts_medians",
         lambda c: "temperature" in c.present_vars and "salinity" in c.present_vars,
@@ -231,16 +280,22 @@ CONCAT_SECTIONS: dict[str, Section] = {
             "velocity, or ADCP bins) whose nominal depth (water depth − HAB) is "
             "within the depth tolerance (half the bin size for ADCP bins), one per "
             "deployment. Depths are named by their depth: their numbers change when "
-            "a deployment is added."
+            "a deployment is added. Each cell: the instrument (MC MicroCAT, CM "
+            "current meter, MT thermistor), its serial linked to its own page, and "
+            "its depth; columns are the deployments, named as in the Deployments table "
+            "without the site's prefix."
         ),
     ),
     "speed_profile": Section(
-        "speed_profile", "Current speed by depth", ("speed_profile",)
+        "speed_profile",
+        "Current speed and direction by depth",
+        ("speed_profile", "direction_profile"),
+        layout="row",
     ),
     "ts_diagram": Section(
         "ts_diagram",
         "T-S diagram",
-        ("ts_by_deployment", "ts_medians", "ts_diagram"),
+        ("ts_points", "ts_by_deployment", "ts_medians", "ts_diagram"),
         layout="row",
     ),
 }
@@ -475,6 +530,15 @@ def _instrument_href(
     return Path(os.path.relpath(page.resolve(), out_dir.resolve())).as_posix()
 
 
+#: Short instrument types for the Instruments table's cells; others are shown whole.
+_TYPE_ABBR: dict[str, str] = {
+    "microcat": "MC",
+    "currentmeter": "CM",
+    "thermistor": "MT",
+    "adcp": "ADCP",
+}
+
+
 def _depth_rows(
     ds: Any, stack_path: Path, out_dir: Path, report_dir: Path | None = None
 ) -> list[dict]:
@@ -490,6 +554,10 @@ def _depth_rows(
     def entry(i: int) -> dict:
         return {
             "type": str(ds["instrument_type"].values[i]),
+            "abbr": _TYPE_ABBR.get(
+                str(ds["instrument_type"].values[i]).lower(),
+                str(ds["instrument_type"].values[i]),
+            ),
             "serial": str(ds["serial"].values[i]),
             "depth": f"{float(ds['depth'].values[i]):.0f}",
             "href": _instrument_href(ds, i, stack_path, out_dir, report_dir),
@@ -719,6 +787,8 @@ def generate_concat_page(
     *,
     generated: str | None = None,
     report_dir: Path | None = None,
+    breadcrumb: list[tuple[str, str | None]] | None = None,
+    label: str | None = None,
 ) -> Path | None:
     """Write the concatenated-stack report page for a site stack.
 
@@ -734,6 +804,13 @@ def generate_concat_page(
         Where the deployments' own reports are, one folder per deployment
         (``<report_dir>/<deployment>``); default the ``report`` folder beside each
         deployment's stack. The page links to them.
+    breadcrumb : list of (str, str or None) or None, optional
+        An optional trail of ancestor crumbs shown above the title (hrefs relative to
+        this page's own report directory); the page always shows the site as its own
+        crumb, with the ancestors in front.
+    label : str or None, optional
+        The site's display name for the title and its own crumb; defaults to the
+        file stem.
 
     Returns
     -------
@@ -751,7 +828,10 @@ def generate_concat_page(
         view = _report_view(ds)
         depth_view = _depth_view(view)
         names = [str(n) for n in ds["deployment_name"].values]
-        windows = _deployment_windows(ds)
+        # Deployments named without the site's prefix on the figures and in the
+        # Instruments table (egM4_2014 → 2014); the Deployments table keeps the full name.
+        short = dict(zip(names, _helpers.short_names(names), strict=True))
+        windows = [(start, end, short[n]) for start, end, n in _deployment_windows(ds)]
         figs = {
             "hydro_pts": _make_stack_timeseries_b64(
                 view,
@@ -796,6 +876,7 @@ def generate_concat_page(
             "roses": as_panel(lambda: _make_rose_outlines_b64(view)),
             "ts_diagram": as_panel(lambda: _make_stack_ts_diagram_b64(view)),
             "ts_by_deployment": as_panel(lambda: _make_ts_by_deployment_b64(view)),
+            "ts_points": as_panel(lambda: _make_ts_points_by_deployment_b64(view)),
             "ts_medians": as_panel(lambda: _make_ts_medians_b64(view)),
             "trajectories_aquadopp": as_panel(
                 lambda: (
@@ -807,6 +888,9 @@ def generate_concat_page(
             "trajectories_adcp": as_panel(lambda: _make_adcp_trajectories_b64(view)),
             "speed_profile": as_panel(
                 lambda: _make_speed_profile_by_deployment_b64(view)
+            ),
+            "direction_profile": as_panel(
+                lambda: _make_direction_profile_by_deployment_b64(view)
             ),
         }
         deployment_rows = _deployment_rows(ds, stack_path, out_dir, report_dir)
@@ -842,7 +926,7 @@ def generate_concat_page(
             rose_warn=False,
             rose_missing_serials=[],
             deployment_rows=deployment_rows,
-            deployment_names=names,
+            deployment_names=[short[n] for n in names],
             depth_rows=_depth_rows(ds, stack_path, out_dir, report_dir),
             concat_history=_parse_history(ds.attrs.get("history", "")),
             n_overlap=n_overlap,
@@ -854,7 +938,8 @@ def generate_concat_page(
         report = resolve(CONCAT_DEFAULT, context, CONCAT_PANELS)
         html = render_template(
             "concat.html",
-            mooring_name=name,
+            mooring_name=label or name,
+            breadcrumb=page_crumbs(breadcrumb, "", [(label or name, None)]),
             nav=_nav(
                 deployment_rows,
                 other=(

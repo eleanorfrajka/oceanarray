@@ -27,6 +27,7 @@ from oceanarray.instruments import instrument_entries
 from ..config.unit_tables import unit_label
 from ..paths import safe_serial
 from ..plotters.helpers import grid_despine
+from ._breadcrumb import page_crumbs
 from ._env import render_template
 from ._html_helpers import _format_duration, _parse_dt, _stage_files
 from ._navs import _TYPE_ORDER, _type_label
@@ -415,6 +416,7 @@ def generate_array_report(
     out_path: Path | None = None,
     force: bool = False,
     report_dir: Path | None = None,
+    breadcrumb: list[tuple[str, str | None]] | None = None,
 ) -> Path | None:
     """Generate an HTML array-level summary report from an array YAML file.
 
@@ -440,6 +442,9 @@ def generate_array_report(
         per-mooring links use the shorter relative path
         ``{mooring}/{mooring}_report.html``.  When absent (default), the
         legacy layout ``{mooring}/report/{mooring}_report.html`` is assumed.
+    breadcrumb : list of (str, str or None) or None, optional
+        An optional trail of ancestor crumbs shown above the title; the array index
+        is the top of its own output, so the hrefs are used as given.
 
     Returns
     -------
@@ -615,6 +620,9 @@ def generate_array_report(
         "masthead": masthead,
         "mooring_completeness": mooring_completeness,
         "generated": datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC"),
+        # The array index is the top of its own output, so ancestor hrefs need no
+        # rebasing; with no ancestors and no own crumbs it shows no trail.
+        "breadcrumb": page_crumbs(breadcrumb, "", []),
     }
 
     html = render_template("array.html", **ctx)

@@ -17,6 +17,7 @@ from oceanarray.config.unit_tables import unit_label
 
 if TYPE_CHECKING:
     import matplotlib.pyplot as plt
+    import xarray as xr
 
 
 #: Okabe-Ito 8-colour qualitative palette — the accessibility-standard
@@ -50,39 +51,191 @@ DEPLOYMENT_COLORS: list[str] = [
 #: Line styles that pair with :data:`DEPLOYMENT_COLORS` in :func:`deployment_line`.
 DEPLOYMENT_LINESTYLES: tuple[str, ...] = ("-", "--", ":", "-.")
 
+#: A level's per-deployment statistic (median speed, mean direction) is drawn only
+#: when the level has finite values for at least this fraction of the
+#: deployment's time steps, so a level that only has data part of the time (an
+#: instrument that stops, knockdown near the top) is not compared with full ones.
+PROFILE_MIN_FRACTION: float = 0.5
+
+
+def deployment_steps(ds: xr.Dataset, k: int) -> int:
+    """Return the number of time steps of deployment *k* in a concatenated stack.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A concatenated stack with ``deployment_index(time)``, or with
+        ``cell_deployment(time, N_DEPTHS)`` only.
+    k : int
+        The deployment's index.
+
+    Returns
+    -------
+    int
+        Time steps assigned to the deployment (``deployment_index``); without it,
+        the most steps any depth has for the deployment.
+    """
+    if "deployment_index" in ds and ds["deployment_index"].dims == ("time",):
+        return int((ds["deployment_index"].values == k).sum())
+    return int((ds["cell_deployment"].values == k).sum(axis=0).max())
+
+
+def short_names(names: list[str]) -> list[str]:
+    """Return deployment names without the site prefix they share (``FLMA_2014`` → ``2014``).
+
+    Parameters
+    ----------
+    names : list of str
+        Deployment names, e.g. ``["FLMB_2016", "FLMB_2017"]``.
+
+    Returns
+    -------
+    list of str
+        The names without the shared ``<site>_`` prefix, or *names* unchanged
+        when they do not all share one.
+    """
+    prefix = names[0].rsplit("_", 1)[0] + "_" if names and "_" in names[0] else ""
+    if prefix and all(n.startswith(prefix) for n in names):
+        return [n.removeprefix(prefix) for n in names]
+    return names
+
+
+def legend_below(fig: plt.Figure, handles: list) -> None:
+    """Put a deployment legend under the axes, outside them, in up to six columns.
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        The figure; drawn with ``layout="constrained"`` so the legend gets room.
+    handles : list of matplotlib.artist.Artist
+        One handle per deployment, in time order.
+    """
+    fig.legend(
+        handles=handles,
+        loc="outside lower center",
+        ncols=min(len(handles), 6),
+        fontsize="small",
+        frameon=False,
+        columnspacing=1.0,
+        handlelength=1.6,
+    )
+
+
 #: The thin dotted line marking each deployment's start on a time axis: a dot
 #: every 8 line widths, so the dots stay apart at a thin width.
 DEPLOYMENT_BOUNDARY: dict = {"color": "0.25", "lw": 0.6, "ls": (0, (1, 8))}
 
 
-def deployment_color(k: int) -> str:
-    """Return deployment *k*'s color (cycling through :data:`DEPLOYMENT_COLORS`)."""
-    return DEPLOYMENT_COLORS[k % len(DEPLOYMENT_COLORS)]
+#: Markers that pair with :data:`DEPLOYMENT_COLORS` in :func:`deployment_marker`:
+#: the two deployments sharing a color get a circle and a square; past fourteen
+#: deployments the pairs repeat as triangle and diamond.
+DEPLOYMENT_MARKERS: tuple[str, ...] = ("o", "s", "^", "D")
+
+#: Hatches that pair with :data:`DEPLOYMENT_COLORS` in :func:`deployment_hatch`,
+#: for filled shapes (boxes) where a marker does not apply.
+DEPLOYMENT_HATCHES: tuple[str, ...] = ("", "////", "..", "xx")
 
 
-def deployment_line(k: int) -> dict:
-    """Return deployment *k*'s line color and style: each color twice, solid then dashed.
+def _paired(n: int | None) -> bool:
+    """Return whether deployments share colors in pairs: more than seven, or *n* unknown."""
+    return n is None or n > len(DEPLOYMENT_COLORS)
 
-    Consecutive deployments step slowly through :data:`DEPLOYMENT_COLORS` (red,
-    red dashed, orange, orange dashed, ...), so the colors change evenly with time
-    on a line plot. Past fourteen deployments the pairs repeat dotted, then
-    dash-dot.
+
+def _pair_style(k: int, n: int | None = None) -> int:
+    """Return deployment *k*'s style index: 0 alone; 0 or 1 within a color pair, 2 or 3 past fourteen."""
+    if not _paired(n):
+        return 0
+    m = len(DEPLOYMENT_COLORS)
+    return (k % 2 + 2 * (k // (2 * m))) % 4
+
+
+def deployment_color(k: int, n: int | None = None) -> str:
+    """Return deployment *k*'s color, from early (red) to late (purple).
+
+    Up to seven deployments (*n* ≤ 7) each get their own color, spread evenly
+    along :data:`DEPLOYMENT_COLORS`. With more, or when *n* is not given, two
+    consecutive deployments share a color, so the colors still change evenly from
+    early to late; the two are told apart by :func:`deployment_line`,
+    :func:`deployment_marker` or :func:`deployment_hatch`.
 
     Parameters
     ----------
     k : int
         The deployment's index, in time order.
+    n : int, optional
+        The number of deployments on the figure.
+
+    Returns
+    -------
+    str
+        A hex color.
+    """
+    m = len(DEPLOYMENT_COLORS)
+    if not _paired(n):
+        return DEPLOYMENT_COLORS[round(k * (m - 1) / (n - 1)) if n > 1 else 0]
+    return DEPLOYMENT_COLORS[(k // 2) % m]
+
+
+def deployment_marker(k: int, n: int | None = None) -> str:
+    """Return deployment *k*'s marker: circle; within a color pair, circle then square.
+
+    Parameters
+    ----------
+    k : int
+        The deployment's index, in time order.
+    n : int, optional
+        The number of deployments on the figure (see :func:`deployment_color`).
+
+    Returns
+    -------
+    str
+        A matplotlib marker code from :data:`DEPLOYMENT_MARKERS`.
+    """
+    return DEPLOYMENT_MARKERS[_pair_style(k, n)]
+
+
+def deployment_hatch(k: int, n: int | None = None) -> str:
+    """Return deployment *k*'s hatch for a filled shape: none; within a color pair, none then diagonal.
+
+    Parameters
+    ----------
+    k : int
+        The deployment's index, in time order.
+    n : int, optional
+        The number of deployments on the figure (see :func:`deployment_color`).
+
+    Returns
+    -------
+    str
+        A matplotlib hatch pattern from :data:`DEPLOYMENT_HATCHES` (``""`` = plain).
+    """
+    return DEPLOYMENT_HATCHES[_pair_style(k, n)]
+
+
+def deployment_line(k: int, n: int | None = None) -> dict:
+    """Return deployment *k*'s line color and style.
+
+    Up to seven deployments (*n* ≤ 7): one color each, solid. With more, or *n*
+    not given: each color twice, solid then dashed, stepping slowly through
+    :data:`DEPLOYMENT_COLORS` (red, red dashed, orange, orange dashed, ...), so
+    the colors change evenly with time; past fourteen deployments the pairs
+    repeat dotted, then dash-dot.
+
+    Parameters
+    ----------
+    k : int
+        The deployment's index, in time order.
+    n : int, optional
+        The number of deployments on the figure.
 
     Returns
     -------
     dict
         ``{"color": ..., "ls": ...}`` for ``Axes.plot``.
     """
-    n = len(DEPLOYMENT_COLORS)
-    style = (k % 2 + 2 * (k // (2 * n))) % len(DEPLOYMENT_LINESTYLES)
     return {
-        "color": DEPLOYMENT_COLORS[(k // 2) % n],
-        "ls": DEPLOYMENT_LINESTYLES[style],
+        "color": deployment_color(k, n),
+        "ls": DEPLOYMENT_LINESTYLES[_pair_style(k, n)],
     }
 
 
