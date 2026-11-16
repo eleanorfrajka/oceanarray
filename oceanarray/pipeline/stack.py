@@ -7,14 +7,14 @@ from pathlib import Path
 import numpy as np
 import xarray as xr
 
-from oceanarray import logger, paths
+from oceanarray import logger, paths, provenance
 from oceanarray import mooring as _mooring
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
 from oceanarray.instruments import instrument_entries
 from oceanarray.location import parse_latlon
 from oceanarray.paths import safe_serial
-from oceanarray.pipeline import attribution
+from oceanarray.pipeline import _stage, attribution, sensors
 from oceanarray.pipeline.dataset import drop_all_zero_vars, time_axis
 from oceanarray.pipeline.pressure import _times_to_float
 from oceanarray.pipeline.qc import _apply_qc_mask, _worst_flag
@@ -529,6 +529,10 @@ def stack(
     # Per-instrument scalar metadata: {varname: [value_for_instr0, value_for_instr1, ...]}
     scalar_meta: dict[str, list] = {}  # populated during loop
     scalar_attrs: dict[str, dict] = {}
+    # Each instrument's sensor record (dimensionless, kept as is) and, per level,
+    # the record it came from (ADCP bins share their instrument's).
+    sensor_records: dict[str, dict] = {}
+    level_sensor: list[str] = []
     # Stage-3 time-series variables not in STACK_VARS are dropped here; collect
     # them so the operator is told rather than losing data silently (D2).
     dropped_ts_vars: set = set()
@@ -582,6 +586,7 @@ def stack(
             # Ensure scalar_meta lists stay length-consistent
             for lst in scalar_meta.values():
                 lst.append(None)
+            level_sensor.append("")
             continue
 
         interval_s = _sample_interval_s(ds["time"].values)
@@ -612,7 +617,11 @@ def stack(
             n = min(len(arr), n_time)
             stacked[vname][i, :n] = arr[:n]
             if not var_attrs[vname] and vname in ds.data_vars:
-                var_attrs[vname] = dict(ds[vname].attrs)
+                # One instrument's record name is not every level's: the stack
+                # names each level's record in sensor(N_LEVELS) instead.
+                var_attrs[vname] = {
+                    k: v for k, v in ds[vname].attrs.items() if k != "sensor"
+                }
 
         # Track any time-series stage-3 variables that STACK_VARS omits.
         dropped_ts_vars.update(
@@ -621,9 +630,22 @@ def stack(
             if "time" in da.dims and v not in STACK_VARS
         )
 
+        # From the instrument's own file (an ADCP's bins and head share its record).
+        rec_name, rec_attrs = sensors.sensor_record(
+            _adcp_parent_datasets[info["_adcp_nc_key"]]
+            if "_adcp_nc_key" in info
+            else info["ds"],
+            info["instrument"],
+            paths.adcp_parent_serial(info["serial"])
+            if "_adcp_nc_key" in info
+            else info["serial"],
+        )
+        sensor_records[rec_name] = rec_attrs
+        level_sensor.append(rec_name)
+
         # Collect scalar (0-D) metadata variables — keep all instruments consistent
         for vname, da in ds.data_vars.items():
-            if da.dims:  # skip time-series variables
+            if da.dims or sensors.is_record(vname):  # time series; sensor records
                 continue
             if vname not in scalar_meta:
                 # Back-fill with None for instruments processed before this variable appeared
@@ -689,6 +711,7 @@ def stack(
             stacked[_v] = stacked[_v][kept, :]
         for _k in scalar_meta:
             scalar_meta[_k] = [scalar_meta[_k][i] for i in kept]
+        level_sensor = [level_sensor[i] for i in kept]
         n_instr = len(kept)
 
     # Build output dataset; skip physics variables that are entirely NaN
@@ -862,6 +885,19 @@ def stack(
         except Exception as exc:  # noqa: BLE001  — optional derived var; must not abort stack
             log.warning(f"  could not compute tilt_from_pressure: {exc}")
 
+    # The instruments' sensor records, and which one each level came from.
+    for name, attrs in sensor_records.items():
+        if name in level_sensor:
+            data_vars[name] = xr.Variable((), np.int8(0), attrs=attrs)
+    if any(level_sensor):
+        data_vars["sensor"] = xr.Variable(
+            ("N_LEVELS",),
+            np.array(level_sensor, dtype=object),
+            {
+                "long_name": "the sensor record (SENSOR_* variable) of the level's instrument"
+            },
+        )
+
     # Coordinate names — exclude these from scalar metadata to avoid name conflicts
     _coord_names = {"serial", "hab", "instrument_type", "instrument", "time"}
 
@@ -942,33 +978,11 @@ def stack(
             ),
         },
     )
-    _lat_str = (
-        mooring_config.get("seabed_latitude")
-        or mooring_config.get("deployment_latitude")
-        or mooring_config.get("planned_latitude")
-        or mooring_config.get("latitude")
-        or ""
-    )
-    _lon_str = (
-        mooring_config.get("seabed_longitude")
-        or mooring_config.get("deployment_longitude")
-        or mooring_config.get("planned_longitude")
-        or mooring_config.get("longitude")
-        or ""
-    )
     ds_out.attrs.update(
         {
-            "mooring_name": mooring_name,
-            "waterdepth": str(mooring_config.get("waterdepth", "")),
-            "latitude": str(_lat_str),
-            "longitude": str(_lon_str),
+            **mooring_attrs(mooring_config),
             "deployment_time": str(deploy_time),
             "recovery_time": str(recover_time),
-            **{
-                f"{field}_source": str(mooring_config[f"{field}_source"])
-                for field in _mooring.SOURCE_FIELDS
-                if mooring_config.get(f"{field}_source")
-            },
             "dt_seconds": dt_seconds,
             # What built this stack, as YAML a description can take back.
             "deployment_settings": _mooring.settings_yaml(
@@ -1006,6 +1020,20 @@ def stack(
                 for info in kept_infos
                 if attribution.cleaned_at_stage1(info["ds"].attrs)
             )
+        )
+    )
+    # Where the data came from (stage 1's source_*): one package per mooring, so one
+    # value each; a second value is kept beside the first, with a warning.
+    sources = attribution.join_sources(
+        [info["ds"].attrs for info in kept_infos],
+        what="the stage files (one mooring is expected to come from one data package)",
+    )
+    ds_out.attrs.update(sources)
+    ds_out.attrs.update(
+        attribution.product_citation(
+            f"{mooring_name} stack",
+            provenance.version_attrs()[provenance.VERSION_ATTR],
+            [sources] if sources else [],
         )
     )
     if not_cleaned:
@@ -1090,6 +1118,44 @@ def stack(
     return as_stored(ds_out)
 
 
+def mooring_attrs(mooring_config: Mapping) -> dict[str, str]:
+    """Return the mooring-level attributes a stack copies from its description.
+
+    Parameters
+    ----------
+    mooring_config : Mapping
+        The loaded mooring description.
+
+    Returns
+    -------
+    dict of str to str
+        ``mooring_name``, ``waterdepth``, ``latitude``, ``longitude`` (the best
+        position the description gives: seabed, deployment, planned, then the bare
+        pair) and each ``<field>_source`` it states.
+    """
+
+    def best(axis: str) -> str:
+        return str(
+            mooring_config.get(f"seabed_{axis}")
+            or mooring_config.get(f"deployment_{axis}")
+            or mooring_config.get(f"planned_{axis}")
+            or mooring_config.get(axis)
+            or ""
+        )
+
+    return {
+        "mooring_name": str(mooring_config.get("name", "")),
+        "waterdepth": str(mooring_config.get("waterdepth", "")),
+        "latitude": best("latitude"),
+        "longitude": best("longitude"),
+        **{
+            f"{field}_source": str(mooring_config[f"{field}_source"])
+            for field in _mooring.SOURCE_FIELDS
+            if mooring_config.get(f"{field}_source")
+        },
+    }
+
+
 def _read_best_stage(
     mooring: dict, proc_dir: Path
 ) -> tuple[dict[str, xr.Dataset], list[str]]:
@@ -1121,6 +1187,201 @@ def _read_best_stage(
     return datasets, omitted
 
 
+#: Settings blocks that do not change the stack: the grid's own, and which report
+#: sections are drawn. A change there leaves the stack current.
+_NOT_STACK_SETTINGS = frozenset({"grid", "report_sections"})
+
+
+def _stack_settings(text: str) -> dict:
+    """Return the recorded settings that the stack depends on (no grid, no mask flags)."""
+    out = {
+        k: v
+        for k, v in _mooring.settings_from_yaml(text).items()
+        if k not in _NOT_STACK_SETTINGS
+    }
+    if isinstance(out.get("stack"), Mapping):
+        out["stack"] = {k: v for k, v in out["stack"].items() if k != "mask_flags"}
+    return out
+
+
+def _relative(path: Path, mooring_dir: Path) -> str:
+    """Return *path* relative to *mooring_dir* (POSIX), or its name when outside it."""
+    try:
+        return Path(path).resolve().relative_to(Path(mooring_dir).resolve()).as_posix()
+    except ValueError:
+        return Path(path).name
+
+
+def stack_stale_reason(
+    stack_path: Path,
+    inputs: Mapping[str, Path],
+    mooring: Mapping,
+    mooring_dir: Path,
+    *,
+    dt_seconds: int,
+) -> str | None:
+    """Return why the stack at *stack_path* must be rebuilt, or None when it is current.
+
+    The stack is current when the stage files it would be built from are the ones it
+    records (same files, same SHA-256), the description's settings that shape it are
+    the ones it records (``deployment_settings`` without the grid's settings and
+    ``mask_flags``), its mooring-level attributes and deployment window match the
+    description, and the same oceanarray release built it (the commit is ignored).
+
+    Parameters
+    ----------
+    stack_path : pathlib.Path
+        The existing ``<name>_stack.nc``.
+    inputs : Mapping of str to pathlib.Path
+        The stage file each instrument would be stacked from, keyed by serial.
+    mooring : Mapping
+        The loaded mooring description.
+    mooring_dir : pathlib.Path
+        The mooring's processing directory (stage-file paths are recorded relative
+        to it).
+    dt_seconds : int
+        The time step the new stack would use.
+
+    Returns
+    -------
+    str or None
+        The first reason found, in words, or None.
+    """
+    if not stack_path.exists():
+        return "no stack yet"
+    with xr.open_dataset(stack_path, engine="netcdf4") as old:
+        attrs = dict(old.attrs)
+        recorded = (
+            {
+                str(f): str(h)
+                for f, h in zip(
+                    old["stage_file"].values, old["stage_sha256"].values, strict=True
+                )
+                if str(f)
+            }
+            if "stage_sha256" in old.variables and "stage_file" in old.variables
+            else None
+        )
+        if recorded is not None:
+            for item in str(attrs.get("stage_files_not_stacked", "")).split("; "):
+                if " " in item:
+                    file, digest = item.rsplit(" ", 1)
+                    recorded[file] = digest
+    if (reason := provenance.release_change_reason(attrs)) is not None:
+        return reason
+    if recorded is None:
+        return "it predates recorded stage-file hashes"
+    current = {
+        _relative(path, mooring_dir): provenance.sha256(path)
+        for path in inputs.values()
+    }
+    added = sorted(set(current) - set(recorded))
+    gone = sorted(set(recorded) - set(current))
+    changed = sorted(f for f in current if f in recorded and current[f] != recorded[f])
+    for label, files in (
+        ("stage file changed", changed),
+        ("new stage file", added),
+        ("stage file no longer used", gone),
+    ):
+        if files:
+            return f"{label}{'s' if len(files) > 1 else ''}: {', '.join(files)}"
+    expected = {
+        **mooring_attrs(mooring),
+        "deployment_time": str(np.datetime64(mooring["deployment_time"], "ns")),
+        "recovery_time": str(np.datetime64(mooring["recovery_time"], "ns")),
+    }
+    for k in attrs:
+        # A <field>_source the stack holds but the description no longer states.
+        if k.endswith("_source") and k[:-7] in _mooring.SOURCE_FIELDS:
+            expected.setdefault(k, "")
+    if (key := provenance.changed_attr(attrs, expected)) is not None:
+        return f"the description's {key} changed"
+    want = _stack_settings(
+        _mooring.settings_yaml(mooring, stack={"dt_seconds": dt_seconds})
+    )
+    if _stack_settings(str(attrs.get("deployment_settings", ""))) != want:
+        return "the description's settings for the stack changed"
+    if attrs.get(PEOPLE_SOURCE_ATTR, "") != people_source_sha256(mooring):
+        # Stage 1 applies people: and source:, so a new stack from the same stage
+        # files would carry the old values; only rerunning stage 1 brings them in.
+        log.warning(
+            f"{mooring.get('name', '')}: the description's people:/source: changed "
+            "after stage 1 wrote the stage files; rerun with --force to bring them "
+            "into the products"
+        )
+    return None
+
+
+#: The stack attribute holding the SHA-256 of the description's ``people:`` and
+#: ``source:`` blocks (absent when the description has neither).
+PEOPLE_SOURCE_ATTR = "people_source_sha256"
+
+
+def people_source_sha256(mooring: Mapping) -> str:
+    """Return the SHA-256 of the description's ``people:`` and ``source:`` blocks.
+
+    Parameters
+    ----------
+    mooring : Mapping
+        The loaded mooring description.
+
+    Returns
+    -------
+    str
+        The hex digest of the two blocks as sorted JSON, or ``""`` when the
+        description has neither.
+    """
+    import hashlib
+    import json
+
+    blocks = {k: mooring[k] for k in ("people", "source") if mooring.get(k)}
+    if not blocks:
+        return ""
+    text = json.dumps(blocks, sort_keys=True, default=str)
+    return hashlib.sha256(text.encode()).hexdigest()
+
+
+def _add_stage_files(
+    ds: xr.Dataset, inputs: Mapping[str, Path], mooring_dir: Path
+) -> xr.Dataset:
+    """Record each level's stage file and its SHA-256 (an ADCP's bins share their file).
+
+    Stage files the stack read but could not stack (an omitted instrument) are
+    recorded in ``stage_files_not_stacked``, so an unchanged mooring stays current.
+    """
+    hashes = {serial: provenance.sha256(path) for serial, path in inputs.items()}
+    stacked = {paths.adcp_parent_serial(str(v)) for v in ds["serial"].values} | {
+        str(v) for v in ds["serial"].values
+    }
+    left_out = sorted(
+        f"{_relative(path, mooring_dir)} {hashes[serial]}"
+        for serial, path in inputs.items()
+        if serial not in stacked
+    )
+    if left_out:
+        ds.attrs["stage_files_not_stacked"] = "; ".join(left_out)
+    files, digests = [], []
+    for serial in ds["serial"].values:
+        parent = paths.adcp_parent_serial(str(serial))
+        key = str(serial) if str(serial) in inputs else parent
+        path = inputs.get(key)
+        files.append(_relative(path, mooring_dir) if path is not None else "")
+        digests.append(hashes.get(key, ""))
+    ds["stage_file"] = xr.Variable(
+        ("N_LEVELS",),
+        np.array(files, dtype=object),
+        {
+            "long_name": "stage file the level was stacked from, relative to the mooring directory"
+        },
+    )
+    ds["stage_sha256"] = xr.Variable(
+        ("N_LEVELS",),
+        np.array(digests, dtype=object),
+        {"long_name": "SHA-256 of the stage file"},
+    )
+    return ds
+
+
 def _stack_file(
     mooring: dict,
     mooring_dir: Path,
@@ -1131,8 +1392,14 @@ def _stack_file(
     from_stage2: bool = False,
     stage2_reason: str | None = None,
     failures: Sequence[str] = (),
+    force: bool = True,
 ) -> tuple[Path, xr.Dataset]:
-    """Stack a mooring's stage-3 files, write the stack; return its path and dataset."""
+    """Stack a mooring's stage-3 files, write the stack; return its path and dataset.
+
+    With ``force=False`` an existing stack that is still current
+    (:func:`stack_stale_reason`) is kept and returned as read; otherwise the stack is
+    rebuilt and its history says why.
+    """
     name = mooring["name"]
     failed = dict(failed or {})
     # from_stage2: stage 3 failed as a whole this run (any stage-3 file on disk is
@@ -1142,7 +1409,7 @@ def _stack_file(
         stages: tuple[int, ...] = (2,)
     else:
         stages = (3, 2) if keep_going else (3,)
-    datasets: dict[str, xr.Dataset] = {}
+    inputs: dict[str, tuple[int, Path]] = {}
     missing: list[str] = []
     omitted: list[str] = []
     for entry in instrument_entries(mooring):
@@ -1169,7 +1436,32 @@ def _stack_file(
         if not found:
             missing.append(f"{instr_type} s/n {serial}")
             continue
-        stage_n, path = found[0]
+        inputs[serial] = found[0]
+    if missing and not keep_going:
+        raise MooringError(
+            f"{name}: no stage-3 file for {', '.join(missing)}. Run stage 3, mark "
+            "the instrument 'skip: true', or use keep_going=True to stack what exists."
+        )
+    out_path = paths.product_file(mooring_dir, name, "stack")
+    stage_paths = {serial: path for serial, (_n, path) in inputs.items()}
+    if force:
+        reason = "rebuild forced"
+    else:
+        from oceanarray.pipeline._run import resolve_dt_seconds
+
+        reason = stack_stale_reason(
+            out_path,
+            stage_paths,
+            mooring,
+            mooring_dir,
+            dt_seconds=resolve_dt_seconds(mooring, dt_seconds),
+        )
+        if reason is None and not failures:
+            log.info("%s: stack current (%s)", name, out_path.name)
+            with xr.open_dataset(out_path, engine="netcdf4") as old:
+                return out_path, old.load()
+    datasets: dict[str, xr.Dataset] = {}
+    for serial, (stage_n, path) in inputs.items():
         try:
             datasets[serial] = read_mooring(
                 mooring, stage=stage_n, serials=[serial], mooring_dir=mooring_dir
@@ -1178,13 +1470,9 @@ def _stack_file(
             if not keep_going:
                 raise MooringError(f"{name}: could not read {path.name}: {e}") from e
             omitted.append(
-                f"{instr_type} s/n {serial} (could not load {path.name}: {e})"
+                f"{_instr_type_of(mooring, serial)} s/n {serial} "
+                f"(could not load {path.name}: {e})"
             )
-    if missing and not keep_going:
-        raise MooringError(
-            f"{name}: no stage-3 file for {', '.join(missing)}. Run stage 3, mark "
-            "the instrument 'skip: true', or use keep_going=True to stack what exists."
-        )
     omitted += [
         f"{m} (no stage-{'2' if from_stage2 else '2 or stage-3'} file)" for m in missing
     ]
@@ -1195,10 +1483,26 @@ def _stack_file(
         omitted=omitted,
         stage2_reason=stage2_reason or "no stage-3 file",
     )
+    # A file that could not be read is not recorded: the next run tries it again.
+    ds = _add_stage_files(
+        ds, {s: p for s, p in stage_paths.items() if s in datasets}, mooring_dir
+    )
+    if digest := people_source_sha256(mooring):
+        ds.attrs[PEOPLE_SOURCE_ATTR] = digest
+    why = reason or ("stage processing failed" if failures else "unknown")
+    _stage.append_history(ds, f"stack rebuilt: {why}")
     if failures:
         # The grid inherits this attribute from the stack.
         ds.attrs["keep_going_failures"] = "; ".join(failures)
-    return write(ds, paths.product_file(mooring_dir, name, "stack"), overwrite=True), ds
+    return write(ds, out_path, overwrite=True), ds
+
+
+def _instr_type_of(mooring: Mapping, serial: str) -> str:
+    """Return the ``instrument`` of the entry whose cleaned serial is *serial*."""
+    for entry in instrument_entries(mooring):
+        if isinstance(entry, dict) and safe_serial(entry.get("serial", "")) == serial:
+            return str(entry.get("instrument", "unknown"))
+    return "unknown"
 
 
 class MooringStacker:

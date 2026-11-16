@@ -504,7 +504,7 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
     <td>Stage1</td>
     
     <td class="mono">dune2_1_2026_2941_stage1.nc</td>
-    <td class="num">124 KB</td>
+    <td class="num">123 KB</td>
     <td><MTIME></td>
     
   </tr>
@@ -514,7 +514,7 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
     <td>Stage2</td>
     
     <td class="mono">dune2_1_2026_2941_stage2.nc</td>
-    <td class="num">125 KB</td>
+    <td class="num">121 KB</td>
     <td><MTIME></td>
     
   </tr>
@@ -524,7 +524,7 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
     <td>Stage3</td>
     
     <td class="mono">dune2_1_2026_2941_stage3.nc</td>
-    <td class="num">235 KB</td>
+    <td class="num">236 KB</td>
     <td><MTIME></td>
     
   </tr>
@@ -542,11 +542,12 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 
 <thead><tr><th>Property</th><th>Value</th></tr></thead>
 <tbody>
-<tr><td>Processed</td><td>2026-08-14T07:43:13.132777Z - Processed by SeaSenseLib v0.6.1</td></tr>
+<tr><td>Processed</td><td>2026-11-15T21:09:44.421099Z - Processed by SeaSenseLib v0.6.1</td></tr>
 <tr><td>Reader</td><td>SbeAsciiReader</td></tr>
 <tr><td>Format</td><td>SeaBird ASCII</td></tr>
 <tr><td>Source file</td><td class="mono">2941_recovery.asc</td></tr>
 <tr><td>Stages</td><td>finalization, mapping, metadata_enrichment, metadata_extraction, transformation, unit_handling, validation</td></tr>
+<tr><td>the offset takes 1 m of hab as 1 dbar and assumes the line stays upright | QARTOD gross-range+spike</td><td>conductivity_qc=[good=19635]</td></tr>
 </tbody></table>
 <table class="sortable">
 
@@ -554,14 +555,13 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
   <tr><th tabindex="0">#</th><th tabindex="0">Time</th><th tabindex="0">Event</th></tr>
 </thead>
 <tbody>
-  <tr><td>1</td><td>2026-10-24T11:36Z</td><td>processing_stage 1</td></tr>
-  <tr><td>2</td><td>2026-10-24T11:36Z</td><td>processing_stage 2</td></tr>
-  <tr><td>3</td><td>2026-10-24T11:56Z</td><td>stage3 pressure interpolated (pressure_qc=8) — extrapolated from aquadopp 9920 (hab=226.0m, static offset=-199.0 dbar) — WARNING: out of range</td></tr>
-  <tr><td>4</td><td>2026-10-24T11:56Z</td><td>QARTOD gross-range+spike: conductivity_qc=[good=19635]</td></tr>
-  <tr><td>5</td><td>2026-10-24T11:56Z</td><td>pressure_qc=[good=0, interp=19635]</td></tr>
-  <tr><td>6</td><td>2026-10-24T11:56Z</td><td>salinity_qc=[good=19635]</td></tr>
-  <tr><td>7</td><td>2026-10-24T11:56Z</td><td>temperature_qc=[good=19635]</td></tr>
-  <tr><td>8</td><td>2026-10-24T11:56Z</td><td>processing_stage 3</td></tr>
+  <tr><td>1</td><td>2026-11-15T21:09Z</td><td>processing_stage 1</td></tr>
+  <tr><td>2</td><td>2026-11-15T21:09Z</td><td>processing_stage 2</td></tr>
+  <tr><td>3</td><td>2026-11-15T21:09Z</td><td>stage3 pressure interpolated (pressure_qc=8) — extrapolated from aquadopp 9920 (hab=226.0m, static offset=-199.0 dbar) — WARNING: out of range: hab 425.0 m is above every pressure source (hab 226.0–226.0 m): not bracketed</td></tr>
+  <tr><td>4</td><td>2026-11-15T21:09Z</td><td>pressure_qc=[good=0, interp=19635]</td></tr>
+  <tr><td>5</td><td>2026-11-15T21:09Z</td><td>salinity_qc=[good=19635]</td></tr>
+  <tr><td>6</td><td>2026-11-15T21:09Z</td><td>temperature_qc=[good=19635]</td></tr>
+  <tr><td>7</td><td>2026-11-15T21:09Z</td><td>processing_stage 3</td></tr>
 </tbody>
 </table><div class="fig-source">source: oceanarray/reports/_html_helpers.py:_build_history_tables</div>
 
@@ -848,15 +848,15 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 <td data-sort="conductivity">conductivity <span class="var-qc">(_qc)</span></td>
 <td><code>float32</code></td><td>mS cm-1</td><td class="cell-wrap"><strong><code>sea_water_electrical_conductivity</code></strong><br>Conductivity</td><td data-sort="30.775400161743164">30.78 / 36.05</td>
 <td data-sort="19635">19,635</td>
-<td data-sort="100.0">100.0</td><td data-nosort><details class="attr-disclosure"><summary>7 attrs</summary>
-<table data-nosort><tbody><tr><th>conductivity_unit_source</th><td>SBE37 ASC format outputs S/m</td></tr><tr><th>coverage_content_type</th><td>physicalMeasurement</td></tr><tr><th>measurement_type</th><td>Measured</td></tr><tr><th>short_name</th><td>COND</td></tr><tr><th>conductivity_normalised_from</th><td>S m-1</td></tr><tr><th>valid_min</th><td>0</td></tr><tr><th>valid_max</th><td>80</td></tr>
+<td data-sort="100.0">100.0</td><td data-nosort><details class="attr-disclosure"><summary>8 attrs</summary>
+<table data-nosort><tbody><tr><th>conductivity_unit_source</th><td>SBE37 ASC format outputs S/m</td></tr><tr><th>coverage_content_type</th><td>physicalMeasurement</td></tr><tr><th>measurement_type</th><td>Measured</td></tr><tr><th>short_name</th><td>COND</td></tr><tr><th>conductivity_normalised_from</th><td>S m-1</td></tr><tr><th>sensor</th><td>SENSOR_CTD_2941</td></tr><tr><th>valid_min</th><td>0</td></tr><tr><th>valid_max</th><td>80</td></tr>
 </tbody></table></details></td></tr>
 <tr>
 <td data-sort="pressure">pressure <span class="var-qc">(_qc)</span></td>
 <td><code>float32</code></td><td>dbar</td><td class="cell-wrap"><strong><code>sea_water_pressure</code></strong><br>sea water pressure</td><td data-sort="362.22528076171875">362.2 / 493.8</td>
 <td data-sort="19635">19,635</td>
-<td data-sort="100.0">100.0</td><td data-nosort><details class="attr-disclosure"><summary>4 attrs</summary>
-<table data-nosort><tbody><tr><th>pressure_source</th><td>extrapolated from aquadopp 9920 (hab=226.0m, static offset=-199.0 dbar) — WARNING: out of range</td></tr><tr><th>comment</th><td>interpolated from neighbouring instrument(s)</td></tr><tr><th>valid_min</th><td>0</td></tr><tr><th>valid_max</th><td>1.1e+04</td></tr>
+<td data-sort="100.0">100.0</td><td data-nosort><details class="attr-disclosure"><summary>6 attrs</summary>
+<table data-nosort><tbody><tr><th>pressure_source</th><td>extrapolated from aquadopp 9920 (hab=226.0m, static offset=-199.0 dbar) — WARNING: out of range: hab 425.0 m is above ev</td></tr><tr><th>pressure_source_serials</th><td>9920</td></tr><tr><th>comment</th><td>interpolated from neighbouring instrument(s)</td></tr><tr><th>valid_min</th><td>0</td></tr><tr><th>valid_max</th><td>1.1e+04</td></tr><tr><th>pressure_source_files</th><td>dune2_1_2026_9920_stage2.nc sha256=65ec5a80203c9b37224b7708ffa2e5bda75795a408020ec6e383dfbc15f63a05 mtime=2026-11-15T21:</td></tr>
 </tbody></table></details></td></tr>
 <tr>
 <td data-sort="salinity">salinity <span class="var-qc">(_qc)</span></td>
@@ -869,8 +869,8 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 <td data-sort="temperature">temperature <span class="var-qc">(_qc)</span></td>
 <td><code>float32</code></td><td>degree_Celsius</td><td class="cell-wrap"><strong><code>sea_water_temperature</code></strong><br>Temperature</td><td data-sort="2.0720999240875244">2.072 / 7.509</td>
 <td data-sort="19635">19,635</td>
-<td data-sort="100.0">100.0</td><td data-nosort><details class="attr-disclosure"><summary>8 attrs</summary>
-<table data-nosort><tbody><tr><th>_comment</th><td>Units are degree_C, assumed ITS-90 for all modern instruments. A variable named temperature_68 would indicate IPTS-68 sc</td></tr><tr><th>coverage_content_type</th><td>physicalMeasurement</td></tr><tr><th>measurement_type</th><td>Measured</td></tr><tr><th>short_name</th><td>WT</td></tr><tr><th>scale</th><td>ITS-90</td></tr><tr><th>units_metadata</th><td>temperature: on_scale</td></tr><tr><th>valid_min</th><td>-5</td></tr><tr><th>valid_max</th><td>42</td></tr>
+<td data-sort="100.0">100.0</td><td data-nosort><details class="attr-disclosure"><summary>9 attrs</summary>
+<table data-nosort><tbody><tr><th>_comment</th><td>Units are degree_C, assumed ITS-90 for all modern instruments. A variable named temperature_68 would indicate IPTS-68 sc</td></tr><tr><th>coverage_content_type</th><td>physicalMeasurement</td></tr><tr><th>measurement_type</th><td>Measured</td></tr><tr><th>short_name</th><td>WT</td></tr><tr><th>scale</th><td>ITS-90</td></tr><tr><th>sensor</th><td>SENSOR_CTD_2941</td></tr><tr><th>units_metadata</th><td>temperature: on_scale</td></tr><tr><th>valid_min</th><td>-5</td></tr><tr><th>valid_max</th><td>42</td></tr>
 </tbody></table></details></td></tr>
 </tbody></table><div class="fig-source">source: oceanarray/reports/_vendored/nc_tables.py:variables_rows</div>
 
@@ -886,14 +886,9 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 <td data-sort="InstrDepth">InstrDepth</td><td><code>int32</code></td><td>—</td>
 <td class="cell-wrap">—</td><td class="cell-wrap">320</td><td data-nosort>—</td></tr>
 <tr>
-<td data-sort="SENSOR_CNDC_2941">SENSOR_CNDC_2941</td><td><code>string</code></td><td>—</td>
-<td class="cell-wrap">Sea-Bird SBE conductivity sensor metadata</td><td class="cell-wrap">—</td><td data-nosort><details class="attr-disclosure"><summary>7 attrs</summary>
-<table data-nosort><tbody><tr><th>sensor_type</th><td>CONDUCTIVITY</td></tr><tr><th>sensor_serial_number</th><td>2941</td></tr><tr><th>sensor_model</th><td>Sea-Bird SBE conductivity sensor</td></tr><tr><th>sensor_calibration_date</th><td>2023-03-28</td></tr><tr><th>CONDUCTIVITY_calibration_coefficients</th><td>G=-9.871170e-01, H=1.369976e-01, I=-3.485648e-04, J=4.990156e-05, CPCOR=-9.570000e-08, CTCOR=3.250000e-06, WBOTC=-9.1055</td></tr><tr><th>cf_role</th><td>sensor_id</td></tr><tr><th>coverage_content_type</th><td>auxiliaryInformation</td></tr>
-</tbody></table></details></td></tr>
-<tr>
-<td data-sort="SENSOR_TEMP_2941">SENSOR_TEMP_2941</td><td><code>string</code></td><td>—</td>
-<td class="cell-wrap">Sea-Bird SBE temperature sensor metadata</td><td class="cell-wrap">—</td><td data-nosort><details class="attr-disclosure"><summary>7 attrs</summary>
-<table data-nosort><tbody><tr><th>sensor_type</th><td>TEMPERATURE</td></tr><tr><th>sensor_serial_number</th><td>2941</td></tr><tr><th>sensor_model</th><td>Sea-Bird SBE temperature sensor</td></tr><tr><th>sensor_calibration_date</th><td>2023-03-28</td></tr><tr><th>TEMPERATURE_calibration_coefficients</th><td>TA0=6.981772e-06, TA1=2.746413e-04, TA2=-2.252296e-06, TA3=1.528407e-07</td></tr><tr><th>cf_role</th><td>sensor_id</td></tr><tr><th>coverage_content_type</th><td>auxiliaryInformation</td></tr>
+<td data-sort="SENSOR_CTD_2941">SENSOR_CTD_2941</td><td><code>int8</code></td><td>—</td>
+<td class="cell-wrap">Sea-Bird Scientific s/n 2941</td><td class="cell-wrap">0</td><td data-nosort><details class="attr-disclosure"><summary>12 attrs</summary>
+<table data-nosort><tbody><tr><th>sensor_type</th><td>CTD</td></tr><tr><th>sensor_type_vocabulary</th><td>https://vocab.nerc.ac.uk/collection/L05/current/</td></tr><tr><th>sensor_serial_number</th><td>2941</td></tr><tr><th>temperature_calibration_coefficients</th><td>TA0=6.981772e-06, TA1=2.746413e-04, TA2=-2.252296e-06, TA3=1.528407e-07</td></tr><tr><th>conductivity_calibration_coefficients</th><td>G=-9.871170e-01, H=1.369976e-01, I=-3.485648e-04, J=4.990156e-05, CPCOR=-9.570000e-08, CTCOR=3.250000e-06, WBOTC=-9.1055</td></tr><tr><th>sensor_calibration_date</th><td>2023-03-28</td></tr><tr><th>sensor_calibration_dates</th><td>temperature: 2023-03-28; conductivity: 2023-03-28</td></tr><tr><th>sensor_model</th><td>UNK</td></tr><tr><th>sensor_metadata_source</th><td>raw file header (calibration only)</td></tr><tr><th>sensor_maker</th><td>Sea-Bird Scientific</td></tr><tr><th>cf_role</th><td>sensor_id</td></tr><tr><th>coverage_content_type</th><td>auxiliaryInformation</td></tr>
 </tbody></table></details></td></tr>
 <tr>
 <td data-sort="clock_offset">clock_offset</td><td><code>int32</code></td><td>s</td>
@@ -931,11 +926,11 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
   <tr><th tabindex="0">Attribute</th><th tabindex="0">Type</th><th tabindex="0">Value</th></tr>
 </thead>
 <tbody>
-<tr><td class="mono">waterdepth</td><td><code>int64</code></td><td>745</td></tr>
-<tr><td class="mono">longitude</td><td><code>string</code></td><td>-27 48.000</td></tr>
 <tr><td class="mono">latitude</td><td><code>string</code></td><td>65 43.913</td></tr>
+<tr><td class="mono">longitude</td><td><code>string</code></td><td>-27 48.000</td></tr>
 <tr><td class="mono">deployment_time</td><td><code>string</code></td><td>2026-07-11T20:30</td></tr>
 <tr><td class="mono">recovery_time</td><td><code>string</code></td><td>2026-07-25T11:44</td></tr>
+<tr><td class="mono">waterdepth</td><td><code>int64</code></td><td>745</td></tr>
 </tbody></table>
 <h3>Provenance &amp; processing</h3>
 <table class="sortable">
@@ -946,9 +941,10 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 <tbody>
 <tr><td class="mono">source</td><td><code>string</code></td><td>Sea-Bird SBE37</td></tr>
 <tr><td class="mono">processing_level</td><td><code>string</code></td><td>L1</td></tr>
-<tr><td class="mono">date_created</td><td><code>string</code></td><td>2026-08-14T07:43:13.132777Z</td></tr>
-<tr><td class="mono">date_modified</td><td><code>string</code></td><td>2026-08-14T07:43:13.132777Z</td></tr>
+<tr><td class="mono">date_created</td><td><code>string</code></td><td>2026-11-15T21:09:44.421099Z</td></tr>
+<tr><td class="mono">date_modified</td><td><code>string</code></td><td>2026-11-15T21:09:44.421099Z</td></tr>
 <tr><td class="mono">Conventions</td><td><code>string</code></td><td>CF-1.13</td></tr>
+<tr><td class="mono">data_mode</td><td><code>string</code></td><td>P</td></tr>
 </tbody></table>
 <h3>Other</h3>
 <table class="sortable">
@@ -960,7 +956,7 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 <tr><td class="mono">raw_format</td><td><code>string</code></td><td>sbe-ascii</td></tr>
 <tr><td class="mono">raw_filename</td><td><code>string</code></td><td>2941_recovery.asc</td></tr>
 <tr><td class="mono">raw_filesize_bytes</td><td><code>int64</code></td><td>837120</td></tr>
-<tr><td class="mono">raw_mtime_utc</td><td><code>string</code></td><td>2026-08-07T19:47:09.290219Z</td></tr>
+<tr><td class="mono">raw_mtime_utc</td><td><code>string</code></td><td>2026-11-15T18:16:05.851979Z</td></tr>
 <tr><td class="mono">raw_sha256</td><td><code>string</code></td><td>df5a255892101ac1d99a77ab7589328a55d544e559b19dd4f706f86892e1d4d3</td></tr>
 <tr><td class="mono">raw_metadata_schema</td><td><code>string</code></td><td>seasenselib/raw-opaque-1.0</td></tr>
 <tr><td class="mono">raw_metadata</td><td><code>string</code></td><td>{&#34;schema&#34;: &#34;seasenselib/raw-opaque-1.0&#34;, &#34;raw_format&#34;: &#34;sbe-ascii&#34;, &#34;raw_filename&#34;: &#34;2941_recovery.asc&#34;, &#34;blocks&#34;: {&#34;attributes&#34;: null, &#34;calibration&#34;: null, &#34;configuration&#34;: null, &#34;other&#34;: {&#34;global_attributes&#34;: {&#34;FileName&#34;: &#34;C:\\Users\\u241353\\Desktop\\Odondebuen\\dunes2_1_2026\\2941_recovery.asc&#34;, &#34;Temperature SN&#34;: &#34;2941&#34;, &#34;Conductivity SN&#34;: &#34;2941&#34;, &#34;System UpLoad Time&#34;: &#34;Jul 25 2026 13:25:28&#34;, &#34;sample interval&#34;: &#34;60 seconds&#34;, &#34;samplenumber&#34;: &#34;19898, free = 213118&#34;, &#34;number of samples to average&#34;: &#34;1&#34;, &#34;reference pressure&#34;: &#34;0.0 db&#34;, &#34;wait time after serial sync sampling&#34;: &#34;30 seconds&#34;, &#34;temperature&#34;: &#34;14.92 deg C&#34;, &#34;    TA0&#34;: &#34;6.981772e-06&#34;, &#34;    TA1&#34;: &#34;2.746413e-04&#34;, &#34;    TA2&#34;: &#34;-2.252296e-06&#34;, &#34;    TA3&#34;: &#34;1.528407e-07&#34;, &#34;    G&#34;: &#34;-9.871170e-01&#34;, &#34;    H&#34;: &#34;1.369976e-01&#34;, &#34;    I&#34;: &#34;-3.485648e-04&#34;, &#34;    J&#34;: &#34;4.990156e-05&#34;, &#34;    CPCOR&#34;: &#34;-9.570000e-08&#34;, &#34;    CTCOR&#34;: &#34;3.250000e-06&#34;, &#34;    WBOTC&#34;: &#34;-9.105544e-06&#34;, &#34;    RTCA0&#34;: &#34;9.999872e-01&#34;, &#34;    RTCA1&#34;: &#34;1.686222e-06&#34;, &#34;    RTCA2&#34;: &#34;-3.276627e-08&#34;, &#34;information&#34;: &#34;sample interval 60 seconds&#34;}}}, &#34;variables&#34;: {}}</td></tr>
@@ -970,15 +966,12 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 <tr><td class="mono">processor_module_name</td><td><code>string</code></td><td>SeaBird ASCII</td></tr>
 <tr><td class="mono">processor_module_key</td><td><code>string</code></td><td>sbe-ascii</td></tr>
 <tr><td class="mono">processor_runtime</td><td><code>string</code></td><td>CPython</td></tr>
-<tr><td class="mono">processor_runtime_version</td><td><code>string</code></td><td>3.11.7</td></tr>
-<tr><td class="mono">processor_execution_time_utc</td><td><code>string</code></td><td>2026-08-14T07:43:13.132764Z</td></tr>
-<tr><td class="mono">processor_machine</td><td><code>string</code></td><td>EFWmac14</td></tr>
-<tr><td class="mono">processor_os</td><td><code>string</code></td><td>Darwin 25.6.0</td></tr>
-<tr><td class="mono">deployment_latitude</td><td><code>string</code></td><td>00 00.000 N</td></tr>
-<tr><td class="mono">deployment_longitude</td><td><code>string</code></td><td>000 00.000 W</td></tr>
-<tr><td class="mono">seabed_latitude</td><td><code>string</code></td><td>00 00.000 N</td></tr>
-<tr><td class="mono">seabed_longitude</td><td><code>string</code></td><td>000 00.000 W</td></tr>
-<tr><td class="mono">processing_stage</td><td><code>int64</code></td><td>3</td></tr>
+<tr><td class="mono">processor_runtime_version</td><td><code>string</code></td><td>3.13.16</td></tr>
+<tr><td class="mono">processor_execution_time_utc</td><td><code>string</code></td><td>2026-11-15T21:09:44.421067Z</td></tr>
+<tr><td class="mono">processor_machine</td><td><code>string</code></td><td>vm</td></tr>
+<tr><td class="mono">processor_os</td><td><code>string</code></td><td>Linux 6.18.44-fc-v470</td></tr>
+<tr><td class="mono">source_file</td><td><code>string</code></td><td>2941_recovery.asc</td></tr>
+<tr><td class="mono">file_type</td><td><code>string</code></td><td>sbe-ascii</td></tr>
 <tr><td class="mono">location_source</td><td><code>string</code></td><td>latitude/longitude</td></tr>
 <tr><td class="mono">latitude_str</td><td><code>string</code></td><td>65.7319° N</td></tr>
 <tr><td class="mono">longitude_str</td><td><code>string</code></td><td>27.8000° W</td></tr>
@@ -987,9 +980,16 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 <tr><td class="mono">hab</td><td><code>int64</code></td><td>425</td></tr>
 <tr><td class="mono">clamp_id</td><td><code>string</code></td><td>8</td></tr>
 <tr><td class="mono">sample_interval_seconds</td><td><code>int64</code></td><td>60</td></tr>
-<tr><td class="mono">file_type</td><td><code>string</code></td><td>sbe-ascii</td></tr>
 <tr><td class="mono">instrument</td><td><code>string</code></td><td>microcat</td></tr>
 <tr><td class="mono">stack</td><td><code>int8</code></td><td>1</td></tr>
+<tr><td class="mono">deployment_latitude</td><td><code>string</code></td><td>00 00.000 N</td></tr>
+<tr><td class="mono">deployment_longitude</td><td><code>string</code></td><td>000 00.000 W</td></tr>
+<tr><td class="mono">seabed_latitude</td><td><code>string</code></td><td>00 00.000 N</td></tr>
+<tr><td class="mono">seabed_longitude</td><td><code>string</code></td><td>000 00.000 W</td></tr>
+<tr><td class="mono">units_converted</td><td><code>string</code></td><td>{&#34;temperature&#34;: {&#34;factor&#34;: 1.0, &#34;from&#34;: &#34;degC&#34;, &#34;to&#34;: &#34;degree_Celsius&#34;}}</td></tr>
+<tr><td class="mono">processing_stage</td><td><code>int64</code></td><td>3</td></tr>
+<tr><td class="mono">stage1_oceanarray_version</td><td><code>string</code></td><td>0.6.0.post1.dev1+gea5c5e2.dirty</td></tr>
+<tr><td class="mono">oceanarray_version</td><td><code>string</code></td><td>0.6.0.post1.dev1+gea5c5e2.dirty</td></tr>
 <tr><td class="mono">qc_convention</td><td><code>string</code></td><td>OceanSITES reference table 2</td></tr>
 <tr><td class="mono">stage1_first_nonnull</td><td><code>string</code></td><td>2026-07-11T17:00:01</td></tr>
 <tr><td class="mono">stage1_last_nonnull</td><td><code>string</code></td><td>2026-07-25T12:37:00</td></tr>
@@ -997,12 +997,14 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 <tr><td class="mono">stage1_time_end</td><td><code>string</code></td><td>2026-07-25T12:37:00</td></tr>
 <tr><td class="mono">yaml_deployment_time</td><td><code>string</code></td><td>2026-07-11T20:30:00</td></tr>
 <tr><td class="mono">yaml_recovery_time</td><td><code>string</code></td><td>2026-07-25T11:44:00</td></tr>
+<tr><td class="mono">stage2_oceanarray_version</td><td><code>string</code></td><td>0.6.0.post1.dev1+gea5c5e2.dirty</td></tr>
 <tr><td class="mono">qc_flag_convention</td><td><code>string</code></td><td>OceanSITES reference table 2</td></tr>
 <tr><td class="mono">qc_merge_rule</td><td><code>string</code></td><td>worst flag wins; priority weakest to strongest: 0 &lt; 1 &lt; 2 &lt; 7 &lt; 8 &lt; 3 &lt; 4 &lt; 9</td></tr>
 <tr><td class="mono">qc_ingest_remap</td><td><code>string</code></td><td>QARTOD not_evaluated(2) -&gt; OceanSITES unknown(0) at test ingest</td></tr>
+<tr><td class="mono">stage3_oceanarray_version</td><td><code>string</code></td><td>0.6.0.post1.dev1+gea5c5e2.dirty</td></tr>
 <tr><td class="mono">stage2_source_file</td><td><code>string</code></td><td>dune2_1_2026_2941_stage2.nc</td></tr>
-<tr><td class="mono">stage2_source_mtime</td><td><code>string</code></td><td>2026-10-24T11:56:55Z</td></tr>
-<tr><td class="mono">stage2_source_sha256</td><td><code>string</code></td><td>bbbcc502</td></tr>
+<tr><td class="mono">stage2_source_mtime</td><td><code>string</code></td><td>2026-11-15T21:09:44Z</td></tr>
+<tr><td class="mono">stage2_source_sha256</td><td><code>string</code></td><td>5be7884ce25a5f0c1279b79251dd1ad2886a710fcc30dd62f919b7f71757fd83</td></tr>
 </tbody></table><div class="fig-source">source: oceanarray/reports/_vendored/nc_tables.py:globals_rows</div>
 
 

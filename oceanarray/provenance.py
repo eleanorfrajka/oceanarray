@@ -1,16 +1,21 @@
-"""Which oceanarray wrote a file: the version (and, for a source checkout, the commit) on every file.
+"""Which oceanarray wrote a file: the version, with the commit for a source checkout, on every file.
 
-Every file oceanarray writes carries ``oceanarray_version`` (and, when the
-package runs from a git checkout, ``oceanarray_commit``: the short hash, with
-``-dirty`` when the tree has uncommitted changes). Each stage also keeps the
+Every file oceanarray writes carries ``oceanarray_version``. When the package
+runs from a git checkout, the version names the commit that ran as a local
+version label, ``0.6.0.post1.dev5+gf52121d`` (``.dirty`` appended when the tree
+has uncommitted changes). The hash is read from git at run time: the installed
+version string is written when the package is installed, so with an editable
+install it would otherwise name the last reinstall. Each stage also keeps the
 version that wrote it as ``stage<n>_oceanarray_version``, so a stage-3 file
 still says which code ran stage 1. :func:`requires_version` is the one check
-of "written by an oceanarray that already did X".
+of "written by an oceanarray that already did X"; :func:`public_version`
+compares versions without the commit.
 """
 
 from __future__ import annotations
 
 import functools
+import hashlib
 import subprocess
 from collections.abc import Mapping
 from pathlib import Path
@@ -18,7 +23,10 @@ from pathlib import Path
 from packaging.version import InvalidVersion, Version
 
 VERSION_ATTR = "oceanarray_version"
-COMMIT_ATTR = "oceanarray_commit"
+
+#: The separate commit attribute development builds wrote before 0.6.1; the writer drops it, since
+#: the commit now sits in :data:`VERSION_ATTR`.
+LEGACY_COMMIT_ATTR = "oceanarray_commit"
 
 
 def _git(*args: str) -> str | None:
@@ -39,6 +47,14 @@ def _git(*args: str) -> str | None:
     return out.stdout.strip()
 
 
+def _with_commit(version: str, commit: str | None, dirty: bool) -> str:
+    """Return *version* with *commit* as its local version label (``+g<hash>[.dirty]``)."""
+    if not commit:
+        return version
+    public = version.split("+", 1)[0]
+    return f"{public}+g{commit}" + (".dirty" if dirty else "")
+
+
 @functools.lru_cache(maxsize=1)
 def version_attrs() -> dict[str, str]:
     """Return the attributes naming the running oceanarray.
@@ -46,16 +62,37 @@ def version_attrs() -> dict[str, str]:
     Returns
     -------
     dict of str to str
-        ``oceanarray_version``, and ``oceanarray_commit`` for a git checkout.
+        ``oceanarray_version``: the installed version, with the commit that is
+        running as its local label (``+g<hash>``, ``.dirty`` for uncommitted
+        changes) when the package runs from a git checkout.
     """
     from oceanarray import __version__
 
-    attrs = {VERSION_ATTR: str(__version__)}
     commit = _git("rev-parse", "--short", "HEAD")
-    if commit:
-        dirty = _git("status", "--porcelain", "--untracked-files=no")
-        attrs[COMMIT_ATTR] = commit + ("-dirty" if dirty else "")
-    return attrs
+    dirty = bool(commit) and bool(_git("status", "--porcelain", "--untracked-files=no"))
+    return {VERSION_ATTR: _with_commit(str(__version__), commit, dirty)}
+
+
+def public_version(value: object) -> str | None:
+    """Return the version in *value* without its local label (the commit).
+
+    Parameters
+    ----------
+    value : object
+        An ``oceanarray_version`` attribute value.
+
+    Returns
+    -------
+    str or None
+        The public version (``0.6.0.post1.dev5`` for ``0.6.0.post1.dev5+gf52121d``),
+        or None when *value* is empty or not a version.
+    """
+    if value in (None, ""):
+        return None
+    try:
+        return Version(str(value)).public
+    except InvalidVersion:
+        return None
 
 
 def stage_version_attr(stage: int) -> str:
@@ -99,3 +136,78 @@ def requires_version(
     except InvalidVersion:
         return False
     return version.is_devrelease or version >= Version(minimum)
+
+
+def sha256(path: str | Path) -> str:
+    """Return the SHA-256 of a file, as hex.
+
+    Parameters
+    ----------
+    path : str or pathlib.Path
+        The file.
+
+    Returns
+    -------
+    str
+        The 64-digit hex digest.
+    """
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def release_change_reason(attrs: Mapping[str, object]) -> str | None:
+    """Return why a product's oceanarray release differs from this one, or None.
+
+    Only the public version counts: a commit hash or ``.dirty`` added in a git
+    checkout does not make a product stale (rebuild with ``force`` after changing
+    the code without a new version).
+
+    Parameters
+    ----------
+    attrs : Mapping
+        The product's global attributes.
+
+    Returns
+    -------
+    str or None
+        ``"oceanarray <was> wrote it, this is <now>"``, or None for the same release.
+    """
+    was = public_version(attrs.get(VERSION_ATTR))
+    now = public_version(version_attrs()[VERSION_ATTR])
+    if was != now:
+        return f"oceanarray {was or 'unknown'} wrote it, this is {now}"
+    return None
+
+
+def changed_attr(
+    attrs: Mapping[str, object], expected: Mapping[str, object]
+) -> str | None:
+    """Return the first attribute (in name order) a product holds differently, or None.
+
+    Values are compared at the precision the writer stores them
+    (:func:`oceanarray.writers.dtypes.same_attr`), so a float32 ``dp_dbar`` or a NaN
+    position read back is not a change.
+
+    Parameters
+    ----------
+    attrs : Mapping
+        The product's global attributes.
+    expected : Mapping
+        The values the current run would write.
+
+    Returns
+    -------
+    str or None
+        The attribute name, or None when all agree.
+    """
+    from oceanarray.writers.dtypes import same_attr
+
+    for key in sorted(expected):
+        # An absent attribute reads as "" where the expected value is text.
+        stored = attrs.get(key, "" if isinstance(expected[key], str) else None)
+        if not same_attr(key, stored, expected[key]):
+            return key
+    return None

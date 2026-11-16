@@ -111,6 +111,9 @@ KNOWN_KEYS: frozenset[str] = frozenset(
         "grid",
         # optional report sections to turn on, keyed by page (``_check_report_sections``)
         "report_sections",
+        # people and data source for files that name none (``_check_people_and_source``)
+        "people",
+        "source",
     }
 )
 
@@ -348,6 +351,8 @@ def check(
         issues += _check_position_pairs(data)
         issues += _check_legacy_cruise_keys(data)
         issues += _check_sources(data)
+        issues += _check_people_and_source(data)
+        issues += _check_sensor_models(data)
         for key in data:
             if key not in KNOWN_KEYS:
                 issues.append(
@@ -700,6 +705,47 @@ def _check_sources(data: Mapping) -> list[ValidationIssue]:
     ]
 
 
+def _check_sensor_models(data: Mapping) -> list[ValidationIssue]:
+    """Return ERRORs for an instrument's ``sensor_model`` without its ``sensor_model_source``."""
+    from oceanarray.instruments import instrument_entries
+
+    issues: list[ValidationIssue] = []
+    for entry in instrument_entries(data):
+        if not isinstance(entry, Mapping) or entry.get("sensor_model") in (None, ""):
+            continue
+        label = f"{entry.get('instrument', '?')} s/n {entry.get('serial', '?')}"
+        if not isinstance(entry["sensor_model"], str):
+            issues.append(
+                ValidationIssue("ERROR", f"{label}: sensor_model must be text.")
+            )
+        if not entry.get("sensor_model_source"):
+            issues.append(
+                ValidationIssue(
+                    "ERROR",
+                    f"{label}: sensor_model needs sensor_model_source (where the model "
+                    "came from, e.g. the cruise report).",
+                )
+            )
+    return issues
+
+
+def _check_people_and_source(data: Mapping) -> list[ValidationIssue]:
+    """Return ERRORs and WARNINGs for the optional ``people:`` and ``source:`` blocks."""
+    from oceanarray.pipeline import attribution
+
+    issues: list[ValidationIssue] = []
+    for key, check_block in (
+        ("people", attribution.check_people_block),
+        ("source", attribution.check_source_block),
+    ):
+        if data.get(key) is None:
+            continue
+        errors, warns = check_block(data[key])
+        issues += [ValidationIssue("ERROR", m) for m in errors]
+        issues += [ValidationIssue("WARNING", m) for m in warns]
+    return issues
+
+
 def _check_settings(data: Mapping) -> list[ValidationIssue]:
     """Return ERRORs for a malformed ``stack:`` or ``grid:`` block (both optional)."""
     issues: list[ValidationIssue] = []
@@ -991,7 +1037,7 @@ def template(name: str, *, instruments: list[dict] | None = None) -> dict:
 
 
 def _format_optional_blocks() -> str:
-    """Return the commented-out ``stack:`` and ``grid:`` blocks, with their defaults."""
+    """Return the commented-out ``stack:``, ``grid:``, ``people:`` and ``source:`` blocks."""
     from oceanarray.config import parameters as params
     from oceanarray.pipeline._run import DEFAULTS
 
@@ -1007,6 +1053,21 @@ def _format_optional_blocks() -> str:
             f"  dp: {gr['dp']:g}  # grid spacing, dbar",
             f"  mask_flags: {list(params.GRID_MASK_FLAGS)}  # QC flags left out "
             "before gridding; or {default: [4, 9], velocity: [3, 4, 9]}",
+            "",
+            "optional: who and where the data came from, for files that do not say",
+            "people:  # used when the data files name no one",
+            "  principal_investigator: Given Surname  # comma-separated",
+            "  principal_investigator_email: name@example.org",
+            "  principal_investigator_id: https://orcid.org/0000-0000-0000-0000",
+            "  contributor_name: Given Surname; Given Surname  # semicolon-separated",
+            "  contributor_role: data processing; technician",
+            "  people_source: where these names came from",
+            "source:  # fills what the data files do not say",
+            "  doi: 10.xxxx/xxxxx  # the data package's DOI",
+            "  citation: how the source asks to be cited",
+            "  license: the source's license",
+            "  acknowledgement: funding and acknowledgement",
+            "  source_note: where these values came from",
         ]
     )
 

@@ -91,6 +91,25 @@ mooring as a whole.
        ``waterdepth_source: corrected from the originator's 3047 m ...``).
        Written beside the field in every file, with a stage-1 history line; the
        value used is the field's, as without it.
+   * - ``people``
+     - mapping
+     - Optional
+     - The principal investigators and contributors, for data files that name no
+       one (RODB files): OceanSITES 1.4 names (``principal_investigator``, ``_email``,
+       ``_url``, ``_id``; ``contributor_name``, ``_role``, ``_email``) and
+       ``people_source``. Every field gives one entry per person, in order; a role
+       two people share is written for each (``"PI; PI"``), and a single role for
+       several names goes to the first name only (a warning). Used at stage 1 only
+       when the file names no one; a file that names its people keeps them, and the
+       block is ignored with a warning.
+   * - ``source``
+     - mapping
+     - Optional
+     - Where the data came from: ``doi`` (bare, ``doi:`` or ``https://doi.org/``;
+       stored bare), ``citation``, ``license``, ``acknowledgement``, ``references``
+       and ``source_note``. Field by field, the file's own value wins; the block
+       fills what the file does not say (a warning for a field both give). Written
+       as ``source_*`` into every product (see :doc:`oceanarray_format`).
    * - ``deployment_time``
      - ISO-8601 string
      - Recommended
@@ -396,6 +415,12 @@ Optional fields
        ``units_override_reason`` attribute.  When the corrected units are not the
        canonical ones (``kPa`` for pressure), the units pass converts the values
        and records ``units_converted_from`` and ``units_conversion_factor``.
+   * - ``sensor_model``, ``sensor_model_source``
+     - string
+     - The instrument's model (``SBE 37-SMP``) and where it came from (required with
+       the model). Fills the sensor record's ``sensor_model`` when the file names
+       none, and replaces a file's model with a warning (the file's stays as
+       ``originator_sensor_model``).
 
 Additional fields
 ~~~~~~~~~~~~~~~~~

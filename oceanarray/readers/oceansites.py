@@ -63,7 +63,8 @@ def read_oceansites(path: str | Path) -> xr.Dataset:
     on ``(TIME,)`` and position on ``DEPTH``.  Known parameter codes
     (:data:`OCEANSITES_VARIABLES`) are renamed to oceanarray names on a ``time``
     dimension, keeping the file's ``units`` string for the units pass to resolve.
-    ``<CODE>_QC`` variables become ``<name>_qc_originator``.  The originator's
+    ``<CODE>_QC`` variables become ``<name>_qc_originator``; each variable's
+    ``sensor_*`` attributes are kept as ``originator_sensor_*``.  The originator's
     global attributes are kept with an ``originator_`` prefix, and because CF
     ``eastward``/``northward_sea_water_velocity`` are geographic, a file with
     velocities is marked ``coordinate_system = "ENU"`` with
@@ -115,6 +116,14 @@ def read_oceansites(path: str | Path) -> xr.Dataset:
         attrs = {k: v for k, v in da.attrs.items() if k in ("units", "long_name")}
         attrs["standard_name"] = da.attrs.get("standard_name", "")
         attrs["original_name"] = code
+        # The originator's sensor description, verbatim (stage 1 builds the record).
+        attrs.update(
+            {
+                f"originator_{k}": v if np.isscalar(v) else str(v)
+                for k, v in da.attrs.items()
+                if k.startswith("sensor_")
+            }
+        )
         out[name] = xr.DataArray(da.values, dims="time", attrs=attrs)
         qc = f"{code}_QC"
         if qc in src.data_vars:

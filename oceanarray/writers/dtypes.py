@@ -2,8 +2,36 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 import xarray as xr
+
+_INT32 = np.iinfo(np.int32)
+
+
+def is_position(name: str) -> bool:
+    """Return whether *name* holds a position, kept at double precision.
+
+    One rule for variables and attributes: ``latitude`` / ``longitude`` anywhere in
+    the name, or ACDD's ``geospatial_lat_*`` / ``geospatial_lon_*``.
+
+    Parameters
+    ----------
+    name : str
+        A variable or attribute name.
+
+    Returns
+    -------
+    bool
+        True for a position.
+    """
+    low = name.lower()
+    return (
+        "latitude" in low
+        or "longitude" in low
+        or low.startswith(("geospatial_lat", "geospatial_lon"))
+    )
 
 
 def find_best_dtype(var_name: str, da: xr.DataArray) -> type:
@@ -44,7 +72,7 @@ def find_best_dtype(var_name: str, da: xr.DataArray) -> type:
         return np.int8
     if var_name in ("serial_number", "serial"):
         return np.int32
-    if "latitude" in var_name.lower() or "longitude" in var_name.lower():
+    if is_position(var_name):
         return np.float64
     if da.dtype.kind in ("i", "u") and da.dtype.itemsize == 8:
         return np.int32
@@ -92,3 +120,87 @@ def cast_output_dtypes(ds: xr.Dataset) -> xr.Dataset:
     if not updates:
         return ds
     return ds.assign(updates)
+
+
+def cast_attr(name: str, value: Any) -> Any:  # any attribute value
+    """Return an attribute value at its storage precision, as variables are stored.
+
+    A double becomes ``float32`` and a 64-bit integer ``int32`` (when it fits), so a
+    global attribute such as ``dp_dbar`` is not written at a precision its variable
+    counterparts are not. Positions (``latitude``, ``geospatial_lat_min`` ...) and
+    anything not numeric are returned unchanged.
+
+    Parameters
+    ----------
+    name : str
+        The attribute name.
+    value : Any
+        The attribute value: a number, a numeric array, a string ...
+
+    Returns
+    -------
+    Any
+        The value cast, or *value* itself when no cast applies.
+    """
+    if isinstance(value, (bool, np.bool_)) or is_position(name):
+        return value
+    if "time" in name.lower():
+        return value
+    arr = np.asarray(value)
+    if arr.dtype.kind == "f" and arr.dtype.itemsize == 8:
+        out = arr.astype(np.float32)
+    elif arr.dtype.kind in "iu" and arr.dtype.itemsize == 8:
+        if arr.size == 0 or arr.min() < _INT32.min or arr.max() > _INT32.max:
+            return value
+        out = arr.astype(np.int32)
+    else:
+        return value
+    return out[()] if out.ndim == 0 else out
+
+
+def cast_attr_dtypes(attrs: dict[str, Any]) -> dict[str, Any]:
+    """Return *attrs* with each value cast by :func:`cast_attr`.
+
+    Parameters
+    ----------
+    attrs : dict of str to Any
+        Global attributes.
+
+    Returns
+    -------
+    dict of str to Any
+        A new dict; *attrs* is not modified.
+    """
+    return {key: cast_attr(key, value) for key, value in attrs.items()}
+
+
+def same_attr(name: str, stored: Any, expected: Any) -> bool:
+    """Return whether a stored attribute equals the value that would be written now.
+
+    *expected* is cast as the writer casts it before the two are compared, so a
+    ``dp_dbar`` of 0.1 read back as ``float32`` still matches 0.1.
+
+    Parameters
+    ----------
+    name : str
+        The attribute name.
+    stored : Any
+        The value read from the file (None when absent).
+    expected : Any
+        The value the current run would write.
+
+    Returns
+    -------
+    bool
+        True when the two agree at storage precision.
+    """
+    if stored is None or expected is None:
+        return stored is None and expected is None
+    want = cast_attr(name, expected)
+    try:
+        # equal_nan: a NaN position or depth recorded as NaN is unchanged.
+        if np.array_equal(np.asarray(stored), np.asarray(want), equal_nan=True):
+            return True
+    except (TypeError, ValueError):
+        pass  # text: compared as written below
+    return str(stored) == str(want)

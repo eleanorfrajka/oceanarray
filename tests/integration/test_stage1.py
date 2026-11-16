@@ -47,8 +47,11 @@ class TestMicrocatStage1:
         assert not np.all(np.isnan(self._ds["temperature"].values))
 
     def test_sensor_metadata_scalars_present(self):
-        assert "SENSOR_TEMP_2941" in self._ds.data_vars
-        assert "SENSOR_CNDC_2941" in self._ds.data_vars
+        # One sensor record per instrument, holding each sensor's calibration.
+        assert "SENSOR_CTD_2941" in self._ds.data_vars
+        assert self._ds["temperature"].attrs["sensor"] == "SENSOR_CTD_2941"
+        dates = self._ds["SENSOR_CTD_2941"].attrs["sensor_calibration_dates"]
+        assert dates.startswith("temperature: ")
 
     def test_processing_level_attr(self):
         assert self._ds.attrs.get("processing_level") == "L1"

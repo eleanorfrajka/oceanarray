@@ -68,7 +68,19 @@ ATTR_GROUP_EXTRAS: dict[str, tuple[str, ...]] = {
         "mooring_name",
         "cruise",
         "platform_name",
+    ),
+    # The people attributes oceanarray writes (OceanSITES 1.4 / OG1) that the
+    # canonical group does not list yet.
+    "People & institutions": (
         "principal_investigator",
+        "principal_investigator_email",
+        "principal_investigator_url",
+        "principal_investigator_id",
+        "contributor_email",
+        "contributor_url",
+        "contributor_id",
+        "contributor_role_vocabulary",
+        "people_source",
     ),
     "Spatiotemporal coverage": (
         "latitude",
@@ -80,6 +92,12 @@ ATTR_GROUP_EXTRAS: dict[str, tuple[str, ...]] = {
     "Rights & access": (
         "access_constraint",
         "doi",
+        "source_doi",
+        "source_citation",
+        "source_license",
+        "source_acknowledgement",
+        "source_references",
+        "source_note",
     ),
     "Provenance & processing": (
         "QC_manual",

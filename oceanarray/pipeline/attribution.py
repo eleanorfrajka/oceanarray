@@ -1,4 +1,4 @@
-"""The people behind a product: principal investigators and contributors, as OceanSITES attributes.
+"""The people and sources behind a product: investigators, contributors, DOIs, licenses.
 
 OceanSITES 1.4 lists principal investigators (``principal_investigator``,
 ``_email``, ``_url``, ``_id``) separated by commas, and contributors
@@ -13,13 +13,23 @@ length). A contributor with two roles takes two entries. Stage 1 cleans an
 imported file's own lists (its ``originator_*`` attributes) with the lenient
 reader, once; every later step reads oceanarray's own lists with the strict
 reader (:func:`read_own`) and only joins them.
+
+A file that names nobody (RODB headers carry no people) can take its people from
+the mooring description's ``people:`` block (:func:`people_from_block`). Where
+the data came from (DOI, citation, license, acknowledgement, references) is kept
+as ``source_*`` attributes, the file's own values first and the description's
+``source:`` block filling the rest (:func:`source_attrs`); a product built from
+several sources cites them all (:func:`product_citation`).
 """
 
 from __future__ import annotations
 
+import logging
 import re
 import warnings
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
+
+log = logging.getLogger(__name__)
 
 #: Fields of one principal investigator, and of one contributor entry.
 PI_FIELDS = ("name", "email", "url", "id")
@@ -158,6 +168,23 @@ def _aligned(n: int, values: list[str], label: str) -> list[str]:
     return [""] * n
 
 
+def _aligned_roles(n: int, values: list[str], label: str) -> list[str]:
+    """Return one role per name: a single role goes to the first name, the rest blank.
+
+    A role is not copied to every name (a list of one role does not say it is
+    shared); a role two people share is written for each (``"PI; PI"``). Any other
+    count that differs from the names' is left out, as :func:`_aligned` does.
+    """
+    if len(values) == 1 and n > 1:
+        warnings.warn(
+            f"{label}: 1 role for {n} names; given to the first name, the others "
+            "left blank.",
+            stacklevel=3,
+        )
+        return values + [""] * (n - 1)
+    return _aligned(n, values, label)
+
+
 def _paired_count(*fields: object) -> int | None:
     """Return the number of entries the paired fields agree on, or None."""
     counts = {len(_split(f)) for f in fields if _split(f)}
@@ -234,7 +261,7 @@ def people_from_attrs(
     contributors += _single(get, "publisher", PUBLISHER_ROLE, prefix)
     role, email = get("contributor_role"), get("contributor_email")
     names = split_names(get("contributor_name"), _paired_count(email))
-    roles = _aligned(len(names), _split(role), f"{prefix}contributor_role")
+    roles = _aligned_roles(len(names), _split(role), f"{prefix}contributor_role")
     emails = _aligned(len(names), _split(email), f"{prefix}contributor_email")
     named = [
         {"name": n, "role": one, "email": e}
@@ -527,3 +554,383 @@ def cleaned_at_stage1(attrs: Mapping[str, object]) -> bool:
     return provenance.requires_version(
         attrs, CLEANED_SINCE, key=provenance.stage_version_attr(1)
     )
+
+
+# ── People and source from the mooring description ─────────────────────────
+
+#: The fields a description's ``people:`` block may hold: the OceanSITES 1.4 names
+#: of :data:`PI_ATTRS` and :data:`CONTRIBUTOR_ATTRS`, and where they came from.
+PEOPLE_BLOCK_KEYS: tuple[str, ...] = (
+    *PI_ATTRS.values(),
+    *CONTRIBUTOR_ATTRS.values(),
+    "people_source",
+)
+
+#: What a ``source:`` block (and a file) can say about where the data came from;
+#: each is written as ``source_<field>``.
+CITATION_FIELDS: tuple[str, ...] = (
+    "doi",
+    "citation",
+    "license",
+    "acknowledgement",
+    "references",
+)
+
+#: The fields a description's ``source:`` block may hold.
+SOURCE_BLOCK_KEYS: tuple[str, ...] = (*CITATION_FIELDS, "source_note")
+
+#: The ``source_*`` attributes a product carries: one per citation field, and the note.
+SOURCE_ATTRS: tuple[str, ...] = (
+    *(f"source_{f}" for f in CITATION_FIELDS),
+    "source_note",
+)
+
+#: A DOI: the ``10.`` prefix, a registrant code, a slash and a suffix.
+_DOI = re.compile(r"^10\.\d{4,9}/\S+$")
+_DOI_PREFIXES = ("https://doi.org/", "http://doi.org/", "https://dx.doi.org/", "doi:")
+
+
+def bare_doi(value: object) -> str | None:
+    """Return *value* as a bare DOI (``10.xxxx/...``), or None if it is not one.
+
+    Parameters
+    ----------
+    value : object
+        A DOI as written: bare, ``doi:``-prefixed or as a ``https://doi.org/`` link.
+
+    Returns
+    -------
+    str or None
+        The bare DOI, or None for an empty value or one that is not a DOI.
+    """
+    text = "" if value is None else str(value).strip()
+    for prefix in _DOI_PREFIXES:
+        if text.lower().startswith(prefix):
+            text = text[len(prefix) :].strip()
+            break
+    return text if _DOI.match(text) else None
+
+
+def _entry_counts(
+    block: Mapping[str, object], names: Mapping[str, str]
+) -> list[tuple[str, str]]:
+    """Return ``(field, problem)`` for each field of one list whose entry count differs from its names'."""
+    name_attr = names["name"]
+    n = len(_split(block.get(name_attr)))
+    return [
+        (
+            field,
+            f"{attr} has {len(_split(block.get(attr)))} entries for {n} "
+            f"name{'' if n == 1 else 's'} in {name_attr}",
+        )
+        for field, attr in names.items()
+        if field != "name"
+        and _split(block.get(attr))
+        and len(_split(block.get(attr))) != n
+    ]
+
+
+def check_people_block(block: object) -> tuple[list[str], list[str]]:
+    """Check a description's ``people:`` block.
+
+    Parameters
+    ----------
+    block : object
+        The ``people:`` value as parsed from the YAML.
+
+    Returns
+    -------
+    tuple of (list of str, list of str)
+        Errors (not a mapping, an unknown field, a value that is not text, a field
+        whose entry count differs from its names') and warnings (no
+        ``people_source``, no ``principal_investigator`` or ``contributor_name``).
+    """
+    if not isinstance(block, Mapping):
+        return [
+            f"'people:' must be a mapping of {', '.join(PEOPLE_BLOCK_KEYS)}; got {block!r}."
+        ], []
+    errors = [
+        f"'people: {key}' is not an OceanSITES people field; expected one of "
+        f"{', '.join(PEOPLE_BLOCK_KEYS)}."
+        for key in block
+        if key not in PEOPLE_BLOCK_KEYS
+    ]
+    errors += [
+        f"'people: {key}' must be text; got {value!r}."
+        for key, value in block.items()
+        if key in PEOPLE_BLOCK_KEYS and value is not None and not isinstance(value, str)
+    ]
+    if errors:
+        return errors, []
+    warnings_: list[str] = []
+    for names in (PI_ATTRS, CONTRIBUTOR_ATTRS):
+        for field, problem in _entry_counts(block, names):
+            if field == "role" and len(_split(block.get(names["role"]))) == 1:
+                warnings_.append(
+                    f"'people:' {problem}: the first name gets the role, the others a "
+                    "blank one (write a role two people share for each, e.g. 'PI; PI')."
+                )
+            else:
+                errors.append(
+                    f"'people:' {problem}; give one entry per person, in order."
+                )
+    if not block.get("people_source"):
+        warnings_.append(
+            "'people:' has no people_source; say where these people came from "
+            "(it is written into the files' history)."
+        )
+    if not block.get(PI_ATTRS["name"]) and not block.get(CONTRIBUTOR_ATTRS["name"]):
+        warnings_.append(
+            "'people:' names no principal_investigator or contributor_name."
+        )
+    return errors, warnings_
+
+
+def people_from_block(block: Mapping[str, object]) -> dict[str, str]:
+    """Return the people attributes a description's ``people:`` block gives.
+
+    The block is read with the same rules as a file's own lists
+    (:func:`people_from_attrs`), so titles, ``"Surname, Given"`` and two-role
+    entries come out the same way.
+
+    Parameters
+    ----------
+    block : Mapping
+        The ``people:`` block (OceanSITES 1.4 field names).
+
+    Returns
+    -------
+    dict of str to str
+        ``principal_investigator*`` and ``contributor_*``, as :func:`to_attrs`
+        writes them; empty when the block names nobody.
+    """
+    return to_attrs(union([people_from_attrs(block)]))
+
+
+def check_source_block(block: object) -> tuple[list[str], list[str]]:
+    """Check a description's ``source:`` block.
+
+    Parameters
+    ----------
+    block : object
+        The ``source:`` value as parsed from the YAML.
+
+    Returns
+    -------
+    tuple of (list of str, list of str)
+        Errors (not a mapping, an unknown field, a value that is not text, a
+        ``doi`` that is not a DOI) and warnings (no ``source_note``).
+    """
+    if not isinstance(block, Mapping):
+        return [
+            f"'source:' must be a mapping of {', '.join(SOURCE_BLOCK_KEYS)}; got {block!r}."
+        ], []
+    errors = [
+        f"'source: {key}' is not a source field; expected one of "
+        f"{', '.join(SOURCE_BLOCK_KEYS)}."
+        for key in block
+        if key not in SOURCE_BLOCK_KEYS
+    ]
+    errors += [
+        f"'source: {key}' must be text; got {value!r}."
+        for key, value in block.items()
+        if key in SOURCE_BLOCK_KEYS and value is not None and not isinstance(value, str)
+    ]
+    doi = block.get("doi")
+    if isinstance(doi, str) and doi.strip() and bare_doi(doi) is None:
+        errors.append(
+            f"'source: doi' {doi!r} is not a DOI (expected 10.xxxx/..., with or "
+            "without doi: or https://doi.org/)."
+        )
+    warnings_ = (
+        []
+        if block.get("source_note")
+        else ["'source:' has no source_note; say where these values came from."]
+    )
+    return errors, warnings_
+
+
+def source_attrs(
+    attrs: Mapping[str, object], block: Mapping[str, object] | None
+) -> tuple[dict[str, str], list[str]]:
+    """Return the ``source_*`` attributes for a file, its own values first.
+
+    Field by field: a value the file gives (its ``originator_<field>``) is kept;
+    the description's ``source:`` block fills the fields the file lacks; a field
+    both give keeps the file's value and is reported.
+
+    Parameters
+    ----------
+    attrs : Mapping
+        The file's global attributes (``originator_*`` from an import).
+    block : Mapping or None
+        The description's ``source:`` block, if any.
+
+    Returns
+    -------
+    tuple of (dict of str to str, list of str)
+        ``source_<field>`` for every field either gives (a DOI bare, see
+        :func:`bare_doi`; ``source_note`` from the block), and the fields given by
+        both, with the value left out.
+    """
+    block = block or {}
+    out: dict[str, str] = {}
+    both: list[str] = []
+    for field in CITATION_FIELDS:
+        own = str(attrs.get(f"originator_{field}") or "").strip()
+        given = str(block.get(field) or "").strip()
+        if own and given and own != given:
+            both.append(
+                f"source {field}: the file's value is kept; the description's "
+                f"{given!r} is not used"
+            )
+        value = own or given
+        if field == "doi" and value:
+            value = bare_doi(value) or value
+        if value:
+            out[f"source_{field}"] = value
+    note = str(block.get("source_note") or "").strip()
+    if note:
+        out["source_note"] = note
+    return out, both
+
+
+def product_citation(
+    title: str, version: str, sources: Sequence[Mapping[str, object]]
+) -> dict[str, str]:
+    """Return the ``citation`` and ``references`` of a product built from *sources*.
+
+    Parameters
+    ----------
+    title : str
+        What the product is, e.g. ``"egM2 site record 2014-2022"``.
+    version : str
+        The oceanarray version that built it (its public part is written).
+    sources : sequence of Mapping
+        The ``source_*`` attributes of each input (one per deployment or mooring).
+
+    Returns
+    -------
+    dict of str to str
+        ``citation``: the product, then "Derived from:" each distinct source (its
+        DOI, else its citation) and "Users must also abide by the conditions of the
+        source licenses."; ``references``: each distinct source DOI (``doi:``) and
+        reference, in order. ``references`` is left out when there are none.
+    """
+    from oceanarray import provenance
+
+    public = provenance.public_version(version) or str(version)
+    derived: list[str] = []
+    refs: list[str] = []
+    for src in sources:
+        # A source may name several DOIs, joined by "; " (a DOI holds no "; ").
+        dois = [
+            d
+            for d in (bare_doi(p) for p in str(src.get("source_doi") or "").split("; "))
+            if d
+        ]
+        cited = (
+            [f"doi:{d}" for d in dois]
+            if dois
+            else [str(src.get("source_citation") or "").strip()]
+        )
+        for c in cited:
+            if c and c not in derived:
+                derived.append(c)
+        for d in dois:
+            if f"doi:{d}" not in refs:
+                refs.append(f"doi:{d}")
+        for ref in _split(src.get("source_references")):
+            if ref and ref not in refs:
+                refs.append(ref)
+    citation = f"{title}, processed with oceanarray {public}."
+    if derived:
+        citation += (
+            f" Derived from: {'; '.join(derived)}. Users must also abide by the "
+            "conditions of the source licenses."
+        )
+    out = {"citation": citation}
+    if refs:
+        out["references"] = "; ".join(refs)
+    return out
+
+
+def deployment_sources(
+    attrs: Mapping[str, object], record: Mapping[str, Sequence] | None = None
+) -> list[dict[str, str]]:
+    """Return the ``source_*`` of each input a product was built from.
+
+    Parameters
+    ----------
+    attrs : Mapping
+        The product's global attributes (its joined ``source_*``).
+    record : Mapping of str to sequence, optional
+        A site product's per-deployment values, ``deployment_source_<field>`` → one
+        value per deployment; when given, each deployment is one source.
+
+    Returns
+    -------
+    list of dict of str to str
+        One ``{"source_<field>": value}`` per deployment, or the product's own
+        ``source_*`` as a single source; empty when nothing is recorded.
+    """
+    keys = [f"source_{f}" for f in CITATION_FIELDS]
+    if record:
+        n = max((len(v) for v in record.values()), default=0)
+        return [
+            {
+                key: str(record[f"deployment_{key}"][i])
+                for key in keys
+                if f"deployment_{key}" in record and str(record[f"deployment_{key}"][i])
+            }
+            for i in range(n)
+        ]
+    own = {key: str(attrs[key]) for key in keys if attrs.get(key)}
+    return [own] if own else []
+
+
+def join_sources(
+    attrs_seq: Sequence[Mapping[str, object]],
+    *,
+    what: str,
+    warn: Sequence[str] = SOURCE_ATTRS,
+) -> dict[str, str]:
+    """Return the ``source_*`` attributes of several files, one joined value each.
+
+    Each value is kept whole (a citation may itself hold ``"; "``), once, in order;
+    values that differ are joined with ``"; "``.
+
+    Parameters
+    ----------
+    attrs_seq : Sequence of Mapping
+        The global attributes of each file (stage files of a mooring, stacks of a
+        site), in order.
+    what : str
+        What the files are, for the warning (``"the stage files"``,
+        ``"egM4: the deployments"``).
+    warn : Sequence of str, optional
+        The attributes for which a second value draws a warning. A mooring comes
+        from one data package, so the stack warns on every field; the deployments of
+        a site may come from different packages, so concat warns only on the
+        license, which a user must follow for each.
+
+    Returns
+    -------
+    dict of str to str
+        ``{source_<field>: joined value}`` for every field any file gives.
+    """
+    out: dict[str, str] = {}
+    for key in SOURCE_ATTRS:
+        values: list[str] = []
+        for attrs in attrs_seq:
+            value = str(attrs.get(key) or "").strip()
+            if value and value not in values:
+                values.append(value)
+        if len(values) > 1 and key in warn:
+            log.warning(
+                f"  {what} give {len(values)} values of {key}; all are kept"
+                + (", and a user must follow each" if key == "source_license" else "")
+            )
+        if values:
+            out[key] = "; ".join(values)
+    return out

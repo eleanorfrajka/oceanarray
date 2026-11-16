@@ -328,6 +328,34 @@ def _instrument_report_href(
     )
 
 
+def doi_link(doi: object) -> str:
+    """Return a DOI as a link to ``https://doi.org/<doi>``, escaped for HTML.
+
+    Parameters
+    ----------
+    doi : object
+        A DOI: bare (``10.xxxx/...``), ``doi:``-prefixed or a ``doi.org`` link.
+
+    Returns
+    -------
+    str
+        ``<a href="https://doi.org/10.xxxx/...">10.xxxx/...</a>``; the value
+        escaped as plain text when it is not a DOI; empty for an empty value.
+    """
+    import html as _html
+
+    from oceanarray.pipeline.attribution import bare_doi
+
+    text = "" if doi is None else str(doi).strip()
+    bare = bare_doi(text)
+    if bare is None:
+        return _html.escape(text)
+    return (
+        f'<a href="https://doi.org/{_html.escape(bare, quote=True)}">'
+        f"{_html.escape(bare)}</a>"
+    )
+
+
 def _instrument_report_exists(out_dir: Path, mooring_name: str, serial: str) -> bool:
     """Return True if the per-instrument report file already exists on disk."""
     return (out_dir / "instrument" / f"{mooring_name}_{serial}_report.html").exists()

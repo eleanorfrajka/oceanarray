@@ -176,10 +176,11 @@ roles takes two entries. Reading an originator's lists:
 - titles before or after a name are dropped (``"Dr. Fiamma Straneo, Professor"``
   is one person, ``Fiamma Straneo``); ``"Surname, Given"`` is written ``"Given
   Surname"``;
-- a role, email, url or id without one entry per name is left out, with a
-  warning (never guessed); a role joined by "and" is two roles, each its own
-  entry (``"data processing and interpretation"``), and a principal-investigator
-  role reads ``PI``;
+- a single role for several names goes to the first name, the others take a
+  blank role (a warning; a role is never copied to every name); any other role,
+  email, url or id without one entry per name is left out, with a warning (never
+  guessed); a role joined by "and" is two roles, each its own entry (``"data
+  processing and interpretation"``), and a principal-investigator role reads ``PI``;
 - the file's creator and publisher join the contributors (roles ``originator`` and
   ``publisher``); a file with no ``principal_investigator`` takes its PIs from the
   contributors whose role says principal investigator or PI;
@@ -197,17 +198,65 @@ them strictly and never clean them again. A stage file whose stage 1 predates th
 cleaning (no ``stage1_oceanarray_version``) gives no people: the stack names it in
 ``people_not_cleaned`` and asks for a rerun from stage 1, and ``oceanarray concat``
 refuses such a stack. An empty list from a newer stage 1 means the source named no
-one (the RODB files).
+one (the RODB files); the mooring YAML's ``people:`` block then gives them, with a
+history line naming its ``people_source``.
+
+Where the data came from
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+``source_doi`` (bare), ``source_citation``, ``source_license``,
+``source_acknowledgement``, ``source_references`` and ``source_note`` say where the
+data came from: the imported file's own values, filled field by field from the
+mooring YAML's ``source:`` block. Stage 1 writes them and every product carries them.
+The Stack cat keeps one value per deployment (``deployment_source_*`` on
+``DEPLOYMENT``) and the joined, de-duplicated values as globals; deployments under
+different licenses are all kept, with a warning. Each stack, Stack cat, grid and Grid
+cat has a ``citation`` of its own — the product, the oceanarray version, "Derived
+from:" each source (its DOI, else its citation) and "Users must also abide by the
+conditions of the source licenses." — and ``references`` lists the source DOIs
+(``doi:``) and reference URLs.
+
+Sensor records
+~~~~~~~~~~~~~~
+
+Each instrument is described by one dimensionless variable,
+``SENSOR_<type>_<serial>`` (every MicroCAT ``SENSOR_CTD_<serial>``), with the OG1
+attributes ``sensor_type`` (and ``sensor_type_vocabulary``), ``sensor_maker``,
+``sensor_model``, ``sensor_serial_number`` and ``sensor_calibration_date``; each
+data variable names its record in ``sensor``. A Sea-Bird header's calibrations are
+kept per sensor: ``sensor_calibration_date`` is the latest, ``sensor_calibration_dates``
+lists each (``"temperature: 2023-03-28; conductivity: 2023-03-28"``), and
+``<sensor>_calibration_coefficients`` holds each sensor's coefficients. An imported
+file's own ``sensor_*`` attributes are kept on the record as ``originator_sensor_*``
+(values that differ between its variables joined by ``"; "``). The model comes from
+the mooring YAML's ``sensor_model`` (with its ``sensor_model_source``), else the file,
+else ``UNK``; ``sensor_metadata_source`` says which. Nothing is inferred from the data.
+The stack keeps the records and names each level's in ``sensor(N_LEVELS)``; the Stack
+cat ends each record's name with the deployment code (``SENSOR_CTD_13220_201806``),
+so an instrument recalibrated between deployments has a record per deployment.
+
+Files behind a product
+~~~~~~~~~~~~~~~~~~~~~~
+
+The stack records each level's stage file and its SHA-256 (``stage_file``,
+``stage_sha256`` on ``N_LEVELS``, paths relative to the mooring directory); the grid
+records its stack (``stack_file``, ``stack_sha256``); the Stack cat records each
+deployment's stack (``stack_file``, ``stack_sha256`` on ``DEPLOYMENT``) and the Grid
+cat its Stack cat (``stackcat_file``, ``stackcat_sha256``). ``oceanarray run``
+compares these to keep a stack or grid that is still current. A stack built from a
+mooring YAML with a ``people:`` or ``source:`` block also records
+``people_source_sha256``, the SHA-256 of the two blocks, so a later edit is noticed.
 
 Which oceanarray wrote a file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Every file oceanarray writes (stage files, stack, grid, Stack cat, OceanSITES
-export) carries ``oceanarray_version`` and, when the package runs from a git
-checkout, ``oceanarray_commit`` (the short hash, ``-dirty`` with uncommitted
-changes). Each stage also keeps ``stage<n>_oceanarray_version``, so a stage-3 file
-still says which code ran stage 1. ``stage2_source_sha256`` is the full SHA-256 of
-the stage-2 file.
+export) carries ``oceanarray_version``. When the package runs from a git checkout,
+the version names the commit that ran: ``0.6.0.post1.dev5+gf52121d`` (``.dirty``
+appended with uncommitted changes); development builds before 0.6.1 wrote it in a
+separate ``oceanarray_commit``. Each stage also keeps
+``stage<n>_oceanarray_version``, so a stage-3 file still says which code ran
+stage 1. ``stage2_source_sha256`` is the full SHA-256 of the stage-2 file.
 
 Every units change (a new spelling or a conversion) is recorded in the file's
 ``units_converted`` attribute, JSON ``{variable: {"from", "to", "factor"}}``,

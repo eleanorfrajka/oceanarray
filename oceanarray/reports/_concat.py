@@ -24,7 +24,13 @@ from . import _masthead
 from ._breadcrumb import page_crumbs
 from ._env import render_history, render_template
 from ._figdebug import as_panel
-from ._html_helpers import _format_dt, _format_duration, _parse_dt, _parse_history
+from ._html_helpers import (
+    _format_dt,
+    _format_duration,
+    _parse_dt,
+    _parse_history,
+    doi_link,
+)
 from ._plots import (
     _make_adcp_trajectories_b64,
     _make_analog_timeseries_b64,
@@ -207,7 +213,9 @@ CONCAT_PANELS: dict[str, Panel] = {
     "deployments": Panel(
         "deployments",
         render=lambda c: render_template(
-            "_concat_deployments.html", rows=c.deployment_rows
+            "_concat_deployments.html",
+            rows=c.deployment_rows,
+            show_doi=any(r["doi"] for r in c.deployment_rows),
         ),
         kind="table",
     ),
@@ -460,7 +468,12 @@ def _deployment_rows(
     names = [str(n) for n in ds["deployment_name"].values]
     get = {
         v: ds[v].values if v in ds else None
-        for v in ("deployment_cruise", "recovery_cruise", "source_file")
+        for v in (
+            "deployment_cruise",
+            "recovery_cruise",
+            "stack_file",
+            "deployment_source_doi",
+        )
     }
     instruments = Counter(dep for dep, _ in _physical_instruments(ds))
     rows = []
@@ -487,7 +500,7 @@ def _deployment_rows(
                 "name": name,
                 "years": years,
                 "href": _deployment_href(
-                    _text(get["source_file"], k),
+                    _text(get["stack_file"], k),
                     stack_path.parent,
                     out_dir,
                     name,
@@ -506,6 +519,7 @@ def _deployment_rows(
                 "n_instr": instruments.get(k, 0),
                 "cruises": " → ".join(cruises) if cruises else _masthead.MISSING,
                 "to_next": to_next,
+                "doi": Markup(doi_link(_text(get["deployment_source_doi"], k))),
             }
         )
     return rows
@@ -516,7 +530,7 @@ def _instrument_href(
 ) -> str | None:
     """Return the link from this page to level *i*'s own instrument page, if it exists."""
     k = int(ds["deployment"].values[i])
-    source = _text(ds["source_file"].values if "source_file" in ds else None, k)
+    source = _text(ds["stack_file"].values if "stack_file" in ds else None, k)
     name = str(ds["deployment_name"].values[k])
     folder = _report_folder(source, stack_path.parent, name, report_dir)
     if folder is None:
@@ -744,7 +758,7 @@ def _gridcat_matches(stack_path: Path, name: str) -> bool:
     """
     import xarray as xr
 
-    from oceanarray.pipeline.concat import sha256
+    from oceanarray.provenance import sha256
 
     gridcat = paths.product_file(stack_path.parent, name, "gridcat")
     if not gridcat.exists():

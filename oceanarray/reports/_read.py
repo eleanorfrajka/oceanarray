@@ -412,12 +412,30 @@ def _read_sensor_info(
     try:
         import xarray as xr
 
+        from oceanarray.pipeline import sensors
+
         ds = xr.open_dataset(nc_path, decode_timedelta=False)
         rows = []
         for vname in sorted(v for v in ds.data_vars if v.startswith("SENSOR_")):
             attrs = dict(ds[vname].attrs)
+            if "sensor_type_vocabulary" in attrs:
+                # One record per instrument: a row per calibrated sensor (none for
+                # an instrument without calibrations).
+                per_sensor = sensors.calibration_rows(attrs)
+                rows += [
+                    {
+                        "var_name": vname,
+                        "sensor_type": row["sensor"].upper(),
+                        "sensor_model": attrs.get("sensor_model", "—"),
+                        "sensor_serial": row["serial"] or "—",
+                        "cal_date": row["date"],
+                        "coefficients": row["coefficients"],
+                    }
+                    for row in per_sensor
+                ]
+                continue
+            # A file written before sensor records: one variable per sensor.
             stype = attrs.get("sensor_type", "")
-            coeff_key = f"{stype}_calibration_coefficients"
             rows.append(
                 {
                     "var_name": vname,
@@ -425,7 +443,7 @@ def _read_sensor_info(
                     "sensor_model": attrs.get("sensor_model", "—"),
                     "sensor_serial": attrs.get("sensor_serial_number", "—"),
                     "cal_date": attrs.get("sensor_calibration_date", "—"),
-                    "coefficients": attrs.get(coeff_key, ""),
+                    "coefficients": attrs.get(f"{stype}_calibration_coefficients", ""),
                 }
             )
         ds.close()

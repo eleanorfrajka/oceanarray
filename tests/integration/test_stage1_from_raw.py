@@ -95,8 +95,11 @@ class TestMicrocatStage1FromRaw:
         assert self._gen["serial_number"].dims == ()
 
     def test_sensor_metadata_scalars_present(self):
-        assert "SENSOR_TEMP_2941" in self._gen.data_vars
-        assert "SENSOR_CNDC_2941" in self._gen.data_vars
+        # One sensor record per instrument, holding each sensor's calibration.
+        assert "SENSOR_CTD_2941" in self._gen.data_vars
+        assert self._gen["temperature"].attrs["sensor"] == "SENSOR_CTD_2941"
+        dates = self._gen["SENSOR_CTD_2941"].attrs["sensor_calibration_dates"]
+        assert dates.startswith("temperature: ")
 
 
 class TestAquadoppStage1FromRaw:

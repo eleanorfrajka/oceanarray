@@ -35,8 +35,15 @@ multi-mooring script can combine them.
 
 Without ``--force``, the stages keep a file that already exists (stage 1 also
 rewrites one older than its raw file) and the report pages keep one newer than its
-inputs; add ``--force`` to rewrite.  ``oceanarray run``
-rebuilds the stack and grid every time.
+inputs; add ``--force`` to rewrite.  ``oceanarray run`` keeps a stack that is
+still current (the same stage files by SHA-256, the same settings for the stack and
+mooring fields, the same oceanarray release) and a grid built from that stack with
+the same levels and ``mask_flags``; otherwise it rebuilds them, and the history says
+why.  ``--force`` rebuilds them too.  A new oceanarray release rebuilds them, but a
+code change without a new version does not: after updating oceanarray from a git
+checkout (an editable install), run with ``--force`` to rebuild the stack and grid.
+The ``people:`` and ``source:`` blocks are applied at stage 1, so after editing
+them run with ``--force``; ``run`` warns when they changed since the stack was built.
 
 **Exit status**: 0 when the command did its work (``process`` and ``run`` also
 when instruments were left out, unless ``--strict``); 1 when it failed, or

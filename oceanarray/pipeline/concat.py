@@ -8,9 +8,9 @@ so nothing may read a depth index as a depth: a depth's value is ``nominal_depth
 from __future__ import annotations
 
 import contextlib
-import hashlib
 import logging
 import os
+import re
 import warnings
 from collections.abc import Mapping, Sequence
 from pathlib import Path
@@ -23,8 +23,9 @@ from oceanarray import paths, provenance
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
 from oceanarray.location import parse_coordinate
-from oceanarray.pipeline import attribution
+from oceanarray.pipeline import attribution, sensors
 from oceanarray.pipeline.dataset import time_axis
+from oceanarray.provenance import sha256
 from oceanarray.writers import write
 
 log = logging.getLogger(__name__)
@@ -281,6 +282,15 @@ def _assign_depths(
     return out, depth_groups
 
 
+def _deployment_code(ds: xr.Dataset) -> str:
+    """Return a stack's deployment code, ``YYYYMM`` of its deployment time ("" if unknown)."""
+    try:
+        month = np.datetime64(str(ds.attrs.get("deployment_time", "")), "M")
+    except ValueError:
+        return ""
+    return "" if np.isnat(month) else np.datetime_as_string(month).replace("-", "")
+
+
 def _per_level(ds: xr.Dataset, name: str) -> np.ndarray | None:
     """Return a per-level (``N_LEVELS``) or scalar variable broadcast to the levels."""
     if name not in ds.variables or "time" in ds[name].dims:
@@ -395,7 +405,11 @@ _OWN_ATTRS = frozenset(
         "featureType",
         "data_mode",
         "oceanarray_version",
-        "oceanarray_commit",
+        "oceanarray_commit",  # development builds before 0.6.1; never carried over
+        *(f"source_{f}" for f in attribution.CITATION_FIELDS),
+        "source_note",
+        "citation",
+        "references",
         "people_not_cleaned",
         *attribution.PI_ATTRS.values(),
         *attribution.CONTRIBUTOR_ATTRS.values(),
@@ -603,6 +617,7 @@ def concat(
             for ds in stacks
             for v in ds.variables
             if v not in _LEVEL_COORDS
+            and not sensors.is_record(v)
             and "time" not in ds[v].dims
             and ds[v].dims in ((), ("N_LEVELS",))
         }
@@ -612,6 +627,30 @@ def concat(
         first = next(ds[var] for ds in stacks if var in ds.variables)
         data_vars[var] = xr.Variable(
             ("N_LEVELS",), _join_level_values(parts, sizes), attrs=dict(first.attrs)
+        )
+    # Each deployment's sensor records, named with its deployment code so an
+    # instrument recalibrated between deployments keeps a record per deployment;
+    # the level links follow the new names.
+    renamed: list[dict[str, str]] = []
+    codes = [_deployment_code(ds) for ds in stacks]
+    if "" in codes or len(set(codes)) < len(codes):
+        # Two deployments in one month, or one without a deployment time: the
+        # deployment names keep the records apart.
+        codes = [re.sub(r"\W+", "_", n) for n in names]
+    for ds, code in zip(stacks, codes, strict=True):
+        names_k = {}
+        for rec, attrs in sensors.records(ds).items():
+            names_k[rec] = f"{rec}_{code}" if code else rec
+            data_vars[names_k[rec]] = xr.Variable((), np.int8(0), attrs=attrs)
+        renamed.append(names_k)
+    if "sensor" in data_vars:
+        offsets = np.cumsum([0, *sizes])
+        links = np.array(data_vars["sensor"].values, dtype=object)
+        for k, names_k in enumerate(renamed):
+            for j in range(offsets[k], offsets[k + 1]):
+                links[j] = names_k.get(str(links[j]), str(links[j]))
+        data_vars["sensor"] = xr.Variable(
+            ("N_LEVELS",), links, attrs=dict(data_vars["sensor"].attrs)
         )
     data_vars["deployment"] = xr.Variable(
         ("N_LEVELS",), deployment, {"long_name": "index into DEPLOYMENT of this level"}
@@ -799,8 +838,28 @@ def concat(
                 ]
             )
     if sources is not None:
-        data_vars["source_file"] = _deployment_var([f for f, _ in sources])
-        data_vars["source_sha256"] = _deployment_var([h for _, h in sources])
+        data_vars["stack_file"] = _deployment_var(
+            [f for f, _ in sources],
+            {
+                "long_name": "the deployment's stack file, relative to the site directory"
+            },
+        )
+        data_vars["stack_sha256"] = _deployment_var(
+            [h for _, h in sources], {"long_name": "SHA-256 of the stack file"}
+        )
+    # Where each deployment's data came from (its stack's source_*), always one
+    # value per deployment; the joined, de-duplicated lists go in the globals.
+    for key in attribution.SOURCE_ATTRS:
+        values = [str(ds.attrs.get(key) or "") for ds in stacks]
+        if any(values):
+            data_vars[f"deployment_{key}"] = _deployment_var(values)
+    # Deployments may come from different packages (DOIs differ by year); only a
+    # second license draws a warning, since a user must follow each.
+    joined_sources = attribution.join_sources(
+        [ds.attrs for ds in stacks],
+        what=f"{name}: the deployments",
+        warn=("source_license",),
+    )
 
     out = xr.Dataset(
         data_vars,
@@ -838,6 +897,21 @@ def concat(
     finite_lons = [v for v in lons if v is not None]
     out.attrs.update(shared)
     out.attrs.update(attribution.to_attrs(attribution.union(people)))
+    out.attrs.update(joined_sources)
+    out.attrs.update(
+        attribution.product_citation(
+            f"{name} site stack",
+            provenance.version_attrs()[provenance.VERSION_ATTR],
+            attribution.deployment_sources(
+                {},
+                {
+                    k: v.values
+                    for k, v in data_vars.items()
+                    if k.startswith("deployment_source_")
+                },
+            ),
+        )
+    )
     out.attrs.update(
         {
             "site_name": name,
@@ -915,15 +989,6 @@ def own_levels(ds: xr.Dataset) -> np.ndarray:
     """
     counts = ds["deployment_index"].values.astype(np.int64)[:, None]
     return (counts >= 0) & (cell_deployment(ds) == counts)
-
-
-def sha256(path: Path) -> str:
-    """Return the SHA-256 of a file."""
-    digest = hashlib.sha256()
-    with Path(path).open("rb") as fh:
-        for chunk in iter(lambda: fh.read(1 << 20), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
 
 
 #: Seconds per chunk along time in the site stack file: about one year.

@@ -8,7 +8,7 @@ files. :class:`MooringProcessor` reads each instrument's raw file, calls
 
 import logging
 import warnings
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any
 
@@ -22,7 +22,7 @@ from oceanarray.exceptions import MooringError
 from oceanarray.instruments import extract_inline_instruments, instrument_entries
 from oceanarray.logger import with_stage_handlers
 from oceanarray.paths import safe_serial, should_skip_regeneration
-from oceanarray.pipeline import _stage, attribution
+from oceanarray.pipeline import _stage, attribution, sensors
 from oceanarray.pipeline.raw_files import read_raw_file, resolve_raw_file
 from oceanarray.pipeline.read_mooring import join_raw
 from oceanarray.pipeline.units import UnitsError, to_canonical_units
@@ -526,32 +526,97 @@ def _apply_analog_and_unit_hygiene(
     return dataset
 
 
-def _add_people(dataset: xr.Dataset) -> xr.Dataset:
-    """Add the people an imported file names, cleaned per OceanSITES 1.4, with a history line."""
+def _people_counts(people: Mapping[str, str]) -> str:
+    """Return ``"<n> PI, <m> contributor entries"`` for a people-attribute mapping."""
+    n_pi = (
+        len(people["principal_investigator"].split(", "))
+        if people.get("principal_investigator")
+        else 0
+    )
+    n_c = (
+        len(people["contributor_name"].split("; "))
+        if "contributor_name" in people
+        else 0
+    )
+    return f"{n_pi} PI, {n_c} contributor entries"
+
+
+def _cleaned(
+    read: Callable[[], dict[str, str]], label: str
+) -> tuple[dict[str, str], int]:
+    """Return *read*'s people, logging each warning the reading raised, and their count."""
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
-        people = attribution.clean(dataset.attrs)
+        people = read()
     for w in caught:
-        log.warning(f"  people: {w.message}")
-    dataset.attrs.update(people)
-    has_originator = any(k.startswith("originator_") for k in dataset.attrs)
-    if has_originator:
-        n_pi = (
-            len(people.get("principal_investigator", "").split(", "))
-            if people.get("principal_investigator")
-            else 0
+        log.warning(f"  people ({label}): {w.message}")
+    return people, len(caught)
+
+
+def _add_people(dataset: xr.Dataset, mooring: Mapping[str, Any]) -> xr.Dataset:
+    """Add the people the file names, cleaned per OceanSITES 1.4, else the description's ``people:``.
+
+    The file's own lists win: the description's block is used only when the file
+    names no one (RODB headers carry no people), and is ignored, with a warning,
+    when the file names someone. Either way a history line says where they came from.
+    """
+    people, n_warn = _cleaned(lambda: attribution.clean(dataset.attrs), "file")
+    block = mooring.get("people")
+    if people and block:
+        log.warning(
+            "  people: the file names its own people; the mooring YAML people: block "
+            "is not used for this instrument"
         )
-        n_c = (
-            len(people["contributor_name"].split("; "))
-            if "contributor_name" in people
-            else 0
+    elif not people and block:
+        people, n_warn = _cleaned(
+            lambda: attribution.people_from_block(block), "mooring YAML"
         )
+        dataset.attrs.update(people)
         _stage.append_history(
             dataset,
-            f"people: cleaned per OceanSITES 1.4 from originator_* ({n_pi} PI, "
-            f"{n_c} contributor entries; {len(caught)} warning"
-            f"{'' if len(caught) == 1 else 's'})",
+            f"people: from the mooring YAML ({block.get('people_source') or 'no people_source given'}; "
+            f"{_people_counts(people)}; {n_warn} warning{'' if n_warn == 1 else 's'})",
         )
+        return dataset
+    dataset.attrs.update(people)
+    if any(k.startswith("originator_") for k in dataset.attrs):
+        _stage.append_history(
+            dataset,
+            f"people: cleaned per OceanSITES 1.4 from originator_* ({_people_counts(people)}; "
+            f"{n_warn} warning{'' if n_warn == 1 else 's'})",
+        )
+    return dataset
+
+
+def _add_source(dataset: xr.Dataset, mooring: Mapping[str, Any]) -> xr.Dataset:
+    """Add ``source_*`` (DOI, citation, license, acknowledgement, references) for the data.
+
+    Field by field: the file's own value (its ``originator_*``) is kept; the
+    description's ``source:`` block fills the fields the file lacks; a field both give
+    keeps the file's value, with a warning.
+    """
+    block = mooring.get("source")
+    out, both = attribution.source_attrs(dataset.attrs, block)
+    for message in both:
+        log.warning(f"  {message}")
+    if not out:
+        return dataset
+    dataset.attrs.update(out)
+    own = [
+        f
+        for f in attribution.CITATION_FIELDS
+        if f"source_{f}" in out and dataset.attrs.get(f"originator_{f}")
+    ]
+    given = [
+        f for f in attribution.CITATION_FIELDS if f"source_{f}" in out and f not in own
+    ]
+    parts = []
+    if own:
+        parts.append(f"{', '.join(own)} from the file")
+    if given:
+        note = (block or {}).get("source_note") or "no source_note given"
+        parts.append(f"{', '.join(given)} from the mooring YAML ({note})")
+    _stage.append_history(dataset, f"source: {'; '.join(parts)}")
     return dataset
 
 
@@ -580,12 +645,20 @@ def _stage1_instrument(
 
     dataset = _rename_sensor_vars(dataset, entry)
     dataset = _drop_file_type_variables(dataset, file_type)
+    # One sensor record per instrument, from the file and the instrument entry.
+    dataset = sensors.build_record(
+        dataset,
+        entry,
+        safe_serial(entry.get("serial", "")),
+        maker="Sea-Bird Scientific" if file_type.startswith("sbe") else None,
+    )
     dataset = _add_global_attributes(dataset, mooring)
     dataset = _add_sources(dataset, mooring)
     dataset = _add_instrument_metadata(dataset, entry, mooring)
     # The people an imported file names, cleaned once, here (its originator_*
     # stay as given).
-    dataset = _add_people(dataset)
+    dataset = _add_people(dataset, mooring)
+    dataset = _add_source(dataset, mooring)
     dataset = _apply_analog_and_unit_hygiene(dataset, entry)
 
     # A file whose units attribute is known to be wrong is corrected from the

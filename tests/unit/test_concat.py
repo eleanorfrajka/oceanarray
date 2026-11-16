@@ -237,10 +237,10 @@ def test_the_file_verb_writes_the_stackcat_and_its_cruises(site):
     assert out == site / "egM2" / "egM2_stackcat.nc"
     with xr.open_dataset(out, engine="netcdf4") as ds:
         assert ds.attrs["oceanarray_version"]
-        assert all(len(h) == 64 for h in ds["source_sha256"].values)
+        assert all(len(h) == 64 for h in ds["stack_sha256"].values)
         assert list(ds["deployment_cruise"].values) == ["DY054", "AR30-03"]
         assert list(ds["recovery_cruise"].values) == ["MSM74", "AR46"]
-        assert list(ds["source_file"].values) == [
+        assert list(ds["stack_file"].values) == [
             "../egM2_2016/egM2_2016_stack.nc",
             "../egM2_2018/egM2_2018_stack.nc",
         ]

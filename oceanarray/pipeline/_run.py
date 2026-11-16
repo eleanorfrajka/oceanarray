@@ -45,8 +45,13 @@ def run(
 
     :func:`oceanarray.process` writes the stage files; the stack is built from
     every instrument's stage-3 file and written as ``<name>_stack.nc``, then
-    gridded onto pressure levels as ``<name>_grid.nc``. The stack and grid are
-    rebuilt on every call, so they always match the stage files.
+    gridded onto pressure levels as ``<name>_grid.nc``. An existing stack is kept
+    when it is still current: the same stage files (by SHA-256), the same settings
+    for the stack, the same mooring-level fields and the same oceanarray release
+    built it; an existing grid is kept when it was built from that stack with the
+    same levels and ``mask_flags``. Otherwise each is rebuilt, and its history says
+    why. ``force=True`` rebuilds both; use it after updating oceanarray from a git
+    checkout without a new version, which the comparison does not see.
 
     Parameters
     ----------
@@ -68,7 +73,8 @@ def run(
         Run stages 1–3 for these instruments only; the stack still takes every
         instrument's stage-3 file.
     force : bool, optional
-        Rewrite stage files that already exist (see :func:`oceanarray.process`).
+        Rewrite stage files that already exist (see :func:`oceanarray.process`), and
+        rebuild the stack and grid even when they are current.
     keep_going : bool, optional
         Default True: stages 1–3 carry on past failures, and the stack takes each
         instrument's stage-3 file, else its stage-2 file (recorded per level in
@@ -175,6 +181,7 @@ def run(
                     else None
                 ),
                 failures=outcome.failures,
+                force=force,
             )
         except Exception:
             # Whatever stopped the run, a product built from the old stage files no
@@ -207,6 +214,8 @@ def run(
                 pmax=settings["pmax"],
                 dp=settings["dp"],
                 mask_flags=flags,
+                stack_path=stack_path,
+                force=force,
             )
         except ValueError as e:
             if not keep_going:

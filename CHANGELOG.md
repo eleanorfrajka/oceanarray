@@ -12,13 +12,17 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 - `oceanarray concat` / `oa.concat` join one site's deployment stacks by depth into `<site>_stackcat.nc`, with a Stack cat report page (#135).
 - Stage 1 writes an imported file's principal investigators and contributors as OceanSITES lists; the stack and Stack cat join them (#135).
 - `writers.write(chunks=)` sets the chunk length along a dimension (#135).
-- Every file names the oceanarray that wrote it (`oceanarray_version`, `oceanarray_commit`, `stage<n>_oceanarray_version`); units changes are recorded in `units_converted` (#135).
+- Every file names the oceanarray that wrote it (`oceanarray_version`, `+g<hash>` from a checkout; `stage<n>_oceanarray_version`) and its units changes (`units_converted`) (#135).
 - `oceanarray concat` also grids the Stack cat, one mooring per profile, into `<site>_gridcat.nc` with a Grid cat report page; `--no-grid` skips it.
 - `mask_flags` (API, `grid: mask_flags` in the YAML, `--mask-flags` on `run` and `concat`): the QC flags left out before gridding, recorded as `grid_mask_flags`.
 - `<field>_source` in the mooring YAML (waterdepth, deployment/recovery time, latitude, longitude) is written beside the field in every file and in the Stack cat's deployment record.
 - `oceanarray -q` / `-v` set the console log level (warnings only / debug); each run ends with a per-mooring warning summary, also written to `processing_logs/<name>_summary.json`.
 - Stage 2 warns when a record starts well after deployment or ends well before recovery (more than 5 % of the planned window), naming the gap.
 - `thermistor` is a known instrument type (OceanSITES "MT" files).
+- `people:` and `source:` blocks in the mooring YAML give the people, DOI, citation, license and acknowledgement that data files do not; the file's own values win.
+- Every product keeps where its data came from (`source_*`; per deployment in the Stack cat, whose Deployments table links each DOI) and has its own `citation` and `references`.
+- One OG1-style sensor record per instrument (`SENSOR_<type>_<serial>`, MicroCATs `SENSOR_CTD_…`) with each sensor's calibration; data variables name it in `sensor`.
+- `run` keeps a stack and grid that are still current and says why it rebuilds; stacks and grids record their input files' SHA-256.
 
 ### Changed
 
@@ -32,6 +36,8 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 - Site time means are summed in float64.
 - Minimum matplotlib raised to 3.10 (the by-deployment speed panel uses `boxplot(orientation=)`, added in 3.10).
 - The Stack cat's depth columns are named for what they are: dimension `N_DEPTHS`, `depth_index`, `nominal_depth`, `depth_family`, `depth_match_value`, `depth_tolerance`, `overlap_depth_index`; the YAML keys are `stack: depth_match` / `depth_tolerance_m`.
+- Numbers in global attributes (`dp_dbar`, `p_start_dbar`, `dt_seconds` ...) are stored as `float32` / `int32` like the variables; positions stay double.
+- Report pages list principal-investigator and contributor email, url and id under People & institutions.
 - Pipeline progress goes to stderr via standard logging (one line per step; `-v` for per-instrument detail); a command's result still goes to stdout.
 
 ### Deprecated
@@ -41,6 +47,7 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Breaking changes
 
+- Raw Sea-Bird stage files hold one `SENSOR_<type>_<serial>` record instead of `SENSOR_TEMP_` / `_CNDC_` / `_PRES_<serial>`.
 - Grids change: velocity flagged 3 (suspect) is kept unless `mask_flags` says otherwise (the default leaves out 4 and 9), and current speed and direction come from the gridded east and north velocity.
 
 ### Fixed

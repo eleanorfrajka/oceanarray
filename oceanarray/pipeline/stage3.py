@@ -66,7 +66,7 @@ from oceanarray.instruments import instrument_entries
 from oceanarray.location import parse_latlon_with_source
 from oceanarray.logger import with_stage_handlers
 from oceanarray.paths import safe_serial
-from oceanarray.pipeline import _stage
+from oceanarray.pipeline import _stage, sensors
 from oceanarray.pipeline.calibration import CALDIP_STUB_APPLIED
 from oceanarray.pipeline.coordinate import (
     apply_beam_to_enu,
@@ -490,6 +490,8 @@ def _stage3_instrument(
     ds = drop_all_zero_vars(ds, ["amplitude_beam", "analog_input_"])
     # Canonical units on everything stage 3 derived (salinity, ENU velocities, oxygen).
     ds = to_canonical_units(ds, stage=3)
+    # Salinity, ENU velocities, oxygen saturation: measured by the same instrument.
+    ds = sensors.link_derived(ds)
     log.info(f"{info['serial']}: {'; '.join(qc_summary)}")
     return ds
 

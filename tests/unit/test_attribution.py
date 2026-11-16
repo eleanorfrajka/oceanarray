@@ -35,7 +35,7 @@ def test_a_title_after_a_name_is_not_a_person():
     assert out["contributor_role"] == "originator; PI; Data Processor"
 
 
-def test_the_publisher_is_a_contributor_with_one_slot_per_role():
+def test_the_publisher_is_a_contributor_with_one_entry_per_role():
     """WHOI CF7 2020: Adam Houk as publisher and as processor, two entries."""
     out = _clean(_OSNAP / "OS_OSNAP_WHOI_CF7_202007_CM_500m.nc")
     # "data processing and interpretation" is two roles: two entries.
@@ -43,7 +43,7 @@ def test_the_publisher_is_a_contributor_with_one_slot_per_role():
     assert out["contributor_role"] == "publisher; PI; data processing; interpretation"
 
 
-def test_every_parallel_list_has_one_entry_per_slot():
+def test_every_parallel_list_has_one_entry_per_person():
     """The Scripps file has no contributor emails: empty entries keep the count."""
     out = _clean(_OSNAP / "CF7_MCTD_2020_22225_50m.nc")
     n = len(out["contributor_name"].split("; "))
@@ -51,9 +51,9 @@ def test_every_parallel_list_has_one_entry_per_slot():
         assert len(out[attr].split("; ")) == n
 
 
-def test_a_role_that_does_not_pair_is_left_out():
-    """GEOMAR K7 2014: one role for two contributors is given to neither."""
-    with pytest.warns(UserWarning, match="1 entries for 2 names; left out"):
+def test_one_role_for_two_contributors_goes_to_the_first():
+    """GEOMAR K7 2014: one role for two contributors goes to the first; the second is blank."""
+    with pytest.warns(UserWarning, match="1 role for 2 names; given to the first name"):
         people = attribution.people_from_attrs(
             read_oceansites(
                 _OSNAP
@@ -62,10 +62,15 @@ def test_a_role_that_does_not_pair_is_left_out():
             prefix="originator_",
         )
     out = attribution.to_attrs(attribution.union([people]))
-    # Marilena Oltmanns's blank-role entry merges into her publisher entry.
-    assert out["contributor_name"] == "Marilena Oltmanns; Johannes Karstensen"
-    assert out["contributor_role"] == "publisher; "
-    assert out["contributor_email"] == "moltmanns@geomar.de; jkarstensen@geomar.de"
+    # Johannes Karstensen takes the role, which names two ("data collection and
+    # processing"); Marilena Oltmanns's blank one merges into her publisher entry.
+    assert out["contributor_name"] == (
+        "Marilena Oltmanns; Johannes Karstensen; Johannes Karstensen"
+    )
+    assert out["contributor_role"] == "publisher; data collection; processing"
+    assert out["contributor_email"] == (
+        "moltmanns@geomar.de; jkarstensen@geomar.de; jkarstensen@geomar.de"
+    )
 
 
 def test_each_field_is_split_on_its_own_separator():

@@ -27,7 +27,7 @@ from oceanarray.config import parameters as params
 from oceanarray.instruments import instrument_entries
 from oceanarray.mooring import DEPLOYMENT_CODE_PATTERN
 from oceanarray.paths import safe_serial
-from oceanarray.pipeline import attribution
+from oceanarray.pipeline import attribution, sensors
 from oceanarray.pipeline.calibration import CALDIP_STUB_APPLIED
 from oceanarray.pipeline.stage1 import ADCP_BIN_DIM
 from oceanarray.readers.oceansites import OCEANSITES_VARIABLES
@@ -207,20 +207,32 @@ def _data_modes(ds: xr.Dataset, entry: Mapping, names: list[str]) -> dict[str, s
 
 
 def _sensor_attrs(ds: xr.Dataset, name: str, start: str, end: str) -> dict[str, str]:
-    """Return the ``sensor_*`` attributes (manual §2.5) for variable *name*."""
+    """Return the ``sensor_*`` attributes (manual §2.5) for variable *name*.
+
+    Read from the instrument's sensor record (the ``SENSOR_*`` variable the data
+    variable's ``sensor`` attribute names): model, maker, serial and the calibration
+    date of the sensor that measured *name* (else the record's latest). The model is
+    ``UNK`` when nothing states it.
+    """
+    # Its own record, or the file's one record for a variable derived at stage 3.
+    record = sensors.record_of(ds, name)
+    if not record:
+        # A file written before sensor records: its per-sensor variables.
+        for var in ds.variables.values():
+            if _SENSOR_VARIABLES.get(str(var.attrs.get("sensor_type", ""))) == name:
+                record = dict(var.attrs)
     attrs = {
-        "sensor_model": str(ds.attrs.get("source", ds.attrs.get("instrument", ""))),
-        "sensor_serial_number": str(ds.attrs.get("serial", "")),
+        "sensor_model": str(record.get("sensor_model") or "UNK"),
+        "sensor_serial_number": str(
+            record.get("sensor_serial_number") or ds.attrs.get("serial", "")
+        ),
     }
-    for var in ds.variables.values():
-        meta = var.attrs
-        if _SENSOR_VARIABLES.get(str(meta.get("sensor_type", ""))) == name:
-            attrs["sensor_model"] = str(meta.get("sensor_model", attrs["sensor_model"]))
-            attrs["sensor_serial_number"] = str(
-                meta.get("sensor_serial_number", attrs["sensor_serial_number"])
-            )
-            if "sensor_calibration_date" in meta:
-                attrs["sensor_calibration_date"] = str(meta["sensor_calibration_date"])
+    if record.get("sensor_maker"):
+        attrs["sensor_manufacturer"] = str(record["sensor_maker"])
+    dates = {row["sensor"]: row["date"] for row in sensors.calibration_rows(record)}
+    date = dates.get(name) or record.get("sensor_calibration_date")
+    if date and date != "—":
+        attrs["sensor_calibration_date"] = str(date)
     attrs["sensor_mount"] = "mounted_on_mooring_line"
     attrs["sensor_data_start_date"] = start
     attrs["sensor_data_end_date"] = end

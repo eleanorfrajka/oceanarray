@@ -9,10 +9,11 @@ from pathlib import Path
 import numpy as np
 import xarray as xr
 
-from oceanarray import logger, paths
+from oceanarray import logger, paths, provenance
 from oceanarray.config import parameters as params
+from oceanarray.pipeline import _stage, attribution
 from oceanarray.pipeline._run import DEFAULTS
-from oceanarray.pipeline.concat import chunks, is_site_stack, own_levels, sha256
+from oceanarray.pipeline.concat import chunks, is_site_stack, own_levels
 from oceanarray.pipeline.units import to_canonical_units
 from oceanarray.writers import write
 from oceanarray.writers.netcdf import as_stored
@@ -359,6 +360,19 @@ def grid(
     )
     if site:
         ds_out.attrs.update(_slope_attrs(ds_out, slope_angle))
+    # The grid's own citation, built from the sources it was derived from (each
+    # deployment's, on a site grid).
+    record = {
+        v: ds[v].values for v in ds.data_vars if v.startswith("deployment_source_")
+    }
+    ds_out.attrs.pop("references", None)
+    ds_out.attrs.update(
+        attribution.product_citation(
+            f"{ds.attrs.get('mooring_name', '')} {'site grid' if site else 'grid'}".strip(),
+            provenance.version_attrs()[provenance.VERSION_ATTR],
+            attribution.deployment_sources(ds.attrs, record),
+        )
+    )
 
     return as_stored(to_canonical_units(ds_out, stage="grid"))
 
@@ -453,6 +467,59 @@ def _slope_attrs(ds: xr.Dataset, slope_angle: float | None) -> dict[str, object]
     }
 
 
+def grid_stale_reason(
+    grid_path: Path,
+    stack_path: Path,
+    *,
+    pmin: float,
+    pmax: float,
+    dp: float,
+    mask_flags: Mapping[str, Iterable[int]] | None = None,
+) -> str | None:
+    """Return why the grid at *grid_path* must be rebuilt, or None when it is current.
+
+    The grid is current when it was built from the stack now on disk (same SHA-256),
+    with the same pressure levels and ``mask_flags``, by the same oceanarray release
+    (the commit is ignored).
+
+    Parameters
+    ----------
+    grid_path : pathlib.Path
+        The existing ``<name>_grid.nc``.
+    stack_path : pathlib.Path
+        The stack it would be built from.
+    pmin, pmax, dp : float
+        The pressure levels the new grid would use, in dbar.
+    mask_flags : Mapping, optional
+        The flags the new grid would leave out (see :func:`resolve_mask_flags`).
+
+    Returns
+    -------
+    str or None
+        The first reason found, in words, or None.
+    """
+    if not grid_path.exists():
+        return "no grid yet"
+    with xr.open_dataset(grid_path, engine="netcdf4") as old:
+        attrs = dict(old.attrs)
+    if (reason := provenance.release_change_reason(attrs)) is not None:
+        return reason
+    if attrs.get("stack_sha256") != provenance.sha256(stack_path):
+        return f"{stack_path.name} changed"
+    key = provenance.changed_attr(
+        attrs,
+        {"p_start_dbar": float(pmin), "p_end_dbar": float(pmax), "dp_dbar": float(dp)},
+    )
+    if key is not None:
+        return f"{key} changed"
+    flags = resolve_mask_flags(mask_flags)
+    if attrs.get("grid_mask_flags") != json.dumps(
+        {k: list(v) for k, v in flags.items()}
+    ):
+        return "mask_flags changed"
+    return None
+
+
 def _grid_file(
     ds_stack: xr.Dataset,
     mooring: dict,
@@ -462,12 +529,30 @@ def _grid_file(
     pmax: float,
     dp: float,
     mask_flags: Mapping[str, Iterable[int]] | None = None,
+    stack_path: Path | None = None,
+    force: bool = True,
 ) -> Path:
-    """Grid *ds_stack* and write ``<name>_grid.nc``; return its path."""
+    """Grid *ds_stack* and write ``<name>_grid.nc``; return its path.
+
+    With *stack_path*, the grid records the stack's file name and SHA-256; with
+    ``force=False`` too, an existing grid that is still current
+    (:func:`grid_stale_reason`) is kept.
+    """
+    out_path = paths.product_file(mooring_dir, mooring["name"], "grid")
+    reason = "rebuild forced"
+    if stack_path is not None and not force:
+        reason = grid_stale_reason(
+            out_path, stack_path, pmin=pmin, pmax=pmax, dp=dp, mask_flags=mask_flags
+        )
+        if reason is None:
+            log.info("%s: grid current (%s)", mooring["name"], out_path.name)
+            return out_path
     ds = grid(ds_stack, pmin=pmin, pmax=pmax, dp=dp, mask_flags=mask_flags)
-    return write(
-        ds, paths.product_file(mooring_dir, mooring["name"], "grid"), overwrite=True
-    )
+    if stack_path is not None:
+        ds.attrs["stack_file"] = Path(stack_path).name
+        ds.attrs["stack_sha256"] = provenance.sha256(stack_path)
+        _stage.append_history(ds, f"grid rebuilt: {reason}")
+    return write(ds, out_path, overwrite=True)
 
 
 def site_levels(ds: xr.Dataset, dp: float) -> tuple[float, float]:
@@ -616,7 +701,7 @@ def grid_site(
     except ValueError as exc:
         raise MooringError(f"{site}: cannot grid the site stack: {exc}") from exc
     out.attrs["stackcat_file"] = stackcat.name
-    out.attrs["stackcat_sha256"] = sha256(stackcat)
+    out.attrs["stackcat_sha256"] = provenance.sha256(stackcat)
     write(out, out_path, overwrite=overwrite, chunks=chunks(out))
     log.info(f"wrote {out_path}")
     return out_path
