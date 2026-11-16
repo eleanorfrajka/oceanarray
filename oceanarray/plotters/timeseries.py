@@ -48,7 +48,13 @@ from oceanarray.reports._vendored import design_tokens as report_tokens
 
 from ..config import parameters as params
 from ..config.unit_tables import unit_label
-from .helpers import DEPLOYMENT_BOUNDARY, OKABE_ITO, grid_despine, level_line_styles
+from .helpers import (
+    DEPLOYMENT_BOUNDARY,
+    OKABE_ITO,
+    grid_despine,
+    level_line_styles,
+    masked,
+)
 from .primitives import (
     colorbar_norm,
     date_axis,
@@ -711,9 +717,8 @@ def draw_stack_timeseries(
     The rows share the time axis and one instrument colour scheme (that of
     *color_var*, deep-first; see :func:`~oceanarray.plotters.helpers.level_line_styles`),
     so a colour tracks an instrument through every row, and one legend on the
-    right lists the instruments plotted. Values whose QC flag is in
-    :data:`~oceanarray.config.parameters.QC_BAD_FLAGS` are left out; nominal (7)
-    and interpolated (8) values are kept. Long records are thinned to about 5000
+    right lists the instruments plotted. Values the stack's ``mask_flags`` rule
+    hides (ours or the originator's flag; default 4) are left out. Long records are thinned to about 5000
     points per line; the time axis spans ``time_coverage_start`` to
     ``time_coverage_end`` when the stack records them.
 
@@ -767,9 +772,7 @@ def draw_stack_timeseries(
     )
     handles: dict = {}
     for ax, (var, ylabel, invert, exclude) in zip(axs[:, 0], rows, strict=True):
-        values = ds[var].values.copy()
-        if f"{var}_qc" in ds.data_vars:
-            values[np.isin(ds[f"{var}_qc"].values, params.QC_BAD_FLAGS)] = np.nan
+        values = masked(ds, var)
         for i, serial in enumerate(serials):
             if exclude and types[i] in exclude:
                 continue

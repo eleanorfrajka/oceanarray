@@ -29,6 +29,7 @@ from oceanarray.mooring import DEPLOYMENT_CODE_PATTERN
 from oceanarray.paths import safe_serial
 from oceanarray.pipeline import attribution, sensors
 from oceanarray.pipeline.calibration import CALDIP_STUB_APPLIED
+from oceanarray.pipeline.qc.originator import MAPPED_SUFFIX
 from oceanarray.pipeline.stage1 import ADCP_BIN_DIM
 from oceanarray.readers.oceansites import OCEANSITES_VARIABLES
 
@@ -40,12 +41,10 @@ PARAMETER_CODES: dict[str, str] = {
     name: code for code, name in OCEANSITES_VARIABLES.items()
 }
 
-#: Reference table 2, as oceanarray's own flags already carry it (5 and 6 unused).
-QC_FLAG_VALUES = np.array([0, 1, 2, 3, 4, 7, 8, 9], dtype="int8")
-QC_FLAG_MEANINGS = (
-    "unknown good_data probably_good_data potentially_correctable_bad_data "
-    "bad_data nominal_value interpolated_value missing_value"
-)
+#: Reference table 2 as oceanarray carries it, with its one extension: 5
+#: (value_changed), the originator's QC modified the value; 6 unused.
+QC_FLAG_VALUES = params.QC_FLAG_VALUES_I8
+QC_FLAG_MEANINGS = params.QC_FLAG_MEANINGS
 
 #: Data modes this package can claim (reference table 4); ``R`` is real-time
 #: telemetry, which a recovered instrument never is.
@@ -256,9 +255,9 @@ def _as_levels(da: xr.DataArray) -> np.ndarray:
 def _flags(ds: xr.Dataset, name: str, values: np.ndarray) -> np.ndarray:
     """Return the ``(time, level)`` flags of *name*: its stage-3 flags, 9 where missing.
 
-    An ADCP's seabed flag is kept apart from the velocity flags in stage 3
-    (``seabed_qc``); OceanSITES has one flag per value, so for the velocities the
-    worse of the two is written.
+    OceanSITES has one flag per value, so the worse of ours and the originator's
+    (translated to our table) is written; likewise an ADCP's seabed flag, kept
+    apart from the velocity flags in stage 3 (``seabed_qc``).
     """
     if f"{name}_qc" in ds:
         flags = np.broadcast_to(_as_levels(ds[f"{name}_qc"]), values.shape).astype(
@@ -266,6 +265,11 @@ def _flags(ds: xr.Dataset, name: str, values: np.ndarray) -> np.ndarray:
         )
     else:
         flags = np.zeros(values.shape, dtype="int8")
+    if f"{name}{MAPPED_SUFFIX}" in ds:
+        theirs = np.broadcast_to(
+            _as_levels(ds[f"{name}{MAPPED_SUFFIX}"]), values.shape
+        ).astype("int8")
+        flags = _worst(flags, theirs).astype("int8")
     if "seabed_qc" in ds and name in _SEABED_VARIABLES:
         # Only a failed or suspect seabed test is merged in: a passed one must not
         # promote an unchecked (0) value to good.
@@ -276,17 +280,16 @@ def _flags(ds: xr.Dataset, name: str, values: np.ndarray) -> np.ndarray:
 
 def _qc_variable(flags: np.ndarray, long_name: str) -> xr.DataArray:
     """Return a ``<PARAM>_QC`` variable on ``(TIME, DEPTH)``."""
-    return xr.DataArray(
-        flags,
-        dims=("TIME", "DEPTH"),
-        attrs={
-            "long_name": f"quality flag of {long_name}",
-            "conventions": "OceanSITES QC Flags",
-            "flag_values": QC_FLAG_VALUES,
-            "flag_meanings": QC_FLAG_MEANINGS,
-            "coordinates": "TIME DEPTH LATITUDE LONGITUDE",
-        },
-    )
+    attrs = {
+        "long_name": f"quality flag of {long_name}",
+        "conventions": "OceanSITES QC Flags",
+        "flag_values": QC_FLAG_VALUES,
+        "flag_meanings": QC_FLAG_MEANINGS,
+        "coordinates": "TIME DEPTH LATITUDE LONGITUDE",
+    }
+    if np.any(flags == 5):
+        attrs["comment"] = params.QC_FLAG_5_COMMENT
+    return xr.DataArray(flags, dims=("TIME", "DEPTH"), attrs=attrs)
 
 
 def _first(mooring: Mapping, *keys: str) -> str | None:

@@ -273,7 +273,7 @@ def records(ds: xr.Dataset) -> dict[str, dict[str, Any]]:
 def _links(var: xr.DataArray) -> bool:
     """Return whether *var* is a data variable that names its sensor record."""
     return "time" in var.dims and not str(var.name).endswith(
-        ("_qc", "_qc_originator", "_flag")
+        ("_qc", "_qc_originator", "_qc_originator_mapped", "_flag")
     )
 
 

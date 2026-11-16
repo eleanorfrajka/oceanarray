@@ -16,7 +16,7 @@ from oceanarray.instruments import instrument_entries
 from oceanarray.paths import should_skip_regeneration
 
 from ..paths import safe_serial
-from . import _figdebug, _masthead
+from . import _figdebug, _masthead, _qcflags
 from ._breadcrumb import crumbs_from_ctx
 from ._env import render_template
 from ._grid import generate_grid_page
@@ -910,6 +910,7 @@ class MooringReport:
             "duration": _format_duration(deploy_dt, recover_dt),
             "waterdepth": waterdepth if waterdepth is not None else "—",
             "instruments": instruments,
+            "qc_threshold_note": _qcflags.threshold_note(cfg),
             "timing_mode": _timing_mode(instruments),
             # Optional report sections turned on in the config. A standalone mooring
             # report resolves from the mooring YAML (the strongest level reachable here).

@@ -800,20 +800,6 @@ def derive_oxygen_saturation(ds: xr.Dataset) -> xr.Dataset:
     )
 
 
-def _apply_qc_mask(src_v: np.ndarray, ds: xr.Dataset, vname: str) -> np.ndarray:
-    """Return src_v with flagged values replaced by NaN."""
-    qc_name = f"{vname}_qc"
-    if qc_name not in ds.data_vars:
-        return src_v
-    qc = ds[qc_name].values
-    # Keep 0 (no QC), 1 (good), 2 (probably good), plus 8 (interpolated) for pressure
-    # only; 3 (suspect), 4 (bad) and 9 (missing) become NaN.
-    keep = np.isin(qc, [0, 1, 2, 8]) if vname == "pressure" else np.isin(qc, [0, 1, 2])
-    out = src_v.copy()
-    out[~keep] = np.nan
-    return out
-
-
 def _worst_flag(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     """Element-wise worst QC flag on the OceanSITES priority ordering."""
     # rank[flag_value] gives priority; higher rank = worse flag. Weakest to strongest:

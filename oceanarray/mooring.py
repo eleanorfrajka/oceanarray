@@ -126,12 +126,13 @@ DEPLOYMENT_CODE_PATTERN = r"\d{4}(0[1-9]|1[0-2])"
 
 #: The keys each optional settings block may hold, and whether the value must be
 #: an integer (True), any non-negative number (False), one of a few words (a
-#: tuple) or a flag list (None: ``grid: mask_flags``, checked by the gridder).
+#: tuple) or a flag list (None: ``stack:`` / ``grid: mask_flags``, checked as a rule).
 _SETTINGS_KEYS: dict[str, dict[str, bool | tuple[str, ...] | None]] = {
     "stack": {
         "dt_seconds": True,
         "depth_match": ("depth", "hab"),
         "depth_tolerance_m": False,
+        "mask_flags": None,
     },
     "grid": {"pmin": False, "pmax": False, "dp": False, "mask_flags": None},
 }
@@ -774,7 +775,7 @@ def _check_settings(data: Mapping) -> list[ValidationIssue]:
                 continue
             integer = allowed[key]
             if integer is None:
-                from oceanarray.pipeline.grid import resolve_mask_flags
+                from oceanarray.pipeline.masking import resolve_mask_flags
 
                 try:
                     resolve_mask_flags(setting)
@@ -824,6 +825,17 @@ def _check_settings(data: Mapping) -> list[ValidationIssue]:
                         "ERROR", f"'grid: pmax' ({p1}) must be above pmin ({p0})."
                     )
                 )
+    grid_block = data.get("grid")
+    if isinstance(grid_block, Mapping) and grid_block.get("mask_flags") is not None:
+        from oceanarray.pipeline import masking
+
+        try:
+            masking.combine(
+                masking.stack_rule(data),
+                masking.resolve_mask_flags(grid_block["mask_flags"]),
+            )
+        except ValueError as exc:
+            issues.append(ValidationIssue("ERROR", f"grid: {exc}."))
     return issues
 
 
@@ -1047,12 +1059,13 @@ def _format_optional_blocks() -> str:
             "optional: uncomment to change the stack and grid settings",
             "stack:",
             f"  dt_seconds: {st['dt_seconds']:g}  # time step of the stack, seconds",
+            f"  mask_flags: {list(params.MASK_FLAGS)}  # flags hidden from the pages "
+            "and the grid; or {default: [4], velocity: [3, 4]}",
             "grid:",
             f"  pmin: {gr['pmin']:g}  # shallowest grid level, dbar",
             f"  pmax: {gr['pmax']:g}  # deepest grid level, dbar",
             f"  dp: {gr['dp']:g}  # grid spacing, dbar",
-            f"  mask_flags: {list(params.GRID_MASK_FLAGS)}  # QC flags left out "
-            "before gridding; or {default: [4, 9], velocity: [3, 4, 9]}",
+            "  # mask_flags: [3, 4]  # the grid may leave out more than the stack hides",
             "",
             "optional: who and where the data came from, for files that do not say",
             "people:  # used when the data files name no one",

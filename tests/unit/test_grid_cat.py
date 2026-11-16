@@ -76,10 +76,10 @@ def egm2(tmp_path_factory) -> Path:
 
 
 def test_mask_flags_default_list_and_exceptions():
-    assert resolve_mask_flags() == {"default": (4, 9)}
+    assert resolve_mask_flags() == {"default": (4,)}
     assert resolve_mask_flags([3, 4, 9]) == {"default": (3, 4, 9)}
     assert resolve_mask_flags({"velocity": [3, 4, 9], "dissolved_oxygen": (4, 3)}) == {
-        "default": (4, 9),
+        "default": (4,),
         "velocity": (3, 4, 9),
         "dissolved_oxygen": (3, 4),
     }
@@ -90,9 +90,9 @@ def test_mask_flags_default_list_and_exceptions():
     [
         ({"temperatur": [4]}, "is not a variable"),
         ({"east_velocity": [4]}, "share one key, 'velocity'"),
-        ([4, 5], "not an OceanSITES flag value"),
+        ([4, 6], "not a flag value"),
         ("4,9", "expected a list"),
-        ([True], "not an OceanSITES flag value"),
+        ([True], "not a flag value"),
     ],
 )
 def test_mask_flags_refused(value, match):
@@ -133,11 +133,14 @@ def test_the_cli_refuses_a_key_given_twice(capsys):
 
 
 def test_the_call_then_the_yaml_then_the_default():
+    from oceanarray.pipeline.masking import stack_rule
+
     cfg = mooring.load(_FIX / "egM2_concat" / "egM2_2018" / "egM2_2018.mooring.yaml")
-    assert resolve_grid_mask_flags(cfg) == {"default": (4, 9)}
-    cfg["grid"]["mask_flags"] = {"velocity": [3, 4, 9]}
-    assert resolve_grid_mask_flags(cfg)["velocity"] == (3, 4, 9)
-    assert resolve_grid_mask_flags(cfg, [9]) == {"default": (9,)}
+    assert stack_rule(cfg) == {"default": (4,)}
+    cfg["stack"] = {**(cfg.get("stack") or {}), "mask_flags": {"velocity": [3, 4]}}
+    assert stack_rule(cfg)["velocity"] == (3, 4)
+    assert stack_rule(cfg, [9]) == {"default": (9,)}
+    assert resolve_grid_mask_flags(cfg) is None
     cfg["grid"]["mask_flags"] = {"velocty": [3]}
     with pytest.raises(MooringError, match="description's grid: block"):
         resolve_grid_mask_flags(cfg)
@@ -156,9 +159,9 @@ def test_masked_flags_leave_the_grid_and_are_recorded(flmb):
     """FLMB 2016's velocity is flagged 1 or 9: masking 1 leaves no velocity to grid."""
     kept = _quiet(grid, flmb[0], pmin=1000, pmax=2000, dp=100)
     assert "east_velocity" in kept
-    assert json.loads(kept.attrs["grid_mask_flags"]) == {"default": [4, 9]}
+    assert json.loads(kept.attrs["grid_mask_flags"]) == {"default": [4]}
     gone = _quiet(
-        grid, flmb[0], pmin=1000, pmax=2000, dp=100, mask_flags={"velocity": [1, 9]}
+        grid, flmb[0], pmin=1000, pmax=2000, dp=100, mask_flags={"velocity": [1, 4, 9]}
     )
     assert "east_velocity" not in gone
     np.testing.assert_array_equal(gone["temperature"], kept["temperature"])

@@ -104,8 +104,11 @@ stack's time step, ``deployment_index`` and the ``DEPLOYMENT`` record. The
 settings come from the call (``--pmin``, ``--pmax``, ``--dp``, ``--mask-flags``,
 ``--slope-angle``), not from the deployments' YAMLs, and are recorded in the file.
 
-Before gridding, values whose QC flag is in ``mask_flags`` are left out (default 4
-and 9 for every variable; ``velocity=3,4,9`` adds suspect velocity). The
+The site stack takes the deployments' ``mask_flags`` rule; when they differ,
+``--mask-flags`` must give the site's (each deployment's own stays in
+``deployment_stack_mask_flags``). A deployment without the originator's flags reads 0
+where it has values. Before gridding, values the rule hides are left out (default 4;
+``velocity=3,4`` adds suspect velocity). The
 along-slope direction is ``--slope-angle``, else the direction of the record-mean,
 depth-mean velocity, used only when the flow is steady enough to have one (the
 speed of the mean daily velocity over the mean daily speed at least 0.3; otherwise

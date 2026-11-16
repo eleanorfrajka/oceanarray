@@ -24,7 +24,6 @@ from oceanarray.instruments import instrument_entries
 from oceanarray.pipeline import stack as st
 from oceanarray.pipeline.dataset import time_axis, time_step_seconds
 from oceanarray.pipeline.pressure import _times_to_float
-from oceanarray.pipeline.qc import _apply_qc_mask
 from oceanarray.pipeline.read_mooring import read_mooring
 
 _FIX = Path(__file__).parent.parent / "fixtures" / "proc" / "dune2_1_2026"
@@ -82,8 +81,6 @@ def _loop_nearest(ds: xr.Dataset, common_time: np.ndarray, half_window_s: float)
             result[vname] = np.full(n, np.nan)
             continue
         src_v = ds[vname].values.astype(np.float64)
-        if vname not in st._STACK_RAW:
-            src_v = _apply_qc_mask(src_v, ds, vname)
         out = np.full(n, np.nan)
         for i, (t_tgt, k) in enumerate(zip(tgt_t, idx, strict=False)):
             best_dt = np.inf
@@ -260,9 +257,7 @@ def test_a_sample_half_a_step_from_two_steps_lands_on_one(stage3, cfg):
     assert mid.sizes["time"] > 100  # hourly samples at hh:30:00
     common = _axis(cfg, 3600)
     out = st._nearest_subsample(mid, common, 1800.0)["temperature"]
-    src_v = _apply_qc_mask(
-        mid["temperature"].values.astype(np.float64), mid, "temperature"
-    )
+    src_v = mid["temperature"].values.astype(np.float64)
     by_time = dict(zip(mid["time"].values.tolist(), src_v.tolist(), strict=True))
     half = np.timedelta64(1800, "s")
     for k, t in enumerate(common):

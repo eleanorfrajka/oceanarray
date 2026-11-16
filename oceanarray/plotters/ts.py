@@ -13,6 +13,7 @@ from oceanarray.reports._vendored import design_tokens as report_tokens
 
 from ..config import parameters as params
 from .helpers import QC_MARKER as _QC_MARKER
+from .helpers import masked
 from .primitives import colorbar_norm, plot_title, square_axes_grid, unit_colorbar
 
 if TYPE_CHECKING:
@@ -326,8 +327,8 @@ def draw_stack_ts_diagram(
     ``apparent_oxygen_utilization`` is present in *ds* (written by stage3 for
     instruments with dissolved oxygen data).
 
-    QC masking: values flagged 3, 4 or 9 (``parameters.QC_BAD_FLAGS``) are
-    excluded; nominal and interpolated values (flags 7, 8) are kept.
+    QC masking: on a stack, values its ``mask_flags`` rule hides are left out; on
+    an instrument file, values flagged 3, 4 or 9 (``parameters.QC_BAD_FLAGS``).
 
     Parameters
     ----------
@@ -346,22 +347,16 @@ def draw_stack_ts_diagram(
     if "temperature" not in ds.data_vars or "salinity" not in ds.data_vars:
         return None
 
-    T_all = ds["temperature"].values.copy().astype(float)
-    S_all = ds["salinity"].values.copy().astype(float)
-    if "temperature_qc" in ds.data_vars:
-        T_all[np.isin(ds["temperature_qc"].values, params.QC_BAD_FLAGS)] = np.nan
-    if "salinity_qc" in ds.data_vars:
-        S_all[np.isin(ds["salinity_qc"].values, params.QC_BAD_FLAGS)] = np.nan
+    T_all = masked(ds, "temperature")
+    S_all = masked(ds, "salinity")
 
     T_flat = T_all.ravel()
     S_flat = S_all.ravel()
 
-    # Pressure: keep flags 7/8 (nominal, interpolated); only QC_BAD_FLAGS excluded.
+    # Pressure: nominal and interpolated values (7, 8) are kept.
     P_flat: np.ndarray | None = None
     if "pressure" in ds.data_vars:
-        P_arr = ds["pressure"].values.astype(float)
-        if "pressure_qc" in ds.data_vars:
-            P_arr[np.isin(ds["pressure_qc"].values, params.QC_BAD_FLAGS)] = np.nan
+        P_arr = masked(ds, "pressure")
         P_flat = P_arr.ravel()
 
     finite = np.isfinite(T_flat) & np.isfinite(S_flat)
@@ -702,8 +697,8 @@ def draw_ts_by_deployment(
     deployment's medians in pressure order (levels within
     :data:`TS_COLOCATED_DBAR` averaged): a guide to the eye along the profile, not
     interpolated data. Two consecutive deployments share a color; the second has
-    dashed outlines and line and a square marker. Values flagged 3, 4 or 9
-    (``parameters.QC_BAD_FLAGS``) are left out. A shift between the deployments at
+    dashed outlines and line and a square marker. Values the Stack cat's
+    ``mask_flags`` rule hides are left out. A shift between the deployments at
     the same depth is what this panel is for.
 
     Parameters
@@ -735,11 +730,8 @@ def draw_ts_by_deployment(
     needed = ("temperature", "salinity", "cell_deployment", "deployment_name")
     if any(v not in ds.variables for v in needed):
         return None
-    T = ds["temperature"].values.astype(float)
-    S = ds["salinity"].values.astype(float)
-    for var, arr in (("temperature", T), ("salinity", S)):
-        if f"{var}_qc" in ds.data_vars:
-            arr[np.isin(ds[f"{var}_qc"].values, params.QC_BAD_FLAGS)] = np.nan
+    T = masked(ds, "temperature")
+    S = masked(ds, "salinity")
     P = (
         ds["pressure"].values.astype(float)
         if "pressure" in ds and ds["pressure"].shape == T.shape
@@ -843,8 +835,8 @@ def draw_ts_points_by_deployment(
 
     At most :data:`TS_MAX_POINTS` values per deployment, picked at random with a
     fixed seed (:data:`TS_POINTS_SEED`), so years of hourly values do not bury one
-    another and the page is the same each time it is drawn. Values flagged 3, 4 or
-    9 (``parameters.QC_BAD_FLAGS``) are left out. Deployments are drawn in
+    another and the page is the same each time it is drawn. Values the Stack cat's
+    ``mask_flags`` rule hides are left out. Deployments are drawn in
     random order, point by point, so none sits on top of all the others.
 
     Parameters
@@ -875,11 +867,8 @@ def draw_ts_points_by_deployment(
     needed = ("temperature", "salinity", "cell_deployment", "deployment_name")
     if any(v not in ds.variables for v in needed):
         return None
-    T = ds["temperature"].values.astype(float)
-    S = ds["salinity"].values.astype(float)
-    for var, arr in (("temperature", T), ("salinity", S)):
-        if f"{var}_qc" in ds.data_vars:
-            arr[np.isin(ds[f"{var}_qc"].values, params.QC_BAD_FLAGS)] = np.nan
+    T = masked(ds, "temperature")
+    S = masked(ds, "salinity")
     names = short_names([str(n) for n in ds["deployment_name"].values])
     n_dep = len(names)
     cell_dep = ds["cell_deployment"].values
@@ -944,8 +933,8 @@ def draw_ts_medians(
     """Median T and S of each instrument in each deployment, with interquartile whiskers.
 
     One point per depth and deployment of a concatenated stack, in the deployment's
-    color (Okabe-Ito). Values flagged 3, 4 or 9 (``parameters.QC_BAD_FLAGS``) are
-    left out.
+    color (Okabe-Ito). Values the Stack cat's ``mask_flags``
+    rule hides are left out.
 
     Parameters
     ----------
@@ -970,10 +959,7 @@ def draw_ts_medians(
         return None
     arrays = {}
     for var in ("temperature", "salinity"):
-        arr = ds[var].values.astype(float)
-        if f"{var}_qc" in ds.data_vars:
-            arr[np.isin(ds[f"{var}_qc"].values, params.QC_BAD_FLAGS)] = np.nan
-        arrays[var] = arr
+        arrays[var] = masked(ds, var)
     names = [str(n) for n in ds["deployment_name"].values]
     n_dep = len(names)
     cell_dep = ds["cell_deployment"].values

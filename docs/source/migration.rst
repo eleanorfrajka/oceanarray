@@ -4,7 +4,7 @@
 Older upgrades: 0.4 to 0.5, and the ``--basedir`` layout
 ========================================================
 
-For 0.5 to 0.6, see :doc:`migrating_0_6_0`.
+For 0.6.0 to 0.6.1, see :doc:`migrating_0_6_1`. For 0.5 to 0.6, see :doc:`migrating_0_6_0`.
 
 ----
 

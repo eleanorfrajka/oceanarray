@@ -440,6 +440,13 @@ def _make_grid_rotary_spectrum_b64(
     return render_b64(draw_grid_rotary_spectrum, ds, lat, optional=True)
 
 
+def _make_flag_strip_b64(ds: xr.Dataset) -> str | None:
+    """Return base64 PNG: the quality-flag strip of a stack or Stack cat."""
+    from oceanarray.plotters.flags import draw_flag_strip
+
+    return render_slot(draw_flag_strip, ds, slot="full", optional=True)
+
+
 def _make_stack_ts_diagram_b64(ds: xr.Dataset) -> str | None:
     """Return base64 PNG: T-S diagram for a stacked dataset."""
     return render_b64(draw_stack_ts_diagram, ds, optional=True)

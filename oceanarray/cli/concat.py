@@ -24,6 +24,7 @@ def cmd_concat(args: argparse.Namespace) -> int:
             out_dir=args.output_dir,
             overwrite=args.force,
             dry_run=args.dry_run,
+            mask_flags=mask_flags,
         )
         gridded = None
         if not args.no_grid and not args.dry_run:
@@ -32,7 +33,6 @@ def cmd_concat(args: argparse.Namespace) -> int:
                 pmin=args.pmin,
                 pmax=args.pmax,
                 dp=args.dp,
-                mask_flags=mask_flags,
                 slope_angle=args.slope_angle,
                 overwrite=args.force,
             )

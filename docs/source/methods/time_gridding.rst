@@ -86,8 +86,18 @@ Variables stacked
 Temperature, salinity, conductivity, pressure, the velocities and their direction
 and speed, heading, pitch and roll, turbidity and oxygen, with their QC flags, when
 an instrument has them (``stack.STACK_VARS``); a level without a variable is NaN
-there. Values flagged 3, 4 or 9 are left out at this step, except velocity and
-orientation, which keep their flags for the grid's ``mask_flags``.
+there. Every value is kept, flagged or not, with two flag sets from the same
+sample: ours (``<var>_qc``) and the originator's translated to our table
+(``<var>_qc_originator_mapped``). A level with a value but no flag variable gets 0
+(not QC'd); a step with no value gets 9 (missing), so a present value is never 9.
+
+``stack: mask_flags`` (default 4; ``--mask-flags``) decides what the stack and Stack
+cat pages hide and the grid leaves out: a value is hidden when either of its flags is
+in the rule. It is recorded as ``stack_mask_flags``. The velocity components are one
+measurement: a flag in the rule on any of them (ours or the originator's, or
+``velocity_flag``) hides all of them at that step, so a page never shows a speed or
+direction built from one good and one bad component. The potential density and
+``tilt_from_pressure`` use only values the rule does not hide.
 
 Potential density
 -----------------

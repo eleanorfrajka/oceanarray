@@ -58,6 +58,46 @@ DEPLOYMENT_LINESTYLES: tuple[str, ...] = ("-", "--", ":", "-.")
 PROFILE_MIN_FRACTION: float = 0.5
 
 
+def ruled(ds: xr.Dataset) -> bool:
+    """Return whether *ds* records a ``mask_flags`` rule (a stack or Stack cat)."""
+    from oceanarray.pipeline.masking import STACK_ATTR
+
+    return STACK_ATTR in ds.attrs
+
+
+def masked(ds: xr.Dataset, var: str) -> np.ndarray:
+    """Return a float copy of ``ds[var]`` with the values a page does not show as NaN.
+
+    A stack or Stack cat hides what its rule says (``stack_mask_flags``: ours or
+    the originator's flag in the rule; see
+    :func:`oceanarray.pipeline.masking.masked`); any other file (an instrument
+    file, a grid) hides values whose ``<var>_qc`` is in
+    ``parameters.QC_BAD_FLAGS``.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The dataset a figure draws.
+    var : str
+        The data variable.
+
+    Returns
+    -------
+    numpy.ndarray
+        The values, NaN where hidden.
+    """
+    if ruled(ds):
+        from oceanarray.pipeline import masking
+
+        return masking.masked(ds, var)
+    from oceanarray.config import parameters as params
+
+    values = ds[var].values.astype(float)
+    if f"{var}_qc" in ds.data_vars:
+        values[np.isin(ds[f"{var}_qc"].values, params.QC_BAD_FLAGS)] = np.nan
+    return values
+
+
 def deployment_steps(ds: xr.Dataset, k: int) -> int:
     """Return the number of time steps of deployment *k* in a concatenated stack.
 
@@ -399,6 +439,7 @@ QC_COLORS: dict[int, str] = {
     2: "#a8e6cf",
     3: "#f39c12",
     4: "#e74c3c",
+    5: "#e67e22",
     7: "#9b59b6",
     8: "#3498db",
     9: "#bdc3c7",

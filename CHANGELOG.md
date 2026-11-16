@@ -14,7 +14,12 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 - `writers.write(chunks=)` sets the chunk length along a dimension (#135).
 - Every file names the oceanarray that wrote it (`oceanarray_version`, `+g<hash>` from a checkout; `stage<n>_oceanarray_version`) and its units changes (`units_converted`) (#135).
 - `oceanarray concat` also grids the Stack cat, one mooring per profile, into `<site>_gridcat.nc` with a Grid cat report page; `--no-grid` skips it.
-- `mask_flags` (API, `grid: mask_flags` in the YAML, `--mask-flags` on `run` and `concat`): the QC flags left out before gridding, recorded as `grid_mask_flags`.
+- `stack: mask_flags` (default 4; `--mask-flags`): what the stack pages hide and the grid leaves out, recorded as `stack_mask_flags`; `grid: mask_flags` may only add.
+- Originator flags are translated to our table by meaning into `<var>_qc_originator_mapped`, with the dictionary per level; a `<CODE>_flag` is read when there is no `<CODE>_QC`.
+- Flag 5 `value_changed` (oceanarray's one extension to OceanSITES 1.4): an originator flag saying its QC modified the value.
+- A Quality flags section on the stack and Stack cat pages: counts per level (ours, the originator's, hidden by the rule), a flag strip, and the flag translation table.
+- Each QC'd variable gets `processing_level` (OceanSITES reference table 3); interpolated pressure records its inputs' flags in `pressure_source_flags`.
+- Stacks record the settings that built them (the step used, the settings blocks, the instruments) as YAML text in `deployment_settings` (#134).
 - `<field>_source` in the mooring YAML (waterdepth, deployment/recovery time, latitude, longitude) is written beside the field in every file and in the Stack cat's deployment record.
 - `oceanarray -q` / `-v` set the console log level (warnings only / debug); each run ends with a per-mooring warning summary, also written to `processing_logs/<name>_summary.json`.
 - Stage 2 warns when a record starts well after deployment or ends well before recovery (more than 5 % of the planned window), naming the gap.
@@ -47,8 +52,11 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Breaking changes
 
+- The stack keeps every value with ours and the originator's flags; suspect (3) values are shown and gridded by default (`stack: mask_flags: [3, 4]` keeps the old way).
+- In the stack and Stack cat a value with no flag variable is 0 (not QC'd) and a missing one 9; flags are int8.
+- Interpolated pressure never uses an input flagged 4 or 9; such times are missing (9), not interpolated.
 - Raw Sea-Bird stage files hold one `SENSOR_<type>_<serial>` record instead of `SENSOR_TEMP_` / `_CNDC_` / `_PRES_<serial>`.
-- Grids change: velocity flagged 3 (suspect) is kept unless `mask_flags` says otherwise (the default leaves out 4 and 9), and current speed and direction come from the gridded east and north velocity.
+- Grids change: velocity flagged 3 (suspect) is kept unless `mask_flags` says otherwise (the default leaves out 4), and current speed and direction come from the gridded east and north velocity.
 
 ### Fixed
 
@@ -83,7 +91,6 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 - Reports of moorings built from imported OceanSITES / RODB files: no failed panels, a "Current meter" label, a timing table that fits (#130).
 - `n_records_without_time`: every reader drops records with no time and counts them (#128, #131).
 - `location.parse_coordinate` (#132).
-- Stacks record the settings that built them (the step used, the settings blocks, the instruments) as YAML text in `deployment_settings` (#134).
 - A migration page, *Upgrading from 0.5 to 0.6* (#118).
 
 ### Changed

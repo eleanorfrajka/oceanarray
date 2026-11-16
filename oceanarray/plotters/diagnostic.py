@@ -1725,7 +1725,9 @@ def draw_instrument_spacing(
         return None
     # The spacing axis is labelled dbar; it is a difference of pressures.
     warn_if_not_canonical(ds["pressure"], "dbar", quantity="instrument spacing (dbar)")
-    pressure = ds["pressure"].values  # (time, N_LEVELS)
+    from .helpers import masked
+
+    pressure = masked(ds, "pressure")  # (time, N_LEVELS); hidden values NaN
     with np.errstate(all="ignore"):
         median = np.nanmedian(pressure, axis=0)  # NaN when a level is fully gapped
     ordered = pressure[:, np.argsort(median)]

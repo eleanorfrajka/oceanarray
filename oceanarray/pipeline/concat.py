@@ -12,7 +12,7 @@ import logging
 import os
 import re
 import warnings
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 
 import numpy as np
@@ -23,8 +23,9 @@ from oceanarray import paths, provenance
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
 from oceanarray.location import parse_coordinate
-from oceanarray.pipeline import attribution, sensors
+from oceanarray.pipeline import attribution, masking, sensors
 from oceanarray.pipeline.dataset import time_axis
+from oceanarray.pipeline.qc.originator import MAPPED_SUFFIX
 from oceanarray.provenance import sha256
 from oceanarray.writers import write
 
@@ -33,7 +34,7 @@ log = logging.getLogger(__name__)
 #: Per-level coordinates every stack carries (``N_LEVELS``).
 _LEVEL_COORDS = ("serial", "hab", "instrument_type", "source_stage")
 #: Flag written outside a deployment's own steps (OceanSITES "missing value").
-_QC_MISSING = 9
+_QC_MISSING = params.QC_MISSING
 
 
 def _stack_settings(ds: xr.Dataset) -> dict:
@@ -411,6 +412,7 @@ _OWN_ATTRS = frozenset(
         "citation",
         "references",
         "people_not_cleaned",
+        masking.STACK_ATTR,
         *attribution.PI_ATTRS.values(),
         *attribution.CONTRIBUTOR_ATTRS.values(),
     }
@@ -424,6 +426,7 @@ def concat(
     overlap: str = "newer",
     sources: Sequence[tuple[str, str]] | None = None,
     descriptions: Sequence[Mapping] | None = None,
+    mask_flags: Iterable[int] | Mapping[str, Iterable[int]] | None = None,
 ) -> xr.Dataset:
     """Join one site's deployment stacks end to end on one time axis, by depth.
 
@@ -457,6 +460,10 @@ def concat(
     descriptions : sequence of Mapping, optional
         Each deployment's mooring description, in the order of *stacks*: its
         cruises and ships go into the ``DEPLOYMENT`` record.
+    mask_flags : iterable of int, or Mapping, optional
+        The Stack cat's rule (``stack_mask_flags``). By default the deployments'
+        rule, which must then be the same for all of them; each deployment's own is
+        kept in ``deployment_stack_mask_flags``.
 
     Returns
     -------
@@ -468,8 +475,9 @@ def concat(
     Raises
     ------
     MooringError
-        Fewer than two stacks, differing ``dt_seconds`` or depth-matching rules, or a time
-        axis not on whole steps.
+        Fewer than two stacks, differing ``dt_seconds`` or depth-matching rules,
+        differing ``mask_flags`` rules with none given, or a time axis not on whole
+        steps.
     """
     if len(stacks) < 2:
         raise MooringError("concat needs at least two deployment stacks.")
@@ -487,6 +495,20 @@ def concat(
     ]
     dt = _check_time_steps(stacks, names)
     reference, tolerance = _depth_rule(stacks, names)
+    own_rules = [masking.to_json(masking.from_attrs(ds.attrs)) for ds in stacks]
+    if mask_flags is not None:
+        try:
+            site_rule = masking.to_json(masking.resolve_mask_flags(mask_flags))
+        except ValueError as exc:
+            raise MooringError(f"{name}: {exc}") from exc
+    elif len(set(own_rules)) > 1:
+        raise MooringError(
+            f"{name}: the deployments hide different flags ("
+            + "; ".join(f"{n} {r}" for n, r in zip(names, own_rules, strict=True))
+            + "); give mask_flags (CLI --mask-flags) for the site."
+        )
+    else:
+        site_rule = own_rules[0]
 
     # The joined axis is the stack axis of the whole site window: every stack sits
     # on whole steps of the same dt, so each one's steps are a run of it.
@@ -563,7 +585,7 @@ def concat(
     flags = {
         v
         for v, da in first_of.items()
-        if da.dtype.kind in "iu" and v.endswith(("_qc", "_flag"))
+        if da.dtype.kind in "iu" and v.endswith(("_qc", "_flag", MAPPED_SUFFIX))
     }
     level_offset = np.cumsum([0, *sizes])
     grid = {
@@ -587,8 +609,25 @@ def concat(
         rows = slice(a, a + n)
         for v in ts_names:
             if v not in ds.data_vars:
-                continue
-            values = ds[v].transpose("time", "N_LEVELS").values
+                parents = (
+                    ["east_velocity", "north_velocity", "up_velocity"]
+                    if v == "velocity_flag"
+                    else [v.removesuffix(MAPPED_SUFFIX).removesuffix("_qc")]
+                )
+                parents = [p for p in parents if p in ds.data_vars]
+                if v not in flags or not parents:
+                    continue
+                # A deployment without this flag variable: 0 (not QC'd) where it
+                # has a value (any velocity component, for velocity_flag), 9 where
+                # it has none.
+                present = np.zeros((ds.sizes["time"], ds.sizes["N_LEVELS"]), dtype=bool)
+                for p in parents:
+                    present |= np.isfinite(ds[p].transpose("time", "N_LEVELS").values)
+                values = np.where(present, params.QC_NOT_EVALUATED, _QC_MISSING).astype(
+                    first_of[v].dtype
+                )
+            else:
+                values = ds[v].transpose("time", "N_LEVELS").values
             for j in range(sizes[k]):
                 lvl = level_offset[k] + j
                 s = depth_index[lvl]
@@ -625,9 +664,12 @@ def concat(
     for var in level_names:
         parts = [_per_level(ds, var) for ds in stacks]
         first = next(ds[var] for ds in stacks if var in ds.variables)
-        data_vars[var] = xr.Variable(
-            ("N_LEVELS",), _join_level_values(parts, sizes), attrs=dict(first.attrs)
-        )
+        joined = _join_level_values(parts, sizes)
+        if var.endswith(("_flag_translation", "_flag_translation_counts")):
+            # A deployment whose instruments had no originator flags.
+            empty = "none" if var.endswith("_translation") else "{}"
+            joined = np.where(joined == "", empty, joined)
+        data_vars[var] = xr.Variable(("N_LEVELS",), joined, attrs=dict(first.attrs))
     # Each deployment's sensor records, named with its deployment code so an
     # instrument recalibrated between deployments keeps a record per deployment;
     # the level links follow the new names.
@@ -763,6 +805,7 @@ def concat(
     data_vars.update(
         {
             "deployment_name": _deployment_var(names),
+            "deployment_stack_mask_flags": _deployment_var(own_rules),
             "deployment_time": _deployment_var(
                 [str(ds.attrs.get("deployment_time", "")) for ds in stacks]
             ),
@@ -896,6 +939,7 @@ def concat(
     finite_lats = [v for v in lats if v is not None]
     finite_lons = [v for v in lons if v is not None]
     out.attrs.update(shared)
+    out.attrs.pop("stack_mask_flag_sources", None)
     out.attrs.update(attribution.to_attrs(attribution.union(people)))
     out.attrs.update(joined_sources)
     out.attrs.update(
@@ -922,6 +966,8 @@ def concat(
             "depth_match": reference,
             "depth_tolerance_m": tolerance,
             "overlap_rule": overlap,
+            masking.STACK_ATTR: site_rule,
+            "stack_mask_flag_sources": masking.FLAG_SOURCES,
             "latitude": f"{np.nanmedian(finite_lats):.5f}" if finite_lats else "",
             "longitude": f"{np.nanmedian(finite_lons):.5f}" if finite_lons else "",
             "deployment_time": str(stacks[0].attrs.get("deployment_time", "")),
@@ -1029,6 +1075,7 @@ def concat_moorings(
     out_dir: str | Path | None = None,
     overwrite: bool = False,
     dry_run: bool = False,
+    mask_flags: Iterable[int] | Mapping[str, Iterable[int]] | None = None,
 ) -> Path:
     """Concatenate the stacks of the moorings named, and write the site stack.
 
@@ -1045,6 +1092,9 @@ def concat_moorings(
         Replace an existing site stack.
     dry_run : bool, optional
         Check and report, write nothing.
+    mask_flags : iterable of int, or Mapping, optional
+        The site's rule, needed when the deployments' rules differ (see
+        :func:`concat`).
 
     Returns
     -------
@@ -1089,7 +1139,13 @@ def concat_moorings(
             sources.append((Path(rel).as_posix(), sha256(stack_path)))
             cfgs.append(cfg)
         _check_people_cleaned(stacks, [c["name"] for c in cfgs])
-        ds = concat(stacks, name=name, sources=sources, descriptions=cfgs)
+        ds = concat(
+            stacks,
+            name=name,
+            sources=sources,
+            descriptions=cfgs,
+            mask_flags=mask_flags,
+        )
     if dry_run:
         log.info(
             "would write %s (%d steps × %d depths, %d levels, %d overlap steps)",

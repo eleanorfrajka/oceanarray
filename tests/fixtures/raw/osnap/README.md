@@ -9,6 +9,7 @@ global attributes are unchanged; only the time dimension is cut.
 | `OS_OSNAP_WHOI_CF7_202007_CM_500m.nc` | OceanSITES 1.3, no `_QC` variables | current meter | OSNAP, WHOI/SIO, mooring CF7 |
 | `OS_OSNAP-10633_KPO_1111_K7_201408_D_MCTD_OSNAPstyleOceanSITES.nc` | OceanSITES 1.3 with `_QC` variables lacking `flag_meanings`; `PRES_QC` = 8 (interpolated) | MicroCAT | OSNAP, GEOMAR, mooring KPO_1111, via PANGAEA doi:10.1594/PANGAEA.896648 (2018 release), CC-BY-4.0 |
 | `CF7_MCTD_2020_22225_50m.nc` | OSNAP netCDF, variables on `TIME`, `_QC` with `flag_meanings`; **`CNDC` labelled `S/m` but in mS/cm** | MicroCAT | OSNAP, Scripps, mooring CF7 |
+| `M2_MC_2018_2020_SN14644_2190m_cut.nc` | OSNAP netCDF, flags in `<CODE>_flag` (no `_QC`), the "appears_*" table; 190 records (2019-01-04/06) holding 1, 4, 5 (`modified_as_a_result_of_qc`) and 9 | MicroCAT | OSNAP, WHOI, mooring egM2 2018, s/n 14644, cut from `M2_MC_2018_2020_SN14644_2190m.nc` |
 | `rtwb1_01_2014_001.microcat` | RODB text; includes one `-9999` fill | MicroCAT | OSNAP, mooring rtwb1_01_2014 |
 | `rtwb1_01_2014_11021.edt` | RODB text; `MagDeviation` applied; includes a real `-9.0` velocity | current meter | OSNAP, mooring rtwb1_01_2014 |
 

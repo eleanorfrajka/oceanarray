@@ -2,13 +2,18 @@
 
 Originator-processed files (OceanSITES 1.3 and the OSNAP variant).  Known
 parameter codes (:data:`OCEANSITES_VARIABLES`) are renamed to oceanarray names;
-``<CODE>_QC`` companions are kept as ``<name>_qc_originator``.
+``<CODE>_QC`` companions are kept as ``<name>_qc_originator``; a file with no
+``<CODE>_QC`` but a ``<CODE>_flag`` flag variable (the OSNAP egM 2018 files) has that
+kept instead.
 """
 
+import logging
 from pathlib import Path
 
 import numpy as np
 import xarray as xr
+
+log = logging.getLogger(__name__)
 
 #: OceanSITES parameter codes → oceanarray registry names.  The QC companion
 #: ``<CODE>_QC`` is carried as ``<name>_qc_originator``.
@@ -36,11 +41,35 @@ OCEANSITES_FLAG_MEANINGS: str = (
 )
 
 
+def _usable_flag_variable(da: xr.DataArray, data: xr.DataArray) -> str | None:
+    """Return why a ``<CODE>_flag`` variable cannot be used as flags, or None."""
+    from oceanarray.pipeline.qc.originator import vocabulary
+
+    if da.dtype.kind not in "iuf":
+        return "not numeric"
+    if da.shape != data.shape:
+        return f"shape {da.shape} is not the data's {data.shape}"
+    if "flag_values" not in da.attrs or "flag_meanings" not in da.attrs:
+        return "no flag_values / flag_meanings"
+    meanings, unmapped = vocabulary()
+    unknown = [
+        w
+        for w in str(da.attrs["flag_meanings"]).lower().split()
+        if w not in meanings and w not in unmapped
+    ]
+    if unknown:
+        return f"flag words not in the meaning vocabulary: {' '.join(unknown)}"
+    return None
+
+
 def _originator_flags(da: xr.DataArray) -> xr.DataArray:
-    """Return an OceanSITES ``_QC`` variable as an originator flag variable."""
+    """Return an OceanSITES ``_QC`` (or ``_flag``) variable as originator flags."""
     vals = da.values
     flags = np.where(np.isfinite(vals), vals, 9).astype("int8")
-    attrs = {"long_name": f"originator QC flag ({da.name})"}
+    attrs = {
+        "long_name": f"originator QC flag ({da.name})",
+        "originator_flag_variable": str(da.name),
+    }
     if "flag_values" in da.attrs and "flag_meanings" in da.attrs:
         attrs["flag_values"] = np.asarray(da.attrs["flag_values"]).astype("int8")
         attrs["flag_meanings"] = str(da.attrs["flag_meanings"])
@@ -63,7 +92,10 @@ def read_oceansites(path: str | Path) -> xr.Dataset:
     on ``(TIME,)`` and position on ``DEPTH``.  Known parameter codes
     (:data:`OCEANSITES_VARIABLES`) are renamed to oceanarray names on a ``time``
     dimension, keeping the file's ``units`` string for the units pass to resolve.
-    ``<CODE>_QC`` variables become ``<name>_qc_originator``; each variable's
+    ``<CODE>_QC`` variables become ``<name>_qc_originator`` (or, with no
+    ``<CODE>_QC``, a ``<CODE>_flag`` that is a flag variable whose words are in the
+    meaning vocabulary; the source name is kept as ``originator_flag_variable``); each
+    variable's
     ``sensor_*`` attributes are kept as ``originator_sensor_*``.  The originator's
     global attributes are kept with an ``originator_`` prefix, and because CF
     ``eastward``/``northward_sea_water_velocity`` are geographic, a file with
@@ -126,6 +158,14 @@ def read_oceansites(path: str | Path) -> xr.Dataset:
         )
         out[name] = xr.DataArray(da.values, dims="time", attrs=attrs)
         qc = f"{code}_QC"
+        if qc not in src.data_vars and f"{code}_flag" in src.data_vars:
+            # Non-standard name (OSNAP egM 2018): used only when it is a real flag
+            # variable whose words we know.
+            why = _usable_flag_variable(src[f"{code}_flag"], src[code])
+            if why is None:
+                qc = f"{code}_flag"
+            else:
+                log.warning(f"  {path.name}: {code}_flag not used as flags: {why}")
         if qc in src.data_vars:
             qc_da = _squeeze_non_time(src[qc])
             out[f"{name}_qc_originator"] = _originator_flags(qc_da.rename(qc)).rename(

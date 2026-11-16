@@ -38,7 +38,8 @@ rewrites one older than its raw file) and the report pages keep one newer than i
 inputs; add ``--force`` to rewrite.  ``oceanarray run`` keeps a stack that is
 still current (the same stage files by SHA-256, the same settings for the stack and
 mooring fields, the same oceanarray release) and a grid built from that stack with
-the same levels and ``mask_flags``; otherwise it rebuilds them, and the history says
+the same levels and ``mask_flags`` (a different ``--mask-flags`` rebuilds the stack:
+it records the rule); otherwise it rebuilds them, and the history says
 why.  ``--force`` rebuilds them too.  A new oceanarray release rebuilds them, but a
 code change without a new version does not: after updating oceanarray from a git
 checkout (an editable install), run with ``--force`` to rebuild the stack and grid.
@@ -314,8 +315,9 @@ Writes ``<NAME>_stackcat.nc`` and ``<NAME>_gridcat.nc`` in their own folder, and
 their pages ``report/<NAME>_stackcat_report.html`` and
 ``report/<NAME>_gridcat_report.html`` (``--no-grid`` writes the Stack cat only).
 ``--pmin`` / ``--pmax`` default to the 5th percentile of the shallowest depth's
-pressure and the 95th of the deepest's, rounded outward to ``--dp`` (default 20); ``--mask-flags`` takes ``4,9`` for every variable and
-``VAR=3,4,9`` exceptions.  ``--report-dir`` says where
+pressure and the 95th of the deepest's, rounded outward to ``--dp`` (default 20). ``--mask-flags`` gives the site's rule
+(``4`` for every variable and ``VAR=3,4`` exceptions), needed when the deployments'
+rules differ; the Grid cat uses it.  ``--report-dir`` says where
 the deployments' own reports already are (``<DIR>/<deployment>``), for the page's
 links; it does not move where the page is written.
 
@@ -333,7 +335,7 @@ links; it does not move where the page is written.
 
    oceanarray concat egM2_2016 egM2_2018 --name egM2 --proc-dir /data/proc
    oceanarray concat egM2_2016 egM2_2018 --name egM2 --proc-dir /data/proc \
-       --dp 50 --mask-flags 4,9 velocity=3,4,9
+       --dp 50 --mask-flags 4 velocity=3,4
 
 ----
 

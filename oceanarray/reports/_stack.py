@@ -14,7 +14,8 @@ from oceanarray import logger, paths
 from oceanarray.paths import should_skip_regeneration
 
 from ..config import parameters as params
-from . import _masthead
+from ..pipeline import masking
+from . import _masthead, _qcflags
 from ._breadcrumb import crumbs_from_ctx
 from ._env import (
     render_history,
@@ -39,6 +40,7 @@ from ._plots import (
     _make_aquadopp_speed_profile_b64,
     _make_aquadopp_tilt_panels_b64,
     _make_clock_check_b64,
+    _make_flag_strip_b64,
     _make_instrument_spacing_b64,
     _make_multi_aquadopp_trajectories_b64,
     _make_rose_grid_b64,
@@ -139,6 +141,13 @@ STACK_CAPTIONS: dict[str, str] = {
         "One temperature trace per instrument, zoomed to the first and last "
         "30 min of the deployment, to check clock alignment across instruments."
     ),
+    "qc_strip": (
+        "Flags through time, one panel per instrument with anything flagged, a pair "
+        "of bars per flagged variable: the originator's (orig, translated to "
+        "oceanarray's table) above oceanarray's (OA), so a value one flagged and the other did not reads "
+        "straight down the pair. Instruments with nothing flagged are left out "
+        "(named under the table). 0: a value with no flag (not QC'd); 9: no value."
+    ),
 }
 
 
@@ -204,6 +213,12 @@ class StackContext:
     stage2_current_meters: list = field(default_factory=list)
     stage2_magnetic_north: list = field(default_factory=list)
     stage2_reason: str = ""
+    qc_rows: list = field(default_factory=list)
+    qc_rule: str = ""
+    qc_note: str | None = None  # None: not known (a Stack cat)
+    qc_tables: list = field(default_factory=list)
+    qc_unflagged: list = field(default_factory=list)
+    qc_quiet: int = 0
 
 
 def _fig(panel_id: str) -> Callable[[StackContext], str | None]:
@@ -337,6 +352,26 @@ STACK_PANELS: dict[str, Panel] = {
         applies_to=lambda c: c.n_instr > 1 and "pressure" in c.present_vars,
     ),
     "clock_check": _figure_panel("clock_check"),
+    "qc_counts": Panel(
+        "qc_counts",
+        render=lambda c: render_template(
+            "_qc_counts.html",
+            rows=c.qc_rows,
+            rule=c.qc_rule,
+            note=c.qc_note,
+            unflagged=c.qc_unflagged,
+            quiet=c.qc_quiet,
+        ),
+        kind="table",
+        applies_to=lambda c: bool(c.qc_rule),
+    ),
+    "qc_strip": _figure_panel("qc_strip", lambda c: bool(c.qc_rule)),
+    "qc_translation": Panel(
+        "qc_translation",
+        render=lambda c: render_template("_qc_translation.html", tables=c.qc_tables),
+        kind="table",
+        applies_to=lambda c: bool(c.qc_tables),
+    ),
     "nc_coords": Panel(
         "nc_coords",
         render=lambda c: render_nc_coords(c.nc_meta),
@@ -401,6 +436,11 @@ STACK_SECTIONS: dict[str, Section] = {
     ),
     "spacing": Section("spacing", "Adjacent instrument spacing", ("spacing",)),
     "clock_check": Section("clock_check", "Clock alignment check", ("clock_check",)),
+    "quality_flags": Section(
+        "quality_flags",
+        "Quality flags",
+        ("qc_counts", "qc_strip", "qc_translation"),
+    ),
     "netcdf_variables": Section(
         "netcdf_variables",
         "NetCDF variables",
@@ -419,8 +459,6 @@ STACK_SECTIONS: dict[str, Section] = {
 STACK_DEFAULT = Profile(
     numbering="flat",
     entries=(
-        STACK_SECTIONS["processing_history"],
-        STACK_SECTIONS["instruments"],
         STACK_SECTIONS["hydrography"],
         STACK_SECTIONS["velocity"],
         STACK_SECTIONS["turbidity"],
@@ -429,9 +467,12 @@ STACK_DEFAULT = Profile(
         STACK_SECTIONS["analog"],
         STACK_SECTIONS["ts_diagram"],
         STACK_SECTIONS["roses"],
+        STACK_SECTIONS["processing_history"],
+        STACK_SECTIONS["instruments"],
         STACK_SECTIONS["tilt"],
         STACK_SECTIONS["spacing"],
         STACK_SECTIONS["clock_check"],
+        STACK_SECTIONS["quality_flags"],
         STACK_SECTIONS["netcdf_variables"],
         STACK_SECTIONS["netcdf_attributes"],
     ),
@@ -612,6 +653,17 @@ def generate_stack_page(
             lambda: _make_clock_check_b64(_clock_nc_paths, _deploy_dt, _recover_dt)
         )
 
+        # The Quality flags section, from the file alone.
+        qc_ruled = masking.STACK_ATTR in ds.attrs
+        qc_rows, qc_unflagged, qc_quiet = (
+            _qcflags.count_rows(ds) if qc_ruled else ([], [], 0)
+        )
+        qc_tables = _qcflags.translation_tables(ds) if qc_ruled else []
+        fig_qc_strip_b64 = (
+            as_panel(lambda: _make_flag_strip_b64(ds)) if qc_ruled else None
+        )
+        qc_rule = _qcflags.rule_text(ds) if qc_ruled else ""
+
         # Capture the applies_to inputs before closing the dataset.
         present_vars = set(ds.data_vars)
         instr_types_set = {str(t).lower() for t in instr_types}
@@ -646,7 +698,14 @@ def generate_stack_page(
                     "tilt": fig_aquadopp_tilt_b64,
                     "spacing": fig_spacing_b64,
                     "clock_check": fig_clock_check_b64,
+                    "qc_strip": fig_qc_strip_b64,
                 },
+                qc_rows=qc_rows,
+                qc_rule=qc_rule,
+                qc_note=ctx.get("qc_threshold_note", ""),
+                qc_tables=qc_tables,
+                qc_unflagged=qc_unflagged,
+                qc_quiet=qc_quiet,
                 present_vars=present_vars,
                 instr_types=instr_types_set,
                 n_instr=n_instr,

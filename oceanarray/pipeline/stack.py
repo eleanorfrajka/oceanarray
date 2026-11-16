@@ -1,7 +1,7 @@
 """Stack all instruments on a mooring onto a common time axis (nearest sample per step)."""
 
 import logging
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 
 import numpy as np
@@ -14,10 +14,11 @@ from oceanarray.exceptions import MooringError
 from oceanarray.instruments import instrument_entries
 from oceanarray.location import parse_latlon
 from oceanarray.paths import safe_serial
-from oceanarray.pipeline import _stage, attribution, sensors
+from oceanarray.pipeline import _stage, attribution, masking, sensors
 from oceanarray.pipeline.dataset import drop_all_zero_vars, time_axis
 from oceanarray.pipeline.pressure import _times_to_float
-from oceanarray.pipeline.qc import _apply_qc_mask, _worst_flag
+from oceanarray.pipeline.qc import _worst_flag
+from oceanarray.pipeline.qc.originator import MAPPED_SUFFIX
 from oceanarray.pipeline.read_mooring import read_mooring
 from oceanarray.pipeline.units import UnitsError, to_canonical_units
 from oceanarray.writers import write
@@ -63,33 +64,19 @@ STACK_VARS = [
 ]
 
 
-# Variables passed through without QC masking at the stack step.
-# Velocity and orientation are kept at full precision so downstream users
-# (grid step, analysis) can apply their own masking via velocity_flag.
-# QC flag arrays never need masking (there is no companion *_qc_qc* variable).
-_STACK_RAW: frozenset = frozenset(
-    {
-        "east_velocity",
-        "north_velocity",
-        "up_velocity",
-        "current_speed",
-        "current_direction",
-        "velocity_beam1",
-        "velocity_beam2",
-        "velocity_beam3",
-        "heading",
-        "pitch",
-        "roll",
-        "east_velocity_qc",
-        "north_velocity_qc",
-        "up_velocity_qc",
-        "pitch_qc",
-        "roll_qc",
-        "percent_good_qc",
-        "error_velocity_qc",
-        "seabed_qc",
-    }
-)
+#: The originator's flags, translated to our table at stage 3, carried for each
+#: variable an originator file can hold (``<var>_qc_originator_mapped``).
+STACK_VARS += [f"{v}{MAPPED_SUFFIX}" for v in masking.FLAGGED_VARIABLES]
+
+
+def _is_flag(name: str) -> bool:
+    """Return whether a stack variable is a flag (``_qc`` or translated originator)."""
+    return name.endswith(("_qc", MAPPED_SUFFIX))
+
+
+def _flag_parent(name: str) -> str:
+    """Return the data variable a flag belongs to."""
+    return name.removesuffix(MAPPED_SUFFIX).removesuffix("_qc")
 
 
 def _sample_interval_s(time_vals: np.ndarray) -> float:
@@ -232,9 +219,8 @@ def _nearest_subsample(
     for vname in STACK_VARS:
         out = np.full(n, np.nan)
         if vname in ds.data_vars:
+            # Every value is kept; its flags ride beside it, from the same sample.
             src_v = ds[vname].values.astype(np.float64)
-            if vname not in _STACK_RAW:
-                src_v = _apply_qc_mask(src_v, ds, vname)
             out[hit] = src_v[idx[hit]]
         result[vname] = out
     return result
@@ -283,6 +269,7 @@ def stack(
     dt_seconds: int | None = None,
     omitted: list[str] | None = None,
     stage2_reason: str = "no stage-3 file",
+    mask_flags: Iterable[int] | Mapping[str, Iterable[int]] | None = None,
 ) -> xr.Dataset:
     """Stack a mooring's instruments onto a common time axis.
 
@@ -299,6 +286,15 @@ def stack(
     in ``instruments_omitted``. A level whose stage-3 ``magnetic_declination`` is
     ``"UNK"`` (no mooring position) gets NaN in the per-level
     ``magnetic_declination``, whose ``comment`` names those levels.
+
+    Every value is kept, flagged or not, with two flag sets beside it from the same
+    sample: ours (``<var>_qc``) and the originator's translated to our table
+    (``<var>_qc_originator_mapped``). A level with a value but no flag variable gets
+    0 (not QC'd); a step with no value gets 9 (missing). Each level records its
+    originator dictionary (``<var>_flag_translation``, ``_counts``; ``"none"``
+    without originator flags). The rule for what the pages hide and the grid leaves
+    out (*mask_flags*) is recorded as ``stack_mask_flags``; the potential density
+    and ``tilt_from_pressure`` use only values it does not hide.
 
     Parameters
     ----------
@@ -318,6 +314,10 @@ def stack(
     stage2_reason : str, optional
         Why any stage-2 datasets were stacked, recorded in ``stage2_reason`` and
         shown in the report's amber note (e.g. ``"stage 3 failed in this run"``).
+    mask_flags : iterable of int, or Mapping of str to iterable of int, optional
+        The flags hidden from the pages and left out of the grid
+        (:func:`oceanarray.pipeline.masking.resolve_mask_flags`); ``None`` takes
+        ``stack: mask_flags`` from *mooring*, else ``parameters.MASK_FLAGS`` (4).
 
     Returns
     -------
@@ -336,6 +336,10 @@ def stack(
     mooring_config = mooring
     mooring_name = mooring["name"]
     omitted = list(omitted or [])
+    try:
+        rule = masking.stack_rule(mooring, mask_flags)
+    except ValueError as exc:
+        raise MooringError(f"{mooring_name}: {exc}") from exc
 
     # The common time axis IS the deployment window, so stacking needs it.
     # Stage 2 writing a window detected from the records (when the YAML omits
@@ -533,6 +537,9 @@ def stack(
     # the record it came from (ADCP bins share their instrument's).
     sensor_records: dict[str, dict] = {}
     level_sensor: list[str] = []
+    # Per level: the originator's flag dictionary and its counts, for each variable.
+    mapped_vars = [v for v in STACK_VARS if v.endswith(MAPPED_SUFFIX)]
+    level_translation: dict[str, list[tuple[str, str]]] = {v: [] for v in mapped_vars}
     # Stage-3 time-series variables not in STACK_VARS are dropped here; collect
     # them so the operator is told rather than losing data silently (D2).
     dropped_ts_vars: set = set()
@@ -587,6 +594,8 @@ def stack(
             for lst in scalar_meta.values():
                 lst.append(None)
             level_sensor.append("")
+            for mv in mapped_vars:
+                level_translation[mv].append(("none", "{}"))
             continue
 
         interval_s = _sample_interval_s(ds["time"].values)
@@ -619,8 +628,18 @@ def stack(
             if not var_attrs[vname] and vname in ds.data_vars:
                 # One instrument's record name is not every level's: the stack
                 # names each level's record in sensor(N_LEVELS) instead.
+                # (processing_level and the pressure sources are per instrument too)
                 var_attrs[vname] = {
-                    k: v for k, v in ds[vname].attrs.items() if k != "sensor"
+                    k: v
+                    for k, v in ds[vname].attrs.items()
+                    if k
+                    not in (
+                        "sensor",
+                        "processing_level",
+                        "pressure_source",
+                        "pressure_source_serials",
+                        "pressure_source_flags",
+                    )
                 }
 
         # Track any time-series stage-3 variables that STACK_VARS omits.
@@ -642,6 +661,14 @@ def stack(
         )
         sensor_records[rec_name] = rec_attrs
         level_sensor.append(rec_name)
+        for mv in mapped_vars:
+            attrs = ds[mv].attrs if mv in ds.data_vars else {}
+            level_translation[mv].append(
+                (
+                    str(attrs.get("flag_translation", "none")),
+                    str(attrs.get("flag_translation_counts", "{}")),
+                )
+            )
 
         # Collect scalar (0-D) metadata variables — keep all instruments consistent
         for vname, da in ds.data_vars.items():
@@ -712,15 +739,69 @@ def stack(
         for _k in scalar_meta:
             scalar_meta[_k] = [scalar_meta[_k][i] for i in kept]
         level_sensor = [level_sensor[i] for i in kept]
+        for mv in mapped_vars:
+            level_translation[mv] = [level_translation[mv][i] for i in kept]
         n_instr = len(kept)
 
-    # Build output dataset; skip physics variables that are entirely NaN
+    # Build output dataset; skip variables that are entirely NaN. A flag is
+    # written as int8 with the fill rule: a present value with no flag is 0 (not
+    # QC'd), a step with no value is 9 (missing); a present value is never 9.
     data_vars: dict = {}
     for vname in STACK_VARS:
-        if not np.all(np.isnan(stacked[vname])):
-            data_vars[vname] = xr.Variable(
-                ("N_LEVELS", "time"), stacked[vname], attrs=var_attrs[vname]
-            )
+        if np.all(np.isnan(stacked[vname])):
+            continue
+        values = stacked[vname]
+        if _is_flag(vname):
+            parent = stacked.get(_flag_parent(vname))
+            if parent is not None and np.all(np.isnan(parent)):
+                continue  # the variable itself is not written
+            present = np.isfinite(parent) if parent is not None else np.isfinite(values)
+            values = np.where(
+                np.isfinite(values),
+                values,
+                np.where(present, params.QC_NOT_EVALUATED, params.QC_MISSING),
+            ).astype(np.int8)
+            if parent is not None:
+                values[~present] = params.QC_MISSING
+                # 9 means missing: a value that is there is at most unknown.
+                wrong = present & (values == params.QC_MISSING)
+                if wrong.any():
+                    log.warning(
+                        f"  {mooring_name}: {int(wrong.sum())} {vname} values that "
+                        "are there were flagged missing (9); written 0 (unknown)"
+                    )
+                    values[wrong] = params.QC_NOT_EVALUATED
+        data_vars[vname] = xr.Variable(
+            ("N_LEVELS", "time"), values, attrs=var_attrs[vname]
+        )
+    for mv in mapped_vars:
+        if mv not in data_vars:
+            continue
+        var = mv.removesuffix(MAPPED_SUFFIX)
+        data_vars[f"{var}_flag_translation"] = xr.Variable(
+            "N_LEVELS",
+            np.array([t for t, _ in level_translation[mv]]),
+            {
+                "long_name": f"originator flag dictionary for {var} (number word -> "
+                "ours), per level",
+                "comment": "translated by meaning into the nearest severity bucket; "
+                "none: the instrument has no originator flags",
+            },
+        )
+        data_vars[f"{var}_flag_translation_counts"] = xr.Variable(
+            "N_LEVELS",
+            np.array([c for _, c in level_translation[mv]]),
+            {"long_name": f"originator flag samples per number for {var} (JSON)"},
+        )
+
+    # Physics derived here use only the values the rule does not hide.
+    def _usable(name: str) -> np.ndarray:
+        values = stacked[name].copy()
+        hide = masking.flags_for(rule, name)
+        for flag in (f"{name}_qc", f"{name}{MAPPED_SUFFIX}"):
+            if flag in data_vars:
+                values[np.isin(data_vars[flag].values, hide)] = np.nan
+        return values
 
     # Compute potential density from stacked T, S, P
     ref_p = int(mooring_config.get("density_reference", params.DENSITY_REFERENCE))
@@ -733,9 +814,9 @@ def stack(
             import gsw
 
             lat, lon = parse_latlon(mooring_config)
-            T_arr = stacked["temperature"]
-            SP_arr = stacked["salinity"]
-            P_arr = stacked["pressure"]
+            T_arr = _usable("temperature")
+            SP_arr = _usable("salinity")
+            P_arr = _usable("pressure")
             SA = gsw.SA_from_SP(SP_arr, P_arr, lon, lat)
             CT = gsw.CT_from_t(SA, T_arr, P_arr)
             _sigma_fn = {
@@ -787,9 +868,9 @@ def stack(
         )
         if n_lev_v > 0:
             # int8 so flag_values (also int8) matches the variable dtype (CF).
-            vel_flag = np.ones((n_lev_v, n_t_v), dtype=np.int8)  # 1 = good
+            vel_flag = np.zeros((n_lev_v, n_t_v), dtype=np.int8)  # 0 = weakest
             for _qk in _vel_qc_keys:
-                vel_flag = _worst_flag(vel_flag, stacked[_qk]).astype(np.int8)
+                vel_flag = _worst_flag(vel_flag, data_vars[_qk].values).astype(np.int8)
             data_vars["velocity_flag"] = xr.Variable(
                 ("N_LEVELS", "time"),
                 vel_flag,
@@ -815,7 +896,7 @@ def stack(
     _MIN_HAB_SEP = 10.0  # minimum hab separation (m) to use as reference
     if "pressure" in data_vars and len(habs) > 1:
         try:
-            p_arr = stacked["pressure"]  # (N_LEVELS, time) numpy array
+            p_arr = _usable("pressure")  # (N_LEVELS, time) numpy array
             n_lev = len(habs)
             tilt_p = np.full_like(p_arr, np.nan)
             ref_hab_arr = np.full(n_lev, np.nan)  # hab of the reference level
@@ -984,6 +1065,8 @@ def stack(
             "deployment_time": str(deploy_time),
             "recovery_time": str(recover_time),
             "dt_seconds": dt_seconds,
+            masking.STACK_ATTR: masking.to_json(rule),
+            "stack_mask_flag_sources": masking.FLAG_SOURCES,
             # What built this stack, as YAML a description can take back.
             "deployment_settings": _mooring.settings_yaml(
                 mooring_config, stack={"dt_seconds": dt_seconds}
@@ -1219,6 +1302,7 @@ def stack_stale_reason(
     mooring_dir: Path,
     *,
     dt_seconds: int,
+    mask_flags: Iterable[int] | Mapping[str, Iterable[int]] | None = None,
 ) -> str | None:
     """Return why the stack at *stack_path* must be rebuilt, or None when it is current.
 
@@ -1241,6 +1325,9 @@ def stack_stale_reason(
         to it).
     dt_seconds : int
         The time step the new stack would use.
+    mask_flags : iterable of int, or Mapping, optional
+        The rule the call gives (None: the description's or the default); a
+        different rule from the one recorded rebuilds the stack.
 
     Returns
     -------
@@ -1301,6 +1388,10 @@ def stack_stale_reason(
     )
     if _stack_settings(str(attrs.get("deployment_settings", ""))) != want:
         return "the description's settings for the stack changed"
+    if attrs.get(masking.STACK_ATTR) != masking.to_json(
+        masking.stack_rule(mooring, mask_flags)
+    ):
+        return "mask_flags changed"
     if attrs.get(PEOPLE_SOURCE_ATTR, "") != people_source_sha256(mooring):
         # Stage 1 applies people: and source:, so a new stack from the same stage
         # files would carry the old values; only rerunning stage 1 brings them in.
@@ -1393,6 +1484,7 @@ def _stack_file(
     stage2_reason: str | None = None,
     failures: Sequence[str] = (),
     force: bool = True,
+    mask_flags: Iterable[int] | Mapping[str, Iterable[int]] | None = None,
 ) -> tuple[Path, xr.Dataset]:
     """Stack a mooring's stage-3 files, write the stack; return its path and dataset.
 
@@ -1455,6 +1547,7 @@ def _stack_file(
             mooring,
             mooring_dir,
             dt_seconds=resolve_dt_seconds(mooring, dt_seconds),
+            mask_flags=mask_flags,
         )
         if reason is None and not failures:
             log.info("%s: stack current (%s)", name, out_path.name)
@@ -1482,6 +1575,7 @@ def _stack_file(
         dt_seconds=dt_seconds,
         omitted=omitted,
         stage2_reason=stage2_reason or "no stage-3 file",
+        mask_flags=mask_flags,
     )
     # A file that could not be read is not recorded: the next run tries it again.
     ds = _add_stage_files(

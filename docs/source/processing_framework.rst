@@ -53,12 +53,13 @@ Each mooring
 
 - **Stack** — every instrument on one time axis (default hourly), each step taking
   the instrument's nearest sample within half a step; nothing is interpolated in
-  time (``{mooring}_stack.nc``, on ``time × N_LEVELS``). Values flagged 3, 4 or 9
-  are left out, except velocity, which keeps its flags. See
+  time (``{mooring}_stack.nc``, on ``time × N_LEVELS``). Every value is kept, with
+  our flags and the originator's beside it; ``stack: mask_flags`` (default 4) says
+  which the pages hide and the grid leaves out. See
   :doc:`methods/time_gridding`.
 - **Grid** — the stack interpolated linearly in pressure at each step, with no
-  extrapolation (``{mooring}_grid.nc``, on ``time × pressure``). Values flagged in
-  ``mask_flags`` (default 4 and 9) are left out first. See
+  extrapolation (``{mooring}_grid.nc``, on ``time × pressure``). Values the stack's
+  ``mask_flags`` hides (default 4) are left out first. See
   :doc:`methods/vertical_gridding`.
 
 ``oceanarray run`` does stages 1–3, the stack, the grid and the report in one go.

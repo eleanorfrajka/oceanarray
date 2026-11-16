@@ -15,12 +15,13 @@ import numpy as np
 from markupsafe import Markup
 
 from oceanarray import location, logger, paths
+from oceanarray.pipeline import masking
 from oceanarray.pipeline.concat import cell_deployment
 
 from ..config import parameters as params
 from ..plotters import helpers as _helpers
 from ..plotters import ts as _ts
-from . import _masthead
+from . import _masthead, _qcflags
 from ._breadcrumb import page_crumbs
 from ._env import render_history, render_template
 from ._figdebug import as_panel
@@ -35,6 +36,7 @@ from ._plots import (
     _make_adcp_trajectories_b64,
     _make_analog_timeseries_b64,
     _make_direction_profile_by_deployment_b64,
+    _make_flag_strip_b64,
     _make_multi_aquadopp_trajectories_b64,
     _make_rose_outlines_b64,
     _make_speed_profile_by_deployment_b64,
@@ -313,17 +315,18 @@ CONCAT_SECTIONS: dict[str, Section] = {
 CONCAT_DEFAULT = Profile(
     numbering="flat",
     entries=(
+        STACK_SECTIONS["hydrography"],
+        STACK_SECTIONS["velocity"],
+        CONCAT_SECTIONS["speed_profile"],
+        CONCAT_SECTIONS["ts_diagram"],
+        STACK_SECTIONS["roses"],
+        STACK_SECTIONS["turbidity"],
+        STACK_SECTIONS["trajectories"],
+        STACK_SECTIONS["analog"],
         CONCAT_SECTIONS["deployments"],
         CONCAT_SECTIONS["processing_history"],
         CONCAT_SECTIONS["instruments"],
-        STACK_SECTIONS["hydrography"],
-        STACK_SECTIONS["velocity"],
-        STACK_SECTIONS["turbidity"],
-        STACK_SECTIONS["trajectories"],
-        CONCAT_SECTIONS["speed_profile"],
-        STACK_SECTIONS["analog"],
-        CONCAT_SECTIONS["ts_diagram"],
-        STACK_SECTIONS["roses"],
+        STACK_SECTIONS["quality_flags"],
         CONCAT_SECTIONS["netcdf_variables"],
         STACK_SECTIONS["netcdf_attributes"],
     ),
@@ -926,8 +929,20 @@ def generate_concat_page(
             if analog_vars
             else None
         )
+        qc_ruled = masking.STACK_ATTR in ds.attrs
+        figs["qc_strip"] = (
+            as_panel(lambda: _make_flag_strip_b64(ds)) if qc_ruled else None
+        )
+        qc_rows, qc_unflagged, qc_quiet = (
+            _qcflags.count_rows(ds) if qc_ruled else ([], [], 0)
+        )
         context = ConcatContext(
             figs=figs,
+            qc_rows=qc_rows,
+            qc_rule=_qcflags.rule_text(ds) if qc_ruled else "",
+            qc_tables=_qcflags.translation_tables(ds) if qc_ruled else [],
+            qc_unflagged=qc_unflagged,
+            qc_quiet=qc_quiet,
             present_vars=set(ds.data_vars),
             instr_types={str(t).lower() for t in ds["instrument_type"].values},
             n_instr=ds.sizes["N_LEVELS"],

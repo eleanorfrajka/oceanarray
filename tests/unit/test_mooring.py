@@ -187,10 +187,10 @@ def test_init_writes_the_optional_blocks_commented_out(tmp_path: Path) -> None:
     lines = text.splitlines()
     start = lines.index("# stack:")
     uncommented = [
-        ln[2:] if i in range(start, start + 6) else ln for i, ln in enumerate(lines)
+        ln[2:] if i in range(start, start + 7) else ln for i, ln in enumerate(lines)
     ]
     doc = yaml.safe_load("\n".join(uncommented))
-    assert doc["stack"] == DEFAULTS["stack"]
+    assert doc["stack"] == {**DEFAULTS["stack"], "mask_flags": [4]}
     assert doc["grid"] == DEFAULTS["grid"]
     assert _resolve_settings(doc) == {**DEFAULTS["stack"], **DEFAULTS["grid"]}
     assert not [

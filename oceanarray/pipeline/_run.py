@@ -93,9 +93,11 @@ def run(
         The grid's pressure levels, in dbar. ``None`` takes the description's
         ``grid:`` block, else 200, 1000 and 20.
     mask_flags : iterable of int, or Mapping of str to iterable of int, optional
-        The QC flags left out before gridding (see
-        :func:`oceanarray.pipeline.grid.resolve_mask_flags`). ``None`` takes the
-        description's ``grid: mask_flags``, else 4 and 9 for every variable.
+        The flags the stack's pages hide and the grid leaves out (see
+        :func:`oceanarray.pipeline.masking.resolve_mask_flags`), recorded in the
+        stack as ``stack_mask_flags``. ``None`` takes the description's
+        ``stack: mask_flags``, else 4. The description's ``grid: mask_flags`` may
+        add flags for the grid.
     stack_stage : {3, 2}, optional
         Which stage files the stack is built from. 2 builds a quick look at sea
         from the stage-2 files without running stage 3: no QC flags, no
@@ -144,7 +146,18 @@ def run(
     settings = _resolve_settings(
         cfg, dt_seconds=dt_seconds, pmin=pmin, pmax=pmax, dp=dp
     )
-    flags = resolve_grid_mask_flags(cfg, mask_flags)
+    grid_flags = resolve_grid_mask_flags(cfg)
+    if mask_flags is not None and grid_flags is not None:
+        # --mask-flags sets the stack's rule; the description's grid: mask_flags
+        # then adds to it rather than clash with it.
+        from oceanarray.pipeline import masking
+
+        try:
+            grid_flags = masking.union(masking.stack_rule(cfg, mask_flags), grid_flags)
+        except ValueError as exc:
+            raise MooringError(
+                f"{cfg.get('name', 'mooring')}: {exc} (the call)"
+            ) from exc
     name = cfg["name"]
     products = [paths.product_file(moor_dir, name, p) for p in ("stack", "grid")]
     outcome = _Outcome()
@@ -182,6 +195,7 @@ def run(
                 ),
                 failures=outcome.failures,
                 force=force,
+                mask_flags=mask_flags,
             )
         except Exception:
             # Whatever stopped the run, a product built from the old stage files no
@@ -213,7 +227,7 @@ def run(
                 pmin=settings["pmin"],
                 pmax=settings["pmax"],
                 dp=settings["dp"],
-                mask_flags=flags,
+                mask_flags=grid_flags,
                 stack_path=stack_path,
                 force=force,
             )
@@ -374,21 +388,19 @@ def _resolve_settings(
 
 def resolve_grid_mask_flags(
     cfg: Mapping[str, Any],
-    given: Iterable[int] | Mapping[str, Iterable[int]] | None = None,
-) -> dict[str, tuple[int, ...]]:
-    """Return the grid's mask flags: the call, else ``grid: mask_flags``, else the default.
+) -> dict[str, tuple[int, ...]] | None:
+    """Return the description's ``grid: mask_flags``, or None when it gives none.
 
     Parameters
     ----------
     cfg : Mapping
         The mooring description.
-    given : iterable of int, or Mapping of str to iterable of int, optional
-        The call's (or the CLI's) value.
 
     Returns
     -------
-    dict of str to tuple of int
-        As :func:`oceanarray.pipeline.grid.resolve_mask_flags` returns it.
+    dict of str to tuple of int, or None
+        As :func:`oceanarray.pipeline.masking.resolve_mask_flags` returns it; the
+        grid adds it to the stack's rule.
 
     Raises
     ------
@@ -396,14 +408,17 @@ def resolve_grid_mask_flags(
         The value is invalid.
     """
     from oceanarray.exceptions import MooringError
-    from oceanarray.pipeline.grid import resolve_mask_flags
+    from oceanarray.pipeline.masking import resolve_mask_flags
 
-    value = given if given is not None else (cfg.get("grid") or {}).get("mask_flags")
+    value = (cfg.get("grid") or {}).get("mask_flags")
+    if value is None:
+        return None
     try:
         return resolve_mask_flags(value)
     except ValueError as exc:
-        where = "the call" if given is not None else "the description's grid: block"
-        raise MooringError(f"{cfg.get('name', 'mooring')}: {exc} ({where})") from exc
+        raise MooringError(
+            f"{cfg.get('name', 'mooring')}: {exc} (the description's grid: block)"
+        ) from exc
 
 
 def _dt_seconds_problem(value: Any) -> str | None:

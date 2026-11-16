@@ -36,6 +36,7 @@ from oceanarray.config.unit_tables import (
     warn_if_not_canonical,
 )
 from oceanarray.pipeline.coordinate import xyz_to_enu
+from oceanarray.plotters import helpers
 from oceanarray.plotters.helpers import (
     _rose_ax,
     _velocity_panel_style,
@@ -327,12 +328,16 @@ def draw_multi_aquadopp_trajectories(
     # Build trajectories and collect temperature data for shared norm
     trajs = []
     all_temps: list = []
+    # A stack's rule hides flagged values (a file without one keeps its velocity).
+    u_all = helpers.masked(ds, u_var) if helpers.ruled(ds) else ds[u_var].values
+    v_all = helpers.masked(ds, v_var) if helpers.ruled(ds) else ds[v_var].values
+    t_all = helpers.masked(ds, temp_var) if has_temp else None
     for i in aqd_idx:
-        u = np.nan_to_num(ds[u_var].values[:, i], nan=0.0)
-        v = np.nan_to_num(ds[v_var].values[:, i], nan=0.0)
+        u = np.nan_to_num(u_all[:, i], nan=0.0)
+        v = np.nan_to_num(v_all[:, i], nan=0.0)
         x = np.concatenate([[0.0], np.cumsum(u[:-1] * dt)]) / 1000.0
         y = np.concatenate([[0.0], np.cumsum(v[:-1] * dt)]) / 1000.0
-        temp = ds[temp_var].values[:, i] if has_temp else None
+        temp = t_all[:, i] if t_all is not None else None
         trajs.append((i, x, y, temp))
         if temp is not None:
             all_temps.append(temp[np.isfinite(temp)])
@@ -744,12 +749,23 @@ def draw_adcp_trajectories(
     # Build per-bin trajectories with seabed + percent_good masking
     trajs: list = []  # (hab, x, y)
     hab_all: list = []
+    stack_rule = helpers.ruled(ds)
+    if stack_rule:
+        # The stack's rule hides by every velocity flag (seabed, ping quality too).
+        u_all = helpers.masked(ds, u_var)
+        v_all = helpers.masked(ds, v_var)
     for i in adcp_idx:
         u = ds[u_var].values[:, i].copy().astype(float)
         v = ds[v_var].values[:, i].copy().astype(float)
+        if stack_rule:
+            u, v = u_all[:, i].copy(), v_all[:, i].copy()
+            if seabed_qc_var in ds.data_vars and np.all(
+                np.isin(ds[seabed_qc_var].values[:, i], params.QC_BAD_FLAGS)
+            ):
+                continue  # a bin always below the seabed
 
         # Mask by seabed proximity
-        if seabed_qc_var in ds.data_vars:
+        elif seabed_qc_var in ds.data_vars:
             sqc = ds[seabed_qc_var].values[:, i]
             # Skip bins that are always below the seabed
             if np.all(np.isin(sqc, params.QC_BAD_FLAGS)):
@@ -758,7 +774,7 @@ def draw_adcp_trajectories(
             v[np.isin(sqc, params.QC_BAD_FLAGS)] = np.nan
 
         # Mask by ping quality
-        if percent_good_qc_var in ds.data_vars:
+        if percent_good_qc_var in ds.data_vars and not stack_rule:
             pqc = ds[percent_good_qc_var].values[:, i]
             u[np.isin(pqc, params.QC_BAD_FLAGS)] = np.nan
             v[np.isin(pqc, params.QC_BAD_FLAGS)] = np.nan
@@ -971,13 +987,17 @@ def draw_rose_grid(
     # seabed_qc handles ADCP bins below the seafloor; percent_good_qc and
     # error_velocity_qc handle low-quality ADCP pings.  A flag in QC_BAD_FLAGS (3, 4, 9) is
     # treated as invalid; nominal (7) and interpolated (8) are kept.
+    if helpers.ruled(ds):
+        # A stack: its mask_flags rule covers every velocity flag.
+        east_all = helpers.masked(ds, "east_velocity")
+        north_all = helpers.masked(ds, "north_velocity")
     for _qc_var in (
         "east_velocity_qc",
         "seabed_qc",
         "percent_good_qc",
         "error_velocity_qc",
     ):
-        if _qc_var in ds.data_vars:
+        if _qc_var in ds.data_vars and not helpers.ruled(ds):
             _qc = ds[_qc_var].values
             if _qc.shape == east_all.shape:
                 east_all[np.isin(_qc, params.QC_BAD_FLAGS)] = np.nan
@@ -2184,11 +2204,8 @@ def draw_rose_outlines(
     groups = _velocity_groups(ds)
     if not groups:
         return None
-    u = ds["east_velocity"].values.astype(float)
-    v = ds["north_velocity"].values.astype(float)
-    for var, arr in (("east_velocity", u), ("north_velocity", v)):
-        if f"{var}_qc" in ds.data_vars:
-            arr[np.isin(ds[f"{var}_qc"].values, params.QC_BAD_FLAGS)] = np.nan
+    u = helpers.masked(ds, "east_velocity")
+    v = helpers.masked(ds, "north_velocity")
     cell_dep = ds["cell_deployment"].values
     names = [str(n) for n in ds["deployment_name"].values]
     n_dep = len(names)
@@ -2284,11 +2301,8 @@ def _velocity_by_depth(ds: xr.Dataset) -> dict | None:
     groups = [(label, j) for label, j in _velocity_groups(ds) if np.isfinite(depth[j])]
     if not groups:
         return None
-    u = ds["east_velocity"].values.astype(float)
-    v = ds["north_velocity"].values.astype(float)
-    for var, arr in (("east_velocity", u), ("north_velocity", v)):
-        if f"{var}_qc" in ds.data_vars:
-            arr[np.isin(ds[f"{var}_qc"].values, params.QC_BAD_FLAGS)] = np.nan
+    u = helpers.masked(ds, "east_velocity")
+    v = helpers.masked(ds, "north_velocity")
     cell_dep = ds["cell_deployment"].values
     cells = []
     for _label, j in groups:

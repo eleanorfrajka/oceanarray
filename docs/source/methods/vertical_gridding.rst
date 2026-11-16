@@ -61,13 +61,12 @@ finite instruments at that time step are set to NaN; there is no extrapolation.
 QC flags
 ^^^^^^^^
 
-Values whose QC flag is in ``mask_flags`` are left out first: the default leaves out
-4 (bad) and 9 (missing) for every variable; ``velocity=3,4,9`` (or any variable
-name) sets an exception. Set it with ``--mask-flags 4,9 velocity=3,4,9``,
-``mask_flags=`` in Python, or ``grid: mask_flags`` in the YAML; the file records it
-as ``grid_mask_flags``. The stack has already left out the non-velocity values
-flagged 3, 4 or 9, so for those the setting can only leave out more. QC flag
-variables themselves are not gridded.
+Values the stack's rule hides (``stack_mask_flags``, default 4) are left out first:
+a value when its ``<var>_qc`` or ``<var>_qc_originator_mapped`` is in the rule, the
+velocity group also by ``velocity_flag`` and the ADCP flags. ``grid: mask_flags`` in
+the YAML (or ``mask_flags=`` to :func:`oceanarray.grid`) may add flags for the grid,
+never drop one the stack hides; the file records the grid's rule as
+``grid_mask_flags``. QC flag variables themselves are not gridded.
 
 Pressure grid axis
 ------------------

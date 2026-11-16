@@ -59,6 +59,74 @@ def interp_pressure(
     )
 
 
+#: Source pressure with one of these flags (ours or the originator's translated)
+#: is never interpolated from: a value made from bad or missing data is not right,
+#: whatever ``mask_flags`` says.
+UNUSABLE_SOURCE_FLAGS: tuple[int, ...] = (4, 9)
+
+
+def _source_flags(ds: xr.Dataset, var: str) -> list[np.ndarray]:
+    """Return the flag arrays of a source's pressure: ours, and the originator's."""
+    from oceanarray.pipeline.qc.originator import MAPPED_SUFFIX, translate
+
+    out = []
+    if f"{var}_qc" in ds.data_vars:
+        out.append(np.asarray(ds[f"{var}_qc"].values))
+    if f"{var}{MAPPED_SUFFIX}" in ds.data_vars:
+        out.append(np.asarray(ds[f"{var}{MAPPED_SUFFIX}"].values))
+    elif f"{var}_qc_originator" in ds.data_vars:
+        # A stage-2 source: translate its originator flags here.
+        out.append(translate(ds[f"{var}_qc_originator"])[0])
+    return out
+
+
+def _source_pressure(src: dict[str, Any], target_time: np.ndarray) -> np.ndarray:
+    """Return a source's pressure on *target_time*, never from an unusable sample.
+
+    The source's samples flagged 4 or 9 (ours or the originator's) are left out; a
+    target time whose nearest source sample is such a sample is NaN (missing, 9),
+    not filled from the samples around it.
+    """
+    ds = src["ds"]
+    var = src["pressure_var"]
+    values = np.asarray(ds[var].values, dtype=np.float64).copy()
+    unusable = np.zeros(values.shape, dtype=bool)
+    for flags in _source_flags(ds, var):
+        unusable |= np.isin(flags, UNUSABLE_SOURCE_FLAGS) & np.isfinite(values)
+    values[unusable] = np.nan
+    p = interp_pressure(ds["time"].values, values, target_time)
+    if unusable.any():
+        src_t = _times_to_float(ds["time"].values)
+        nearest = np.clip(
+            np.searchsorted(src_t, _times_to_float(target_time)), 0, len(src_t) - 1
+        )
+        prev = np.clip(nearest - 1, 0, len(src_t) - 1)
+        tgt = _times_to_float(target_time)
+        pick = np.where(
+            np.abs(src_t[prev] - tgt) <= np.abs(src_t[nearest] - tgt), prev, nearest
+        )
+        p[unusable[pick]] = np.nan
+    return p
+
+
+def _flag_summary(src: dict[str, Any]) -> str:
+    """Return ``"<serial>: 1 (n), 3 (n), 4 (n, not used)"`` for a pressure source."""
+    ds = src["ds"]
+    var = src["pressure_var"]
+    finite = np.isfinite(np.asarray(ds[var].values, dtype=np.float64))
+    worst = np.zeros(finite.shape, dtype=np.int8)
+    from oceanarray.pipeline.qc import _worst_flag
+
+    for flags in _source_flags(ds, var):
+        worst = _worst_flag(worst, flags).astype(np.int8)
+    numbers, counts = np.unique(worst[finite], return_counts=True)
+    parts = [
+        f"{int(k)} ({int(c)}{', not used' if int(k) in UNUSABLE_SOURCE_FLAGS else ''})"
+        for k, c in zip(numbers, counts, strict=True)
+    ]
+    return f"{src['serial']}: " + (", ".join(parts) if parts else "no flags")
+
+
 def interp_pressure_for_hab(
     hab_t: float,
     sorted_sources: list[dict[str, Any]],
@@ -140,14 +208,7 @@ def _interp_pressure_for_hab(
         if used is not None:
             used.append(src)
         hab_offset_dbar = src["hab"] - hab_t
-        p = (
-            interp_pressure(
-                src["ds"]["time"].values,
-                src["ds"][src["pressure_var"]].values,
-                target_time,
-            )
-            + hab_offset_dbar
-        )
+        p = _source_pressure(src, target_time) + hab_offset_dbar
         method = (
             f"near-neighbour from {src['instrument']} {src['serial']} "
             f"(Δhab={diffs[nearest_idx]:.1f}m, "
@@ -169,16 +230,8 @@ def _interp_pressure_for_hab(
             src_above, h_above = above[0]
             w_above = (hab_t - h_below) / (h_above - h_below)
             w_below = 1.0 - w_above
-            p_below = interp_pressure(
-                src_below["ds"]["time"].values,
-                src_below["ds"][src_below["pressure_var"]].values,
-                target_time,
-            )
-            p_above = interp_pressure(
-                src_above["ds"]["time"].values,
-                src_above["ds"][src_above["pressure_var"]].values,
-                target_time,
-            )
+            p_below = _source_pressure(src_below, target_time)
+            p_above = _source_pressure(src_above, target_time)
             p = w_below * p_below + w_above * p_above
             method = (
                 f"bracketed: {w_below:.2f}×{src_below['instrument']} "
@@ -192,14 +245,7 @@ def _interp_pressure_for_hab(
             if used is not None:
                 used.append(src)
             hab_offset_dbar = src["hab"] - hab_t
-            p = (
-                interp_pressure(
-                    src["ds"]["time"].values,
-                    src["ds"][src["pressure_var"]].values,
-                    target_time,
-                )
-                + hab_offset_dbar
-            )
+            p = _source_pressure(src, target_time) + hab_offset_dbar
             method = (
                 f"extrapolated from {src['instrument']} {src['serial']} "
                 f"(hab={src['hab']:.1f}m, "
@@ -404,12 +450,21 @@ def _interpolate_pressure(
             "pressure_source_serials": " ".join(
                 sorted({str(s["serial"]) for s in used})
             ),
+            # The inputs' flags (worst of ours and the originator's) over the
+            # record; inputs flagged 4 or 9 are never used.
+            "pressure_source_flags": "; ".join(
+                _flag_summary(s)
+                for s in sorted(
+                    {id(s): s for s in used}.values(), key=lambda s: str(s["serial"])
+                )
+            ),
             "comment": "interpolated from neighbouring instrument(s)",
         },
     )
     ds["pressure_qc"] = xr.Variable(
         "time",
-        np.full(len(ds["time"]), 8, dtype=np.int8),
+        # 8 where interpolated; 9 where no usable input left it missing.
+        np.where(np.isfinite(p_interp), 8, 9).astype(np.int8),
         attrs={"long_name": "quality flag for pressure"},
     )
     return ds, method

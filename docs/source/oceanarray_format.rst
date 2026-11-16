@@ -271,8 +271,35 @@ variable (``deployment_waterdepth_source``, ``deployment_time_source``, ...; an
 empty string for a deployment that gives none). The values themselves are the
 YAML's, as without a source.
 
+Quality flags
+~~~~~~~~~~~~~
+
+Our flag table is OceanSITES 1.4 reference table 2 with one extension: **5
+value_changed**, set only where an originator flag says its QC modified the value
+(flag variables that can hold it say so in their ``comment``). 6 is unused; 7 and 8
+are set only by oceanarray.
+
+- Stage 1 keeps the originator's flags as written: ``<var>_qc_originator`` (from
+  ``<CODE>_QC``, or a ``<CODE>_flag`` flag variable whose words we know), with
+  ``originator_flag_variable``.
+- Stage 3 translates them by meaning into ``<var>_qc_originator_mapped`` (our table),
+  with ``originator_flag_meanings`` (their words), ``flag_translation`` (``"3
+  appears_probably_bad -> 3; ..."``) and ``flag_translation_counts`` (JSON, samples
+  per originator number). A file with no originator flags has
+  ``originator_flag_meanings = "none"``. Our ``<var>_qc`` is separate; neither
+  overwrites the other. Each QC'd variable gets ``processing_level`` (OceanSITES
+  reference table 3).
+- The stack keeps every value with both flag sets (int8): a value with no flag
+  variable is 0, a step with no value is 9. Each level has ``<var>_flag_translation``
+  and ``<var>_flag_translation_counts`` (``"none"`` without originator flags). The
+  rule for what the pages hide and the grid leaves out is ``stack_mask_flags`` (JSON,
+  ``{"default": [4]}``), with ``stack_mask_flag_sources``. The Stack cat carries the
+  site's rule and each deployment's in ``deployment_stack_mask_flags``.
+- Interpolated pressure records the flags of its inputs in ``pressure_source_flags``.
+
 Every grid records the QC flags it left out before gridding in ``grid_mask_flags``
-(JSON, ``{"default": [4, 9], "velocity": [3, 4, 9]}``). A site grid
+(JSON, ``{"default": [4], "velocity": [3, 4]}``): the stack's rule and anything
+``grid: mask_flags`` adds. A site grid
 (``<site>_gridcat.nc``) also records its site stack (``stackcat_file``,
 ``stackcat_sha256``) and the along-slope direction (``slope_angle_deg``, degrees
 clockwise from north, with ``slope_angle_source``). The rest

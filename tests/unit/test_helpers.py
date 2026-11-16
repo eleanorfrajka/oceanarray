@@ -46,43 +46,7 @@ def test_detect_interval_s_nan_when_too_few():
 
 
 # ---------------------------------------------------------------------------
-# _apply_qc_mask
-# ---------------------------------------------------------------------------
-
-
-def test_apply_qc_mask_masks_suspect_bad_missing():
-    """Flags 3/4/9 → NaN; 0/1/2 kept; for non-pressure, 8 is masked too."""
-    ds = _ds(
-        "temperature",
-        [1, 2, 3, 4, 5, 6],
-        _dt([0, 1, 2, 3, 4, 5]),
-        qc=[0, 1, 2, 3, 4, 9],
-    )
-    out = H._apply_qc_mask(ds["temperature"].values.astype(float), ds, "temperature")
-    # kept: indices 0,1,2 (flags 0,1,2); masked: 3,4,5 (flags 3,4,9)
-    assert np.array_equal(np.isfinite(out), [True, True, True, False, False, False])
-
-
-def test_apply_qc_mask_pressure_keeps_interpolated_flag8():
-    """Pressure keeps flag 8 (interpolated); other variables do not."""
-    ds = _ds("pressure", [10, 20, 30], _dt([0, 1, 2]), qc=[1, 8, 4])
-    out = H._apply_qc_mask(ds["pressure"].values.astype(float), ds, "pressure")
-    assert np.array_equal(np.isfinite(out), [True, True, False])  # flag 8 kept
-    # same flags on a non-pressure var: 8 is masked
-    ds2 = _ds("salinity", [10, 20, 30], _dt([0, 1, 2]), qc=[1, 8, 4])
-    out2 = H._apply_qc_mask(ds2["salinity"].values.astype(float), ds2, "salinity")
-    assert np.array_equal(np.isfinite(out2), [True, False, False])
-
-
-def test_apply_qc_mask_no_qc_var_returns_unchanged():
-    ds = _ds("temperature", [1.0, 2.0], _dt([0, 1]))
-    src = ds["temperature"].values.astype(float)
-    out = H._apply_qc_mask(src, ds, "temperature")
-    np.testing.assert_array_equal(out, src)
-
-
-# ---------------------------------------------------------------------------
-# _worst_flag  (documented ordering: 0 < 1 < 2 < 7 < 8 < 3 < 4 < 9)
+# _worst_flag  (documented ordering: 0 < 1 < 2 < 5 < 7 < 8 < 3 < 4 < 9)
 # ---------------------------------------------------------------------------
 
 

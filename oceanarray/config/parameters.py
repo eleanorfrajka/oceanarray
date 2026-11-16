@@ -115,25 +115,41 @@ INSTRUMENT_COLORS = {
 # Applied to *_qc companion variables in _stage2.nc and stage 3 output.
 # ---------------------------------------------------------------------------
 QC_CONVENTION = "OceanSITES reference table 2"
-# Codes 5 (value_changed) and 6 are "not used" in OceanSITES table 2, so they are
-# omitted here — declaring them legal invites flags nothing downstream understands.
+# OceanSITES 1.4 leaves 5 and 6 unused. oceanarray uses 5, value_changed (as Argo
+# does), for one purpose only: an originator flag saying its QC modified the value
+# (translated by meaning at stage 3); oceanarray never sets 5 itself. 6 stays unused.
 # flag_meanings words correspond position-for-position with flag_values.
-QC_FLAG_VALUES = [0, 1, 2, 3, 4, 7, 8, 9]
+QC_FLAG_VALUES = [0, 1, 2, 3, 4, 5, 7, 8, 9]
 QC_FLAG_MEANINGS = (
     "unknown good_data probably_good_data potentially_correctable_bad_data "
-    "bad_data nominal_value interpolated_value missing_value"
+    "bad_data value_changed nominal_value interpolated_value missing_value"
+)
+#: Each flag's meaning word, by flag value.
+QC_FLAG_MEANING: dict[int, str] = dict(
+    zip(QC_FLAG_VALUES, QC_FLAG_MEANINGS.split(), strict=True)
+)
+
+#: A value that is there but carries no flag (not QC'd), and a step with no value.
+QC_NOT_EVALUATED = 0
+QC_MISSING = 9
+
+#: The one place oceanarray's flag table departs from OceanSITES 1.4, said in the
+#: ``comment`` of every flag variable that can hold it.
+QC_FLAG_5_COMMENT = (
+    "Flag 5 (value_changed) is oceanarray's one extension to the OceanSITES 1.4 flag "
+    "table: the originator's QC modified the value."
 )
 
 # Merge priority for combining two QC flags (worst wins). The single source of
 # truth for flag ordering — pipeline.qc._merge_flags and pipeline.qc._worst_flag
 # derive their lookup arrays from this dict.
 # Weakest to strongest:
-#   unknown(0) < good(1) < probably_good(2) < nominal(7) < interpolated(8)
-#   < potentially_correctable_bad(3) < bad(4) < missing(9)
+#   unknown(0) < good(1) < probably_good(2) < value_changed(5) < nominal(7)
+#   < interpolated(8) < potentially_correctable_bad(3) < bad(4) < missing(9)
 # unknown(0) is the weakest (opposite of QARTOD, which ranks its UNKNOWN=2 above
-# GOOD): a point reads unknown only when nothing evaluated it. Unlisted codes
-# (5, 6 — not used in OceanSITES) fall back to priority 0.
-QC_MERGE_PRIORITY = {9: 7, 4: 6, 3: 5, 8: 4, 7: 3, 2: 2, 1: 1, 0: 0}
+# GOOD): a point reads unknown only when nothing evaluated it. The unlisted code
+# (6, not used) falls back to priority 0.
+QC_MERGE_PRIORITY = {9: 8, 4: 7, 3: 6, 8: 5, 7: 4, 5: 3, 2: 2, 1: 1, 0: 0}
 
 # Precomputed lookup arrays (immutable; built once at import) so the merge
 # functions and flag-attr writers don't rebuild them on every call.
@@ -149,10 +165,11 @@ QC_FLAG_VALUES_I8 = np.array(QC_FLAG_VALUES, dtype="int8")
 # is the instrument's pressure, and dropping it hides a sensorless instrument.
 QC_BAD_FLAGS = (3, 4, 9)
 
-#: Flags whose values the grid leaves out before interpolating, unless the call,
-#: the CLI or the description's ``grid: mask_flags`` says otherwise: bad (4) and
-#: missing (9). Suspect (3) is kept unless asked for.
-GRID_MASK_FLAGS: tuple[int, ...] = (4, 9)
+#: Flags whose values the stack and Stack cat pages do not show and the grid leaves
+#: out, unless the call, ``--mask-flags`` or the description's ``stack: mask_flags``
+#: says otherwise: bad (4) only. Suspect (3), value_changed (5), not QC'd (0) are
+#: shown and gridded; 9 marks a missing value, so there is nothing to show.
+MASK_FLAGS: tuple[int, ...] = (4,)
 
 # ---------------------------------------------------------------------------
 # QARTOD gross-range test thresholds (global ocean defaults).

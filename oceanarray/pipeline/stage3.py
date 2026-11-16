@@ -85,6 +85,7 @@ from oceanarray.pipeline.qc import (
     derive_oxygen_saturation,
     load_qc_config,
     merge_salinity_parent_qc,
+    originator,
     set_qc_attrs,
     unify_velocity_qc,
 )
@@ -458,6 +459,12 @@ def _stage3_instrument(
         # declination was not applied — record it so the history matches the "UNK" attr.
         history_notes.append(_declination_clause("UNK"))
 
+    # The originator's flags, translated to our table by meaning (kept separate
+    # from ours: neither overwrites the other).
+    ds, note = originator.add_mapped(ds, label=str(info["serial"]))
+    if note:
+        history_notes.append(note)
+
     qc_summary = _format_qc_summary(ds)
     if qc_summary:
         history_notes.append("QARTOD gross-range+spike: " + "; ".join(qc_summary))
@@ -492,8 +499,31 @@ def _stage3_instrument(
     ds = to_canonical_units(ds, stage=3)
     # Salinity, ENU velocities, oxygen saturation: measured by the same instrument.
     ds = sensors.link_derived(ds)
+    _set_processing_level(ds)
     log.info(f"{info['serial']}: {'; '.join(qc_summary)}")
     return ds
+
+
+#: OceanSITES reference table 3 (``processing_level``) for what stage 3 did: QC
+#: tests applied and flagged, values kept; pressure taken from other instruments.
+PROCESSING_LEVEL_QC = "Ranges applied, bad data flagged"
+PROCESSING_LEVEL_INTERPOLATED = "Data interpolated"
+
+
+def _set_processing_level(ds: xr.Dataset) -> None:
+    """Write ``processing_level`` (OceanSITES reference table 3) on each QC'd variable.
+
+    A variable with its own ``<var>_qc`` was range-tested and flagged; pressure
+    with any interpolated value (8) says so instead. The originator's level, when
+    the file had one, stays in ``originator_processing_level``.
+    """
+    for name in list(ds.data_vars):
+        if f"{name}_qc" not in ds.data_vars or ds[name].dtype.kind not in "fiu":
+            continue
+        level = PROCESSING_LEVEL_QC
+        if name == "pressure" and np.any(ds["pressure_qc"].values == 8):
+            level = PROCESSING_LEVEL_INTERPOLATED
+        ds[name].attrs["processing_level"] = level
 
 
 def stage3(

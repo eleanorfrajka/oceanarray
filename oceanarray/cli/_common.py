@@ -184,9 +184,11 @@ def _add_stack_grid_args(
 
 
 def _add_mask_flags_arg(p: argparse.ArgumentParser, *, from_description: bool) -> None:
-    """Add ``--mask-flags``: the QC flags left out before gridding."""
+    """Add ``--mask-flags``: the flags the pages hide and the grid leaves out."""
     where = (
-        "the description's grid: mask_flags, else 4,9" if from_description else "4,9"
+        "the description's stack: mask_flags, else 4"
+        if from_description
+        else "the deployments' rule, which must agree"
     )
     p.add_argument(
         "--mask-flags",
@@ -195,9 +197,10 @@ def _add_mask_flags_arg(p: argparse.ArgumentParser, *, from_description: bool) -
         default=None,
         metavar="FLAGS",
         help=(
-            "QC flags left out before gridding: a list for every variable, and "
+            "QC flags whose values the stack pages hide and the grid leaves out "
+            "(either ours or the originator's flag): a list for every variable, and "
             "VAR=list exceptions (VAR a variable name, or velocity), e.g. "
-            "--mask-flags 4,9 velocity=3,4,9 dissolved_oxygen=3,4,9; the flag may be "
+            "--mask-flags 4 velocity=3,4 dissolved_oxygen=3,4; the flag may be "
             f"repeated (default: {where})"
         ),
     )
@@ -206,10 +209,10 @@ def _add_mask_flags_arg(p: argparse.ArgumentParser, *, from_description: bool) -
 def _mask_flags(args: argparse.Namespace) -> dict[str, tuple[int, ...]] | None:
     """Return ``--mask-flags`` as the mapping the API takes (None when not given).
 
-    Each token is ``4,9`` (the default for every variable) or ``VAR=3,4,9`` (one
+    Each token is ``4`` (the default for every variable) or ``VAR=3,4`` (one
     exception); a bad token is a usage error.
     """
-    from oceanarray.pipeline.grid import resolve_mask_flags
+    from oceanarray.pipeline.masking import resolve_mask_flags
 
     tokens = getattr(args, "mask_flags", None)
     if not tokens:

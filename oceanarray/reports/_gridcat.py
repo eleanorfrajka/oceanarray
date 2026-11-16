@@ -187,12 +187,12 @@ GRIDCAT_SECTIONS: dict[str, Section] = {
 GRIDCAT_DEFAULT = Profile(
     numbering="flat",
     entries=(
-        CONCAT_SECTIONS["deployments"],
         GRIDCAT_SECTIONS["sections"],
         GRIDCAT_SECTIONS["anomalies"],
-        GRIDCAT_SECTIONS["profiles"],
         GRIDCAT_SECTIONS["velocity"],
         GRIDCAT_SECTIONS["ts_diagram"],
+        GRIDCAT_SECTIONS["profiles"],
+        CONCAT_SECTIONS["deployments"],
         STACK_SECTIONS["processing_history"],
         STACK_SECTIONS["netcdf_variables"],
         STACK_SECTIONS["netcdf_attributes"],

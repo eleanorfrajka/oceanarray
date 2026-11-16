@@ -269,7 +269,6 @@ def test_rodb_instruments_stack_by_nearest_sample_only(tmp_path, caplog, dt_seco
     nearest sample. No value is interpolated in time.
     """
     import oceanarray as oa
-    from oceanarray.pipeline.qc import _apply_qc_mask
 
     name = "rtwb1_01_2014"
     raw, proc = _mooring(
@@ -298,9 +297,7 @@ def test_rodb_instruments_stack_by_nearest_sample_only(tmp_path, caplog, dt_seco
         assert (warned in out) == (interval > dt_seconds)
         src = _open(proc, name, instrument, serial, 3)
         src_t = src["time"].values
-        src_v = src[var].values.astype(np.float64)
-        if var == "temperature":
-            src_v = _apply_qc_mask(src_v, src, var)
+        src_v = src[var].values.astype(np.float64)  # the stack keeps every value
         level = ds[var].isel(N_LEVELS=ds["serial"].values.tolist().index(serial))
         level = level.values.astype(np.float64)
         # The nearest sample to each step in [step - dt/2, step + dt/2).

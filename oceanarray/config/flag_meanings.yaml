@@ -1,0 +1,43 @@
+# Originator flag words -> oceanarray's flag (OceanSITES 1.4 + 5 value_changed).
+#
+# An originator's flag number only finds its word (flag_values[i] <-> flag_meanings
+# word i); the word decides our flag. Words are matched exactly after lower-casing;
+# a typo is listed as its own word, never guessed. Translation is into the nearest
+# severity bucket: our 3 also receives "suspect" and "probably bad" words.
+# Extend this list when a new originator's table arrives; 7 and 8 are ours only and
+# are never the target of an originator word.
+
+meanings:
+  # OceanSITES reference table 2 / oceanarray's own words
+  unknown: 0
+  no_qc_performed: 0
+  good_data: 1
+  probably_good_data: 2
+  potentially_correctable_bad_data: 3
+  bad_data_that_are_potentially_correctable: 3
+  bad_data: 4
+  value_changed: 5
+  missing_value: 9
+  # The table in the OSNAP CF 2020 and egM 2018 files (and "reseved" as written)
+  appears_correct: 1
+  appears_probably_good: 2
+  appears_probably_bad: 3
+  appears_bad: 4
+  modified_as_a_result_of_qc: 5
+  missing: 9
+  # QARTOD aggregate flags (OOI via ERDDAP, *_qc_agg: 1 PASS, 2 NOT_EVALUATED, 3 SUSPECT, 4 FAIL, 9 MISSING).
+  # not_evaluated is no test result, so 0, not 2 (probably good).
+  pass: 1
+  not_evaluated: 0
+  suspect: 3
+  fail: 4
+
+# Known words with no meaning to carry: never translated (a sample with one is
+# written 0, unknown, with a warning).
+unmapped:
+  - reserved
+  - reseved
+  - not_used
+  # oceanarray's own: an originator's nominal or interpolated values are not ours
+  - nominal_value
+  - interpolated_value

@@ -467,14 +467,14 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 
 
 <nav class="jump-nav">
-<a href="#processing_history">(1) Processing history</a>
-<a href="#instruments">(2) Instruments (deep-first)</a>
-<a href="#hydrography">(3) Hydrography</a>
-<a href="#velocity">(4) Velocity</a>
-<a href="#trajectories">(5) Particle trajectories</a>
-<a href="#speed_profile">(6) Aquadopp speed profile</a>
-<a href="#ts_diagram">(7) T-S diagram</a>
-<a href="#roses">(8) Current rose diagrams</a>
+<a href="#hydrography">(1) Hydrography</a>
+<a href="#velocity">(2) Velocity</a>
+<a href="#trajectories">(3) Particle trajectories</a>
+<a href="#speed_profile">(4) Aquadopp speed profile</a>
+<a href="#ts_diagram">(5) T-S diagram</a>
+<a href="#roses">(6) Current rose diagrams</a>
+<a href="#processing_history">(7) Processing history</a>
+<a href="#instruments">(8) Instruments (deep-first)</a>
 <a href="#tilt">(9) Aquadopp tilt (|pitch| / |roll| / pressure estimate)</a>
 <a href="#spacing">(10) Adjacent instrument spacing</a>
 <a href="#clock_check">(11) Clock alignment check</a>
@@ -482,7 +482,58 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 <a href="#netcdf_attributes">(B) NetCDF attributes</a>
 </nav>
 
-<h2 id="processing_history">(1) Processing history</h2>
+<h2 id="hydrography">(1) Hydrography</h2>
+
+<p class="caption">Pressure, temperature and salinity for the full deployment — one row each on a shared time axis. One colour per instrument (shared across rows, ordered by height) so a line can be followed through all three panels; the single legend spans the union of instruments. Values flagged 3, 4 or 9 (correctable bad, bad, missing) are left out; interpolated (8) and nominal (7) values are drawn. ADCP excluded from pressure.</p>
+<details open><summary class="collapse-toggle">show / hide</summary>
+<img class="fig" src="data:image/png;base64,<PNG>" alt="hydro_pts">
+</details><div class="fig-source">source: oceanarray/plotters/timeseries.py:draw_stack_timeseries</div>
+
+<h2 id="velocity">(2) Velocity</h2>
+
+<p class="caption">Eastward (U), northward (V) and upward (W) velocity in the ENU frame — one row each on a shared time axis, one colour per instrument (shared across rows, ordered by height) with a single legend over the union of instruments. Values flagged 3, 4 or 9 left out; instruments without velocity data omitted.</p>
+<details open><summary class="collapse-toggle">show / hide</summary>
+<img class="fig" src="data:image/png;base64,<PNG>" alt="vel_uvw">
+</details><div class="fig-source">source: oceanarray/plotters/timeseries.py:draw_stack_timeseries</div>
+
+<h2 id="trajectories">(3) Particle trajectories</h2>
+
+<div class="fig-row">
+<div class="fig-cell slot-half">
+<p class="caption">Pseudo-Lagrangian particle trajectories integrated from each Aquadopp&#39;s east/north velocity. Start at the origin; coloured by time through the deployment.</p>
+<details open><summary class="collapse-toggle">show / hide</summary>
+<img class="fig" src="data:image/png;base64,<PNG>" alt="trajectories_aquadopp">
+</details><div class="fig-source">source: oceanarray/plotters/current.py:draw_multi_aquadopp_trajectories</div>
+</div>
+</div>
+
+
+<h2 id="speed_profile">(4) Aquadopp speed profile</h2>
+
+<p class="caption">Aquadopp current-speed profile: median and interquartile range of speed against height above bottom across the deployment.</p>
+<details open><summary class="collapse-toggle">show / hide</summary>
+<img class="fig slot-half" src="data:image/png;base64,<PNG>" alt="speed_profile">
+</details><div class="fig-source">source: oceanarray/plotters/current.py:draw_aquadopp_speed_profile</div>
+
+<h2 id="ts_diagram">(5) T-S diagram</h2>
+
+<p class="caption">Left: scatter coloured by pressure. Middle: 2-D count heatmap. Right (when oxygen data present): scatter coloured by O₂ saturation (%). Values flagged 3, 4 or 9 (probably bad, bad, missing) left out; nominal and interpolated values (flags 7, 8) kept.</p>
+<details open><summary class="collapse-toggle">show / hide</summary>
+<img class="fig" src="data:image/png;base64,<PNG>" alt="ts_diagram">
+</details><div class="fig-source">source: oceanarray/plotters/ts.py:draw_stack_ts_diagram</div>
+
+<h2 id="roses">(6) Current rose diagrams</h2>
+
+
+
+<p class="caption">Magnetic declination applied: -13.97°</p>
+
+<p class="caption">Direction the current flows toward (oceanographic convention, 0°=N). Speed coloured light→dark blue (slow→fast). QC-flagged samples excluded. Title shows serial number and height above bottom (m).</p>
+<details open><summary class="collapse-toggle">show / hide</summary>
+<img class="fig" src="data:image/png;base64,<PNG>" alt="roses">
+</details><div class="fig-source">source: oceanarray/plotters/current.py:draw_rose_grid</div>
+
+<h2 id="processing_history">(7) Processing history</h2>
 
 
 
@@ -504,7 +555,7 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 </tbody>
 </table><div class="fig-source">source: oceanarray/reports/_html_helpers.py:_build_history_tables</div>
 
-<h2 id="instruments">(2) Instruments (deep-first)</h2>
+<h2 id="instruments">(8) Instruments (deep-first)</h2>
 <p class="caption">HAB = height above bottom (m).</p>
 
 
@@ -690,57 +741,6 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
   
   </tbody>
 </table>
-
-<h2 id="hydrography">(3) Hydrography</h2>
-
-<p class="caption">Pressure, temperature and salinity for the full deployment — one row each on a shared time axis. One colour per instrument (shared across rows, ordered by height) so a line can be followed through all three panels; the single legend spans the union of instruments. Values flagged 3, 4 or 9 (correctable bad, bad, missing) are left out; interpolated (8) and nominal (7) values are drawn. ADCP excluded from pressure.</p>
-<details open><summary class="collapse-toggle">show / hide</summary>
-<img class="fig" src="data:image/png;base64,<PNG>" alt="hydro_pts">
-</details><div class="fig-source">source: oceanarray/plotters/timeseries.py:draw_stack_timeseries</div>
-
-<h2 id="velocity">(4) Velocity</h2>
-
-<p class="caption">Eastward (U), northward (V) and upward (W) velocity in the ENU frame — one row each on a shared time axis, one colour per instrument (shared across rows, ordered by height) with a single legend over the union of instruments. Values flagged 3, 4 or 9 left out; instruments without velocity data omitted.</p>
-<details open><summary class="collapse-toggle">show / hide</summary>
-<img class="fig" src="data:image/png;base64,<PNG>" alt="vel_uvw">
-</details><div class="fig-source">source: oceanarray/plotters/timeseries.py:draw_stack_timeseries</div>
-
-<h2 id="trajectories">(5) Particle trajectories</h2>
-
-<div class="fig-row">
-<div class="fig-cell slot-half">
-<p class="caption">Pseudo-Lagrangian particle trajectories integrated from each Aquadopp&#39;s east/north velocity. Start at the origin; coloured by time through the deployment.</p>
-<details open><summary class="collapse-toggle">show / hide</summary>
-<img class="fig" src="data:image/png;base64,<PNG>" alt="trajectories_aquadopp">
-</details><div class="fig-source">source: oceanarray/plotters/current.py:draw_multi_aquadopp_trajectories</div>
-</div>
-</div>
-
-
-<h2 id="speed_profile">(6) Aquadopp speed profile</h2>
-
-<p class="caption">Aquadopp current-speed profile: median and interquartile range of speed against height above bottom across the deployment.</p>
-<details open><summary class="collapse-toggle">show / hide</summary>
-<img class="fig slot-half" src="data:image/png;base64,<PNG>" alt="speed_profile">
-</details><div class="fig-source">source: oceanarray/plotters/current.py:draw_aquadopp_speed_profile</div>
-
-<h2 id="ts_diagram">(7) T-S diagram</h2>
-
-<p class="caption">Left: scatter coloured by pressure. Middle: 2-D count heatmap. Right (when oxygen data present): scatter coloured by O₂ saturation (%). Values flagged 3, 4 or 9 (probably bad, bad, missing) left out; nominal and interpolated values (flags 7, 8) kept.</p>
-<details open><summary class="collapse-toggle">show / hide</summary>
-<img class="fig" src="data:image/png;base64,<PNG>" alt="ts_diagram">
-</details><div class="fig-source">source: oceanarray/plotters/ts.py:draw_stack_ts_diagram</div>
-
-<h2 id="roses">(8) Current rose diagrams</h2>
-
-
-
-<p class="caption">Magnetic declination applied: -13.97°</p>
-
-<p class="caption">Direction the current flows toward (oceanographic convention, 0°=N). Speed coloured light→dark blue (slow→fast). QC-flagged samples excluded. Title shows serial number and height above bottom (m).</p>
-<details open><summary class="collapse-toggle">show / hide</summary>
-<img class="fig" src="data:image/png;base64,<PNG>" alt="roses">
-</details><div class="fig-source">source: oceanarray/plotters/current.py:draw_rose_grid</div>
 
 <h2 id="tilt">(9) Aquadopp tilt (|pitch| / |roll| / pressure estimate)</h2>
 
@@ -990,7 +990,7 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 </tbody></table><div class="fig-source">source: oceanarray/reports/_vendored/nc_tables.py:globals_rows</div>
 
 
-<p class="none-note">Not applicable to this deployment: Turbidity, Analog channels.</p>
+<p class="none-note">Not applicable to this deployment: Turbidity, Analog channels, Quality flags.</p>
 
 <div class="report-footer">
   Generated by <strong>oceanarray</strong> v<VERSION> &bull; OdB &bull; <GENERATED>

@@ -204,19 +204,21 @@ mooring as a whole.
        ``depth_match`` (``depth`` or ``hab``) and ``depth_tolerance_m`` (default
        ``depth``, 50): how ``oceanarray concat`` groups the same depth across
        deployments into one depth (see *Several deployments of a site*); ADCP bins use
-       half their bin size instead.
+       half their bin size instead.  ``mask_flags``: the flags whose values the
+       stack and Stack cat pages hide and the grid leaves out (a value is hidden
+       when ours or the originator's flag is in it), a list for every variable
+       (``[4]``, the default) or a mapping with a ``default`` and exceptions by
+       variable name or ``velocity`` (``{default: [4], velocity: [3, 4]}``);
+       ``--mask-flags`` / ``mask_flags=`` override it. The stack file keeps every
+       value either way.
    * - ``grid``
      - mapping
      - Optional
      - ``pmin``, ``pmax``, ``dp``: the grid's pressure levels in dbar
        (default 200, 1000, 20). ``--pmin`` / ``--pmax`` / ``--dp`` override them.
-       ``pmax`` must be above ``pmin``.  ``mask_flags``: the QC flags left out
-       before gridding, a list for every variable (``[4, 9]``, the default) or a
-       mapping with a ``default`` and exceptions by variable name or
-       ``velocity`` (``{default: [4, 9], velocity: [3, 4, 9]}``);
-       ``--mask-flags`` / ``mask_flags=`` override it.  The stack has already
-       left out the non-velocity values flagged 3, 4 or 9, so for those the
-       setting can only leave out more.
+       ``pmax`` must be above ``pmin``.  ``mask_flags``: flags the grid leaves out
+       on top of the stack's ``mask_flags``; it may only add (``validate`` refuses
+       one that drops a flag the stack hides).
    * - ``report_sections``
      - mapping
      - Optional
