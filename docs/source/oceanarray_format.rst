@@ -211,10 +211,11 @@ mooring YAML's ``source:`` block. Stage 1 writes them and every product carries 
 The Stack cat keeps one value per deployment (``deployment_source_*`` on
 ``DEPLOYMENT``) and the joined, de-duplicated values as globals; deployments under
 different licenses are all kept, with a warning. Each stack, Stack cat, grid and Grid
-cat has a ``citation`` of its own — the product, the oceanarray version, "Derived
-from:" each source (its DOI, else its citation) and "Users must also abide by the
-conditions of the source licenses." — and ``references`` lists the source DOIs
-(``doi:``) and reference URLs.
+cat is cited as its sources are: ``citation`` is each source's own citation, verbatim
+(followed by its DOI when the text lacks it), ``license`` lists each source license (a
+user must follow each), and ``references`` lists the source DOIs (``doi:``) and
+reference URLs, each once. How the product was made — "CF5_2020 stack built with
+oceanarray 0.6.1 from: …" — is a line in its ``history``.
 
 Sensor records
 ~~~~~~~~~~~~~~

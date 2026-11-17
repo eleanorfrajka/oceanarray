@@ -1,0 +1,44 @@
+{# What each instrument is: its sensor record's model, maker and type, where the
+   model came from, and the originator's own description of its variables. The
+   `sensor_records` panel payload (kind="html"). #}
+{% macro linked(text, url) -%}
+{%- if url and url.startswith("http") %}<a href="{{ url }}">{{ text }}</a>{% else %}{{ text }}{% endif -%}
+{%- endmacro %}
+<p class="caption">What each instrument is, from its sensor record: the model, maker
+and sensor type (linked to their NERC vocabulary entries when known), whether it is
+pumped, and where that came from — the mooring description, a sensor catalog, or the
+originator's file. <strong>Originator's description</strong>: what the originator's
+file says of each variable and sensor, kept verbatim (in the originator's units).
+Instruments read from raw files with no model given are not listed.</p>
+<table class="instr-table">
+  <thead>
+    <tr>
+      <th>Type</th><th>Instr&nbsp;S/N</th><th>Model</th><th>Maker</th><th>Sensor type</th>
+      <th>Pumped</th><th>From</th><th>Originator's description</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for instr in instruments if instr.record %}
+    {% set r = instr.record %}
+    <tr>
+      <td>{{ instr.instr_type }}</td>
+      <td><code>{{ instr.serial }}</code></td>
+      <td>{{ linked(r.model, r.model_vocabulary) }}</td>
+      <td>{{ linked(r.maker, r.maker_vocabulary) if r.maker else "—" }}</td>
+      <td>{{ linked(r.type, r.type_vocabulary) if r.type else "—" }}</td>
+      <td>{{ r.pumped or "—" }}</td>
+      <td>{{ r.source or "—" }}{% if r.model_source %}
+        <details class="coeff"><summary>source</summary><pre>{{ r.model_source }}</pre></details>{% endif %}</td>
+      <td>
+        {% if r.originator %}
+        <details class="coeff">
+          <summary>{{ r.originator | length }} attributes</summary>
+          <pre>{% for key, value in r.originator %}{{ key }}: {{ value }}
+{% endfor %}</pre>
+        </details>
+        {% else %}<span class="none-note">—</span>{% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>

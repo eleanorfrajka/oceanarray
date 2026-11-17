@@ -307,9 +307,10 @@ def square_axes_grid(
         whose panels share a y-axis (right panel hides its y-labels) can pass a
         smaller value to close the gap.
     cbar_txt_in : float, optional
-        Override the reserved width (inches) for the shared colorbar's tick
-        labels and axis label.  Default (``None``) uses the standard reserve;
-        pass a larger value for a long colorbar label so it stays on-canvas.
+        Override the reserved width (inches) for the colorbar's tick labels and
+        axis label (each panel's, with *per_panel_colorbar*).  Default (``None``)
+        uses the standard reserve; pass a larger value for a long colorbar label
+        so it stays on-canvas.
     left_in : float, optional
         Override the reserved left-margin width (inches) for the y-tick labels
         plus rotated y-axis label.  Default (``None``) uses the standard reserve
@@ -336,7 +337,10 @@ def square_axes_grid(
     if per_panel_colorbar:
         # Each cell = y-labels + square panel + its own (tight) colorbar.
         per_cell_fixed = (
-            _SQ_LABEL_IN + _SQ_CBAR_GAP_IN + _SQ_CBAR_W_IN + _SQ_CBAR_TXT_PP_IN
+            _SQ_LABEL_IN
+            + _SQ_CBAR_GAP_IN
+            + _SQ_CBAR_W_IN
+            + (cbar_txt_in if cbar_txt_in is not None else _SQ_CBAR_TXT_PP_IN)
         )
         _wgap = wgap_in if wgap_in is not None else _SQ_WGAP_PP_IN
         avail_w = fig_w - ncols * per_cell_fixed - (ncols - 1) * _wgap

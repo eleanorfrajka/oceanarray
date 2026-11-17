@@ -462,7 +462,7 @@ def _make_instrument_rose_b64(nc_path: Path) -> str | None:
     return render_b64(draw_instrument_rose, nc_path, optional=True)
 
 
-def _make_grid_ts_diagram_b64(
+def _make_grid_ts_diagram_b64_and_limits(
     ds: xr.Dataset, n_bins: int = 60
 ) -> tuple[str | None, dict]:
     """Return (b64_str_or_None, bounds_dict): T-S diagram for gridded mooring data."""

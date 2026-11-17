@@ -25,9 +25,15 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 - Stage 2 warns when a record starts well after deployment or ends well before recovery (more than 5 % of the planned window), naming the gap.
 - `thermistor` is a known instrument type (OceanSITES "MT" files).
 - `people:` and `source:` blocks in the mooring YAML give the people, DOI, citation, license and acknowledgement that data files do not; the file's own values win.
-- Every product keeps where its data came from (`source_*`; per deployment in the Stack cat, whose Deployments table links each DOI) and has its own `citation` and `references`.
+- Every product keeps where its data came from (`source_*`, per deployment in the Stack cat); its `citation` is its sources' own, `license` lists theirs, and how it was built is in `history` (#141).
 - One OG1-style sensor record per instrument (`SENSOR_<type>_<serial>`, MicroCATs `SENSOR_CTD_…`) with each sensor's calibration; data variables name it in `sensor`.
 - `run` keeps a stack and grid that are still current and says why it rebuilds; stacks and grids record their input files' SHA-256.
+- An imported file's variable attributes (`comment`, `uncertainty`, `accuracy`, …) go on the sensor record as `originator_<variable>_<attribute>` (#141).
+- When stage 3 recomputes salinity for an imported file, the originator's is kept as `salinity_originator`, with the difference in `history` (#141).
+- Stacks name each level's originator file, its SHA-256, release dates, sampling and processing level; the originators' title, institution, project … are kept as `originator_*` (#141).
+- `sensor_catalog:` in the mooring YAML names a catalog of sensor models with their NERC vocabularies; stage 1 describes each MicroCAT from it, by serial (#141).
+- The mooring page lists each instrument's sensor record: model, maker, pumping, where they came from, and the originator's description (#141).
+- The OceanSITES export writes `license`, `citation` and `references` (#141).
 
 ### Changed
 
@@ -44,6 +50,8 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 - Numbers in global attributes (`dp_dbar`, `p_start_dbar`, `dt_seconds` ...) are stored as `float32` / `int32` like the variables; positions stay double.
 - Report pages list principal-investigator and contributor email, url and id under People & institutions.
 - Pipeline progress goes to stderr via standard logging (one line per step; `-v` for per-instrument detail); a command's result still goes to stdout.
+- The Stack cat's Instruments table names the instrument type per row and gives each deployment one column (serial and depth) (#141).
+- The stack page leaves out the clock alignment check when every instrument was imported from an originator's processed files (#141).
 
 ### Deprecated
 

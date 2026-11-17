@@ -289,8 +289,8 @@ def test_grid_n2_b64(grid_ds):
 
 
 def test_grid_ts_diagram_returns_tuple(grid_ds):
-    """``_make_grid_ts_diagram_b64`` returns a (b64_str, bounds_dict) tuple."""
-    b64, bounds = _plots._make_grid_ts_diagram_b64(grid_ds)
+    """``_make_grid_ts_diagram_b64_and_limits`` returns a (b64_str, bounds_dict) tuple."""
+    b64, bounds = _plots._make_grid_ts_diagram_b64_and_limits(grid_ds)
     assert b64 is not None
     assert "t_lim" in bounds and "s_lim" in bounds
 

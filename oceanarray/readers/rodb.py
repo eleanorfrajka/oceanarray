@@ -10,6 +10,8 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+from oceanarray import provenance
+
 #: RODB column codes → (oceanarray name, units).  Units are those documented for
 #: each code in ``config/legacy/rodb_keys.yaml`` (RODB files carry no units).
 RODB_COLUMNS: dict[str, tuple[str, str]] = {
@@ -136,6 +138,7 @@ def read_rodb(path: str | Path) -> xr.Dataset:
         if key in header:
             out.attrs[f"originator_{key.lower()}"] = _rodb_position(header[key])
     out.attrs["originator_file"] = path.name
+    out.attrs["originator_sha256"] = provenance.sha256(path)
     out.attrs["originator_format"] = "RODB"
     if "MagDeviation" in header:
         out.attrs["originator_magnetic_declination"] = float(header["MagDeviation"])

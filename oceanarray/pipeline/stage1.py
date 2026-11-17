@@ -15,7 +15,7 @@ from typing import Any
 import numpy as np
 import xarray as xr
 
-from oceanarray import logger, paths
+from oceanarray import catalog, logger, paths
 from oceanarray import mooring as _mooring
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
@@ -51,6 +51,14 @@ COORDS_TO_REMOVE = {
 }
 
 _NORTEK_TYPES = ("nortek-raw", "nortek-ascii", "nortek-csv")
+
+
+def _file_serial(ds: xr.Dataset) -> str:
+    """Return the serial an imported file states for its sensor, or ``""``."""
+    for var in ds.data_vars.values():
+        if value := var.attrs.get("originator_sensor_serial_number"):
+            return str(value)
+    return ""
 
 
 def _rename_conductivity(dataset: xr.Dataset) -> xr.Dataset:
@@ -651,6 +659,7 @@ def _stage1_instrument(
         entry,
         safe_serial(entry.get("serial", "")),
         maker="Sea-Bird Scientific" if file_type.startswith("sbe") else None,
+        catalog=catalog.lookup(mooring, entry, _file_serial(dataset)),
     )
     dataset = _add_global_attributes(dataset, mooring)
     dataset = _add_sources(dataset, mooring)

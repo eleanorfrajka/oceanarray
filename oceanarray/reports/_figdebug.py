@@ -132,7 +132,7 @@ def render_b64(
 ) -> Any:
     """Wrap the encoder ``render_b64`` to record per-figure debug metadata.
 
-    Delegates to :func:`oceanarray.reports._encode.render_b64` and keeps its
+    Delegates to ``reports._encode.render_b64`` and keeps its
     ``str | None`` contract (a failed or empty draw returns ``None``); this wrapper
     never returns a :class:`Stub`.  With no explicit *on_error* and inside an
     :func:`as_panel` scope, a draw failure's cause is recorded in the capture sink so

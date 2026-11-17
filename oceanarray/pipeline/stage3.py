@@ -104,6 +104,70 @@ log = logging.getLogger(__name__)
 _ENU_KEYS = {"east_velocity", "north_velocity", "up_velocity"}
 
 
+def _originator_salinity(ds: xr.Dataset) -> xr.DataArray | None:
+    """Return an imported file's own salinity before stage 3 rederives it, or None."""
+    if "salinity" not in ds.data_vars or not ds.attrs.get("originator_file"):
+        return None
+    if not {"temperature", "conductivity", "pressure"}.issubset(ds.data_vars):
+        return None  # not rederived: theirs stays as salinity
+    return ds["salinity"].copy()
+
+
+def _keep_originator_salinity(
+    ds: xr.Dataset, theirs: xr.DataArray
+) -> tuple[xr.Dataset, str]:
+    """Keep the originator's salinity as ``salinity_originator``; return a history note.
+
+    The originator's description of its salinity (``originator_salinity_*`` on the
+    sensor record since stage 1) moves back onto ``salinity_originator``, which it
+    describes, and off the record.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The stage-3 dataset, with oceanarray's ``salinity`` computed.
+    theirs : xarray.DataArray
+        The file's ``salinity`` before it was recomputed.
+
+    Returns
+    -------
+    ds : xarray.Dataset
+        *ds* with ``salinity_originator``.
+    note : str
+        The history line: the median and largest difference, ours minus theirs.
+    """
+    from oceanarray.pipeline import sensors
+
+    attrs = {
+        k: theirs.attrs[k]
+        for k in ("units", "long_name", "standard_name", "original_name")
+        if k in theirs.attrs
+    }
+    prefix = "originator_salinity_"
+    for name, record in sensors.records(ds).items():
+        moved = {k: v for k, v in record.items() if k.startswith(prefix)}
+        for key, value in moved.items():
+            if key != f"{prefix}units":
+                attrs[key[len(prefix) :]] = value
+            del ds[name].attrs[key]
+    attrs["comment"] = (
+        f"{attrs['comment']}; " if attrs.get("comment") else ""
+    ) + "the originator's salinity, as delivered; salinity is recomputed from C, T, P"
+    ds["salinity_originator"] = xr.Variable(theirs.dims, theirs.values, attrs=attrs)
+    diff = ds["salinity"].values - theirs.values
+    diff = diff[np.isfinite(diff)]
+    if diff.size:
+        worst = diff[np.argmax(np.abs(diff))]
+        detail = f"(ours - theirs: median {np.median(diff):+.4f}, largest {worst:+.4f})"
+    else:
+        detail = "(no value in common)"
+    note = (
+        "salinity recomputed from C, T, P; the originator's kept as "
+        f"salinity_originator {detail}"
+    )
+    return ds, note
+
+
 def _resolve_pressure_var(data_vars: set) -> str | None:
     """Return the dataset's pressure variable name, or None if it has none."""
     if "pressure" in data_vars:
@@ -369,8 +433,13 @@ def _stage3_instrument(
         )
         history_notes.append(f"stage3 pressure interpolated (pressure_qc=8) — {method}")
 
-    # Salinity before QC so it gets range-tested.
+    # Salinity before QC so it gets range-tested. An imported file's own salinity is
+    # kept beside ours, with the originator's description of it.
+    theirs = _originator_salinity(ds)
     ds = compute_salinity_data(ds)
+    if theirs is not None and "salinity" in ds.data_vars:
+        ds, note = _keep_originator_salinity(ds, theirs)
+        history_notes.append(note)
 
     gr_cfg = info["gross_range"]
     # ADCP velocity is 2-D; gross_range_test expects 1-D, so the ENU keys are left to

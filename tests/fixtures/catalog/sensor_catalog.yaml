@@ -1,0 +1,45 @@
+# A sensor catalog with two OSNAP East MicroCATs (osnap-east config/instruments.yaml,
+# compiled 2026-11-15 from cruise reports; `sources` verbatim). Vocabulary entries
+# checked against the NERC Vocabulary Server on 2026-11-17 (current, not deprecated).
+models:
+  SBE 37-SMP:
+    long_name: Sea-Bird SBE 37-SMP MicroCAT
+    sensor_type: CTD
+    sensor_type_vocabulary: https://vocab.nerc.ac.uk/collection/L05/current/130/
+    sensor_maker: Sea-Bird Scientific
+    sensor_maker_vocabulary: https://vocab.nerc.ac.uk/collection/L35/current/MAN0013/
+    with_pressure:
+      sensor_model: Sea-Bird SBE 37 MicroCat SMP-CTP (submersible) CTD sensor
+      sensor_model_vocabulary: https://vocab.nerc.ac.uk/collection/L22/current/TOOL1457/
+    without_pressure:
+      sensor_model: Sea-Bird SBE 37 MicroCat SMP-CT with optional pressure (submersible) CTD sensor series
+      sensor_model_vocabulary: https://vocab.nerc.ac.uk/collection/L22/current/TOOL0018/
+  SBE 37:
+    long_name: Sea-Bird SBE 37 MicroCAT (model not known)
+    sensor_type: CTD
+    sensor_type_vocabulary: https://vocab.nerc.ac.uk/collection/L05/current/130/
+    sensor_maker: Sea-Bird Scientific
+    sensor_maker_vocabulary: https://vocab.nerc.ac.uk/collection/L35/current/MAN0013/
+    with_pressure:
+      sensor_model: Sea-Bird SBE 37 MicroCat CTP (submersible) CTD sensor series
+      sensor_model_vocabulary: https://vocab.nerc.ac.uk/collection/L22/current/TOOL1393/
+    without_pressure:
+      sensor_model: Sea-Bird SBE 37 MicroCat CT (submersible) CT sensor series
+      sensor_model_vocabulary: https://vocab.nerc.ac.uk/collection/L22/current/TOOL1394/
+
+instruments:
+  "37-12046":
+    model: SBE 37-SMP
+    pumped: true
+    sources:
+      - {report: 2015_64PE400_NIOZ_cruise_report.pdf, pdf_page: 40, text: "Instrument - MicroCat SBE 37-SMP SN 12046 88m --> 172 m"}
+    used_in: [IC1_2016, IC1_2020]
+    originator_file_model: "SBE37-SM Microcat"
+
+  "37-10227":
+    model: SBE 37
+    pumped: true
+    sources:
+      - {report: 2022_AR69-01_cruise_report.pdf, pdf_page: 50, text: "FLMA/FLMB block, cell 'Seabird SBE37-SMP (IMs)': FLMA-8 Seabird 1000m n/a 10227 ~100 ~100 Yes"}
+    used_in: [FLMA_2016, FLMA_2019, FLMA_2021]
+    note: "The WHOI table cell reads 'Seabird SBE37-SMP (IMs)': pumped is stated, but SMP is the RS-232 model and IM the inductive one; OOI moorings use inductive MicroCATs (CTDMO)."

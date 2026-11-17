@@ -22,6 +22,10 @@ from ._vendored.page_model import Panel
 # ---------------------------------------------------------------------------
 
 
+#: What every page says when a file records no processing history.
+NO_HISTORY = "No processing history recorded in the file attributes."
+
+
 def make_fig_panel(
     captions: Mapping[str, str],
 ) -> Callable[[str, str, str | None], Panel]:

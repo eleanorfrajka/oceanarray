@@ -16,7 +16,7 @@ from oceanarray.paths import should_skip_regeneration
 from oceanarray.pipeline.dataset import time_step_seconds
 
 from ..config import parameters as params
-from . import _masthead
+from . import _html_helpers, _masthead
 from ._breadcrumb import crumbs_from_ctx
 from ._env import (
     render_history,
@@ -38,7 +38,7 @@ from ._plots import (
     _make_grid_sigma_b64,
     _make_grid_timeseries_b64,
     _make_grid_trajectory_b64,
-    _make_grid_ts_diagram_b64,
+    _make_grid_ts_diagram_b64_and_limits,
     _make_grid_velocity_stacked_b64,
     _make_isopycnal_coverage_b64,
     _make_isopycnal_ts_b64,
@@ -201,7 +201,7 @@ class GridContext:
         defect: the N² panel stubs on it (via ``unavailable_if``), while the
         spectra still compute at ``lat=0`` as before.
     ts_bounds : dict
-        Shared T-S axis limits, from :func:`_make_grid_ts_diagram_b64`.
+        Shared T-S axis limits, from :func:`_make_grid_ts_diagram_b64_and_limits`.
     ts_b64 : str or None
         The rendered T-S diagram (base64 PNG), or ``None`` if it could not be
         drawn.  Cached here so the figure is drawn once, not once for the bounds
@@ -255,7 +255,7 @@ def build_grid_context(ds: Any, grid_path: Path) -> GridContext:
             stacklevel=2,
         )
         lat_v = 0.0
-    ts_b64, ts_bounds = _make_grid_ts_diagram_b64(ds)
+    ts_b64, ts_bounds = _make_grid_ts_diagram_b64_and_limits(ds)
     dt_s = time_step_seconds(ds)
     return GridContext(
         ds=ds,
@@ -313,7 +313,7 @@ def _history_unavailable(ctx: GridContext) -> str | None:
     # misstate a missing-metadata gap as a deployment characteristic.
     if ctx.history_entries:
         return None
-    return "No processing history recorded in the file attributes."
+    return _html_helpers.NO_HISTORY
 
 
 def _has_global_attrs(ctx: GridContext) -> bool:

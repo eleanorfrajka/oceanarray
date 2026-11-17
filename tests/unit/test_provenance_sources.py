@@ -189,20 +189,31 @@ def test_validate_checks_the_source_block():
 
 
 def test_a_product_cites_what_it_was_derived_from():
-    """Two deployments, two packages: each cited once, the license sentence, the references joined."""
+    """Two packages: each cited once, as it cites itself; how it was made is history."""
     cf7, _ = attribution.source_attrs(read_oceansites(CF7).attrs, {"doi": ADC_DOI})
     rodb, _ = attribution.source_attrs({}, {"citation": "NOC mooring data"})
-    out = attribution.product_citation(
-        "CF7 site record", "0.6.1+gabc1234", [cf7, cf7, rodb]
-    )
-    assert out["citation"] == (
-        "CF7 site record, processed with oceanarray 0.6.1. Derived from: "
-        f"doi:{ADC_DOI}; NOC mooring data. Users must also abide by the conditions "
-        "of the source licenses."
-    )
+    out = attribution.product_citation([cf7, cf7, rodb])
+    own = cf7["source_citation"]
+    assert out["citation"] == f"{own} doi:{ADC_DOI}; NOC mooring data"
+    assert "oceanarray" not in out["citation"]
+    # The same references in another order, from each file, are listed once.
     assert out["references"] == (
         f"doi:{ADC_DOI}; http://www.oceansites.org; http://www.o-snap.org"
     )
+    line = attribution.derivation("CF7 site record", "0.6.1+gabc1234", [cf7, rodb])
+    assert line.startswith("CF7 site record built with oceanarray 0.6.1 from: ")
+    assert ".." not in line
+
+
+def test_list_items_joins_repeated_references_in_any_order():
+    joined = "http://www.oceansites.org, http://www.o-snap.org; http://www.o-snap.org, http://www.oceansites.org"
+    assert attribution.list_items(joined) == [
+        "http://www.oceansites.org",
+        "http://www.o-snap.org",
+    ]
+    # A bibliographic reference keeps its commas.
+    ref = "Smith, J., 2019, Moorings, J. Ocean."
+    assert attribution.list_items(ref) == [ref]
 
 
 def test_the_init_stub_shows_people_and_source_commented_out(tmp_path: Path):
@@ -262,3 +273,53 @@ def test_a_doi_is_a_link_and_anything_else_is_text():
     )
     assert doi_link("<b>not a doi</b>") == "&lt;b&gt;not a doi&lt;/b&gt;"
     assert doi_link(None) == ""
+
+
+def test_list_items_keeps_short_references_whole():
+    assert attribution.list_items("Jones, 2020") == ["Jones, 2020"]
+    assert attribution.list_items("Smith, J., 2019; doi:10.1/x") == [
+        "Smith, J., 2019",
+        "doi:10.1/x",
+    ]
+
+
+def test_a_doi_is_added_unless_the_citation_names_that_doi_itself():
+    out = attribution.product_citation(
+        [
+            {
+                "source_citation": "Data, doi:10.1000/182-supplement",
+                "source_doi": "10.1000/182",
+            }
+        ]
+    )
+    assert out["citation"] == "Data, doi:10.1000/182-supplement doi:10.1000/182"
+    out = attribution.product_citation(
+        [{"source_citation": "Data, doi:10.1000/182.", "source_doi": "10.1000/182"}]
+    )
+    assert out["citation"] == "Data, doi:10.1000/182."
+    url = "Smith et al. (2020). OSNAP data. https://doi.org/10.1000/182"
+    out = attribution.product_citation(
+        [{"source_citation": url, "source_doi": "10.1000/182"}]
+    )
+    assert out["citation"] == url
+
+
+def test_join_values_warns_on_different_references_not_on_their_order(caplog):
+    import logging
+
+    a = {"source_references": "http://www.oceansites.org, http://www.o-snap.org"}
+    b = {"source_references": "http://www.o-snap.org, http://www.oceansites.org"}
+    c = {"source_references": "http://www.o-snap.org"}
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
+        attribution.join_sources([a, b], what="the stage files")
+    assert not caplog.records
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
+        attribution.join_sources([a, c], what="the stage files")
+    assert any("source_references" in r.message for r in caplog.records)
+
+
+def test_the_history_line_keeps_each_citation_in_one_entry():
+    sources = [{"source_citation": "A; B data"}, {"source_citation": "C data."}]
+    line = attribution.derivation("x site stack", "0.6.1", sources)
+    assert "; " not in line
+    assert line == "x site stack built with oceanarray 0.6.1 from: A, B data | C data"

@@ -12,6 +12,7 @@ from oceanarray.paths import should_skip_regeneration
 
 from ..config import parameters as params
 from ..paths import safe_serial
+from . import _html_helpers
 from ._breadcrumb import page_crumbs
 from ._env import (
     render_history,
@@ -131,11 +132,7 @@ def _image_panel(pid: str, b64: str) -> Panel:
 
 def _history_unavailable(c: dict) -> str | None:
     """Reason the history panel cannot render, or None."""
-    return (
-        None
-        if c.get("history_entries")
-        else "No processing history recorded in the file attributes."
-    )
+    return None if c.get("history_entries") else _html_helpers.NO_HISTORY
 
 
 def _empty_note(pid: str, reason: str, when_empty: Callable) -> Panel:

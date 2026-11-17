@@ -45,6 +45,7 @@ from ._read import (
     _read_instrument_info,
     _read_qc_summary,
     _read_sensor_info,
+    _read_sensor_record,
     _read_timing_info,
 )
 from ._stack import generate_stack_page
@@ -181,6 +182,14 @@ MOORING_PANELS: dict[str, Panel] = {
         ),
         kind="html",
     ),
+    "sensor_records": Panel(
+        "sensor_records",
+        render=lambda c: render_template(
+            "_mooring_sensor_records.html", instruments=c["instruments"]
+        ),
+        kind="html",
+        applies_to=lambda c: any(i.get("record") for i in c["instruments"]),
+    ),
     "qc": Panel(
         "qc",
         render=lambda c: render_template(
@@ -226,7 +235,9 @@ MOORING_SECTIONS: dict[str, Section] = {
     "instruments": Section("instruments", "Instrument summary", ("instruments",)),
     "timing": Section("timing", "Deployment timing", ("timing",)),
     "clock": Section("clock", "Clock corrections", ("clock_table", "clock_check")),
-    "calibration": Section("calibration", "Sensor calibration", ("calibration",)),
+    "calibration": Section(
+        "calibration", "Sensor calibration", ("calibration", "sensor_records")
+    ),
     "qc": Section("qc", "QC flag summary", ("qc",)),
     "knockdown": Section(
         "knockdown",
@@ -756,6 +767,9 @@ class MooringReport:
                         proc_dir, instr_type, mooring_name, serial
                     ),
                     "sensors": _read_sensor_info(
+                        proc_dir, instr_type, mooring_name, serial
+                    ),
+                    "record": _read_sensor_record(
                         proc_dir, instr_type, mooring_name, serial
                     ),
                     "qc_summary": _read_qc_summary(_stage3_nc) if _stage3_nc else [],

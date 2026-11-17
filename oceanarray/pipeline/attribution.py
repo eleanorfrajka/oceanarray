@@ -29,6 +29,8 @@ import re
 import warnings
 from collections.abc import Iterable, Mapping, Sequence
 
+import xarray as xr
+
 log = logging.getLogger(__name__)
 
 #: Fields of one principal investigator, and of one contributor entry.
@@ -795,31 +797,46 @@ def source_attrs(
     return out, both
 
 
-def product_citation(
-    title: str, version: str, sources: Sequence[Mapping[str, object]]
-) -> dict[str, str]:
-    """Return the ``citation`` and ``references`` of a product built from *sources*.
+def _is_link(text: str) -> bool:
+    """Return whether *text* is a URL or a DOI (not a piece of a bibliographic reference)."""
+    return bool(re.match(r"(https?://|doi:|10\.\d{4,}/)\S+$", text))
+
+
+def list_items(value: object) -> list[str]:
+    """Split a list attribute into its items, each once, in first-seen order.
+
+    Splits on ``;``; a part whose comma-separated pieces are all URLs or DOIs is
+    split on the commas too, so ``"a, b; b, a"`` gives ``a``, ``b``. Any other part
+    (``"Jones, 2020"``, a bibliographic reference) stays whole.
 
     Parameters
     ----------
-    title : str
-        What the product is, e.g. ``"egM2 site record 2014-2022"``.
-    version : str
-        The oceanarray version that built it (its public part is written).
-    sources : sequence of Mapping
-        The ``source_*`` attributes of each input (one per deployment or mooring).
+    value : object
+        The attribute's value, or None.
 
     Returns
     -------
-    dict of str to str
-        ``citation``: the product, then "Derived from:" each distinct source (its
-        DOI, else its citation) and "Users must also abide by the conditions of the
-        source licenses."; ``references``: each distinct source DOI (``doi:``) and
-        reference, in order. ``references`` is left out when there are none.
+    list of str
+        The distinct items.
     """
-    from oceanarray import provenance
+    items: list[str] = []
+    for part in str(value or "").split(";"):
+        pieces = [p.strip() for p in part.split(",")]
+        for item in pieces if all(_is_link(p) for p in pieces) else [part.strip()]:
+            if item and item not in items:
+                items.append(item)
+    return items
 
-    public = provenance.public_version(version) or str(version)
+
+def _names_doi(text: str, doi: str) -> bool:
+    """Return whether *text* names *doi* itself, not a longer DOI that starts with it."""
+    # Before it: anything but a DOI character (a doi.org URL's "/" is fine);
+    # after it: not a longer DOI.
+    return bool(re.search(rf"(?<![\w.-]){re.escape(doi)}(?![\w/-])", text))
+
+
+def _derived(sources: Sequence[Mapping[str, object]]) -> tuple[list[str], list[str]]:
+    """Return each distinct source's citation (with its DOI) and the references."""
     derived: list[str] = []
     refs: list[str] = []
     for src in sources:
@@ -829,30 +846,120 @@ def product_citation(
             for d in (bare_doi(p) for p in str(src.get("source_doi") or "").split("; "))
             if d
         ]
-        cited = (
-            [f"doi:{d}" for d in dois]
-            if dois
-            else [str(src.get("source_citation") or "").strip()]
-        )
+        # The source's own citation, verbatim, with its DOI when the text lacks it.
+        citation = str(src.get("source_citation") or "").strip()
+        missing = [f"doi:{d}" for d in dois if not _names_doi(citation, d)]
+        cited = [" ".join([citation, *missing])] if citation else missing
         for c in cited:
             if c and c not in derived:
                 derived.append(c)
-        for d in dois:
-            if f"doi:{d}" not in refs:
-                refs.append(f"doi:{d}")
-        for ref in _split(src.get("source_references")):
-            if ref and ref not in refs:
+        for ref in [f"doi:{d}" for d in dois] + list_items(
+            src.get("source_references")
+        ):
+            if ref not in refs:
                 refs.append(ref)
-    citation = f"{title}, processed with oceanarray {public}."
+    return derived, refs
+
+
+def product_citation(sources: Sequence[Mapping[str, object]]) -> dict[str, str]:
+    """Return how to cite a product built from *sources*, and its license terms.
+
+    The product is cited as its sources are: ``citation`` is each distinct
+    source's own citation, unchanged. How the product was made is processing
+    history, not a citation: see :func:`derivation`.
+
+    Parameters
+    ----------
+    sources : sequence of Mapping
+        The ``source_*`` attributes of each input (one per deployment or mooring).
+
+    Returns
+    -------
+    dict of str to str
+        ``citation`` (each source's own citation, followed by its DOI when the
+        text does not hold it, else the DOI; joined with ``"; "``), ``license`` (each
+        distinct source license: a user must follow each) and ``references`` (each
+        distinct DOI and reference, once). A key is left out when it has no value.
+    """
+    derived, refs = _derived(sources)
+    licenses: list[str] = []
+    for src in sources:
+        text = str(src.get("source_license") or "").strip()
+        if text and text not in licenses:
+            licenses.append(text)
+    out = {}
     if derived:
-        citation += (
-            f" Derived from: {'; '.join(derived)}. Users must also abide by the "
-            "conditions of the source licenses."
-        )
-    out = {"citation": citation}
+        out["citation"] = "; ".join(derived)
+    if licenses:
+        out["license"] = "; ".join(licenses)
     if refs:
         out["references"] = "; ".join(refs)
     return out
+
+
+def apply_product_citation(
+    ds: xr.Dataset, title: str, sources: Sequence[Mapping[str, object]]
+) -> xr.Dataset:
+    """Cite a product as its sources are, and record how it was made, in place.
+
+    Replaces ``citation``, ``license`` and ``references`` (an input's copies are
+    removed first) with :func:`product_citation`, and appends the
+    :func:`derivation` line to ``history``.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The product (a stack, Stack cat, grid or Grid cat).
+    title : str
+        What the product is, e.g. ``"CF5_2020 stack"``.
+    sources : sequence of Mapping
+        The ``source_*`` attributes of each input.
+
+    Returns
+    -------
+    xarray.Dataset
+        *ds*.
+    """
+    from oceanarray import provenance
+    from oceanarray.pipeline import _stage
+
+    for key in ("citation", "license", "references"):
+        ds.attrs.pop(key, None)
+    ds.attrs.update(product_citation(sources))
+    version = provenance.version_attrs()[provenance.VERSION_ATTR]
+    _stage.append_history(ds, derivation(title, version, sources))
+    return ds
+
+
+def derivation(
+    title: str, version: str, sources: Sequence[Mapping[str, object]]
+) -> str:
+    """Return the history line saying what a product was built with and from.
+
+    Parameters
+    ----------
+    title : str
+        What the product is, e.g. ``"CF5_2020 stack"``.
+    version : str
+        The oceanarray version that built it (its public part is written).
+    sources : sequence of Mapping
+        The ``source_*`` attributes of each input.
+
+    Returns
+    -------
+    str
+        ``"CF5_2020 stack built with oceanarray 0.6.1 from: doi:10.x/y"``, or
+        without ``from:`` when there are no sources.
+    """
+    from oceanarray import provenance
+
+    public = provenance.public_version(version) or str(version)
+    derived, _ = _derived(sources)
+    line = f"{title} built with oceanarray {public}"
+    # One history entry: "; " separates entries, so the citations are kept apart
+    # with " | " and any "; " inside one becomes ", ".
+    cited = " | ".join(c.rstrip(".").replace("; ", ", ") for c in derived)
+    return f"{line} from: {cited}" if derived else line
 
 
 def deployment_sources(
@@ -889,6 +996,63 @@ def deployment_sources(
     return [own] if own else []
 
 
+def join_values(
+    attrs_seq: Sequence[Mapping[str, object]],
+    keys: Sequence[str],
+    *,
+    what: str,
+    warn: Sequence[str] = (),
+    lists: Sequence[str] = (),
+) -> dict[str, str]:
+    """Return attributes of several files, one joined value each.
+
+    Each value is kept whole (a citation may itself hold ``"; "``), once, in order;
+    values that differ are joined with ``"; "``. A list attribute (*lists*) is
+    joined item by item (:func:`list_items`), so the same items in another order
+    are kept once.
+
+    Parameters
+    ----------
+    attrs_seq : Sequence of Mapping
+        The global attributes of each file, in order.
+    keys : Sequence of str
+        The attributes to join.
+    what : str
+        What the files are, for the warning (``"the stage files"``).
+    warn : Sequence of str, optional
+        The attributes for which a second value draws a WARNING.
+    lists : Sequence of str, optional
+        The attributes that are lists.
+
+    Returns
+    -------
+    dict of str to str
+        ``{key: joined value}`` for every key any file gives.
+    """
+    out: dict[str, str] = {}
+    for key in keys:
+        values: list[str] = []
+        for attrs in attrs_seq:
+            value = str(attrs.get(key) or "").strip()
+            if value and value not in values:
+                values.append(value)
+        if key in lists:
+            # Warn only when the files list different items, not the same ones
+            # in another order.
+            differ = len({frozenset(list_items(v)) for v in values}) > 1
+            values = list_items("; ".join(values))
+        else:
+            differ = len(values) > 1
+        if differ and key in warn:
+            log.warning(
+                f"  {what} give {len(values)} values of {key}; all are kept"
+                + (", and a user must follow each" if key == "source_license" else "")
+            )
+        if values:
+            out[key] = "; ".join(values)
+    return out
+
+
 def join_sources(
     attrs_seq: Sequence[Mapping[str, object]],
     *,
@@ -896,9 +1060,6 @@ def join_sources(
     warn: Sequence[str] = SOURCE_ATTRS,
 ) -> dict[str, str]:
     """Return the ``source_*`` attributes of several files, one joined value each.
-
-    Each value is kept whole (a citation may itself hold ``"; "``), once, in order;
-    values that differ are joined with ``"; "``.
 
     Parameters
     ----------
@@ -917,20 +1078,9 @@ def join_sources(
     Returns
     -------
     dict of str to str
-        ``{source_<field>: joined value}`` for every field any file gives.
+        ``{source_<field>: joined value}`` for every field any file gives
+        (:func:`join_values`; ``source_references`` is a list).
     """
-    out: dict[str, str] = {}
-    for key in SOURCE_ATTRS:
-        values: list[str] = []
-        for attrs in attrs_seq:
-            value = str(attrs.get(key) or "").strip()
-            if value and value not in values:
-                values.append(value)
-        if len(values) > 1 and key in warn:
-            log.warning(
-                f"  {what} give {len(values)} values of {key}; all are kept"
-                + (", and a user must follow each" if key == "source_license" else "")
-            )
-        if values:
-            out[key] = "; ".join(values)
-    return out
+    return join_values(
+        attrs_seq, SOURCE_ATTRS, what=what, warn=warn, lists=("source_references",)
+    )

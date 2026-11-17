@@ -48,7 +48,7 @@ def render(
         A key of :data:`report_tokens.SLOTS` (default ``"full"``).
     optional : bool
         Passed through to the encoder (see
-        :func:`oceanarray.reports._encode.render_b64`).
+        ``reports._encode.render_b64``).
 
     Returns
     -------

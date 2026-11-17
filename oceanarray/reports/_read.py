@@ -402,6 +402,69 @@ def _read_timing_info(
         return {}
 
 
+def _read_sensor_record(
+    proc_dir: Path, instr_type: str, mooring: str, serial: str
+) -> dict[str, Any] | None:
+    """Return what an instrument's sensor record says of it, from its latest stage file.
+
+    Parameters
+    ----------
+    proc_dir : pathlib.Path
+        The processing root.
+    instr_type, mooring, serial : str
+        Which instrument.
+
+    Returns
+    -------
+    dict or None
+        ``model``, ``maker``, ``type`` (each with its ``*_vocabulary`` link, or
+        ``""``), ``pumped``, ``source`` (where the model came from) and
+        ``originator`` (the originator's own description: a list of
+        ``(key, value)``); None when the record names no model and the originator
+        said nothing (a raw file read as is).
+    """
+    for stage in (3, 2, 1):
+        nc_path = (
+            proc_dir / instr_type / f"{mooring}_{serial}{paths.stage_suffix(stage)}"
+        )
+        if nc_path.exists():
+            break
+    else:
+        return None
+    try:
+        import xarray as xr
+
+        from oceanarray.pipeline import sensors
+
+        with xr.open_dataset(nc_path, engine="netcdf4", decode_timedelta=False) as ds:
+            records = list(sensors.records(ds).values())
+    except (OSError, ValueError):
+        return None
+    if not records:
+        return None
+    attrs = records[0]
+    originator = sorted(
+        (k.removeprefix("originator_"), str(v))
+        for k, v in attrs.items()
+        if str(k).startswith("originator_")
+    )
+    model = str(attrs.get("sensor_model", "UNK"))
+    if model == "UNK" and not originator:
+        return None
+    return {
+        "model": model,
+        "model_vocabulary": str(attrs.get("sensor_model_vocabulary", "")),
+        "maker": str(attrs.get("sensor_maker", "")),
+        "maker_vocabulary": str(attrs.get("sensor_maker_vocabulary", "")),
+        "type": str(attrs.get("sensor_type", "")),
+        "type_vocabulary": str(attrs.get("sensor_type_vocabulary", "")),
+        "pumped": str(attrs.get("sensor_pumped", "")),
+        "source": str(attrs.get("sensor_metadata_source", "")),
+        "model_source": str(attrs.get("sensor_model_source", "")),
+        "originator": originator,
+    }
+
+
 def _read_sensor_info(
     proc_dir: Path, instr_type: str, mooring: str, serial: str
 ) -> list[dict[str, Any]]:

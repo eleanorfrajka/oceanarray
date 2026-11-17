@@ -13,6 +13,8 @@ from pathlib import Path
 import numpy as np
 import xarray as xr
 
+from oceanarray import provenance
+
 log = logging.getLogger(__name__)
 
 #: OceanSITES parameter codes → oceanarray registry names.  The QC companion
@@ -39,6 +41,50 @@ OCEANSITES_FLAG_MEANINGS: str = (
     "correctable bad_data value_changed not_used nominal_value interpolated_value "
     "missing_value"
 )
+
+
+#: Variable attributes not kept from an originator file: those written here in our
+#: own terms, and those describing the file's layout or packing rather than the data.
+_NOT_KEPT: frozenset[str] = frozenset(
+    {
+        "units",
+        "long_name",
+        "standard_name",
+        "_FillValue",
+        "missing_value",
+        "scale_factor",
+        "add_offset",
+        "coordinates",
+        "ancillary_variables",
+        "axis",
+        "_ChunkSizes",
+        "DIMENSION_LIST",
+    }
+)
+
+
+#: CF attributes given in a packed variable's stored (packed) units.
+_PACKED_BOUNDS = ("valid_min", "valid_max", "valid_range")
+
+
+def _unpacked(da: xr.DataArray) -> dict:
+    """Return a variable's attributes with packed bounds in the decoded units.
+
+    CF gives ``valid_min`` / ``valid_max`` / ``valid_range`` of a packed variable
+    in its stored units; the values are decoded (``scale_factor``, ``add_offset``),
+    so the bounds are too, or they would not describe the values kept.
+    """
+    attrs = dict(da.attrs)
+    scale = da.encoding.get("scale_factor", 1)
+    offset = da.encoding.get("add_offset", 0)
+    if scale == 1 and offset == 0:
+        return attrs
+    for key in _PACKED_BOUNDS:
+        if key in attrs:
+            attrs[key] = np.asarray(attrs[key], dtype=np.float64) * scale + offset
+            if attrs[key].size == 1:
+                attrs[key] = attrs[key].item()
+    return attrs
 
 
 def _usable_flag_variable(da: xr.DataArray, data: xr.DataArray) -> str | None:
@@ -96,7 +142,8 @@ def read_oceansites(path: str | Path) -> xr.Dataset:
     ``<CODE>_QC``, a ``<CODE>_flag`` that is a flag variable whose words are in the
     meaning vocabulary; the source name is kept as ``originator_flag_variable``); each
     variable's
-    ``sensor_*`` attributes are kept as ``originator_sensor_*``.  The originator's
+    own attributes (``comment``, ``uncertainty``, ``accuracy``, ``sensor_*`` ...) are
+    kept as ``originator_<attribute>``.  The originator's
     global attributes are kept with an ``originator_`` prefix, and because CF
     ``eastward``/``northward_sea_water_velocity`` are geographic, a file with
     velocities is marked ``coordinate_system = "ENU"`` with
@@ -148,12 +195,13 @@ def read_oceansites(path: str | Path) -> xr.Dataset:
         attrs = {k: v for k, v in da.attrs.items() if k in ("units", "long_name")}
         attrs["standard_name"] = da.attrs.get("standard_name", "")
         attrs["original_name"] = code
-        # The originator's sensor description, verbatim (stage 1 builds the record).
+        # The originator's own description of the variable and its sensor, verbatim
+        # (stage 1 moves them to the sensor record).
         attrs.update(
             {
                 f"originator_{k}": v if np.isscalar(v) else str(v)
-                for k, v in da.attrs.items()
-                if k.startswith("sensor_")
+                for k, v in _unpacked(da).items()
+                if k not in _NOT_KEPT
             }
         )
         out[name] = xr.DataArray(da.values, dims="time", attrs=attrs)
@@ -178,6 +226,7 @@ def read_oceansites(path: str | Path) -> xr.Dataset:
     for key, val in src.attrs.items():
         out.attrs[f"originator_{key}"] = val if np.isscalar(val) else str(val)
     out.attrs["originator_file"] = path.name
+    out.attrs["originator_sha256"] = provenance.sha256(path)
     if {"east_velocity", "north_velocity"} & set(out.data_vars):
         out.attrs["coordinate_system"] = "ENU"
         out.attrs["originator_magnetic_declination"] = (

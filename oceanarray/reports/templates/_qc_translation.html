@@ -11,8 +11,8 @@ meaning becomes 0 (unknown).</p>
   <tbody>
   {% for row in table.rows %}
   <tr>
-    <td>{{ row.number }} {{ row.word }}</td>
-    <td>{% if row.ours is none %}0 {{ row.meaning }}{% else %}{{ row.ours }} {{ row.meaning }}{% endif %}</td>
+    <td style="white-space:nowrap">{{ row.number }} {{ row.word }}</td>
+    <td style="white-space:nowrap">{% if row.ours is none %}0 {{ row.meaning }}{% else %}{{ row.ours }} {{ row.meaning }}{% endif %}</td>
     <td>{{ row.used_by }}</td>
   </tr>
   {% endfor %}

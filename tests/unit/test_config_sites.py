@@ -21,6 +21,7 @@ PKG = Path(__file__).resolve().parents[2] / "oceanarray"
 #   reports/_recovery_table.py — recovery-table config
 #   pipeline/export.py    — array-level config (site_code, project), not a mooring config
 #   pipeline/qc/originator.py — the packaged flag-meaning vocabulary, not a mooring config
+#   catalog.py            — the sensor catalog a mooring names, not a mooring config
 # Everything under legacy/ is excluded wholesale (vendored/managed upstream).
 ALLOWED = {
     "mooring.py",
@@ -29,6 +30,7 @@ ALLOWED = {
     "reports/_recovery_table.py",
     "pipeline/export.py",
     "pipeline/qc/originator.py",
+    "catalog.py",
 }
 
 

@@ -15,7 +15,7 @@ from oceanarray.paths import should_skip_regeneration
 
 from ..config import parameters as params
 from ..pipeline import masking
-from . import _masthead, _qcflags
+from . import _html_helpers, _masthead, _qcflags
 from ._breadcrumb import crumbs_from_ctx
 from ._env import (
     render_history,
@@ -219,6 +219,7 @@ class StackContext:
     qc_tables: list = field(default_factory=list)
     qc_unflagged: list = field(default_factory=list)
     qc_quiet: int = 0
+    all_imported: bool = False
 
 
 def _fig(panel_id: str) -> Callable[[StackContext], str | None]:
@@ -245,7 +246,7 @@ def _history_unavailable(c: StackContext) -> str | None:
     """Reason the history panel cannot render, or None (provenance always applies)."""
     if c.history_entries:
         return None
-    return "No processing history recorded in the file attributes."
+    return _html_helpers.NO_HISTORY
 
 
 def _figure_panel(
@@ -351,7 +352,11 @@ STACK_PANELS: dict[str, Panel] = {
         caption=STACK_CAPTIONS["spacing"],
         applies_to=lambda c: c.n_instr > 1 and "pressure" in c.present_vars,
     ),
-    "clock_check": _figure_panel("clock_check"),
+    "clock_check": _figure_panel(
+        "clock_check",
+        # Off when every instrument was imported (``originator_file`` per level).
+        lambda c: c.figs.get("clock_check") is not None or not c.all_imported,
+    ),
     "qc_counts": Panel(
         "qc_counts",
         render=lambda c: render_template(
@@ -637,7 +642,16 @@ def generate_stack_page(
         # first/last 30 min.  Build {serial: path} preferring stage3 over stage2.
         proc_dir = stack_path.parent
         _clock_nc_paths: dict[str, Path] = {}
+        # An imported instrument's clock was aligned by its originator, and its
+        # file starts and ends where theirs did: it has no place in the check.
+        imported = (
+            [bool(str(f)) for f in ds["originator_file"].values]
+            if "originator_file" in ds.variables
+            else [False] * n_instr
+        )
         for i in range(n_instr):
+            if imported[i]:
+                continue
             _s = str(serials[i])
             _itype = str(instr_types[i])
             _base = proc_dir / _itype / f"{mooring_name}_{_s}"
@@ -649,8 +663,12 @@ def generate_stack_page(
                 _clock_nc_paths[_s] = _s2
         _deploy_dt = _parse_dt(ctx.get("deploy_time"))
         _recover_dt = _parse_dt(ctx.get("recover_time"))
-        fig_clock_check_b64 = as_panel(
-            lambda: _make_clock_check_b64(_clock_nc_paths, _deploy_dt, _recover_dt)
+        fig_clock_check_b64 = (
+            as_panel(
+                lambda: _make_clock_check_b64(_clock_nc_paths, _deploy_dt, _recover_dt)
+            )
+            if not all(imported)
+            else None
         )
 
         # The Quality flags section, from the file alone.
@@ -709,6 +727,7 @@ def generate_stack_page(
                 present_vars=present_vars,
                 instr_types=instr_types_set,
                 n_instr=n_instr,
+                all_imported=all(imported),
                 has_analog=bool(analog_vars),
                 history_entries=stack_history,
                 instr_rows=instr_rows,

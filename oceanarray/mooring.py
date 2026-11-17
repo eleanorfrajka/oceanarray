@@ -114,6 +114,8 @@ KNOWN_KEYS: frozenset[str] = frozenset(
         # people and data source for files that name none (``_check_people_and_source``)
         "people",
         "source",
+        # what each instrument is, by serial: the sensor record's model and vocabularies (``catalog``)
+        "sensor_catalog",
     }
 )
 
@@ -294,6 +296,11 @@ def load(
         except yaml.YAMLError as e:
             raise MooringError(f"YAML parse error in {path}: {e}") from e
         dir_name = path.parent.name
+        # A catalog path is relative to the description.
+        if isinstance(data, dict) and data.get("sensor_catalog"):
+            data["sensor_catalog"] = str(
+                (path.parent / str(data["sensor_catalog"])).resolve()
+            )
 
     if not isinstance(data, dict):
         raise MooringError("Mooring YAML root must be a mapping")
@@ -340,6 +347,10 @@ def check(
             return [ValidationIssue("ERROR", f"YAML parse error: {e}")]
         if dir_name is None:
             dir_name = path.parent.name
+        if isinstance(data, dict) and data.get("sensor_catalog"):
+            data["sensor_catalog"] = str(
+                (path.parent / str(data["sensor_catalog"])).resolve()
+            )
 
     issues = list(validation.validate_mooring(data, dir_name=dir_name))
 
@@ -354,6 +365,7 @@ def check(
         issues += _check_sources(data)
         issues += _check_people_and_source(data)
         issues += _check_sensor_models(data)
+        issues += _check_catalog(data)
         for key in data:
             if key not in KNOWN_KEYS:
                 issues.append(
@@ -728,6 +740,26 @@ def _check_sensor_models(data: Mapping) -> list[ValidationIssue]:
                 )
             )
     return issues
+
+
+def _check_catalog(data: Mapping) -> list[ValidationIssue]:
+    """Return an ERROR when ``sensor_catalog`` names a file that cannot be used."""
+    from oceanarray import catalog
+
+    path = data.get(catalog.KEY)
+    if path is None:
+        return []
+    if not isinstance(path, (str, PathLike)):
+        return [ValidationIssue("ERROR", f"sensor_catalog: {path!r} is not a path")]
+    if not Path(path).is_absolute():
+        # A description given as a dict: the path is relative to the mooring
+        # directory, which the caller resolves (``pipeline.resolve_mooring``).
+        return []
+    try:
+        catalog.load(path)
+    except MooringError as e:
+        return [ValidationIssue("ERROR", str(e))]
+    return []
 
 
 def _check_people_and_source(data: Mapping) -> list[ValidationIssue]:

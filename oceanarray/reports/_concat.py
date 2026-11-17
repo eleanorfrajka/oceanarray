@@ -21,7 +21,7 @@ from oceanarray.pipeline.concat import cell_deployment
 from ..config import parameters as params
 from ..plotters import helpers as _helpers
 from ..plotters import ts as _ts
-from . import _masthead, _qcflags
+from . import _html_helpers, _masthead, _qcflags
 from ._breadcrumb import page_crumbs
 from ._env import render_history, render_template
 from ._figdebug import as_panel
@@ -197,11 +197,7 @@ CONCAT_PANELS: dict[str, Panel] = {
         "history",
         render=_render_histories,
         kind="html",
-        unavailable_if=lambda c: (
-            None
-            if c.concat_history
-            else "No processing history recorded in the file attributes."
-        ),
+        unavailable_if=lambda c: None if c.concat_history else _html_helpers.NO_HISTORY,
     ),
     "nc_overlap_note": Panel(
         "nc_overlap_note",
@@ -583,14 +579,20 @@ def _depth_rows(
     rows = []
     depths = nominal_depths(ds)
     for k in _depth_order(ds):
+        cells = [
+            [entry(i) for i in np.flatnonzero((depth_index == k) & (dep == d))]
+            for d in range(len(names))
+        ]
+        types = list(dict.fromkeys(e["type"] for cell in cells for e in cell))
         rows.append(
             {
                 "family": str(ds["depth_family"].values[k]).replace("_", " "),
+                # The instrument type heads the row; a cell names it only when
+                # the depth holds more than one type.
+                "types": " / ".join(types),
+                "mixed": len(types) > 1,
                 "depth": f"{depths[k]:.0f}" if np.isfinite(depths[k]) else "—",
-                "cells": [
-                    [entry(i) for i in np.flatnonzero((depth_index == k) & (dep == d))]
-                    for d in range(len(names))
-                ],
+                "cells": cells,
             }
         )
     return rows

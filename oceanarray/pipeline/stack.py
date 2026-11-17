@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 import xarray as xr
 
-from oceanarray import logger, paths, provenance
+from oceanarray import catalog, logger, paths, provenance
 from oceanarray import mooring as _mooring
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
@@ -1112,12 +1112,8 @@ def stack(
         what="the stage files (one mooring is expected to come from one data package)",
     )
     ds_out.attrs.update(sources)
-    ds_out.attrs.update(
-        attribution.product_citation(
-            f"{mooring_name} stack",
-            provenance.version_attrs()[provenance.VERSION_ATTR],
-            [sources] if sources else [],
-        )
+    attribution.apply_product_citation(
+        ds_out, f"{mooring_name} stack", [sources] if sources else []
     )
     if not_cleaned:
         ds_out.attrs["people_not_cleaned"] = "; ".join(not_cleaned)
@@ -1126,6 +1122,11 @@ def stack(
             f"cleaned people; their people are left out (rerun from stage 1): "
             f"{'; '.join(not_cleaned)}"
         )
+
+    # What each imported level's originator file was, and what its originators say
+    # of the deployment (a file with no originator adds nothing).
+    _add_originator_levels(ds_out, kept_infos)
+    ds_out.attrs.update(_originator_globals(kept_infos))
 
     # Beam velocities are superseded by ENU components in the stacked file.
     beam_vel_vars = [v for v in ds_out.data_vars if v.startswith("velocity_beam")]
@@ -1338,6 +1339,7 @@ def stack_stale_reason(
         return "no stack yet"
     with xr.open_dataset(stack_path, engine="netcdf4") as old:
         attrs = dict(old.attrs)
+        old_records = list(sensors.records(old).values())
         recorded = (
             {
                 str(f): str(h)
@@ -1392,13 +1394,19 @@ def stack_stale_reason(
         masking.stack_rule(mooring, mask_flags)
     ):
         return "mask_flags changed"
+    # Stage 1 applies people:, source: and the sensor catalog, so a new stack from
+    # the same stage files would carry the old values; only rerunning stage 1
+    # brings them in.
+    changed_inputs = []
     if attrs.get(PEOPLE_SOURCE_ATTR, "") != people_source_sha256(mooring):
-        # Stage 1 applies people: and source:, so a new stack from the same stage
-        # files would carry the old values; only rerunning stage 1 brings them in.
+        changed_inputs.append("people:/source:")
+    if attrs.get(CATALOG_ATTR, "") != catalog.digest(mooring, old_records):
+        changed_inputs.append("what its sensor catalog says of these instruments")
+    if changed_inputs:
         log.warning(
-            f"{mooring.get('name', '')}: the description's people:/source: changed "
-            "after stage 1 wrote the stage files; rerun with --force to bring them "
-            "into the products"
+            f"{mooring.get('name', '')}: the description's "
+            f"{' and '.join(changed_inputs)} changed after stage 1 wrote the stage "
+            "files; rerun with --force to bring them into the products"
         )
     return None
 
@@ -1406,6 +1414,10 @@ def stack_stale_reason(
 #: The stack attribute holding the SHA-256 of the description's ``people:`` and
 #: ``source:`` blocks (absent when the description has neither).
 PEOPLE_SOURCE_ATTR = "people_source_sha256"
+
+#: The stack attribute holding the SHA-256 of what the sensor catalog says of the
+#: stack's own instruments (absent when the description names no catalog).
+CATALOG_ATTR = "sensor_catalog_sha256"
 
 
 def people_source_sha256(mooring: Mapping) -> str:
@@ -1430,6 +1442,78 @@ def people_source_sha256(mooring: Mapping) -> str:
         return ""
     text = json.dumps(blocks, sort_keys=True, default=str)
     return hashlib.sha256(text.encode()).hexdigest()
+
+
+#: Per level, what an imported level's originator file was: which file, which
+#: release of it, its own sampling and processing level.
+ORIGINATOR_LEVEL_ATTRS: tuple[str, ...] = tuple(
+    f"originator_{key}"
+    for key in (
+        "file",
+        "sha256",
+        "id",
+        "date_created",
+        "date_modified",
+        "time_coverage_resolution",
+        "processing_level",
+        "QC_indicator",
+    )
+)
+
+#: Per deployment, what the originators say of it: one value when every imported
+#: instrument agrees, else the distinct values joined.
+ORIGINATOR_DEPLOYMENT_ATTRS: tuple[str, ...] = tuple(
+    f"originator_{key}"
+    for key in (
+        "title",
+        "summary",
+        "institution",
+        "project",
+        "array",
+        "network",
+        "platform_code",
+        "site_code",
+        "publisher_name",
+        "publisher_email",
+        "publisher_url",
+        "data_assembly_center",
+    )
+)
+
+
+def _add_originator_levels(ds: xr.Dataset, infos: Sequence[Mapping]) -> None:
+    """Write :data:`ORIGINATOR_LEVEL_ATTRS` per level, in place (an ADCP's bins share).
+
+    A level with no originator gets ``""``; a name no level has is not written.
+    """
+    by_serial = {
+        paths.adcp_parent_serial(str(info["serial"])): info["ds"].attrs
+        for info in infos
+    }
+    levels = [
+        by_serial.get(paths.adcp_parent_serial(str(s)), {}) for s in ds["serial"].values
+    ]
+    for key in ORIGINATOR_LEVEL_ATTRS:
+        values = [str(attrs.get(key, "") or "") for attrs in levels]
+        if any(values):
+            ds[key] = xr.Variable(
+                ("N_LEVELS",),
+                np.array(values, dtype=object),
+                {
+                    "long_name": f"{key.removeprefix('originator_').replace('_', ' ')} "
+                    "of the originator's file the level was read from"
+                },
+            )
+
+
+def _originator_globals(infos: Sequence[Mapping]) -> dict[str, str]:
+    """Return :data:`ORIGINATOR_DEPLOYMENT_ATTRS`: one value each, joined (with a WARNING) if they differ."""
+    return attribution.join_values(
+        [info["ds"].attrs for info in infos],
+        ORIGINATOR_DEPLOYMENT_ATTRS,
+        what="the imported files",
+        warn=ORIGINATOR_DEPLOYMENT_ATTRS,
+    )
 
 
 def _add_stage_files(
@@ -1583,6 +1667,8 @@ def _stack_file(
     )
     if digest := people_source_sha256(mooring):
         ds.attrs[PEOPLE_SOURCE_ATTR] = digest
+    if digest := catalog.digest(mooring, list(sensors.records(ds).values())):
+        ds.attrs[CATALOG_ATTR] = digest
     why = reason or ("stage processing failed" if failures else "unknown")
     _stage.append_history(ds, f"stack rebuilt: {why}")
     if failures:

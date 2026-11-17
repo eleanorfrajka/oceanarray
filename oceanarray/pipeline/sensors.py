@@ -13,7 +13,10 @@ conductivity: 2018-04-10"``), and each sensor's coefficients are a
 an instrument recalibrated between deployments has a record per deployment.
 
 The originator's own ``sensor_*`` attributes (an imported OceanSITES file) are
-kept verbatim on the record as ``originator_sensor_*``. A ``sensor_model`` in the
+kept verbatim on the record as ``originator_sensor_*``, and its other variable
+attributes (``comment``, ``uncertainty``, ``accuracy`` ...) as
+``originator_<variable>_<attribute>`` with ``originator_<variable>_units``; the
+data variables keep only oceanarray's attributes. A ``sensor_model`` in the
 instrument's mooring-YAML entry, with its ``sensor_model_source``, fills or
 corrects the model; nothing is inferred from the data.
 """
@@ -123,14 +126,44 @@ def _originator_sensor_attrs(ds: xr.Dataset) -> dict[str, str]:
     return {key: "; ".join(values) for key, values in found.items()}
 
 
+def _originator_variable_attrs(ds: xr.Dataset) -> dict[str, Any]:
+    """Return the originator's other variable attributes as record keys.
+
+    Each ``originator_<attribute>`` on a data variable (other than
+    ``originator_sensor_*``, which :func:`_originator_sensor_attrs` joins) becomes
+    ``originator_<variable>_<attribute>``, with ``originator_<variable>_units`` (the
+    variable's units as read) so a number such as an uncertainty keeps its unit.
+    """
+    out: dict[str, Any] = {}
+    for name, var in ds.data_vars.items():
+        if not _links(var):
+            continue
+        own = {
+            k[len("originator_") :]: v
+            for k, v in var.attrs.items()
+            if k.startswith("originator_") and not k.startswith("originator_sensor_")
+        }
+        if not own:
+            continue
+        for key, value in own.items():
+            out[f"originator_{name}_{key}"] = value
+        if var.attrs.get("units"):
+            out[f"originator_{name}_units"] = str(var.attrs["units"])
+    return out
+
+
 def build_record(
     ds: xr.Dataset,
     entry: Mapping[str, Any],
     serial: str,
     *,
     maker: str | None = None,
+    catalog: Mapping[str, Any] | None = None,
 ) -> xr.Dataset:
     """Replace a stage-1 dataset's sensor variables with its one record, and link to it.
+
+    ``sensor_model`` comes from the instrument's entry, else the sensor
+    catalog, else the file; each replacement of the file's value is a WARNING.
 
     Parameters
     ----------
@@ -145,6 +178,11 @@ def build_record(
         The instrument's cleaned serial.
     maker : str, optional
         The maker when the file format says it (a Sea-Bird file).
+    catalog : Mapping, optional
+        What the sensor catalog says of this instrument
+        (:func:`oceanarray.catalog.lookup`). Its model's attributes and
+        vocabularies are written, the "with pressure" entry when the instrument
+        measured pressure (:func:`oceanarray.catalog.measured_pressure`).
 
     Returns
     -------
@@ -206,10 +244,21 @@ def build_record(
 
     originator = _originator_sensor_attrs(ds)
     attrs.update(originator)
+    attrs.update(_originator_variable_attrs(ds))
     file_model = originator.get("originator_sensor_model", "")
     file_maker = originator.get("originator_sensor_manufacturer", "") or originator.get(
         "originator_sensor_maker", ""
     )
+    cat: dict[str, str] = {}
+    if catalog:
+        from oceanarray import catalog as _catalog
+
+        measured, why = _catalog.measured_pressure(ds)
+        cat = _catalog.record_attrs(catalog, measured)
+        if "pressure" in ds.data_vars and not measured:
+            log.warning(
+                f"  {name}: described without pressure by the sensor catalog: {why}"
+            )
     yaml_model = str(entry.get("sensor_model") or "").strip()
     if yaml_model:
         if file_model and file_model != yaml_model:
@@ -217,10 +266,26 @@ def build_record(
                 f"  {name}: the mooring YAML's sensor_model {yaml_model!r} replaces the "
                 f"file's {file_model!r} (kept as originator_sensor_model)"
             )
+        if cat.get("sensor_model") and cat["sensor_model"] != yaml_model:
+            log.warning(
+                f"  {name}: the mooring YAML's sensor_model {yaml_model!r} is used, "
+                f"not the sensor catalog's {cat['sensor_model']!r}"
+            )
         attrs["sensor_model"] = yaml_model
         attrs["sensor_model_source"] = str(entry.get("sensor_model_source") or "")
         attrs["sensor_metadata_source"] = (
             f"mooring YAML: {attrs['sensor_model_source']}"
+        )
+    elif cat.get("sensor_model"):
+        if file_model and file_model != cat["sensor_model"]:
+            log.warning(
+                f"  {name}: the sensor catalog's sensor_model {cat['sensor_model']!r} "
+                f"replaces the file's {file_model!r} (kept as originator_sensor_model)"
+            )
+        attrs.update(cat)
+        attrs["sensor_metadata_source"] = (
+            f"sensor catalog: {catalog['catalog_file']} ({catalog['catalog_key']}, "
+            f"{why})"
         )
     elif file_model:
         attrs["sensor_model"] = file_model
@@ -230,17 +295,31 @@ def build_record(
         attrs["sensor_metadata_source"] = (
             "raw file header (calibration only)" if dates else "none"
         )
-    if maker or file_maker:
+    if "sensor_pumped" in cat:
+        # Known even when the model is not ("SBE 37-SM or -SMP").
+        attrs["sensor_pumped"] = cat["sensor_pumped"]
+    if (maker or file_maker) and "sensor_maker" not in attrs:
         attrs["sensor_maker"] = maker or file_maker
-    attrs["long_name"] = " ".join(
-        p
-        for p in (attrs.get("sensor_maker", ""), attrs["sensor_model"], f"s/n {serial}")
-        if p and p != "UNK"
-    )
+    if not attrs.get("long_name"):
+        attrs["long_name"] = " ".join(
+            p
+            for p in (
+                attrs.get("sensor_maker", ""),
+                attrs["sensor_model"],
+                f"s/n {serial}",
+            )
+            if p and p != "UNK"
+        )
     attrs["cf_role"] = "sensor_id"
     attrs["coverage_content_type"] = "auxiliaryInformation"
 
-    ds = ds.drop_vars(old)
+    # A shallow copy: the attributes removed below are not removed from the caller's.
+    ds = ds.drop_vars(old).copy()
+    # The originator's descriptions now live on the record; the variables keep ours.
+    for var in ds.data_vars.values():
+        if _links(var):
+            for key in [k for k in var.attrs if str(k).startswith("originator_")]:
+                del var.attrs[key]
     ds[name] = xr.Variable(
         (), np.int8(0), attrs={k: v for k, v in attrs.items() if v != ""}
     )

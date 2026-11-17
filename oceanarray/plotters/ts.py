@@ -372,7 +372,10 @@ def draw_stack_ts_diagram(
 
     has_sat = SAT_flat is not None and np.isfinite(SAT_flat).any()
     ncols = 3 if has_sat else 2
-    fig, _ax, _cax = square_axes_grid(width_in, 1, ncols, per_panel_colorbar=True)
+    # The count colorbar's label ("log10(count)") is wider than the standard reserve.
+    fig, _ax, _cax = square_axes_grid(
+        width_in, 1, ncols, per_panel_colorbar=True, cbar_txt_in=0.42
+    )
 
     ax_scatter, ax_heat = _ax[0, 0], _ax[0, 1]
     ax_sat = _ax[0, 2] if has_sat else None

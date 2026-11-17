@@ -484,6 +484,22 @@ def _people(ds: xr.Dataset, file_id: str) -> dict[str, str]:
     return attribution.to_attrs(attribution.read_own(ds.attrs))
 
 
+def _terms(ds: xr.Dataset) -> dict[str, str]:
+    """Return how to cite the data and the license it is under (``citation``, ``license``, ``references``).
+
+    A product's own values; a stage-3 file, which has none, gives its source's
+    (:func:`~oceanarray.pipeline.attribution.product_citation`).
+    """
+    own = {
+        k: str(ds.attrs[k])
+        for k in ("citation", "license", "references")
+        if ds.attrs.get(k)
+    }
+    return own or attribution.product_citation(
+        [{k: v for k, v in ds.attrs.items() if str(k).startswith("source_")}]
+    )
+
+
 def _source_name(ds: xr.Dataset, given: str | None, fallback: str) -> str:
     """Return the name of the file *ds* came from, for ``history``."""
     return given or Path(str(ds.encoding.get("source", ""))).name or fallback
@@ -665,6 +681,7 @@ def _deployment_file(
         note=f"OceanSITES {FORMAT_VERSION} deployment file written by oceanarray from {source}",
     )
     out.attrs.update(_people(ds, file_id))
+    out.attrs.update(_terms(ds))
     if "sample_interval_seconds" in ds.attrs:
         out.attrs["time_coverage_resolution"] = _iso_duration(
             ds.attrs["sample_interval_seconds"]
@@ -781,6 +798,7 @@ def _grid_file(
         ),
     )
     out.attrs.update(_people(ds, file_id))
+    out.attrs.update(_terms(ds))
     if interval:
         out.attrs["time_coverage_resolution"] = interval
     return out

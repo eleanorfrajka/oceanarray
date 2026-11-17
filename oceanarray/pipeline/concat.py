@@ -410,6 +410,7 @@ _OWN_ATTRS = frozenset(
         *(f"source_{f}" for f in attribution.CITATION_FIELDS),
         "source_note",
         "citation",
+        "license",
         "references",
         "people_not_cleaned",
         masking.STACK_ATTR,
@@ -942,19 +943,13 @@ def concat(
     out.attrs.pop("stack_mask_flag_sources", None)
     out.attrs.update(attribution.to_attrs(attribution.union(people)))
     out.attrs.update(joined_sources)
-    out.attrs.update(
-        attribution.product_citation(
-            f"{name} site stack",
-            provenance.version_attrs()[provenance.VERSION_ATTR],
-            attribution.deployment_sources(
-                {},
-                {
-                    k: v.values
-                    for k, v in data_vars.items()
-                    if k.startswith("deployment_source_")
-                },
-            ),
-        )
+    sources = attribution.deployment_sources(
+        {},
+        {
+            k: v.values
+            for k, v in data_vars.items()
+            if k.startswith("deployment_source_")
+        },
     )
     out.attrs.update(
         {
@@ -990,7 +985,7 @@ def concat(
             ),
         }
     )
-    return out
+    return attribution.apply_product_citation(out, f"{name} site stack", sources)
 
 
 def is_site_stack(ds: xr.Dataset) -> bool:

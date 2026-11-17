@@ -118,10 +118,9 @@ def test_the_stack_keeps_its_source_and_cites_it(stacks):
     s2016, s2018 = stacks
     assert s2016.attrs["source_license"] == "CC-BY 4.0"
     assert s2018.attrs["source_doi"] == ADC_DOI
-    assert s2018.attrs["citation"].startswith(
-        "egM2_2018 stack, processed with oceanarray "
-    )
-    assert f"Derived from: doi:{ADC_DOI}." in s2018.attrs["citation"]
+    assert s2018.attrs["citation"] == f"doi:{ADC_DOI}"
+    assert s2018.attrs["license"] == "CLIVAR data policy"
+    assert "egM2_2018 stack built with oceanarray " in s2018.attrs["history"]
     assert s2018.attrs["references"] == f"doi:{ADC_DOI}"
 
 
@@ -135,13 +134,16 @@ def test_the_stack_cat_records_each_deployments_source(stacks, caplog):
     assert list(site["deployment_source_doi"].values) == ["", ADC_DOI]
     assert site.attrs["source_license"] == "CC-BY 4.0; CLIVAR data policy"
     assert any("give 2 values of source_license" in r.message for r in caplog.records)
-    assert (
-        f"Derived from: NOC mooring data; doi:{ADC_DOI}. Users must also abide by "
-        "the conditions of the source licenses." in site.attrs["citation"]
-    )
+    assert site.attrs["citation"] == f"NOC mooring data; doi:{ADC_DOI}"
+    # Each level's originator file is carried into the Stack cat.
+    assert set(site["originator_file"].values) == {
+        str(v) for st in stacks for v in st["originator_file"].values
+    }
+    assert site.attrs["license"] == "CC-BY 4.0; CLIVAR data policy"
+    assert "egM2 site stack built with oceanarray" in site.attrs["history"]
     gridded = oa.grid(site, pmin=1800, pmax=2400, dp=50)
-    assert gridded.attrs["citation"].startswith("egM2 site grid, processed with")
-    assert f"doi:{ADC_DOI}" in gridded.attrs["citation"]
+    assert gridded.attrs["citation"] == f"NOC mooring data; doi:{ADC_DOI}"
+    assert "egM2 site grid built with oceanarray" in gridded.attrs["history"]
 
 
 def test_the_stack_cat_deployments_table_links_each_doi(stacks, tmp_path):

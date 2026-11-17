@@ -110,6 +110,24 @@ mooring as a whole.
        and ``source_note``. Field by field, the file's own value wins; the block
        fills what the file does not say (a warning for a field both give). Written
        as ``source_*`` into every product (see :doc:`oceanarray_format`).
+   * - ``sensor_catalog``
+     - path
+     - Optional
+     - What each instrument is, by serial, for its sensor record (relative to
+       this file). ``models:`` gives each model's ``long_name``, ``sensor_type``,
+       ``sensor_maker`` and their NERC vocabularies (L05, L35), and two
+       ``sensor_model`` entries from the SeaVoX device catalogue (L22):
+       ``with_pressure`` and ``without_pressure``. ``instruments:`` maps the
+       maker's label (``"37-12046"``: SBE 37 MicroCAT 12046) to a ``model``,
+       ``pumped`` and ``sources`` (report, ``pdf_page``, ``text``). No
+       calibration. Stage 1 looks each MicroCAT up by its serial, then by the
+       serial its file states, and writes the model's attributes on the sensor
+       record — the ``with_pressure`` entry when the instrument measured pressure
+       (values, and at least one flagged good, or none quality-controlled). An
+       instrument entry's own ``sensor_model`` wins; the file's value is kept as
+       ``originator_sensor_model``, with a warning. OceanSITES does not describe
+       sensors; the record follows OG1. Stage 1 does not rerun when the catalog
+       changes: ``oceanarray run --force``.
    * - ``deployment_time``
      - ISO-8601 string
      - Recommended

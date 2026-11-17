@@ -275,13 +275,10 @@ def grid(
     record = {
         v: ds[v].values for v in ds.data_vars if v.startswith("deployment_source_")
     }
-    ds_out.attrs.pop("references", None)
-    ds_out.attrs.update(
-        attribution.product_citation(
-            f"{ds.attrs.get('mooring_name', '')} {'site grid' if site else 'grid'}".strip(),
-            provenance.version_attrs()[provenance.VERSION_ATTR],
-            attribution.deployment_sources(ds.attrs, record),
-        )
+    attribution.apply_product_citation(
+        ds_out,
+        f"{ds.attrs.get('mooring_name', '')} {'site grid' if site else 'grid'}".strip(),
+        attribution.deployment_sources(ds.attrs, record),
     )
 
     return as_stored(to_canonical_units(ds_out, stage="grid"))
