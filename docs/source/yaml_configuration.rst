@@ -243,6 +243,14 @@ mooring as a whole.
      - Optional report sections to turn on, keyed by page. Only ``grid: [overflow]``
        exists today (the grid report's Overflow section, off by default). Set it in the
        mooring YAML.
+   * - ``spectrum_markers``
+     - mapping
+     - Optional
+     - Extra periods marked on the grid report's temperature and rotary spectra,
+       label → period with its unit (``s``, ``min``, ``h`` or ``d``), e.g.
+       ``{"4 d": "4 d", "S2": "12 h"}``. M2, K1 and the inertial period are always
+       marked; the captions name the extra ones, and those outside the periods
+       shown. ``validate`` reports a period it cannot read.
 
 The ``stack:`` and ``grid:`` blocks configure ``oceanarray run`` (and
 ``oceanarray.run``); the per-instrument ``stack: false`` flag one level down is a

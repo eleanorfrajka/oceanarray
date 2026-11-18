@@ -15,6 +15,138 @@ from scipy.signal import welch as _scipy_welch
 
 _log = logging.getLogger(__name__)
 
+#: Period of the principal lunar semidiurnal tide M2, in days (12.42 h).
+M2_PERIOD_DAYS: float = 12.4206012 / 24.0
+#: Period of the luni-solar diurnal tide K1, in days (23.93 h).
+K1_PERIOD_DAYS: float = 23.9344696 / 24.0
+
+#: Share of the record a grid level must have filled to carry a spectrum, wavelet
+#: or rotary spectrum line.
+SPECTRAL_MIN_FILLED: float = 0.9
+#: With at least this many candidate levels the temperature spectrum draws five
+#: lines instead of three.
+SPECTRAL_MANY_LEVELS: int = 10
+
+
+def inertial_period_days(latitude: float | None) -> float | None:
+    """Return the inertial period 2π/|f| at *latitude*, in days.
+
+    Parameters
+    ----------
+    latitude : float or None
+        Latitude in decimal degrees.
+
+    Returns
+    -------
+    float or None
+        The inertial period in days; None for an unknown latitude or at the
+        equator (where it is infinite).
+    """
+    if latitude is None or not np.isfinite(latitude) or latitude == 0.0:
+        return None
+    import gsw
+
+    f = abs(float(gsw.f(latitude)))
+    return 2.0 * np.pi / f / 86400.0
+
+
+def welch_segment(
+    n_time: int, dt_seconds: float, days: float, min_samples: int = 128
+) -> int:
+    """Return the Welch window length (samples) used for a *days*-long window.
+
+    The nominal window is *days* long.  On a record too short for several such
+    windows it is shortened to a quarter of the record (never below
+    *min_samples*, nor longer than the record), so the estimate still averages
+    a few windows.
+
+    Parameters
+    ----------
+    n_time : int
+        Number of samples in the record.
+    dt_seconds : float
+        Sample interval in seconds.
+    days : float
+        Nominal window length in days.
+    min_samples : int, optional
+        Shortest window, in samples, when the window is shortened (default 128).
+
+    Returns
+    -------
+    int
+        Window length in samples (at least 2).
+    """
+    nominal = max(2, int(round(days * 86400.0 / dt_seconds)))
+    if 4 * nominal <= n_time:
+        return nominal
+    return max(2, min(nominal, max(n_time // 4, min(min_samples, n_time))))
+
+
+def select_levels(
+    data: np.ndarray,
+    pressure: np.ndarray,
+    *,
+    at: np.ndarray | None = None,
+    n: int | None = None,
+    min_filled: float = SPECTRAL_MIN_FILLED,
+) -> list[int]:
+    """Return the grid levels a spectrum, wavelet or rotary spectrum is drawn at.
+
+    Candidates are the grid levels with values for at least *min_filled* of the
+    record; when instrument pressures *at* are given, only the grid level nearest
+    each instrument (within the grid) is a candidate.  From the candidates, *n*
+    are taken evenly from the shallowest to the deepest, so the shallowest and
+    deepest are always included.
+
+    Parameters
+    ----------
+    data : numpy.ndarray
+        Values on ``(level, time)``; a level is filled where it is finite.  For
+        velocity pass a field that is NaN where either component is.
+    pressure : numpy.ndarray
+        The grid levels (dbar), one per row of *data*, increasing.
+    at : numpy.ndarray or None, optional
+        Instrument pressures (dbar).  None: every grid level is a candidate.
+    n : int or None, optional
+        How many levels to take.  None: three, or five when there are at least
+        :data:`SPECTRAL_MANY_LEVELS` candidates.
+    min_filled : float, optional
+        Share of the record a level must have filled (default
+        :data:`SPECTRAL_MIN_FILLED`).
+
+    Returns
+    -------
+    list of int
+        Level indices, shallowest first; all the candidates when there are no
+        more than *n*.
+    """
+    data = np.asarray(data, dtype=float)
+    pressure = np.asarray(pressure, dtype=float)
+    if data.ndim != 2 or data.shape[1] == 0:
+        return []
+    filled = np.isfinite(data).sum(axis=1) / data.shape[1]
+    ok = filled >= min_filled
+    if at is not None and len(at):
+        half = float(np.median(np.diff(pressure))) / 2.0 if len(pressure) > 1 else 0.0
+        near = set()
+        for p in np.asarray(at, dtype=float):
+            if not np.isfinite(p):
+                continue
+            if p < pressure.min() - half or p > pressure.max() + half:
+                continue
+            k = int(np.argmin(np.abs(pressure - p)))
+            if ok[k]:
+                near.add(k)
+        candidates = sorted(near)
+    else:
+        candidates = [int(k) for k in np.flatnonzero(ok)]
+    if n is None:
+        n = 5 if len(candidates) >= SPECTRAL_MANY_LEVELS else 3
+    if len(candidates) <= n:
+        return candidates
+    picks = np.round(np.linspace(0, len(candidates) - 1, n)).astype(int)
+    return [candidates[i] for i in dict.fromkeys(picks.tolist())]
+
 
 def gonella_rotary_spectrum(
     u_col: np.ndarray,

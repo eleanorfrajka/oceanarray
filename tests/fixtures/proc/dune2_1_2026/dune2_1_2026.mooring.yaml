@@ -21,6 +21,12 @@ longitude: -27 48.000
 # off by default; see report_sections in the YAML reference).
 report_sections:
   grid: [overflow]
+# Extra periods marked on the grid page's spectra (M2, K1 and the inertial period
+# are always marked).
+spectrum_markers:
+  1.8 d: 1.8 d
+  4 d: 4 d
+  9 min: 9 min
 
 clamp:
 - serial: 2941

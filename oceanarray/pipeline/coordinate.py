@@ -9,6 +9,7 @@ import numpy as np
 import xarray as xr
 
 from oceanarray import logger
+from oceanarray.physics import flow_direction
 
 log = logging.getLogger(__name__)
 
@@ -280,14 +281,11 @@ def _beam_to_enu(
             declination,
         )
 
-    speed = np.where(
-        np.isfinite(east) & np.isfinite(north), np.sqrt(east**2 + north**2), np.nan
-    )
-    direction = np.where(
-        np.isfinite(east) & np.isfinite(north),
-        np.degrees(np.arctan2(east, north)) % 360.0,
-        np.nan,
-    )
+    # Speed as sqrt(e² + n²), not hypot: hypot differs from it in the last bit, and
+    # stage-3 speeds stay as earlier versions of oceanarray wrote them.
+    both = np.isfinite(east) & np.isfinite(north)
+    speed = np.where(both, np.sqrt(east**2 + north**2), np.nan)
+    direction = np.where(both, flow_direction(east, north), np.nan)
 
     time_dim = ds["heading"].dims[0]
     for name, arr, cf, units, long_name in [

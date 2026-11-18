@@ -2,49 +2,40 @@
    The `pipeline` panel payload (kind="html").  Numbering/heading emitted by the
    report_body macro.  Section cross-references are link text without numbers
    (numbering is now automatic). #}
-<p style="font-size:0.82rem;color:var(--gray-5);margin-top:-0.5rem;">
-  Raw = file present in raw directory &bull;
-  Read = format check passed &bull;
-  Stage&nbsp;1–3 = processed NetCDF files exist &bull;
-  Stack = mooring-level <code>_stack.nc</code> &bull;
-  Grid = pressure-gridded <code>_grid.nc</code>
+{% import "_mooring_cols.html" as cols %}
+<p class="caption">
+  How far each instrument's record went through processing: read from the
+  originator's or instrument's file &rarr; standardized (units, names) &rarr; trimmed
+  to the deployment &rarr; checked &rarr; combined into the mooring time series
+  &rarr; interpolated onto a common pressure grid. Green: done; grey: not reached.
+  HAB: height above bottom.
 </p>
-<p style="font-size:0.82rem;color:var(--gray-5);margin-top:-0.3rem;">
-  Instruments marked <code>skip: true</code> in the YAML are excluded from all
-  processing and are shown with a <em>skipped</em> note in the Note column.
-  Stack and Grid pills are grey for any instrument that did not reach Stage&nbsp;3.
-  See <a href="#instruments">the instrument summary</a> for skip reasons where given.
-</p>
+<details class="processing"><summary>show the processing steps for each instrument</summary>
 <table>
   <thead>
     <tr>
-      <th>#</th>
+      {{ cols.depth_heads() }}
       <th>Type</th>
-      <th>S/N</th>
-      <th>Hab&nbsp;(m)</th>
-      <th>Depth&nbsp;(m)</th>
-      <th>Pipeline</th>
+      <th>Serial</th>
+      <th>Processing steps</th>
       <th>Note</th>
     </tr>
   </thead>
   <tbody>
     {% for instr in instruments %}
     <tr>
-      <td class="num">{{ loop.index }}</td>
-      <td>{{ instr.instr_type }}</td>
-      <td>{% if instr.report_exists %}<a href="instrument/{{ mooring_name }}_{{ instr.serial }}_report.html"
-             style="font-family:monospace;font-size:0.85rem">{{ instr.serial }}</a>{% else %}<span style="font-family:monospace;font-size:0.85rem">{{ instr.serial }}</span>{% endif %}</td>
-      <td class="num">{% if instr.hab is not none %}{{ "%.1f"|format(instr.hab) }}{% else %}<span class="none-note"{% if instr.no_hab_note %} title="{{ instr.no_hab_note }}"{% endif %}>—</span>{% endif %}</td>
-      <td class="num">{{ "%.0f"|format(instr.depth) if instr.depth is not none else "—" }}</td>
+      {{ cols.depth_cells(instr) }}
+      <td>{{ instr.type_label }}</td>
+      {{ cols.serial_cell(instr, mooring_name) }}
       <td>
         <div class="pipeline">
           {# raw file #}
           {% if instr.raw_exists %}
-            <span class="badge b-ok" title="{{ instr.raw_path }}">Raw ✓</span>
+            <span class="badge b-ok" title="raw file: {{ instr.raw_path }}">File ✓</span>
           {% elif instr.filename %}
-            <span class="badge b-warn" title="Expected: {{ instr.raw_path }}">Raw ✗</span>
+            <span class="badge b-warn" title="expected raw file: {{ instr.raw_path }}">File ✗</span>
           {% else %}
-            <span class="badge b-miss">Raw —</span>
+            <span class="badge b-miss">File —</span>
           {% endif %}
           <span class="arrow">›</span>
           {# readability check #}
@@ -60,44 +51,57 @@
           <span class="arrow">›</span>
           {# stage 1 #}
           {% if instr.stages.stage1 %}
-            <span class="badge b-ok">Stage&nbsp;1 ✓</span>
+            <span class="badge b-ok" title="stage 1">Standardized ✓</span>
           {% else %}
-            <span class="badge b-miss">Stage&nbsp;1 ○</span>
+            <span class="badge b-miss" title="stage 1">Standardized ○</span>
           {% endif %}
           <span class="arrow">›</span>
           {# stage 2 #}
           {% if instr.stages.stage2 %}
-            <span class="badge b-ok">Stage&nbsp;2 ✓</span>
+            <span class="badge b-ok" title="stage 2">Trimmed ✓</span>
           {% else %}
-            <span class="badge b-miss">Stage&nbsp;2 ○</span>
+            <span class="badge b-miss" title="stage 2">Trimmed ○</span>
           {% endif %}
           <span class="arrow">›</span>
           {# stage 3 #}
           {% if instr.stages.stage3 %}
-            <span class="badge b-ok">Stage&nbsp;3 ✓</span>
+            <span class="badge b-ok" title="stage 3">Checked ✓</span>
           {% else %}
-            <span class="badge b-miss">Stage&nbsp;3 ○</span>
+            <span class="badge b-miss" title="stage 3">Checked ○</span>
           {% endif %}
           <span class="arrow">›</span>
           {# stack — only coloured if this instrument is in the stack file #}
           {% if instr.in_stack %}
-            <span class="badge b-stack">Stack ✓</span>
+            <span class="badge b-stack" title="stack">Combined ✓</span>
           {% else %}
-            <span class="badge b-miss">Stack ○</span>
+            <span class="badge b-miss" title="stack">Combined ○</span>
           {% endif %}
           <span class="arrow">›</span>
           {# grid — only coloured if this instrument is in the grid file #}
           {% if instr.in_grid %}
-            <span class="badge b-grid">Grid ✓</span>
+            <span class="badge b-grid" title="grid">Gridded ✓</span>
           {% else %}
-            <span class="badge b-miss">Grid ○</span>
+            <span class="badge b-miss" title="grid">Gridded ○</span>
           {% endif %}
         </div>
       </td>
       <td style="font-size:0.8rem;color:var(--bad);">
-        {% if instr.skipped %}skipped{% elif instr.no_hab_note %}{{ instr.no_hab_note }}{% endif %}
+        {% if instr.skipped %}{{ instr.skip_reason }}{% elif instr.no_hab_note %}{{ instr.no_hab_note }}{% endif %}
       </td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
+
+{% if grid_p_start is not none and grid_p_end is not none %}
+<p style="font-size:0.82rem;color:var(--gray-5);margin-top:0.8rem;">
+  <strong>Pressure range for the gridded product.</strong> The instruments' measured
+  pressures span {{ grid_p_start }}&ndash;{{ grid_p_end }}&thinsp;dbar (rounded outward to
+  20&thinsp;dbar). To grid this mooring over that range, set <code>pmin</code> and
+  <code>pmax</code> in the <code>grid:</code> block of the mooring description, or pass
+  them on the command line, from the folder holding the mooring description (the stage
+  files are kept, so no raw files are needed):
+</p>
+<pre style="background:var(--gray-1);border:1px solid var(--rule);border-radius:4px;padding:0.5em 0.8em;font-size:0.85rem;display:inline-block;user-select:all;cursor:text">oceanarray run {{ yaml_name }} --from 3 --pmin {{ grid_p_start }} --pmax {{ grid_p_end }}</pre>
+{% endif %}
+</details>

@@ -1,31 +1,34 @@
 {# Clock-corrections intro prose + per-instrument offset/drift table.  The
    `clock_table` panel payload (kind="html").  The clock-alignment-check figure
    is a separate figure panel. #}
-<p style="font-size:0.82rem;color:var(--gray-5);margin-top:-0.5rem;">
-  Positive drift/offset = instrument was <em>slow</em> (behind UTC); correction shifts times later.
-  Negative = instrument was <em>fast</em> (ahead of UTC); correction shifts times earlier.
+{% import "_mooring_cols.html" as cols %}
+{% if not any_clock_correction %}
+<p class="one-line">No clock corrections applied here.{% if timing_mode == "imported" %} For originator data, any clock correction was made by the originator before publication.{% endif %}</p>
+{% else %}
+<p class="caption">
+  Clock offset at deployment and drift at recovery, as applied in processing. A
+  positive value means the instrument clock ran slow (behind UTC), so its times were
+  shifted later. Only instruments with a correction are listed. HAB: height above bottom.
 </p>
 <table>
   <thead>
     <tr>
-      <th>#</th>
+      {{ cols.depth_heads() }}
       <th>Type</th>
-      <th>S/N</th>
-      <th>Hab&nbsp;(m)</th>
-      <th>Offset&nbsp;(s)</th>
+      <th>Serial</th>
+      {{ cols.th("Offset", "s", true) }}
       <th>Computer time at recovery</th>
       <th>Instrument time at recovery</th>
-      <th>Drift&nbsp;(s)</th>
+      {{ cols.th("Drift", "s", true) }}
       <th>Source</th>
     </tr>
   </thead>
   <tbody>
-    {% for instr in instruments %}
+    {% for instr in instruments if instr.clock.has_correction %}
     <tr>
-      <td class="num">{{ loop.index }}</td>
-      <td>{{ instr.instr_type }}</td>
+      {{ cols.depth_cells(instr) }}
+      <td>{{ instr.type_label }}</td>
       <td><code>{{ instr.serial }}</code></td>
-      <td class="num">{% if instr.hab is not none %}{{ "%.1f"|format(instr.hab) }}{% else %}<span class="none-note"{% if instr.no_hab_note %} title="{{ instr.no_hab_note }}"{% endif %}>—</span>{% endif %}</td>
       <td class="num">
         {% if instr.clock.offset_s == 0 %}
           <span class="none-note">—</span>
@@ -57,3 +60,4 @@
     {% endfor %}
   </tbody>
 </table>
+{% endif %}

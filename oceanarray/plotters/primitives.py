@@ -15,6 +15,8 @@ plot_polar_histogram, plot_timeseries.
 from __future__ import annotations
 
 import math
+from collections.abc import Sequence
+from dataclasses import dataclass
 from typing import Any
 
 import matplotlib.colors as mcolors
@@ -102,6 +104,8 @@ def pcolormesh_panel(
     title_loc: str = "left",
     date_fmt: bool = True,
     edges: tuple[np.ndarray, np.ndarray] | None = None,
+    cax: Any = None,
+    extend: str = "neither",
 ) -> Any:
     """Draw one (pressure × time) field as a discrete-colorbar panel on *ax*.
 
@@ -145,6 +149,12 @@ def pcolormesh_panel(
         ``(time edges, pressure edges)``, each one longer than *time* and
         *pressure*: draw each cell between its edges (pcolormesh only) rather than
         centered on its coordinate, so cells of unequal length keep their extent.
+    cax : matplotlib Axes, optional
+        A pre-placed colorbar axes (from :func:`section_layout`); default: the
+        colorbar takes room from *ax*.
+    extend : {"neither", "both", "min", "max"}, optional
+        Colour values beyond the limits in the end colours and draw the colorbar
+        with arrows on those ends (default ``"neither"``).
 
     Returns
     -------
@@ -153,6 +163,8 @@ def pcolormesh_panel(
 
     """
     bounds, norm = colorbar_norm(data, vmin=vmin, vmax=vmax, n=n)
+    if extend != "neither":
+        norm = mcolors.BoundaryNorm(bounds, ncolors=256, extend=extend)
     if style == "contourf":
         pc = ax.contourf(time, pressure, data, levels=bounds, cmap=cmap, extend="both")
     else:
@@ -165,12 +177,11 @@ def pcolormesh_panel(
             cmap=cmap,
             norm=norm,
         )
-    cb = fig.colorbar(
-        pc,
-        ax=ax,
-        pad=0.02,
-        ticks=nice_colorbar_ticks(float(bounds[0]), float(bounds[-1])),
-    )
+    ticks = nice_colorbar_ticks(float(bounds[0]), float(bounds[-1]))
+    if cax is not None:
+        cb = fig.colorbar(pc, cax=cax, ticks=ticks, extend=extend)
+    else:
+        cb = fig.colorbar(pc, ax=ax, pad=0.02, ticks=ticks, extend=extend)
     if cb_label is not None:
         # Explicit full label requested — keep it as a side label.
         cb.set_label(cb_label)
@@ -865,3 +876,226 @@ def period_axis_ticks(
     if not filtered:
         return [], []
     return [v for v, _ in filtered], [lbl for _, lbl in filtered]
+
+
+# ---------------------------------------------------------------------------
+# Pressure sections at one vertical scale.  Every section and profile of a grid
+# page is drawn at the dbar-per-inch of the hydrography panels, so a pressure
+# interval spans the same height in every figure; the axes are placed by hand in
+# inches (as in :func:`square_axes_grid`) because an automatic layout would
+# change each panel's height.
+# ---------------------------------------------------------------------------
+
+#: Height (inches) of one hydrography section panel; sets the page's vertical scale.
+SECTION_AXES_IN: float = 1.9
+#: Shortest panel (inches) a cropped section or profile is drawn at.
+SECTION_MIN_AXES_IN: float = 0.5
+_SEC_LEFT_IN: float = 0.72  # y-tick labels + rotated pressure label
+_SEC_TITLE_IN: float = 0.27  # panel title row
+_SEC_GAP_IN: float = 0.08  # between a panel and the next one's title
+_SEC_XTICK_IN: float = 0.46  # date ticks + offset label under the last panel
+_SEC_MARK_IN: float = 0.16  # room right of the panel for the instrument triangles
+_SEC_CBAR_W_IN: float = 0.15
+_SEC_CBAR_TXT_IN: float = 0.55
+
+
+@dataclass(frozen=True)
+class SectionScale:
+    """The vertical scale of a page's pressure sections.
+
+    Attributes
+    ----------
+    dbar_per_in : float
+        Pressure interval (dbar) per inch of panel height.
+    tick_step : float
+        Pressure tick spacing (dbar), the same on every panel.
+    """
+
+    dbar_per_in: float
+    tick_step: float
+
+    def height_in(self, extent: tuple[float, float]) -> float:
+        """Return the panel height (inches) for a pressure *extent* (top, bottom)."""
+        return max(abs(extent[1] - extent[0]) / self.dbar_per_in, SECTION_MIN_AXES_IN)
+
+
+def pressure_extent(
+    pressure: np.ndarray, fields: Sequence[np.ndarray]
+) -> tuple[float, float] | None:
+    """Return the pressure span (top, bottom) of the levels with any value.
+
+    Parameters
+    ----------
+    pressure : numpy.ndarray
+        The grid levels (dbar), increasing.
+    fields : sequence of numpy.ndarray
+        Fields on ``(time, level)``; a level counts when any of them has a finite
+        value there.
+
+    Returns
+    -------
+    tuple of float or None
+        From half a level above the shallowest such level to half a level below
+        the deepest (the cells' edges); None when no level has a value.
+    """
+    pressure = np.asarray(pressure, dtype=float)
+    has = np.zeros(len(pressure), dtype=bool)
+    for f in fields:
+        has |= np.isfinite(np.asarray(f, dtype=float)).any(axis=0)
+    if not has.any():
+        return None
+    half = float(np.median(np.diff(pressure))) / 2.0 if len(pressure) > 1 else 5.0
+    k = np.flatnonzero(has)
+    return float(pressure[k[0]] - half), float(pressure[k[-1]] + half)
+
+
+def section_scale(
+    pressure: np.ndarray,
+    fields: Sequence[np.ndarray],
+    axes_in: float = SECTION_AXES_IN,
+) -> SectionScale | None:
+    """Return the scale at which *fields* fill a panel *axes_in* inches high.
+
+    Parameters
+    ----------
+    pressure : numpy.ndarray
+        The grid levels (dbar).
+    fields : sequence of numpy.ndarray
+        The hydrography fields on ``(time, level)`` that set the scale.
+    axes_in : float, optional
+        Panel height in inches (default :data:`SECTION_AXES_IN`).
+
+    Returns
+    -------
+    SectionScale or None
+        None when the fields have no value.
+    """
+    extent = pressure_extent(pressure, fields)
+    if extent is None:
+        return None
+    span = max(extent[1] - extent[0], 1.0)
+    ticks = mticker.MaxNLocator(nbins=5, steps=[1, 2, 2.5, 5, 10]).tick_values(
+        extent[0], extent[1]
+    )
+    step = float(ticks[1] - ticks[0]) if len(ticks) > 1 else span
+    return SectionScale(dbar_per_in=span / axes_in, tick_step=step)
+
+
+def section_layout(
+    width_in: float,
+    heights_in: Sequence[float],
+    *,
+    colorbar: str | None = "each",
+    titles: bool = True,
+    xticks: bool = True,
+    right_in: float | None = None,
+) -> tuple[plt.Figure, list, Any]:
+    """Stack panels of given heights (inches) in a figure *width_in* wide.
+
+    Parameters
+    ----------
+    width_in : float
+        Figure width (the display slot).
+    heights_in : sequence of float
+        Height of each panel's axes, top to bottom.
+    colorbar : {"each", "shared", None}, optional
+        One colorbar axes beside each panel, one spanning all panels, or none.
+    titles : bool, optional
+        Reserve a title row above each panel (default True).
+    xticks : bool, optional
+        Reserve room for the time ticks under the last panel (default True).
+    right_in : float, optional
+        Room right of the panels; default: the instrument triangles plus the
+        colorbar (or the triangles alone without a colorbar).
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+    axes : list of matplotlib Axes
+        Top to bottom.
+    cax : list of Axes, Axes or None
+        Per panel (``"each"``), one (``"shared"``) or None.
+    """
+    title_in = _SEC_TITLE_IN if titles else 0.04
+    bottom_in = _SEC_XTICK_IN if xticks else 0.12
+    if right_in is None:
+        right_in = _SEC_MARK_IN + (
+            _SEC_CBAR_W_IN + _SEC_CBAR_TXT_IN if colorbar else 0.1
+        )
+    heights = [float(h) for h in heights_in]
+    fig_h = bottom_in + sum(heights) + len(heights) * title_in
+    fig_h += (len(heights) - 1) * _SEC_GAP_IN
+    fig = plt.figure(figsize=(width_in, fig_h))
+    fig._manual_layout = True
+    ax_w = width_in - _SEC_LEFT_IN - right_in
+    cx0 = _SEC_LEFT_IN + ax_w + _SEC_MARK_IN
+    axes, caxes = [], []
+    top = fig_h
+    for h in heights:
+        top -= title_in
+        y0 = top - h
+        ax = fig.add_axes(
+            [_SEC_LEFT_IN / width_in, y0 / fig_h, ax_w / width_in, h / fig_h]
+        )
+        axes.append(ax)
+        if colorbar == "each":
+            caxes.append(
+                fig.add_axes(
+                    [cx0 / width_in, y0 / fig_h, _SEC_CBAR_W_IN / width_in, h / fig_h]
+                )
+            )
+        top = y0 - _SEC_GAP_IN
+    if colorbar == "shared":
+        y_bot = axes[-1].get_position().y0
+        y_top = axes[0].get_position().y1
+        return (
+            fig,
+            axes,
+            fig.add_axes(
+                [cx0 / width_in, y_bot, _SEC_CBAR_W_IN / width_in, y_top - y_bot]
+            ),
+        )
+    return fig, axes, (caxes if colorbar == "each" else None)
+
+
+def apply_section_scale(
+    ax: Any, extent: tuple[float, float], scale: SectionScale | None
+) -> None:
+    """Set *ax*'s pressure limits to *extent* (surface up) and the shared tick step."""
+    ax.set_ylim(extent[1], extent[0])
+    if scale is not None:
+        ax.yaxis.set_major_locator(mticker.MultipleLocator(scale.tick_step))
+
+
+def instrument_marks(ax: Any, pressures: Sequence[float], color: str = "0.15") -> None:
+    """Mark instrument pressures with inward-pointing triangles at *ax*'s right edge.
+
+    Parameters
+    ----------
+    ax : matplotlib Axes
+        A pressure-section or profile axes (pressure on y).
+    pressures : sequence of float
+        The instruments' pressures (dbar); those outside the y-limits are skipped.
+    color : str, optional
+        Marker colour.
+    """
+    from matplotlib.transforms import ScaledTranslation, blended_transform_factory
+
+    lo, hi = sorted(ax.get_ylim())
+    ps = [float(p) for p in pressures if np.isfinite(p) and lo <= float(p) <= hi]
+    if not ps:
+        return
+    # Centred just outside the frame so the tip touches the right edge.
+    shift = ScaledTranslation(4.0 / 72.0, 0.0, ax.figure.dpi_scale_trans)
+    trans = blended_transform_factory(ax.transAxes, ax.transData) + shift
+    ax.plot(
+        np.ones(len(ps)),
+        ps,
+        linestyle="none",
+        marker="<",
+        markersize=6,
+        color=color,
+        transform=trans,
+        clip_on=False,
+        zorder=6,
+    )

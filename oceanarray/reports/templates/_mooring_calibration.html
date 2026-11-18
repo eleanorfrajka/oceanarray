@@ -8,7 +8,7 @@
     <tr>
       <th>#</th>
       <th>Type</th>
-      <th>Instr&nbsp;S/N</th>
+      <th>Instrument serial</th>
       <th>Sensor</th>
       <th>Model</th>
       <th>Sensor&nbsp;S/N</th>
@@ -24,7 +24,7 @@
         {% for sensor in instr.sensors %}
         <tr>
           <td class="num">{% if loop.index0 == 0 %}{{ ns.idx }}{% endif %}</td>
-          <td>{% if loop.index0 == 0 %}{{ instr.instr_type }}{% endif %}</td>
+          <td>{% if loop.index0 == 0 %}{{ instr.type_label }}{% endif %}</td>
           <td>{% if loop.index0 == 0 %}<code>{{ instr.serial }}</code>{% endif %}</td>
           <td>{{ sensor.sensor_type | title }}</td>
           <td>{{ sensor.sensor_model }}</td>
@@ -47,5 +47,9 @@
   </tbody>
 </table>
 {% else %}
-<p class="none-note">No sensor calibration metadata found in processed files.</p>
+{% if timing_mode == "imported" %}
+<p class="one-line">The originator's files give no calibration dates or coefficients. Calibrations were applied by the originator before publication; see their data report.</p>
+{% else %}
+<p class="one-line">The processed files carry no calibration dates or coefficients.</p>
+{% endif %}
 {% endif %}

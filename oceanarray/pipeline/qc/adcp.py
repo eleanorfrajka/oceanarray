@@ -35,7 +35,7 @@ def apply_adcp_seabed_qc(
 
         clean = (ds.east_velocity_qc == 1) & (ds.seabed_qc == 1)
 
-    The seabed pressure threshold is computed via ``gsw.p_from_z(-water_depth_m, lat)``,
+    The seabed pressure threshold is ``pipeline.pressure.pressure_from_depth(water_depth_m, lat)``,
     consistent with ``compute_adcp_bin_pressure``.
 
     Parameters
@@ -46,7 +46,7 @@ def apply_adcp_seabed_qc(
         Water depth at the mooring site in metres (from YAML ``waterdepth`` key).
         If ≤ 0 the function is a no-op.
     lat : float
-        Mooring latitude in decimal degrees, used by ``gsw.p_from_z``.
+        Mooring latitude in decimal degrees, for the depth-to-pressure conversion.
     fail_margin_m : float
         Margin below the seabed (in metres) that separates suspect (3) from bad (4).
         Default 20 m.  Bins between 0 and *fail_margin_m* below the seabed receive
@@ -81,12 +81,11 @@ def _apply_adcp_seabed_qc(
         log.warning("  seabed QC: skipped (bin_pressure not in dataset)")
         return ds
 
-    import gsw
-
     from oceanarray.config import parameters as params
+    from oceanarray.pipeline.pressure import pressure_from_depth
 
-    p_seabed = float(gsw.p_from_z(-water_depth_m, lat))
-    p_fail = float(gsw.p_from_z(-(water_depth_m + fail_margin_m), lat))
+    p_seabed = pressure_from_depth(water_depth_m, lat)
+    p_fail = pressure_from_depth(water_depth_m + fail_margin_m, lat)
 
     bin_p = ds["bin_pressure"].values  # (time, N_BINS)
     seabed_flags = np.ones(bin_p.shape, dtype=np.int8)  # 1 = good
@@ -151,7 +150,7 @@ def apply_adcp_surface_qc(
     ds : xr.Dataset
         Stage 3 ADCP dataset containing ``bin_pressure(time, N_BINS)`` in dbar.
     lat : float
-        Mooring latitude in decimal degrees, used by ``gsw.p_from_z``.
+        Mooring latitude in decimal degrees, for the depth-to-pressure conversion.
     suspect_margin_m : float
         Depth (m) below the surface that defines the suspect zone.  Bins with
         0 < bin_pressure < p_from_z(-suspect_margin_m) receive flag 3; bins
@@ -182,11 +181,10 @@ def _apply_adcp_surface_qc(
         log.warning("  surface QC: skipped (bin_pressure not in dataset)")
         return ds
 
-    import gsw
-
     from oceanarray.config import parameters as params
+    from oceanarray.pipeline.pressure import pressure_from_depth
 
-    p_suspect = float(gsw.p_from_z(-suspect_margin_m, lat))
+    p_suspect = pressure_from_depth(suspect_margin_m, lat)
 
     bin_p = ds["bin_pressure"].values  # (time, N_BINS)
     surface_flags = np.ones(bin_p.shape, dtype=np.int8)  # 1 = good

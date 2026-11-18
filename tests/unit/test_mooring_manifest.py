@@ -40,11 +40,12 @@ def test_no_duplicate_section_id_or_title():
     assert len(titles) == len(set(titles))
 
 
-def test_profile_is_nine_content_sections_in_order():
-    """The bespoke mooring page is 9 content sections, pipeline first (no 3.5/offset)."""
+def test_profile_leads_with_instruments_and_ends_with_the_description():
+    """The deployment page: nine content sections, the instrument summary first and the
+    processing sections after it, then the mooring description as an appendix."""
     assert [s.id for s in MOORING_DEFAULT.entries] == [
-        "pipeline",
         "instruments",
+        "pipeline",
         "timing",
         "clock",
         "calibration",
@@ -52,8 +53,9 @@ def test_profile_is_nine_content_sections_in_order():
         "knockdown",
         "diagram",
         "issues",
+        "description",
     ]
-    assert all(s.role == "content" for s in MOORING_DEFAULT.entries)
+    assert [s.role for s in MOORING_DEFAULT.entries] == ["content"] * 9 + ["appendix"]
 
 
 def test_all_profile_entries_are_sections():

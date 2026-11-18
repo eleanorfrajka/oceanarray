@@ -4,18 +4,19 @@ from __future__ import annotations
 
 import warnings
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 
 from oceanarray import logger, paths
+from oceanarray.analysis.derived import derived_fields
 from oceanarray.paths import should_skip_regeneration
 
 from ..config import parameters as params
 from ..pipeline import masking
-from . import _html_helpers, _masthead, _qcflags
+from . import _captions, _html_helpers, _masthead, _qcflags
 from ._breadcrumb import crumbs_from_ctx
 from ._env import (
     render_history,
@@ -32,17 +33,18 @@ from ._html_helpers import (
     _parse_dt,
     _parse_history,
     _resolve_array_report_href,
+    description_links,
 )
 from ._navs import mooring_nav
 from ._plots import (
-    _make_adcp_trajectories_b64,
+    _make_adcp_progressive_vector_b64,
     _make_analog_timeseries_b64,
     _make_aquadopp_speed_profile_b64,
     _make_aquadopp_tilt_panels_b64,
     _make_clock_check_b64,
     _make_flag_strip_b64,
     _make_instrument_spacing_b64,
-    _make_multi_aquadopp_trajectories_b64,
+    _make_multi_aquadopp_progressive_vector_b64,
     _make_rose_grid_b64,
     _make_stack_timeseries_b64,
     _make_stack_ts_diagram_b64,
@@ -101,13 +103,18 @@ STACK_CAPTIONS: dict[str, str] = {
         "(verify: NTU, FTU, or V depending on sensor)."
     ),
     "trajectories_aquadopp": (
-        "Pseudo-Lagrangian particle trajectories integrated from each Aquadopp's "
-        "east/north velocity. Start at the origin; coloured by time through the "
-        "deployment."
+        "Cumulative displacement from adding up each Aquadopp's measured velocity "
+        "(a progressive vector diagram): how far water passing the instrument would "
+        "travel if the flow were the same everywhere. It shows the mean flow "
+        "direction and how steady it is, not the path of a water parcel. Coloured "
+        "by temperature; the serial number marks each line's end."
     ),
     "trajectories_adcp": (
-        "Pseudo-Lagrangian particle trajectories integrated from ADCP bin "
-        "east/north velocity, one path per bin."
+        "Cumulative displacement from adding up the measured velocity in each ADCP "
+        "bin (a progressive vector diagram): how far water passing the bin would "
+        "travel if the flow were the same everywhere. It shows the mean flow "
+        "direction and how steady it is, not the path of a water parcel. Coloured "
+        "by height above bottom."
     ),
     "speed_profile": (
         "Aquadopp current-speed profile: median and interquartile range of speed "
@@ -123,10 +130,11 @@ STACK_CAPTIONS: dict[str, str] = {
         "flagged 3, 4 or 9 (probably bad, bad, missing) left out; nominal and "
         "interpolated values (flags 7, 8) kept."
     ),
+    "steps": "Processing steps that produced this combined record, with the settings used.",
     "roses": (
-        "Direction the current flows toward (oceanographic convention, 0°=N). "
-        "Speed coloured light→dark blue (slow→fast). QC-flagged samples "
-        "excluded. Title shows serial number and height above bottom (m)."
+        "Direction toward which the current flows and speed for each current meter. "
+        "Wedge length is the percentage of the record in that direction; colours "
+        "are speed classes. Titles: serial number and height above bottom (m)."
     ),
     "tilt": (
         "|pitch| / |roll| / pressure-estimate tilt per Aquadopp, sharing a "
@@ -220,6 +228,7 @@ class StackContext:
     qc_unflagged: list = field(default_factory=list)
     qc_quiet: int = 0
     all_imported: bool = False
+    steps: list = field(default_factory=list)
 
 
 def _fig(panel_id: str) -> Callable[[StackContext], str | None]:
@@ -272,9 +281,20 @@ def _figure_panel(
 #: grid).  ``speed_profile`` is half-width, ``spacing`` a third; trajectories are
 #: full-width and stacked (the old side-by-side flex is a later CSS enhancement).
 STACK_PANELS: dict[str, Panel] = {
+    "steps": Panel(
+        "steps",
+        render=lambda c: render_template("_processing_steps.html", steps=c.steps),
+        kind="html",
+        caption=STACK_CAPTIONS["steps"],
+        applies_to=lambda c: bool(c.steps),
+    ),
     "history": Panel(
         "history",
-        render=lambda c: render_history(c.history_entries),
+        render=lambda c: render_template(
+            "_collapsed.html",
+            summary="show the file's processing record (dated events)",
+            body=render_history(c.history_entries),
+        ),
         kind="html",
         unavailable_if=_history_unavailable,
     ),
@@ -405,7 +425,7 @@ STACK_PANELS: dict[str, Panel] = {
 #: Stack sections (Hydrography and Velocity folded).
 STACK_SECTIONS: dict[str, Section] = {
     "processing_history": Section(
-        "processing_history", "Processing history", ("history",)
+        "processing_history", "Processing history", ("steps", "history")
     ),
     "instruments": Section(
         "instruments",
@@ -422,7 +442,7 @@ STACK_SECTIONS: dict[str, Section] = {
     "turbidity": Section("turbidity", "Turbidity", ("turbidity",)),
     "trajectories": Section(
         "trajectories",
-        "Particle trajectories",
+        "Progressive vector diagram",
         ("trajectories_aquadopp", "trajectories_adcp"),
         layout="row",
     ),
@@ -503,6 +523,8 @@ def generate_stack_page(
         import xarray as xr
 
         ds = xr.open_dataset(stack_path).load()
+        # Quantities the figures derive (position, θ, speed, direction), once.
+        derived = derived_fields(ds)
         n_time = ds.sizes["time"]
         n_instr = ds.sizes["N_LEVELS"]
         dt_seconds = ds.attrs.get("dt_seconds", "?")
@@ -629,14 +651,16 @@ def generate_stack_page(
 
         # as_panel: a figure whose draw raises becomes a Stub naming the cause
         # (shown as a "warn" note) instead of silently vanishing.
-        fig_ts_stack_b64 = as_panel(lambda: _make_stack_ts_diagram_b64(ds))
+        fig_ts_stack_b64 = as_panel(lambda: _make_stack_ts_diagram_b64(ds, derived))
         fig_aquadopp_tilt_b64 = as_panel(
             lambda: _make_aquadopp_tilt_panels_b64(ds, step=step)
         )
         fig_trajectories_b64 = as_panel(
-            lambda: _make_multi_aquadopp_trajectories_b64(ds)
+            lambda: _make_multi_aquadopp_progressive_vector_b64(ds)
         )
-        fig_adcp_trajectories_b64 = as_panel(lambda: _make_adcp_trajectories_b64(ds))
+        fig_adcp_trajectories_b64 = as_panel(
+            lambda: _make_adcp_progressive_vector_b64(ds)
+        )
         fig_speed_profile_b64 = as_panel(lambda: _make_aquadopp_speed_profile_b64(ds))
         # Clock alignment check: one temperature trace per instrument zoomed to
         # first/last 30 min.  Build {serial: path} preferring stage3 over stage2.
@@ -681,6 +705,9 @@ def generate_stack_page(
             as_panel(lambda: _make_flag_strip_b64(ds)) if qc_ruled else None
         )
         qc_rule = _qcflags.rule_text(ds) if qc_ruled else ""
+        steps = _captions.stack_steps(ds)
+        rose_caption = _captions.stack_rose_caption(ds)
+        ts_caption = _captions.stack_ts_caption(STACK_CAPTIONS["ts_diagram"], derived)
 
         # Capture the applies_to inputs before closing the dataset.
         present_vars = set(ds.data_vars)
@@ -728,6 +755,7 @@ def generate_stack_page(
                 instr_types=instr_types_set,
                 n_instr=n_instr,
                 all_imported=all(imported),
+                steps=steps,
                 has_analog=bool(analog_vars),
                 history_entries=stack_history,
                 instr_rows=instr_rows,
@@ -742,7 +770,11 @@ def generate_stack_page(
                 stage2_reason=str(ds.attrs.get("stage2_reason", "")),
                 stage2_magnetic_north=ds.attrs.get("stage2_magnetic_north", "").split(),
             ),
-            STACK_PANELS,
+            {
+                **STACK_PANELS,
+                "roses": replace(STACK_PANELS["roses"], caption=rose_caption),
+                "ts_diagram": replace(STACK_PANELS["ts_diagram"], caption=ts_caption),
+            },
         )
 
         html = render_template(
@@ -760,6 +792,7 @@ def generate_stack_page(
                 array_href=_resolve_array_report_href(out_dir),
             ),
             report=report,
+            description_links=description_links(ctx),
             cruise=ctx.get("cruise", "—"),
             meta_facts=_masthead.masthead_facts(
                 "stack",

@@ -11,6 +11,8 @@ consumer configures the shared layer; re-vendoring never edits it.
 
 from __future__ import annotations
 
+import os
+
 from oceanarray.reports._vendored.css import (
     _JS_SORT_TABLES,
     _JS_TOP_LINKS,
@@ -25,11 +27,27 @@ PACKAGE_ACCENT: str = "var(--ocean)"
 #: The generated stylesheet, ready to concatenate into a page ``<style>`` block.
 SHARED_CSS: str = emit_css(PACKAGE_ACCENT)
 
-#: Show the per-figure ``source:`` caption (which draw function produced each panel).
-#: On by default (Eleanor, 2026-10-17 — useful for debugging which function drew a
-#: panel); ctdcast is also on.  Read into the report env as the ``show_source``
-#: template global.
-FIGURE_SOURCE: bool = True
+
+class _FigureSource:
+    """Whether report pages show the per-figure ``source:`` line.
+
+    The ``source:`` line names the draw function behind each panel, which helps
+    when debugging a page; it is on by default and a public build turns it off
+    with ``OCEANARRAY_FIGURE_SOURCE=0``.  The environment variable is read each
+    time the value is tested (``bool(FIGURE_SOURCE)``, or ``{% if show_source %}``
+    in a template), so setting it after import still takes effect.
+    """
+
+    def __bool__(self) -> bool:
+        return os.environ.get("OCEANARRAY_FIGURE_SOURCE", "1") != "0"
+
+    def __repr__(self) -> str:
+        return f"FIGURE_SOURCE({bool(self)})"
+
+
+#: The ``source:``-line switch, read at render time; the report environment exposes
+#: it to templates as the ``show_source`` global.
+FIGURE_SOURCE = _FigureSource()
 
 #: Use the vendored Leaflet ``track_map`` for the array-page mooring map.  ON since the
 #: sync-4 re-vendor brought a ``circleMarker`` path to ``_map.html`` (F8/F7): a single-point

@@ -566,8 +566,9 @@ def _rose_ax(
     # hidden because fewer than 2 finite values are present.
     import matplotlib.pyplot as plt
 
-    speed = np.sqrt(east**2 + north**2)
-    direction = np.degrees(np.arctan2(east, north)) % 360
+    from oceanarray.analysis.derived import speed_direction
+
+    speed, direction = speed_direction(east, north)
     valid = np.isfinite(speed) & np.isfinite(direction)
     speed, direction = speed[valid], direction[valid]
     if len(speed) < 2:
@@ -617,3 +618,168 @@ def _rose_ax(
     ax.set_rticks([])
     ax.set_title(title, pad=2)
     return spd_edges, colors
+
+
+#: Speed classes of the current roses (cm/s): each class's lower edge; the last
+#: class is open-ended.
+ROSE_SPEED_CLASSES_CMS: tuple[float, ...] = (0.0, 5.0, 10.0, 20.0, 30.0)
+
+
+def rose_speed_labels() -> list[str]:
+    """Return the legend labels of the rose speed classes (``"0–5"`` … ``">30"``)."""
+    edges = ROSE_SPEED_CLASSES_CMS
+    labels = [f"{a:g}–{b:g}" for a, b in zip(edges[:-1], edges[1:], strict=True)]
+    return [*labels, f">{edges[-1]:g}"]
+
+
+def rose_colors(cmap: str = "Blues") -> np.ndarray:
+    """Return one RGBA colour per rose speed class, light (slow) to dark (fast)."""
+    import matplotlib.pyplot as plt
+
+    return plt.get_cmap(cmap)(np.linspace(0.25, 1.0, len(ROSE_SPEED_CLASSES_CMS)))
+
+
+def current_rose(
+    ax: plt.Axes,
+    east: np.ndarray,
+    north: np.ndarray,
+    *,
+    title: str = "",
+    n_dir: int = 16,
+    cmap: str = "Blues",
+) -> bool:
+    """Draw a current rose on a polar Axes: the stack and grid pages' one design.
+
+    Each wedge is a direction toward which the current flows (16 sectors,
+    compass convention: north up, clockwise); its length is the percentage of the
+    record in that direction, split into the speed classes
+    :data:`ROSE_SPEED_CLASSES_CMS` (light to dark).  Rings are labelled in percent.
+
+    Parameters
+    ----------
+    ax : matplotlib.projections.polar.PolarAxes
+        The target axes.
+    east, north : numpy.ndarray
+        Velocity components (m s⁻¹), one value per time step.
+    title : str, optional
+        Panel title.
+    n_dir : int, optional
+        Number of direction sectors (default 16).
+    cmap : str, optional
+        Colormap of the speed classes (default ``"Blues"``).
+
+    Returns
+    -------
+    bool
+        False (and the axes hidden) when fewer than two values are present.
+    """
+    from matplotlib.ticker import MaxNLocator
+
+    from oceanarray.analysis.derived import speed_direction
+
+    speed, direction = speed_direction(
+        np.asarray(east, dtype=float), np.asarray(north, dtype=float)
+    )
+    valid = np.isfinite(speed) & np.isfinite(direction)
+    speed_cms, direction = 100.0 * speed[valid], direction[valid]
+    if len(speed_cms) < 2:
+        ax.set_visible(False)
+        return False
+    dir_edges = np.linspace(0.0, 360.0, n_dir + 1)
+    theta = np.radians(0.5 * (dir_edges[:-1] + dir_edges[1:]))
+    sector = np.clip(np.digitize(direction, dir_edges) - 1, 0, n_dir - 1)
+    spd_class = np.digitize(speed_cms, ROSE_SPEED_CLASSES_CMS) - 1
+    pct = np.zeros((n_dir, len(ROSE_SPEED_CLASSES_CMS)))
+    np.add.at(pct, (sector, spd_class), 100.0 / len(speed_cms))
+    colors = rose_colors(cmap)
+    bottom = np.zeros(n_dir)
+    for j in range(pct.shape[1]):
+        ax.bar(
+            theta,
+            pct[:, j],
+            width=2 * np.pi / n_dir * 0.9,
+            bottom=bottom,
+            color=colors[j],
+            align="center",
+            linewidth=0.2,
+            edgecolor="white",
+        )
+        bottom += pct[:, j]
+    ax.set_theta_zero_location("N")
+    ax.set_theta_direction(-1)
+    ax.set_xticks(np.radians([0, 90, 180, 270]))
+    ax.set_xticklabels(["N", "E", "S", "W"])
+    ax.tick_params(axis="x", pad=1.75)
+    top = float(bottom.max())
+    rings = [
+        r
+        for r in MaxNLocator(nbins=3, steps=[1, 2, 2.5, 5, 10]).tick_values(0, top)
+        if 0 < r <= top * 1.02
+    ]
+    ax.set_ylim(0, max(top, rings[-1] if rings else top) * 1.05)
+    ax.set_rticks(rings)
+    ax.set_yticklabels([f"{r:g} %" for r in rings], fontsize=7, color="0.35")
+    ax.set_rlabel_position(157.5)
+    ax.set_title(title, pad=2)
+    return True
+
+
+def rose_legend(fig: plt.Figure, *, cmap: str = "Blues", y: float = 0.0) -> None:
+    """Add the speed-class legend of :func:`current_rose` along *fig*'s bottom.
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        The figure of roses.
+    cmap : str, optional
+        The roses' colormap.
+    y : float, optional
+        Figure-fraction height of the legend's bottom edge.
+    """
+    from matplotlib.patches import Patch
+
+    handles = [
+        Patch(facecolor=c, edgecolor="white", label=lbl)
+        for c, lbl in zip(rose_colors(cmap), rose_speed_labels(), strict=True)
+    ]
+    fig.legend(
+        handles=handles,
+        loc="lower center",
+        bbox_to_anchor=(0.5, y),
+        ncol=len(handles),
+        title="Speed (cm/s)",
+        frameon=False,
+        fontsize=8,
+        title_fontsize=8,
+    )
+
+
+def duration_words(days: float, *, adjective: bool = False) -> str:
+    """Return a duration as words: ``"14 days"``, ``"5.3 days"``, ``"12 hours"``, ``"30 min"``.
+
+    Parameters
+    ----------
+    days : float
+        The duration in days.
+    adjective : bool, optional
+        Hyphenated, singular form before a noun (``"14-day"``, ``"12-hour"``).
+
+    Returns
+    -------
+    str
+    """
+
+    def fmt(x: float) -> str:
+        return f"{x:.0f}" if abs(x - round(x)) < 0.05 or x >= 10 else f"{x:.1f}"
+
+    if days >= 1.0:
+        value, unit = fmt(days), "day"
+    elif days * 24.0 >= 1.0:
+        value, unit = fmt(days * 24.0), "hour"
+    else:
+        value, unit = fmt(days * 1440.0), "min"
+    if adjective:
+        return f"{value}-{unit}"
+    if unit == "min":
+        return f"{value} min"
+    return f"{value} {unit}" + ("" if value == "1" else "s")

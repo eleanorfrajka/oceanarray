@@ -25,6 +25,13 @@ from ..config.unit_tables import unit_label, warn_if_not_canonical
 from .helpers import grid_despine, ordered_line_colors
 from .primitives import colorbar_norm, date_axis, plot_title
 
+#: Isopycnal coverage (% of time steps) at or above which a σ₀ bar is green; the
+#: dashed reference line of the coverage panel.
+COVERAGE_GOOD_PCT: float = 80.0
+#: Isopycnal coverage (% of time steps) at or above which a σ₀ bar is amber, below
+#: :data:`COVERAGE_GOOD_PCT`; red below this.
+COVERAGE_FAIR_PCT: float = 50.0
+
 
 def draw_isopycnal_ts(
     ds_iso: xr.Dataset, *, width_in: float = report_tokens.W_FULL
@@ -120,11 +127,12 @@ def draw_isopycnal_coverage(
 
     **Panel 1 — Coverage**: for each σ₀ value at 0.1 kg m⁻³ spacing, the percentage
     of valid time steps during which the target surface lies within the measured column
-    (``min(sigma0_column) ≤ target ≤ max(sigma0_column)``).  Colour-coded:
-    green ≥ 80 %, amber 50–80 %, red < 50 %.  Dashed reference at 80 %.
+    (``min(sigma0_column) ≤ target ≤ max(sigma0_column)``).  Colour-coded: green
+    at or above :data:`COVERAGE_GOOD_PCT`, amber from :data:`COVERAGE_FAIR_PCT` up
+    to it, red below; dashed reference line at :data:`COVERAGE_GOOD_PCT`.
 
     **Panel 2 — Depth distribution**: for each target surface, the median height above
-    seabed (or pressure when ``waterdepth`` is unavailable), with the IQR
+    seabed (or pressure when ``waterdepth`` or the latitude is unavailable), with the IQR
     (25th–75th percentile) as a thick bar and the 5th–95th percentile as a thin whisker.
 
     The shared y-axis (σ₀) is clipped to the 2.5th–99.99th percentile of the
@@ -220,20 +228,23 @@ def draw_isopycnal_coverage(
         sigma0_tp, pressure_arr, targets
     )  # (n_time, n_tgt)
 
+    from oceanarray.analysis.derived import mooring_position
+    from oceanarray.pipeline.pressure import depth_from_pressure
+
     try:
         waterdepth = float(ds.attrs.get("waterdepth", ""))
     except (ValueError, TypeError):
         waterdepth = float("nan")
-    use_hab = np.isfinite(waterdepth) and waterdepth > 0
+    lat, _lon = mooring_position(ds, warn=False)
+    # Height above the seabed needs the pressure converted to depth (latitude known);
+    # otherwise pressure is shown directly.
+    use_hab = np.isfinite(waterdepth) and waterdepth > 0 and lat is not None
 
-    # Both branches build the second axis from the pressure coordinate and label it dbar
-    # — HAB treats 1 dbar ≈ 1 m seawater; otherwise pressure is shown directly — so the
-    # guard runs before the branch, covering the else path's "Pressure (dbar)" label too.
     warn_if_not_canonical(
         ds["pressure"], "dbar", quantity="isopycnal depth axis (dbar)"
     )
     if use_hab:
-        iso_z = waterdepth - iso_p
+        iso_z = waterdepth - depth_from_pressure(iso_p, lat)
         iso_z[iso_z < 0] = np.nan
         xlbl2 = "Height above seabed (m)"
     else:
@@ -249,9 +260,9 @@ def draw_isopycnal_coverage(
         q95 = np.nanpercentile(iso_z, 95, axis=0)
 
     def _bar_color(p: float) -> str:
-        if p >= 80:
+        if p >= COVERAGE_GOOD_PCT:
             return "#27ae60"
-        if p >= 50:
+        if p >= COVERAGE_FAIR_PCT:
             return "#f39c12"
         return "#e74c3c"
 
@@ -282,7 +293,13 @@ def draw_isopycnal_coverage(
 
     # ---- Panel 1: coverage bars ----
     ax1.barh(targets, pct, height=0.08, color=bar_colors, edgecolor="none")
-    ax1.axvline(80, color="#7f8c8d", lw=1.0, ls="--", label="80 %")
+    ax1.axvline(
+        COVERAGE_GOOD_PCT,
+        color="#7f8c8d",
+        lw=1.0,
+        ls="--",
+        label=f"{COVERAGE_GOOD_PCT:g} %",
+    )
     for tgt in selected:
         nearest_idx = int(np.argmin(np.abs(targets - tgt)))
         if abs(targets[nearest_idx] - tgt) < 0.06:
@@ -352,16 +369,17 @@ def draw_overflow_temperature(
 ) -> plt.Figure | None:
     """Temperature time series at ~100 m above the seabed; return a Figure.
 
-    Selects the grid pressure level nearest to ``waterdepth - 100`` dbar and
+    Selects the grid pressure level nearest to 100 dbar above the seabed pressure
+    (the water depth converted to pressure at the mooring latitude) and
     plots a 1-hour running median temperature time series.  Returns ``None``
     if ``waterdepth`` is missing, temperature is absent, or all values are NaN.
 
     Parameters
     ----------
     ds:
-        Gridded mooring xr.Dataset.  Must have a ``waterdepth`` global
-        attribute (metres) and a ``temperature`` variable with ``pressure``
-        and ``time`` dimensions.
+        Gridded mooring xr.Dataset.  Must have ``waterdepth`` (metres) and
+        latitude global attributes and a ``temperature`` variable with
+        ``pressure`` and ``time`` dimensions.
     width_in : float, optional
         Figure width in inches -- the display-slot width the report builder
         resolves; standalone callers get the full content width.
@@ -378,14 +396,13 @@ def draw_overflow_temperature(
     if "temperature" not in ds or "pressure" not in ds.coords:
         return None
 
-    try:
-        waterdepth = float(ds.attrs.get("waterdepth", ""))
-    except (ValueError, TypeError):
-        waterdepth = float("nan")
-    if not (np.isfinite(waterdepth) and waterdepth > 0):
+    from oceanarray.analysis.derived import seabed_pressure
+
+    p_bed = seabed_pressure(ds)
+    if p_bed is None:
         return None
 
-    target_p = waterdepth - 100.0
+    target_p = p_bed - 100.0
     pressure_vals = ds["pressure"].values
     # Clamp to grid range if target is outside it
     target_p = float(np.clip(target_p, pressure_vals.min(), pressure_vals.max()))
@@ -419,10 +436,9 @@ def draw_overflow_temperature(
         lw=1.0,
     )
     ax.set_ylabel(params.vlabel("temperature"))
-    hab = waterdepth - actual_p
     plot_title(
         ax,
-        f"{actual_p:.0f} dbar  ({hab:.0f} m above seabed)",
+        f"{actual_p:.0f} dbar  ({p_bed - actual_p:.0f} dbar above the seabed)",
         pad=4,
     )
     date_axis(ax)

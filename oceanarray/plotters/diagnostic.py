@@ -34,9 +34,10 @@ plot_spectrum (any 1D time series), plot_polar_histogram (current rose).
 
 from __future__ import annotations
 
+import logging
 import re as _re
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -59,6 +60,10 @@ if TYPE_CHECKING:
     import matplotlib.figure
     import matplotlib.pyplot as plt
     import xarray as xr
+
+    from oceanarray.analysis.derived import Knockdown
+
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -199,36 +204,11 @@ _KD_COLORS = [
 ]
 
 
-def _build_knockdown_records(
-    ds: xr.Dataset,
-    waterdepth: float,
-) -> list:
-    """Extract per-instrument knockdown arrays from a stack dataset."""
-    # Returns (p_nom, serial, actual_pressure) per non-ADCP instrument with at
-    # least 10 valid pressure samples.
-    serials = ds["serial"].values
-    habs = ds["hab"].values
-    instr_types = ds["instrument_type"].values
-    n_instr = ds.sizes["N_LEVELS"]
-    pressure_arr = ds["pressure"].values  # (time, N_LEVELS)
-    pqc_arr = ds["pressure_qc"].values if "pressure_qc" in ds.data_vars else None
+def _knockdown_input(ds: xr.Dataset, knockdown: Knockdown | None) -> Knockdown | None:
+    """Return the knockdown inputs given by the report, else build them from *ds*."""
+    from oceanarray.analysis.derived import knockdown as build
 
-    records = []
-    for i in range(n_instr):
-        if str(instr_types[i]).lower() == "adcp":
-            continue
-        # Nominal pressure from depth in meters, taking 1 dbar ≈ 1 m in seawater.
-        p_nom = waterdepth - float(habs[i])
-        p_vals = pressure_arr[:, i].copy()
-        # Interpolated pressure (QC flag 8) is not a measurement: exclude it.
-        if pqc_arr is not None:
-            _qc = pqc_arr[:, i] if pqc_arr.ndim == 2 else pqc_arr
-            p_vals[_qc == 8] = np.nan
-        valid = p_vals[np.isfinite(p_vals)]
-        if len(valid) < 10:
-            continue
-        records.append((p_nom, str(serials[i]), valid))
-    return records
+    return knockdown if knockdown is not None else build(ds)
 
 
 # ---------------------------------------------------------------------------
@@ -238,6 +218,8 @@ def _build_knockdown_records(
 
 def draw_knockdown_pressure(
     ds: xr.Dataset,
+    *,
+    knockdown: Knockdown | None = None,
 ) -> matplotlib.figure.Figure | None:
     """IQR of measured pressure vs. nominal design depth, equal aspect ratio.
 
@@ -261,30 +243,30 @@ def draw_knockdown_pressure(
         optionally ``pressure_qc``.  The ``waterdepth`` global attribute
         must be present and non-zero.
 
+    knockdown : oceanarray.analysis.derived.Knockdown or None, optional
+        The stack's knockdown inputs, built once per report and shared by the
+        knockdown figures; built from *ds* when not given.
+
     Returns
     -------
     matplotlib.figure.Figure or None
 
     """
-    if "pressure" not in ds.data_vars or "hab" not in ds:
+    kd = _knockdown_input(ds, knockdown)
+    if kd is None or not kd.records:
         return None
 
     import matplotlib.pyplot as plt
 
     from oceanarray.config import parameters as params
 
-    try:
-        waterdepth = float(ds.attrs.get("waterdepth", 0) or 0)
-    except (ValueError, TypeError):
-        return None
-    if waterdepth <= 0:
-        return None
-
-    records = _build_knockdown_records(ds, waterdepth)
+    records = kd.records
+    # A design pressure needs the latitude and a finite HAB.
+    records = [r for r in records if np.isfinite(r.p_nom)]
     if not records:
         return None
 
-    p_nom_vals = [r[0] for r in records]
+    p_nom_vals = [r.p_nom for r in records]
     p_range = max(p_nom_vals) - min(p_nom_vals) if len(p_nom_vals) > 1 else 50.0
     box_width = max(5.0, p_range / (len(p_nom_vals) * 2))
 
@@ -292,7 +274,7 @@ def draw_knockdown_pressure(
         fig, ax = plt.subplots(figsize=(5, 5))
 
         p_max_all = 0.0
-        for p_nom, _serial, actual_p in records:
+        for p_nom, _serial, actual_p, _hab in records:
             bp = ax.boxplot(
                 actual_p,
                 vert=True,
@@ -344,6 +326,7 @@ def draw_knockdown_pressure(
 def draw_knockdown_hab(
     ds: xr.Dataset,
     *,
+    knockdown: Knockdown | None = None,
     width_in: float = report_tokens.W_HALF,
 ) -> matplotlib.figure.Figure | None:
     """IQR of measured pressure vs. nominal HAB, equal aspect ratio.
@@ -372,37 +355,40 @@ def draw_knockdown_hab(
         Figure width in inches -- the display-slot width the report builder
         resolves; standalone callers get the full content width.
 
+    knockdown : oceanarray.analysis.derived.Knockdown or None, optional
+        The stack's knockdown inputs, built once per report and shared by the
+        knockdown figures; built from *ds* when not given.
+
     Returns
     -------
     matplotlib.figure.Figure or None
 
     """
-    if "pressure" not in ds.data_vars or "hab" not in ds:
+    kd = _knockdown_input(ds, knockdown)
+    if kd is None or not kd.records:
         return None
 
     import matplotlib.pyplot as plt
 
     from oceanarray.config import parameters as params
 
-    try:
-        waterdepth = float(ds.attrs.get("waterdepth", 0) or 0)
-    except (ValueError, TypeError):
-        return None
-    if waterdepth <= 0:
-        return None
+    waterdepth = kd.waterdepth
+    records = kd.records
 
-    records = _build_knockdown_records(ds, waterdepth)
-    if not records:
-        return None
-
-    # hab_nom is stored as p_nom = waterdepth - hab, so recover hab
+    # Only instruments with a finite design HAB can be placed on the HAB axis.
     hab_records = [
-        (waterdepth - p_nom, serial, actual_p) for p_nom, serial, actual_p in records
+        (hab, serial, actual_p)
+        for _p_nom, serial, actual_p, hab in records
+        if np.isfinite(hab)
     ]
+    if not hab_records:
+        return None
 
     hab_nom_vals = [r[0] for r in hab_records]
     hab_range = max(hab_nom_vals) - min(hab_nom_vals) if len(hab_nom_vals) > 1 else 10.0
     box_width = max(2.0, hab_range / (len(hab_nom_vals) * 2))
+    # Design pressures exist only when the latitude is known (NaN otherwise).
+    with_reference = kd.latitude is not None
 
     with plt.style.context(str(params.MPLSTYLE)):
         # Half width — displayed side-by-side with the anomaly panel in a two-column
@@ -430,24 +416,35 @@ def draw_knockdown_hab(
             bp["boxes"][0].set_alpha(0.6)
             p_max_all = max(p_max_all, float(np.nanmax(actual_p)))
 
-        ax_max = max(p_max_all, waterdepth) * 1.05
-        ax.set_xlim(0, ax_max)  # low HAB (deep) on the left, surface on the right
-        ax.set_ylim(0, ax_max)
-        ax.set_aspect("equal")
+        # Zoom to the instruments: HAB from 0 to above the top one, pressure over
+        # the span of the records and their design pressures, with a margin.  The
+        # top of the HAB axis never exceeds the water depth, so the reference line
+        # is never evaluated above the sea surface.
+        hab_top = min(float(np.nanmax(hab_nom_vals)) * 1.1 + 10.0, waterdepth)
+        p_lo = min(float(np.nanmin(a)) for _h, _s, a in hab_records)
+        p_hi = p_max_all
+        if with_reference:
+            p_lo = min(p_lo, float(kd.design_pressure(hab_top)))
+            p_hi = max(p_hi, float(kd.design_pressure(0.0)))
+        pad = 0.05 * (p_hi - p_lo) if p_hi > p_lo else 5.0
+        ax.set_xlim(0, hab_top)  # low HAB (deep) on the left, shallow on the right
+        ax.set_ylim(p_lo - pad, p_hi + pad)
         ax.invert_yaxis()  # deeper (larger pressure) at bottom
 
-        # Reference line: expected pressure = waterdepth - hab
-        ax.plot(
-            [0, ax_max],
-            [waterdepth, waterdepth - ax_max],
-            color="dimgrey",
-            lw=0.8,
-            ls="--",
-            zorder=0,
-            label="expected pressure",
-        )
-        ax.legend(loc="upper right")
-        ax.set_xlabel("Nominal HAB (m)")
+        # Reference line: pressure at the design depth for each HAB.
+        if with_reference:
+            hab_line = np.linspace(0.0, hab_top, 50)
+            ax.plot(
+                hab_line,
+                kd.design_pressure(hab_line),
+                color="dimgrey",
+                lw=0.8,
+                ls="--",
+                zorder=0,
+                label="expected pressure",
+            )
+            ax.legend(loc="upper right")
+        ax.set_xlabel("Design height above bottom (m)")
         ax.set_ylabel("Measured pressure (dbar)")
 
         plt.tight_layout()
@@ -462,6 +459,7 @@ def draw_knockdown_hab(
 def draw_knockdown_anomaly(
     ds: xr.Dataset,
     *,
+    knockdown: Knockdown | None = None,
     width_in: float = report_tokens.W_HALF,
 ) -> matplotlib.figure.Figure | None:
     """IQR of pressure anomaly (measured − nominal) per instrument.
@@ -493,30 +491,30 @@ def draw_knockdown_anomaly(
         Figure width in inches -- the display-slot width the report builder
         resolves; standalone callers get the full content width.
 
+    knockdown : oceanarray.analysis.derived.Knockdown or None, optional
+        The stack's knockdown inputs, built once per report and shared by the
+        knockdown figures; built from *ds* when not given.
+
     Returns
     -------
     matplotlib.figure.Figure or None
 
     """
-    if "pressure" not in ds.data_vars or "hab" not in ds:
+    kd = _knockdown_input(ds, knockdown)
+    if kd is None or not kd.records:
         return None
 
     import matplotlib.pyplot as plt
 
     from oceanarray.config import parameters as params
 
-    try:
-        waterdepth = float(ds.attrs.get("waterdepth", 0) or 0)
-    except (ValueError, TypeError):
-        return None
-    if waterdepth <= 0:
-        return None
-
-    records = _build_knockdown_records(ds, waterdepth)
+    records = kd.records
+    # A design pressure needs the latitude and a finite HAB.
+    records = [r for r in records if np.isfinite(r.p_nom)]
     if not records:
         return None
 
-    p_nom_vals = [r[0] for r in records]
+    p_nom_vals = [r.p_nom for r in records]
     p_range = max(p_nom_vals) - min(p_nom_vals) if len(p_nom_vals) > 1 else 50.0
     box_width = max(5.0, p_range / (len(p_nom_vals) * 2))
 
@@ -524,7 +522,7 @@ def draw_knockdown_anomaly(
         # Half width — side-by-side with the HAB panel in the mooring.html flex row.
         fig, ax = plt.subplots(figsize=(width_in, max(3, len(records) * 0.4 + 1)))
 
-        for p_nom, _serial, actual_p in records:
+        for p_nom, _serial, actual_p, _hab in records:
             anomaly = actual_p - p_nom  # positive = knocked down deeper
             median_anom = float(np.median(anomaly))
             color = next(c for thresh, c in _KD_COLORS if abs(median_anom) < thresh)
@@ -568,6 +566,7 @@ def draw_knockdown_anomaly(
 def draw_knockdown_displacement(
     ds: xr.Dataset,
     *,
+    knockdown: Knockdown | None = None,
     width_in: float = report_tokens.W_FULL,
 ) -> matplotlib.figure.Figure | None:
     """Scatter and heatmap of estimated horizontal displacement vs. measured pressure.
@@ -578,7 +577,8 @@ def draw_knockdown_displacement(
         x_horiz = sqrt(max(0, hab_nom² − hab_meas²))
 
     where ``hab_nom`` is the nominal height-above-bottom (m) and
-    ``hab_meas = waterdepth − pressure`` is the measured HAB.
+    ``hab_meas = waterdepth − depth(pressure)`` is the measured HAB, the measured
+    pressure converted to depth (``gsw.z_from_p``) at the mooring's latitude.
 
     **Left panel** — scatter of ``(x_horiz, measured_pressure)`` per
     instrument, coloured by serial number.  y-axis is measured pressure
@@ -596,30 +596,28 @@ def draw_knockdown_displacement(
         Figure width in inches -- the display-slot width the report builder
         resolves; standalone callers get the full content width.
 
+    knockdown : oceanarray.analysis.derived.Knockdown or None, optional
+        The stack's knockdown inputs, built once per report and shared by the
+        knockdown figures; built from *ds* when not given.
+
     Returns
     -------
     matplotlib.figure.Figure or None
 
     """
-    if "pressure" not in ds.data_vars or "hab" not in ds:
-        return None
+    kd = _knockdown_input(ds, knockdown)
+    if kd is None or not kd.records or kd.latitude is None:
+        return None  # without the latitude, pressure cannot be converted to depth
 
     import matplotlib.colors as mcolors
     import matplotlib.pyplot as plt
 
     from oceanarray.config import parameters as params
+    from oceanarray.pipeline.pressure import depth_from_pressure
     from oceanarray.plotters.primitives import nice_colorbar_bounds
 
-    try:
-        waterdepth = float(ds.attrs.get("waterdepth", 0) or 0)
-    except (ValueError, TypeError):
-        return None
-    if waterdepth <= 0:
-        return None
-
-    records = _build_knockdown_records(ds, waterdepth)
-    if not records:
-        return None
+    waterdepth = kd.waterdepth
+    records = kd.records
 
     # --- collect data for both panels ---
     _tab20 = plt.get_cmap("tab20")
@@ -627,9 +625,9 @@ def draw_knockdown_displacement(
     all_x_list = []
     all_p_list = []
 
-    for idx, (p_nom, serial, actual_p) in enumerate(records):
-        hab_nom = waterdepth - p_nom
-        hab_meas = waterdepth - actual_p
+    for idx, (_p_nom, serial, actual_p, hab_nom) in enumerate(records):
+        # Measured height above bottom from the measured pressure, converted to depth.
+        hab_meas = waterdepth - depth_from_pressure(actual_p, kd.latitude)
         x_horiz = np.sqrt(np.maximum(0.0, hab_nom**2 - hab_meas**2))
         all_x_list.append(x_horiz)
         all_p_list.append(actual_p)
@@ -1475,6 +1473,7 @@ def draw_velocity_iqr_profile(
     ds: xr.Dataset,
     *,
     width_in: float = report_tokens.W_FULL,
+    scale: Any = None,
 ) -> plt.Figure | None:
     """Percentile-profile figure for gridded ADCP velocity data; return a Figure.
 
@@ -1511,6 +1510,10 @@ def draw_velocity_iqr_profile(
     width_in : float, optional
         Figure width in inches -- the display-slot width the report builder
         resolves; standalone callers get the full content width.
+    scale : SectionScale or None, optional
+        The page's vertical scale (:func:`oceanarray.plotters.timeseries.hydro_scale`):
+        the panels span the levels with velocity, down to the seabed, at the
+        hydrography's dbar per inch.  Default: that of *ds*'s own hydrography.
 
     Returns
     -------
@@ -1522,6 +1525,14 @@ def draw_velocity_iqr_profile(
 
     import matplotlib.pyplot as plt
     import xarray as _xr
+
+    from oceanarray.analysis.derived import seabed_pressure
+    from oceanarray.plotters.primitives import (
+        SECTION_AXES_IN,
+        apply_section_scale,
+        pressure_extent,
+    )
+    from oceanarray.plotters.timeseries import hydro_scale
 
     # Ensure current_speed exists
     if "current_speed" not in ds.data_vars and all(
@@ -1559,15 +1570,42 @@ def draw_velocity_iqr_profile(
     _C_NORTH = "#E69F00"
 
     n_panels = int(has_speed) + int(has_horiz) + 1  # +1 for count panel
-    fig, axs = plt.subplots(
-        1,
-        n_panels,
-        figsize=(width_in, 4.5),
-        sharey=True,
-        gridspec_kw={"width_ratios": [2] * (n_panels - 1) + [1]},
-    )
-    if n_panels == 1:
-        axs = [axs]
+    # The levels with velocity, down to the seabed, at the hydrography's scale.
+    vel_fields = [
+        ds[v].values for v in ("east_velocity", "north_velocity") if v in ds.data_vars
+    ] or [ds["current_speed"].values]
+    extent = pressure_extent(pressure, vel_fields)
+    p_bed = seabed_pressure(ds)
+    if extent is not None and p_bed is not None and p_bed > extent[1]:
+        extent = (extent[0], p_bed + 0.02 * (p_bed - extent[0]))
+    if scale is None:
+        scale = hydro_scale(ds)
+    if extent is None:
+        extent = (float(pressure.min()), float(pressure.max()))
+    ax_h = scale.height_in(extent) if scale is not None else SECTION_AXES_IN
+    left_in, right_in, gap_in = 0.72, 0.15, 0.25
+    top_in, bottom_in = 0.12, 0.55
+    fig_h = top_in + ax_h + bottom_in
+    fig = plt.figure(figsize=(width_in, fig_h))
+    fig._manual_layout = True
+    ratios = [2] * (n_panels - 1) + [1]
+    unit_w = (width_in - left_in - right_in - gap_in * (n_panels - 1)) / sum(ratios)
+    axs = []
+    x0 = left_in
+    for r in ratios:
+        ax = fig.add_axes(
+            [
+                x0 / width_in,
+                bottom_in / fig_h,
+                r * unit_w / width_in,
+                ax_h / fig_h,
+            ],
+            sharey=axs[0] if axs else None,
+        )
+        axs.append(ax)
+        x0 += r * unit_w + gap_in
+    for _ax in axs[1:]:
+        _ax.tick_params(labelleft=False)
     for _ax in axs:
         grid_despine(_ax)
 
@@ -1600,7 +1638,7 @@ def draw_velocity_iqr_profile(
                 p75[valid],
                 alpha=0.35,
                 color="steelblue",
-                label="IQR (25–75 %)",
+                label="Middle 50 %",
             )
             ax.plot(
                 p50[valid],
@@ -1626,15 +1664,16 @@ def draw_velocity_iqr_profile(
             ax.set_xlim(left=0)
         ax.set_xlabel(f"Current speed ({unit_label('m s-1')})")
         grid_despine(ax)
-        ax.legend(loc="best")
+        # Inside, at the right: it covers only some of the most extreme speeds.
+        ax.legend(loc="center right")
 
     # ── Panel 2: east + north on shared axes ─────────────────────────────────
     if has_horiz:
         ax = next(ax_iter)
         absmax = 0.0
         for varname, color, label in [
-            ("east_velocity", _C_EAST, "East"),
-            ("north_velocity", _C_NORTH, "North"),
+            ("east_velocity", _C_EAST, "Eastward"),
+            ("north_velocity", _C_NORTH, "Northward"),
         ]:
             data = ds[varname].values
             with warnings.catch_warnings():
@@ -1676,22 +1715,28 @@ def draw_velocity_iqr_profile(
         color="gray",
         alpha=0.6,
     )
-    ax_count.set_xlabel("N good")
+    ax_count.set_xlabel("Hourly values" if _hourly(ds) else "Values")
     grid_despine(ax_count)
 
     axs[0].set_ylabel(f"Pressure ({unit_label('dbar')})")
-    axs[0].invert_yaxis()  # shared y — invert once only
+    apply_section_scale(axs[0], extent, scale)  # shared y: once
 
-    # Mark bottom depth if available (waterdepth global attr, dbar ≈ m seawater)
-    try:
-        _wd = float(ds.attrs.get("waterdepth", ""))
-        if np.isfinite(_wd) and _wd > 0:
-            for _ax in axs:
-                _ax.axhline(_wd, color="k", linewidth=2.0, linestyle="-", zorder=5)
-    except (ValueError, TypeError):
-        pass
+    # Seabed: the water depth converted to pressure (left out without a latitude).
+    if p_bed is not None:
+        for _ax in axs:
+            _ax.axhline(p_bed, color="k", linewidth=2.0, linestyle="-", zorder=5)
 
     return fig
+
+
+def _hourly(ds: xr.Dataset) -> bool:
+    """Return True when *ds*'s time step is one hour."""
+    from oceanarray.pipeline.dataset import time_step_seconds
+
+    try:
+        return abs(float(time_step_seconds(ds)) - 3600.0) < 1.0
+    except Exception:  # noqa: BLE001
+        return False
 
 
 def draw_instrument_spacing(

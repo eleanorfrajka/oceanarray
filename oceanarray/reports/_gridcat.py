@@ -22,6 +22,7 @@ from ._concat import (
     ConcatContext,
     _deployment_rows,
     _deployment_windows,
+    _description_links,
     _masthead_facts,
     _nav,
 )
@@ -516,6 +517,7 @@ def generate_gridcat_page(
                 other=stack_page.name if stack_page.exists() else None,
             ),
             report=report,
+            description_links=_description_links(deployment_rows),
             meta_facts=facts,
             generated=generated or datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC"),
         )

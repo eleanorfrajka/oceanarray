@@ -11,12 +11,14 @@ import numpy as np
 
 from oceanarray import logger, paths
 from oceanarray import mooring as _mooring
+from oceanarray.analysis.derived import derived_fields
 from oceanarray.location import is_unknown_latlon_source, parse_latlon_with_source
 from oceanarray.paths import should_skip_regeneration
 from oceanarray.pipeline.dataset import time_step_seconds
 
 from ..config import parameters as params
-from . import _html_helpers, _masthead
+from ..plotters.hydrography import COVERAGE_FAIR_PCT, COVERAGE_GOOD_PCT
+from . import _captions, _html_helpers, _masthead
 from ._breadcrumb import crumbs_from_ctx
 from ._env import (
     render_history,
@@ -27,17 +29,21 @@ from ._env import (
     render_template,
 )
 from ._figdebug import as_panel
-from ._html_helpers import _parse_history, _resolve_array_report_href
+from ._html_helpers import (
+    _parse_history,
+    _resolve_array_report_href,
+    description_links,
+)
 from ._navs import mooring_nav
 from ._plots import (
     _make_grid_hodograph_b64,
     _make_grid_hydro_b64,
     _make_grid_n2_b64,
+    _make_grid_potential_density_b64,
+    _make_grid_progressive_vector_b64,
     _make_grid_rose_b64,
     _make_grid_rotary_spectrum_b64,
-    _make_grid_sigma_b64,
     _make_grid_timeseries_b64,
-    _make_grid_trajectory_b64,
     _make_grid_ts_diagram_b64_and_limits,
     _make_grid_velocity_stacked_b64,
     _make_isopycnal_coverage_b64,
@@ -71,78 +77,84 @@ from ._vendored.page_model import Panel, PanelGroup, Profile, Section, resolve
 #: form of ``default.yaml``'s ``captions:`` block; when that lands it is replaced
 #: by a YAML load and nothing else here changes.
 GRID_CAPTIONS: dict[str, str] = {
+    "steps": "Processing steps that produced this gridded record, with the settings used.",
     "hydro": (
-        "Temperature, salinity, dissolved oxygen, and O₂ saturation (when "
-        "present). Vertically interpolated to regular pressure grid • 20 "
-        "discrete colour levels."
+        "Temperature and salinity (PSU) on the pressure grid, interpolated "
+        "in pressure between instruments; nothing is extrapolated beyond the "
+        "shallowest or deepest instrument at each time."
     ),
     "ts_diagram": (
-        "Left: log₁₀(count+1) per T-S bin. Right (when O₂ present): median O₂ "
-        "saturation per T-S bin — bins with <5 samples masked. Colour scale: "
-        "BrBG (brown=low, teal=high)."
+        "Potential temperature against salinity (PSU) for every grid cell "
+        "(interpolated values included), as the number of values in each bin (log "
+        "scale). Dashed lines: potential density σθ."
     ),
     "vel_stacked": (
-        "East, north, and up velocity. QC-flagged samples excluded before "
-        "interpolation. Shared symmetric Spectral_r colormap for east/north; "
-        "separate bounds for up. No temporal gap fill — NaN where no data."
+        "Eastward, northward and upward velocity, current speed, and the direction "
+        "toward which the current flows, interpolated in pressure between the "
+        "current meters; no values above the shallowest or below the deepest."
     ),
     "vel_iqr": (
-        "Velocity IQR profiles. Median (solid line) and interquartile range "
-        "(shaded, 25–75 %) across the full deployment at each pressure level. "
-        "2.5–97.5 % outer envelope for speed. Right panel: count of non-NaN "
-        "values per depth."
+        "Distribution of current speed (left) and eastward/northward velocity "
+        "(middle) at each grid level over the deployment: line = median, dark "
+        "shading = middle 50 % (interquartile range), light shading = 2.5–97.5 % "
+        "(speed only). Right: number of values at each level. Black line: seabed, "
+        "from the water depth."
     ),
     "vel_timeseries": (
-        "Velocity time series at depth of maximum mean speed. Depth chosen as "
-        "the pressure level with the highest time-mean current speed. Speed, "
-        "east, and north velocity at that level."
+        "Current speed and eastward/northward velocity at the grid level with the "
+        "highest mean speed."
     ),
     "roses": (
-        "Current roses. One rose per pressure level (up to 12, evenly "
-        "subsampled). Suspect/bad QC excluded. Each petal shows the fraction of "
-        "time current flowed in that direction; petal length encodes speed "
-        f"({params.vunit('east_velocity')})."
+        "Direction toward which the current flows and speed at grid levels "
+        "(interpolated between current meters). Wedge length is the percentage of "
+        "the record in that direction; colours are speed classes."
     ),
     "hodograph": (
-        "Hodograph. Current hodographs at two pressure levels (25th and 75th "
-        "percentile of the valid range). Top row = shallower level; bottom row "
-        "= deeper level. Left = Tukey-smoothed raw; right = eddy component (LP "
-        "mean removed). Colour indicates fractional time through the deployment "
-        "(lime circle = start, red square = end). QC-bad data excluded."
+        "Velocity vectors (24-hour smoothed) at the levels of the current roses, "
+        "traced through the deployment, coloured from start (dark) to end (yellow); "
+        "green circle = start, red square = end."
     ),
-    "trajectory": (
-        "Particle trajectory. Pseudo-Lagrangian trajectories at each gridded "
-        "pressure level, integrated from east and north velocity (Euler "
-        "forward). All start at the origin. Coloured by pressure (dbar)."
+    "progressive_vector": (
+        "Cumulative displacement from adding up the hourly velocity at each level "
+        "(a progressive vector diagram): how far water passing the mooring would "
+        "travel if the flow were the same everywhere. It shows the mean flow "
+        "direction and how steady it is, not the path of a water parcel."
     ),
-    "sigma0": "Potential density. 20 discrete colour levels.",
+    "sigma0": (
+        f"Potential density anomaly σ0 (referenced to the surface; {params.vunit('potential_density')}), from "
+        "potential temperature and salinity (PSU) on the grid."
+    ),
+    "sigma2": (
+        f"Potential density anomaly σ2 (referenced to 2000 dbar; {params.vunit('potential_density')}), from "
+        "potential temperature and salinity (PSU) on the grid."
+    ),
     "n2": (
-        f"Buoyancy frequency squared (N²). log₁₀(N²) in {params.vunit('n2')}. "
-        "Purple = strongly stratified; yellow = weakly stratified. Computed from "
-        "T and S via GSW."
+        f"Buoyancy frequency squared (log₁₀ N², {params.vunit('n2')}), calculated "
+        "simply between neighbouring levels of the gridded temperature and salinity "
+        "(GSW, no adiabatic levelling); zero or negative values are drawn in the "
+        "lowest colour. For analysis, calculate N² from the measurements yourself."
     ),
     "isopycnal_coverage": (
         "Isopycnal coverage diagnostic. Percentage of time steps during which "
         f"each σ₀ surface (0.1 {params.vunit('potential_density')} spacing) lies "
-        "within the measured column "
-        "range. Green ≥ 80 %; amber 50–80 %; red < 50 %. Orange diamond = "
-        "current --sig-level target. Dashed line = 80 % threshold. NaN gaps in "
-        "the tracking figure above correspond to times when the isopycnal is "
-        "outside the measured range (pycnocline above the shallowest grid "
-        "level, or below the deepest)."
+        f"within the measured column range. Green ≥ {COVERAGE_GOOD_PCT:g} %; amber "
+        f"{COVERAGE_FAIR_PCT:g}–{COVERAGE_GOOD_PCT:g} %; red < {COVERAGE_FAIR_PCT:g} %. "
+        f"Orange diamond: the target σ₀. Dashed line: {COVERAGE_GOOD_PCT:g} %. Gaps in "
+        "the tracking "
+        "figure correspond to times when the isopycnal is outside the measured "
+        "range (above the shallowest grid level, or below the deepest)."
     ),
     # Per-isopycnal panel — one per sigma variable, so the caption is a template
-    # with a {sigma_var} field the panel builder formats in.  It is the one
-    # GRID_CAPTIONS entry carrying a substitution; in the future YAML it is a
-    # caption string with the same field.
+    # with a {sigma_var} field the panel builder formats in.
     "isopycnal_ts": (
         "Isopycnal height above seabed — {sigma_var}. Height above seabed (m) "
         "of each target σ₀ surface through time. Tracked by linear "
         "interpolation in density space from the gridded {sigma_var} field; "
-        "1-hour running median applied. NaN where the surface outcrops or is "
+        "1-hour running median applied. Blank where the surface outcrops or is "
         "outside the observed range. Light blue = lighter water (shallower); "
-        "dark blue = denser water (deeper). Targets set by --sig-level "
-        "(default σ₀ = 27.70)."
+        "dark blue = denser water (deeper). Default target σ₀ = "
+        + _captions._join([f"{s:.2f}" for s in params.SIGMA_GRID])
+        + "."
     ),
     "overflow_temp": (
         "Temperature ~100 m above seabed. 1-hour running median temperature at "
@@ -150,34 +162,24 @@ GRID_CAPTIONS: dict[str, str] = {
         "height-above-seabed shown in figure title."
     ),
     "temp_spectrum": (
-        "Temperature power spectrum. Left: low-frequency overview — 14-day Hann "
-        "windows, 50 % overlap. Right: high-frequency zoom — 1-day windows "
-        "(~14× more windows, smoother tidal/inertial estimate); x-axis in "
-        "hours. LF markers: M2, 1.8 d, 4 d, f. HF markers: M2 (12.4 h), f "
-        "(inertial). Dashed black line: −2 spectral slope. Colour encodes "
-        "pressure (light blue = shallow, dark blue = deep). Window length "
-        "controllable via hf_segment_days in _make_spectrum_b64."
+        "Power spectral density of temperature at a few levels (Welch estimate). "
+        "Left: 14-day Hann windows; right: 7-day Hann windows, zoomed to periods "
+        "under 2 days; 50 % overlap. Vertical lines: M2, K1 and the inertial "
+        "period. Dashed: a −2 slope for reference."
     ),
     "wavelet": (
-        "Temperature wavelet scalogram. Continuous wavelet transform (Morlet, "
-        "ω₀ = 6; Torrence & Compo 1998). Three depth levels: 2nd from top, "
-        "middle, 2nd from bottom of the 100-dbar-multiple valid levels. Colour "
-        "shows log₁₀(power) (°C² d); hatched grey region = cone of influence "
-        "(edge-affected); hatched cross region = gap-filled data; black contour "
-        "= 95 % significance against red noise."
+        "Wavelet power of temperature (Morlet, ω₀ = 6; Torrence & Compo 1998), "
+        "log₁₀ °C² d. Hatched: edge-affected (cone of influence); cross-hatched: "
+        "gaps filled before the transform. Black contours: 95 % significance "
+        "against red noise."
     ),
     "rotary_spectrum": (
-        "Rotary velocity spectrum. CW (clockwise, anticyclonic, solid red "
-        "lines) and CCW (counter-clockwise, cyclonic, dashed blue lines) power "
-        "spectra and rotary coefficient r = (CCW−CW)/(CCW+CW). Welch PSD, Hann "
-        "window, 14-day segments, 50 % overlap. Up to 4 pressure levels (at "
-        "most 1/5th of valid levels); colour encodes pressure depth. Vertical "
-        "lines: M2, K1, 1.8 d, 4 d, and inertial period (f). r > 0 = CCW "
-        "dominant; r < 0 = CW dominant. Physical interpretation (NH): inertial "
-        "oscillations are inherently CW; for internal waves (f < ω), CW "
-        "dominance indicates upward energy propagation / downward phase "
-        "propagation (Leaman & Sanford 1975)."
+        "Rotary spectra of velocity: clockwise (red, solid) and counter-clockwise "
+        "(blue, dashed) components, and the rotary coefficient r = (CCW − CW)/(CCW + "
+        "CW) (right; r < 0: clockwise dominant). Welch estimate, 14-day Hann "
+        "windows, 50 % overlap. Vertical lines: M2, K1 and the inertial period f."
     ),
+    "nc_file": "The grid file: its coordinates, variables and global attributes.",
 }
 
 
@@ -186,9 +188,8 @@ class GridContext:
     """Shared inputs for the grid page's panels, computed once.
 
     The T-S diagram is drawn once, eagerly, by :func:`build_grid_context`: it
-    both produces ``ts_bounds`` (consumed by Hydrography, independent of whether
-    the T-S *section* is in the profile) and yields ``ts_b64``, which the
-    ``ts_diagram`` panel returns directly rather than re-rendering the figure.
+    yields ``ts_b64``, which the ``ts_diagram`` panel returns directly rather than
+    re-rendering the figure, and the σθ contour interval its caption names.
 
     Parameters
     ----------
@@ -201,21 +202,49 @@ class GridContext:
         defect: the N² panel stubs on it (via ``unavailable_if``), while the
         spectra still compute at ``lat=0`` as before.
     ts_bounds : dict
-        Shared T-S axis limits, from :func:`_make_grid_ts_diagram_b64_and_limits`.
+        T-S axis limits and the σθ contour interval, from
+        :func:`_make_grid_ts_diagram_b64_and_limits`.
     ts_b64 : str or None
         The rendered T-S diagram (base64 PNG), or ``None`` if it could not be
-        drawn.  Cached here so the figure is drawn once, not once for the bounds
-        and again for the panel.
+        drawn.
     dt_s : float
         The grid's time step in seconds: its ``dt_seconds`` attribute, else the
         median step of its time axis.
     history_entries : list
-        Parsed processing-history entries (for the history panel).
+        Parsed processing-history entries (for the collapsed file record).
     nc_meta : dict
         NetCDF metadata (variables/scalars/globals) for the appendix tables.
     nc_file : str
         The gridded NetCDF file's name, for the appendix table heading.
-
+    derived : DerivedFields or None
+        Quantities the figures derive from the grid (position, θ, speed,
+        direction), computed once for the page.
+    density : dict of str to xarray.DataArray, or None
+        σ0 and σ2 for the Stratification sections, computed once for the page;
+        None without θ.
+    ds_stack : xarray.Dataset or None
+        The stack beside the grid (its instruments and velocity reference), or
+        None when it is not there.
+    instruments : tuple of InstrumentLevel
+        The stack's instruments with their median pressures, shallowest first.
+    scale : SectionScale or None
+        The page's vertical scale: the hydrography panels' dbar per inch.
+    seabed_dbar : float or None
+        Seabed pressure from the water depth.
+    max_speed_level : int or None
+        Grid level with the highest mean speed.
+    rose_levels : tuple of int
+        Grid levels of the current roses and the hodographs.
+    rose_left_out : tuple of int
+        Grid levels with velocity for less than
+        :data:`~oceanarray.analysis.derived.ROSE_MIN_FILLED` of the record, left
+        out of the roses and hodographs (named in their captions).
+    temp_levels, wavelet_levels, rotary_levels : tuple of int
+        Grid levels of the temperature spectrum, wavelet and rotary spectrum.
+    spectrum_markers : tuple of (str, float)
+        Extra spectrum markers from the mooring description (label, period in days).
+    stack_href : str or None
+        Link to the stack page.
     """
 
     ds: Any
@@ -227,10 +256,36 @@ class GridContext:
     history_entries: list
     nc_meta: dict
     nc_file: str
+    derived: Any = None
+    density: Any = None
+    ds_stack: Any = None
+    instruments: tuple = ()
+    scale: Any = None
+    seabed_dbar: float | None = None
+    max_speed_level: int | None = None
+    rose_levels: tuple = ()
+    rose_left_out: tuple = ()
+    temp_levels: tuple = ()
+    wavelet_levels: tuple = ()
+    rotary_levels: tuple = ()
+    spectrum_markers: tuple = ()
+    stack_href: str | None = None
 
 
-def build_grid_context(ds: Any, grid_path: Path) -> GridContext:
-    """Return a :class:`GridContext` for *ds*, computing ``ts_bounds`` eagerly.
+def _instrument_pressures(levels: tuple, variables: tuple[str, ...]) -> list[float]:
+    """Return the median pressures of the instruments measuring any of *variables*."""
+    return [r.pressure for r in levels if r.variables & set(variables)]
+
+
+def build_grid_context(
+    ds: Any,
+    grid_path: Path,
+    ds_stack: Any = None,
+    *,
+    spectrum_markers: tuple = (),
+    stack_href: str | None = None,
+) -> GridContext:
+    """Return a :class:`GridContext` for *ds*: what its panels and captions share.
 
     Parameters
     ----------
@@ -238,6 +293,13 @@ def build_grid_context(ds: Any, grid_path: Path) -> GridContext:
         The opened gridded dataset.
     grid_path : Path
         Path to the gridded NetCDF file (for the variable-metadata tables).
+    ds_stack : xarray.Dataset or None, optional
+        The stack the grid was made from, for the instrument pressures, the
+        velocity reference and the instrument count; without it those are left out.
+    spectrum_markers : tuple of (str, float), optional
+        Extra spectrum markers (label, period in days).
+    stack_href : str or None, optional
+        Link to the stack page.
 
     Returns
     -------
@@ -245,6 +307,17 @@ def build_grid_context(ds: Any, grid_path: Path) -> GridContext:
         The shared render context for the grid page's panels.
 
     """
+    from oceanarray.analysis.derived import (
+        instrument_levels,
+        level_of_max_speed,
+        potential_density,
+        seabed_pressure,
+        sparse_velocity_levels,
+        velocity_levels,
+    )
+    from oceanarray.analysis.spectral import select_levels
+    from oceanarray.plotters.timeseries import hydro_scale
+
     lat_v, _, source = parse_latlon_with_source(dict(ds.attrs))
     lat_resolved = not is_unknown_latlon_source(source)
     if not lat_resolved:
@@ -255,8 +328,35 @@ def build_grid_context(ds: Any, grid_path: Path) -> GridContext:
             stacklevel=2,
         )
         lat_v = 0.0
-    ts_b64, ts_bounds = _make_grid_ts_diagram_b64_and_limits(ds)
+    derived = derived_fields(ds)
+    ts_b64, ts_bounds = _make_grid_ts_diagram_b64_and_limits(ds, derived=derived)
     dt_s = time_step_seconds(ds)
+    instruments = tuple(instrument_levels(ds_stack))
+    pressure = ds["pressure"].values
+    rose = speed_level = None
+    left_out: list[int] = []
+    rotary: list[int] = []
+    if {"east_velocity", "north_velocity"} <= set(ds.data_vars):
+        east = ds["east_velocity"].transpose("time", "pressure").values
+        north = ds["north_velocity"].transpose("time", "pressure").values
+        rose = velocity_levels(east, north)
+        left_out = sparse_velocity_levels(east, north)
+        speed = derived.speed.transpose("time", "pressure").values
+        speed_level = level_of_max_speed(speed)
+        both = np.where(np.isfinite(east) & np.isfinite(north), east, np.nan).T
+        rotary = select_levels(
+            both,
+            pressure,
+            at=_instrument_pressures(instruments, ("east_velocity",)) or None,
+            n=3,
+        )
+    temp_levels: list[int] = []
+    wavelet: list[int] = []
+    if "temperature" in ds.data_vars:
+        t = ds["temperature"].transpose("pressure", "time").values
+        at = _instrument_pressures(instruments, ("temperature",)) or None
+        temp_levels = select_levels(t, pressure, at=at)
+        wavelet = select_levels(t, pressure, n=3)
     return GridContext(
         ds=ds,
         lat=lat_v,
@@ -267,6 +367,20 @@ def build_grid_context(ds: Any, grid_path: Path) -> GridContext:
         history_entries=_parse_history(ds.attrs.get("history", "")),
         nc_meta=_read_nc_metadata(grid_path),
         nc_file=grid_path.name,
+        derived=derived,
+        density=potential_density(ds, derived) if _has_hydro_ds(ds) else None,
+        ds_stack=ds_stack,
+        instruments=instruments,
+        scale=hydro_scale(ds),
+        seabed_dbar=seabed_pressure(ds),
+        max_speed_level=speed_level,
+        rose_levels=tuple(rose or ()),
+        rose_left_out=tuple(left_out),
+        temp_levels=tuple(temp_levels),
+        wavelet_levels=tuple(wavelet),
+        rotary_levels=tuple(rotary),
+        spectrum_markers=tuple(spectrum_markers),
+        stack_href=stack_href,
     )
 
 
@@ -294,11 +408,16 @@ def _has_velocity(ctx: GridContext) -> bool:
     return "east_velocity" in ctx.ds.data_vars or "north_velocity" in ctx.ds.data_vars
 
 
-def _has_hydro(ctx: GridContext) -> bool:
-    """Return True when temperature and salinity (or conductivity) are present."""
-    dv = ctx.ds.data_vars
+def _has_hydro_ds(ds: Any) -> bool:
+    """Return True when *ds* has temperature and salinity (or conductivity)."""
+    dv = ds.data_vars
     # Conductivity counts: salinity is derivable via gsw.SP_from_C.
     return "temperature" in dv and ("salinity" in dv or "conductivity" in dv)
+
+
+def _has_hydro(ctx: GridContext) -> bool:
+    """Return True when temperature and salinity (or conductivity) are present."""
+    return _has_hydro_ds(ctx.ds)
 
 
 def _has_sigma(ctx: GridContext) -> bool:
@@ -316,9 +435,14 @@ def _history_unavailable(ctx: GridContext) -> str | None:
     return _html_helpers.NO_HISTORY
 
 
-def _has_global_attrs(ctx: GridContext) -> bool:
-    """Return True when the NetCDF file exposes global attributes."""
-    return bool(ctx.nc_meta.get("global_groups"))
+def _theta_unavailable(ctx: GridContext) -> str | None:
+    """Reason σ0/σ2 cannot be drawn (no position for θ), or None to proceed."""
+    if ctx.density is not None:
+        return None
+    return (
+        "Potential density unavailable: potential temperature needs the mooring "
+        "position, which the file does not record."
+    )
 
 
 def _isopycnal_ts_panel(sigma_var: str) -> Panel:
@@ -345,8 +469,10 @@ def _isopycnal_ts_panel(sigma_var: str) -> Panel:
 
 
 #: Grid panel registry.  Figure adapters are wrapped unchanged;
-#: captions come from :data:`GRID_CAPTIONS` (keyed by id).  ``ts_diagram`` and
-#: ``trajectory`` are the only non-full slots (both ``"half"``).  ``applies_to``
+#: captions come from :data:`GRID_CAPTIONS` (keyed by id), replaced on a built page
+#: by the generated ones (:func:`oceanarray.reports._captions.grid_captions`).
+#: ``ts_diagram`` and ``progressive_vector`` are the only non-full slots (both
+#: ``"half"``).  ``applies_to``
 #: answers "could this exist for this deployment?" — a false predicate omits the
 #: panel (and, when a whole section drops out, names it in the not-applicable
 #: footer); ``n2``'s ``unavailable_if`` is the separate "applicable but a
@@ -383,41 +509,63 @@ GRID_PANELS: dict[str, Panel] = {
         kind="html",
         applies_to=lambda c: bool(_attr(c, "stage2_magnetic_north")),
     ),
-    # non-figure appendix / history — payloads are markup from sub-templates
+    # processing steps, then the file's own record (collapsed); the appendix
+    "steps": Panel(
+        "steps",
+        render=lambda c: render_template(
+            "_processing_steps.html",
+            steps=_captions.grid_steps(
+                c.ds, len(c.instruments) or None, stack_href=c.stack_href
+            ),
+        ),
+        kind="html",
+        caption=GRID_CAPTIONS["steps"],
+        applies_to=lambda c: c.ds is not None,
+    ),
     "history": Panel(
         "history",
-        render=lambda c: render_history(c.history_entries),
+        render=lambda c: render_template(
+            "_collapsed.html",
+            summary="show the file's processing record (dated events)",
+            body=render_history(c.history_entries),
+        ),
         kind="html",
         unavailable_if=_history_unavailable,
     ),
-    "nc_coords": Panel(
-        "nc_coords",
-        render=lambda c: render_nc_coords(c.nc_meta),
-        kind="table",
-        applies_to=lambda c: bool(c.nc_meta.get("coords_rows")),
-    ),
-    "nc_variables": Panel(
-        "nc_variables",
-        render=lambda c: render_nc_variables(c.nc_meta),
-        kind="table",
-    ),
-    "nc_scalars": Panel(
-        "nc_scalars",
-        render=lambda c: render_nc_scalars(c.nc_meta),
-        kind="table",
-        applies_to=lambda c: bool(c.nc_meta.get("scalar_rows")),
-    ),
-    "nc_globals": Panel(
-        "nc_globals",
-        render=lambda c: render_nc_globals(c.nc_meta),
-        kind="table",
-        applies_to=_has_global_attrs,
+    "nc_file": Panel(
+        "nc_file",
+        render=lambda c: render_template(
+            "_collapsed.html",
+            summary="show the coordinates, variables and global attributes",
+            body="".join(
+                render(c.nc_meta)
+                for render in (
+                    render_nc_coords,
+                    render_nc_variables,
+                    render_nc_scalars,
+                    render_nc_globals,
+                )
+            ),
+        ),
+        kind="html",
+        caption=GRID_CAPTIONS["nc_file"],
     ),
     # hydrography
     "hydro": Panel(
         "hydro",
         render=lambda c: as_panel(
-            lambda: _make_grid_hydro_b64(c.ds, var_bounds=c.ts_bounds)
+            lambda: _make_grid_hydro_b64(
+                c.ds,
+                instrument_pressures={
+                    "temperature": _instrument_pressures(
+                        c.instruments, ("temperature",)
+                    ),
+                    "salinity": _instrument_pressures(
+                        c.instruments, ("salinity", "conductivity")
+                    ),
+                },
+                scale=c.scale,
+            )
         ),
         caption=GRID_CAPTIONS["hydro"],
         applies_to=_has_temperature,
@@ -432,52 +580,76 @@ GRID_PANELS: dict[str, Panel] = {
     # velocity
     "vel_stacked": Panel(
         "vel_stacked",
-        render=lambda c: as_panel(lambda: _make_grid_velocity_stacked_b64(c.ds)),
+        render=lambda c: as_panel(
+            lambda: _make_grid_velocity_stacked_b64(
+                c.ds,
+                instrument_pressures=_instrument_pressures(
+                    c.instruments, ("east_velocity", "north_velocity")
+                ),
+                scale=c.scale,
+            )
+        ),
         caption=GRID_CAPTIONS["vel_stacked"],
         applies_to=_has_velocity,
     ),
     "vel_iqr": Panel(
         "vel_iqr",
-        render=lambda c: as_panel(lambda: _make_velocity_iqr_profile_b64(c.ds)),
+        render=lambda c: as_panel(
+            lambda: _make_velocity_iqr_profile_b64(c.ds, scale=c.scale)
+        ),
         caption=GRID_CAPTIONS["vel_iqr"],
         applies_to=_has_velocity,
     ),
     "vel_timeseries": Panel(
         "vel_timeseries",
-        render=lambda c: as_panel(lambda: _make_grid_timeseries_b64(c.ds)),
+        render=lambda c: as_panel(lambda: _make_grid_timeseries_b64(c.ds, c.derived)),
         caption=GRID_CAPTIONS["vel_timeseries"],
         applies_to=_has_velocity,
     ),
     # velocity structure
     "roses": Panel(
         "roses",
-        render=lambda c: as_panel(lambda: _make_grid_rose_b64(c.ds)),
+        render=lambda c: as_panel(
+            lambda: _make_grid_rose_b64(c.ds, levels=list(c.rose_levels))
+        ),
         caption=GRID_CAPTIONS["roses"],
         applies_to=_has_velocity,
     ),
     "hodograph": Panel(
         "hodograph",
-        render=lambda c: as_panel(lambda: _make_grid_hodograph_b64(c.ds)),
+        render=lambda c: as_panel(
+            lambda: _make_grid_hodograph_b64(c.ds, levels=list(c.rose_levels))
+        ),
         caption=GRID_CAPTIONS["hodograph"],
         applies_to=_has_velocity,
     ),
-    "trajectory": Panel(
-        "trajectory",
-        render=lambda c: as_panel(lambda: _make_grid_trajectory_b64(c.ds)),
+    "progressive_vector": Panel(
+        "progressive_vector",
+        render=lambda c: as_panel(lambda: _make_grid_progressive_vector_b64(c.ds)),
         slot="half",
-        caption=GRID_CAPTIONS["trajectory"],
+        caption=GRID_CAPTIONS["progressive_vector"],
         applies_to=_has_velocity,
     ),
     # stratification
-    "sigma0": Panel(
-        "sigma0",
-        render=lambda c: as_panel(lambda: _make_grid_sigma_b64(c.ds)),
-        caption=GRID_CAPTIONS["sigma0"],
-        applies_to=_has_sigma,
-    ),
+    **{
+        ref: Panel(
+            ref,
+            render=lambda c, _ref=ref: as_panel(
+                lambda: _make_grid_potential_density_b64(
+                    c.ds, _ref, density=c.density, scale=c.scale
+                )
+            ),
+            caption=GRID_CAPTIONS[ref],
+            applies_to=_has_hydro,
+            unavailable_if=_theta_unavailable,
+        )
+        for ref in ("sigma0", "sigma2")
+    },
     "n2": Panel(
         "n2",
-        render=lambda c: as_panel(lambda: _make_grid_n2_b64(c.ds, lat=c.lat)),
+        render=lambda c: as_panel(
+            lambda: _make_grid_n2_b64(c.ds, lat=c.lat, derived=c.derived)
+        ),
         caption=GRID_CAPTIONS["n2"],
         applies_to=_has_sigma,
         unavailable_if=lambda c: (
@@ -504,7 +676,13 @@ GRID_PANELS: dict[str, Panel] = {
     "temp_spectrum": Panel(
         "temp_spectrum",
         render=lambda c: as_panel(
-            lambda: _make_spectrum_b64(c.ds["temperature"], c.dt_s, lat=c.lat)
+            lambda: _make_spectrum_b64(
+                c.ds["temperature"],
+                c.dt_s,
+                lat=c.lat,
+                levels=list(c.temp_levels),
+                markers=c.spectrum_markers,
+            )
         ),
         caption=GRID_CAPTIONS["temp_spectrum"],
         applies_to=_has_temperature,
@@ -512,7 +690,9 @@ GRID_PANELS: dict[str, Panel] = {
     "wavelet": Panel(
         "wavelet",
         render=lambda c: as_panel(
-            lambda: _make_wavelet_b64(c.ds["temperature"], c.dt_s)
+            lambda: _make_wavelet_b64(
+                c.ds["temperature"], c.dt_s, levels=list(c.wavelet_levels)
+            )
         ),
         caption=GRID_CAPTIONS["wavelet"],
         applies_to=_has_temperature,
@@ -520,7 +700,12 @@ GRID_PANELS: dict[str, Panel] = {
     "rotary_spectrum": Panel(
         "rotary_spectrum",
         render=lambda c: as_panel(
-            lambda: _make_grid_rotary_spectrum_b64(c.ds, lat=c.lat)
+            lambda: _make_grid_rotary_spectrum_b64(
+                c.ds,
+                lat=c.lat,
+                levels=list(c.rotary_levels),
+                markers=c.spectrum_markers,
+            )
         ),
         caption=GRID_CAPTIONS["rotary_spectrum"],
         applies_to=_has_velocity,
@@ -531,62 +716,46 @@ GRID_PANELS: dict[str, Panel] = {
 #: sections), per the ``PanelGroup`` rule.
 _OVERFLOW_ISOPYCNALS = PanelGroup(over=_sigma_vars, panel=_isopycnal_ts_panel)
 
-#: Grid sections: 8 content sections + one appendix.
+#: Grid sections, in display order: the one place the order is written, and each
+#: id written once (the key is the section's own id).  8 content sections + one
+#: appendix (the NetCDF file, collapsed); T-S is its own section, Velocity split 3+3.
 GRID_SECTIONS: dict[str, Section] = {
-    "processing_history": Section(
-        "processing_history", "Processing history", ("stage2_note", "history")
-    ),
-    "hydrography": Section("hydrography", "Hydrography", ("hydro",)),
-    "ts_diagram": Section("ts_diagram", "T-S diagram", ("ts_diagram",)),
-    "velocity": Section(
-        "velocity",
-        "Velocity",
-        ("stage2_velocity_note", "vel_stacked", "vel_iqr", "vel_timeseries"),
-    ),
-    "velocity_structure": Section(
-        "velocity_structure", "Velocity structure", ("roses", "hodograph", "trajectory")
-    ),
-    "stratification": Section("stratification", "Stratification", ("sigma0", "n2")),
-    "overflow": Section(
-        "overflow",
-        "Overflow",
-        ("isopycnal_coverage", _OVERFLOW_ISOPYCNALS, "overflow_temp"),
-    ),
-    "frequency_analysis": Section(
-        "frequency_analysis",
-        "Frequency analysis",
-        ("temp_spectrum", "wavelet", "rotary_spectrum"),
-    ),
-    "netcdf_variables": Section(
-        "netcdf_variables",
-        "NetCDF variables",
-        ("nc_coords", "nc_variables", "nc_scalars"),
-        role="appendix",
-    ),
-    "netcdf_attributes": Section(
-        "netcdf_attributes",
-        "NetCDF attributes",
-        ("nc_globals",),
-        role="appendix",
-    ),
+    s.id: s
+    for s in (
+        Section(
+            "processing_history",
+            "Processing history",
+            ("stage2_note", "steps", "history"),
+        ),
+        Section("hydrography", "Hydrography", ("hydro",)),
+        Section("ts_diagram", "T-S diagram", ("ts_diagram",)),
+        Section(
+            "velocity",
+            "Velocity",
+            ("stage2_velocity_note", "vel_stacked", "vel_iqr", "vel_timeseries"),
+        ),
+        Section(
+            "velocity_structure",
+            "Velocity structure",
+            ("roses", "hodograph", "progressive_vector"),
+        ),
+        Section("stratification", "Stratification", ("sigma0", "sigma2", "n2")),
+        Section(
+            "overflow",
+            "Overflow",
+            ("isopycnal_coverage", _OVERFLOW_ISOPYCNALS, "overflow_temp"),
+        ),
+        Section(
+            "frequency_analysis",
+            "Frequency analysis",
+            ("temp_spectrum", "wavelet", "rotary_spectrum"),
+        ),
+        Section("netcdf", "NetCDF file", ("nc_file",), role="appendix"),
+    )
 }
 
-#: Default grid profile: T-S its own section 3, Velocity split 3+3.
-GRID_DEFAULT = Profile(
-    numbering="flat",
-    entries=(
-        GRID_SECTIONS["processing_history"],
-        GRID_SECTIONS["hydrography"],
-        GRID_SECTIONS["ts_diagram"],
-        GRID_SECTIONS["velocity"],
-        GRID_SECTIONS["velocity_structure"],
-        GRID_SECTIONS["stratification"],
-        GRID_SECTIONS["overflow"],
-        GRID_SECTIONS["frequency_analysis"],
-        GRID_SECTIONS["netcdf_variables"],
-        GRID_SECTIONS["netcdf_attributes"],
-    ),
-)
+#: Default grid profile: every section, in the order of :data:`GRID_SECTIONS`.
+GRID_DEFAULT = Profile(numbering="flat", entries=tuple(GRID_SECTIONS.values()))
 
 
 #: Grid sections that are off by default and turned on via ``report_sections`` — read
@@ -594,6 +763,26 @@ GRID_DEFAULT = Profile(
 _OPTIONAL_GRID_SECTIONS: tuple[str, ...] = tuple(
     sorted(_mooring.OPTIONAL_REPORT_SECTIONS.get("grid", ()))
 )
+
+
+def grid_panels(ctx: GridContext) -> dict[str, Panel]:
+    """Return :data:`GRID_PANELS` with the captions generated for *ctx*.
+
+    Parameters
+    ----------
+    ctx : GridContext
+        The page's context.
+
+    Returns
+    -------
+    dict of str to Panel
+        The registry, each panel with its generated caption where there is one.
+    """
+    captions = _captions.grid_captions(ctx)
+    return {
+        pid: replace(panel, caption=captions[pid]) if pid in captions else panel
+        for pid, panel in GRID_PANELS.items()
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -636,10 +825,31 @@ def generate_grid_page(
         else:
             grid_dt_s = "—"
 
-        # Build the shared context (latitude, ts_bounds, history, nc_meta) once,
-        # then resolve the profile against it.  ``resolve`` renders every panel
-        # from the open dataset, so it must run before ``ds.close()``.
-        gctx = build_grid_context(ds, grid_path)
+        # The stack beside the grid: its instruments' pressures, the velocity
+        # reference and the instrument count, for the figures and captions.
+        stack_path = paths.product_file(grid_path.parent, mooring_name, "stack")
+        stack_exists = stack_path.exists()
+        ds_stack = None
+        if stack_exists:
+            try:
+                with xr.open_dataset(stack_path) as _f:
+                    ds_stack = _f.load()
+            except Exception as exc:
+                warnings.warn(
+                    f"grid report: could not read the stack ({exc}); instrument "
+                    "pressures and counts are left out",
+                    stacklevel=2,
+                )
+        # Build the shared context (latitude, levels, scale, history, nc_meta)
+        # once, then resolve the profile against it.  ``resolve`` renders every
+        # panel from the open dataset, so it must run before ``ds.close()``.
+        gctx = build_grid_context(
+            ds,
+            grid_path,
+            ds_stack,
+            spectrum_markers=tuple(ctx.get("spectrum_markers", ())),
+            stack_href=f"{mooring_name}_stack_report.html" if stack_exists else None,
+        )
         # Optional sections are off unless the config turns them on: drop them from the
         # profile entirely (not via applies_to, which would name them in the
         # not-applicable footer — they were simply not asked for).
@@ -657,12 +867,8 @@ def generate_grid_page(
                     e for e in GRID_DEFAULT.entries if not any(e is d for d in drop)
                 ),
             )
-        report = resolve(profile, gctx, GRID_PANELS)
+        report = resolve(profile, gctx, grid_panels(gctx))
         ds.close()
-
-        stack_exists = paths.product_file(
-            grid_path.parent, mooring_name, "stack"
-        ).exists()
 
         html = render_template(
             "grid.html",
@@ -679,6 +885,7 @@ def generate_grid_page(
                 array_href=_resolve_array_report_href(out_dir),
             ),
             report=report,
+            description_links=description_links(ctx),
             cruise=ctx.get("cruise", "—"),
             meta_facts=_masthead.masthead_facts(
                 "grid",

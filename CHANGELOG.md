@@ -9,6 +9,12 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Added
 
+- Every report page has a right-justified Expand all / Collapse all button under the jump-nav; printing opens every collapsed box and restores them afterwards.
+- `spectrum_markers:` in the mooring YAML adds periods (e.g. `4 d: 4 d`) to the grid page's temperature and rotary spectra and names them in the captions; `validate` checks them.
+- Grid page: σ0 and σ2 sections over the full column, from θ and practical salinity (`draw_grid_potential_density`).
+- Stack and grid pages open their Processing history with a step table (Step / What was done / Settings) read from the file; the dated record is collapsed below it.
+- Deployment report: a closing *Mooring description* section with the mooring YAML in a collapsed box with a Copy button, so a reader can rerun it.
+- `OCEANARRAY_FIGURE_SOURCE=0` turns off the per-figure `source:` line (for a public build).
 - `oceanarray concat` / `oa.concat` join one site's deployment stacks by depth into `<site>_stackcat.nc`, with a Stack cat report page (#135).
 - Stage 1 writes an imported file's principal investigators and contributors as OceanSITES lists; the stack and Stack cat join them (#135).
 - `writers.write(chunks=)` sets the chunk length along a dimension (#135).
@@ -37,6 +43,41 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Changed
 
+- Salinity is labelled "Salinity (PSU)" on T-S axes, grid hydrography titles and captions (was "Practical salinity").
+- Grid captions are generated from the file: interpolation, flags left out, levels chosen, window lengths, instrument count and velocity reference; jargon and wrong claims removed.
+- Grid hydrography: colour limits at the 1st–99th percentiles with arrows, instrument median pressures as triangles at the right edge.
+- Grid velocity sections are cropped to the velocity levels, drawn at the hydrography's dbar per inch, with triangles at the current meters.
+- Grid velocity sections: the three components share one scale and colour bar; speed and direction have their own.
+- Grid roses and hodographs: captions state the 50 % coverage rule and name each level (and current meter) left out for low coverage.
+- Grid captions name the interpolation method only when the file records it; otherwise "interpolated in pressure".
+- Caption thresholds (coverage bands, rose and spectrum coverage, target σ₀) are read from the constants that draw the figures.
+- T-S figures: one σθ grid per figure over the shared axes; without a position the figure notes and logs "σθ not drawn".
+- Grid page computes σ0 and σ2 once, for its Stratification sections only; other pages no longer compute them.
+- Deployment QC summary counts every flag in the table, including 5 (value changed), read by its word.
+- Stage 3, stack and grid compute speed, direction and σ with the report's helpers (`oceanarray.physics`); output values unchanged.
+- Grid velocity profiles: drawn at the same vertical scale, down to the seabed; speed legend at centre right, labels "Middle 50 %", count axis "Hourly values".
+- Stack page: "Particle trajectories" is now "Progressive vector diagram" (`draw_multi_aquadopp_progressive_vector`, `draw_adcp_progressive_vector`; old names kept as aliases).
+- Stack and grid current roses share one design: speed classes 0–5/5–10/10–20/20–30/>30 cm/s, rings in %, a speed-class legend; grid roses at up to 4 levels filled ≥ 50 % of the time.
+- Grid hodographs are drawn at the current roses' levels, titled by pressure.
+- "Particle trajectory" on the grid page is now the progressive vector diagram (`draw_grid_progressive_vector`; `draw_grid_trajectory` kept as an alias).
+- Grid temperature spectrum: 14-day and 7-day windows (right panel periods under 2 days), 3 or 5 levels at instrument pressures filled ≥ 90 %, a pressure colour bar; titles give the windows used.
+- Spectra mark M2, K1 and the inertial period only by default (1.8 d, 4 d and 9 min removed from the defaults).
+- Grid wavelet: at most 3 levels (outermost filled ≥ 90 % and one between), periods from 6 time steps (at least 2 h), gap-filled columns cross-hatched.
+- Grid rotary spectrum: 3 levels filled ≥ 90 %, chosen by the helper the temperature spectrum and wavelet use.
+- T-S σθ contours are drawn at a round interval, named in the grid caption.
+- Grid NetCDF appendix: one collapsed "NetCDF file" section; serial-like, index and flag-code variables show no min/max in the variables tables.
+- T-S figures plot potential temperature θ against practical salinity, with labelled σθ contours from θ at the mooring position (was in-situ T).
+- Report pages derive θ, speed, direction and the knockdown inputs once (`oceanarray.analysis.derived`) and share them across their figures.
+- `pipeline.pressure.pressure_from_depth` / `depth_from_pressure`: one depth↔pressure conversion, used by ADCP QC and the figures.
+- Deployment report: the instrument summary comes first; processing pipeline, deployment timing and clock corrections follow it, the pipeline table collapsed.
+- Deployment report tables identify instruments by nominal depth and HAB (units on their own header line) with readable type names; sampling interval as "1 h", pressure range as "2358–2376".
+- Deployment report: originator timing, clock corrections and calibration show one line when there is nothing to show.
+- Deployment report QC summary: a row only for variables not all good; columns and legend from the flags present.
+- QC summary: variables never checked (flag 0), nominal (7) or interpolated (8) throughout get one line per flag, never counted as good.
+- Stack, grid, Stack cat and Grid cat pages link the deployment page's *Mooring description* on the expand-all line, left-justified with the button at the right (one link per deployment).
+- Instrument summary caption states why a row is shaded (record ends more than 12 h before recovery).
+- Report captions rewritten for readers who did not run the pipeline (deployment report); flag words replace the table tokens ("suspect", "interpolated", "no QC").
+- Report footer: the package name links to the documentation; cruise and config path removed.
 - Deployments on the Stack cat page are colored red to purple in time order; their start lines are dotted.
 - Site figures: up to seven deployments get a color each; more share colors in pairs, the second dashed, hatched or with a square marker.
 - A ▼ above each Stack cat and Grid cat time axis marks a deployment's start.
@@ -68,6 +109,16 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Fixed
 
+- Thermistors, TR-1050 and Seapoint instruments get readable type names on report pages (were upper-cased codes).
+- The deployment page's regrid command names the mooring description and `--from 3`, so it runs as copied (no raw files needed).
+
+- A relative `sensor_catalog` in a mooring YAML reached through a symbolic link is read from the real file's folder, not the link's.
+- Velocity-profile seabed line and the Overflow near-bottom level convert the water depth to pressure (they read metres as dbar).
+- σθ contours on T-S figures were computed from in-situ temperature at 0° N 0° E; now from θ at the mooring position.
+- N²: an unknown longitude warns instead of silently using 0.
+- Knockdown figures compare the design depth converted to pressure (`gsw.p_from_z`) with measured pressure; they compared metres with dbar, a 1–1.5 % bias read as knockdown.
+- Knockdown figures: an unknown latitude warns and leaves out the design pressure instead of using the equator; the HAB axis stops at the water depth.
+- `OCEANARRAY_FIGURE_SOURCE` is read when a page renders, not when oceanarray is imported.
 - A grid's current direction is no longer interpolated across 0/360° (it pointed the wrong way between a 355° and a 5° instrument).
 
 - `stage2_source_sha256` is the full SHA-256, not its first 8 digits (#135).

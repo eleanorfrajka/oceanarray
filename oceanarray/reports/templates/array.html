@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% import "_macros.html" as m %}
 {% import "_map.html" as nc_map %}
+{% import "_expand_all.html" as xa %}
 {% block title %}{{ array_name }} &ndash; array summary{% endblock %}
 {% block page_styles %}
   /* Table + caption styles are canonical in emit_css now. */
@@ -38,6 +39,7 @@
 {% block content %}
 
 <nav class="jump-nav"><a href="#moorings">Moorings</a><a href="#type-summary">Instrument summary</a><a href="#completeness">Completeness</a></nav>
+{{ xa.button() }}
 
 {% if payload_json != "[]" or fig_map_b64 %}
 <h2>Mooring positions</h2>

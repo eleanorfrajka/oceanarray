@@ -352,8 +352,9 @@ def draw_site_ts(
     matplotlib.figure.Figure or None
         None when no deployment has both θ and S.
     """
-    import gsw
     import matplotlib.pyplot as plt
+
+    from oceanarray.analysis.derived import potential_density_grid
 
     ok = np.isfinite(theta) & np.isfinite(salinity)
     if not ok.any():
@@ -395,19 +396,16 @@ def draw_site_ts(
     t_pad = max(0.1 * (t_hi - t_lo), 0.05)
     s_lim = (s_lo - s_pad, s_hi + s_pad)
     t_lim = (t_lo - t_pad, t_hi + t_pad)
-    sg, tg = np.meshgrid(np.linspace(*s_lim, 100), np.linspace(*t_lim, 100))
     known = longitude is not None and latitude is not None
-    sa = gsw.SA_from_SP(sg, 0.0, longitude, latitude) if known else None
-    ct = gsw.CT_from_pt(sa, tg) if known else None
-    for levels, sigma, fmt in (
-        (sigma2_levels, gsw.sigma2, "%g"),
-        (sigma0_levels, gsw.sigma0, "%g"),
-    ):
+    for levels, reference in ((sigma2_levels, 2000), (sigma0_levels, 0)):
         if levels and known:
-            cs = ax.contour(
-                sg, tg, sigma(sa, ct), levels=list(levels), colors="0.4", linewidths=0.6
+            sg, tg, sigma = potential_density_grid(
+                s_lim, t_lim, latitude, longitude, n_grid=100, reference_dbar=reference
             )
-            ax.clabel(cs, fontsize=report_tokens.ANNOT_FS, fmt=fmt)
+            cs = ax.contour(
+                sg, tg, sigma, levels=list(levels), colors="0.4", linewidths=0.6
+            )
+            ax.clabel(cs, fontsize=report_tokens.ANNOT_FS, fmt="%g")
     ax.set_xlim(*s_lim)
     ax.set_ylim(*t_lim)
     ax.set_xlabel(params.vlabel("salinity"))

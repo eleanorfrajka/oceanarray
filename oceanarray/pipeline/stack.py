@@ -14,6 +14,7 @@ from oceanarray.exceptions import MooringError
 from oceanarray.instruments import instrument_entries
 from oceanarray.location import parse_latlon
 from oceanarray.paths import safe_serial
+from oceanarray.physics import potential_density_anomaly, speed_direction
 from oceanarray.pipeline import _stage, attribution, masking, sensors
 from oceanarray.pipeline.dataset import drop_all_zero_vars, time_axis
 from oceanarray.pipeline.pressure import _times_to_float
@@ -151,18 +152,19 @@ def _build_adcp_bin_ds(ds_parent: xr.Dataset, bin_idx: int) -> xr.Dataset:
     if "east_velocity" in ds_bin.data_vars and "north_velocity" in ds_bin.data_vars:
         e = ds_bin["east_velocity"].values.astype(float)
         n = ds_bin["north_velocity"].values.astype(float)
+        speed, direction = speed_direction(e, n)
         # Direction is oceanographic: toward which the water flows, clockwise from true
         # north once stage 3 applied declination (magnetic north in a stage-2 stack);
         # 0 = northward, 90 = eastward, the opposite of meteorological "from".
         ds_bin = ds_bin.assign(
             current_speed=xr.Variable(
                 "time",
-                np.hypot(e, n).astype(np.float32),
+                speed.astype(np.float32),
                 {"units": "m s-1", "long_name": "Current speed"},
             ),
             current_direction=xr.Variable(
                 "time",
-                (np.degrees(np.arctan2(e, n)) % 360.0).astype(np.float32),
+                direction.astype(np.float32),
                 {
                     "units": "degrees",
                     "long_name": "Current direction (oceanographic, 0=N clockwise)",
@@ -819,17 +821,9 @@ def stack(
             P_arr = _usable("pressure")
             SA = gsw.SA_from_SP(SP_arr, P_arr, lon, lat)
             CT = gsw.CT_from_t(SA, T_arr, P_arr)
-            _sigma_fn = {
-                0: gsw.sigma0,
-                1000: gsw.sigma1,
-                2000: gsw.sigma2,
-                3000: gsw.sigma3,
-                4000: gsw.sigma4,
-            }
-            if ref_p in _sigma_fn:
-                sigma_vals = _sigma_fn[ref_p](SA, CT)
-            else:
-                sigma_vals = gsw.pot_rho_t_exact(SA, T_arr, P_arr, ref_p) - 1000.0
+            sigma_vals = potential_density_anomaly(
+                SA, CT, ref_p, temperature=T_arr, pressure=P_arr
+            )
             if not np.all(np.isnan(sigma_vals)):
                 vname, long_name, std_name = _SIGMA_META.get(
                     ref_p,

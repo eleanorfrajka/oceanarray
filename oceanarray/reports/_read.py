@@ -14,18 +14,45 @@ from oceanarray import paths
 from ..config import parameters as params
 from ..plotters.helpers import QC_COLORS as _QC_COLORS
 
-# Short display glosses of parameters.QC_FLAG_MEANINGS (OceanSITES table 2).
-# Keep the codes and wording consistent with that table.
-_QC_LABELS: dict[int, str] = {
-    0: "unknown",
-    1: "good",
-    2: "prob. good",
-    3: "corr. bad",
-    4: "bad",
-    7: "nominal",
-    8: "interp.",
-    9: "missing",
-}
+#: Reader-facing words for the flag values, from the central flag table.
+_QC_LABELS: dict[int, str] = params.QC_FLAG_LABEL
+
+
+def is_identifier(ds: Any, name: str) -> bool:
+    """Return True when variable *name* holds labels or codes rather than measurements.
+
+    Serial numbers, indices, flag codes and ``cf_role`` variables are numbers only
+    as labels: their minimum and maximum say nothing, so the variables table
+    leaves them out.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The open file.
+    name : str
+        A variable or coordinate name.
+
+    Returns
+    -------
+    bool
+    """
+    v = ds[name]
+    lowered = name.lower()
+    if "serial" in lowered or lowered.endswith("_index") or lowered == "index":
+        return True
+    if "cf_role" in v.attrs:
+        return True
+    return v.dtype.kind in "iu" and (
+        "flag_values" in v.attrs or "flag_meanings" in v.attrs
+    )
+
+
+def _blank_identifier_ranges(ds: Any, rows: list[dict[str, Any]]) -> None:
+    """Replace the minimum and maximum of identifier-like rows with a dash."""
+    for row in rows:
+        if row.get("name") in ds.variables and is_identifier(ds, row["name"]):
+            row["v_min"] = row["v_max"] = "—"
+            row["v_min_raw"] = None
 
 
 def _read_nc_metadata(nc_path: Path) -> dict[str, Any]:
@@ -43,6 +70,9 @@ def _read_nc_metadata(nc_path: Path) -> dict[str, Any]:
             var_groups, var_src = nc_tables.variables_rows(
                 ds, is_qc=design.is_qc, is_sensor=design.is_sensor
             )
+            for _title, rows in var_groups:
+                _blank_identifier_ranges(ds, rows)
+            _blank_identifier_ranges(ds, coords_rows)
             scalar_rows, scalar_src = nc_tables.scalars_rows(ds)
             # `history` has its own dedicated processing-history panel, so exclude it from
             # the global-attributes table (the builder's `exclude=` drops the attr and any
@@ -185,7 +215,7 @@ def _read_qc_summary(nc_path: Path) -> list[dict[str, Any]]:
             if total == 0:
                 continue
             flag_rows = []
-            for fval in (1, 2, 3, 4, 8, 9):
+            for fval in params.QC_FLAG_VALUES:
                 n = int(np.sum(flags == fval))
                 flag_rows.append(
                     {

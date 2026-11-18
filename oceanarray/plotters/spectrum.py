@@ -17,6 +17,7 @@ Post-OdB remaining migrations from report/_plots.py:
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 import matplotlib.colors as mcolors
@@ -29,8 +30,8 @@ from oceanarray.reports._vendored import design_tokens as report_tokens
 from ..analysis.spectral import gonella_rotary_spectrum
 from ..config import parameters as params
 from ..config.unit_tables import unit_label, warn_if_not_canonical
-from .helpers import grid_despine
-from .primitives import figure_title, plot_title, square_axes_grid
+from .helpers import duration_words, grid_despine
+from .primitives import plot_title, square_axes_grid, unit_colorbar
 
 
 def _mark_frequency_line(ax: plt.Axes, period: float, color: str) -> None:
@@ -53,6 +54,9 @@ def wavelet_panel(
     coi: np.ndarray,
     signif: np.ndarray | None = None,
     title: str = "",
+    *,
+    gap_mask: np.ndarray | None = None,
+    min_period: float | None = None,
 ) -> mcolors.ScalarMappable:
     """Draw one wavelet scalogram panel onto *ax*.
 
@@ -90,6 +94,11 @@ def wavelet_panel(
         confidence level.  If None, no significance contour is drawn.
     title:
         Axes title string (e.g. depth label).
+    gap_mask:
+        Optional boolean array, length ``n_time``: True where the series was
+        gap-filled before the transform; those columns are cross-hatched.
+    min_period:
+        Shortest period shown (days); default the shortest computed.
 
     Returns
     -------
@@ -130,6 +139,20 @@ def wavelet_panel(
         linewidth=0.0,
     )
 
+    # Gaps filled before the transform: cross-hatched over the whole column.
+    if gap_mask is not None and np.any(gap_mask):
+        ax.fill_between(
+            times,
+            periods[0],
+            periods[-1],
+            where=np.asarray(gap_mask, dtype=bool),
+            facecolor="none",
+            hatch="xxxx",
+            edgecolor="0.25",
+            linewidth=0.0,
+            step="mid",
+        )
+
     # Significance contour
     if signif is not None:
         sig2d = signif[:, np.newaxis] * np.ones(n_time)
@@ -141,6 +164,8 @@ def wavelet_panel(
     # Entirely-hatched long-period rows are excluded; gappy records get a
     # tighter limit automatically.
     _p_min = float(periods.min())
+    if min_period is not None:
+        _p_min = max(_p_min, float(min_period))
     _p_max_reliable = float(coi.max())
     if _p_max_reliable <= _p_min:
         _p_max_reliable = float(periods.max())
@@ -164,278 +189,72 @@ def wavelet_panel(
     return cf
 
 
-def draw_spectrum(
-    da_temp: xr.DataArray,
-    dt_seconds: float,
-    lat: float = 0.0,
-    hf_segment_days: float = 1.0,
-    hf_x_max_days: float = 3.0,
-    *,
-    width_in: float = report_tokens.W_FULL,
-) -> plt.Figure | None:
-    """Two-panel Welch PSD of gridded temperature, one line per depth level.
+#: Colours of the frequency markers: M2, K1, the inertial period, then any others.
+_MARKER_COLORS: dict[str, str] = {"M2": "#c0392b", "K1": "#e67e22", "f": "#27ae60"}
+_OTHER_MARKER_COLOR = "#7f8c8d"
 
-    Left panel: low-frequency overview using 14-day Hann windows.
-    Right panel: high-frequency zoom using ``hf_segment_days`` Hann windows,
-    giving more (shorter) windows and a smoother estimate at tidal and inertial
-    frequencies.
+
+def spectrum_markers(
+    lat: float | None,
+    extra: Sequence[tuple[str, float]] = (),
+) -> list[tuple[str, float, str]]:
+    """Return the frequency markers of the spectra: M2, K1, the inertial period, *extra*.
 
     Parameters
     ----------
-    da_temp:
-        Gridded temperature DataArray with dimensions (pressure, time).
-    dt_seconds:
-        Uniform time step of the grid in seconds.
-    lat:
-        Mooring latitude in decimal degrees; used to compute the inertial
-        frequency marker.  Pass 0 to omit.
-    hf_segment_days:
-        Window length for the HF panel in days.  Default 2 days (~180 windows
-        per year, ~7x more than the LF panel).  Reduce to focus on higher
-        frequencies, e.g. ``hf_segment_days=1/24`` for 1-hour windows on
-        sub-hourly data.
-    hf_x_max_days:
-        Upper x-axis limit (longest period shown) for the HF panel in days.
-        When <= 3 the HF x-axis is displayed in hours; otherwise in days.
-    width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+    lat : float or None
+        Mooring latitude (degrees); no inertial marker when None or 0.
+    extra : sequence of (str, float), optional
+        Further ``(label, period in days)`` markers (the mooring description's
+        ``spectrum_markers``).
 
-    Notes
-    -----
-    The LF panel uses gap-filled interpolation before calling ``welch_psd``
-    (current behaviour).  The HF panel uses ``welch_psd_gapaware``, which
-    operates only on contiguous finite runs and skips any window that straddles
-    a gap -- avoiding the low-pass bias that linear interpolation introduces at
-    high frequencies.
-
-    To switch the LF panel to gap-aware as well, replace the two lines in the
-    computation loop that read::
-
-        col_filled = col.copy()
-        if not good.all():
-            col_filled = np.interp(...)
-        f, p = welch_psd(col_filled, dt_days, segment_length_lf)
-
-    with the single line::
-
-        f, p, _ = welch_psd_gapaware(col, dt_days, segment_length_lf)
-
+    Returns
+    -------
+    list of (str, float, str)
+        ``(label, period in days, colour)``.
     """
-    import matplotlib.colors as mcolors
-    import matplotlib.pyplot as plt
+    from oceanarray.analysis.spectral import (
+        K1_PERIOD_DAYS,
+        M2_PERIOD_DAYS,
+        inertial_period_days,
+    )
+
+    out = [
+        ("M2", M2_PERIOD_DAYS, _MARKER_COLORS["M2"]),
+        ("K1", K1_PERIOD_DAYS, _MARKER_COLORS["K1"]),
+    ]
+    f_period = inertial_period_days(lat)
+    if f_period is not None:
+        out.append(("f", f_period, _MARKER_COLORS["f"]))
+    out += [(str(lbl), float(per), _OTHER_MARKER_COLOR) for lbl, per in extra]
+    return out
+
+
+def _mark_periods(
+    ax: plt.Axes,
+    markers: Sequence[tuple[str, float, str]],
+    lo: float,
+    hi: float,
+    scale: float = 1.0,
+    y: float = 0.03,
+    va: str = "bottom",
+) -> None:
+    """Draw and label the *markers* whose period (days) lies in ``[lo, hi]``."""
     from matplotlib.transforms import blended_transform_factory
 
-    from oceanarray.analysis.spectral import welch_psd, welch_psd_gapaware
-
-    # The PSD axis is labelled °C² cpd⁻¹; the variance is in the temperature's unit².
-    warn_if_not_canonical(
-        da_temp, "degree_Celsius", quantity="temperature PSD (°C² cpd⁻¹)"
-    )
-
-    if da_temp.dims[0] != "pressure":
-        da_temp = da_temp.transpose("pressure", ...)
-    arr = da_temp.values
-    press_vals = (
-        da_temp.coords["pressure"].values.astype(float)
-        if "pressure" in da_temp.coords
-        else np.arange(arr.shape[0], dtype=float)
-    )
-
-    n_lev, n_time = arr.shape
-    dt_days = dt_seconds / 86400.0
-
-    # LF: 14-day Hann windows
-    seg_lf = max(128, int(14.0 / dt_days))
-    segment_length_lf = min(seg_lf, max(n_time // 4, 128))
-
-    # HF: hf_segment_days Hann windows (caller controls this)
-    seg_hf = max(8, int(hf_segment_days / dt_days))
-    segment_length_hf = min(seg_hf, max(n_time // 4, 8))
-
-    # Level selection: pick levels near multiples of 100 dbar that have enough
-    # finite samples for at least one LF Welch window.  For each 100-dbar target
-    # the nearest valid level is used; targets with no level within 75 dbar are
-    # skipped.  Levels are kept in ascending pressure order so the colormap
-    # (light = shallow, dark = deep) matches the legend from top to bottom.
-    _candidates = [
-        (k, press_vals[k])
-        for k in range(n_lev)
-        if np.sum(np.isfinite(arr[k, :])) >= segment_length_lf
-    ]
-    if _candidates:
-        _cp = np.array([pv for _, pv in _candidates])
-        _lo100 = int(np.ceil(_cp.min() / 100.0)) * 100
-        _hi100 = int(np.floor(_cp.max() / 100.0)) * 100
-        _seen_k: set = set()
-        valid_lev_idx = []
-        for _tgt in np.arange(_lo100, _hi100 + 1, 100.0):
-            _bi = int(np.argmin(np.abs(_cp - _tgt)))
-            _k = _candidates[_bi][0]
-            if _k not in _seen_k and np.abs(_cp[_bi] - _tgt) <= 75.0:
-                _seen_k.add(_k)
-                valid_lev_idx.append(_k)
-    else:
-        valid_lev_idx = []
-
-    freq_lf = freq_hf = None
-    psds_lf: list[np.ndarray] = []
-    press_plotted_lf: list[float] = []
-    psds_hf: list[np.ndarray] = []
-    press_plotted_hf: list[float] = []
-    hf_total_wins = 0
-    for k in valid_lev_idx:
-        col = arr[k, :].copy()
-        good = np.isfinite(col)
-
-        # LF: gap-fill then Welch.  To switch to gap-aware, replace these two
-        # lines with: f, p, _ = welch_psd_gapaware(col, dt_days, segment_length_lf)
-        col_filled = col.copy()
-        if not good.all():
-            col_filled = np.interp(np.arange(n_time), np.where(good)[0], col[good])
-        f, p = welch_psd(col_filled, dt_days, segment_length_lf)
-        if freq_lf is None:
-            freq_lf = f
-        psds_lf.append(p)
-        press_plotted_lf.append(press_vals[k])
-
-        # HF: gap-aware -- only windows within contiguous finite runs
-        f_hf, p_hf, n_w = welch_psd_gapaware(col, dt_days, segment_length_hf)
-        if f_hf is not None:
-            if freq_hf is None:
-                freq_hf = f_hf
-            psds_hf.append(p_hf)
-            press_plotted_hf.append(press_vals[k])
-            hf_total_wins += n_w
-        # else: no contiguous run long enough for an HF window at this level -- skip silently
-
-    if freq_lf is None or not psds_lf:
-        return None
-
-    if not psds_hf:
-        print(
-            f"  NOTE: temperature spectrum HF -- no valid windows at any level "
-            f"(segment={segment_length_hf} samples = {hf_segment_days:.3g} d); "
-            f"HF panel will be blank"
-        )
-
-    # Window counts for subplot titles
-    n_win_lf = max(1, 2 * n_time // segment_length_lf - 1)
-    # HF: actual windows used (gap-aware), averaged across contributing levels
-    n_win_hf = hf_total_wins // max(1, len(psds_hf)) if psds_hf else 0
-
-    # LF markers (periods in days)
-    lf_markers = [
-        ("M2", 1.0 / 1.9323, "#c0392b"),
-        ("K1", 23.9345 / 24.0, "#e67e22"),
-        ("1.8d", 1.8, "#7f8c8d"),
-        ("4d", 4.0, "#95a5a6"),
-    ]
-    # HF markers -- tuples are (label, period_days, color, y_axes).
-    # M2 label is raised (y=0.15) so it clears the f label (y=0.03) at high
-    # latitudes where the inertial period approaches the M2 semidiurnal period.
-    hf_markers = [
-        ("M2", 1.0 / 1.9323, "#c0392b", 0.15),
-        ("9min", 9.0 / 1440.0, "#7f8c8d", 0.03),
-    ]
-    if lat != 0.0:
-        import gsw as _gsw
-
-        f_inert_cpd = abs(_gsw.f(lat)) * 86400.0 / (2.0 * np.pi)
-        inert_period_d = 1.0 / f_inert_cpd
-        lf_markers.append(("f", inert_period_d, "#27ae60"))
-        hf_markers.append(("f", inert_period_d, "#27ae60", 0.03))
-
-    p_arr = np.array(press_plotted_lf)
-    p_min, p_max = p_arr.min(), p_arr.max()
-    if p_min == p_max:
-        p_min -= 1.0
-        p_max += 1.0
-    # Blues (not reversed): shallow -> light blue, deep -> dark blue.
-    # Clip the lightest 25 % so shallow levels are never near-white.
-    # Adjust the 0.25 start value to taste: higher = all lines darker.
-    _blues = plt.get_cmap("Blues")
-    cmap = mcolors.LinearSegmentedColormap.from_list(
-        "Blues_dark", _blues(np.linspace(0.25, 1.0, 256))
-    )
-    norm = mcolors.Normalize(vmin=p_min, vmax=p_max)
-
-    nyq_period = 2.0 * dt_days
-
-    # HF x-axis: switch to hours when the range is <= 3 days (tidal focus)
-    use_hours = hf_x_max_days <= 3.0
-    hf_scale = 24.0 if use_hours else 1.0
-    hf_unit = "hours" if use_hours else "days"
-    hf_seg_hours = hf_segment_days * 24.0
-    hf_seg_label = (
-        f"{int(hf_seg_hours)}-hour"
-        if hf_seg_hours == int(hf_seg_hours)
-        else f"{hf_seg_hours:.3g}-hour"
-    )
-
-    from matplotlib.ticker import NullLocator
-
-    # Square panels via the shared helper; bottom pad for the rotated HF ticks,
-    # top pad for the figure suptitle above the per-panel titles.
-    fig, _axes, _ = square_axes_grid(
-        width_in, 1, 2, colorbar=False, bottom_pad_in=0.5, top_pad_in=0.6
-    )
-    ax_lf, ax_hf = _axes[0, 0], _axes[0, 1]
-
-    x_min_lf = max(nyq_period, 10.0 / 1440.0)  # right edge: Nyquist or 10 min
-    # Left edge = longest period Welch can estimate = 1/min_freq = window length
-    x_max_lf = 1.0 / float(freq_lf[freq_lf > 0].min())
-    x_min_hf = nyq_period
-    x_max_hf = min(hf_x_max_days, hf_segment_days)
-
-    fmask_lf = (freq_lf > 0) & (freq_lf <= 1.0 / nyq_period)
-    freq_plot_lf = freq_lf[fmask_lf]
-    period_plot_lf = 1.0 / freq_plot_lf
-
-    # -- LF panel --
-    for psd, pv in zip(psds_lf, press_plotted_lf, strict=False):
-        ax_lf.loglog(
-            period_plot_lf,
-            psd[fmask_lf],
-            color=cmap(norm(pv)),
-            lw=0.8,
-            alpha=0.75,
-            label=f"{pv:.0f} dbar",
-        )
-
-    idx_1d = np.argmin(np.abs(freq_plot_lf - 1.0))
-    median_at_1d = float(np.median([psd[fmask_lf][idx_1d] for psd in psds_lf]))
-    if np.isfinite(median_at_1d) and median_at_1d > 0:
-        ref_p = np.array([x_min_lf, x_max_lf])
-        ax_lf.loglog(
-            ref_p,
-            median_at_1d * ref_p**2,
-            color="k",
-            lw=0.9,
-            ls="--",
-            alpha=0.35,
-            label="-2 slope",
-        )
-
-    ax_lf.set_xlim(x_max_lf, x_min_lf)
-    ax_lf.set_ylim(1e-6, 1e2)
-    _lf_tv, _lf_tl = period_axis_ticks(x_min_lf, x_max_lf)
-    ax_lf.set_xticks(_lf_tv)
-    ax_lf.set_xticklabels(_lf_tl)
-    ax_lf.xaxis.set_minor_locator(NullLocator())
-    trans_lf = blended_transform_factory(ax_lf.transData, ax_lf.transAxes)
-    for lbl, pd_d, clr in lf_markers:
-        if x_min_lf <= pd_d <= x_max_lf:
-            _mark_frequency_line(ax_lf, pd_d, clr)
-            ax_lf.text(
-                pd_d,
-                0.03,
+    trans = blended_transform_factory(ax.transData, ax.transAxes)
+    for lbl, period, color in markers:
+        if lo <= period <= hi:
+            _mark_frequency_line(ax, period * scale, color)
+            ax.text(
+                period * scale,
+                y,
                 lbl,
                 rotation=90,
-                va="bottom",
+                va=va,
                 ha="center",
-                color=clr,
-                transform=trans_lf,
+                color=color,
+                transform=trans,
                 bbox={
                     "boxstyle": "round,pad=0.1",
                     "fc": "white",
@@ -444,80 +263,185 @@ def draw_spectrum(
                 },
             )
 
-    ax_lf.set_xlabel("Period")
-    ax_lf.set_ylabel("PSD (°C² cpd⁻¹)")
-    plot_title(ax_lf, f"Low frequency\n14-day windows ({n_win_lf})")
-    # Single shared legend -- depth labels from LF lines serve both panels
-    ax_lf.legend(loc="upper right", title="Depth")
 
-    # -- HF panel --
-    if psds_hf and freq_hf is not None:
-        fmask_hf = (freq_hf > 0) & (freq_hf <= 1.0 / nyq_period)
-        freq_plot_hf = freq_hf[fmask_hf]
-        period_plot_hf = 1.0 / freq_plot_hf
+def _level_colormap() -> mcolors.Colormap:
+    """Return the pressure colormap of spectrum lines (light = shallow, dark = deep)."""
+    return mcolors.LinearSegmentedColormap.from_list(
+        "Blues_dark", plt.get_cmap("Blues")(np.linspace(0.3, 1.0, 256))
+    )
 
-        for psd, pv in zip(psds_hf, press_plotted_hf, strict=False):
-            ax_hf.loglog(
-                period_plot_hf * hf_scale,
-                psd[fmask_hf],
-                color=cmap(norm(pv)),
-                lw=0.8,
-                alpha=0.75,
-            )
 
-        # -2 slope anchored at geometric midpoint of the HF x range
-        _log_mid = np.sqrt(x_min_hf * x_max_hf)
-        _idx_mid = np.argmin(np.abs(period_plot_hf - _log_mid))
-        _med_mid = float(np.median([psd[fmask_hf][_idx_mid] for psd in psds_hf]))
-        if np.isfinite(_med_mid) and _med_mid > 0:
-            ref_p_hf = np.array([x_min_hf, x_max_hf])
-            ax_hf.loglog(
-                ref_p_hf * hf_scale,
-                _med_mid * (ref_p_hf / _log_mid) ** 2,
-                color="k",
-                lw=0.9,
-                ls="--",
-                alpha=0.35,
-                label="-2 slope",
-            )
+def draw_spectrum(
+    da_temp: xr.DataArray,
+    dt_seconds: float,
+    lat: float = 0.0,
+    hf_segment_days: float = 7.0,
+    hf_x_max_days: float = 2.0,
+    *,
+    width_in: float = report_tokens.W_FULL,
+    lf_segment_days: float = 14.0,
+    levels: Sequence[int] | None = None,
+    markers: Sequence[tuple[str, float]] = (),
+) -> plt.Figure | None:
+    """Two-panel Welch spectrum of gridded temperature at a few levels.
 
-        trans_hf = blended_transform_factory(ax_hf.transData, ax_hf.transAxes)
-        for lbl, pd_d, clr, y_lbl in hf_markers:
-            pd_scaled = pd_d * hf_scale
-            lo, hi = x_min_hf * hf_scale, x_max_hf * hf_scale
-            if lo <= pd_scaled <= hi:
-                _mark_frequency_line(ax_hf, pd_scaled, clr)
-                ax_hf.text(
-                    pd_scaled,
-                    y_lbl,
-                    lbl,
-                    rotation=90,
-                    va="bottom",
-                    ha="center",
-                    color=clr,
-                    transform=trans_hf,
-                    bbox={
-                        "boxstyle": "round,pad=0.1",
-                        "fc": "white",
-                        "ec": "none",
-                        "alpha": 0.6,
-                    },
+    Left: ``lf_segment_days`` Hann windows over all periods the windows resolve.
+    Right: ``hf_segment_days`` Hann windows, zoomed to periods shorter than
+    ``hf_x_max_days``.  Both 50 % overlap; on a record too short for several
+    windows the windows are shortened (:func:`oceanarray.analysis.spectral.welch_segment`).
+    The left panel gap-fills by linear interpolation before the estimate; the
+    right uses only windows within unbroken runs of values.  Lines are coloured
+    by pressure (colour bar); vertical lines mark M2, K1, the inertial period and
+    any *markers*; a dashed −2 slope is drawn for reference.
+
+    Parameters
+    ----------
+    da_temp : xarray.DataArray
+        Gridded temperature with dimensions ``pressure`` and ``time``.
+    dt_seconds : float
+        Uniform time step of the grid in seconds.
+    lat : float, optional
+        Mooring latitude in decimal degrees, for the inertial period; 0 omits it.
+    hf_segment_days : float, optional
+        Window length of the right panel in days (default 7).
+    hf_x_max_days : float, optional
+        Longest period shown in the right panel in days (default 2); at most 3
+        puts that axis in hours.
+    width_in : float, optional
+        Figure width in inches (the display slot).
+    lf_segment_days : float, optional
+        Window length of the left panel in days (default 14).
+    levels : sequence of int, optional
+        Pressure-level indices to draw (the page's choice); default
+        :func:`oceanarray.analysis.spectral.select_levels` on all grid levels.
+    markers : sequence of (str, float), optional
+        Extra ``(label, period in days)`` markers.
+
+    Returns
+    -------
+    matplotlib.figure.Figure or None
+        None when no level has enough values.
+    """
+    from matplotlib.ticker import NullLocator
+
+    from oceanarray.analysis.spectral import (
+        select_levels,
+        welch_psd,
+        welch_psd_gapaware,
+        welch_segment,
+    )
+
+    warn_if_not_canonical(
+        da_temp, "degree_Celsius", quantity="temperature PSD (°C² cpd⁻¹)"
+    )
+    if da_temp.dims[0] != "pressure":
+        da_temp = da_temp.transpose("pressure", ...)
+    arr = da_temp.values.astype(float)
+    press_vals = (
+        da_temp.coords["pressure"].values.astype(float)
+        if "pressure" in da_temp.coords
+        else np.arange(arr.shape[0], dtype=float)
+    )
+    n_time = arr.shape[1]
+    dt_days = dt_seconds / 86400.0
+    seg_lf = welch_segment(n_time, dt_seconds, lf_segment_days)
+    seg_hf = welch_segment(n_time, dt_seconds, hf_segment_days, min_samples=8)
+    if levels is None:
+        levels = select_levels(arr, press_vals)
+
+    psds_lf, psds_hf, p_lf, p_hf = [], [], [], []
+    freq_lf = freq_hf = None
+    for k in levels:
+        col = arr[k, :]
+        good = np.isfinite(col)
+        if good.sum() < seg_lf:
+            continue
+        filled = np.interp(np.arange(n_time), np.flatnonzero(good), col[good])
+        freq_lf, p = welch_psd(filled, dt_days, seg_lf)
+        psds_lf.append(p)
+        p_lf.append(press_vals[k])
+        f_hf, p_h, _n = welch_psd_gapaware(col, dt_days, seg_hf)
+        if f_hf is not None:
+            freq_hf = f_hf
+            psds_hf.append(p_h)
+            p_hf.append(press_vals[k])
+    if freq_lf is None or not psds_lf:
+        return None
+
+    all_markers = spectrum_markers(lat if lat else None, markers)
+    cmap = _level_colormap()
+    lo_p, hi_p = min(p_lf), max(p_lf)
+    if lo_p == hi_p:
+        lo_p, hi_p = lo_p - 1.0, hi_p + 1.0
+    norm = mcolors.Normalize(vmin=lo_p, vmax=hi_p)
+
+    fig, _axes, cax = square_axes_grid(width_in, 1, 2, bottom_pad_in=0.5)
+    ax_lf, ax_hf = _axes[0, 0], _axes[0, 1]
+    nyq = 2.0 * dt_days
+
+    def _panel(
+        ax: plt.Axes,
+        freq: np.ndarray,
+        psds: list[np.ndarray],
+        pressures: list[float],
+        x_lo: float,
+        x_hi: float,
+        scale: float,
+    ) -> None:
+        """Draw one level's spectra, the −2 slope and the period axis on *ax*."""
+        fmask = (freq > 0) & (freq <= 1.0 / nyq)
+        period = 1.0 / freq[fmask]
+        for psd, pv in zip(psds, pressures, strict=True):
+            ax.loglog(period * scale, psd[fmask], color=cmap(norm(pv)), lw=0.9)
+        keep = (period >= x_lo) & (period <= x_hi)
+        if keep.any():
+            mid = np.sqrt(x_lo * x_hi)
+            i = int(np.argmin(np.abs(period - mid)))
+            ref = float(np.median([psd[fmask][i] for psd in psds]))
+            if np.isfinite(ref) and ref > 0:
+                xs = np.array([x_lo, x_hi])
+                ax.loglog(
+                    xs * scale,
+                    ref * (xs / mid) ** 2,
+                    color="k",
+                    lw=0.9,
+                    ls="--",
+                    alpha=0.4,
                 )
+        ax.set_xlim(x_hi * scale, x_lo * scale)
+        ax.set_ylabel("PSD (°C² cpd⁻¹)")
+        ax.xaxis.set_minor_locator(NullLocator())
+        grid_despine(ax)
 
+    # Left: every period the windows resolve.
+    x_hi_lf = seg_lf * dt_days
+    x_lo_lf = nyq
+    _panel(ax_lf, freq_lf, psds_lf, p_lf, x_lo_lf, x_hi_lf, 1.0)
+    tv, tl = period_axis_ticks(x_lo_lf, x_hi_lf)
+    ax_lf.set_xticks(tv)
+    ax_lf.set_xticklabels(tl, rotation=45, ha="right")
+    ax_lf.set_xlabel("Period")
+    _mark_periods(ax_lf, all_markers, x_lo_lf, x_hi_lf)
+    plot_title(ax_lf, f"{duration_words(seg_lf * dt_days, adjective=True)} windows")
+
+    # Right: the short periods, with shorter windows.
+    use_hours = hf_x_max_days <= 3.0
+    scale = 24.0 if use_hours else 1.0
+    x_hi_hf = min(hf_x_max_days, seg_hf * dt_days)
+    if psds_hf and freq_hf is not None:
+        _panel(ax_hf, freq_hf, psds_hf, p_hf, nyq, x_hi_hf, scale)
+        _mark_periods(ax_hf, all_markers, nyq, x_hi_hf, scale=scale)
     else:
         ax_hf.text(
             0.5,
             0.5,
-            "No valid windows\n(all data gapped)",
+            "No unbroken run as long as one window",
             transform=ax_hf.transAxes,
             ha="center",
             va="center",
             color="gray",
         )
-
-    ax_hf.set_xlim(x_max_hf * hf_scale, x_min_hf * hf_scale)
-    ax_hf.set_ylim(1e-8, 1e2)
-    _hf_ticks_h = [  # (period_hours, label) -- edit here to adjust tick positions
+    ticks_h = [
         (48.0, "2d"),
         (24.0, "1d"),
         (12.0, "12h"),
@@ -526,30 +450,24 @@ def draw_spectrum(
         (1.0, "1h"),
         (0.5, "30min"),
         (10.0 / 60, "10min"),
-        (5.0 / 60, "5min"),
-        (2.0 / 60, "2min"),
     ]
-    _lo_hf, _hi_hf = x_min_hf * hf_scale, x_max_hf * hf_scale
-    _hf_t = [
-        (ph / 24.0 * hf_scale, lbl)
-        for ph, lbl in _hf_ticks_h
-        if _lo_hf <= ph / 24.0 * hf_scale <= _hi_hf
-    ]
-    ax_hf.set_xticks([v for v, _ in _hf_t])
-    ax_hf.set_xticklabels([lbl for _, lbl in _hf_t], rotation=45, ha="right")
-    ax_hf.xaxis.set_minor_locator(NullLocator())
-    ax_hf.set_xlabel(f"Period ({hf_unit})")
-    ax_hf.set_ylabel("PSD (°C² cpd⁻¹)")
-    n_win_hf_label = str(n_win_hf) if psds_hf else "0"
-    # Two-line panel titles: heading + window detail, so the detail fits the
-    # narrow square panels without overflowing.
+    lo_h, hi_h = nyq * 24.0, x_hi_hf * 24.0
+    hf_t = [(h / 24.0 * scale, lbl) for h, lbl in ticks_h if lo_h <= h <= hi_h]
+    ax_hf.set_xticks([v for v, _ in hf_t])
+    ax_hf.set_xticklabels([lbl for _, lbl in hf_t], rotation=45, ha="right")
+    ax_hf.set_xlabel(f"Period ({'hours' if use_hours else 'days'})")
     plot_title(
         ax_hf,
-        f"High frequency\n{hf_seg_label} windows ({n_win_hf_label}, gap-aware)",
+        f"{duration_words(seg_hf * dt_days, adjective=True)} windows, periods under "
+        f"{duration_words(hf_x_max_days)}",
     )
 
-    figure_title(fig, "Temperature power spectrum — Welch PSD per depth")
-
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])
+    ticks = [float(p) for p in p_lf]
+    cb = unit_colorbar(cax, sm, unit=params.vunit("pressure"), ticks=ticks)
+    cb.ax.set_yticklabels([f"{p:.0f}" for p in ticks])
+    cax.invert_yaxis()
     return fig
 
 
@@ -559,15 +477,16 @@ def draw_wavelet(
     wavelet: str = "morlet",
     *,
     width_in: float = report_tokens.W_FULL,
+    levels: Sequence[int] | None = None,
 ) -> plt.Figure | None:
     """Continuous wavelet transform scalogram for gridded temperature; return a Figure.
 
-    Produces three stacked wavelet + time-series panel pairs.  Depth levels are
-    selected from 100-dbar multiples that have **at least 75 % data coverage**
-    (sparse near-bottom levels are excluded).  Levels within 100 dbar of the
-    shallowest valid level are also excluded to avoid gappy near-surface data.
-    From the remaining candidates the deepest, an upper-middle, and a
-    lower-middle level are chosen (biased toward the deeper water column).
+    Produces up to three stacked wavelet + time-series panel pairs, at the
+    outermost levels with values for at least
+    :data:`~oceanarray.analysis.spectral.SPECTRAL_MIN_FILLED` of the record and one
+    between (:func:`oceanarray.analysis.spectral.select_levels`), unless *levels* names
+    them.  The period axis starts at six time steps, and never below 2 hours.
+    Columns gap-filled before the transform are cross-hatched.
 
     Each wavelet panel shows log10(Morlet power) as a filled contour plot; the
     gap-aware cone of influence (COI) is hatched -- this covers both the record
@@ -589,6 +508,8 @@ def draw_wavelet(
     width_in : float, optional
         Figure width in inches -- the display-slot width the report builder
         resolves; standalone callers get the full content width.
+    levels : sequence of int, optional
+        Pressure-level indices to draw (at most three are used).
 
     Returns
     -------
@@ -614,57 +535,15 @@ def draw_wavelet(
         if "pressure" in da_temp.coords
         else np.arange(arr.shape[0], dtype=float)
     )
-    n_lev, _n_time = arr.shape
+    _n_time = arr.shape[1]
 
-    # --- level selection: 100-dbar multiples with >= 75 % data coverage ---
-    # The 75 % threshold is much stricter than "at least one window" so that
-    # sparse levels (e.g. a deep instrument with only a few days of data) are
-    # excluded.  Levels near the seabed often have patchy records; requiring
-    # 75 % coverage means the wavelet estimate is based on most of the deployment.
-    _min_coverage = int(0.75 * _n_time)
-    _candidates = [
-        (k, press_vals[k])
-        for k in range(n_lev)
-        if np.sum(np.isfinite(arr[k, :])) >= _min_coverage
-    ]
-    if not _candidates:
+    from oceanarray.analysis.spectral import select_levels
+
+    sel = list(levels) if levels is not None else select_levels(arr, press_vals, n=3)
+    sel = sel[:3]
+    if not sel:
         return None
-
-    _cp = np.array([pv for _, pv in _candidates])
-    _lo100 = int(np.ceil(_cp.min() / 100.0)) * 100
-    _hi100 = int(np.floor(_cp.max() / 100.0)) * 100
-    _seen_k: set = set()
-    _valid_idx: list = []
-    for _tgt in np.arange(_lo100, _hi100 + 1, 100.0):
-        _bi = int(np.argmin(np.abs(_cp - _tgt)))
-        _k = _candidates[_bi][0]
-        if _k not in _seen_k and np.abs(_cp[_bi] - _tgt) <= 75.0:
-            _seen_k.add(_k)
-            _valid_idx.append(_k)
-
-    if not _valid_idx:
-        return None
-
-    # Exclude levels within 100 dbar of the shallowest valid level --
-    # near-surface data tends to be gappy and the wavelet is unreliable there.
-    _shallowest_p = press_vals[_valid_idx[0]]
-    _deep_idx = [k for k in _valid_idx if press_vals[k] >= _shallowest_p + 100.0]
-
-    if not _deep_idx:
-        _deep_idx = _valid_idx  # fall back if nothing passes the filter
-
-    # Pick 3 levels biased toward mid-to-deep water.
-    # Start from max(0, N-5) so that when there are many levels we skip
-    # the shallowest portion, e.g. [300..900] -> pick 500, 700, 900.
-    n_v = len(_deep_idx)
-    if n_v >= 3:
-        _start = max(0, n_v - 5)
-        _idxs = np.round(np.linspace(_start, n_v - 1, 3)).astype(int)
-        sel = [_deep_idx[i] for i in _idxs]
-    elif n_v == 2:
-        sel = [_deep_idx[0], _deep_idx[1]]
-    else:
-        sel = [_deep_idx[0]]
+    min_period = max(6.0 * dt_seconds, 7200.0) / 86400.0
 
     # Time axis -- use coordinate if present, else integer index
     if "time" in da_temp.coords:
@@ -737,6 +616,8 @@ def draw_wavelet(
             cwt_out["power"],
             cwt_out["effective_coi"],
             signif=cwt_out["signif"],
+            gap_mask=cwt_out["gap_mask"],
+            min_period=min_period,
         )
         if i < n_panels - 1:
             plt.setp(wax[i].get_xticklabels(), visible=False)
@@ -757,16 +638,21 @@ def draw_grid_rotary_spectrum(
     lat: float = 0.0,
     *,
     width_in: float = report_tokens.W_FULL,
+    levels: Sequence[int] | None = None,
+    markers: Sequence[tuple[str, float]] = (),
 ) -> plt.Figure | None:
     """Two-panel rotary velocity spectrum for the grid report; return a Figure.
 
     Left panel: CW (solid, reds) and CCW (dashed, blues) power spectra on the same axes,
     one line per selected pressure level.  Right panel: rotary coefficient
     r = (CCW - CW) / (CCW + CW) on a linear [-1, 1] scale.
-    Welch PSD with Hann window, 14-day segments, 50% overlap.
+    Welch PSD with Hann window, 14-day segments (shortened on a short record,
+    :func:`oceanarray.analysis.spectral.welch_segment`), 50% overlap.  Vertical
+    lines mark M2, K1, the inertial period and any *markers*.
 
-    Level selection: min(4, max(1, n_valid_levels // 5)) evenly-spaced levels
-    from those with >= 5% finite data in both east and north velocity.
+    Levels: *levels*, else three from those with both components for at least
+    :data:`~oceanarray.analysis.spectral.SPECTRAL_MIN_FILLED` of the record
+    (:func:`oceanarray.analysis.spectral.select_levels`).
 
     Parameters
     ----------
@@ -778,6 +664,10 @@ def draw_grid_rotary_spectrum(
     width_in : float, optional
         Figure width in inches -- the display-slot width the report builder
         resolves; standalone callers get the full content width.
+    levels : sequence of int, optional
+        Pressure-level indices to draw (the page's choice).
+    markers : sequence of (str, float), optional
+        Extra ``(label, period in days)`` markers.
 
     Returns
     -------
@@ -825,26 +715,23 @@ def draw_grid_rotary_spectrum(
         return None
     dt_days = dt_s / 86400.0
 
-    seg_14d = max(128, int(14.0 / dt_days))
-    segment_length = min(seg_14d, max(n_time // 4, 128))
+    from oceanarray.analysis.spectral import select_levels, welch_segment
+
+    segment_length = welch_segment(n_time, dt_s, 14.0)
     fs = 1.0 / dt_days
     noverlap = int(0.5 * segment_length)
 
-    # Valid levels: both u and v have >= segment_length finite values
+    if levels is None:
+        both = np.where(np.isfinite(arr_u) & np.isfinite(arr_v), arr_u, np.nan)
+        levels = select_levels(both, press_vals, n=3)
     valid_lev_idx = [
         k
-        for k in range(n_lev)
+        for k in levels
         if np.sum(np.isfinite(arr_u[k, :])) >= segment_length
         and np.sum(np.isfinite(arr_v[k, :])) >= segment_length
     ]
-    if len(valid_lev_idx) < 2:
+    if not valid_lev_idx:
         return None
-
-    # Subsample: min(4, max(1, n_valid // 5))
-    n_select = min(4, max(1, len(valid_lev_idx) // 5))
-    if len(valid_lev_idx) > n_select:
-        sel = np.linspace(0, len(valid_lev_idx) - 1, n_select, dtype=int)
-        valid_lev_idx = [valid_lev_idx[i] for i in sel]
 
     freq_out: np.ndarray | None = None
     s_cw_list: list[np.ndarray] = []
@@ -917,34 +804,7 @@ def draw_grid_rotary_spectrum(
                     _rb[_i] = (_ccw_m - _cw_m) / _d
         r_banded_list.append(_rb)
 
-    # Tidal/inertial frequency markers
-    markers = [
-        ("M2", 1.0 / 1.9323, "#c0392b"),
-        ("K1", 23.93 / 24.0, "#e67e22"),
-        ("1.8d", 1.8, "#7f8c8d"),
-        ("4d", 4.0, "#95a5a6"),
-    ]
-    if lat != 0.0:
-        import gsw as _gsw
-
-        f_inert = abs(_gsw.f(lat))
-        f_inert_cpd = f_inert * 86400.0 / (2.0 * np.pi)
-        markers.append(("f", 1.0 / f_inert_cpd, "#27ae60"))
-
-    # Show at most 3 depth levels: the shallowest maps to the palest colour and is
-    # hard to see against white, so drop it and evenly subsample the rest.
-    if len(press_plotted) > 3:
-        _order = list(np.argsort(press_plotted))  # shallow -> deep
-        _keep = _order[1:]  # drop the shallowest
-        if len(_keep) > 3:
-            _pick = np.linspace(0, len(_keep) - 1, 3).round().astype(int)
-            _keep = [_keep[i] for i in _pick]
-        _keep = sorted(_keep)
-        s_cw_list = [s_cw_list[i] for i in _keep]
-        s_ccw_list = [s_ccw_list[i] for i in _keep]
-        r_list = [r_list[i] for i in _keep]
-        r_banded_list = [r_banded_list[i] for i in _keep]
-        press_plotted = [press_plotted[i] for i in _keep]
+    markers = spectrum_markers(lat if lat else None, markers)
 
     p_arr = np.array(press_plotted)
     p_min, p_max = p_arr.min(), p_arr.max()

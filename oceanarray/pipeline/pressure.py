@@ -1,4 +1,4 @@
-"""Pressure interpolation helpers for stage 3."""
+"""Pressure helpers: depth ↔ sea-pressure conversion and stage-3 interpolation."""
 
 from __future__ import annotations
 
@@ -14,6 +14,50 @@ from oceanarray.pipeline.qc import set_qc_attrs
 log = logging.getLogger(__name__)
 
 HAB_THRESHOLD = 2.0  # metres — use near-neighbour below this Δhab
+
+
+def pressure_from_depth(depth_m: Any, latitude: float) -> Any:
+    """Return sea pressure (dbar) at a depth below the surface, by TEOS-10.
+
+    Parameters
+    ----------
+    depth_m : float or numpy.ndarray
+        Depth below the sea surface (m, positive down).
+    latitude : float
+        Latitude (decimal degrees), for gravity.
+
+    Returns
+    -------
+    float or numpy.ndarray
+        Sea pressure (dbar), ``gsw.p_from_z(-depth_m, latitude)``.  Pressure in dbar
+        exceeds depth in metres by 1–1.5 % at depth (about 2029 dbar at 2000 m,
+        60° N), so a depth is converted before it is compared with a pressure.
+    """
+    import gsw
+
+    p = gsw.p_from_z(-np.asarray(depth_m, dtype=float), latitude)
+    return float(p) if np.ndim(p) == 0 else p
+
+
+def depth_from_pressure(pressure_dbar: Any, latitude: float) -> Any:
+    """Return depth below the surface (m, positive down) at a sea pressure.
+
+    Parameters
+    ----------
+    pressure_dbar : float or numpy.ndarray
+        Sea pressure (dbar).
+    latitude : float
+        Latitude (decimal degrees), for gravity.
+
+    Returns
+    -------
+    float or numpy.ndarray
+        Depth (m), ``-gsw.z_from_p(pressure_dbar, latitude)``.
+    """
+    import gsw
+
+    z = -gsw.z_from_p(np.asarray(pressure_dbar, dtype=float), latitude)
+    return float(z) if np.ndim(z) == 0 else z
 
 
 def _times_to_float(time_values: np.ndarray) -> np.ndarray:

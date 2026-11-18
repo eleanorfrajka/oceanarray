@@ -1,0 +1,11 @@
+{# The mooring description (YAML) the page was made from, collapsed, with a copy
+   button, so a reader can rerun the processing.  The `description` panel payload. #}
+<p class="caption">
+  The mooring description these pages were made from. To produce the files and pages
+  yourself, save it as <code>{{ yaml_name }}</code> beside the data files and run
+  <code>oceanarray run {{ yaml_name }} --raw-dir &lt;folder with the data files&gt;</code>.
+</p>
+<details class="yaml-box"><summary>show the mooring description (YAML)</summary>
+<button type="button" onclick="navigator.clipboard.writeText(document.getElementById('yaml-{{ mooring_name }}').innerText).then(() => { this.textContent = 'Copied'; })">Copy</button>
+<pre id="yaml-{{ mooring_name }}">{{ yaml_text }}</pre>
+</details>

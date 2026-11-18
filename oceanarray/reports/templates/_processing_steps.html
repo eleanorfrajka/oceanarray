@@ -1,0 +1,11 @@
+{# Processing steps of a stack or grid page — the `steps` panel payload (kind="html"):
+   one row per step (Step / What was done / Settings), the values read from the file
+   by reports._captions; the file's own processing record follows, collapsed. #}
+<table class="steps">
+  <thead><tr><th>Step</th><th>What was done</th><th>Settings</th></tr></thead>
+  <tbody>
+  {%- for s in steps %}
+    <tr><td>{{ loop.index }}. {{ s.name }}</td><td>{{ s.what }}{% if s.link %} ({% if s.link[1] %}<a href="{{ s.link[1] }}">{{ s.link[0] }}</a>{% else %}{{ s.link[0] }}{% endif %}){% endif %}</td><td>{{ s.settings }}</td></tr>
+  {%- endfor %}
+  </tbody>
+</table>

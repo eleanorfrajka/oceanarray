@@ -478,10 +478,14 @@ def resolve_mooring(
             )
         cfg, moor_dir = _mooring.load(mooring), Path(mooring_dir)
         # A dict has no file to be relative to: a relative catalog path is taken
-        # from the mooring directory, where the description lives.
+        # from where the description lives — the real folder of the mooring
+        # directory's description when it is a link to a file kept elsewhere, else
+        # the mooring directory.
         catalog_path = cfg.get("sensor_catalog")
         if catalog_path and not Path(str(catalog_path)).is_absolute():
-            cfg["sensor_catalog"] = str((moor_dir / str(catalog_path)).resolve())
+            description = moor_dir / f"{cfg.get('name', moor_dir.name)}.mooring.yaml"
+            base = description.resolve().parent if description.exists() else moor_dir
+            cfg["sensor_catalog"] = str((base / str(catalog_path)).resolve())
     else:
         cfg, moor_dir = _resolve_description(mooring, mooring_dir, 1, caller=caller)
     if not moor_dir.is_dir():

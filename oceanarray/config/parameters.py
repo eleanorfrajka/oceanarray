@@ -30,6 +30,8 @@ from oceanarray.config.unit_tables import unit_label
 # Package identity (shown as the report masthead wordmark)
 # ---------------------------------------------------------------------------
 PACKAGE_NAME = "oceanarray"
+#: The package documentation, linked from every report footer.
+PACKAGE_DOCS_URL = "https://ocean-uhh.github.io/oceanarray"
 
 #: Height (inches) of one gridded-section / time-series panel row at full width.
 #: Matches the per-row height of the two-row "velocity at depth" figure (5" / 2),
@@ -127,6 +129,27 @@ QC_FLAG_MEANINGS = (
 #: Each flag's meaning word, by flag value.
 QC_FLAG_MEANING: dict[int, str] = dict(
     zip(QC_FLAG_VALUES, QC_FLAG_MEANINGS.split(), strict=True)
+)
+
+#: Reader-facing word for each flag value, for report tables and legends: plain
+#: words rather than the ``flag_meanings`` tokens.  Built with ``strict=True`` so a
+#: flag value added to :data:`QC_FLAG_VALUES` without a word fails at import.
+QC_FLAG_LABEL: dict[int, str] = dict(
+    zip(
+        QC_FLAG_VALUES,
+        (
+            "no QC",
+            "good",
+            "probably good",
+            "suspect",
+            "bad",
+            "value changed",
+            "nominal",
+            "interpolated",
+            "missing",
+        ),
+        strict=True,
+    )
 )
 
 #: A value that is there but carries no flag (not QC'd), and a step with no value.

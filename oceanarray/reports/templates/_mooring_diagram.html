@@ -1,5 +1,6 @@
 {# Mooring-diagram PDF embed.  The `diagram` panel payload (kind="html");
    applies_to gates on diagram_b64 being present. #}
+<p class="caption">Mooring design drawing. Depths are the planned ones; as-deployed depths may differ, see the instrument summary.</p>
 <embed src="data:application/pdf;base64,{{ diagram_b64 }}"
        type="application/pdf" width="100%" height="850px"
        style="border:1px solid var(--rule);border-radius:4px;display:block;">

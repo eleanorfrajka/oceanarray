@@ -5,9 +5,9 @@
   :root { --accent:#8e44ad; --accent-link:#e8d5ff; }
   /* No width here: the slot class (.slot-*) sets each figure's width; a bare
      .fig fills via base.html's max-width:100%.  Setting width:100% here would
-     override the slot and force every figure full-width (U0.2). */
+     override the slot and force every figure full-width. */
   .fig { border:1px solid var(--rule); border-radius:var(--radius-btn); margin-bottom:0.5rem; }
-  /* Dense NetCDF-table sub-headings and cells (rep/06 sweep). Values verbatim
+  /* Dense NetCDF-table sub-headings and cells. Values verbatim
      from the attributes they replaced; they relocate to a shared sheet when the
      other pages port. */
   h3.subhead-sm { font-size:0.88rem; color:var(--ocean); margin:1rem 0 0.4rem; }
@@ -19,8 +19,11 @@
   .var-table td.cell-break-lg { font-size:0.8rem; word-break:break-all; }
   .var-table td.cell-center { text-align:center; }
   .var-table td.cell-bad { color:var(--bad); font-weight:600; }
+  /* Processing steps and collapsed detail (file record, NetCDF appendix). */
+  table.steps td:first-child { white-space:nowrap; }
+  details.processing > summary { cursor:pointer; color:var(--interp); font-size:0.82rem; margin:0.2rem 0 0.6rem; }
 {% endblock %}
 {% block masthead_type %}Gridded{% endblock %}
 {% block content %}
-{{ m.report_body(report, "deployment", generated, cruise) }}
+{{ m.report_body(report, "deployment", generated, cruise, description_links=description_links | default([])) }}
 {% endblock %}

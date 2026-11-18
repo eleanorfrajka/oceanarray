@@ -49,7 +49,7 @@ _PNG_RE = re.compile(r"base64,[A-Za-z0-9+/=]+")
 # Footer package version ("...oceanarray</strong> v0.3.0.post1.dev1 &bull;").  It
 # comes from setuptools-scm (_version.py) and moves with every commit/build, so
 # mask it — the footer's *presence* of a version is what matters, not the value.
-_VER_RE = re.compile(r"(</strong>) v[\w.+!-]+")
+_VER_RE = re.compile(r"(</strong>(?:</a>)?) v[\w.+!-]+")
 
 
 def _normalise(html: str) -> str:

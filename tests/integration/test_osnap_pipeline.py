@@ -150,10 +150,14 @@ def test_imported_rodb_report_labels_current_meter(tmp_path):
     html = Path(summary).read_text(encoding="utf-8")
     assert "Current meter" in html
     assert "CURRENTMETER" not in html
-    # All-imported mooring: the timing table is the trimmed "Record first/last" form,
-    # with no raw-clock suggestion columns (B5, OSNAP note 7).
-    assert "Record first" in html and "Record last" in html
-    assert "Records were trimmed by the originator" in html
+    # All-imported mooring: the timing section states the deployment window and either
+    # the trimmed amounts or one line saying nothing was trimmed, with no raw-clock
+    # suggestion columns (B5, OSNAP note 7).
+    assert "Deployment window (from the mooring description)" in html
+    assert (
+        "Originator record start" in html
+        or "All records lie within the deployment window" in html
+    )
     assert "Sugg." not in html
     # Masthead: the RODB YAML names no cruise or ship; position in degrees and
     # decimal minutes; 340 days in months; instruments by type.

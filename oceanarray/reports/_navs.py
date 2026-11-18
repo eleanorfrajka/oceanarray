@@ -40,6 +40,9 @@ _TYPE_LABELS: dict[str, str] = {
     "sbe16": "SBE16",
     "sbe37": "SBE37",
     "sbe56": "SBE56",
+    "thermistor": "Thermistor",
+    "tr1050": "TR-1050",
+    "seapoint": "Seapoint",
 }
 
 #: Display order of instrument types in counts and summaries; other types follow

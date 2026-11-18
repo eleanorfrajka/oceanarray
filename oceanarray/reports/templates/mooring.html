@@ -72,6 +72,20 @@
   }
   .qc-legend span { display: inline-block; width: 10px; height: 10px;
                     border-radius: 2px; vertical-align: middle; margin-right: 3px; }
+  /* Instrument tables: units on their own line under the column name, so the
+     columns stay narrow; header text wraps. */
+  th { vertical-align: bottom; }
+  .th-unit { display: block; font-weight: 400; font-size: 0.72rem; opacity: 0.85; }
+  .serial { font-family: monospace; font-size: 0.85rem; }
+  /* Processing detail, collapsed by default. */
+  details.processing > summary { cursor: pointer; color: var(--interp); font-size: 0.82rem; margin: 0.2rem 0 0.6rem; }
+  /* One-line sections: shown directly, nothing to expand. */
+  p.one-line { font-size: 0.88rem; color: var(--gray-5); }
+  /* Mooring description: the YAML in a copyable box. */
+  details.yaml-box > summary { cursor: pointer; color: var(--interp); font-size: 0.82rem; margin-bottom: 0.4rem; }
+  .yaml-box pre { background: var(--gray-1); border: 1px solid var(--rule); border-radius: 4px;
+                  padding: 0.6em 0.9em; font-size: 0.78rem; max-height: 32rem; overflow: auto; }
+  .yaml-box button { font-size: 0.78rem; margin: 0 0 0.4rem; cursor: pointer; }
 {% endblock %}
 {% block masthead_type %}Summary{% endblock %}
 {% block masthead_sub %}Mooring recovery report{% endblock %}

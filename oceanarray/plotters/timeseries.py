@@ -31,17 +31,27 @@ panel figures drawn in ``reports/_plots.py``.
 from __future__ import annotations
 
 import contextlib
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import matplotlib.colors as mcolors
 import numpy as np
 import pandas as pd
 
 from oceanarray import _deprecated
+from oceanarray.analysis.derived import (
+    level_of_max_speed,
+    mooring_position,
+    n_squared,
+    speed_direction,
+)
 
 if TYPE_CHECKING:
     import matplotlib.pyplot as plt
     import xarray as xr
+
+    from oceanarray.analysis.derived import DerivedFields
 
 from oceanarray.plotters.primitives import nice_colorbar_ticks
 from oceanarray.reports._vendored import design_tokens as report_tokens
@@ -56,13 +66,20 @@ from .helpers import (
     masked,
 )
 from .primitives import (
+    SECTION_AXES_IN,
+    SectionScale,
+    apply_section_scale,
     colorbar_norm,
     date_axis,
     date_offset_left,
     figure_title,
+    instrument_marks,
     pcolormesh_panel,
     plot_title,
     pressure_axis,
+    pressure_extent,
+    section_layout,
+    section_scale,
 )
 
 
@@ -145,62 +162,114 @@ def _draw_grid(
     return fig
 
 
+#: Percentiles of a section's values its colour limits are set at; values beyond
+#: them take the end colours (the colorbar has arrows).
+SECTION_PERCENTILES: tuple[float, float] = (1.0, 99.0)
+
+#: Panel titles of the grid hydrography sections.
+_HYDRO_TITLES: dict[str, str] = {
+    "temperature": "Temperature",
+    "salinity": "Salinity (PSU)",
+    "oxygen_saturation_pct": "Oxygen saturation",
+}
+
+
+def _percentile_limits(
+    data: np.ndarray, percentiles: tuple[float, float] = SECTION_PERCENTILES
+) -> tuple[float | None, float | None]:
+    """Return the colour limits of *data* at *percentiles* (None, None when empty)."""
+    finite = np.asarray(data, dtype=float)
+    finite = finite[np.isfinite(finite)]
+    if finite.size == 0:
+        return None, None
+    lo, hi = (float(np.percentile(finite, q)) for q in percentiles)
+    if hi <= lo:
+        hi = lo + 1e-6
+    return lo, hi
+
+
+def _marks_for(
+    instrument_pressures: Mapping[str, Sequence[float]] | Sequence[float] | None,
+    var: str,
+) -> Sequence[float]:
+    """Return the instrument pressures marked on *var*'s panel."""
+    if instrument_pressures is None:
+        return ()
+    if isinstance(instrument_pressures, Mapping):
+        return instrument_pressures.get(var, ())
+    return instrument_pressures
+
+
+def hydro_scale(ds: xr.Dataset) -> SectionScale | None:
+    """Return the vertical scale of a grid page: its hydrography panels' dbar per inch.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A grid with ``temperature`` and/or ``salinity`` on ``(time, pressure)``.
+
+    Returns
+    -------
+    SectionScale or None
+        None without temperature or salinity values.
+    """
+    fields = [
+        ds[v].transpose("time", "pressure").values
+        for v in ("temperature", "salinity")
+        if v in ds.data_vars
+    ]
+    if not fields:
+        return None
+    return section_scale(ds["pressure"].values, fields)
+
+
 def draw_grid_hydro(
     ds: xr.Dataset,
     var_bounds: dict | None = None,
     *,
     width_in: float = report_tokens.W_FULL,
+    instrument_pressures: Mapping[str, Sequence[float]] | Sequence[float] | None = None,
+    scale: SectionScale | None = None,
 ) -> plt.Figure | None:
-    """Stacked temperature / salinity pcolormesh panels for the grid report; return a Figure.
+    """Stacked temperature / salinity (PSU) sections for the grid report.
 
-    Both panels have pressure (dbar) on the Y-axis (inverted, surface at top).
-    Colorbar bounds are clipped to the ``COLORBAR_PLOW``–``COLORBAR_PHIGH`` percentiles
-    of the data to reduce the influence of outliers on color scaling.
+    Each panel shows the variable on the pressure grid against time (surface up),
+    over the levels with values, at the page's vertical scale (*scale*).  Colour
+    limits are the 1st and 99th percentiles of the values unless *var_bounds*
+    gives them; values beyond take the end colours (arrows on the colorbar).
+    Instrument pressures are marked by triangles at the right edge.
 
-    **Temperature** (°C, colormap ``RdYlBu_r``): sea water temperature on the gridded
-    pressure–time grid.
-
-    **Salinity** (PSU, colormap ``YlGnBu_r``): taken from the ``salinity`` variable if
-    present.  If absent but both ``conductivity`` (mS cm⁻¹) and ``temperature`` (°C) are
-    present, Practical Salinity is derived via ``gsw.SP_from_C`` (PSS-78).  Note: this
-    is Practical Salinity, not Absolute Salinity (g kg⁻¹); the latter would require
-    pressure and longitude via ``gsw.SA_from_SP``.
-
-    Panels are rendered only for variables that are present in *ds* or derivable.
+    **Salinity**: the ``salinity`` variable, or, when absent but ``conductivity``
+    and ``temperature`` are present, practical salinity from ``gsw.SP_from_C``.
 
     Parameters
     ----------
-    ds : xr.Dataset
+    ds : xarray.Dataset
         Gridded mooring dataset with dimensions ``(time, pressure)``.
     var_bounds : dict, optional
-        Pre-computed colorbar limits keyed by variable name, e.g.
-        ``{"t_lim": (vmin, vmax), "s_lim": (vmin, vmax), "o2_lim": (vmin, vmax)}``.
-        When a key is present its limits are used instead of computing from the data.
-        Intended for passing the T-S diagram axis limits so both figures share scales.
-
+        Colour limits keyed ``"t_lim"``, ``"s_lim"``, ``"o2_lim"`` (each
+        ``(vmin, vmax)``), used instead of the percentiles.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width in inches (the display slot).
+    instrument_pressures : Mapping of str to sequence of float, or sequence of float, optional
+        Pressures (dbar) of the instruments behind each panel, keyed by variable
+        (or one sequence for every panel); none marked when omitted.
+    scale : SectionScale, optional
+        Vertical scale; default: the panels fill :data:`SECTION_AXES_IN`.
 
     Returns
     -------
-    plt.Figure or None
+    matplotlib.figure.Figure or None
         Figure, or None if no hydrographic data are present.
-
     """
-    import matplotlib.pyplot as plt
     import xarray as _xr
 
-    if var_bounds is None:
-        var_bounds = {}
-
-    panels = []
-    for var in ("temperature", "salinity", "oxygen_saturation_pct"):
-        if var not in ds.data_vars:
-            continue
-        panels.append((var, params.SECTION_CMAPS[var]))
-
-    # Also allow derived salinity from T/C
+    var_bounds = var_bounds or {}
+    panels = [
+        v
+        for v in ("temperature", "salinity", "oxygen_saturation_pct")
+        if v in ds.data_vars
+    ]
     if (
         "salinity" not in ds.data_vars
         and "conductivity" in ds.data_vars
@@ -212,182 +281,192 @@ def draw_grid_hydro(
             p_1d = ds["pressure"].values
             T = ds["temperature"].transpose("time", "pressure").values
             C = ds["conductivity"].transpose("time", "pressure").values
-            SP_vals = gsw.SP_from_C(C, T, p_1d[np.newaxis, :])
             ds = ds.assign(
                 salinity=_xr.DataArray(
-                    SP_vals,
+                    gsw.SP_from_C(C, T, p_1d[np.newaxis, :]),
                     dims=("time", "pressure"),
                     coords={"time": ds["time"], "pressure": ds["pressure"]},
                     attrs={"units": "1", "long_name": "Practical Salinity"},
                 )
             )
-            panels.append(("salinity", params.SECTION_CMAPS["salinity"]))
+            panels.insert(1, "salinity")
         except Exception:  # noqa: BLE001
             pass
-
     if not panels:
         return None
 
     pressure = ds["pressure"].values
     time = ds["time"].values
-    n = len(panels)
-    fig, axes = plt.subplots(
-        n,
-        1,
-        figsize=(width_in, params.GRID_PANEL_ROW_IN * n),
-        sharex=True,
-        squeeze=False,
-        layout="constrained",
-    )
-
-    for ax, (var, cmap) in zip(axes[:, 0], panels, strict=False):
-        da = ds[var]
-        data = da.transpose("pressure", "time").values
-        units = params.vunit(var) or da.attrs.get("units", "")
-        # Use the variable name (tidied) as the panel title — long_name often
-        # carries the full CF phrase "sea water temperature" which is verbose
-        # for a plot heading.  The colorbar shows units only, on top of the bar.
-        title = var.replace("_", " ").capitalize()
-        _lim_key = {
-            "temperature": "t_lim",
-            "salinity": "s_lim",
-            "oxygen_saturation_pct": "o2_lim",
-        }.get(var)
-        _passed = var_bounds.get(_lim_key) if _lim_key else None
-        _n = 11 if var == "oxygen_saturation_pct" else 20
-        _vmin, _vmax = (_passed[0], _passed[1]) if _passed is not None else (None, None)
+    fields = {v: ds[v].transpose("time", "pressure").values for v in panels}
+    extent = pressure_extent(pressure, list(fields.values()))
+    if extent is None:
+        return None
+    if scale is None:
+        scale = section_scale(pressure, list(fields.values()))
+    h = scale.height_in(extent) if scale is not None else SECTION_AXES_IN
+    fig, axes, caxes = section_layout(width_in, [h] * len(panels))
+    for ax, cax, var in zip(axes, caxes, panels, strict=True):
+        data = fields[var].T
+        key = {"temperature": "t_lim", "salinity": "s_lim"}.get(var, "o2_lim")
+        passed = var_bounds.get(key)
+        vmin, vmax = passed if passed is not None else _percentile_limits(data)
+        units = "" if var == "salinity" else params.vunit(var) or ""
         pcolormesh_panel(
             fig,
             ax,
             data,
             time,
             pressure,
-            title=title,
-            cmap=cmap,
-            vmin=_vmin,
-            vmax=_vmax,
-            n=_n,
+            title=_HYDRO_TITLES[var],
+            cmap=params.SECTION_CMAPS.get(var, "viridis"),
+            vmin=vmin,
+            vmax=vmax,
+            n=11 if var == "oxygen_saturation_pct" else 20,
             units=units,
-            title_loc="left",
+            cb_label=None if units else "",
             date_fmt=False,
+            cax=cax,
+            extend="both",
         )
-
-    date_axis(axes[-1, 0])
+        apply_section_scale(ax, extent, scale)
+        instrument_marks(ax, _marks_for(instrument_pressures, var))
+    for ax in axes[:-1]:
+        ax.tick_params(labelbottom=False)
+    date_axis(axes[-1])
     return fig
 
 
-def draw_grid_velocity_stacked(
-    ds: xr.Dataset, *, width_in: float = report_tokens.W_FULL
-) -> plt.Figure | None:
-    """Stacked east / north / up velocity pcolormesh panels for the grid report.
+#: The velocity sections of a grid page, with their panel titles.
+_VELOCITY_TITLES: dict[str, str] = {
+    "east_velocity": "Eastward velocity",
+    "north_velocity": "Northward velocity",
+    "up_velocity": "Upward velocity",
+    "current_speed": "Current speed",
+    "current_direction": "Direction toward which the current flows",
+}
 
-    All three panels share the time axis and show pressure (dbar) on the Y-axis
-    (inverted, surface at top).  East and north share symmetric diverging bounds;
-    up uses its own symmetric bounds (open-ocean vertical velocities are typically
-    1–2 cm s⁻¹ vs. tens of cm s⁻¹ horizontal).  Returns ``None`` when no
-    velocity variables are present.
+
+def draw_grid_velocity_stacked(
+    ds: xr.Dataset,
+    *,
+    width_in: float = report_tokens.W_FULL,
+    instrument_pressures: Sequence[float] | None = None,
+    scale: SectionScale | None = None,
+) -> plt.Figure | None:
+    """Velocity component, speed and direction sections for the grid report.
+
+    Eastward, northward and upward velocity, then current speed and the direction
+    toward which the current flows.  The panels are cropped to the levels with
+    velocity and drawn at the page's vertical scale (*scale*: the hydrography
+    panels' dbar per inch, so a dbar spans the same height in both figures), with
+    the same pressure tick step.  The three components share one colour scale,
+    symmetric about zero, to the larger of the magnitudes of the 1st and 99th
+    percentiles of all their values (values beyond take the end colours), and one
+    colorbar spanning their panels.  Speed (0 to its 98th percentile) and
+    direction (a cyclic map, 0–360°) have their own colorbars.
 
     Parameters
     ----------
-    ds : xr.Dataset
-        Gridded dataset with dimensions ``(time, pressure)``.
-
+    ds : xarray.Dataset
+        Gridded dataset with dimensions ``(time, pressure)``.  Speed and direction
+        are ``current_speed`` / ``current_direction`` when present, else computed
+        from the horizontal components.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width in inches (the display slot).
+    instrument_pressures : sequence of float, optional
+        Pressures (dbar) of the current meters, marked by triangles at the right
+        edge of each panel.
+    scale : SectionScale, optional
+        Vertical scale; default: that of *ds*'s own hydrography
+        (:func:`hydro_scale`).
 
     Returns
     -------
-    plt.Figure or None
-
+    matplotlib.figure.Figure or None
+        None when no velocity component is present or all are empty.
     """
-    import matplotlib.pyplot as plt
+    from oceanarray.analysis.derived import speed_direction
 
     from .helpers import _velocity_panel_style
 
-    vel_vars = [
-        "east_velocity",
-        "north_velocity",
-        "up_velocity",
-        "current_speed",
-        "current_direction",
+    components = [
+        v
+        for v in ("east_velocity", "north_velocity", "up_velocity")
+        if v in ds.data_vars
     ]
-    _LABELS = {
-        "east_velocity": "East velocity",
-        "north_velocity": "North velocity",
-        "up_velocity": "Up velocity",
-        "current_speed": "Current speed",
-        "current_direction": "Current direction",
-    }
-    present = [v for v in vel_vars if v in ds.data_vars]
-    if not present:
+    if not components:
         return None
-
     pressure = ds["pressure"].values
     time = ds["time"].values
-
-    # Shared diverging bound from all ENU components (2nd/98th pctile magnitude)
-    div_vars = [
-        v for v in present if v in ("east_velocity", "north_velocity", "up_velocity")
-    ]
-    if div_vars:
-        div_vals = np.concatenate([ds[v].values.ravel() for v in div_vars])
-        finite_div = div_vals[np.isfinite(div_vals)]
-        div_abs_max = (
-            max(
-                abs(float(np.percentile(finite_div, 2))),
-                abs(float(np.percentile(finite_div, 98))),
-                1e-4,
-            )
-            if len(finite_div)
-            else 1.0
-        )
-    else:
-        div_abs_max = 1.0
-
-    n = len(present)
-    fig, axes = plt.subplots(
-        n,
-        1,
-        figsize=(width_in, params.GRID_PANEL_ROW_IN * n),
-        sharex=True,
-        squeeze=False,
-        layout="constrained",
-    )
-
-    for ax, var in zip(axes[:, 0], present, strict=False):
-        data = ds[var].transpose("pressure", "time").values
-        # Apply QC mask via the variable's own QC flag, or fall back to east_velocity_qc
-        for _qv in (f"{var}_qc", "east_velocity_qc"):
-            if _qv in ds.data_vars:
-                data = data.copy()
-                data[
-                    np.isin(
-                        ds[_qv].transpose("pressure", "time").values,
-                        params.QC_BAD_FLAGS,
-                    )
-                ] = np.nan
-                break
-        fv = data.ravel()
-        fv = fv[np.isfinite(fv)]
-        bounds, norm, cmap, cb_label = _velocity_panel_style(var, fv, div_abs_max)
-        pc = ax.pcolormesh(
-            time, pressure, data, shading="nearest", cmap=cmap, norm=norm
-        )
-        # Current direction is cyclic 0–360°: tick at the compass points rather
-        # than the generic nice_colorbar_ticks (which gives 0/100/200/300).
-        if var == "current_direction":
-            cb_ticks = [0, 90, 180, 270, 360]
+    fields = {v: ds[v].transpose("time", "pressure").values for v in components}
+    extent = pressure_extent(pressure, list(fields.values()))
+    if extent is None:
+        return None
+    if {"east_velocity", "north_velocity"} <= set(components):
+        if {"current_speed", "current_direction"} <= set(ds.data_vars):
+            spd = ds["current_speed"].transpose("time", "pressure").values
+            dirn = ds["current_direction"].transpose("time", "pressure").values
         else:
-            cb_ticks = nice_colorbar_ticks(float(bounds[0]), float(bounds[-1]))
-        cb = fig.colorbar(pc, ax=ax, pad=0.02, ticks=cb_ticks)
-        # Use the per-variable colorbar label from _velocity_panel_style (° for
-        # direction, m s⁻¹ for velocity/speed) — not a hardcoded east-velocity unit.
-        cb.ax.set_title(cb_label, fontsize=report_tokens.ANNOT_FS)
-        pressure_axis(ax)
-        plot_title(ax, _LABELS[var])
+            spd, dirn = speed_direction(
+                fields["east_velocity"], fields["north_velocity"]
+            )
+        fields["current_speed"], fields["current_direction"] = spd, dirn
+    if scale is None:
+        scale = hydro_scale(ds) or section_scale(pressure, list(fields.values()))
+    lo, hi = _percentile_limits(np.concatenate([fields[v].ravel() for v in components]))
+    vmax = max(abs(lo or 0.0), abs(hi or 0.0), 1e-4)
+    bounds, _, cmap, _ = _velocity_panel_style("east_velocity", np.array([]), vmax)
+    norm = mcolors.BoundaryNorm(bounds, ncolors=256, extend="both")
 
-    date_axis(axes[-1, 0])
+    panels = list(fields)
+    h = scale.height_in(extent)
+    fig, axes, caxes = section_layout(width_in, [h] * len(panels), colorbar="each")
+    # One colorbar spans the component panels: replace their own bars by one.
+    n_comp = len(components)
+    x0, w = caxes[0].get_position().x0, caxes[0].get_position().width
+    y_bot = caxes[n_comp - 1].get_position().y0
+    y_top = caxes[0].get_position().y1
+    for cax in caxes[:n_comp]:
+        cax.remove()
+    shared = fig.add_axes([x0, y_bot, w, y_top - y_bot])
+    pc = None
+    for i, (ax, var) in enumerate(zip(axes, panels, strict=True)):
+        data = fields[var].T
+        if i < n_comp:
+            pc = ax.pcolormesh(
+                time, pressure, data, shading="nearest", cmap=cmap, norm=norm
+            )
+        else:
+            finite = data[np.isfinite(data)]
+            b_own, n_own, c_own, label = _velocity_panel_style(var, finite, vmax)
+            extend = "max" if var == "current_speed" else "neither"
+            if extend == "max":
+                n_own = mcolors.BoundaryNorm(b_own, ncolors=256, extend="max")
+            own = ax.pcolormesh(
+                time, pressure, data, shading="nearest", cmap=c_own, norm=n_own
+            )
+            ticks = (
+                [0, 90, 180, 270, 360]
+                if var == "current_direction"
+                else nice_colorbar_ticks(float(b_own[0]), float(b_own[-1]))
+            )
+            cb = fig.colorbar(own, cax=caxes[i], extend=extend, ticks=ticks)
+            cb.ax.set_title(label, fontsize=report_tokens.ANNOT_FS)
+        pressure_axis(ax)
+        ax.grid(False, axis="y")
+        apply_section_scale(ax, extent, scale)
+        plot_title(ax, _VELOCITY_TITLES[var])
+        instrument_marks(ax, instrument_pressures or ())
+    cb = fig.colorbar(
+        pc,
+        cax=shared,
+        extend="both",
+        ticks=nice_colorbar_ticks(float(bounds[0]), float(bounds[-1])),
+    )
+    cb.ax.set_title(params.vunit("east_velocity"), fontsize=report_tokens.ANNOT_FS)
+    for ax in axes[:-1]:
+        ax.tick_params(labelbottom=False)
+    date_axis(axes[-1])
     return fig
 
 
@@ -445,41 +524,138 @@ def draw_grid_sigma(
     return fig
 
 
-def draw_grid_n2(
-    ds: xr.Dataset, lat: float = 0.0, *, width_in: float = report_tokens.W_FULL
+#: Panel titles of the potential-density sections, by reference.
+_SIGMA_TITLES: dict[str, str] = {
+    "sigma0": "Potential density anomaly σ0 (referenced to the surface)",
+    "sigma2": "Potential density anomaly σ2 (referenced to 2000 dbar)",
+}
+
+
+def draw_grid_potential_density(
+    ds: xr.Dataset,
+    reference: str = "sigma0",
+    *,
+    width_in: float = report_tokens.W_FULL,
+    derived: DerivedFields | None = None,
+    density: Mapping[str, xr.DataArray] | None = None,
+    scale: SectionScale | None = None,
 ) -> plt.Figure | None:
-    """Compute and plot buoyancy frequency squared N² on the pressure-time grid.
+    """One potential-density section (σ0 or σ2) over the whole grid column.
 
-    Returns ``None`` when temperature or salinity are absent.
+    σ is computed from potential temperature and practical salinity on the grid
+    (:func:`oceanarray.analysis.derived.potential_density`), over the full column
+    at one reference pressure.  Colour limits are the 1st and 99th percentiles,
+    with values beyond in the end colours.
 
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A grid with ``temperature``, ``salinity`` and a position.
+    reference : {"sigma0", "sigma2"}, optional
+        The reference pressure: the surface (default) or 2000 dbar.
+    width_in : float, optional
+        Figure width in inches (the display slot).
+    derived : DerivedFields or None, optional
+        The page's derived quantities (θ and the position), used when *density*
+        is not given; computed from *ds* when neither is given.
+    density : Mapping of str to xarray.DataArray, optional
+        σ0 and σ2 computed once for the page
+        (:func:`oceanarray.analysis.derived.potential_density`), so the two
+        sections share one computation.
+    scale : SectionScale, optional
+        Vertical scale; default: that of *ds*'s hydrography.
+
+    Returns
+    -------
+    matplotlib.figure.Figure or None
+        None when σ cannot be computed (no temperature, salinity or position).
     """
-    import gsw
+    from oceanarray.analysis.derived import derived_fields, potential_density
+
+    if reference not in _SIGMA_TITLES:
+        raise ValueError(f"reference must be 'sigma0' or 'sigma2', not {reference!r}")
+    if density is None:
+        density = potential_density(ds, derived or derived_fields(ds))
+    sigma = (density or {}).get(reference)
+    if sigma is None:
+        return None
+    data = sigma.transpose("time", "pressure").values
+    pressure = ds["pressure"].values
+    extent = pressure_extent(pressure, [data])
+    if extent is None:
+        return None
+    if scale is None:
+        scale = hydro_scale(ds)
+    h = scale.height_in(extent) if scale is not None else SECTION_AXES_IN
+    fig, axes, caxes = section_layout(width_in, [h])
+    vmin, vmax = _percentile_limits(data)
+    pcolormesh_panel(
+        fig,
+        axes[0],
+        data.T,
+        ds["time"].values,
+        pressure,
+        title=_SIGMA_TITLES[reference],
+        cmap=params.DENSITY_COLORMAP,
+        vmin=vmin,
+        vmax=vmax,
+        units=params.vunit("potential_density"),
+        date_fmt=True,
+        cax=caxes[0],
+        extend="both",
+    )
+    apply_section_scale(axes[0], extent, scale)
+    return fig
+
+
+def draw_grid_n2(
+    ds: xr.Dataset,
+    lat: float = 0.0,
+    *,
+    width_in: float = report_tokens.W_FULL,
+    derived: DerivedFields | None = None,
+) -> plt.Figure | None:
+    """Plot buoyancy frequency squared N² on the pressure-time grid.
+
+    N² is computed by :func:`oceanarray.analysis.derived.n_squared` (TEOS-10
+    ``Nsquared`` between neighbouring grid levels).
+
+    Parameters
+    ----------
+    ds : xr.Dataset
+        Gridded dataset with ``temperature`` and ``salinity`` on
+        ``(time, pressure)``.
+    lat : float, optional
+        Mooring latitude (decimal degrees).
+    width_in : float, optional
+        Figure width in inches.
+    derived : DerivedFields or None, optional
+        The page's derived quantities; its longitude is used for Absolute
+        Salinity (read from *ds* when not given; a warning when unknown).
+
+    Returns
+    -------
+    plt.Figure or None
+        Figure, or None when temperature or salinity are absent.
+    """
     import matplotlib.pyplot as plt
 
     if "temperature" not in ds.data_vars or "salinity" not in ds.data_vars:
         return None
 
-    p_1d = ds["pressure"].values.astype(float)
-    T_pt = ds["temperature"].transpose("pressure", "time").values.astype(float)
-    SP_pt = ds["salinity"].transpose("pressure", "time").values.astype(float)
     time_vals = ds["time"].values
-    n_p, n_t = T_pt.shape
-
-    lon = 0.0
-    for key in ("deployment_longitude", "seabed_longitude", "longitude"):
-        v = ds.attrs.get(key)
-        if v is not None:
-            try:
-                lon = float(v)
-                break
-            except Exception:  # noqa: BLE001  — attribute may be non-numeric; skip
-                pass
-
-    p_2d = np.broadcast_to(p_1d[:, np.newaxis], (n_p, n_t)).copy()
-    SA = gsw.SA_from_SP(SP_pt, p_2d, lon, lat)
-    CT = gsw.CT_from_t(SA, T_pt, p_2d)
-    N2, p_mid = gsw.Nsquared(SA, CT, p_2d, lat=lat)
-    p_mid_1d = np.nanmean(p_mid, axis=1)
+    lon = (
+        derived.longitude
+        if derived is not None
+        else mooring_position(ds, warn=False)[1]
+    )
+    N2, p_mid_1d = n_squared(
+        ds["temperature"].transpose("pressure", "time").values.astype(float),
+        ds["salinity"].transpose("pressure", "time").values.astype(float),
+        ds["pressure"].values.astype(float),
+        lat,
+        lon,
+    )
     # Floor non-positive/unstable N² to 1e-12 so it renders as the lowest colour
     # (weakly stratified / off-scale low) rather than blank.
     N2_log = np.log10(np.maximum(N2, 1e-12))
@@ -520,7 +696,10 @@ def draw_grid_n2(
 
 
 def draw_grid_timeseries(
-    ds: xr.Dataset, *, width_in: float = report_tokens.W_FULL
+    ds: xr.Dataset,
+    *,
+    width_in: float = report_tokens.W_FULL,
+    derived: DerivedFields | None = None,
 ) -> plt.Figure | None:
     """Velocity time series at the depth of maximum time-mean current speed.
 
@@ -545,6 +724,9 @@ def draw_grid_timeseries(
     width_in : float, optional
         Figure width in inches -- the display-slot width the report builder
         resolves; standalone callers get the full content width.
+    derived : DerivedFields or None, optional
+        The page's derived quantities; its ``speed`` is used instead of being
+        computed again.
 
     Returns
     -------
@@ -552,8 +734,6 @@ def draw_grid_timeseries(
         Figure, or None if horizontal velocity data are absent or all-NaN.
 
     """
-    import warnings
-
     import matplotlib.dates as mdates
     import matplotlib.pyplot as plt
 
@@ -566,22 +746,13 @@ def draw_grid_timeseries(
     pressure = ds["pressure"].values  # 1-D
     time_vals = ds["time"].values
 
-    spd = np.sqrt(east**2 + north**2)
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", RuntimeWarning)
-        mean_spd = np.nanmean(spd, axis=0, dtype=np.float64)  # (pressure,); float64 sum
-    if not np.any(np.isfinite(mean_spd)):
+    if derived is not None and derived.speed is not None:
+        spd = np.asarray(derived.speed.transpose(*ds["east_velocity"].dims), float)
+    else:
+        spd, _ = speed_direction(east, north)
+    k_max = level_of_max_speed(spd)
+    if k_max is None:
         return None
-
-    # Only consider levels with at least 70 % non-NaN values so that a
-    # depth covered only briefly does not win on spuriously high mean speed.
-    n_time = spd.shape[0]
-    coverage = np.sum(np.isfinite(spd), axis=0) / n_time  # fraction per level
-    eligible = coverage >= 0.70
-    if not np.any(eligible):
-        eligible = np.ones(len(pressure), dtype=bool)  # fall back: no restriction
-    candidate_spd = np.where(eligible, mean_spd, np.nan)
-    k_max = int(np.nanargmax(candidate_spd))
     p_target = float(pressure[k_max])
 
     spd_ts = spd[:, k_max]

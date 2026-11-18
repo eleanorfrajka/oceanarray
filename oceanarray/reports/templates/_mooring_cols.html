@@ -1,0 +1,21 @@
+{# Shared column macros for the deployment report's instrument tables: every table
+   identifies an instrument by nominal depth and height above bottom (HAB, defined in
+   each table's caption), with units on a second header line so the columns stay
+   narrow.  Import with:  {% import "_mooring_cols.html" as cols %}  #}
+
+{% macro th(label, unit="", num=false) -%}
+<th{% if num %} class="num"{% endif %}>{{ label }}{% if unit %}<span class="th-unit">{{ unit }}</span>{% endif %}</th>
+{%- endmacro %}
+
+{% macro depth_heads() -%}
+{{ th("Nominal depth", "m", true) }}{{ th("HAB", "m", true) }}
+{%- endmacro %}
+
+{% macro depth_cells(instr) -%}
+<td class="num">{{ "%.0f"|format(instr.depth) if instr.depth is not none else "—" }}</td>
+<td class="num">{% if instr.hab is not none %}{{ "%.0f"|format(instr.hab) }}{% else %}<span class="none-note"{% if instr.no_hab_note %} title="{{ instr.no_hab_note }}"{% endif %}>—</span>{% endif %}</td>
+{%- endmacro %}
+
+{% macro serial_cell(instr, mooring_name) -%}
+<td>{% if instr.report_exists %}<a href="instrument/{{ mooring_name }}_{{ instr.serial }}_report.html" class="serial">{{ instr.serial }}</a>{% else %}<span class="serial">{{ instr.serial }}</span>{% endif %}</td>
+{%- endmacro %}

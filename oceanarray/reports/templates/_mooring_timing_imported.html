@@ -1,43 +1,55 @@
-{# Deployment-timing table for an all-imported mooring (oceansites/rodb).  The
-   records were trimmed by the originator, so there is no raw instrument clock and
-   no pressure-derived suggestion: show only the record bounds, nothing highlighted. #}
-<p style="font-size:0.82rem;color:var(--gray-5);margin-top:-0.5rem;">
-  Records were trimmed by the originator; stage&nbsp;2 trims to the deployment
-  window regardless.  <em>Record first/last</em> are the start and end of the
-  originator's record, not a raw instrument clock.  Serial numbers link to the
-  per-instrument report.
+{# Deployment timing for an all-imported mooring (oceansites/rodb).  The originator
+   already cut its records to the deployment; they are cut again to the deployment
+   window of the mooring description.  When nothing was cut the section is one line,
+   shown directly. #}
+{% import "_mooring_cols.html" as cols %}
+<p class="one-line">
+  Deployment window (from the mooring description): <strong>{{ deploy_time }}</strong>
+  to <strong>{{ recover_time }}</strong> UTC.
+</p>
+{% if not any_trimmed %}
+<p class="one-line">All records lie within the deployment window; nothing was trimmed.</p>
+{% else %}
+<p class="caption">
+  The originator's records were already cut to the deployment; they are cut again to
+  the deployment window above. Where a record starts or ends outside the window, the
+  trimmed amount is shown. HAB: height above bottom.
 </p>
 <div style="overflow-x:auto">
-<table style="font-size:0.8rem;white-space:nowrap">
+<table style="font-size:0.8rem">
   <thead>
     <tr>
-      <th>#</th>
+      {{ cols.depth_heads() }}
       <th>Type</th>
-      <th>S/N</th>
-      <th>Record first</th>
-      <th>Record last</th>
+      <th>Serial</th>
+      {{ cols.th("Originator record start", "UTC") }}
+      {{ cols.th("Originator record end", "UTC") }}
+      {{ cols.th("Kept start", "UTC") }}
+      {{ cols.th("Kept end", "UTC") }}
+      <th>Trimmed</th>
     </tr>
   </thead>
   <tbody>
     {% for instr in instruments %}
     {% set tm = instr.timing %}
     <tr>
-      <td class="num">{{ loop.index }}</td>
-      <td>{{ instr.instr_type }}</td>
-      <td>
-        <a href="instrument/{{ mooring_name }}_{{ instr.serial }}_report.html"
-           title="Per-instrument report"><code>{{ instr.serial }}</code></a>
-      </td>
+      {{ cols.depth_cells(instr) }}
+      <td>{{ instr.type_label }}</td>
+      {{ cols.serial_cell(instr, mooring_name) }}
       {% if tm %}
         <td>{{ tm.get("stage1_start") or "—" }}</td>
         <td>{{ tm.get("stage1_end") or "—" }}</td>
+        <td>{{ tm.get("stage2_start") or "—" }}</td>
+        <td>{{ tm.get("stage2_end") or "—" }}</td>
+        <td>{{ instr.trim_note or "—" }}</td>
       {% elif instr.skipped %}
-        <td colspan="2" class="none-note">skipped</td>
+        <td colspan="5" class="none-note">{{ instr.skip_reason }}</td>
       {% else %}
-        <td colspan="2" class="none-note">no stage 2 file</td>
+        <td colspan="5" class="none-note">no stage 2 file</td>
       {% endif %}
     </tr>
     {% endfor %}
   </tbody>
 </table>
 </div>
+{% endif %}

@@ -10,7 +10,8 @@ Public draw_* functions (migrated from report/_plots.py):
 - draw_instrument_rose: rose diagram grid for a single Aquadopp instrument.
 - draw_rose_grid: grid of current roses for instruments in a stack dataset.
 - draw_grid_rose: grid of current roses by pressure level for the grid report.
-- draw_grid_trajectory: pseudo-Lagrangian trajectory by pressure for the grid report.
+- draw_grid_progressive_vector: progressive vector diagram by pressure level for the grid
+  report (``draw_grid_trajectory`` is its former name).
 - draw_adcp_velocity: stacked colour panels for the ADCP per-instrument HTML page.
 - draw_adcp_rose: current rose panels for an ADCP per-instrument report.
 - draw_adcp_hodograph: two-depth hodograph for an ADCP per-instrument report.
@@ -29,6 +30,7 @@ import numpy as np
 import xarray as xr
 from matplotlib.collections import LineCollection
 
+from oceanarray.analysis.derived import speed_direction
 from oceanarray.config import parameters as params
 from oceanarray.config.unit_tables import (
     unit_label,
@@ -40,7 +42,9 @@ from oceanarray.plotters import helpers
 from oceanarray.plotters.helpers import (
     _rose_ax,
     _velocity_panel_style,
+    current_rose,
     grid_despine,
+    rose_legend,
     tukey_smooth,
 )
 from oceanarray.plotters.primitives import (
@@ -253,7 +257,7 @@ def draw_speed_boxplot(
     return fig
 
 
-def draw_multi_aquadopp_trajectories(
+def draw_multi_aquadopp_progressive_vector(
     ds: xr.Dataset,
     u_var: str = "east_velocity",
     v_var: str = "north_velocity",
@@ -264,10 +268,11 @@ def draw_multi_aquadopp_trajectories(
     *,
     width_in: float = report_tokens.W_HALF,
 ) -> plt.Figure | None:
-    """Multi-instrument Lagrangian trajectories for all Aquadopps, coloured by temperature.
+    """Progressive vector diagram of every Aquadopp, coloured by temperature.
 
-    Each trajectory starts at the origin and is built by integrating the
-    east/north velocity over time (Euler forward; NaN velocities set to zero).
+    Each line starts at the origin and adds up the measured east/north velocity
+    over time (Euler forward; a missing velocity adds nothing): how far water
+    passing the instrument would travel if the flow were the same everywhere.
     All trajectories share a single temperature colour scale so instruments can
     be compared directly.  End points are annotated with the instrument serial.
 
@@ -633,7 +638,7 @@ def draw_aquadopp_speed_profile(
         elif u_var in ds.data_vars and v_var in ds.data_vars:
             u = ds[u_var].values[:, i]
             v = ds[v_var].values[:, i]
-            spd = np.sqrt(u**2 + v**2)
+            spd, _ = speed_direction(u, v)
         else:
             continue
         spd_clean = spd[np.isfinite(spd)]
@@ -689,7 +694,7 @@ def draw_aquadopp_speed_profile(
     return fig
 
 
-def draw_adcp_trajectories(
+def draw_adcp_progressive_vector(
     ds: xr.Dataset,
     u_var: str = "east_velocity",
     v_var: str = "north_velocity",
@@ -700,7 +705,7 @@ def draw_adcp_trajectories(
     *,
     width_in: float = report_tokens.W_HALF,
 ) -> plt.Figure | None:
-    """Lagrangian per-bin trajectories for ADCP data, coloured by HAB.
+    """Progressive vector diagram of each ADCP bin, coloured by height above bottom.
 
     Each depth bin integrated by Euler-forward from the origin.  Bins that are
     entirely below the seabed (every seabed_qc flag bad) are silently omitted.  QC
@@ -804,7 +809,7 @@ def draw_adcp_trajectories(
     norm: mcolors.BoundaryNorm = mcolors.BoundaryNorm(_bounds, ncolors=256)
 
     # Half width — shown in a 50% flex column beside the Aquadopp trajectory
-    # (see stack.html), matching draw_multi_aquadopp_trajectories.
+    # (see stack.html), matching draw_multi_aquadopp_progressive_vector.
     _all_x = np.concatenate([x for _, x, _ in trajs])
     _all_y = np.concatenate([y for _, _, y in trajs])
     fig, axes, cax = square_axes_grid(width_in, 1, 1, left_in=ytick_reserve_in(_all_y))
@@ -1058,7 +1063,8 @@ def draw_rose_grid(
     ncols = 4
     nrows = math.ceil(n / ncols)
 
-    _fig_h = nrows * (width_in / ncols + 0.65)
+    _legend_in = 0.6
+    _fig_h = nrows * (width_in / ncols + 0.65) + _legend_in
     fig, axs = plt.subplots(
         nrows,
         ncols,
@@ -1078,7 +1084,7 @@ def draw_rose_grid(
         wspace=0.4,
         hspace=0.45,
         top=1 - 0.4 / _fig_h,
-        bottom=0.2 / _fig_h,
+        bottom=(0.2 + _legend_in) / _fig_h,
     )
     axs_flat = axs.flatten()
 
@@ -1088,12 +1094,13 @@ def draw_rose_grid(
             title = f"{serial} ({hab_vals[instr_i]:.0f} m)"
         else:
             title = str(serial)
-        _rose_ax(
+        current_rose(
             axs_flat[plot_i], east_all[:, instr_i], north_all[:, instr_i], title=title
         )
 
     for k in range(n, len(axs_flat)):
         axs_flat[k].set_visible(False)
+    rose_legend(fig, y=0.05 / _fig_h)
 
     return fig, n
 
@@ -1103,98 +1110,99 @@ def draw_grid_rose(
     max_roses: int = 4,
     *,
     width_in: float = report_tokens.W_FULL,
+    levels: list[int] | None = None,
 ) -> plt.Figure | None:
-    """Grid of current roses, one per pressure level, for the grid report.
+    """Draw current roses at grid levels, in the stack page's rose design.
 
-    Shows up to *max_roses* pressure levels (at most 1/5th of valid levels,
-    capped at 4), each labelled with its pressure (dbar).  Levels with no finite
-    ENU velocity are skipped.  Returns ``None`` when east/north velocity are
-    absent or all-NaN.
+    One rose per level (:func:`oceanarray.plotters.helpers.current_rose`), titled
+    with its pressure.  By default the levels are those of
+    :func:`oceanarray.analysis.derived.velocity_levels`: levels with velocity for
+    at least half the record, at most *max_roses*, from the shallowest to the
+    deepest.
 
     Parameters
     ----------
-    ds : xr.Dataset
-        Gridded dataset with dimensions ``(time, pressure)`` containing
-        ``east_velocity`` and ``north_velocity`` in m s⁻¹.
-    max_roses : int
-        Maximum number of rose panels to draw (default 4).
+    ds : xarray.Dataset
+        Gridded dataset with ``east_velocity`` and ``north_velocity`` (m s⁻¹) on
+        ``(time, pressure)``.
+    max_roses : int, optional
+        Most roses drawn when *levels* is not given (default 4).
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width in inches (the display slot).
+    levels : list of int, optional
+        Grid level indices to draw (the page's shared choice).
 
     Returns
     -------
-    plt.Figure or None
-
+    matplotlib.figure.Figure or None
+        None when velocity is absent or no level qualifies.
     """
     import math
 
     import matplotlib.pyplot as plt
 
+    from oceanarray.analysis.derived import velocity_levels
+
     if "east_velocity" not in ds.data_vars or "north_velocity" not in ds.data_vars:
         return None
-
-    east_all = ds["east_velocity"].values.copy()  # (time, pressure)
-    north_all = ds["north_velocity"].values.copy()
-
-    for _qc_var in ("east_velocity_qc", "north_velocity_qc"):
-        if _qc_var in ds.data_vars:
-            _qc = ds[_qc_var].values
-            if _qc.shape == east_all.shape:
-                east_all[np.isin(_qc, params.QC_BAD_FLAGS)] = np.nan
-                north_all[np.isin(_qc, params.QC_BAD_FLAGS)] = np.nan
-
-    pressure = ds["pressure"].values  # 1-D (n_levels,)
-    valid_idx = [k for k in range(len(pressure)) if np.any(np.isfinite(east_all[:, k]))]
-    if not valid_idx:
+    east_all = ds["east_velocity"].transpose("time", "pressure").values
+    north_all = ds["north_velocity"].transpose("time", "pressure").values
+    pressure = ds["pressure"].values
+    if levels is None:
+        levels = velocity_levels(east_all, north_all, n=max_roses)
+    if not levels:
         return None
 
-    # Subsample: min(max_roses, max(1, n_valid // 5)) — same rule as rotary spectrum
-    n_select = min(max_roses, max(1, len(valid_idx) // 5))
-    if len(valid_idx) > n_select:
-        step = len(valid_idx) / n_select
-        valid_idx = [valid_idx[int(round(i * step))] for i in range(n_select)]
-
-    n = len(valid_idx)
+    n = len(levels)
     ncols = min(n, 4)
     nrows = math.ceil(n / ncols)
-
+    legend_in = 0.6
+    fig_h = nrows * (width_in / 4 + 0.65) + legend_in
     fig, axs = plt.subplots(
         nrows,
         ncols,
-        figsize=(width_in, nrows * 3.2),
+        figsize=(width_in, fig_h),
         subplot_kw={"projection": "polar"},
         squeeze=False,
     )
-    # Match the instrument-page rose left-right spacing (polar → no tight_layout).
-    fig.subplots_adjust(wspace=0.5)
+    # Each rose the size of a stack-page rose (a quarter of the width).
+    side = ncols * width_in / 4
+    margin = (width_in - side) / 2 / width_in
+    fig.subplots_adjust(
+        left=0.05 * side / width_in + margin,
+        right=1 - 0.05 * side / width_in - margin,
+        wspace=0.4,
+        hspace=0.45,
+        top=1 - 0.4 / fig_h,
+        bottom=(0.2 + legend_in) / fig_h,
+    )
     axs_flat = axs.flatten()
-
-    for plot_i, k in enumerate(valid_idx):
-        title = f"{int(pressure[k])} dbar"
-        _rose_ax(axs_flat[plot_i], east_all[:, k], north_all[:, k], title=title)
-
-    for k in range(n, len(axs_flat)):
-        axs_flat[k].set_visible(False)
-
+    for ax, k in zip(axs_flat, levels, strict=False):
+        current_rose(
+            ax, east_all[:, k], north_all[:, k], title=f"{pressure[k]:.0f} dbar"
+        )
+    for ax in axs_flat[n:]:
+        ax.set_visible(False)
+    rose_legend(fig, y=0.05 / fig_h)
     return fig
 
 
-def draw_grid_trajectory(
+def draw_grid_progressive_vector(
     ds: xr.Dataset,
     *,
     width_in: float = report_tokens.W_HALF,
 ) -> plt.Figure | None:
-    """Pseudo-Lagrangian current-vector integral by pressure level for the grid report.
+    """Progressive vector diagram at every grid level for the grid report.
 
-    For each pressure level, integrates east and north velocity over time using
-    the Euler forward method to produce a cumulative displacement trajectory from
-    the origin (0, 0).  Returns ``None`` when east/north velocity are absent or
-    all-NaN.
+    For each pressure level, adds up the hourly velocity (Euler forward) into a
+    cumulative displacement from the origin: how far water passing the mooring
+    would travel if the flow were the same everywhere.  It shows the mean flow
+    direction and its steadiness, not the path of a water parcel.  Returns
+    ``None`` when east/north velocity are absent or all-NaN.
 
     Parameters
     ----------
-    ds : xr.Dataset
+    ds : xarray.Dataset
         Gridded dataset with dimensions ``(time, pressure)``, containing
         ``east_velocity`` and ``north_velocity`` in m s⁻¹.
     width_in : float, optional
@@ -1203,7 +1211,7 @@ def draw_grid_trajectory(
 
     Returns
     -------
-    plt.Figure or None
+    matplotlib.figure.Figure or None
 
     """
     import matplotlib.pyplot as plt
@@ -1266,6 +1274,14 @@ def draw_grid_trajectory(
     ax.set_aspect("equal", adjustable="datalim")
     grid_despine(ax)
     return fig
+
+
+#: Former name of :func:`draw_grid_progressive_vector`, kept for callers.
+draw_grid_trajectory = draw_grid_progressive_vector
+#: Former name of :func:`draw_multi_aquadopp_progressive_vector`, kept for callers.
+draw_multi_aquadopp_trajectories = draw_multi_aquadopp_progressive_vector
+#: Former name of :func:`draw_adcp_progressive_vector`, kept for callers.
+draw_adcp_trajectories = draw_adcp_progressive_vector
 
 
 def draw_adcp_velocity(
@@ -1344,9 +1360,8 @@ def draw_adcp_velocity(
         if "east_velocity" in ds and "north_velocity" in ds:
             e = ds["east_velocity"].values.astype(float)
             n = ds["north_velocity"].values.astype(float)
-            spd = np.sqrt(e**2 + n**2)
-            # Oceanographic convention: direction water flows TO, 0=N clockwise
-            dirn = np.degrees(np.arctan2(e, n)) % 360.0
+            # Direction the water flows toward, clockwise from north.
+            spd, dirn = speed_direction(e, n)
             arrays["current_speed"] = spd
             arrays["current_direction"] = dirn
 
@@ -1569,7 +1584,7 @@ def draw_adcp_rose(
             return None
 
         # Shared speed scale across all panels (99th percentile of all data)
-        all_speeds = np.concatenate([np.sqrt(e**2 + n**2) for e, n, _ in panels])
+        all_speeds = np.concatenate([speed_direction(e, n)[0] for e, n, _ in panels])
         shared_max = max(
             float(np.nanpercentile(all_speeds[np.isfinite(all_speeds)], 99)), 1e-9
         )
@@ -1816,103 +1831,63 @@ def draw_grid_hodograph(
     smooth_hours: float = 24.0,
     *,
     width_in: float = report_tokens.W_FULL,
+    levels: list[int] | None = None,
 ) -> plt.Figure | None:
-    """Two-depth hodograph for the grid report; return a Figure.
+    """Hodographs at grid levels for the grid report; return a Figure.
 
-    Takes an already-loaded xr.Dataset (not a path).  Picks the pressure levels
-    nearest the 25th and 75th percentile of the valid gridded pressure range and
-    renders a 1×2 figure (shallow / deep, each showing the ``smooth_hours``-smoothed
-    hodograph).  Returns None if east/north velocity are absent or fewer than two
-    valid levels exist.
+    One square panel per level (two per row): the *smooth_hours*-smoothed east
+    and north velocity traced through the deployment, coloured from start to end,
+    with a circle at the start and a square at the end.  By default the levels
+    are those of the current roses
+    (:func:`oceanarray.analysis.derived.velocity_levels`).
 
     Parameters
     ----------
-    ds : xr.Dataset
+    ds : xarray.Dataset
         Gridded mooring dataset with ``east_velocity`` and ``north_velocity``.
-    smooth_hours : float
-        Tukey smoothing window in hours.
+    smooth_hours : float, optional
+        Tukey smoothing window in hours (default 24).
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width in inches (the display slot).
+    levels : list of int, optional
+        Grid level indices (the page's shared choice with the roses).
 
     Returns
     -------
-    plt.Figure or None
-        Figure, or None if velocity data are absent or insufficient.
-
+    matplotlib.figure.Figure or None
+        None if velocity is absent or no level qualifies.
     """
+    from oceanarray.analysis.derived import velocity_levels
+
     if "east_velocity" not in ds or "north_velocity" not in ds:
         return None
-    east_2d = ds["east_velocity"].values.astype(float)  # (time, pressure)
-    north_2d = ds["north_velocity"].values.astype(float)
-    if east_2d.ndim != 2:
-        return None
-
-    n_time, n_levels = east_2d.shape
+    east_2d = ds["east_velocity"].transpose("time", "pressure").values.astype(float)
+    north_2d = ds["north_velocity"].transpose("time", "pressure").values.astype(float)
+    n_time = east_2d.shape[0]
     if n_time < 4:
         return None
-
-    # Apply QC masking where companion QC variables are present
-    if "east_velocity_qc" in ds:
-        east_2d = np.where(
-            np.isin(ds["east_velocity_qc"].values, params.QC_BAD_FLAGS), np.nan, east_2d
-        )
-    if "north_velocity_qc" in ds:
-        north_2d = np.where(
-            np.isin(ds["north_velocity_qc"].values, params.QC_BAD_FLAGS),
-            np.nan,
-            north_2d,
-        )
-
-    if "pressure" in ds.coords:
-        pressure = ds.coords["pressure"].values
-    elif "pressure" in ds:
-        pressure = ds["pressure"].values
-    else:
-        pressure = np.arange(n_levels, dtype=float)
-
+    pressure = ds["pressure"].values
+    if levels is None:
+        levels = velocity_levels(east_2d, north_2d)
+    if not levels:
+        return None
     units = params.vunit("east_velocity") or unit_label(
         ds["east_velocity"].attrs.get("units", "m s-1")
     )
+    from oceanarray.pipeline.dataset import time_step_seconds
 
-    if "time" in ds.coords and ds["time"].size >= 2:
-        t_ns = ds["time"].values.astype("datetime64[ns]").astype(float)
-        dt_s = float(np.nanmedian(np.diff(t_ns))) / 1e9
-    else:
-        dt_s = 3600.0
-    dt_s = max(dt_s, 1.0)
-
-    min_finite = max(2, int(0.05 * n_time))
-    valid_plevs = np.array(
-        [k for k in range(n_levels) if np.sum(np.isfinite(east_2d[:, k])) >= min_finite]
-    )
-    if len(valid_plevs) < 2:
-        return None
-
-    i_shallow = valid_plevs[max(0, int(round(0.25 * (len(valid_plevs) - 1))))]
-    i_deep = valid_plevs[
-        min(len(valid_plevs) - 1, int(round(0.75 * (len(valid_plevs) - 1))))
-    ]
-    if i_shallow == i_deep:
-        return None
-
-    label_shallow = f"{int(pressure[i_shallow])} dbar"
-    label_deep = f"{int(pressure[i_deep])} dbar"
-
+    dt_s = max(float(time_step_seconds(ds)), 1.0)
     smooth_n = max(3, int(round(smooth_hours * 3600.0 / dt_s)))
 
-    # Same deterministic square-panel layout as the ADCP hodograph, so both
-    # reports render hodographs and their shared time colorbar identically.
-    fig, axes, cax = square_axes_grid(width_in, 1, 2)
-    ax_shallow, ax_deep = axes[0, 0], axes[0, 1]
-
+    ncols = min(2, len(levels))
+    nrows = -(-len(levels) // ncols)
+    fig, axes, cax = square_axes_grid(width_in, nrows, ncols)
+    flat = list(axes.ravel())
     sm = None
-    for ax, i_lev, label in [
-        (ax_shallow, i_shallow, f"Shallow ({label_shallow})"),
-        (ax_deep, i_deep, f"Deep ({label_deep})"),
-    ]:
-        e_sm = tukey_smooth(east_2d[:, i_lev], smooth_n)
-        n_sm = tukey_smooth(north_2d[:, i_lev], smooth_n)
+    for ax, k in zip(flat, levels, strict=False):
+        label = f"{pressure[k]:.0f} dbar"
+        e_sm = tukey_smooth(east_2d[:, k], smooth_n)
+        n_sm = tukey_smooth(north_2d[:, k], smooth_n)
         mask = np.isfinite(e_sm) & np.isfinite(n_sm)
         if mask.sum() < 2:
             ax.text(
@@ -1920,21 +1895,14 @@ def draw_grid_hodograph(
             )
             plot_title(ax, label)
             continue
-        t_frac = np.linspace(0.0, 1.0, len(east_2d[:, i_lev]))[mask]
-        sm = hodograph_panel(
-            ax,
-            e_sm[mask],
-            n_sm[mask],
-            t_frac,
-            f"{label} — {smooth_hours:.0f}-h smoothed",
-            units,
-        )
-
+        t_frac = np.linspace(0.0, 1.0, n_time)[mask]
+        sm = hodograph_panel(ax, e_sm[mask], n_sm[mask], t_frac, label, units)
+    for ax in flat[len(levels) :]:
+        ax.set_visible(False)
     if sm is not None:
         unit_colorbar(cax, sm, ticks=np.array([0.0, 1.0]), ticklabels=["start", "end"])
     elif cax is not None:
         cax.set_visible(False)
-
     return fig
 
 
@@ -2233,7 +2201,7 @@ def draw_rose_outlines(
             ok = np.isfinite(u[:, j]) & np.isfinite(v[:, j]) & (cell_dep[:, j] == k)
             if ok.sum() < 2:
                 continue
-            direction = np.mod(np.arctan2(u[ok, j], v[ok, j]), 2 * np.pi)
+            direction = np.radians(speed_direction(u[ok, j], v[ok, j])[1])
             counts, _ = np.histogram(direction, edges)
             share = 100.0 * counts / counts.sum()
             # The outline of the sector bars: an arc across each sector at its
@@ -2382,7 +2350,7 @@ def draw_speed_profile_by_deployment(
     by = _velocity_by_depth(ds)
     if by is None:
         return None
-    speed = np.hypot(by["u"], by["v"])
+    speed, _ = speed_direction(by["u"], by["v"])
     box_w = by["offset"]
 
     fig, ax = plt.subplots(figsize=(width_in, width_in * 0.9), layout="constrained")

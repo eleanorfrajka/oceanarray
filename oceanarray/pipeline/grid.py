@@ -10,6 +10,7 @@ import xarray as xr
 
 from oceanarray import logger, paths, provenance
 from oceanarray.config import parameters as params
+from oceanarray.physics import flow_direction, speed_direction
 from oceanarray.pipeline import _stage, attribution, masking
 from oceanarray.pipeline._run import DEFAULTS
 from oceanarray.pipeline.concat import chunks, is_site_stack, own_levels
@@ -300,10 +301,8 @@ def _speed_direction(
             "standard_name": "sea_water_velocity_to_direction",
         },
     }
-    values = {
-        "current_speed": np.hypot(east, north),
-        "current_direction": np.degrees(np.arctan2(east, north)) % 360.0,
-    }
+    speed, direction = speed_direction(east, north)
+    values = {"current_speed": speed, "current_direction": direction}
     return {
         name: xr.Variable(
             ("time", "pressure"),
@@ -364,7 +363,7 @@ def _slope_attrs(ds: xr.Dataset, slope_angle: float | None) -> dict[str, object]
                 f"velocity is below {params.SLOPE_STEADINESS_MIN:g}"
             )
         }
-    angle = float(np.degrees(np.arctan2(mean_east, mean_north)) % 360.0)
+    angle = float(flow_direction(mean_east, mean_north))
     return {
         "slope_angle_deg": round(angle, 1),
         "slope_angle_source": (

@@ -12,6 +12,7 @@ import numpy as np
 
 from oceanarray import logger, paths
 from oceanarray import mooring as _mooring
+from oceanarray.analysis.derived import knockdown as build_knockdown
 from oceanarray.instruments import instrument_entries
 from oceanarray.paths import should_skip_regeneration
 
@@ -21,9 +22,11 @@ from ._breadcrumb import crumbs_from_ctx
 from ._env import render_template
 from ._grid import generate_grid_page
 from ._html_helpers import (
+    STOPPED_EARLY_HOURS,
     _check_readable,
     _format_dt,
     _format_duration,
+    _format_seconds,
     _instrument_report_exists,
     _parse_dt,
     _read_pdf_b64,
@@ -34,7 +37,7 @@ from ._html_helpers import (
     make_fig_panel,
 )
 from ._instrument import generate_instrument_pages
-from ._navs import mooring_nav
+from ._navs import _type_label, mooring_nav
 from ._plots import (
     _make_clock_check_b64,
     _make_knockdown_anomaly_b64,
@@ -75,20 +78,30 @@ MOORING_CAPTIONS: dict[str, str] = {
         "with no temperature data are omitted."
     ),
     "knockdown_hab": (
-        "Nominal HAB (x) vs. measured pressure (y). The dashed line shows "
-        "expected pressure (water depth − HAB). Instruments below the line were "
-        "knocked down. Interpolated pressure (QC flag 8) excluded."
+        "Measured pressure against height above bottom (HAB) for each instrument "
+        "with a pressure sensor: median and range of the record. The dashed line "
+        "is the pressure expected at the design depth. Points below it were pushed "
+        "deeper by currents (knockdown). Interpolated pressure is excluded."
     ),
     "knockdown_anomaly": (
-        "IQR of pressure anomaly (measured − nominal) per instrument. Positive = "
-        "deeper than design depth. Green < 100 dbar, yellow 100–200, amber "
-        "200–300, red > 300 dbar."
+        "Pressure anomaly (measured minus design pressure) for each instrument: "
+        "the box is the middle 50 % of the record (interquartile range); the "
+        "whiskers reach the furthest values within 1.5 × that range, and the dots "
+        "are the values beyond. Positive means deeper than design. Box colour marks "
+        "the median anomaly: green < 100 dbar, yellow 100–200, amber 200–300, "
+        "red > 300."
     ),
     "knockdown_displacement": (
-        "Estimated horizontal displacement (m) vs. measured pressure. Left: "
-        "scatter per instrument; right: normalised 2-D density across all "
-        "instruments. Displacement derived from the rigid-pendulum "
-        "approximation: x = √(hab_nom² − hab_meas²)."
+        "Horizontal distance each instrument was pushed from its position above "
+        "the anchor, estimated from how far it was pulled down: treating the "
+        "mooring as a straight line pivoting at the anchor, a drop from design "
+        "height H to measured height h gives a displacement of √(H² − h²), so "
+        "small drops mean large displacements; the estimate is rough for moorings "
+        "that bend. Left: each point is one sample — how far down and sideways "
+        "each instrument went, and whether the deep instruments moved with the "
+        "top ones. Right: where each instrument spent its time — the colour of "
+        "each cell is the fraction of that instrument's record at that pressure "
+        "and displacement (each instrument's cells sum to 1)."
     ),
 }
 
@@ -99,11 +112,150 @@ MOORING_CAPTIONS: dict[str, str] = {
 _fig_panel = make_fig_panel(MOORING_CAPTIONS)
 
 
+#: Shown for an instrument marked ``skip: true`` without a ``skip_reason``.
+SKIP_NO_REASON = "skipped (no reason provided in YAML)"
+
 #: Table note for an entry without a hab; the stack omits it for the same reason.
 NO_HAB_NOTE = "not stacked: no hab in the mooring YAML"
 
 #: File types whose records the originator already trimmed (no raw instrument clock).
 _IMPORTED_FILE_TYPES = frozenset({"oceansites", "rodb"})
+
+
+def _trim_note(timing: dict[str, Any]) -> str:
+    """Return how much of an originator's record was cut to the deployment window.
+
+    Parameters
+    ----------
+    timing : dict
+        The instrument's deployment-timing record (:func:`._read._read_timing_info`):
+        ``stage1_start`` / ``stage1_end`` (the originator's record) and
+        ``stage2_start`` / ``stage2_end`` (what was kept), as ``"YYYY-MM-DD HH:MM"``.
+
+    Returns
+    -------
+    str
+        For example ``"12 h at start"`` or ``"30 min at start, 1 h at end"``; ``""``
+        when nothing was cut or the times are missing.
+    """
+    parts = []
+    for first, kept, where, sign in (
+        ("stage1_start", "stage2_start", "start", 1),
+        ("stage1_end", "stage2_end", "end", -1),
+    ):
+        a, b = timing.get(first), timing.get(kept)
+        if not a or not b:
+            continue
+        try:
+            cut = (
+                sign
+                * (
+                    datetime.fromisoformat(b) - datetime.fromisoformat(a)
+                ).total_seconds()
+            )
+        except ValueError:
+            continue
+        if cut > 0:
+            parts.append(f"{_format_seconds(cut)} at {where}")
+    return ", ".join(parts)
+
+
+#: Variables whose every sample carries one of these flags are listed in one line
+#: each under the QC table instead of a row: a row would only repeat "100 %".  Flag
+#: 0 (not checked) is never counted as good.
+_QC_SINGLE_FLAG_LINES: dict[int, str] = {
+    0: "Not checked",
+    7: "Nominal values only",
+    8: "Interpolated throughout",
+}
+
+
+def _qc_table(instruments: list[dict[str, Any]]) -> dict[str, Any]:
+    """Return the deployment's QC summary: only variables with anything not good.
+
+    Parameters
+    ----------
+    instruments : list of dict
+        The instrument records of the deployment report, each with ``qc_summary``
+        (per-variable flag counts from its stage-3 file), ``depth``, ``hab``,
+        ``type_label`` and ``serial``.
+
+    Returns
+    -------
+    dict
+        ``rows`` (one per instrument and variable with a mix of flags or any flag
+        other than good, deepest first), ``flags`` (the flag values present in
+        those rows, each with its word and colour, for the columns and the
+        legend), ``lines`` (variables whose every sample is not checked (0),
+        nominal (7) or interpolated (8): one entry per such flag, with ``label``,
+        ``n`` and ``names``, the variable names each followed by the serials that
+        carry it), ``n_good`` (variables left out because every sample is good) and
+        ``any`` (whether any stage-3 QC file was read).
+    """
+    rows, n_good, present = [], 0, set()
+    single: dict[int, dict[str, list[str]]] = {k: {} for k in _QC_SINGLE_FLAG_LINES}
+    for instr in instruments:
+        for row in instr.get("qc_summary") or []:
+            counts = {f["flag"]: f for f in row["flags"] if f["n"] > 0}
+            if set(counts) <= {1}:
+                n_good += 1
+                continue
+            if len(counts) == 1 and next(iter(counts)) in single:
+                serials = single[next(iter(counts))].setdefault(row["var"], [])
+                serials.append(str(instr.get("serial", "")))
+                continue
+            present.update(counts)
+            rows.append(
+                {
+                    "depth": instr.get("depth"),
+                    "hab": instr.get("hab"),
+                    "type_label": instr.get("type_label", ""),
+                    "serial": instr.get("serial", ""),
+                    "var": row["var"],
+                    "total": row["total"],
+                    # Rounded share as text; a flag present below 0.05 % reads "<0.1".
+                    "pct": {
+                        k: (f"{f['pct']:g}" if f["pct"] >= 0.1 else "<0.1")
+                        for k, f in counts.items()
+                    },
+                    "bar": [f for f in row["flags"] if f["n"] > 0],
+                }
+            )
+    words = {
+        f["flag"]: f
+        for i in instruments
+        for r in i.get("qc_summary") or []
+        for f in r["flags"]
+    }
+    flags = [
+        {"flag": k, "label": words[k]["label"], "color": words[k]["color"]}
+        for k in sorted(present)
+    ]
+    lines = [
+        {
+            "flag": k,
+            "label": _QC_SINGLE_FLAG_LINES[k],
+            "n": sum(len(v) for v in by_var.values()),
+            "names": [f"{var} ({', '.join(sers)})" for var, sers in by_var.items()],
+        }
+        for k, by_var in single.items()
+        if by_var
+    ]
+    return {
+        "rows": rows,
+        "flags": flags,
+        "lines": lines,
+        "n_good": n_good,
+        "any": any(i.get("qc_summary") for i in instruments),
+    }
+
+
+def _read_text(path: Path | None) -> str:
+    """Return a text file's contents, or ``""`` when it cannot be read."""
+    try:
+        return Path(path).read_text(encoding="utf-8") if path else ""
+    except OSError:
+        return ""
 
 
 def _timing_mode(instruments: list[dict]) -> str:
@@ -131,6 +283,9 @@ MOORING_PANELS: dict[str, Panel] = {
             "_mooring_pipeline.html",
             instruments=c["instruments"],
             mooring_name=c["mooring_name"],
+            grid_p_start=c["grid_p_start"],
+            grid_p_end=c["grid_p_end"],
+            yaml_name=c["yaml_name"] or f"{c['mooring_name']}.mooring.yaml",
         ),
         kind="html",
     ),
@@ -140,8 +295,7 @@ MOORING_PANELS: dict[str, Panel] = {
             "_mooring_instruments.html",
             instruments=c["instruments"],
             mooring_name=c["mooring_name"],
-            grid_p_start=c["grid_p_start"],
-            grid_p_end=c["grid_p_end"],
+            stopped_early_hours=STOPPED_EARLY_HOURS,
         ),
         kind="html",
     ),
@@ -164,13 +318,19 @@ MOORING_PANELS: dict[str, Panel] = {
             rec_differs=c["rec_differs"],
             yaml_deploy_time=c["yaml_deploy_time"],
             yaml_recover_time=c["yaml_recover_time"],
+            deploy_time=c["deploy_time"],
+            recover_time=c["recover_time"],
+            any_trimmed=c["any_trimmed"],
         ),
         kind="html",
     ),
     "clock_table": Panel(
         "clock_table",
         render=lambda c: render_template(
-            "_mooring_clock_table.html", instruments=c["instruments"]
+            "_mooring_clock_table.html",
+            instruments=c["instruments"],
+            any_clock_correction=c["any_clock_correction"],
+            timing_mode=c["timing_mode"],
         ),
         kind="html",
     ),
@@ -178,7 +338,9 @@ MOORING_PANELS: dict[str, Panel] = {
     "calibration": Panel(
         "calibration",
         render=lambda c: render_template(
-            "_mooring_calibration.html", instruments=c["instruments"]
+            "_mooring_calibration.html",
+            instruments=c["instruments"],
+            timing_mode=c["timing_mode"],
         ),
         kind="html",
     ),
@@ -192,9 +354,7 @@ MOORING_PANELS: dict[str, Panel] = {
     ),
     "qc": Panel(
         "qc",
-        render=lambda c: render_template(
-            "_mooring_qc.html", instruments=c["instruments"]
-        ),
+        render=lambda c: render_template("_mooring_qc.html", qc=c["qc_table"]),
         kind="html",
     ),
     "knockdown_hab": _fig_panel("knockdown_hab", "fig_knockdown_hab_b64", slot="half"),
@@ -225,14 +385,27 @@ MOORING_PANELS: dict[str, Panel] = {
         kind="html",
         applies_to=lambda c: bool(c.get("issues", {}).get("any")),
     ),
+    "description": Panel(
+        "description",
+        render=lambda c: render_template(
+            "_mooring_description.html",
+            yaml_text=c["yaml_text"],
+            yaml_name=c["yaml_name"],
+            mooring_name=c["mooring_name"],
+        ),
+        kind="html",
+        applies_to=lambda c: bool(c.get("yaml_text")),
+    ),
 }
 
 
-#: Mooring sections, in display order.  Numbering is automatic (``1..N`` over the
-#: rendered subset), replacing the hand-typed "2 —"/"3 —"/… headings.
+#: Mooring sections, in display order: the one place the order is written.  The
+#: instrument summary leads; how the records were processed (pipeline, timing,
+#: clocks) follows it; the mooring description closes the page.  Numbering is
+#: automatic (``1..N`` over the rendered subset).
 MOORING_SECTIONS: dict[str, Section] = {
-    "pipeline": Section("pipeline", "Processing pipeline", ("pipeline",)),
     "instruments": Section("instruments", "Instrument summary", ("instruments",)),
+    "pipeline": Section("pipeline", "Processing pipeline", ("pipeline",)),
     "timing": Section("timing", "Deployment timing", ("timing",)),
     "clock": Section("clock", "Clock corrections", ("clock_table", "clock_check")),
     "calibration": Section(
@@ -247,23 +420,13 @@ MOORING_SECTIONS: dict[str, Section] = {
     ),
     "diagram": Section("diagram", "Mooring diagram", ("diagram",)),
     "issues": Section("issues", "Issues for cruise report", ("issues",)),
+    "description": Section(
+        "description", "Mooring description", ("description",), role="appendix"
+    ),
 }
 
-#: Default mooring profile.
-MOORING_DEFAULT = Profile(
-    numbering="flat",
-    entries=(
-        MOORING_SECTIONS["pipeline"],
-        MOORING_SECTIONS["instruments"],
-        MOORING_SECTIONS["timing"],
-        MOORING_SECTIONS["clock"],
-        MOORING_SECTIONS["calibration"],
-        MOORING_SECTIONS["qc"],
-        MOORING_SECTIONS["knockdown"],
-        MOORING_SECTIONS["diagram"],
-        MOORING_SECTIONS["issues"],
-    ),
-)
+#: Default mooring profile: every section, in the order of :data:`MOORING_SECTIONS`.
+MOORING_DEFAULT = Profile(numbering="flat", entries=tuple(MOORING_SECTIONS.values()))
 
 
 # ---------------------------------------------------------------------------
@@ -283,14 +446,12 @@ def _build_issues(
 
     for instr in instruments:
         serial = instr.get("serial", "?")
-        itype = instr.get("instr_type", "?")
+        itype = instr.get("type_label") or instr.get("instr_type", "?")
         depth = instr.get("depth")
         depth_str = f"{int(round(depth))} m" if depth is not None else "? m"
 
         if instr.get("skipped"):
-            reason = instr.get("skip_reason") or "no raw file"
-            if not instr.get("raw_exists") and not instr.get("skip_reason"):
-                reason = "no raw file"
+            reason = instr.get("skip_reason") or SKIP_NO_REASON
             skipped_list.append(
                 {
                     "serial": serial,
@@ -717,12 +878,13 @@ class MooringReport:
                         recover_dt.replace(tzinfo=None).isoformat(), "ns"
                     )
                     gap_s = float((rec_np - t_end_raw) / np.timedelta64(1, "s"))
-                    stopped_early = gap_s > 12 * 3600
+                    stopped_early = gap_s > STOPPED_EARLY_HOURS * 3600
 
             instruments.append(
                 {
                     "serial": serial,
                     "instr_type": instr_type,
+                    "type_label": _type_label(instr_type),
                     "hab": hab,
                     "no_hab_note": NO_HAB_NOTE if hab is None else "",
                     "depth": depth,
@@ -745,7 +907,7 @@ class MooringReport:
                     ),
                     "stopped_early": stopped_early,
                     "skipped": bool(entry.get("skip")),
-                    "skip_reason": entry.get("skip_reason", ""),
+                    "skip_reason": entry.get("skip_reason", "") or SKIP_NO_REASON,
                     # Where stage files are looked for; named in the table when none is
                     # found, so the reader sees what was searched rather than a guess at
                     # why (not processed yet, wrong proc_dir, in-memory run).
@@ -778,6 +940,11 @@ class MooringReport:
 
         # Entries without a hab sort last.
         instruments.sort(key=lambda x: (x["hab"] is None, x["hab"] or 0.0))
+        for _instr in instruments:
+            _nc = _instr.get("nc") or {}
+            _instr["interval_label"] = _format_seconds(_nc.get("dt_s"))
+            _instr["trim_note"] = _trim_note(_instr.get("timing") or {})
+        any_trimmed = any(i["trim_note"] for i in instruments)
 
         # Compute recommended --pmin / --pmax for `oceanarray run`.
         # Collect finite min/max pressure values from instruments that have real
@@ -901,14 +1068,17 @@ class MooringReport:
                 import xarray as _xr
 
                 with _xr.open_dataset(stack_nc) as _ds_kd:
+                    # Design pressures and measured records, built once for the
+                    # three knockdown figures.
+                    _kd = build_knockdown(_ds_kd)
                     fig_knockdown_hab_b64 = _figdebug.as_panel(
-                        lambda: _make_knockdown_hab_b64(_ds_kd)
+                        lambda: _make_knockdown_hab_b64(_ds_kd, _kd)
                     )
                     fig_knockdown_anomaly_b64 = _figdebug.as_panel(
-                        lambda: _make_knockdown_anomaly_b64(_ds_kd)
+                        lambda: _make_knockdown_anomaly_b64(_ds_kd, _kd)
                     )
                     fig_knockdown_displacement_b64 = _figdebug.as_panel(
-                        lambda: _make_knockdown_displacement_b64(_ds_kd)
+                        lambda: _make_knockdown_displacement_b64(_ds_kd, _kd)
                     )
             except Exception:
                 pass
@@ -925,10 +1095,16 @@ class MooringReport:
             "waterdepth": waterdepth if waterdepth is not None else "—",
             "instruments": instruments,
             "qc_threshold_note": _qcflags.threshold_note(cfg),
+            "qc_table": _qc_table(instruments),
+            "any_trimmed": any_trimmed,
+            "yaml_text": _read_text(yaml_path),
+            "yaml_name": yaml_path.name if yaml_path else "",
             "timing_mode": _timing_mode(instruments),
             # Optional report sections turned on in the config. A standalone mooring
             # report resolves from the mooring YAML (the strongest level reachable here).
             "report_sections_grid": _mooring.resolve_report_sections("grid", cfg),
+            # Extra periods marked on the grid page's spectra.
+            "spectrum_markers": _mooring.resolve_spectrum_markers(cfg),
             "rec_deploy": rec_deploy,
             "rec_recover": rec_recover,
             "rec_deploy_sec": rec_deploy_sec,

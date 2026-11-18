@@ -1,72 +1,65 @@
-{# QC-flag legend + per-variable flag-count table with inline bar charts.  The
-   `qc` panel payload (kind="html").  The `.qc-bar`/`.qc-legend` style block
-   moved to mooring.html page_styles. #}
+{# QC flag summary: the share of each variable's samples in each quality class,
+   listing only variables with anything not flagged good.  The `qc` panel payload
+   (kind="html"); columns and legend come from the flag values present, so they
+   always match.  `.qc-bar`/`.qc-legend` styles are in mooring.html. #}
+{% import "_mooring_cols.html" as cols %}
+{# One line per flag that covers a variable's whole record (not checked, nominal,
+   interpolated): "Not checked (2): temperature (2941), pressure (2941)". #}
+{% macro single_lines(qc) %}
+{%- for line in qc.lines %}
+<p class="one-line">{{ line.label }} ({{ line.n }}): {{ line.names | join(", ") }}.</p>
+{%- endfor %}
+{% endmacro %}
+{% if not qc.any %}
+<p class="one-line">No checked (stage&nbsp;3) files found for this deployment.</p>
+{% elif not qc.rows and not qc.lines %}
+<p class="one-line">All variables ({{ qc.n_good }}): 100&nbsp;% good.</p>
+{% elif not qc.rows %}
+{{ single_lines(qc) }}
+{% if qc.n_good %}<p class="one-line">All other variables ({{ qc.n_good }}): 100&nbsp;% good.</p>{% endif %}
+{% else %}
+<p class="caption">
+  Share of each variable's samples in each quality class, on the OceanSITES flag scale
+  used throughout these pages; the originator's flags are translated by their meaning.
+  Only variables with anything not flagged good are listed. HAB: height above bottom.
+</p>
 <div class="qc-legend">
-  <span style="background:var(--good)"></span>good&nbsp;(1)
-  <span style="background:var(--qc-good2)"></span>prob.&nbsp;good&nbsp;(2)
-  <span style="background:var(--qc-suspect3)"></span>suspect&nbsp;(3)
-  <span style="background:var(--qc-bad4)"></span>bad&nbsp;(4)
-  <span style="background:var(--qc-interp8)"></span>interp.&nbsp;(8)
-  <span style="background:var(--qc-missing9)"></span>missing&nbsp;(9)
+  {% for f in qc.flags %}<span style="background:{{ f.color }}"></span>{{ f.label }}&nbsp;({{ f.flag }}) {% endfor %}
 </div>
-{% set has_qc = instruments | selectattr("qc_summary") | list %}
-{% if has_qc %}
 <table>
   <thead>
     <tr>
-      <th>#</th>
+      {{ cols.depth_heads() }}
       <th>Type</th>
-      <th>S/N</th>
+      <th>Serial</th>
       <th>Variable</th>
-      <th class="num">N</th>
-      <th class="num">Good&nbsp;%</th>
-      <th class="num">Suspect&nbsp;%</th>
-      <th class="num">Bad&nbsp;%</th>
-      <th class="num">Interp.&nbsp;%</th>
-      <th class="num">Missing&nbsp;%</th>
+      {{ cols.th("Samples", "", true) }}
+      {% for f in qc.flags %}{{ cols.th(f.label | capitalize, "%", true) }}{% endfor %}
       <th>Distribution</th>
     </tr>
   </thead>
   <tbody>
-    {% set ns = namespace(idx=0) %}
-    {% for instr in instruments %}
-      {% if instr.qc_summary %}
-        {% set ns.idx = ns.idx + 1 %}
-        {% for row in instr.qc_summary %}
-        {% set good   = row.flags | selectattr("flag", "eq", 1) | first %}
-        {% set susp   = row.flags | selectattr("flag", "eq", 3) | first %}
-        {% set bad    = row.flags | selectattr("flag", "eq", 4) | first %}
-        {% set interp = row.flags | selectattr("flag", "eq", 8) | first %}
-        {% set miss   = row.flags | selectattr("flag", "eq", 9) | first %}
-        <tr>
-          <td class="num">{% if loop.index0 == 0 %}{{ ns.idx }}{% endif %}</td>
-          <td>{% if loop.index0 == 0 %}{{ instr.instr_type }}{% endif %}</td>
-          <td>{% if loop.index0 == 0 %}<code>{{ instr.serial }}</code>{% endif %}</td>
-          <td><code>{{ row.var }}</code></td>
-          <td class="num">{{ "{:,}".format(row.total) }}</td>
-          <td class="num" style="color:{% if good.pct >= 95 %}var(--good){% elif good.pct >= 80 %}var(--warn){% else %}var(--bad){% endif %}">
-            {{ good.pct }}
-          </td>
-          <td class="num">{% if susp.pct > 0 %}<span style="color:var(--warn)">{{ susp.pct }}</span>{% else %}&ndash;{% endif %}</td>
-          <td class="num">{% if bad.pct > 0 %}<span style="color:var(--bad)">{{ bad.pct }}</span>{% else %}&ndash;{% endif %}</td>
-          <td class="num">{% if interp.pct > 0 %}<span style="color:var(--interp)">{{ interp.pct }}</span>{% else %}&ndash;{% endif %}</td>
-          <td class="num">{% if miss.pct > 0 %}{{ miss.pct }}{% else %}&ndash;{% endif %}</td>
-          <td>
-            <div class="qc-bar">
-              {% for f in row.flags %}
-                {% if f.pct > 0 %}
-                <div style="width:{{ f.pct }}%; background:{{ f.color }};"
-                     title="{{ f.label }}: {{ f.pct }}%"></div>
-                {% endif %}
-              {% endfor %}
-            </div>
-          </td>
-        </tr>
-        {% endfor %}
-      {% endif %}
+    {% for row in qc.rows %}
+    <tr>
+      {{ cols.depth_cells(row) }}
+      <td>{{ row.type_label }}</td>
+      <td><code>{{ row.serial }}</code></td>
+      <td><code>{{ row.var }}</code></td>
+      <td class="num">{{ "{:,}".format(row.total) }}</td>
+      {% for f in qc.flags %}
+      <td class="num">{% if row.pct.get(f.flag) %}<span style="color:{{ f.color }}">{{ row.pct[f.flag] }}</span>{% else %}&ndash;{% endif %}</td>
+      {% endfor %}
+      <td>
+        <div class="qc-bar">
+          {% for f in row.bar %}
+          <div style="width:{{ f.pct }}%; background:{{ f.color }};" title="{{ f.label }}: {{ f.pct }}%"></div>
+          {% endfor %}
+        </div>
+      </td>
+    </tr>
     {% endfor %}
   </tbody>
 </table>
-{% else %}
-<p class="none-note">No stage&nbsp;3 QC files found — run <code>oceanarray stage3</code> first.</p>
+{{ single_lines(qc) }}
+{% if qc.n_good %}<p class="one-line">All other variables ({{ qc.n_good }}): 100&nbsp;% good.</p>{% endif %}
 {% endif %}

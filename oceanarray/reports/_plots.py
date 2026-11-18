@@ -18,8 +18,8 @@ from ..plotters.current import (
     draw_adcp_rose,
     draw_adcp_velocity,
     draw_grid_hodograph,
+    draw_grid_progressive_vector,
     draw_grid_rose,
-    draw_grid_trajectory,
     draw_instrument_rose,
     draw_rose_grid,
 )
@@ -56,6 +56,7 @@ from ..plotters.timeseries import (
     draw_analog_timeseries,
     draw_grid_hydro,
     draw_grid_n2,
+    draw_grid_potential_density,
     draw_grid_sigma,
     draw_grid_timeseries,
     draw_grid_velocity_stacked,
@@ -102,7 +103,7 @@ _DOT_LINE_VARS: frozenset = frozenset({"turbidity"})
 
 
 # _instrument_panels is imported from plotters.diagnostic (single definition) —
-# it was previously duplicated here (U8).
+# it was previously duplicated here.
 
 
 # ---------------------------------------------------------------------------
@@ -391,25 +392,63 @@ def _make_grid_sigma_b64(ds: xr.Dataset) -> str | None:
     return render_slot(draw_grid_sigma, ds, optional=True)
 
 
+def _make_grid_potential_density_b64(
+    ds: xr.Dataset,
+    reference: str = "sigma0",
+    derived: Any = None,
+    scale: Any = None,
+    density: Any = None,
+) -> str | None:
+    """Return base64 PNG: one potential-density section (σ0 or σ2) over the column."""
+    return render_slot(
+        draw_grid_potential_density,
+        ds,
+        reference,
+        derived=derived,
+        density=density,
+        scale=scale,
+        optional=True,
+    )
+
+
 def _make_grid_hydro_b64(
     ds: xr.Dataset,
     var_bounds: dict | None = None,
+    instrument_pressures: Any = None,
+    scale: Any = None,
 ) -> str | None:
-    """Return base64 PNG: stacked temperature / salinity pcolormesh panels."""
-    return render_slot(draw_grid_hydro, ds, var_bounds, optional=True)
+    """Return base64 PNG: stacked temperature / practical-salinity sections."""
+    return render_slot(
+        draw_grid_hydro,
+        ds,
+        var_bounds,
+        instrument_pressures=instrument_pressures,
+        scale=scale,
+        optional=True,
+    )
 
 
-def _make_grid_velocity_stacked_b64(ds: xr.Dataset) -> str | None:
-    """Stacked east / north / up velocity pcolormesh panels for the grid report."""
-    return render_slot(draw_grid_velocity_stacked, ds, optional=True)
+def _make_grid_velocity_stacked_b64(
+    ds: xr.Dataset, instrument_pressures: Any = None, scale: Any = None
+) -> str | None:
+    """Eastward / northward / upward velocity sections for the grid report."""
+    return render_slot(
+        draw_grid_velocity_stacked,
+        ds,
+        instrument_pressures=instrument_pressures,
+        scale=scale,
+        optional=True,
+    )
 
 
 def _make_spectrum_b64(
     da_temp: xr.DataArray,
     dt_seconds: float,
     lat: float = 0.0,
-    hf_segment_days: float = 1.0,
-    hf_x_max_days: float = 3.0,
+    hf_segment_days: float = 7.0,
+    hf_x_max_days: float = 2.0,
+    levels: list[int] | None = None,
+    markers: Any = (),
 ) -> str | None:
     """Return base64 PNG: two-panel Welch PSD of gridded temperature."""
     return render_b64(
@@ -419,6 +458,8 @@ def _make_spectrum_b64(
         lat,
         hf_segment_days,
         hf_x_max_days,
+        levels=levels,
+        markers=markers,
         optional=True,
     )
 
@@ -427,17 +468,29 @@ def _make_wavelet_b64(
     da_temp: xr.DataArray,
     dt_seconds: float,
     wavelet: str = "morlet",
+    levels: list[int] | None = None,
 ) -> str | None:
     """Return base64 PNG: continuous wavelet transform scalogram for gridded temperature."""
-    return render_b64(draw_wavelet, da_temp, dt_seconds, wavelet, optional=True)
+    return render_b64(
+        draw_wavelet, da_temp, dt_seconds, wavelet, levels=levels, optional=True
+    )
 
 
 def _make_grid_rotary_spectrum_b64(
     ds: xr.Dataset,
     lat: float = 0.0,
+    levels: list[int] | None = None,
+    markers: Any = (),
 ) -> str | None:
     """Return base64 PNG: two-panel rotary velocity spectrum for the grid report."""
-    return render_b64(draw_grid_rotary_spectrum, ds, lat, optional=True)
+    return render_b64(
+        draw_grid_rotary_spectrum,
+        ds,
+        lat,
+        levels=levels,
+        markers=markers,
+        optional=True,
+    )
 
 
 def _make_flag_strip_b64(ds: xr.Dataset) -> str | None:
@@ -447,9 +500,9 @@ def _make_flag_strip_b64(ds: xr.Dataset) -> str | None:
     return render_slot(draw_flag_strip, ds, slot="full", optional=True)
 
 
-def _make_stack_ts_diagram_b64(ds: xr.Dataset) -> str | None:
-    """Return base64 PNG: T-S diagram for a stacked dataset."""
-    return render_b64(draw_stack_ts_diagram, ds, optional=True)
+def _make_stack_ts_diagram_b64(ds: xr.Dataset, derived: Any = None) -> str | None:
+    """Return base64 PNG: T-S diagram for a stacked dataset (*derived*: the page's)."""
+    return render_b64(draw_stack_ts_diagram, ds, derived=derived, optional=True)
 
 
 # ---------------------------------------------------------------------------
@@ -463,13 +516,13 @@ def _make_instrument_rose_b64(nc_path: Path) -> str | None:
 
 
 def _make_grid_ts_diagram_b64_and_limits(
-    ds: xr.Dataset, n_bins: int = 60
+    ds: xr.Dataset, n_bins: int = 60, derived: Any = None
 ) -> tuple[str | None, dict]:
     """Return (b64_str_or_None, bounds_dict): T-S diagram for gridded mooring data."""
     ts_bounds: dict = {}
 
     def _draw(*, width_in: float = report_tokens.W_FULL) -> plt.Figure | None:
-        result = draw_grid_ts_diagram(ds, n_bins, width_in=width_in)
+        result = draw_grid_ts_diagram(ds, n_bins, width_in=width_in, derived=derived)
         if result is None:
             return None
         nonlocal ts_bounds
@@ -478,7 +531,7 @@ def _make_grid_ts_diagram_b64_and_limits(
 
     # Displayed at half width (template slot-half); rendering at that width keeps
     # the PNG px == display px.  With O₂ the diagram gains a panel but the page
-    # still shows it at half — same as before U0.2, now without the oversample.
+    # still shows it at half — now without the oversample.
     return (
         render_slot(
             _draw, slot="half", optional=True, source=source_for(draw_grid_ts_diagram)
@@ -487,14 +540,16 @@ def _make_grid_ts_diagram_b64_and_limits(
     )
 
 
-def _make_velocity_iqr_profile_b64(ds: xr.Dataset) -> str | None:
-    """Return base64 PNG: percentile-profile figure for gridded ADCP velocity data."""
-    return render_b64(draw_velocity_iqr_profile, ds, optional=True)
+def _make_velocity_iqr_profile_b64(ds: xr.Dataset, scale: Any = None) -> str | None:
+    """Return base64 PNG: percentile profiles of gridded velocity, at the page's scale."""
+    return render_b64(draw_velocity_iqr_profile, ds, scale=scale, optional=True)
 
 
-def _make_grid_n2_b64(ds: xr.Dataset, lat: float = 0.0) -> str | None:
-    """Compute and plot buoyancy frequency squared N² on the pressure-time grid."""
-    return render_slot(draw_grid_n2, ds, lat, optional=True)
+def _make_grid_n2_b64(
+    ds: xr.Dataset, lat: float = 0.0, derived: Any = None
+) -> str | None:
+    """Plot buoyancy frequency squared N² on the pressure-time grid."""
+    return render_slot(draw_grid_n2, ds, lat, derived=derived, optional=True)
 
 
 def _make_rose_grid_b64(
@@ -515,19 +570,21 @@ def _make_rose_grid_b64(
     return render_b64(_draw, optional=True, source=source_for(draw_rose_grid)), n_panels
 
 
-def _make_grid_rose_b64(ds: xr.Dataset, max_roses: int = 4) -> str | None:
-    """Grid of current roses, one per pressure level, for the grid report."""
-    return render_b64(draw_grid_rose, ds, max_roses, optional=True)
+def _make_grid_rose_b64(
+    ds: xr.Dataset, max_roses: int = 4, levels: list[int] | None = None
+) -> str | None:
+    """Return base64 PNG: current roses at grid levels (the stack page's design)."""
+    return render_b64(draw_grid_rose, ds, max_roses, levels=levels, optional=True)
 
 
-def _make_grid_trajectory_b64(ds: xr.Dataset) -> str | None:
-    """Pseudo-Lagrangian trajectory by pressure level for the grid report."""
-    return render_slot(draw_grid_trajectory, ds, slot="half", optional=True)
+def _make_grid_progressive_vector_b64(ds: xr.Dataset) -> str | None:
+    """Progressive vector diagram by pressure level for the grid report."""
+    return render_slot(draw_grid_progressive_vector, ds, slot="half", optional=True)
 
 
-def _make_grid_timeseries_b64(ds: xr.Dataset) -> str | None:
+def _make_grid_timeseries_b64(ds: xr.Dataset, derived: Any = None) -> str | None:
     """Return base64 PNG: velocity time series at depth of maximum mean speed."""
-    return render_b64(draw_grid_timeseries, ds, optional=True)
+    return render_b64(draw_grid_timeseries, ds, derived=derived, optional=True)
 
 
 def _make_isopycnal_ts_b64(ds_iso: xr.Dataset) -> str | None:
@@ -596,11 +653,13 @@ def _make_hodograph_b64(nc_path: str) -> str | None:
     return render_b64(_draw, source=source_for(draw_hodograph))
 
 
-def _make_multi_aquadopp_trajectories_b64(ds: xr.Dataset) -> str | None:
-    """Multi-instrument Aquadopp trajectory plot coloured by temperature, stack page."""
-    from oceanarray.plotters.current import draw_multi_aquadopp_trajectories
+def _make_multi_aquadopp_progressive_vector_b64(ds: xr.Dataset) -> str | None:
+    """Return base64 PNG: the Aquadopps' progressive vector diagram, stack page."""
+    from oceanarray.plotters.current import draw_multi_aquadopp_progressive_vector
 
-    return render_slot(draw_multi_aquadopp_trajectories, ds, slot="half", optional=True)
+    return render_slot(
+        draw_multi_aquadopp_progressive_vector, ds, slot="half", optional=True
+    )
 
 
 def _make_stack_timeseries_b64(
@@ -625,21 +684,27 @@ def _make_stack_timeseries_b64(
     )
 
 
-def _make_ts_by_deployment_b64(ds: xr.Dataset) -> str | None:
-    """T-S scatter colored by deployment, half width, for the concatenated page."""
-    return render_slot(draw_ts_by_deployment, ds, slot="half", optional=True)
+def _make_ts_by_deployment_b64(ds: xr.Dataset, derived: Any = None) -> str | None:
+    """T-S outlines by deployment, half width, for the concatenated page."""
+    return render_slot(
+        draw_ts_by_deployment, ds, derived=derived, slot="half", optional=True
+    )
 
 
-def _make_ts_points_by_deployment_b64(ds: xr.Dataset) -> str | None:
+def _make_ts_points_by_deployment_b64(
+    ds: xr.Dataset, derived: Any = None
+) -> str | None:
     """Render the thinned T-S point cloud by deployment, half width, for the concatenated page."""
     from oceanarray.plotters.ts import draw_ts_points_by_deployment
 
-    return render_slot(draw_ts_points_by_deployment, ds, slot="half", optional=True)
+    return render_slot(
+        draw_ts_points_by_deployment, ds, derived=derived, slot="half", optional=True
+    )
 
 
-def _make_ts_medians_b64(ds: xr.Dataset) -> str | None:
+def _make_ts_medians_b64(ds: xr.Dataset, derived: Any = None) -> str | None:
     """T-S medians with IQR whiskers per level, half width, for the concatenated page."""
-    return render_slot(draw_ts_medians, ds, slot="half", optional=True)
+    return render_slot(draw_ts_medians, ds, derived=derived, slot="half", optional=True)
 
 
 def _make_rose_outlines_b64(ds: xr.Dataset) -> str | None:
@@ -750,11 +815,11 @@ def _make_aquadopp_speed_profile_b64(ds: xr.Dataset) -> str | None:
     return render_slot(draw_aquadopp_speed_profile, ds, slot="half", optional=True)
 
 
-def _make_adcp_trajectories_b64(ds: xr.Dataset) -> str | None:
-    """Per-bin ADCP particle trajectories coloured by HAB, for stack page."""
-    from oceanarray.plotters.current import draw_adcp_trajectories
+def _make_adcp_progressive_vector_b64(ds: xr.Dataset) -> str | None:
+    """Return base64 PNG: the ADCP bins' progressive vector diagram, stack page."""
+    from oceanarray.plotters.current import draw_adcp_progressive_vector
 
-    return render_slot(draw_adcp_trajectories, ds, slot="half", optional=True)
+    return render_slot(draw_adcp_progressive_vector, ds, slot="half", optional=True)
 
 
 def _make_adcp_velocity_b64(nc_path: str) -> str | None:
@@ -776,9 +841,13 @@ def _make_adcp_hodograph_b64(
     )
 
 
-def _make_grid_hodograph_b64(ds: xr.Dataset, smooth_hours: float = 24.0) -> str | None:
-    """Return base64 PNG: two-depth hodograph for the grid report."""
-    return render_b64(draw_grid_hodograph, ds, smooth_hours, optional=True)
+def _make_grid_hodograph_b64(
+    ds: xr.Dataset, smooth_hours: float = 24.0, levels: list[int] | None = None
+) -> str | None:
+    """Return base64 PNG: hodographs at the current roses' grid levels."""
+    return render_b64(
+        draw_grid_hodograph, ds, smooth_hours, levels=levels, optional=True
+    )
 
 
 def _make_analog_timeseries_b64(nc_path: Path, analog_vars: list[str]) -> str | None:
@@ -788,25 +857,33 @@ def _make_analog_timeseries_b64(nc_path: Path, analog_vars: list[str]) -> str | 
     return render_b64(draw_analog_timeseries, nc_path, analog_vars, optional=True)
 
 
-def _make_knockdown_hab_b64(ds: xr.Dataset) -> str | None:
-    """IQR of measured HAB vs. nominal HAB, for the stack report."""
+def _make_knockdown_hab_b64(ds: xr.Dataset, knockdown: Any = None) -> str | None:
+    """IQR of measured HAB vs. nominal HAB, for the stack report; *knockdown* is the report's shared input."""
     from oceanarray.plotters.diagnostic import draw_knockdown_hab
 
-    return render_slot(draw_knockdown_hab, ds, slot="half", optional=True)
+    return render_slot(
+        draw_knockdown_hab, ds, knockdown=knockdown, slot="half", optional=True
+    )
 
 
-def _make_knockdown_displacement_b64(ds: xr.Dataset) -> str | None:
-    """Scatter of estimated horizontal displacement vs. measured pressure."""
+def _make_knockdown_displacement_b64(
+    ds: xr.Dataset, knockdown: Any = None
+) -> str | None:
+    """Scatter of estimated horizontal displacement vs. measured pressure; *knockdown* is the report's shared input."""
     from oceanarray.plotters.diagnostic import draw_knockdown_displacement
 
-    return render_slot(draw_knockdown_displacement, ds, slot="full", optional=True)
+    return render_slot(
+        draw_knockdown_displacement, ds, knockdown=knockdown, slot="full", optional=True
+    )
 
 
-def _make_knockdown_anomaly_b64(ds: xr.Dataset) -> str | None:
-    """Per-instrument IQR of pressure anomaly (measured − nominal), stack report."""
+def _make_knockdown_anomaly_b64(ds: xr.Dataset, knockdown: Any = None) -> str | None:
+    """Per-instrument IQR of pressure anomaly (measured − nominal), stack report; *knockdown* is the report's shared input."""
     from oceanarray.plotters.diagnostic import draw_knockdown_anomaly
 
-    return render_slot(draw_knockdown_anomaly, ds, slot="half", optional=True)
+    return render_slot(
+        draw_knockdown_anomaly, ds, knockdown=knockdown, slot="half", optional=True
+    )
 
 
 def _make_clock_check_b64(

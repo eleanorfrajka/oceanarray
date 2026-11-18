@@ -13,6 +13,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+import numpy as np
+
 from oceanarray import paths
 
 from ._vendored.page_model import Panel
@@ -72,29 +74,100 @@ def _format_dt(dt: datetime | None, fmt: str = "%Y-%m-%d %H:%M UTC") -> str:
     return dt.strftime(fmt) if dt else "—"
 
 
+#: Anchor of the "Mooring description" section on a deployment page.
+DESCRIPTION_ANCHOR = "description"
+
+
+def description_links(ctx: Mapping[str, Any]) -> list[tuple[str, str]]:
+    """Return the link from a stack or grid page to its mooring description.
+
+    Parameters
+    ----------
+    ctx : mapping
+        The deployment page context: ``mooring_name`` and ``yaml_text`` (the
+        mooring YAML shown in the deployment page's "Mooring description"
+        section).
+
+    Returns
+    -------
+    list of (str, str)
+        One ``(mooring name, href)`` pair pointing at that section of the
+        deployment page beside this one; empty when the deployment page has no
+        description section.
+    """
+    name = ctx.get("mooring_name")
+    if not name or not ctx.get("yaml_text"):
+        return []
+    return [(str(name), f"{name}_report.html#{DESCRIPTION_ANCHOR}")]
+
+
+#: A record ending more than this many hours before recovery counts as stopped early
+#: (shaded in the instrument summary, whose caption states the rule; counted on the
+#: array page).
+STOPPED_EARLY_HOURS = 12
+
 #: Mean month length in days, for the month form of a duration.
 _DAYS_PER_MONTH = 30.44
 #: Spans shorter than this many days (6 months of 30.44 d) print as days and hours.
 _MONTH_FORM_DAYS = 182.6
 
 
-def _format_duration(start: datetime | None, end: datetime | None) -> str:
-    """Return a span as ``13d 15h`` under 182.6 days, else ``11.2mon`` or ``1y 10.0mon``."""
-    # Months are 30.44 d and carry one decimal; the year split is taken on the rounded
-    # tenths, so no string reads "12.0mon" or "1y 12.0mon". A negative span is "—".
-    if start is None or end is None:
+def _format_seconds(seconds: float | None) -> str:
+    """Return a duration in seconds as text, in the units that suit its length.
+
+    Parameters
+    ----------
+    seconds : float or None
+        Duration in seconds.
+
+    Returns
+    -------
+    str
+        Under a day the largest whole units: ``"1 h"``, ``"15 min"``,
+        ``"2 h 30 min"``, ``"30 s"``.  Under 182.6 days, days and hours
+        (``"13d 15h"``); longer, months of 30.44 d with one decimal (``"11.2mon"``)
+        or years and months (``"1y 10.0mon"``).  ``"—"`` when the value is
+        missing, not finite or negative.
+    """
+    # The year split is taken on the rounded tenths, so no string reads "12.0mon".
+    if seconds is None or not np.isfinite(seconds) or seconds < 0:
         return "—"
-    delta = end - start
-    if delta.total_seconds() < 0:
-        return "—"
-    days = delta.total_seconds() / 86400
+    s = int(round(seconds))
+    if s < 86400:
+        if s >= 3600:
+            h, m = divmod(s // 60, 60)
+            return f"{h} h" + (f" {m} min" if m else "")
+        if s >= 60:
+            m, r = divmod(s, 60)
+            return f"{m} min" + (f" {r} s" if r else "")
+        return f"{s} s"
+    days = seconds / 86400
     if days < _MONTH_FORM_DAYS:
-        hours, _ = divmod(delta.seconds, 3600)
-        return f"{delta.days}d {hours}h"
+        d, rest = divmod(s, 86400)
+        return f"{d}d {rest // 3600}h"
     tenths = round(days / _DAYS_PER_MONTH * 10)
     years, tenths = divmod(tenths, 120)
     months = f"{tenths / 10:.1f}mon"
     return f"{years}y {months}" if years else months
+
+
+def _format_duration(start: datetime | None, end: datetime | None) -> str:
+    """Return the span between two times as text (see :func:`_format_seconds`).
+
+    Parameters
+    ----------
+    start, end : datetime or None
+        Start and end of the span.
+
+    Returns
+    -------
+    str
+        For example ``"13d 15h"``, ``"11.2mon"`` or ``"12 h"``; ``"—"`` when either
+        time is missing or the span is negative.
+    """
+    if start is None or end is None:
+        return "—"
+    return _format_seconds((end - start).total_seconds())
 
 
 def _format_clock(s: str | None) -> str | None:

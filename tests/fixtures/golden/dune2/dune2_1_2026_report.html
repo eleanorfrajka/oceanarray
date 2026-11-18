@@ -359,6 +359,9 @@ p, li { max-width: none; }
 .report-footer { margin-top:3rem; font-size:var(--fs-cap); color:var(--muted);
                  border-top:1px solid var(--rule); padding-top:0.8rem;
                  text-align:center; }
+.report-footer a { color:inherit; }
+.see-also { font-size:var(--fs-cap); color:var(--muted); margin:0.4rem 0 0.2rem; }
+.see-also a { color:var(--ocean); }
 .jump-nav a { color:var(--ocean); text-decoration:none; font-weight:600;
               margin:0 0.5rem 0 0; white-space:nowrap; }
 .jump-nav a:hover { text-decoration:underline; }
@@ -398,7 +401,17 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 .debug { font-family:var(--font-mono); font-size:var(--fs-top); color:var(--muted);
          background:var(--seafoam); border-left:3px solid var(--muted);
          padding:0.2rem 0.5rem; margin:0 0 1rem; white-space:pre-wrap; }
+/* Expand-all button under the jump-nav (_expand_all.html). */
+.expand-all-bar { display:flex; justify-content:space-between; align-items:baseline; gap:0.8rem;
+  margin:0.2rem 0 0.6rem; }
+.expand-all-bar .see-also { margin:0; }
+button.expand-all { margin-left:auto; font:inherit; font-size:var(--fs-cap); color:var(--ocean);
+  background:var(--seafoam); border:1px solid var(--rule); border-radius:var(--radius-btn);
+  padding:0.1rem 0.6rem; cursor:pointer; }
+button.expand-all:hover { text-decoration:underline; }
+button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset:2px; }
 @media print {
+  button.expand-all { display:none; }
   body { padding:0; }
   h2 { page-break-after:avoid; }
   figure, table, .card { break-inside:avoid; }
@@ -475,6 +488,20 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
   }
   .qc-legend span { display: inline-block; width: 10px; height: 10px;
                     border-radius: 2px; vertical-align: middle; margin-right: 3px; }
+  /* Instrument tables: units on their own line under the column name, so the
+     columns stay narrow; header text wraps. */
+  th { vertical-align: bottom; }
+  .th-unit { display: block; font-weight: 400; font-size: 0.72rem; opacity: 0.85; }
+  .serial { font-family: monospace; font-size: 0.85rem; }
+  /* Processing detail, collapsed by default. */
+  details.processing > summary { cursor: pointer; color: var(--interp); font-size: 0.82rem; margin: 0.2rem 0 0.6rem; }
+  /* One-line sections: shown directly, nothing to expand. */
+  p.one-line { font-size: 0.88rem; color: var(--gray-5); }
+  /* Mooring description: the YAML in a copyable box. */
+  details.yaml-box > summary { cursor: pointer; color: var(--interp); font-size: 0.82rem; margin-bottom: 0.4rem; }
+  .yaml-box pre { background: var(--gray-1); border: 1px solid var(--rule); border-radius: 4px;
+                  padding: 0.6em 0.9em; font-size: 0.78rem; max-height: 32rem; overflow: auto; }
+  .yaml-box button { font-size: 0.78rem; margin: 0 0 0.4rem; cursor: pointer; }
 
 </style>
 
@@ -529,8 +556,8 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 
 
 <nav class="jump-nav">
-<a href="#pipeline">(1) Processing pipeline</a>
-<a href="#instruments">(2) Instrument summary</a>
+<a href="#instruments">(1) Instrument summary</a>
+<a href="#pipeline">(2) Processing pipeline</a>
 <a href="#timing">(3) Deployment timing</a>
 <a href="#clock">(4) Clock corrections</a>
 <a href="#calibration">(5) Sensor calibration</a>
@@ -538,163 +565,32 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 <a href="#knockdown">(7) Mooring knockdown</a>
 <a href="#diagram">(8) Mooring diagram</a>
 <a href="#issues">(9) Issues for cruise report</a>
+<a href="#description">(A) Mooring description</a>
 </nav>
+<div class="expand-all-bar">
+<button type="button" class="expand-all" aria-expanded="false" hidden>Expand all</button></div>
 
-<h2 id="pipeline">(1) Processing pipeline</h2>
+<h2 id="instruments">(1) Instrument summary</h2>
 
 
-<p style="font-size:0.82rem;color:var(--gray-5);margin-top:-0.5rem;">
-  Raw = file present in raw directory &bull;
-  Read = format check passed &bull;
-  Stage&nbsp;1–3 = processed NetCDF files exist &bull;
-  Stack = mooring-level <code>_stack.nc</code> &bull;
-  Grid = pressure-gridded <code>_grid.nc</code>
-</p>
-<p style="font-size:0.82rem;color:var(--gray-5);margin-top:-0.3rem;">
-  Instruments marked <code>skip: true</code> in the YAML are excluded from all
-  processing and are shown with a <em>skipped</em> note in the Note column.
-  Stack and Grid pills are grey for any instrument that did not reach Stage&nbsp;3.
-  See <a href="#instruments">the instrument summary</a> for skip reasons where given.
+
+<p class="caption">
+  One row per instrument: what it measured, when, and over what pressure range.
+  Badges: T temperature, C conductivity, P pressure, U/V eastward/northward velocity;
+  a blue P means pressure was interpolated from neighbouring instruments rather than
+  measured. HAB: height above bottom.
 </p>
 <table>
   <thead>
     <tr>
-      <th>#</th>
+      <th class="num">Nominal depth<span class="th-unit">m</span></th><th class="num">HAB<span class="th-unit">m</span></th>
       <th>Type</th>
-      <th>S/N</th>
-      <th>Hab&nbsp;(m)</th>
-      <th>Depth&nbsp;(m)</th>
-      <th>Pipeline</th>
-      <th>Note</th>
-    </tr>
-  </thead>
-  <tbody>
-    
-    <tr>
-      <td class="num">1</td>
-      <td>aquadopp</td>
-      <td><a href="instrument/dune2_1_2026_9920_report.html"
-             style="font-family:monospace;font-size:0.85rem">9920</a></td>
-      <td class="num">226.0</td>
-      <td class="num">519</td>
-      <td>
-        <div class="pipeline">
-          
-          
-            <span class="badge b-warn" title="Expected: 9920_recovery.dat">Raw ✗</span>
-          
-          <span class="arrow">›</span>
-          
-          
-            <span class="badge b-miss">Read —</span>
-          
-          <span class="arrow">›</span>
-          
-          
-            <span class="badge b-ok">Stage&nbsp;1 ✓</span>
-          
-          <span class="arrow">›</span>
-          
-          
-            <span class="badge b-ok">Stage&nbsp;2 ✓</span>
-          
-          <span class="arrow">›</span>
-          
-          
-            <span class="badge b-ok">Stage&nbsp;3 ✓</span>
-          
-          <span class="arrow">›</span>
-          
-          
-            <span class="badge b-stack">Stack ✓</span>
-          
-          <span class="arrow">›</span>
-          
-          
-            <span class="badge b-grid">Grid ✓</span>
-          
-        </div>
-      </td>
-      <td style="font-size:0.8rem;color:var(--bad);">
-        
-      </td>
-    </tr>
-    
-    <tr>
-      <td class="num">2</td>
-      <td>microcat</td>
-      <td><a href="instrument/dune2_1_2026_2941_report.html"
-             style="font-family:monospace;font-size:0.85rem">2941</a></td>
-      <td class="num">425.0</td>
-      <td class="num">320</td>
-      <td>
-        <div class="pipeline">
-          
-          
-            <span class="badge b-warn" title="Expected: 2941_recovery.asc">Raw ✗</span>
-          
-          <span class="arrow">›</span>
-          
-          
-            <span class="badge b-miss">Read —</span>
-          
-          <span class="arrow">›</span>
-          
-          
-            <span class="badge b-ok">Stage&nbsp;1 ✓</span>
-          
-          <span class="arrow">›</span>
-          
-          
-            <span class="badge b-ok">Stage&nbsp;2 ✓</span>
-          
-          <span class="arrow">›</span>
-          
-          
-            <span class="badge b-ok">Stage&nbsp;3 ✓</span>
-          
-          <span class="arrow">›</span>
-          
-          
-            <span class="badge b-stack">Stack ✓</span>
-          
-          <span class="arrow">›</span>
-          
-          
-            <span class="badge b-grid">Grid ✓</span>
-          
-        </div>
-      </td>
-      <td style="font-size:0.8rem;color:var(--bad);">
-        
-      </td>
-    </tr>
-    
-  </tbody>
-</table>
-
-<h2 id="instruments">(2) Instrument summary</h2>
-
-
-<p style="font-size:0.82rem;color:var(--gray-5);margin-top:-0.5rem;">
-  Variables and record length are read from stage&nbsp;3 files where available,
-  otherwise stage&nbsp;2.  The <strong>P</strong> badge is shown as present
-  whether pressure was directly measured or interpolated from neighbouring
-  instruments — see <a href="#qc">the QC flag summary</a> to distinguish.  Instruments
-  marked <code>skip: true</code> are listed with the skip reason where provided.
-</p>
-<table>
-  <thead>
-    <tr>
-      <th>#</th>
-      <th>Type</th>
-      <th>S/N</th>
-      <th>Hab&nbsp;(m)</th>
-      <th>First sample</th>
-      <th>Last sample</th>
-      <th>N records</th>
-      <th title="Observed p90 sample interval (s); * = differs from YAML value by &gt;10%">Δt&nbsp;(s)</th>
-      <th title="Pressure range from stage-2/3 trimmed record, excluding non-positive values">P range (dbar)</th>
+      <th>Serial</th>
+      <th>Start<span class="th-unit">UTC</span></th>
+      <th>End<span class="th-unit">UTC</span></th>
+      <th class="num">Records</th>
+      <th class="num" title="Observed 90th-percentile sample interval; * = differs from the mooring description by more than 10 %">Sampling interval</th>
+      <th class="num">Pressure range<span class="th-unit">dbar</span></th>
       <th style="text-align:center">T</th>
       <th style="text-align:center">C</th>
       <th style="text-align:center">P</th>
@@ -705,25 +601,21 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
   <tbody>
     
     <tr>
-      <td class="num">1</td>
-      <td>aquadopp</td>
-      <td><a href="instrument/dune2_1_2026_9920_report.html"
-             style="font-family:monospace;font-size:0.85rem">9920</a></td>
-      <td class="num">226.0</td>
+      <td class="num">519</td>
+<td class="num">226</td>
+      <td>Aquadopp</td>
+      <td><a href="instrument/dune2_1_2026_9920_report.html" class="serial">9920</a></td>
       
         <td>2026-07-11 20:30</td>
         <td>2026-07-25 11:43</td>
         <td class="num">9,818</td>
         <td class="num">
-          
-          
-            120
-          
+          2 min
         </td>
         <td class="num">
           
             
-              (561, 693)
+              561&ndash;693
             
           
         </td>
@@ -762,25 +654,21 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
     </tr>
     
     <tr>
-      <td class="num">2</td>
-      <td>microcat</td>
-      <td><a href="instrument/dune2_1_2026_2941_report.html"
-             style="font-family:monospace;font-size:0.85rem">2941</a></td>
-      <td class="num">425.0</td>
+      <td class="num">320</td>
+<td class="num">425</td>
+      <td>MicroCAT</td>
+      <td><a href="instrument/dune2_1_2026_2941_report.html" class="serial">2941</a></td>
       
         <td>2026-07-11 20:30</td>
         <td>2026-07-25 11:44</td>
         <td class="num">19,635</td>
         <td class="num">
-          
-          
-            60
-          
+          1 min
         </td>
         <td class="num">
           
             
-              <em title="pressure interpolated">(362, 494)</em>
+              <em title="pressure interpolated">362&ndash;494</em>
             
           
         </td>
@@ -824,13 +712,141 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 
 
 
+<h2 id="pipeline">(2) Processing pipeline</h2>
+
+
+
+<p class="caption">
+  How far each instrument's record went through processing: read from the
+  originator's or instrument's file &rarr; standardized (units, names) &rarr; trimmed
+  to the deployment &rarr; checked &rarr; combined into the mooring time series
+  &rarr; interpolated onto a common pressure grid. Green: done; grey: not reached.
+  HAB: height above bottom.
+</p>
+<details class="processing"><summary>show the processing steps for each instrument</summary>
+<table>
+  <thead>
+    <tr>
+      <th class="num">Nominal depth<span class="th-unit">m</span></th><th class="num">HAB<span class="th-unit">m</span></th>
+      <th>Type</th>
+      <th>Serial</th>
+      <th>Processing steps</th>
+      <th>Note</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td class="num">519</td>
+<td class="num">226</td>
+      <td>Aquadopp</td>
+      <td><a href="instrument/dune2_1_2026_9920_report.html" class="serial">9920</a></td>
+      <td>
+        <div class="pipeline">
+          
+          
+            <span class="badge b-warn" title="expected raw file: 9920_recovery.dat">File ✗</span>
+          
+          <span class="arrow">›</span>
+          
+          
+            <span class="badge b-miss">Read —</span>
+          
+          <span class="arrow">›</span>
+          
+          
+            <span class="badge b-ok" title="stage 1">Standardized ✓</span>
+          
+          <span class="arrow">›</span>
+          
+          
+            <span class="badge b-ok" title="stage 2">Trimmed ✓</span>
+          
+          <span class="arrow">›</span>
+          
+          
+            <span class="badge b-ok" title="stage 3">Checked ✓</span>
+          
+          <span class="arrow">›</span>
+          
+          
+            <span class="badge b-stack" title="stack">Combined ✓</span>
+          
+          <span class="arrow">›</span>
+          
+          
+            <span class="badge b-grid" title="grid">Gridded ✓</span>
+          
+        </div>
+      </td>
+      <td style="font-size:0.8rem;color:var(--bad);">
+        
+      </td>
+    </tr>
+    
+    <tr>
+      <td class="num">320</td>
+<td class="num">425</td>
+      <td>MicroCAT</td>
+      <td><a href="instrument/dune2_1_2026_2941_report.html" class="serial">2941</a></td>
+      <td>
+        <div class="pipeline">
+          
+          
+            <span class="badge b-warn" title="expected raw file: 2941_recovery.asc">File ✗</span>
+          
+          <span class="arrow">›</span>
+          
+          
+            <span class="badge b-miss">Read —</span>
+          
+          <span class="arrow">›</span>
+          
+          
+            <span class="badge b-ok" title="stage 1">Standardized ✓</span>
+          
+          <span class="arrow">›</span>
+          
+          
+            <span class="badge b-ok" title="stage 2">Trimmed ✓</span>
+          
+          <span class="arrow">›</span>
+          
+          
+            <span class="badge b-ok" title="stage 3">Checked ✓</span>
+          
+          <span class="arrow">›</span>
+          
+          
+            <span class="badge b-stack" title="stack">Combined ✓</span>
+          
+          <span class="arrow">›</span>
+          
+          
+            <span class="badge b-grid" title="grid">Gridded ✓</span>
+          
+        </div>
+      </td>
+      <td style="font-size:0.8rem;color:var(--bad);">
+        
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
 
 <p style="font-size:0.82rem;color:var(--gray-5);margin-top:0.8rem;">
-  Recommended pressure range for <code>oceanarray run --pmin/--pmax</code>, derived from the
-  min/max pressure across all instruments (rounded outward to the nearest 20&thinsp;dbar):
+  <strong>Pressure range for the gridded product.</strong> The instruments' measured
+  pressures span 360&ndash;700&thinsp;dbar (rounded outward to
+  20&thinsp;dbar). To grid this mooring over that range, set <code>pmin</code> and
+  <code>pmax</code> in the <code>grid:</code> block of the mooring description, or pass
+  them on the command line, from the folder holding the mooring description (the stage
+  files are kept, so no raw files are needed):
 </p>
-<pre style="background:var(--gray-1);border:1px solid var(--rule);border-radius:4px;padding:0.5em 0.8em;font-size:0.85rem;display:inline-block;user-select:all;cursor:text">--pmin 360 --pmax 700</pre>
+<pre style="background:var(--gray-1);border:1px solid var(--rule);border-radius:4px;padding:0.5em 0.8em;font-size:0.85rem;display:inline-block;user-select:all;cursor:text">oceanarray run dune2_1_2026.mooring.yaml --from 3 --pmin 360 --pmax 700</pre>
 
+</details>
 
 <h2 id="timing">(3) Deployment timing</h2>
 
@@ -1002,31 +1018,33 @@ recovery_time:   '2026-07-25T11:43'</textarea>
 <h2 id="clock">(4) Clock corrections</h2>
 
 
-<p style="font-size:0.82rem;color:var(--gray-5);margin-top:-0.5rem;">
-  Positive drift/offset = instrument was <em>slow</em> (behind UTC); correction shifts times later.
-  Negative = instrument was <em>fast</em> (ahead of UTC); correction shifts times earlier.
+
+
+<p class="caption">
+  Clock offset at deployment and drift at recovery, as applied in processing. A
+  positive value means the instrument clock ran slow (behind UTC), so its times were
+  shifted later. Only instruments with a correction are listed. HAB: height above bottom.
 </p>
 <table>
   <thead>
     <tr>
-      <th>#</th>
+      <th class="num">Nominal depth<span class="th-unit">m</span></th><th class="num">HAB<span class="th-unit">m</span></th>
       <th>Type</th>
-      <th>S/N</th>
-      <th>Hab&nbsp;(m)</th>
-      <th>Offset&nbsp;(s)</th>
+      <th>Serial</th>
+      <th class="num">Offset<span class="th-unit">s</span></th>
       <th>Computer time at recovery</th>
       <th>Instrument time at recovery</th>
-      <th>Drift&nbsp;(s)</th>
+      <th class="num">Drift<span class="th-unit">s</span></th>
       <th>Source</th>
     </tr>
   </thead>
   <tbody>
     
     <tr>
-      <td class="num">1</td>
-      <td>aquadopp</td>
+      <td class="num">519</td>
+<td class="num">226</td>
+      <td>Aquadopp</td>
       <td><code>9920</code></td>
-      <td class="num">226.0</td>
       <td class="num">
         
           <span class="none-note">—</span>
@@ -1046,32 +1064,9 @@ recovery_time:   '2026-07-25T11:43'</textarea>
       </td>
     </tr>
     
-    <tr>
-      <td class="num">2</td>
-      <td>microcat</td>
-      <td><code>2941</code></td>
-      <td class="num">425.0</td>
-      <td class="num">
-        
-          <span class="none-note">—</span>
-        
-      </td>
-      <td>2026-07-25 13:23</td>
-      <td>2026-07-25 13:23</td>
-      <td class="num">
-        
-          <span class="none-note">—</span>
-        
-      </td>
-      <td>
-        
-          Option B
-        
-      </td>
-    </tr>
-    
   </tbody>
 </table>
+
 
 <p class="caption">Clock alignment check. Overlaid temperature records zoomed to the first and last 30 minutes of the deployment. If instrument clocks are misaligned the temperature curves will appear shifted in time. Data are from stage 3 (or stage 2 if stage 3 is not yet available). Instruments with no temperature data are omitted.</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
@@ -1088,7 +1083,7 @@ recovery_time:   '2026-07-25T11:43'</textarea>
     <tr>
       <th>#</th>
       <th>Type</th>
-      <th>Instr&nbsp;S/N</th>
+      <th>Instrument serial</th>
       <th>Sensor</th>
       <th>Model</th>
       <th>Sensor&nbsp;S/N</th>
@@ -1106,7 +1101,7 @@ recovery_time:   '2026-07-25T11:43'</textarea>
         
         <tr>
           <td class="num">1</td>
-          <td>microcat</td>
+          <td>MicroCAT</td>
           <td><code>2941</code></td>
           <td>Temperature</td>
           <td>UNK</td>
@@ -1149,564 +1144,195 @@ recovery_time:   '2026-07-25T11:43'</textarea>
 <h2 id="qc">(6) QC flag summary</h2>
 
 
+
+
+
+
+<p class="caption">
+  Share of each variable's samples in each quality class, on the OceanSITES flag scale
+  used throughout these pages; the originator's flags are translated by their meaning.
+  Only variables with anything not flagged good are listed. HAB: height above bottom.
+</p>
 <div class="qc-legend">
-  <span style="background:var(--good)"></span>good&nbsp;(1)
-  <span style="background:var(--qc-good2)"></span>prob.&nbsp;good&nbsp;(2)
-  <span style="background:var(--qc-suspect3)"></span>suspect&nbsp;(3)
-  <span style="background:var(--qc-bad4)"></span>bad&nbsp;(4)
-  <span style="background:var(--qc-interp8)"></span>interp.&nbsp;(8)
-  <span style="background:var(--qc-missing9)"></span>missing&nbsp;(9)
+  <span style="background:#27ae60"></span>good&nbsp;(1) <span style="background:#f39c12"></span>suspect&nbsp;(3) 
 </div>
-
-
 <table>
   <thead>
     <tr>
-      <th>#</th>
+      <th class="num">Nominal depth<span class="th-unit">m</span></th><th class="num">HAB<span class="th-unit">m</span></th>
       <th>Type</th>
-      <th>S/N</th>
+      <th>Serial</th>
       <th>Variable</th>
-      <th class="num">N</th>
-      <th class="num">Good&nbsp;%</th>
-      <th class="num">Suspect&nbsp;%</th>
-      <th class="num">Bad&nbsp;%</th>
-      <th class="num">Interp.&nbsp;%</th>
-      <th class="num">Missing&nbsp;%</th>
+      <th class="num">Samples</th>
+      <th class="num">Good<span class="th-unit">%</span></th><th class="num">Suspect<span class="th-unit">%</span></th>
       <th>Distribution</th>
     </tr>
   </thead>
   <tbody>
     
+    <tr>
+      <td class="num">519</td>
+<td class="num">226</td>
+      <td>Aquadopp</td>
+      <td><code>9920</code></td>
+      <td><code>east_velocity</code></td>
+      <td class="num">9,818</td>
+      
+      <td class="num"><span style="color:#27ae60">88.9</span></td>
+      
+      <td class="num"><span style="color:#f39c12">11.1</span></td>
+      
+      <td>
+        <div class="qc-bar">
+          
+          <div style="width:88.9%; background:#27ae60;" title="good: 88.9%"></div>
+          
+          <div style="width:11.1%; background:#f39c12;" title="suspect: 11.1%"></div>
+          
+        </div>
+      </td>
+    </tr>
     
+    <tr>
+      <td class="num">519</td>
+<td class="num">226</td>
+      <td>Aquadopp</td>
+      <td><code>9920</code></td>
+      <td><code>north_velocity</code></td>
+      <td class="num">9,818</td>
       
-        
-        
-        
-        
-        
-        
-        
-        <tr>
-          <td class="num">1</td>
-          <td>aquadopp</td>
-          <td><code>9920</code></td>
-          <td><code>east_velocity</code></td>
-          <td class="num">9,818</td>
-          <td class="num" style="color:var(--warn)">
-            88.9
-          </td>
-          <td class="num"><span style="color:var(--warn)">11.1</span></td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td>
-            <div class="qc-bar">
-              
-                
-                <div style="width:88.9%; background:#27ae60;"
-                     title="good: 88.9%"></div>
-                
-              
-                
-              
-                
-                <div style="width:11.1%; background:#f39c12;"
-                     title="corr. bad: 11.1%"></div>
-                
-              
-                
-              
-                
-              
-                
-              
-            </div>
-          </td>
-        </tr>
-        
-        
-        
-        
-        
-        
-        <tr>
-          <td class="num"></td>
-          <td></td>
-          <td></td>
-          <td><code>north_velocity</code></td>
-          <td class="num">9,818</td>
-          <td class="num" style="color:var(--warn)">
-            88.9
-          </td>
-          <td class="num"><span style="color:var(--warn)">11.1</span></td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td>
-            <div class="qc-bar">
-              
-                
-                <div style="width:88.9%; background:#27ae60;"
-                     title="good: 88.9%"></div>
-                
-              
-                
-              
-                
-                <div style="width:11.1%; background:#f39c12;"
-                     title="corr. bad: 11.1%"></div>
-                
-              
-                
-              
-                
-              
-                
-              
-            </div>
-          </td>
-        </tr>
-        
-        
-        
-        
-        
-        
-        <tr>
-          <td class="num"></td>
-          <td></td>
-          <td></td>
-          <td><code>pressure</code></td>
-          <td class="num">9,818</td>
-          <td class="num" style="color:var(--good)">
-            100.0
-          </td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td>
-            <div class="qc-bar">
-              
-                
-                <div style="width:100.0%; background:#27ae60;"
-                     title="good: 100.0%"></div>
-                
-              
-                
-              
-                
-              
-                
-              
-                
-              
-                
-              
-            </div>
-          </td>
-        </tr>
-        
-        
-        
-        
-        
-        
-        <tr>
-          <td class="num"></td>
-          <td></td>
-          <td></td>
-          <td><code>temperature</code></td>
-          <td class="num">9,818</td>
-          <td class="num" style="color:var(--good)">
-            100.0
-          </td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td>
-            <div class="qc-bar">
-              
-                
-                <div style="width:100.0%; background:#27ae60;"
-                     title="good: 100.0%"></div>
-                
-              
-                
-              
-                
-              
-                
-              
-                
-              
-                
-              
-            </div>
-          </td>
-        </tr>
-        
-        
-        
-        
-        
-        
-        <tr>
-          <td class="num"></td>
-          <td></td>
-          <td></td>
-          <td><code>up_velocity</code></td>
-          <td class="num">9,818</td>
-          <td class="num" style="color:var(--warn)">
-            88.9
-          </td>
-          <td class="num"><span style="color:var(--warn)">11.1</span></td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td>
-            <div class="qc-bar">
-              
-                
-                <div style="width:88.9%; background:#27ae60;"
-                     title="good: 88.9%"></div>
-                
-              
-                
-              
-                
-                <div style="width:11.1%; background:#f39c12;"
-                     title="corr. bad: 11.1%"></div>
-                
-              
-                
-              
-                
-              
-                
-              
-            </div>
-          </td>
-        </tr>
-        
-        
-        
-        
-        
-        
-        <tr>
-          <td class="num"></td>
-          <td></td>
-          <td></td>
-          <td><code>velocity_beam1</code></td>
-          <td class="num">9,818</td>
-          <td class="num" style="color:var(--warn)">
-            89.4
-          </td>
-          <td class="num"><span style="color:var(--warn)">10.6</span></td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td>
-            <div class="qc-bar">
-              
-                
-                <div style="width:89.4%; background:#27ae60;"
-                     title="good: 89.4%"></div>
-                
-              
-                
-              
-                
-                <div style="width:10.6%; background:#f39c12;"
-                     title="corr. bad: 10.6%"></div>
-                
-              
-                
-              
-                
-              
-                
-              
-            </div>
-          </td>
-        </tr>
-        
-        
-        
-        
-        
-        
-        <tr>
-          <td class="num"></td>
-          <td></td>
-          <td></td>
-          <td><code>velocity_beam2</code></td>
-          <td class="num">9,818</td>
-          <td class="num" style="color:var(--warn)">
-            89.4
-          </td>
-          <td class="num"><span style="color:var(--warn)">10.6</span></td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td>
-            <div class="qc-bar">
-              
-                
-                <div style="width:89.4%; background:#27ae60;"
-                     title="good: 89.4%"></div>
-                
-              
-                
-              
-                
-                <div style="width:10.6%; background:#f39c12;"
-                     title="corr. bad: 10.6%"></div>
-                
-              
-                
-              
-                
-              
-                
-              
-            </div>
-          </td>
-        </tr>
-        
-        
-        
-        
-        
-        
-        <tr>
-          <td class="num"></td>
-          <td></td>
-          <td></td>
-          <td><code>velocity_beam3</code></td>
-          <td class="num">9,818</td>
-          <td class="num" style="color:var(--warn)">
-            89.4
-          </td>
-          <td class="num"><span style="color:var(--warn)">10.6</span></td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td>
-            <div class="qc-bar">
-              
-                
-                <div style="width:89.4%; background:#27ae60;"
-                     title="good: 89.4%"></div>
-                
-              
-                
-              
-                
-                <div style="width:10.6%; background:#f39c12;"
-                     title="corr. bad: 10.6%"></div>
-                
-              
-                
-              
-                
-              
-                
-              
-            </div>
-          </td>
-        </tr>
-        
+      <td class="num"><span style="color:#27ae60">88.9</span></td>
       
+      <td class="num"><span style="color:#f39c12">11.1</span></td>
+      
+      <td>
+        <div class="qc-bar">
+          
+          <div style="width:88.9%; background:#27ae60;" title="good: 88.9%"></div>
+          
+          <div style="width:11.1%; background:#f39c12;" title="suspect: 11.1%"></div>
+          
+        </div>
+      </td>
+    </tr>
     
+    <tr>
+      <td class="num">519</td>
+<td class="num">226</td>
+      <td>Aquadopp</td>
+      <td><code>9920</code></td>
+      <td><code>up_velocity</code></td>
+      <td class="num">9,818</td>
       
-        
-        
-        
-        
-        
-        
-        
-        <tr>
-          <td class="num">2</td>
-          <td>microcat</td>
-          <td><code>2941</code></td>
-          <td><code>conductivity</code></td>
-          <td class="num">19,635</td>
-          <td class="num" style="color:var(--good)">
-            100.0
-          </td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td>
-            <div class="qc-bar">
-              
-                
-                <div style="width:100.0%; background:#27ae60;"
-                     title="good: 100.0%"></div>
-                
-              
-                
-              
-                
-              
-                
-              
-                
-              
-                
-              
-            </div>
-          </td>
-        </tr>
-        
-        
-        
-        
-        
-        
-        <tr>
-          <td class="num"></td>
-          <td></td>
-          <td></td>
-          <td><code>pressure</code></td>
-          <td class="num">19,635</td>
-          <td class="num" style="color:var(--bad)">
-            0.0
-          </td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td class="num"><span style="color:var(--interp)">100.0</span></td>
-          <td class="num">&ndash;</td>
-          <td>
-            <div class="qc-bar">
-              
-                
-              
-                
-              
-                
-              
-                
-              
-                
-                <div style="width:100.0%; background:#3498db;"
-                     title="interp.: 100.0%"></div>
-                
-              
-                
-              
-            </div>
-          </td>
-        </tr>
-        
-        
-        
-        
-        
-        
-        <tr>
-          <td class="num"></td>
-          <td></td>
-          <td></td>
-          <td><code>salinity</code></td>
-          <td class="num">19,635</td>
-          <td class="num" style="color:var(--good)">
-            100.0
-          </td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td>
-            <div class="qc-bar">
-              
-                
-                <div style="width:100.0%; background:#27ae60;"
-                     title="good: 100.0%"></div>
-                
-              
-                
-              
-                
-              
-                
-              
-                
-              
-                
-              
-            </div>
-          </td>
-        </tr>
-        
-        
-        
-        
-        
-        
-        <tr>
-          <td class="num"></td>
-          <td></td>
-          <td></td>
-          <td><code>temperature</code></td>
-          <td class="num">19,635</td>
-          <td class="num" style="color:var(--good)">
-            100.0
-          </td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td class="num">&ndash;</td>
-          <td>
-            <div class="qc-bar">
-              
-                
-                <div style="width:100.0%; background:#27ae60;"
-                     title="good: 100.0%"></div>
-                
-              
-                
-              
-                
-              
-                
-              
-                
-              
-                
-              
-            </div>
-          </td>
-        </tr>
-        
+      <td class="num"><span style="color:#27ae60">88.9</span></td>
       
+      <td class="num"><span style="color:#f39c12">11.1</span></td>
+      
+      <td>
+        <div class="qc-bar">
+          
+          <div style="width:88.9%; background:#27ae60;" title="good: 88.9%"></div>
+          
+          <div style="width:11.1%; background:#f39c12;" title="suspect: 11.1%"></div>
+          
+        </div>
+      </td>
+    </tr>
+    
+    <tr>
+      <td class="num">519</td>
+<td class="num">226</td>
+      <td>Aquadopp</td>
+      <td><code>9920</code></td>
+      <td><code>velocity_beam1</code></td>
+      <td class="num">9,818</td>
+      
+      <td class="num"><span style="color:#27ae60">89.4</span></td>
+      
+      <td class="num"><span style="color:#f39c12">10.6</span></td>
+      
+      <td>
+        <div class="qc-bar">
+          
+          <div style="width:89.4%; background:#27ae60;" title="good: 89.4%"></div>
+          
+          <div style="width:10.6%; background:#f39c12;" title="suspect: 10.6%"></div>
+          
+        </div>
+      </td>
+    </tr>
+    
+    <tr>
+      <td class="num">519</td>
+<td class="num">226</td>
+      <td>Aquadopp</td>
+      <td><code>9920</code></td>
+      <td><code>velocity_beam2</code></td>
+      <td class="num">9,818</td>
+      
+      <td class="num"><span style="color:#27ae60">89.4</span></td>
+      
+      <td class="num"><span style="color:#f39c12">10.6</span></td>
+      
+      <td>
+        <div class="qc-bar">
+          
+          <div style="width:89.4%; background:#27ae60;" title="good: 89.4%"></div>
+          
+          <div style="width:10.6%; background:#f39c12;" title="suspect: 10.6%"></div>
+          
+        </div>
+      </td>
+    </tr>
+    
+    <tr>
+      <td class="num">519</td>
+<td class="num">226</td>
+      <td>Aquadopp</td>
+      <td><code>9920</code></td>
+      <td><code>velocity_beam3</code></td>
+      <td class="num">9,818</td>
+      
+      <td class="num"><span style="color:#27ae60">89.4</span></td>
+      
+      <td class="num"><span style="color:#f39c12">10.6</span></td>
+      
+      <td>
+        <div class="qc-bar">
+          
+          <div style="width:89.4%; background:#27ae60;" title="good: 89.4%"></div>
+          
+          <div style="width:10.6%; background:#f39c12;" title="suspect: 10.6%"></div>
+          
+        </div>
+      </td>
+    </tr>
     
   </tbody>
 </table>
+
+<p class="one-line">Interpolated throughout (1): pressure (2941).</p>
+
+<p class="one-line">All other variables (5): 100&nbsp;% good.</p>
 
 
 <h2 id="knockdown">(7) Mooring knockdown</h2>
 
 <div class="fig-row">
 <div class="fig-cell slot-half">
-<p class="caption">Nominal HAB (x) vs. measured pressure (y). The dashed line shows expected pressure (water depth − HAB). Instruments below the line were knocked down. Interpolated pressure (QC flag 8) excluded.</p>
+<p class="caption">Measured pressure against height above bottom (HAB) for each instrument with a pressure sensor: median and range of the record. The dashed line is the pressure expected at the design depth. Points below it were pushed deeper by currents (knockdown). Interpolated pressure is excluded.</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig" src="data:image/png;base64,<PNG>" alt="knockdown_hab">
 </details><div class="fig-source">source: oceanarray/plotters/diagnostic.py:draw_knockdown_hab</div>
 </div>
 <div class="fig-cell slot-half">
-<p class="caption">IQR of pressure anomaly (measured − nominal) per instrument. Positive = deeper than design depth. Green &lt; 100 dbar, yellow 100–200, amber 200–300, red &gt; 300 dbar.</p>
+<p class="caption">Pressure anomaly (measured minus design pressure) for each instrument: the box is the middle 50 % of the record (interquartile range); the whiskers reach the furthest values within 1.5 × that range, and the dots are the values beyond. Positive means deeper than design. Box colour marks the median anomaly: green &lt; 100 dbar, yellow 100–200, amber 200–300, red &gt; 300.</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig" src="data:image/png;base64,<PNG>" alt="knockdown_anomaly">
 </details><div class="fig-source">source: oceanarray/plotters/diagnostic.py:draw_knockdown_anomaly</div>
 </div>
 <div class="fig-cell slot-full">
-<p class="caption">Estimated horizontal displacement (m) vs. measured pressure. Left: scatter per instrument; right: normalised 2-D density across all instruments. Displacement derived from the rigid-pendulum approximation: x = √(hab_nom² − hab_meas²).</p>
+<p class="caption">Horizontal distance each instrument was pushed from its position above the anchor, estimated from how far it was pulled down: treating the mooring as a straight line pivoting at the anchor, a drop from design height H to measured height h gives a displacement of √(H² − h²), so small drops mean large displacements; the estimate is rough for moorings that bend. Left: each point is one sample — how far down and sideways each instrument went, and whether the deep instruments moved with the top ones. Right: where each instrument spent its time — the colour of each cell is the fraction of that instrument&#39;s record at that pressure and displacement (each instrument&#39;s cells sum to 1).</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig" src="data:image/png;base64,<PNG>" alt="knockdown_displacement">
 </details><div class="fig-source">source: oceanarray/plotters/diagnostic.py:draw_knockdown_displacement</div>
@@ -1729,24 +1355,92 @@ recovery_time:   '2026-07-25T11:43'</textarea>
 <h3>Data quality flags</h3>
 <ul>
 
-<li>SN&nbsp;9920 (aquadopp): east_velocity: 11.1% corr. bad (flag 3)</li>
+<li>Aquadopp 9920: east_velocity: 11.1% suspect (flag 3)</li>
 
-<li>SN&nbsp;9920 (aquadopp): north_velocity: 11.1% corr. bad (flag 3)</li>
+<li>Aquadopp 9920: north_velocity: 11.1% suspect (flag 3)</li>
 
-<li>SN&nbsp;9920 (aquadopp): up_velocity: 11.1% corr. bad (flag 3)</li>
+<li>Aquadopp 9920: up_velocity: 11.1% suspect (flag 3)</li>
 
-<li>SN&nbsp;9920 (aquadopp): velocity_beam1: 10.6% corr. bad (flag 3)</li>
+<li>Aquadopp 9920: velocity_beam1: 10.6% suspect (flag 3)</li>
 
-<li>SN&nbsp;9920 (aquadopp): velocity_beam2: 10.6% corr. bad (flag 3)</li>
+<li>Aquadopp 9920: velocity_beam2: 10.6% suspect (flag 3)</li>
 
-<li>SN&nbsp;9920 (aquadopp): velocity_beam3: 10.6% corr. bad (flag 3)</li>
+<li>Aquadopp 9920: velocity_beam3: 10.6% suspect (flag 3)</li>
 
 </ul>
 
 
+<h2 id="description">(A) Mooring description</h2>
+
+
+<p class="caption">
+  The mooring description these pages were made from. To produce the files and pages
+  yourself, save it as <code>dune2_1_2026.mooring.yaml</code> beside the data files and run
+  <code>oceanarray run dune2_1_2026.mooring.yaml --raw-dir &lt;folder with the data files&gt;</code>.
+</p>
+<details class="yaml-box"><summary>show the mooring description (YAML)</summary>
+<button type="button" onclick="navigator.clipboard.writeText(document.getElementById('yaml-dune2_1_2026').innerText).then(() => { this.textContent = 'Copied'; })">Copy</button>
+<pre id="yaml-dune2_1_2026"># Test fixture — trimmed from the real dune2_1_2026 UHH mooring config.
+# Kept: the mooring-level header and the two instruments whose stage3 .nc files
+# are committed under microcat/ and aquadopp/ (serials 2941 and 9920).
+# Dropped: the other ~20 instruments and the full `inline:` hardware section
+# (mooring-line schematic), none of which these two fixtures exercise.
+# Values are faithful to the source config as of 2026-07-29.
+name: dune2_1_2026 #needed, otherwise key error
+cleaname: dune2
+year: 2026
+waterdepth: 745
+cruise: OdB
+status: deployed
+ship: Odon de Buen
+recovery_cruise: OdB
+recovery_ship: Odon de Buen
+deployment_time: &#39;2026-07-11T20:30&#39;
+recovery_time:   &#39;2026-07-25T11:44&#39;
+latitude: 65 43.913
+longitude: -27 48.000
+# dune2 is an overflow mooring, so the Overflow grid section is turned on (it is
+# off by default; see report_sections in the YAML reference).
+report_sections:
+  grid: [overflow]
+# Extra periods marked on the grid page&#39;s spectra (M2, K1 and the inertial period
+# are always marked).
+spectrum_markers:
+  1.8 d: 1.8 d
+  4 d: 4 d
+  9 min: 9 min
+
+clamp:
+- serial: 2941
+  sample_interval_seconds: 60
+  label: SM
+  image: microcat.png
+  hab: 425
+  instrument: microcat
+  filename: 2941_recovery.asc
+  file_type: sbe-ascii
+  computer_clock_at_recovery: &#39;20260725T13:23:40&#39;
+  instrument_clock_at_recovery: &#39;20260725T13:23:40&#39;
+  clamp_id: &#39;8&#39;
+
+- serial: 9920*
+  sample_interval_seconds: 120
+  label: Aquadopp
+  image: aquadopp_beam_up.png
+  hab: 226
+  filename: 9920_recovery.dat
+  header: 9920_recovery.hdr
+  file_type: nortek-ascii
+  computer_clock_at_recovery: &#39;20260725T13:13:20&#39;
+  instrument_clock_at_recovery: &#39;20260725T13:14:15&#39;
+  instrument: aquadopp
+  clamp_id: &#39;11&#39;
+</pre>
+</details>
+
 
 <div class="report-footer">
-  Generated by <strong>oceanarray</strong> v<VERSION> &bull; OdB &bull; <GENERATED> &bull; config: <code>dune2_1_2026/dune2_1_2026.mooring.yaml</code>
+  Generated by <a href="https://ocean-uhh.github.io/oceanarray"><strong>oceanarray</strong></a> v<VERSION> &bull; <GENERATED>
 </div>
 <script>
   document.querySelectorAll('h2').forEach(h => {
@@ -1755,6 +1449,40 @@ recovery_time:   '2026-07-25T11:43'</textarea>
 </script>
 
 
+<script>
+/* Expand all / Collapse all: one button opens or closes every <details>. Before
+   printing every <details> is opened, and afterwards each is put back as it was. */
+(function () {
+  var all = function () { return Array.prototype.slice.call(document.querySelectorAll('details')); };
+  var buttons = Array.prototype.slice.call(document.querySelectorAll('button.expand-all'));
+  var sync = function () {
+    var d = all(), open = d.length > 0 && d.every(function (e) { return e.open; });
+    buttons.forEach(function (b) {
+      b.setAttribute('aria-expanded', open ? 'true' : 'false');
+      b.textContent = open ? 'Collapse all' : 'Expand all';
+    });
+  };
+  buttons.forEach(function (b) {
+    b.hidden = false;
+    b.addEventListener('click', function () {
+      var open = b.getAttribute('aria-expanded') !== 'true';
+      all().forEach(function (e) { e.open = open; });
+      sync();
+    });
+  });
+  document.addEventListener('toggle', sync, true);
+  var saved = null;
+  window.addEventListener('beforeprint', function () {
+    saved = all().map(function (e) { return [e, e.open]; });
+    saved.forEach(function (p) { p[0].open = true; });
+  });
+  window.addEventListener('afterprint', function () {
+    if (saved) { saved.forEach(function (p) { p[0].open = p[1]; }); saved = null; }
+    sync();
+  });
+  sync();
+})();
+</script>
 <script>
 document.querySelectorAll('table').forEach(function (table) {
   if (table.hasAttribute('data-nosort')) { return; }

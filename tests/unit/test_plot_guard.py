@@ -268,7 +268,7 @@ GRID_DS_FUNCS = [
     "_make_grid_velocity_stacked_b64",
     "_make_grid_sigma_b64",
     "_make_grid_rose_b64",
-    "_make_grid_trajectory_b64",
+    "_make_grid_progressive_vector_b64",
     "_make_grid_timeseries_b64",
     "_make_velocity_iqr_profile_b64",
     "_make_grid_rotary_spectrum_b64",

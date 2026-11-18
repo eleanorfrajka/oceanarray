@@ -43,6 +43,7 @@ _ENV = Environment(
 )
 #: Package identity available to every template (masthead wordmark).
 _ENV.globals["package_name"] = params.PACKAGE_NAME
+_ENV.globals["package_docs_url"] = params.PACKAGE_DOCS_URL
 
 
 #: Package version for the footer, from ``oceanarray.__version__`` (the
@@ -63,7 +64,8 @@ _ENV.globals["css"] = SHARED_CSS
 #: Click-to-sort table script, injected once at the end of ``<body>`` by base.html.
 _ENV.globals["js_sort_tables"] = _JS_SORT_TABLES
 #: Per-figure ``source:`` caption toggle (which draw function produced each panel)
-#: and the base64 -> source lookup it reads.  Off for oceanarray (design.FIGURE_SOURCE).
+#: and the base64 -> source lookup it reads.  ``design.FIGURE_SOURCE`` reads
+#: ``OCEANARRAY_FIGURE_SOURCE`` whenever a template tests it (on unless set to 0).
 _ENV.globals["show_source"] = FIGURE_SOURCE
 _ENV.globals["source_of"] = source_of
 

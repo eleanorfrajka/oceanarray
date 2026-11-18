@@ -29,7 +29,12 @@ from ..paths import safe_serial
 from ..plotters.helpers import grid_despine
 from ._breadcrumb import page_crumbs
 from ._env import render_template
-from ._html_helpers import _format_duration, _parse_dt, _stage_files
+from ._html_helpers import (
+    STOPPED_EARLY_HOURS,
+    _format_duration,
+    _parse_dt,
+    _stage_files,
+)
 from ._navs import _TYPE_ORDER, _type_label
 from ._plots import render_b64
 from ._read import _read_instrument_info
@@ -290,7 +295,7 @@ def _build_mooring_instruments(
         if recover_dt and t_end_raw is not None:
             rec_np = np.datetime64(recover_dt.replace(tzinfo=None).isoformat(), "ns")
             gap_s = float((rec_np - t_end_raw) / np.timedelta64(1, "s"))
-            stopped_early = gap_s > 12 * 3600
+            stopped_early = gap_s > STOPPED_EARLY_HOURS * 3600
 
         complete = stage3_exists and not skipped and not stopped_early and not no_raw
 

@@ -2,9 +2,8 @@
 
 These check the registry and profiles are internally well-formed *without*
 rendering — every referenced panel exists, every registered panel is used, no
-duplicate section id or title, and the profile has the shape design §7
-specifies.  Rendering (numbering on a real page, ``ts_bounds`` independence) is
-verified with the dune2 fixture at the template port (commit 4), not here.
+duplicate section id or title, and the profile has the agreed shape.  The
+resolved-page tests below render the dune2 fixture for numbering and kinds.
 """
 
 from oceanarray.reports._grid import (
@@ -52,7 +51,7 @@ def test_no_duplicate_section_id_or_title_in_default():
 
 
 def test_grid_default_shape_is_eight_content_plus_appendix():
-    """GRID_DEFAULT is 8 content sections + 1 appendix, in the design §7 order."""
+    """GRID_DEFAULT is 8 content sections + 1 appendix, in the agreed order."""
     content = [s for s in GRID_DEFAULT.entries if s.role == "content"]
     appendix = [s for s in GRID_DEFAULT.entries if s.role == "appendix"]
     assert [s.id for s in content] == [
@@ -65,7 +64,7 @@ def test_grid_default_shape_is_eight_content_plus_appendix():
         "overflow",
         "frequency_analysis",
     ]
-    assert [s.id for s in appendix] == ["netcdf_variables", "netcdf_attributes"]
+    assert [s.id for s in appendix] == ["netcdf"]
 
 
 def test_overflow_uses_a_panelgroup_for_isopycnals():
@@ -92,14 +91,14 @@ def test_n2_precondition_stubs_on_unresolved_latitude():
     assert GRID_PANELS["n2"].unavailable_if(resolved) is None
 
 
-def test_non_full_slots_are_only_ts_and_trajectory():
-    """Only ts_diagram and trajectory carry a non-'full' slot (both 'half')."""
+def test_non_full_slots_are_only_ts_and_progressive_vector():
+    """Only ts_diagram and progressive_vector carry a non-'full' slot (both 'half')."""
     non_full = {pid: p.slot for pid, p in GRID_PANELS.items() if p.slot != "full"}
-    assert non_full == {"ts_diagram": "half", "trajectory": "half"}
+    assert non_full == {"ts_diagram": "half", "progressive_vector": "half"}
 
 
 # ---------------------------------------------------------------------------
-# Resolved-page tests (design §9.6): these render the dune2 fixture once and
+# Resolved-page tests: these render the dune2 fixture once and
 # assert numbering, appendix lettering, kinds, and the ts_bounds coupling on the
 # actual resolved report — the structural facts the golden proves as HTML, here
 # proved as data.  One module-scoped render keeps the cost to a single pass.
@@ -210,10 +209,10 @@ def test_resolved_content_numbers_are_1_to_n(resolved_default):
     assert [s.number for s in content] == [str(i) for i in range(1, len(content) + 1)]
 
 
-def test_resolved_appendices_are_lettered_A_B(resolved_default):
-    """The two appendix sections are lettered A, B — not padded into the content run."""
+def test_resolved_appendix_is_lettered_A(resolved_default):
+    """The one appendix section (the NetCDF file) is lettered A, not numbered."""
     appendix = [s for s in resolved_default.sections if s.role == "appendix"]
-    assert [s.number for s in appendix] == ["A", "B"]
+    assert [s.number for s in appendix] == ["A"]
 
 
 def test_complete_fixture_drops_nothing(resolved_default):
@@ -228,8 +227,7 @@ def test_complete_fixture_drops_nothing(resolved_default):
         "stratification",
         "overflow",
         "frequency_analysis",
-        "netcdf_variables",
-        "netcdf_attributes",
+        "netcdf",
     ]
 
 
@@ -242,19 +240,20 @@ def test_resolved_sections_have_unique_id_and_title(resolved_default):
 
 
 def test_every_resolved_slot_is_a_known_slot(resolved_default):
-    """Each resolved panel's slot is a real SLOTS key (amendment A ladder guard)."""
+    """Each resolved panel's slot is a real SLOTS key (slot ladder guard)."""
     for sec in resolved_default.sections:
         for p in sec.panels:
             assert p.slot in report_tokens.SLOTS, (p.id, p.slot)
 
 
 def test_non_figure_panels_carry_their_kind(resolved_default):
-    """History resolves as html and the appendix tables as table (escaping boundary)."""
+    """The steps, history and NetCDF appendix resolve as html (escaping boundary)."""
     hist = next(s for s in resolved_default.sections if s.id == "processing_history")
-    assert hist.panels[0].kind == "html"
-    assert not hist.panels[0].is_stub
-    appendix = next(s for s in resolved_default.sections if s.id == "netcdf_variables")
-    assert {p.kind for p in appendix.panels} == {"table"}
+    assert {p.kind for p in hist.panels} == {"html"}
+    assert not any(p.is_stub for p in hist.panels)
+    appendix = next(s for s in resolved_default.sections if s.id == "netcdf")
+    assert {p.kind for p in appendix.panels} == {"html"}
+    assert "<details" in appendix.panels[0].payload
 
 
 def test_hydro_renders_when_ts_section_is_dropped(grid_ctx):

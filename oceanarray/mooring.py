@@ -111,6 +111,8 @@ KNOWN_KEYS: frozenset[str] = frozenset(
         "grid",
         # optional report sections to turn on, keyed by page (``_check_report_sections``)
         "report_sections",
+        # extra periods marked on the grid page's spectra (``_check_spectrum_markers``)
+        "spectrum_markers",
         # people and data source for files that name none (``_check_people_and_source``)
         "people",
         "source",
@@ -153,6 +155,7 @@ SETTINGS_BLOCKS: tuple[str, ...] = (
     "grid",
     "caldip",
     "report_sections",
+    "spectrum_markers",
 )
 
 #: Instrument-entry keys that describe hardware only and are left out of
@@ -296,11 +299,7 @@ def load(
         except yaml.YAMLError as e:
             raise MooringError(f"YAML parse error in {path}: {e}") from e
         dir_name = path.parent.name
-        # A catalog path is relative to the description.
-        if isinstance(data, dict) and data.get("sensor_catalog"):
-            data["sensor_catalog"] = str(
-                (path.parent / str(data["sensor_catalog"])).resolve()
-            )
+        _resolve_relative_paths(data, path)
 
     if not isinstance(data, dict):
         raise MooringError("Mooring YAML root must be a mapping")
@@ -311,6 +310,28 @@ def load(
         summary = "; ".join(i.message for i in errors)
         raise MooringError(f"Invalid mooring config: {summary}", issues)
     return data
+
+
+def _resolve_relative_paths(data: object, path: Path) -> None:
+    """Make the description's relative paths absolute, from the file's real folder.
+
+    A relative path written in a description (``sensor_catalog``) is relative to
+    the file as its author wrote it, so it is taken from the folder of the file a
+    link points to, not the folder of the link: a processing folder may hold a
+    link to a description kept elsewhere.  The link's folder still names the
+    mooring and holds its stage files.
+
+    Parameters
+    ----------
+    data : object
+        The parsed description; changed in place when it is a dict.
+    path : pathlib.Path
+        The description file as given (possibly a link).
+    """
+    if isinstance(data, dict) and data.get("sensor_catalog"):
+        data["sensor_catalog"] = str(
+            (path.resolve().parent / str(data["sensor_catalog"])).resolve()
+        )
 
 
 def check(
@@ -347,16 +368,14 @@ def check(
             return [ValidationIssue("ERROR", f"YAML parse error: {e}")]
         if dir_name is None:
             dir_name = path.parent.name
-        if isinstance(data, dict) and data.get("sensor_catalog"):
-            data["sensor_catalog"] = str(
-                (path.parent / str(data["sensor_catalog"])).resolve()
-            )
+        _resolve_relative_paths(data, path)
 
     issues = list(validation.validate_mooring(data, dir_name=dir_name))
 
     if isinstance(data, Mapping):
         issues += _check_settings(data)
         issues += _check_report_sections(data)
+        issues += _check_spectrum_markers(data)
         issues += _check_export_codes(data)
         issues += _check_qc_overrides(data)
         issues += _check_caldip(data)
@@ -924,6 +943,80 @@ def _check_report_sections(data: Mapping) -> list[ValidationIssue]:
                     )
                 )
     return issues
+
+
+#: Units a ``spectrum_markers`` period may be given in, with their length in days.
+_PERIOD_UNITS: dict[str, float] = {
+    "s": 1.0 / 86400.0,
+    "min": 1.0 / 1440.0,
+    "h": 1.0 / 24.0,
+    "d": 1.0,
+}
+
+
+def _period_days(value: object) -> float | None:
+    """Return a period such as ``"1.8 d"`` or ``"9 min"`` in days, or None if malformed."""
+    import re
+
+    m = re.fullmatch(r"\s*([0-9]*\.?[0-9]+)\s*(s|min|h|d)\s*", str(value))
+    if m is None:
+        return None
+    days = float(m.group(1)) * _PERIOD_UNITS[m.group(2)]
+    return days if days > 0 else None
+
+
+def _check_spectrum_markers(data: Mapping) -> list[ValidationIssue]:
+    """Return ERRORs for a malformed ``spectrum_markers`` block (optional).
+
+    A mapping of label -> period with its unit (``s``, ``min``, ``h`` or ``d``),
+    e.g. ``{"4 d": "4 d", "S2": "12 h"}``.
+    """
+    block = data.get("spectrum_markers")
+    if block is None:
+        return []
+    if not isinstance(block, Mapping):
+        return [
+            ValidationIssue(
+                "ERROR",
+                "'spectrum_markers:' must be a mapping of label -> period with its "
+                f"unit (e.g. '4 d', '12.42 h', '9 min'); got {block!r}.",
+            )
+        ]
+    return [
+        ValidationIssue(
+            "ERROR",
+            f"'spectrum_markers: {label}' must be a period with its unit "
+            f"(s, min, h or d), e.g. '4 d'; got {period!r}.",
+        )
+        for label, period in block.items()
+        if _period_days(period) is None
+    ]
+
+
+def resolve_spectrum_markers(description: Mapping) -> list[tuple[str, float]]:
+    """Return the extra periods marked on the spectra, from the mooring description.
+
+    Parameters
+    ----------
+    description : Mapping
+        The mooring description; its optional ``spectrum_markers`` maps a label to
+        a period with its unit (``"1.8 d"``, ``"12.42 h"``, ``"9 min"``).
+
+    Returns
+    -------
+    list of (str, float)
+        ``(label, period in days)``, in the description's order; malformed entries
+        (which ``check`` reports) are skipped.
+    """
+    block = description.get("spectrum_markers")
+    if not isinstance(block, Mapping):
+        return []
+    out = []
+    for label, period in block.items():
+        days = _period_days(period)
+        if days is not None:
+            out.append((str(label), days))
+    return out
 
 
 def resolve_report_sections(page: str, description: Mapping) -> list[str]:

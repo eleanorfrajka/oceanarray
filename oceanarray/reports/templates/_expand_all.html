@@ -1,0 +1,17 @@
+{# Expand-all control: one button that opens or closes every <details> on the
+   page (figures, attribute disclosures, collapsed tables).  Import with
+   {% import "_expand_all.html" as xa %} and place {{ xa.button() }} beside the
+   jump-nav.  ``description_links`` — (label, href) pairs to the "Mooring
+   description" section of each deployment page this page was built from —
+   render on the same line: the text left-justified, the button right-justified.  The button is rendered hidden and shown by the script in
+   base.html, so a page read without scripts (or the PDF) never shows a control
+   that does nothing.  The script also opens every <details> before printing and
+   restores the reader's choice afterwards. #}
+{% macro button(description_links=None) -%}
+<div class="expand-all-bar">
+{%- if description_links %}
+<p class="see-also">Mooring description{% if description_links | length > 1 %}s{% endif %} (the configuration this page was built from):
+{% for label, href in description_links %}<a href="{{ href }}">{{ label }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</p>
+{%- endif %}
+<button type="button" class="expand-all" aria-expanded="false" hidden>Expand all</button></div>
+{%- endmacro %}

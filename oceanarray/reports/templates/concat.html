@@ -9,5 +9,5 @@
 {% endblock %}
 {% block masthead_type %}Concatenated stack{% endblock %}
 {% block content %}
-{{ m.report_body(report, "site", generated, "") }}
+{{ m.report_body(report, "site", generated, "", description_links=description_links | default([])) }}
 {% endblock %}

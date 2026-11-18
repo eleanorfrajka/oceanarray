@@ -15,6 +15,7 @@ import numpy as np
 from markupsafe import Markup
 
 from oceanarray import location, logger, paths
+from oceanarray.analysis.derived import derived_fields
 from oceanarray.pipeline import masking
 from oceanarray.pipeline.concat import cell_deployment
 
@@ -26,6 +27,7 @@ from ._breadcrumb import page_crumbs
 from ._env import render_history, render_template
 from ._figdebug import as_panel
 from ._html_helpers import (
+    DESCRIPTION_ANCHOR,
     _format_dt,
     _format_duration,
     _parse_dt,
@@ -33,11 +35,11 @@ from ._html_helpers import (
     doi_link,
 )
 from ._plots import (
-    _make_adcp_trajectories_b64,
+    _make_adcp_progressive_vector_b64,
     _make_analog_timeseries_b64,
     _make_direction_profile_by_deployment_b64,
     _make_flag_strip_b64,
-    _make_multi_aquadopp_trajectories_b64,
+    _make_multi_aquadopp_progressive_vector_b64,
     _make_rose_outlines_b64,
     _make_speed_profile_by_deployment_b64,
     _make_stack_timeseries_b64,
@@ -125,8 +127,9 @@ CONCAT_CAPTIONS: dict[str, str] = {
         + _OVERLAP_NOTE
     ),
     "trajectories_aquadopp": (
-        "Pseudo-Lagrangian trajectories integrated from east/north velocity, one per "
-        "depth, running through every deployment in the depth (a turnaround "
+        "Cumulative displacement from adding up the measured velocity (a progressive "
+        "vector diagram), one line per depth, running through every deployment in "
+        "the depth (a turnaround "
         "adds no displacement; where two deployments overlap, the one filling the "
         "depth counts). Start at the origin; the label marks the end."
     ),
@@ -449,15 +452,61 @@ def _deployment_href(
     out_dir: Path,
     name: str,
     report_dir: Path | None = None,
+    page_suffix: str = "_stack_report.html",
+    anchor: str = "",
 ) -> str | None:
-    """Return the relative link from this page to a deployment's own stack report."""
+    """Return the relative link from this page to one of a deployment's own pages.
+
+    Parameters
+    ----------
+    source : str
+        The deployment's stack file as recorded in the Stack cat (``stack_file``).
+    site_dir : Path
+        Folder of the Stack cat file, against which *source* is resolved.
+    out_dir : Path
+        Folder this page is written to.
+    name : str
+        Deployment name.
+    report_dir : Path or None, optional
+        Reports root, when the deployment pages live under one.
+    page_suffix : str, optional
+        The page after the deployment name: ``"_stack_report.html"`` (default) or
+        ``"_report.html"`` (the deployment page).
+    anchor : str, optional
+        Section id to link to on that page (``"description"``); none by default.
+
+    Returns
+    -------
+    str or None
+        The relative href, or None when the page does not exist.
+    """
     folder = _report_folder(source, site_dir, name, report_dir)
     if folder is None:
         return None
-    page = folder / f"{name}_stack_report.html"
+    page = folder / f"{name}{page_suffix}"
     if not page.exists():
         return None
-    return Path(os.path.relpath(page.resolve(), out_dir.resolve())).as_posix()
+    href = Path(os.path.relpath(page.resolve(), out_dir.resolve())).as_posix()
+    return f"{href}#{anchor}" if anchor else href
+
+
+def _description_links(rows: list[dict]) -> list[tuple[str, str]]:
+    """Return one (deployment name, href) pair per deployment page found.
+
+    Parameters
+    ----------
+    rows : list of dict
+        Deployments-table rows (:func:`_deployment_rows`), each with ``name`` and
+        ``description_href`` (None when the deployment page was not found).
+
+    Returns
+    -------
+    list of (str, str)
+        Links to the "Mooring description" section of each deployment page.
+    """
+    return [
+        (r["name"], r["description_href"]) for r in rows if r.get("description_href")
+    ]
 
 
 def _deployment_rows(
@@ -504,6 +553,15 @@ def _deployment_rows(
                     out_dir,
                     name,
                     report_dir,
+                ),
+                "description_href": _deployment_href(
+                    _text(get["stack_file"], k),
+                    stack_path.parent,
+                    out_dir,
+                    name,
+                    report_dir,
+                    page_suffix="_report.html",
+                    anchor=DESCRIPTION_ANCHOR,
                 ),
                 "deployed": _format_dt(start),
                 "recovered": _format_dt(end),
@@ -846,6 +904,8 @@ def generate_concat_page(
         out_path = out_dir / f"{name}_stackcat_report.html"
         view = _report_view(ds)
         depth_view = _depth_view(view)
+        # Position and θ for the T-S figures, derived once for the page.
+        derived = derived_fields(view)
         names = [str(n) for n in ds["deployment_name"].values]
         # Deployments named without the site's prefix on the figures and in the
         # Instruments table (egM4_2014 → 2014); the Deployments table keeps the full name.
@@ -893,18 +953,24 @@ def generate_concat_page(
                 legend_shallow_first=True,
             ),
             "roses": as_panel(lambda: _make_rose_outlines_b64(view)),
-            "ts_diagram": as_panel(lambda: _make_stack_ts_diagram_b64(view)),
-            "ts_by_deployment": as_panel(lambda: _make_ts_by_deployment_b64(view)),
-            "ts_points": as_panel(lambda: _make_ts_points_by_deployment_b64(view)),
-            "ts_medians": as_panel(lambda: _make_ts_medians_b64(view)),
+            "ts_diagram": as_panel(lambda: _make_stack_ts_diagram_b64(view, derived)),
+            "ts_by_deployment": as_panel(
+                lambda: _make_ts_by_deployment_b64(view, derived)
+            ),
+            "ts_points": as_panel(
+                lambda: _make_ts_points_by_deployment_b64(view, derived)
+            ),
+            "ts_medians": as_panel(lambda: _make_ts_medians_b64(view, derived)),
             "trajectories_aquadopp": as_panel(
                 lambda: (
-                    _make_multi_aquadopp_trajectories_b64(depth_view)
+                    _make_multi_aquadopp_progressive_vector_b64(depth_view)
                     if depth_view is not None
                     else None
                 )
             ),
-            "trajectories_adcp": as_panel(lambda: _make_adcp_trajectories_b64(view)),
+            "trajectories_adcp": as_panel(
+                lambda: _make_adcp_progressive_vector_b64(view)
+            ),
             "speed_profile": as_panel(
                 lambda: _make_speed_profile_by_deployment_b64(view)
             ),
@@ -980,6 +1046,7 @@ def generate_concat_page(
                 ),
             ),
             report=report,
+            description_links=_description_links(deployment_rows),
             meta_facts=_masthead_facts(ds, stack_path),
             generated=generated or datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC"),
         )

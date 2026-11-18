@@ -1,10 +1,10 @@
 {# Issues-for-cruise-report nested lists.  The `issues` panel payload
    (kind="html"); section applies only when issues.any is true. #}
 {% if issues.skipped %}
-<h3>Skipped / missing instruments</h3>
+<h3>Instruments not processed</h3>
 <ul>
 {% for i in issues.skipped %}
-<li>SN&nbsp;{{ i.serial }} ({{ i.itype }}, {{ i.depth_str }}): {{ i.reason }}</li>
+<li>{{ i.itype }} {{ i.serial }} ({{ i.depth_str }}): {{ i.reason }}</li>
 {% endfor %}
 </ul>
 {% endif %}
@@ -13,7 +13,7 @@
 <h3>Stopped early</h3>
 <ul>
 {% for i in issues.stopped_early %}
-<li>SN&nbsp;{{ i.serial }} ({{ i.itype }}, {{ i.depth_str }}): last sample {{ i.t_end }}, expected {{ i.expected }} ({{ i.delta_h }}&nbsp;h short)</li>
+<li>{{ i.itype }} {{ i.serial }} ({{ i.depth_str }}): last sample {{ i.t_end }}, expected {{ i.expected }} ({{ i.delta_h }}&nbsp;h short)</li>
 {% endfor %}
 </ul>
 {% endif %}
@@ -22,7 +22,7 @@
 <h3>Data quality flags</h3>
 <ul>
 {% for i in issues.qc_flagged %}
-<li>SN&nbsp;{{ i.serial }} ({{ i.itype }}): {{ i.note }}</li>
+<li>{{ i.itype }} {{ i.serial }}: {{ i.note }}</li>
 {% endfor %}
 </ul>
 {% endif %}
