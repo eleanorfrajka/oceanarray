@@ -194,6 +194,16 @@ QC_BAD_FLAGS = (3, 4, 9)
 #: shown and gridded; 9 marks a missing value, so there is nothing to show.
 MASK_FLAGS: tuple[int, ...] = (4,)
 
+#: Flags counted as good in the QC tables (Good %, and a variable left out as
+#: all good): good (1) and interpolated by oceanarray (8).
+QC_GOOD_FLAGS: tuple[int, ...] = (1, 8)
+
+#: The QC tables' Good % reads green at or above this share of a variable's values
+#: flagged good (%), amber at or above :data:`QC_GOOD_FAIR_PCT`, red below.
+QC_GOOD_PCT: float = 95.0
+#: The share (%) below which the QC tables' Good % reads red (see :data:`QC_GOOD_PCT`).
+QC_GOOD_FAIR_PCT: float = 80.0
+
 # ---------------------------------------------------------------------------
 # QARTOD gross-range test thresholds (global ocean defaults).
 #

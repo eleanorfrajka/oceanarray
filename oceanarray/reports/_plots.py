@@ -37,6 +37,7 @@ from ..plotters.diagnostic import (
 from ..plotters.helpers import QC_MARKER as _QC_MARKER
 from ..plotters.helpers import (  # noqa: F401
     _rose_ax,
+    as_dataset,
     grid_despine,
 )
 from ..plotters.hydrography import (
@@ -152,8 +153,41 @@ def _draw_instrument_panels(
     show_qc: bool = True,
     title_suffix: str = "",
     panels: list | None = None,
+    *,
+    title: str | None = None,
+    flag_sources: tuple[str, ...] | None = None,
+    record: dict | None = None,
 ) -> plt.Figure | None:
-    """Render instrument panels from an already-loaded xarray Dataset."""
+    """Render instrument panels from an already-loaded xarray Dataset.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The instrument's stage file, loaded.
+    instr_type : str
+        The instrument type (for the default title).
+    show_qc : bool, optional
+        Mark flagged values: dots suspect, crosses bad, blue points interpolated.
+    title_suffix : str, optional
+        Appended to the title in brackets.
+    panels : list, optional
+        The ``(varname, label, colour, invert)`` panels to draw (a page of them).
+    title : str or None, optional
+        The figure title (the page's ``"{Type} {serial} · {depth} m"``).
+    flag_sources : tuple of str or None, optional
+        Flag-variable suffixes the markers read (default oceanarray's and the
+        originator's: the worse of the two is drawn).
+    record : dict or None, optional
+        Filled with what was drawn: ``variables`` (list) and ``counts`` (values
+        marked per flag, added to what it holds).
+
+    Returns
+    -------
+    matplotlib.figure.Figure or None
+    """
+    from ..plotters.helpers import FLAG_SOURCES, marker_flags
+
+    sources = flag_sources if flag_sources is not None else FLAG_SOURCES
     import matplotlib.pyplot as plt
 
     from ..config import parameters as params
@@ -258,12 +292,15 @@ def _draw_instrument_panels(
                 )
                 ax.set_ylim(-_half, _half)
 
-            qc_var = f"{vname}_qc"
-            if show_qc and qc_var in ds.data_vars:
-                flags = ds[qc_var].values.astype(int)
+            if record is not None:
+                record.setdefault("variables", []).append(vname)
+            flags = marker_flags(ds, vname, sources) if show_qc else None
+            if flags is not None:
+                counts = record.setdefault("counts", {}) if record is not None else {}
                 for fval, mkw in _QC_MARKER.items():
-                    mask = flags == fval
+                    mask = (flags == fval) & np.isfinite(data)
                     if mask.any():
+                        counts[fval] = counts.get(fval, 0) + int(mask.sum())
                         ax.scatter(
                             time[mask], data[mask], label=_QC_LABELS[fval], **mkw
                         )
@@ -290,13 +327,14 @@ def _draw_instrument_panels(
                 ax2.tick_params(axis="y", labelcolor="darkorange")
                 ax2.axhline(100.0, color="darkorange", lw=0.5, ls="--", alpha=0.4)
 
-        serial = (
-            ds["serial_number"].item()
-            if "serial_number" in ds
-            else ds.attrs.get("serial_number", "?")
-        )
-        depth = f"{ds['InstrDepth'].item():.0f} m" if "InstrDepth" in ds else "?"
-        title = f"{instr_type.title()} s/n: {serial}  |  Target depth: {depth}"
+        if title is None:
+            serial = (
+                ds["serial_number"].item()
+                if "serial_number" in ds
+                else ds.attrs.get("serial_number", "?")
+            )
+            depth = f"{ds['InstrDepth'].item():.0f} m" if "InstrDepth" in ds else "?"
+            title = f"{instr_type.title()} {serial} · {depth}"
         if title_suffix:
             title += f"  [{title_suffix}]"
         axs[0].set_title(title)
@@ -308,12 +346,34 @@ def _draw_instrument_panels(
 
 
 def _make_instrument_b64s(
-    nc_path: Path, instr_type: str, show_qc: bool = True
+    nc_path: Path | xr.Dataset,
+    instr_type: str,
+    show_qc: bool = True,
+    *,
+    title: str | None = None,
+    record: dict | None = None,
 ) -> list[str]:
-    """Instrument data time series with optional QC markers, paginated."""
-    import xarray as xr
+    """Instrument data time series with flag markers, paginated.
 
-    ds = xr.open_dataset(nc_path, decode_timedelta=False).load()
+    Parameters
+    ----------
+    nc_path : pathlib.Path or xarray.Dataset
+        The instrument's stage file.
+    instr_type : str
+        The instrument type.
+    show_qc : bool, optional
+        Mark flagged values.
+    title : str or None, optional
+        Figure title (the page's).
+    record : dict or None, optional
+        Filled with what the figures drew (see :func:`_draw_instrument_panels`).
+
+    Returns
+    -------
+    list of str
+        One base64 PNG per page of panels.
+    """
+    ds = as_dataset(nc_path)
     try:
         ds = _add_tilt(ds)
         panels = _instrument_panels(ds, combine_pitch_roll=True)
@@ -326,7 +386,12 @@ def _make_instrument_b64s(
             chunk = panels[i : i + _MAX_TS_PANELS]
             b64 = render_b64(
                 lambda c=chunk: _draw_instrument_panels(
-                    ds, instr_type, show_qc=show_qc, panels=c
+                    ds,
+                    instr_type,
+                    show_qc=show_qc,
+                    panels=c,
+                    title=title,
+                    record=record,
                 ),
                 optional=True,
                 source=source_for(_draw_instrument_panels),
@@ -339,17 +404,17 @@ def _make_instrument_b64s(
 
 
 def _make_windows_b64s(
-    nc_path: Path,
+    nc_path: Path | xr.Dataset,
     instr_type: str,
     hours: int = 6,
     show_qc: bool = True,
     vlines: list | None = None,
     stage1_nc: Path | None = None,
+    *,
+    title: str | None = None,
 ) -> list[str]:
-    """Return base64 PNGs: combined start + end window figure, paginated."""
-    import xarray as xr
-
-    ds = xr.open_dataset(nc_path, decode_timedelta=False).load()
+    """Return base64 PNGs: combined start + end window figure, paginated (*title*: the page's)."""
+    ds = as_dataset(nc_path)
     try:
         panels = _instrument_panels(ds, combine_pitch_roll=True)
     finally:
@@ -370,6 +435,7 @@ def _make_windows_b64s(
             vlines,
             stage1_nc,
             panels=chunk,
+            title=title,
             optional=True,
         )
         if b64:
@@ -377,14 +443,30 @@ def _make_windows_b64s(
     return images
 
 
-def _make_data_histogram_b64(nc_path: Path) -> str | None:
-    """Return base64 PNG: histogram of data values with QC range threshold lines."""
-    return render_b64(draw_data_histogram, nc_path, optional=True)
+def _make_data_histogram_b64(
+    nc_path: Path | xr.Dataset, *, rule: dict | None = None
+) -> str | None:
+    """Return base64 PNG: histogram of data values with QC range threshold lines.
+
+    *rule*: the flag rule deciding which values are kept (see
+    ``plotters.diagnostic.draw_data_histogram``).
+    """
+    return render_b64(draw_data_histogram, nc_path, rule=rule, optional=True)
 
 
-def _make_ts_diagram_b64(nc_path: Path) -> str | None:
-    """Return base64 PNG: T-S diagram (scatter by pressure, heatmap, optional O2 panel)."""
-    return render_b64(draw_ts_diagram, nc_path, optional=True)
+def _make_ts_diagram_b64(
+    nc_path: Path | xr.Dataset, *, record: dict | None = None
+) -> str | None:
+    """Return base64 PNG: T-S diagram (scatter by pressure, heatmap, optional O2 panel).
+
+    Parameters
+    ----------
+    nc_path : Path
+        The instrument's stage file.
+    record : dict or None, optional
+        Filled with what the figure drew (see ``plotters.ts.draw_ts_diagram``).
+    """
+    return render_b64(draw_ts_diagram, nc_path, record=record, optional=True)
 
 
 def _make_grid_sigma_b64(ds: xr.Dataset) -> str | None:
@@ -493,16 +575,24 @@ def _make_grid_rotary_spectrum_b64(
     )
 
 
-def _make_flag_strip_b64(ds: xr.Dataset) -> str | None:
-    """Return base64 PNG: the quality-flag strip of a stack or Stack cat."""
+def _make_flag_strip_b64(ds: xr.Dataset, labels: list[str] | None = None) -> str | None:
+    """Return base64 PNG: the quality-flag strip of a stack or Stack cat (*labels*: the page's)."""
     from oceanarray.plotters.flags import draw_flag_strip
 
-    return render_slot(draw_flag_strip, ds, slot="full", optional=True)
+    return render_slot(draw_flag_strip, ds, labels=labels, slot="full", optional=True)
 
 
-def _make_stack_ts_diagram_b64(ds: xr.Dataset, derived: Any = None) -> str | None:
-    """Return base64 PNG: T-S diagram for a stacked dataset (*derived*: the page's)."""
-    return render_b64(draw_stack_ts_diagram, ds, derived=derived, optional=True)
+def _make_stack_ts_diagram_b64(
+    ds: xr.Dataset, derived: Any = None, *, record: dict | None = None
+) -> str | None:
+    """Return base64 PNG: T-S diagram for a stacked dataset (*derived*: the page's).
+
+    *record*, when given, is filled with what the figure drew (see
+    ``plotters.ts.draw_stack_ts_diagram``) for the caption.
+    """
+    return render_b64(
+        draw_stack_ts_diagram, ds, derived=derived, record=record, optional=True
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -510,9 +600,13 @@ def _make_stack_ts_diagram_b64(ds: xr.Dataset, derived: Any = None) -> str | Non
 # ---------------------------------------------------------------------------
 
 
-def _make_instrument_rose_b64(nc_path: Path) -> str | None:
-    """Rose diagram grid for a single Aquadopp instrument."""
-    return render_b64(draw_instrument_rose, nc_path, optional=True)
+def _make_instrument_rose_b64(
+    nc_path: Path | xr.Dataset, *, title: str | None = None, rule: dict | None = None
+) -> str | None:
+    """Return base64 PNG: one instrument's current rose (*title*, *rule*: the page's)."""
+    return render_b64(
+        draw_instrument_rose, nc_path, title=title, rule=rule, optional=True
+    )
 
 
 def _make_grid_ts_diagram_b64_and_limits(
@@ -608,14 +702,12 @@ def _make_overflow_temperature_b64(ds: xr.Dataset) -> str | None:
 # ---------------------------------------------------------------------------
 
 
-def _make_temperature_trajectory_b64(nc_path: str) -> str | None:
+def _make_temperature_trajectory_b64(nc_path: Path | xr.Dataset) -> str | None:
     """Lagrangian trajectory coloured by temperature, for Aquadopp instrument page."""
-    import xarray as xr
-
     from oceanarray.plotters.current import draw_temperature_trajectory
 
     def _draw() -> plt.Figure:
-        with xr.open_dataset(nc_path) as ds:
+        with as_dataset(nc_path) as ds:
             return draw_temperature_trajectory(ds)
 
     return render_b64(
@@ -623,14 +715,12 @@ def _make_temperature_trajectory_b64(nc_path: str) -> str | None:
     )
 
 
-def _make_speed_boxplot_b64(nc_path: str) -> str | None:
+def _make_speed_boxplot_b64(nc_path: Path | xr.Dataset) -> str | None:
     """Speed boxplot with percentile statistics, for Aquadopp instrument page."""
-    import xarray as xr
-
     from oceanarray.plotters.current import draw_speed_boxplot
 
     def _draw(*, width_in: float = report_tokens.W_QUARTER) -> plt.Figure:
-        with xr.open_dataset(nc_path) as ds:
+        with as_dataset(nc_path) as ds:
             return draw_speed_boxplot(ds, width_in=width_in)
 
     return render_slot(
@@ -638,16 +728,15 @@ def _make_speed_boxplot_b64(nc_path: str) -> str | None:
     )
 
 
-def _make_hodograph_b64(nc_path: str) -> str | None:
+def _make_hodograph_b64(nc_path: Path | xr.Dataset) -> str | None:
     """Two-panel hodograph (raw + eddy-only) for Aquadopp instrument page."""
     # Not optional: a placeholder is drawn when east/north velocities are absent, so
     # the section is never silently omitted; None only on unrecoverable file errors.
-    import xarray as xr
 
     from oceanarray.plotters.current import draw_hodograph
 
     def _draw() -> plt.Figure:
-        with xr.open_dataset(nc_path) as ds:
+        with as_dataset(nc_path) as ds:
             return draw_hodograph(ds)
 
     return render_b64(_draw, source=source_for(draw_hodograph))
@@ -670,8 +759,13 @@ def _make_stack_timeseries_b64(
     dot_overlay: bool = False,
     deployments: list | None = None,
     legend_shallow_first: bool = False,
+    **kwargs: Any,
 ) -> str | None:
-    """Stack time series (one row per variable, one line per level), full width, for the stack page."""
+    """Stack time series (one row per variable, one line per level), full width, for the stack page.
+
+    Further keywords (``label_lines``, ``row_heights``, ``mark_suspect``,
+    ``record``) go to ``plotters.timeseries.draw_stack_timeseries``.
+    """
     return render_slot(
         draw_stack_timeseries,
         ds,
@@ -681,6 +775,7 @@ def _make_stack_timeseries_b64(
         deployments=deployments,
         legend_shallow_first=legend_shallow_first,
         optional=True,
+        **kwargs,
     )
 
 
@@ -822,18 +917,18 @@ def _make_adcp_progressive_vector_b64(ds: xr.Dataset) -> str | None:
     return render_slot(draw_adcp_progressive_vector, ds, slot="half", optional=True)
 
 
-def _make_adcp_velocity_b64(nc_path: str) -> str | None:
+def _make_adcp_velocity_b64(nc_path: Path | xr.Dataset) -> str | None:
     """Return base64 PNG: stacked colour panels for ADCP per-instrument report."""
     return render_b64(draw_adcp_velocity, nc_path, optional=True)
 
 
-def _make_adcp_rose_b64(nc_path: str) -> str | None:
+def _make_adcp_rose_b64(nc_path: Path | xr.Dataset) -> str | None:
     """Return base64 PNG: ADCP current rose (depth-average + percentile bins)."""
     return render_b64(draw_adcp_rose, nc_path, optional=True)
 
 
 def _make_adcp_hodograph_b64(
-    nc_path: str, lp_days: float = 4.0, smooth_hours: float = 24.0
+    nc_path: Path | xr.Dataset, lp_days: float = 4.0, smooth_hours: float = 24.0
 ) -> str | None:
     """Return base64 PNG: two-depth hodograph for an ADCP per-instrument report."""
     return render_b64(
@@ -850,7 +945,9 @@ def _make_grid_hodograph_b64(
     )
 
 
-def _make_analog_timeseries_b64(nc_path: Path, analog_vars: list[str]) -> str | None:
+def _make_analog_timeseries_b64(
+    nc_path: Path | xr.Dataset, analog_vars: list[str]
+) -> str | None:
     """Full-record time series for analog channel variables, one panel each."""
     if not analog_vars:
         return None

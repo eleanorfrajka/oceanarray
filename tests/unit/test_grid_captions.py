@@ -86,11 +86,14 @@ def test_grid_steps_read_the_file(gridded):
     assert flags.settings.startswith("rule: 4")
 
 
-def test_stack_steps_without_a_recorded_rule(stack):
-    """A stack written before rules were recorded says so rather than guessing."""
-    combine, flags = _captions.stack_steps(stack)
-    assert "22 instruments" in combine.what
-    assert flags.settings == "not recorded"
+def test_stack_history_rows_without_a_recorded_rule(stack):
+    """A stack written before rules were recorded: its steps, and no rule invented."""
+    rows = _captions.stack_history_rows(stack)
+    assert "stack_mask_flags" not in stack.attrs
+    combine = next(r for r in rows if "stack:" in r.events[0])
+    assert "22 instruments" in combine.events[0]
+    assert combine.settings == "1 h steps"
+    assert not any("rule:" in r.settings for r in rows)
 
 
 def test_flag_sentence_from_the_rule(gridded):

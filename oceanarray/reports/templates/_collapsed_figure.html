@@ -1,0 +1,9 @@
+{# A figure shown collapsed under a one-line summary, with its caption above it — a
+   kind="html" payload for figures that belong to the processing record. #}
+<details class="processing"{% if anchor %} id="{{ anchor }}"{% endif %}><summary>{{ summary }}</summary>
+{%- if caption %}
+<p class="caption">{{ caption }}</p>
+{%- endif %}
+{% for b64 in images %}<img class="fig slot-{{ slot | default("full") }}" src="data:image/png;base64,{{ b64 }}" alt="{{ summary }}">
+{% endfor %}
+</details>

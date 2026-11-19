@@ -473,7 +473,10 @@ def test_a_mooring_level_source_reaches_every_file(tmp_path, with_source):
         if with_source:
             assert ds.attrs["waterdepth_source"] == EGM5_WATERDEPTH_SOURCE
             assert (
-                f"waterdepth 3125.0 m from the mooring YAML: {EGM5_WATERDEPTH_SOURCE}"
+                # The entry separator inside the note is cleaned so the entry
+                # reads back whole.
+                "waterdepth 3125.0 m from the mooring YAML: "
+                + EGM5_WATERDEPTH_SOURCE.replace("; ", ", ")
                 in ds.attrs["history"]
             )
         else:

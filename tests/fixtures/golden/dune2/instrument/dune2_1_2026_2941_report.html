@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Microcat &ndash; s/n 2941</title>
+<title>MicroCAT 2941 · 320 m</title>
 <style>
 :root {
   --ocean: #1a3a5c;
@@ -418,6 +418,8 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
   .masthead, th { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 }
 
+  .th-unit { display: block; font-weight: 400; font-size: 0.72rem; opacity: 0.85; }
+  td.nowrap { white-space: nowrap; }
   :root { --accent:#1e8449; --accent-link:#d5f5e3; }
   /* Table style is canonical in emit_css now; only the file-table's cell
      colour classes remain page-specific. */
@@ -433,6 +435,12 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
   .qc-bar { display:flex; width:180px; height:13px; border-radius:3px;
              overflow:hidden; gap:1px; background:#ecf0f1; }
   .qc-bar div { height:100%; }
+  .qc-legend { font-size:0.78rem; margin:0.2rem 0 0.4rem; }
+  .qc-legend span { display:inline-block; width:0.8em; height:0.8em; margin:0 0.25em 0 0.6em; vertical-align:middle; border-radius:2px; }
+  th.group { text-align:center; }
+  .meta-grid dd { overflow-wrap:anywhere; }
+  .meta-grid dd a { color:inherit; }
+  h3.sub { font-size:0.85rem; color:var(--ocean); margin:0.8rem 0 0.3rem; }
 
 </style>
 
@@ -441,7 +449,7 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
 <nav class="breadcrumb"><a href="../dune2_1_2026_report.html">dune2_1_2026</a><span class="sep">›</span><span>2941</span></nav>
 
 <div id="top" class="masthead ">
-  <h1 class="masthead-title"><span>Microcat&ensp;&mdash;&ensp;s/n&nbsp;2941</span><span class="masthead-type"></span></h1>
+  <h1 class="masthead-title"><span>MicroCAT 2941 · 320 m</span><span class="masthead-type"></span></h1>
   <p class="sub"><span>dune2_1_2026</span><span>generated <GENERATED></span></p>
   
 
@@ -470,14 +478,16 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
   <dl class="meta-grid">
     
     <div><dt>Cruise</dt><dd>OdB</dd></div>
-    <div><dt>HAB</dt><dd>425.0&thinsp;m</dd></div>
-    <div><dt>Depth</dt><dd>~320&thinsp;m</dd></div>
-    <div><dt>Start</dt><dd>2026-07-11 20:30</dd></div>
-    <div><dt>End</dt><dd>2026-07-25 11:44</dd></div>
-    <div><dt>Duration</dt><dd>13d 15h</dd></div>
-    <div><dt>Samp.&nbsp;&Delta;t</dt><dd>60 s</dd></div>
+    <div><dt>Nominal depth</dt><dd>320&thinsp;m</dd></div>
+    <div><dt>HAB</dt><dd>425&thinsp;m</dd></div>
+    <div><dt>Start (UTC)</dt><dd>2026-07-11 20:30</dd></div>
+    <div><dt>End (UTC)</dt><dd>2026-07-25 11:44</dd></div>
+    <div><dt>Sampling interval</dt><dd>1 min</dd></div>
     <div><dt>Records</dt><dd>19,635</dd></div>
-    <div><dt>Source&nbsp;file</dt><dd>dune2_1_2026_2941_stage3.nc</dd></div>
+    
+    <div><dt>Instrument's file</dt><dd>2941_recovery.asc</dd></div>
+    
+    
   
   </dl>
   <a class="wordmark" href="https://github.com/ocean-uhh/oceanarray" target="_blank" rel="noopener noreferrer">oceanarray</a>
@@ -486,168 +496,42 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
 
 
 <nav class="jump-nav">
-<a href="#files">(1) Files</a>
-<a href="#processing_history">(2) Processing history</a>
-<a href="#timeseries">(3) Time series (full deployment)</a>
-<a href="#start">(4) Start &amp; end windows — first / last 6 h</a>
-<a href="#ts_diagram">(5) T-S diagram</a>
-<a href="#distributions">(6) Data value distributions</a>
-<a href="#qc">(7) QC flag breakdown</a>
-<a href="#netcdf_variables">(A) NetCDF variables</a>
-<a href="#netcdf_attributes">(B) NetCDF attributes</a>
+<a href="#timeseries">(1) Time series</a>
+<a href="#ts_diagram">(2) T-S diagram</a>
+<a href="#qc">(3) Quality flags</a>
+<a href="#processing">(4) Processing</a>
+<a href="#netcdf">(A) NetCDF file</a>
 </nav>
 <div class="expand-all-bar">
 <button type="button" class="expand-all" aria-expanded="false" hidden>Expand all</button></div>
 
-<h2 id="files">(1) Files</h2>
-
-
-<table class="file-table">
-  <thead><tr><th>#</th><th>Stage</th><th>Filename</th><th>Size</th><th>Last modified</th></tr></thead>
-  <tbody>
-  
-  <tr>
-    <td class="num">1</td>
-    <td>Raw</td>
-    <td class="mono">2941_recovery.asc</td>
-    <td colspan="2">&mdash; not checked (no --raw-dir)</td>
-  </tr>
-  
-  
-  <tr>
-    <td class="num">2</td>
-    <td>Stage1</td>
-    
-    <td class="mono">dune2_1_2026_2941_stage1.nc</td>
-    <td class="num">123 KB</td>
-    <td><MTIME></td>
-    
-  </tr>
-  
-  <tr>
-    <td class="num">3</td>
-    <td>Stage2</td>
-    
-    <td class="mono">dune2_1_2026_2941_stage2.nc</td>
-    <td class="num">121 KB</td>
-    <td><MTIME></td>
-    
-  </tr>
-  
-  <tr>
-    <td class="num">4</td>
-    <td>Stage3</td>
-    
-    <td class="mono">dune2_1_2026_2941_stage3.nc</td>
-    <td class="num">236 KB</td>
-    <td><MTIME></td>
-    
-  </tr>
-  
-  </tbody>
-</table>
-
-<h2 id="processing_history">(2) Processing history</h2>
-
-
-
-
-
-<table class="nc properties" data-nosort>
-
-<thead><tr><th>Property</th><th>Value</th></tr></thead>
-<tbody>
-<tr><td>Processed</td><td>2026-11-15T21:09:44.421099Z - Processed by SeaSenseLib v0.6.1</td></tr>
-<tr><td>Reader</td><td>SbeAsciiReader</td></tr>
-<tr><td>Format</td><td>SeaBird ASCII</td></tr>
-<tr><td>Source file</td><td class="mono">2941_recovery.asc</td></tr>
-<tr><td>Stages</td><td>finalization, mapping, metadata_enrichment, metadata_extraction, transformation, unit_handling, validation</td></tr>
-<tr><td>the offset takes 1 m of hab as 1 dbar and assumes the line stays upright | QARTOD gross-range+spike</td><td>conductivity_qc=[good=19635]</td></tr>
-</tbody></table>
-<table class="sortable">
-
-<thead>
-  <tr><th tabindex="0">#</th><th tabindex="0">Time</th><th tabindex="0">Event</th></tr>
-</thead>
-<tbody>
-  <tr><td>1</td><td>2026-11-15T21:09Z</td><td>processing_stage 1</td></tr>
-  <tr><td>2</td><td>2026-11-15T21:09Z</td><td>processing_stage 2</td></tr>
-  <tr><td>3</td><td>2026-11-15T21:09Z</td><td>stage3 pressure interpolated (pressure_qc=8) — extrapolated from aquadopp 9920 (hab=226.0m, static offset=-199.0 dbar) — WARNING: out of range: hab 425.0 m is above every pressure source (hab 226.0–226.0 m): not bracketed</td></tr>
-  <tr><td>4</td><td>2026-11-15T21:09Z</td><td>pressure_qc=[good=0, interp=19635]</td></tr>
-  <tr><td>5</td><td>2026-11-15T21:09Z</td><td>salinity_qc=[good=19635]</td></tr>
-  <tr><td>6</td><td>2026-11-15T21:09Z</td><td>temperature_qc=[good=19635]</td></tr>
-  <tr><td>7</td><td>2026-11-15T21:09Z</td><td>processing_stage 3</td></tr>
-</tbody>
-</table><div class="fig-source">source: oceanarray/reports/_html_helpers.py:_build_history_tables</div>
-
-<h2 id="timeseries">(3) Time series (full deployment)</h2>
-<p class="caption">line = data; × = suspect; × = bad; + = interpolated.</p>
+<h2 id="timeseries">(1) Time series</h2>
+<p class="caption">The instrument&#39;s record over the deployment: pressure, temperature, conductivity and salinity (PSU, recomputed from C, T, P). No value is flagged suspect or bad by oceanarray. Blue points: values interpolated by oceanarray (19,635).</p>
 
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig" src="data:image/png;base64,<PNG>" alt="timeseries_0">
 </details><div class="fig-source">source: oceanarray/reports/_plots.py:_draw_instrument_panels</div>
 
-<h2 id="start">(4) Start &amp; end windows — first / last 6 h</h2>
+<h2 id="ts_diagram">(2) T-S diagram</h2>
 
-
-<p style="font-size:0.8rem;color:var(--gray-5);margin-top:-0.5rem;">
-  Left panel = first 7&thinsp;h (1&thinsp;h lead-in + 6&thinsp;h of record) &nbsp;|&nbsp;
-  Right panel = last 7&thinsp;h (6&thinsp;h of record + 1&thinsp;h tail).
-  <span style="color:var(--warn)">&#9474;&#9474; orange dashed</span> = auto-detected
-  (pressure-based) suggested deploy/recover time &bull;
-  <span style="color:var(--good)">&#9474;&#9474; green dashed</span> = YAML
-  <code>deployment_time</code> / <code>recovery_time</code> &bull;
-  <span style="color:var(--line-stage1)">&#9474;&#9474; grey</span> = stage&nbsp;1 raw record
-  (same variable, same units).
-</p>
-<p style="font-size:0.78rem;color:var(--gray-4);margin-top:0.3rem;">
-  <strong>Reading the grey background:</strong>
-  where the raw stage&nbsp;1 record is available and uses the same physical
-  units as the stage&nbsp;2/3 data, it is shown in light grey so you can
-  visually verify that the chosen deployment window captures the in-water
-  period.  Cases where grey may be absent:
-  <ul style="margin:0.3em 0 0.3em 1.2em;padding:0">
-    <li><em>Sensors without their own pressure</em> (e.g. a microCAT that
-    relies on interpolated pressure from a nearby instrument) — interpolated
-    pressure is only added at stage&nbsp;3, so stage&nbsp;1 has no pressure
-    variable and no grey trace appears.</li>
-    <li><em>Velocity in beam or XYZ coordinates</em> — if an Aquadopp or
-    ADCP was configured to record in BEAM or XYZ mode, the stage&nbsp;1 file
-    contains beam/XYZ velocity variables while stage&nbsp;3 stores
-    ENU velocities; the variable names differ so no grey velocity trace is shown.</li>
-    <li><em>Conductivity</em> — raw conductivity units sometimes differ
-    between stage&nbsp;1 and stage&nbsp;3 (e.g.&nbsp;mS/cm vs S/m) and the
-    grey trace is suppressed automatically to avoid a misleading scale mismatch.</li>
-  </ul>
-  If the <span style="color:var(--warn)">orange vline</span> is absent from the right-hand panel,
-  no pressure-based recovery transition was detected in the final 25&thinsp;% of the
-  stage&nbsp;1 record — the suggested recovery time equals the last raw sample.
-  Check the timing table in the mooring summary report for the suggested UTC time.
-</p>
-
-<details open><summary class="collapse-toggle">show / hide</summary>
-<img class="fig" src="data:image/png;base64,<PNG>" alt="windows_0">
-</details><div class="fig-source">source: oceanarray/plotters/diagnostic.py:draw_windows</div>
-
-<h2 id="ts_diagram">(5) T-S diagram</h2>
-
-<p class="caption">Coloured by pressure (or sample index). × = suspect | × = bad (QC flags).</p>
+<p class="caption">Potential temperature against salinity (PSU). Left: each sample coloured by pressure. Right: number of samples in each bin (log scale). Dashed: σθ every 0.2 kg/m³. No value is flagged suspect or bad by oceanarray.</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig" src="data:image/png;base64,<PNG>" alt="ts_diagram">
 </details><div class="fig-source">source: oceanarray/plotters/ts.py:draw_ts_diagram</div>
 
-<h2 id="distributions">(6) Data value distributions</h2>
-
-<p class="caption">Orange dashed = suspect threshold | Red dotted = fail threshold (gross-range QC). Histogram shows non-bad data only; bad-flagged count noted in red.</p>
-<details open><summary class="collapse-toggle">show / hide</summary>
-<img class="fig" src="data:image/png;base64,<PNG>" alt="dist">
-</details><div class="fig-source">source: oceanarray/plotters/diagnostic.py:draw_data_histogram</div>
-
-<h2 id="qc">(7) QC flag breakdown</h2>
+<h2 id="qc">(3) Quality flags</h2>
 
 
 
-<h3 style="font-size:0.85rem;color:var(--ocean);margin:0.8rem 0 0.3rem;">Thresholds applied (as stored in stage&nbsp;3 file)</h3>
+<h3 class="sub">Flags by variable</h3>
+
+
+<p class="one-line">All variables (4): every value good.</p>
+
+<h3 class="sub">QC test limits</h3>
+<p class="caption">Limits of oceanarray's automatic tests, as stored with each flag variable:
+a value outside the suspect range (or changing by more than the spike threshold) is
+flagged suspect, outside the fail range bad.</p>
 <table style="font-size:0.82rem;margin-bottom:1rem;">
   <thead>
     <tr>
@@ -726,115 +610,143 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
 </table>
 
 
-<h3 style="font-size:0.85rem;color:var(--ocean);margin:0.8rem 0 0.3rem;">Flag counts</h3>
-<table>
-  <thead>
-    <tr>
-      <th>Variable</th>
-      <th class="num">N</th>
-      <th class="num">Good&nbsp;%</th>
-      <th class="num">Suspect&nbsp;%</th>
-      <th class="num">Bad&nbsp;%</th>
-      <th class="num">Interp.&nbsp;%</th>
-      <th class="num">Missing&nbsp;%</th>
-      <th>Distribution</th>
-    </tr>
-  </thead>
+<h2 id="processing">(4) Processing</h2>
+
+<p class="caption">What was done to this instrument&#39;s record, entry by entry as the file&#39;s history attribute records it, with the settings read from the file.</p>
+
+<table class="steps">
+  <thead><tr><th>When<span class="th-unit">UTC</span></th><th>What was done</th><th>Settings</th></tr></thead>
   <tbody>
-    
-    
-    
-    
-    
-    
-    <tr>
-      <td class="mono">conductivity</td>
-      <td class="num">19,635</td>
-      <td class="num" style="color:var(--good)">100.0</td>
-      <td class="num">&ndash;</td>
-      <td class="num">&ndash;</td>
-      <td class="num">&ndash;</td>
-      <td class="num">&ndash;</td>
-      <td>
-        <div class="qc-bar">
-          
-          <div style="width:100.0%;background:#27ae60;" title="good: 100.0%"></div>
-          
-        </div>
-      </td>
-    </tr>
-    
-    
-    
-    
-    
-    
-    <tr>
-      <td class="mono">pressure</td>
-      <td class="num">19,635</td>
-      <td class="num" style="color:var(--bad)">0.0</td>
-      <td class="num">&ndash;</td>
-      <td class="num">&ndash;</td>
-      <td class="num"><span style="color:var(--interp)" title="19635 records">100.0</span></td>
-      <td class="num">&ndash;</td>
-      <td>
-        <div class="qc-bar">
-          
-          <div style="width:100.0%;background:#3498db;" title="interpolated: 100.0%"></div>
-          
-        </div>
-      </td>
-    </tr>
-    
-    
-    
-    
-    
-    
-    <tr>
-      <td class="mono">salinity</td>
-      <td class="num">19,635</td>
-      <td class="num" style="color:var(--good)">100.0</td>
-      <td class="num">&ndash;</td>
-      <td class="num">&ndash;</td>
-      <td class="num">&ndash;</td>
-      <td class="num">&ndash;</td>
-      <td>
-        <div class="qc-bar">
-          
-          <div style="width:100.0%;background:#27ae60;" title="good: 100.0%"></div>
-          
-        </div>
-      </td>
-    </tr>
-    
-    
-    
-    
-    
-    
-    <tr>
-      <td class="mono">temperature</td>
-      <td class="num">19,635</td>
-      <td class="num" style="color:var(--good)">100.0</td>
-      <td class="num">&ndash;</td>
-      <td class="num">&ndash;</td>
-      <td class="num">&ndash;</td>
-      <td class="num">&ndash;</td>
-      <td>
-        <div class="qc-bar">
-          
-          <div style="width:100.0%;background:#27ae60;" title="good: 100.0%"></div>
-          
-        </div>
-      </td>
-    </tr>
-    
+    <tr><td class="nowrap">2026-11-15 21:09</td><td>Processed by SeaSenseLib v0.6.1<br>Reader: SbeAsciiReader<br>Format: SeaBird ASCII<br>Source file: 2941_recovery.asc<br>Stages: finalization, mapping, metadata_enrichment, metadata_extraction, transformation, unit_handling, validation</td><td></td></tr>
+    <tr><td class="nowrap">2026-11-15 21:09</td><td>processing_stage 1</td><td>file type: sbe-ascii, file: 2941_recovery.asc, unit spellings standardized</td></tr>
+    <tr><td class="nowrap">2026-11-15 21:09</td><td>processing_stage 2</td><td>window 2026-07-11 20:30 to 2026-07-25 11:44</td></tr>
+    <tr><td class="nowrap">2026-11-15 21:09</td><td>stage3 pressure interpolated (pressure_qc=8) — extrapolated from aquadopp 9920 (hab=226.0m, static offset=-199.0 dbar) — WARNING: out of range: hab 425.0 m is above every pressure source (hab 226.0–226.0 m): not bracketed<br>the offset takes 1 m of hab as 1 dbar and assumes the line stays upright | QARTOD gross-range+spike: conductivity_qc=[good=19635]<br>pressure_qc=[good=0, interp=19635]<br>salinity_qc=[good=19635]<br>temperature_qc=[good=19635]</td><td>tests: flat line, gross range, spike, stack and grid leave out bad</td></tr>
+    <tr><td class="nowrap">2026-11-15 21:09</td><td>processing_stage 3</td><td></td></tr>
   </tbody>
 </table>
 
-<h2 id="netcdf_variables">(A) NetCDF variables</h2>
 
+<details class="processing"><summary>Files used to build this page</summary>
+<table class="file-table">
+  <thead><tr><th>#</th><th>File</th><th>Name</th><th>Size</th><th>Last modified</th></tr></thead>
+  <tbody>
+  <tr>
+    <td class="num">1</td>
+    <td>Instrument's file</td>
+    
+    <td class="mono">2941_recovery.asc</td>
+    <td colspan="2">&mdash; not checked (no --raw-dir)</td>
+    
+  </tr>
+  
+  <tr>
+    <td class="num">2</td>
+    <td>As read</td>
+    
+    <td class="mono">dune2_1_2026_2941_stage1.nc</td>
+    <td class="num">123 KB</td>
+    <td><MTIME></td>
+    
+  </tr>
+  
+  <tr>
+    <td class="num">3</td>
+    <td>Standardized and trimmed</td>
+    
+    <td class="mono">dune2_1_2026_2941_stage2.nc</td>
+    <td class="num">121 KB</td>
+    <td><MTIME></td>
+    
+  </tr>
+  
+  <tr>
+    <td class="num">4</td>
+    <td>Checked</td>
+    
+    <td class="mono">dune2_1_2026_2941_stage3.nc</td>
+    <td class="num">236 KB</td>
+    <td><MTIME></td>
+    
+  </tr>
+  
+  </tbody>
+</table>
+</details>
+
+
+<details class="processing"><summary>As recorded in the file's history attribute</summary>
+
+
+
+
+<table class="nc properties" data-nosort>
+
+<thead><tr><th>Property</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Processed</td><td>2026-11-15T21:09:44.421099Z - Processed by SeaSenseLib v0.6.1</td></tr>
+<tr><td>Reader</td><td>SbeAsciiReader</td></tr>
+<tr><td>Format</td><td>SeaBird ASCII</td></tr>
+<tr><td>Source file</td><td class="mono">2941_recovery.asc</td></tr>
+<tr><td>Stages</td><td>finalization, mapping, metadata_enrichment, metadata_extraction, transformation, unit_handling, validation</td></tr>
+<tr><td>the offset takes 1 m of hab as 1 dbar and assumes the line stays upright | QARTOD gross-range+spike</td><td>conductivity_qc=[good=19635]</td></tr>
+</tbody></table>
+<table class="sortable">
+
+<thead>
+  <tr><th tabindex="0">#</th><th tabindex="0">Time</th><th tabindex="0">Event</th></tr>
+</thead>
+<tbody>
+  <tr><td>1</td><td>2026-11-15T21:09Z</td><td>processing_stage 1</td></tr>
+  <tr><td>2</td><td>2026-11-15T21:09Z</td><td>processing_stage 2</td></tr>
+  <tr><td>3</td><td>2026-11-15T21:09Z</td><td>stage3 pressure interpolated (pressure_qc=8) — extrapolated from aquadopp 9920 (hab=226.0m, static offset=-199.0 dbar) — WARNING: out of range: hab 425.0 m is above every pressure source (hab 226.0–226.0 m): not bracketed</td></tr>
+  <tr><td>4</td><td>2026-11-15T21:09Z</td><td>pressure_qc=[good=0, interp=19635]</td></tr>
+  <tr><td>5</td><td>2026-11-15T21:09Z</td><td>salinity_qc=[good=19635]</td></tr>
+  <tr><td>6</td><td>2026-11-15T21:09Z</td><td>temperature_qc=[good=19635]</td></tr>
+  <tr><td>7</td><td>2026-11-15T21:09Z</td><td>processing_stage 3</td></tr>
+</tbody>
+</table><div class="fig-source">source: oceanarray/reports/_html_helpers.py:_build_history_tables</div>
+</details>
+
+
+<details class="processing" id="start"><summary>Start and end of the record</summary>
+<p class="caption">
+  Left: the first 6&thinsp;h of the record, with 1&thinsp;h before it; right: the
+  last 6&thinsp;h, with 1&thinsp;h after it. <span style="color:var(--good)">Green dashed</span>: the
+  deployment and recovery times in the mooring description.
+  Grey: the instrument's file as first read, before trimming (same variable, same units).
+</p>
+<p class="caption">
+  <strong>Reading the grey background:</strong> where the file as first read uses the
+  same units as the trimmed record, it is drawn in light grey, so you can check that
+  the chosen window covers the time in the water. Grey may be absent for:
+</p>
+<ul class="caption">
+  <li><em>sensors without their own pressure</em> (e.g. a MicroCAT using pressure
+  interpolated from a neighbouring instrument): the interpolated pressure is added only
+  when the record is checked, so the file as first read has none;</li>
+  <li><em>velocity in beam or instrument coordinates</em>: an Aquadopp or ADCP set to
+  record in BEAM or XYZ stores different variables from the east/north velocities shown
+  here;</li>
+  <li><em>conductivity</em>: when the units differ between the file as read and the
+  checked record (e.g. S/m and mS/cm), the grey trace is left out rather than drawn on
+  the wrong scale.</li>
+</ul>
+<img class="fig slot-full" src="data:image/png;base64,<PNG>" alt="start and end windows">
+
+</details>
+
+
+<details class="processing"><summary>Data value distributions</summary>
+<p class="caption">Distribution of each variable over the record (log count). Orange dashed: suspect limit; red dotted: fail limit of the gross-range test, drawn only when they fall inside the axes. Grey: every value; coloured: the values kept. Values flagged bad by oceanarray are left out.</p>
+<img class="fig slot-full" src="data:image/png;base64,<PNG>" alt="Data value distributions">
+
+</details>
+
+<h2 id="netcdf">(A) NetCDF file</h2>
+
+<p class="caption">Contents of the file this page was drawn from, as written by oceanarray. To produce it yourself, run oceanarray with the mooring description on the deployment page; the originator&#39;s data are linked at the top.</p>
+
+<details class="processing"><summary>show the coordinates, variables and global attributes</summary>
 <h3>Coordinates</h3>
 <table class="sortable var-table">
 
@@ -849,8 +761,6 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
 <table data-nosort><tbody><tr><th>coverage_content_type</th><td>coordinate</td></tr><tr><th>axis</th><td>T</td></tr>
 </tbody></table></details></td></tr>
 </tbody></table><div class="fig-source">source: oceanarray/reports/_vendored/nc_tables.py:coords_rows</div>
-
-
 <h3>Variables on time (19,635 samples)</h3>
 <table class="sortable var-table">
 
@@ -887,9 +797,7 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
 <td data-sort="100.0">100.0</td><td data-nosort><details class="attr-disclosure"><summary>9 attrs</summary>
 <table data-nosort><tbody><tr><th>_comment</th><td>Units are degree_C, assumed ITS-90 for all modern instruments. A variable named temperature_68 would indicate IPTS-68 sc</td></tr><tr><th>coverage_content_type</th><td>physicalMeasurement</td></tr><tr><th>measurement_type</th><td>Measured</td></tr><tr><th>short_name</th><td>WT</td></tr><tr><th>scale</th><td>ITS-90</td></tr><tr><th>sensor</th><td>SENSOR_CTD_2941</td></tr><tr><th>units_metadata</th><td>temperature: on_scale</td></tr><tr><th>valid_min</th><td>-5</td></tr><tr><th>valid_max</th><td>42</td></tr>
 </tbody></table></details></td></tr>
-</tbody></table><div class="fig-source">source: oceanarray/reports/_vendored/nc_tables.py:variables_rows</div>
-
-<h3>Scalar variables</h3>
+</tbody></table><div class="fig-source">source: oceanarray/reports/_vendored/nc_tables.py:variables_rows</div><h3>Scalar variables</h3>
 <table class="sortable var-table">
 
 
@@ -921,10 +829,6 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
 <td data-sort="start_time">start_time</td><td><code>string</code></td><td>—</td>
 <td class="cell-wrap">—</td><td class="cell-wrap">2026-07-11T20:30</td><td data-nosort>—</td></tr>
 </tbody></table><div class="fig-source">source: oceanarray/reports/_vendored/nc_tables.py:scalars_rows</div>
-
-<h2 id="netcdf_attributes">(B) NetCDF attributes</h2>
-
-
 <h3>Identity &amp; discovery</h3>
 <table class="sortable">
 
@@ -1021,9 +925,10 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
 <tr><td class="mono">stage2_source_mtime</td><td><code>string</code></td><td>2026-11-15T21:09:44Z</td></tr>
 <tr><td class="mono">stage2_source_sha256</td><td><code>string</code></td><td>5be7884ce25a5f0c1279b79251dd1ad2886a710fcc30dd62f919b7f71757fd83</td></tr>
 </tbody></table><div class="fig-source">source: oceanarray/reports/_vendored/nc_tables.py:globals_rows</div>
+</details>
 
 
-<p class="none-note">Not applicable to this instrument: Velocity, Current roses, Current rose diagrams, Particle trajectory, Hodograph, Current speed distribution, Analog channels.</p>
+<p class="none-note">Not applicable to this instrument: Velocity, Current roses, Current rose, Progressive vector diagram, Hodograph, Current speed distribution, Analog channels.</p>
 
 <div class="report-footer">
   Generated by <a href="https://ocean-uhh.github.io/oceanarray"><strong>oceanarray</strong></a> v<VERSION> &bull; <GENERATED>
@@ -1034,6 +939,14 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
   });
 </script>
 
+<script>
+  // A link to a collapsed box (e.g. #start) opens it.
+  (function () {
+    const open = () => { const el = location.hash && document.getElementById(location.hash.slice(1));
+      if (el && el.tagName === 'DETAILS') { el.open = true; el.scrollIntoView(); } };
+    window.addEventListener('hashchange', open); open();
+  })();
+</script>
 
 <script>
 /* Expand all / Collapse all: one button opens or closes every <details>. Before

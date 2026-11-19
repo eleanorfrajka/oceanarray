@@ -57,11 +57,47 @@ def _history_stamp() -> str:
     return datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%dT%H:%MZ")
 
 
+#: What each stage did, as its ``history`` entry says it.
+STAGE_WORDS: dict[int, str] = {
+    1: "read into oceanarray's variable names and units",
+    2: "clock corrected and trimmed to the deployment window",
+    3: "checked (automatic tests, originator flags translated) and derived variables added",
+}
+
+#: Separates the entries of ``history``; a note never contains it.
+HISTORY_SEPARATOR = "; "
+#: Separates the events of one entry (read back as rows sharing one time).
+HISTORY_EVENT_SEPARATOR = " | "
+
+
+def clean_history_note(note: str) -> str:
+    """Return *note* without the entry separator, so it reads back as one entry.
+
+    ``history`` is read back by splitting on ``"; "`` (between entries) and then on
+    the first ``": "`` (time from text); a ``"; "`` inside a note would split it
+    mid-sentence. Each one becomes ``", "``. Several events of one entry are joined
+    with ``" | "`` instead.
+
+    Parameters
+    ----------
+    note : str
+        The event text.
+
+    Returns
+    -------
+    str
+        *note* with every ``"; "`` replaced by ``", "``, stripped.
+    """
+    return str(note).replace(HISTORY_SEPARATOR, ", ").strip()
+
+
 def append_history(ds: xr.Dataset, note: str) -> None:
     """Append a timestamped *note* to ``ds.attrs['history']`` in place.
 
     The one place the ``history`` timestamp format and the ``"; "`` separator
-    live, so every stage appends in the same form.
+    live, so every stage appends in the same form. A ``"; "`` inside *note* is
+    cleaned to ``", "`` (:func:`clean_history_note`) so the entry is read back
+    whole.
 
     Parameters
     ----------
@@ -70,9 +106,9 @@ def append_history(ds: xr.Dataset, note: str) -> None:
     note : str
         The event text, timestamped and appended.
     """
-    entry = f"{_history_stamp()}: {note}"
+    entry = f"{_history_stamp()}: {clean_history_note(note)}"
     existing = ds.attrs.get("history", "")
-    ds.attrs["history"] = f"{existing}; {entry}" if existing else entry
+    ds.attrs["history"] = f"{existing}{HISTORY_SEPARATOR}{entry}" if existing else entry
 
 
 def stamp(
@@ -107,7 +143,7 @@ def stamp(
     """
     out = ds.copy()
     out.attrs[STAGE_ATTR] = int(stage)
-    note = f"processing_stage {int(stage)}"
+    note = f"stage {int(stage)}: {STAGE_WORDS.get(int(stage), 'written')} (processing_stage {int(stage)})"
     if inferred:
         note += " inferred from filename"
     append_history(out, note)

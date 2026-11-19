@@ -319,10 +319,12 @@ def density_fields(
     """
     import gsw
 
+    from oceanarray.physics import potential_density_anomaly
+
     p = np.broadcast_to(pressure[None, :], temperature.shape)
     sa = gsw.SA_from_SP(salinity, p, longitude, latitude)
     ct = gsw.CT_from_t(sa, temperature, p)
-    return gsw.sigma0(sa, ct), gsw.sigma2(sa, ct)
+    return tuple(potential_density_anomaly(sa, ct, ref) for ref in (0, 2000))
 
 
 def instrument_pressures(

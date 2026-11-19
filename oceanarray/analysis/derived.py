@@ -462,7 +462,11 @@ def velocity_coverage(east: np.ndarray, north: np.ndarray) -> np.ndarray | None:
 
 
 def sparse_velocity_levels(
-    east: np.ndarray, north: np.ndarray, *, min_filled: float = ROSE_MIN_FILLED
+    east: np.ndarray,
+    north: np.ndarray,
+    *,
+    min_filled: float = ROSE_MIN_FILLED,
+    coverage: np.ndarray | None = None,
 ) -> list[int]:
     """Return the levels left out of the roses and hodographs for low coverage.
 
@@ -473,6 +477,8 @@ def sparse_velocity_levels(
     min_filled : float, optional
         The share :func:`velocity_levels` requires (default
         :data:`ROSE_MIN_FILLED`).
+    coverage : numpy.ndarray or None, optional
+        :func:`velocity_coverage` of *east* and *north*, when already computed.
 
     Returns
     -------
@@ -481,7 +487,7 @@ def sparse_velocity_levels(
         shallowest first.  Levels with no velocity at all (outside the current
         meters) are not listed.
     """
-    filled = velocity_coverage(east, north)
+    filled = coverage if coverage is not None else velocity_coverage(east, north)
     if filled is None:
         return []
     return np.flatnonzero((filled > 0) & (filled < min_filled)).tolist()
@@ -493,6 +499,7 @@ def velocity_levels(
     *,
     min_filled: float = ROSE_MIN_FILLED,
     n: int = ROSE_MAX_LEVELS,
+    coverage: np.ndarray | None = None,
 ) -> list[int]:
     """Return the grid levels the current roses and hodographs are drawn at.
 
@@ -506,13 +513,15 @@ def velocity_levels(
     n : int, optional
         Most levels taken (default :data:`ROSE_MAX_LEVELS`), evenly from the shallowest to the deepest
         qualifying level, both always included.
+    coverage : numpy.ndarray or None, optional
+        :func:`velocity_coverage` of *east* and *north*, when already computed.
 
     Returns
     -------
     list of int
         Level indices, shallowest first; empty when no level qualifies.
     """
-    filled = velocity_coverage(east, north)
+    filled = coverage if coverage is not None else velocity_coverage(east, north)
     if filled is None:
         return []
     ok = np.flatnonzero(filled >= min_filled).tolist()

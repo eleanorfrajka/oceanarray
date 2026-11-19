@@ -212,6 +212,6 @@ def add_mapped(ds: xr.Dataset, *, label: str = "") -> tuple[xr.Dataset, str | No
             )
         )
     note = "originator flags translated by meaning, originator->ours (samples): " + (
-        "; ".join(lines)
+        " | ".join(lines)
     )
     return ds, note

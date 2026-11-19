@@ -16,10 +16,11 @@ from oceanarray.paths import should_skip_regeneration
 
 from ..config import parameters as params
 from ..pipeline import masking
+from ..plotters.helpers import nominal_depths
 from . import _captions, _html_helpers, _masthead, _qcflags
 from ._breadcrumb import crumbs_from_ctx
 from ._env import (
-    render_history,
+    render_nc_collapsed,
     render_nc_coords,
     render_nc_globals,
     render_nc_scalars,
@@ -31,11 +32,10 @@ from ._html_helpers import (
     _instrument_report_exists,
     _instrument_report_href,
     _parse_dt,
-    _parse_history,
     _resolve_array_report_href,
     description_links,
 )
-from ._navs import mooring_nav
+from ._navs import _type_label, mooring_nav
 from ._plots import (
     _make_adcp_progressive_vector_b64,
     _make_analog_timeseries_b64,
@@ -76,32 +76,23 @@ from ._vendored.page_model import Panel, Profile, Section, resolve
 #: Stack panel captions, keyed by panel id — plain text, Unicode notation, no
 #: markup (a future ``config/report.yaml`` makes these user-editable; see grid).
 STACK_CAPTIONS: dict[str, str] = {
+    # The figure captions with a flag sentence are generated per page
+    # (``_captions.stack_captions``); these are the fallbacks.
     "hydro_pts": (
-        "Pressure, temperature and salinity for the full deployment — one row "
-        "each on a shared time axis. One colour per instrument (shared across "
-        "rows, ordered by height) so a line can be followed through all three "
-        "panels; the single legend spans the union of instruments. Values flagged "
-        "3, 4 or 9 (correctable bad, bad, missing) are left out; interpolated (8) "
-        "and nominal (7) values are drawn. ADCP excluded from pressure."
+        "Pressure, temperature and salinity from every instrument over the "
+        "deployment, on a shared time axis. Each instrument keeps one colour and "
+        "line style in all three panels, from the deepest (blue) to the shallowest "
+        "(red)."
     ),
     "dissolved_oxygen": (
-        "One line per instrument with dissolved oxygen data (SBE ODO sensor); "
-        f"values flagged 3, 4 or 9 left out. Units: {params.vunit('dissolved_oxygen')}. "
-        "% saturation available in per-instrument reports."
+        "Dissolved oxygen from each instrument with an oxygen sensor "
+        f"({params.vunit('dissolved_oxygen')})."
     ),
     "vel_uvw": (
-        "Eastward (U), northward (V) and upward (W) velocity in the ENU frame — "
-        "one row each on a shared time axis, one colour per instrument (shared "
-        "across rows, ordered by height) with a single legend over the union of "
-        "instruments. Values flagged 3, 4 or 9 left out; instruments without "
-        "velocity data omitted."
+        "Eastward, northward and upward velocity from each current meter over the "
+        "deployment."
     ),
-    "turbidity": (
-        "One line per instrument with turbidity data; values flagged 3, 4 or 9 "
-        "left out. Dots "
-        "overlaid to reveal individual samples near zero. Units from file attrs "
-        "(verify: NTU, FTU, or V depending on sensor)."
-    ),
+    "turbidity": "Turbidity from each instrument with a turbidity sensor.",
     "trajectories_aquadopp": (
         "Cumulative displacement from adding up each Aquadopp's measured velocity "
         "(a progressive vector diagram): how far water passing the instrument would "
@@ -124,37 +115,53 @@ STACK_CAPTIONS: dict[str, str] = {
         "Full-record time series of analog channel variables containing "
         "non-zero, non-NaN data. One panel per channel."
     ),
-    "ts_diagram": (
-        "Left: scatter coloured by pressure. Middle: 2-D count heatmap. Right "
-        "(when oxygen data present): scatter coloured by O₂ saturation (%). Values "
-        "flagged 3, 4 or 9 (probably bad, bad, missing) left out; nominal and "
-        "interpolated values (flags 7, 8) kept."
+    "ts_diagram": "Potential temperature against salinity (PSU) for all samples.",
+    "steps": (
+        "What was done to produce this combined record, entry by entry as the stack "
+        "file's history attribute records it, with the settings read from the file."
     ),
-    "steps": "Processing steps that produced this combined record, with the settings used.",
     "roses": (
         "Direction toward which the current flows and speed for each current meter. "
         "Wedge length is the percentage of the record in that direction; colours "
-        "are speed classes. Titles: serial number and height above bottom (m)."
+        "are speed classes."
     ),
     "tilt": (
         "|pitch| / |roll| / pressure-estimate tilt per Aquadopp, sharing a "
-        "y-axis. Horizontal lines mark the suspect and fail thresholds from the "
-        "file attributes."
+        "y-axis. Horizontal lines mark the suspect and fail limits stored with the "
+        "flags."
     ),
     "spacing": (
-        "Distribution of pressure differences between adjacent instrument pairs "
-        "(pairs < 2 dbar apart excluded as co-located)."
+        "Vertical distance between neighbouring instruments, from their measured "
+        "pressures. This sets how finely the gridded product can resolve the water "
+        "column; pairs closer than 2 dbar count as one level."
     ),
     "clock_check": (
         "One temperature trace per instrument, zoomed to the first and last "
         "30 min of the deployment, to check clock alignment across instruments."
     ),
+    "clock_imported": (
+        "Not applicable: clocks were aligned by the originator, and these records "
+        "start and end where the originator's did."
+    ),
+    "qc_counts": (
+        "Share of each variable's record flagged by the originator and by oceanarray "
+        "(its automatic tests), and which values the plots and the gridded "
+        "product leave out. Variables with nothing flagged are not listed."
+    ),
     "qc_strip": (
-        "Flags through time, one panel per instrument with anything flagged, a pair "
-        "of bars per flagged variable: the originator's (orig, translated to "
-        "oceanarray's table) above oceanarray's (OA), so a value one flagged and the other did not reads "
-        "straight down the pair. Instruments with nothing flagged are left out "
-        "(named under the table). 0: a value with no flag (not QC'd); 9: no value."
+        "Flags through time for each instrument with anything flagged: the "
+        "originator's above oceanarray's for each variable. A flag set the file "
+        "does not have gets no bar."
+    ),
+    "instr_table": (
+        "Deepest first. HAB: height above bottom. A serial links to the instrument's "
+        "own page."
+    ),
+    "nc_file": (
+        "Contents of the stack file this page was drawn from, as written by "
+        "oceanarray. To produce it yourself, run oceanarray with the mooring "
+        "description at the end of the deployment page; the originator's data are "
+        "linked at the top of each instrument's page."
     ),
 }
 
@@ -176,8 +183,6 @@ class StackContext:
         Number of instrument levels.
     has_analog : bool
         Whether any analog channels are present.
-    history_entries : list
-        Parsed processing-history entries.
     instr_rows : list
         Per-instrument summary rows for the deep-first instruments table.
     nc_meta : dict
@@ -186,10 +191,10 @@ class StackContext:
         The stack NetCDF file's name.
     rose_note : str or None
         Magnetic-declination note for the current-roses section, if any.
-    rose_warn : bool
-        Whether an Aquadopp is missing its magnetic declination.
-    rose_missing_serials : list
-        Serials of Aquadopps missing declination (for the warning).
+    rose_unapplied : list of tuple of (str, str)
+        Instruments whose east/north velocities neither oceanarray nor the
+        originator rotated to true north, each with why (from
+        :func:`declination_unapplied`); empty for none.
     stage2_serials : list
         Serials stacked from their stage-2 files (``stage2_instruments``).
     stage2_velocity : bool
@@ -201,6 +206,8 @@ class StackContext:
         Why they were stacked from stage 2 (``stage2_reason``).
     stage2_magnetic_north : list
         Those of them with east/north velocities, which lack magnetic declination.
+    qc_sentence : str
+        The flag sentence of the Quality flags table, from the stack's rule.
 
     """
 
@@ -209,13 +216,11 @@ class StackContext:
     instr_types: set
     n_instr: int
     has_analog: bool
-    history_entries: list
     instr_rows: list
     nc_meta: dict
     nc_file: str
     rose_note: str | None
-    rose_warn: bool
-    rose_missing_serials: list
+    rose_unapplied: list
     stage2_serials: list = field(default_factory=list)
     stage2_velocity: bool = False
     stage2_current_meters: list = field(default_factory=list)
@@ -227,6 +232,7 @@ class StackContext:
     qc_tables: list = field(default_factory=list)
     qc_unflagged: list = field(default_factory=list)
     qc_quiet: int = 0
+    qc_sentence: str = ""
     all_imported: bool = False
     steps: list = field(default_factory=list)
 
@@ -251,11 +257,72 @@ def _has_aquadopp(c: StackContext) -> bool:
     return "aquadopp" in c.instr_types
 
 
-def _history_unavailable(c: StackContext) -> str | None:
-    """Reason the history panel cannot render, or None (provenance always applies)."""
-    if c.history_entries:
-        return None
-    return _html_helpers.NO_HISTORY
+def declination_unapplied(ds: Any) -> list[tuple[str, str]]:
+    """Return the instruments whose east/north velocities nobody rotated to true north.
+
+    A level is left out when oceanarray applied the magnetic declination (a finite
+    ``magnetic_declination``), when the originator did (a non-empty
+    ``originator_magnetic_declination``; a stack written before that variable
+    falls back to ``originator_file``, as the readers record the originator's
+    declination for every imported file with east/north velocities), or when it
+    was stacked from stage 2 (the stage-2 note covers it).
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The stack, with ``N_LEVELS`` levels and ``(time, N_LEVELS)`` velocities.
+
+    Returns
+    -------
+    list of tuple of (str, str)
+        ``(instrument, reason)`` once per physical instrument (an ADCP's bins and
+        head are one), e.g. ``("Aquadopp s/n 9920", "no mooring position at
+        stage 3")``; empty when every level with velocity is in true north.
+    """
+    if "east_velocity" not in ds.data_vars or "N_LEVELS" not in ds.dims:
+        return []
+    n = ds.sizes["N_LEVELS"]
+    east = ds["east_velocity"]
+    has_vel = (
+        np.isfinite(east.transpose(..., "N_LEVELS").values).reshape(-1, n).any(axis=0)
+    )
+
+    def per_level(name: str, fill: Any) -> list:
+        if name not in ds.variables:
+            return [fill] * n
+        vals = np.asarray(ds[name].values)
+        return [vals.item()] * n if vals.ndim == 0 else list(vals.ravel())
+
+    decl = np.array(per_level("magnetic_declination", np.nan), dtype=float)
+    if "originator_magnetic_declination" in ds.variables:
+        by_originator = [
+            bool(str(v)) for v in per_level("originator_magnetic_declination", "")
+        ]
+    else:
+        by_originator = [bool(str(v)) for v in per_level("originator_file", "")]
+    serials = [str(s) for s in per_level("serial", "")]
+    types = [str(t) for t in per_level("instrument_type", "")]
+    stage2 = set(str(ds.attrs.get("stage2_instruments", "")).split())
+    unknown = str(
+        ds["magnetic_declination"].attrs.get("comment", "")
+        if "magnetic_declination" in ds.variables
+        else ""
+    )
+    out: list[tuple[str, str]] = []
+    for i in np.flatnonzero(has_vel):
+        if np.isfinite(decl[i]) or by_originator[i]:
+            continue
+        if paths.safe_serial(serials[i]) in stage2 or serials[i] in stage2:
+            continue
+        base = paths.adcp_parent_serial(serials[i])
+        if f"{types[i]} s/n {base}" in unknown:
+            reason = "no mooring position at stage 3"
+        else:
+            reason = "its stage-3 file records no declination"
+        entry = (f"{_type_label(types[i])} s/n {base}", reason)
+        if entry not in out:
+            out.append(entry)
+    return out
 
 
 def _figure_panel(
@@ -270,6 +337,12 @@ def _figure_panel(
         "render": _fig(pid),
         "caption": STACK_CAPTIONS[pid],
         "slot": slot,
+        # An applicable figure that draws nothing says why, never a bare stub.
+        "unavailable_if": lambda c: (
+            None
+            if c.figs.get(pid) is not None
+            else "No values in this file to draw this figure from."
+        ),
     }
     if applies_to is not None:
         kwargs["applies_to"] = applies_to
@@ -283,20 +356,10 @@ def _figure_panel(
 STACK_PANELS: dict[str, Panel] = {
     "steps": Panel(
         "steps",
-        render=lambda c: render_template("_processing_steps.html", steps=c.steps),
+        render=lambda c: render_template("_history_steps.html", rows=c.steps),
         kind="html",
         caption=STACK_CAPTIONS["steps"],
-        applies_to=lambda c: bool(c.steps),
-    ),
-    "history": Panel(
-        "history",
-        render=lambda c: render_template(
-            "_collapsed.html",
-            summary="show the file's processing record (dated events)",
-            body=render_history(c.history_entries),
-        ),
-        kind="html",
-        unavailable_if=_history_unavailable,
+        unavailable_if=lambda c: None if c.steps else _html_helpers.NO_HISTORY,
     ),
     "stage2_note": Panel(
         "stage2_note",
@@ -324,6 +387,7 @@ STACK_PANELS: dict[str, Panel] = {
             "_stack_instr_table.html", instr_rows=c.instr_rows
         ),
         kind="table",
+        caption=STACK_CAPTIONS["instr_table"],
     ),
     "hydro_pts": _figure_panel(
         "hydro_pts",
@@ -357,25 +421,41 @@ STACK_PANELS: dict[str, Panel] = {
         render=lambda c: render_template(
             "_stack_roses_note.html",
             note=c.rose_note,
-            warn=c.rose_warn,
-            missing=c.rose_missing_serials,
+            unapplied=c.rose_unapplied,
         ),
         kind="html",
-        applies_to=lambda c: bool(c.rose_warn or c.rose_note),
+        applies_to=lambda c: bool(c.rose_unapplied or c.rose_note),
     ),
     "roses": _figure_panel("roses", _has_stack_velocity),
     "tilt": _figure_panel("tilt", _has_aquadopp),
     "spacing": Panel(
         "spacing",
-        render=_fig("spacing"),
-        slot="third",
-        caption=STACK_CAPTIONS["spacing"],
-        applies_to=lambda c: c.n_instr > 1 and "pressure" in c.present_vars,
+        render=lambda c: render_template(
+            "_collapsed_figure.html",
+            summary="Spacing of neighbouring instruments",
+            caption=STACK_CAPTIONS["spacing"],
+            images=[c.figs["spacing"]]
+            if isinstance(c.figs.get("spacing"), str)
+            else [],
+            slot="third",
+        ),
+        kind="html",
+        applies_to=lambda c: (
+            c.n_instr > 1
+            and "pressure" in c.present_vars
+            and isinstance(c.figs.get("spacing"), str)
+        ),
     ),
     "clock_check": _figure_panel(
         "clock_check",
-        # Off when every instrument was imported (``originator_file`` per level).
-        lambda c: c.figs.get("clock_check") is not None or not c.all_imported,
+        # A figure only when an instrument was processed from its own file.
+        lambda c: not c.all_imported,
+    ),
+    "clock_imported": Panel(
+        "clock_imported",
+        render=lambda _c: f'<p class="one-line">{STACK_CAPTIONS["clock_imported"]}</p>',
+        kind="html",
+        applies_to=lambda c: c.all_imported,
     ),
     "qc_counts": Panel(
         "qc_counts",
@@ -386,11 +466,19 @@ STACK_PANELS: dict[str, Panel] = {
             note=c.qc_note,
             unflagged=c.qc_unflagged,
             quiet=c.qc_quiet,
+            sentence=c.qc_sentence,
+            good_sentence=_qcflags.good_sentence(),
         ),
         kind="table",
         applies_to=lambda c: bool(c.qc_rule),
     ),
-    "qc_strip": _figure_panel("qc_strip", lambda c: bool(c.qc_rule)),
+    "qc_strip": _figure_panel("qc_strip", lambda c: bool(c.qc_rule and c.qc_rows)),
+    "nc_file": Panel(
+        "nc_file",
+        render=lambda c: render_nc_collapsed(c.nc_meta),
+        kind="html",
+        caption=STACK_CAPTIONS["nc_file"],
+    ),
     "qc_translation": Panel(
         "qc_translation",
         render=lambda c: render_template("_qc_translation.html", tables=c.qc_tables),
@@ -425,13 +513,12 @@ STACK_PANELS: dict[str, Panel] = {
 #: Stack sections (Hydrography and Velocity folded).
 STACK_SECTIONS: dict[str, Section] = {
     "processing_history": Section(
-        "processing_history", "Processing history", ("steps", "history")
+        "processing_history", "Processing history", ("steps", "spacing")
     ),
     "instruments": Section(
         "instruments",
-        "Instruments (deep-first)",
+        "Instruments",
         ("stage2_note", "instr_table"),
-        intro="HAB = height above bottom (m).",
     ),
     "hydrography": Section(
         "hydrography",
@@ -459,8 +546,9 @@ STACK_SECTIONS: dict[str, Section] = {
     "tilt": Section(
         "tilt", "Aquadopp tilt (|pitch| / |roll| / pressure estimate)", ("tilt",)
     ),
-    "spacing": Section("spacing", "Adjacent instrument spacing", ("spacing",)),
-    "clock_check": Section("clock_check", "Clock alignment check", ("clock_check",)),
+    "clock_check": Section(
+        "clock_check", "Clock alignment check", ("clock_check", "clock_imported")
+    ),
     "quality_flags": Section(
         "quality_flags",
         "Quality flags",
@@ -478,6 +566,7 @@ STACK_SECTIONS: dict[str, Section] = {
         ("nc_globals",),
         role="appendix",
     ),
+    "netcdf": Section("netcdf", "NetCDF file", ("nc_file",), role="appendix"),
 }
 
 #: Default stack profile.
@@ -495,11 +584,9 @@ STACK_DEFAULT = Profile(
         STACK_SECTIONS["processing_history"],
         STACK_SECTIONS["instruments"],
         STACK_SECTIONS["tilt"],
-        STACK_SECTIONS["spacing"],
         STACK_SECTIONS["clock_check"],
         STACK_SECTIONS["quality_flags"],
-        STACK_SECTIONS["netcdf_variables"],
-        STACK_SECTIONS["netcdf_attributes"],
+        STACK_SECTIONS["netcdf"],
     ),
 )
 
@@ -529,7 +616,6 @@ def generate_stack_page(
         n_instr = ds.sizes["N_LEVELS"]
         dt_seconds = ds.attrs.get("dt_seconds", "?")
         waterdepth = float(ds.attrs.get("waterdepth", 0) or 0)
-        stack_history = _parse_history(ds.attrs.get("history", ""))
         step = max(1, n_time // 5000)
 
         serials = ds["serial"].values
@@ -537,14 +623,20 @@ def generate_stack_page(
         habs = ds["hab"].values
 
         instr_rows = []
+        nominal = nominal_depths(ds)
         for i in range(n_instr):
-            depth = f"{waterdepth - habs[i]:.0f}" if waterdepth else "—"
+            depth = (
+                float(nominal[i])
+                if nominal is not None and np.isfinite(nominal[i])
+                else (waterdepth - float(habs[i]) if waterdepth else None)
+            )
             _ser = str(serials[i])
             instr_rows.append(
                 {
                     "serial": _ser,
                     "instr_type": instr_types[i],
-                    "hab": f"{habs[i]:.0f}",
+                    "type_label": _type_label(str(instr_types[i]).lower()),
+                    "hab": float(habs[i]) if np.isfinite(habs[i]) else None,
                     "depth": depth,
                     "stage": "",
                     "report_href": _instrument_report_href(mooring_name, _ser),
@@ -556,6 +648,9 @@ def generate_stack_page(
 
         _as_serial_list = list(serials)
 
+        # One colour and line style per instrument on every time-series figure:
+        # the hydrography's (temperature's line colormap, deep-first).
+        records: dict[str, dict] = {"hydro_pts": {}, "vel_uvw": {}, "ts_diagram": {}}
         fig_hydro_pts_b64 = _make_stack_timeseries_b64(
             ds,
             [
@@ -564,69 +659,53 @@ def generate_stack_page(
                 ("salinity", params.vlabel("salinity"), False, None),
             ],
             color_var="temperature",
+            label_lines=True,
+            mark_suspect=True,
+            record=records["hydro_pts"],
         )
         fig_dissolved_oxygen_b64 = _make_stack_timeseries_b64(
             ds,
             [("dissolved_oxygen", params.vlabel("dissolved_oxygen"), False, None)],
-            color_var="dissolved_oxygen",
+            color_var="temperature",
         )
+        velocity_rows = [
+            (v, params.vlabel(v, prefix=f"{c} — "), False, None)
+            for v, c in (
+                ("east_velocity", "U"),
+                ("north_velocity", "V"),
+                ("up_velocity", "W"),
+            )
+            if v in ds.data_vars
+        ]
         fig_vel_uvw_b64 = _make_stack_timeseries_b64(
             ds,
-            [
-                (v, params.vlabel(v, prefix=f"{c} — "), False, None)
-                for v, c in (
-                    ("east_velocity", "U"),
-                    ("north_velocity", "V"),
-                    ("up_velocity", "W"),
-                )
-            ],
-            color_var="east_velocity",
+            velocity_rows,
+            color_var="temperature",
+            # Upward velocity in a shorter row: its spread is small, by design.
+            row_heights=[0.5 if v == "up_velocity" else 1.0 for v, *_ in velocity_rows],
+            mark_suspect=True,
+            record=records["vel_uvw"],
+            keyed=records["hydro_pts"].get("labelled", []),
         )
         fig_turbidity_b64 = _make_stack_timeseries_b64(
             ds,
             [("turbidity", params.vlabel("turbidity"), False, None)],
-            color_var="turbidity",
+            color_var="temperature",
             dot_overlay=True,
         )
 
         fig_rose_grid_b64, _n_rose = _make_rose_grid_b64(ds, _as_serial_list)
 
         _decl_vals: list = []
-        _decl_missing = False
-        _decl_missing_serials: list = []
         if "magnetic_declination" in ds.data_vars:
-            _dv = ds["magnetic_declination"].values
-            # _dv may be 0-D (scalar) if mooring_level collapsed identical values
-            _dv_flat = _dv.ravel()
+            # 0-D when the stack collapsed one value shared by every level.
             _decl_vals = sorted(
-                {round(float(v), 2) for v in _dv_flat if np.isfinite(float(v))}
+                {
+                    round(float(v), 2)
+                    for v in ds["magnetic_declination"].values.ravel()
+                    if np.isfinite(float(v))
+                }
             )
-            if "instrument_type" in ds:
-                _aqd_mask = np.array(
-                    [str(t).lower() == "aquadopp" for t in ds["instrument_type"].values]
-                )
-                if _dv.ndim == 0:
-                    # Scalar → same value for all instruments
-                    _decl_missing = bool(
-                        _aqd_mask.any() and not np.isfinite(float(_dv))
-                    )
-                else:
-                    _aqd_bad = _aqd_mask & ~np.isfinite(_dv)
-                    _decl_missing = bool(_aqd_mask.any() and _aqd_bad.any())
-                    if _decl_missing:
-                        _svar = next(
-                            (v for v in ("serial_number", "serial") if v in ds), None
-                        )
-                        if _svar is not None:
-                            _svals = [str(s) for s in ds[_svar].values]
-                            _decl_missing_serials = [
-                                _svals[i] for i, bad in enumerate(_aqd_bad) if bad
-                            ]
-        elif "instrument_type" in ds:
-            _aqd_mask = np.array(
-                [str(t).lower() == "aquadopp" for t in ds["instrument_type"].values]
-            )
-            _decl_missing = bool(_aqd_mask.any())
         rose_declination_note = (
             f"Magnetic declination applied: {', '.join(f'{v:+.2f}°' for v in _decl_vals)}"
             if _decl_vals
@@ -637,21 +716,17 @@ def generate_stack_page(
         stage2_serials = ds.attrs.get("stage2_instruments", "").split()
         stage2_velocity = bool(ds.attrs.get("stage2_magnetic_north"))
         stage2_current_meters = ds.attrs.get("stage2_no_velocity", "").split()
-        _decl_missing_serials = [
-            s
-            for s in _decl_missing_serials
-            if paths.safe_serial(s) not in stage2_serials
-        ]
-        rose_declination_warn = _decl_missing and (
-            bool(_decl_missing_serials) or not stage2_serials
-        )
-        rose_declination_missing_serials = _decl_missing_serials
+        rose_declination_unapplied = declination_unapplied(ds)
 
         fig_spacing_b64 = _make_instrument_spacing_b64(ds)
 
         # as_panel: a figure whose draw raises becomes a Stub naming the cause
         # (shown as a "warn" note) instead of silently vanishing.
-        fig_ts_stack_b64 = as_panel(lambda: _make_stack_ts_diagram_b64(ds, derived))
+        fig_ts_stack_b64 = as_panel(
+            lambda: _make_stack_ts_diagram_b64(
+                ds, derived, record=records["ts_diagram"]
+            )
+        )
         fig_aquadopp_tilt_b64 = as_panel(
             lambda: _make_aquadopp_tilt_panels_b64(ds, step=step)
         )
@@ -702,12 +777,14 @@ def generate_stack_page(
         )
         qc_tables = _qcflags.translation_tables(ds) if qc_ruled else []
         fig_qc_strip_b64 = (
-            as_panel(lambda: _make_flag_strip_b64(ds)) if qc_ruled else None
+            as_panel(lambda: _make_flag_strip_b64(ds, _qcflags.instrument_labels(ds)))
+            if qc_ruled
+            else None
         )
         qc_rule = _qcflags.rule_text(ds) if qc_ruled else ""
-        steps = _captions.stack_steps(ds)
+        steps = _captions.stack_history_rows(ds)
         rose_caption = _captions.stack_rose_caption(ds)
-        ts_caption = _captions.stack_ts_caption(STACK_CAPTIONS["ts_diagram"], derived)
+        captions = _captions.stack_captions(ds, records)
 
         # Capture the applies_to inputs before closing the dataset.
         present_vars = set(ds.data_vars)
@@ -751,19 +828,22 @@ def generate_stack_page(
                 qc_tables=qc_tables,
                 qc_unflagged=qc_unflagged,
                 qc_quiet=qc_quiet,
+                qc_sentence=_captions.stack_rule_sentence(
+                    ds, list(masking.FLAGGED_VARIABLES)
+                )
+                if qc_ruled
+                else "",
                 present_vars=present_vars,
                 instr_types=instr_types_set,
                 n_instr=n_instr,
                 all_imported=all(imported),
                 steps=steps,
                 has_analog=bool(analog_vars),
-                history_entries=stack_history,
                 instr_rows=instr_rows,
                 nc_meta=nc_meta,
                 nc_file=stack_path.name,
                 rose_note=rose_declination_note,
-                rose_warn=rose_declination_warn,
-                rose_missing_serials=rose_declination_missing_serials,
+                rose_unapplied=rose_declination_unapplied,
                 stage2_serials=stage2_serials,
                 stage2_velocity=stage2_velocity,
                 stage2_current_meters=stage2_current_meters,
@@ -772,8 +852,12 @@ def generate_stack_page(
             ),
             {
                 **STACK_PANELS,
+                **{
+                    pid: replace(STACK_PANELS[pid], caption=text)
+                    for pid, text in captions.items()
+                    if pid in STACK_PANELS
+                },
                 "roses": replace(STACK_PANELS["roses"], caption=rose_caption),
-                "ts_diagram": replace(STACK_PANELS["ts_diagram"], caption=ts_caption),
             },
         )
 

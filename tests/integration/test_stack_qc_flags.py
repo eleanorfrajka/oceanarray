@@ -329,7 +329,7 @@ def test_the_stack_page_has_the_quality_flags_section(cf7, tmp_path):
         st = ds.load()
     rows, unflagged, quiet = count_rows(st)
     sal = next(r for r in rows if r["variable"] == "salinity")
-    assert sal["level"] == "microcat 22225"
+    assert sal["level"] == "MicroCAT 22225 · 50 m"
     assert sal["hidden"] == 0
     three = next(p for p in sal["originator"]["parts"] if p["flag"] == 3)
     assert three["text"].endswith("(2)")
@@ -346,7 +346,8 @@ def test_the_stack_page_has_the_quality_flags_section(cf7, tmp_path):
     page = oa.report(yaml_path, out_dir=tmp_path, instruments=False, grid=False)
     html = (page.parent / "cf7_2020_stack_report.html").read_text(encoding="utf-8")
     assert "Quality flags" in html
-    assert "<code>mask_flags</code> =\n4" in html or "mask_flags</code> = 4" in html
+    assert "leave out (rule 4)" in html
+    assert "Values flagged bad, by the originator or oceanarray, are left out" in html
     assert "3 appears_probably_bad" in html
 
 
@@ -489,3 +490,85 @@ def test_used_by_says_all_only_when_every_user_has_the_number():
     assert _used_by(three, users) == "all 3 microcats: T, S"
     mixed = {**users, "c": "adcp"}
     assert _used_by(three, mixed) == "all 3 instruments: T, S"
+
+
+# ── magnetic declination and the flag strip ───────────────────────────
+
+
+def _cf7_stack(cf7) -> xr.Dataset:
+    _, _, files = cf7
+    with xr.open_dataset(files[-2], engine="netcdf4") as ds:
+        return ds.load()
+
+
+def test_the_stack_records_the_originators_declination(cf7):
+    """The CF7 current meter came in true north: the stack says the originator did it."""
+    st = _cf7_stack(cf7)
+    var = st["originator_magnetic_declination"]
+    assert "applied by the originator" in str(var.values[_level(st, "500")])
+    assert str(var.values[_level(st, "22225")]) == ""
+    assert {"long_name", "comment"} <= set(var.attrs)
+    assert not np.isfinite(st["magnetic_declination"].values).any()
+
+
+def test_no_declination_warning_when_the_originator_applied_it(cf7, tmp_path):
+    """Even labelled an Aquadopp (as CF2 2014's are), originator ENU warns of nothing."""
+    from oceanarray.reports._stack import declination_unapplied
+
+    st = _cf7_stack(cf7)
+    assert declination_unapplied(st) == []
+    types = st["instrument_type"].values.copy()
+    types[_level(st, "500")] = "aquadopp"
+    st["instrument_type"] = ("N_LEVELS", types)
+    assert declination_unapplied(st) == []
+    # A stack written before the variable: the originator's file stands for it.
+    old = st.drop_vars("originator_magnetic_declination")
+    assert declination_unapplied(old) == []
+    # Neither oceanarray nor the originator: named, with why.
+    none = old.drop_vars("originator_file")
+    assert declination_unapplied(none) == [
+        ("Aquadopp s/n 500", "its stage-3 file records no declination")
+    ]
+    yaml_path, _, _ = cf7
+    page = oa.report(yaml_path, out_dir=tmp_path, instruments=False, grid=False)
+    html = (page.parent / "cf7_2020_stack_report.html").read_text(encoding="utf-8")
+    assert "as provided by the originator" in html
+    assert "declination was not applied" not in html
+    assert "latitude/longitude are missing" not in html
+
+
+def test_the_declination_warning_names_an_instrument_with_no_position():
+    """dune2: oceanarray applied it to 9920; with no position at stage 3, a warning."""
+    from oceanarray import mooring
+    from oceanarray.reports._env import render_template
+    from oceanarray.reports._stack import declination_unapplied
+
+    cfg = mooring.load(DUNE2 / "dune2_1_2026.mooring.yaml")
+    data = _dune2_stage3()
+    assert declination_unapplied(oa.stack(data, cfg)) == []
+    data["9920"].attrs["magnetic_declination"] = "UNK"
+    unapplied = declination_unapplied(oa.stack(data, cfg))
+    assert unapplied == [("Aquadopp s/n 9920", "no mooring position at stage 3")]
+    html = render_template("_stack_roses_note.html", note=None, unapplied=unapplied)
+    assert "Aquadopp s/n 9920 (no mooring position at stage 3)" in html
+    assert "seabed_latitude" in html
+
+
+def test_a_flag_set_the_file_lacks_gets_no_bar(cf7):
+    """oceanarray runs no conductivity QC: an originator-flagged C has its bar alone."""
+    from oceanarray.plotters.flags import _rows, flagged_rows
+
+    st = _cf7_stack(cf7).transpose("N_LEVELS", "time")
+    assert "conductivity_qc" not in st.data_vars
+    k = _level(st, "22225")
+    flags = st["conductivity_qc_originator_mapped"].values.copy()
+    flags[k, 10:12] = 3
+    st["conductivity_qc_originator_mapped"] = (("N_LEVELS", "time"), flags)
+    entry = next(e for e in flagged_rows(st)[k] if e[0] == "conductivity")
+    assert entry[2] is None
+    labels = [label for label, _row in _rows(flagged_rows(st)[k])]
+    assert "C originator" in labels and "C oceanarray" not in labels
+    assert "S oceanarray" in labels and not any("processing" in s for s in labels)
+    salinity = next(e for e in flagged_rows(st)[k] if e[0] == "salinity")
+    here = np.isfinite(st["salinity"].values[k])
+    assert not (salinity[2][here] == 9).any()  # a value is never "missing"

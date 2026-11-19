@@ -1,36 +1,30 @@
-{# Raw + stage file listing — the `files` panel payload (kind="table").  The leading
-   # column fixes the processing order (Raw, then each stage) so a click-sort can be
-   restored to it. #}
+{# The files this page was built from — the `files` panel payload (kind="html"),
+   collapsed in the processing section: the data read (the originator's, or the
+   instrument's own file), then the file of each processing step.  The leading
+   column fixes the processing order so a click-sort can be restored to it. #}
+<details class="processing"><summary>Files used to build this page</summary>
 <table class="file-table">
-  <thead><tr><th>#</th><th>Stage</th><th>Filename</th><th>Size</th><th>Last modified</th></tr></thead>
+  <thead><tr><th>#</th><th>File</th><th>Name</th><th>Size</th><th>Last modified</th></tr></thead>
   <tbody>
-  {% if raw_file.exists %}
   <tr>
     <td class="num">1</td>
-    <td>Raw</td>
-    <td class="mono">{{ raw_file.name }}</td>
+    <td>{% if originator %}Originator's data{% else %}Instrument's file{% endif %}</td>
+    {% if raw_file.exists %}
+    <td class="mono">{{ raw_file.name }}{% if originator and originator.cut_from %} (cut from {{ originator.cut_from }}){% endif %}</td>
     <td class="num">{{ raw_file.size }}</td>
     <td>{{ raw_file.mtime }}</td>
-  </tr>
-  {% elif raw_file.unknown %}
-  <tr>
-    <td class="num">1</td>
-    <td>Raw</td>
-    <td class="mono">{{ raw_file.name }}</td>
+    {% elif raw_file.unknown %}
+    <td class="mono">{{ raw_file.name }}{% if originator and originator.cut_from %} (cut from {{ originator.cut_from }}){% endif %}</td>
     <td colspan="2">&mdash; not checked (no --raw-dir)</td>
-  </tr>
-  {% else %}
-  <tr>
-    <td class="num">1</td>
-    <td>Raw</td>
-    <td class="mono miss">{{ raw_file.name }}</td>
+    {% else %}
+    <td class="mono miss">{{ raw_file.name }}{% if originator and originator.cut_from %} (cut from {{ originator.cut_from }}){% endif %}</td>
     <td colspan="2" class="miss">&mdash; not found</td>
+    {% endif %}
   </tr>
-  {% endif %}
   {% for f in stage_files %}
   <tr>
     <td class="num">{{ loop.index + 1 }}</td>
-    <td>{{ f.label }}</td>
+    <td>{{ f.reader_label }}</td>
     {% if f.exists %}
     <td class="mono">{{ f.name }}</td>
     <td class="num">{{ f.size }}</td>
@@ -43,3 +37,4 @@
   {% endfor %}
   </tbody>
 </table>
+</details>

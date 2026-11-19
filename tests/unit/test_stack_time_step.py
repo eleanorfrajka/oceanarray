@@ -319,7 +319,7 @@ def test_history_names_the_method_once(stage3, cfg):
     """One history sentence on the method; no per-level or global method variable."""
     ds = st.stack(stage3, cfg, dt_seconds=600)
     hist = ds.attrs["history"]
-    assert hist.count("Step 1 stack") == 1
+    assert hist.count("stack: 2 instruments placed on a 600 s time axis") == 1
     assert "nearest sample within ±300 s" in hist
     assert "no interpolation or averaging in time" in hist
     assert "interpolated (linear" not in hist

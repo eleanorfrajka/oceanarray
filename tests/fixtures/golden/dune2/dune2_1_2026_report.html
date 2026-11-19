@@ -1151,7 +1151,7 @@ recovery_time:   '2026-07-25T11:43'</textarea>
 <p class="caption">
   Share of each variable's samples in each quality class, on the OceanSITES flag scale
   used throughout these pages; the originator's flags are translated by their meaning.
-  Only variables with anything not flagged good are listed. HAB: height above bottom.
+  Only variables with anything not flagged good are listed. Good % (values flagged good or interpolated): green ≥ 95 %, amber 80–95 %, red &lt; 80 %. HAB: height above bottom.
 </p>
 <div class="qc-legend">
   <span style="background:#27ae60"></span>good&nbsp;(1) <span style="background:#f39c12"></span>suspect&nbsp;(3) 
@@ -1164,7 +1164,8 @@ recovery_time:   '2026-07-25T11:43'</textarea>
       <th>Serial</th>
       <th>Variable</th>
       <th class="num">Samples</th>
-      <th class="num">Good<span class="th-unit">%</span></th><th class="num">Suspect<span class="th-unit">%</span></th>
+      <th class="num">Good<span class="th-unit">%</span></th>
+      <th class="num">Suspect<span class="th-unit">%</span></th>
       <th>Distribution</th>
     </tr>
   </thead>
@@ -1177,8 +1178,7 @@ recovery_time:   '2026-07-25T11:43'</textarea>
       <td><code>9920</code></td>
       <td><code>east_velocity</code></td>
       <td class="num">9,818</td>
-      
-      <td class="num"><span style="color:#27ae60">88.9</span></td>
+      <td class="num"><span style="color:var(--warn)">88.9</span></td>
       
       <td class="num"><span style="color:#f39c12">11.1</span></td>
       
@@ -1200,8 +1200,7 @@ recovery_time:   '2026-07-25T11:43'</textarea>
       <td><code>9920</code></td>
       <td><code>north_velocity</code></td>
       <td class="num">9,818</td>
-      
-      <td class="num"><span style="color:#27ae60">88.9</span></td>
+      <td class="num"><span style="color:var(--warn)">88.9</span></td>
       
       <td class="num"><span style="color:#f39c12">11.1</span></td>
       
@@ -1223,8 +1222,7 @@ recovery_time:   '2026-07-25T11:43'</textarea>
       <td><code>9920</code></td>
       <td><code>up_velocity</code></td>
       <td class="num">9,818</td>
-      
-      <td class="num"><span style="color:#27ae60">88.9</span></td>
+      <td class="num"><span style="color:var(--warn)">88.9</span></td>
       
       <td class="num"><span style="color:#f39c12">11.1</span></td>
       
@@ -1246,8 +1244,7 @@ recovery_time:   '2026-07-25T11:43'</textarea>
       <td><code>9920</code></td>
       <td><code>velocity_beam1</code></td>
       <td class="num">9,818</td>
-      
-      <td class="num"><span style="color:#27ae60">89.4</span></td>
+      <td class="num"><span style="color:var(--warn)">89.4</span></td>
       
       <td class="num"><span style="color:#f39c12">10.6</span></td>
       
@@ -1269,8 +1266,7 @@ recovery_time:   '2026-07-25T11:43'</textarea>
       <td><code>9920</code></td>
       <td><code>velocity_beam2</code></td>
       <td class="num">9,818</td>
-      
-      <td class="num"><span style="color:#27ae60">89.4</span></td>
+      <td class="num"><span style="color:var(--warn)">89.4</span></td>
       
       <td class="num"><span style="color:#f39c12">10.6</span></td>
       
@@ -1292,8 +1288,7 @@ recovery_time:   '2026-07-25T11:43'</textarea>
       <td><code>9920</code></td>
       <td><code>velocity_beam3</code></td>
       <td class="num">9,818</td>
-      
-      <td class="num"><span style="color:#27ae60">89.4</span></td>
+      <td class="num"><span style="color:var(--warn)">89.4</span></td>
       
       <td class="num"><span style="color:#f39c12">10.6</span></td>
       
@@ -1311,9 +1306,8 @@ recovery_time:   '2026-07-25T11:43'</textarea>
   </tbody>
 </table>
 
-<p class="one-line">Interpolated throughout (1): pressure (2941).</p>
 
-<p class="one-line">All other variables (5): 100&nbsp;% good.</p>
+<p class="one-line">All other variables (6): 100&nbsp;% good.</p>
 
 
 <h2 id="knockdown">(7) Mooring knockdown</h2>

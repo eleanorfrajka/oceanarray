@@ -9,6 +9,7 @@ encode each figure through the shared report encoder.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -16,6 +17,8 @@ import numpy as np
 from oceanarray.config.unit_tables import unit_label
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     import matplotlib.pyplot as plt
     import xarray as xr
 
@@ -445,32 +448,99 @@ QC_COLORS: dict[int, str] = {
     9: "#bdc3c7",
 }
 
+#: Markers of flagged values on the instrument page's figures: small dots for
+#: suspect (3), crosses for bad (4), small blue points for interpolated (8).
 QC_MARKER: dict[int, dict] = {
     3: {
-        "marker": "+",
+        "marker": ".",
         "c": QC_COLORS[3],
-        "s": 15,
-        "linewidths": 0.8,
+        "s": 16,
+        "linewidths": 0,
         "zorder": 3,
         "rasterized": True,
     },
     4: {
-        "marker": "+",
+        "marker": "x",
         "c": QC_COLORS[4],
-        "s": 15,
-        "linewidths": 0.8,
+        "s": 16,
+        "linewidths": 0.9,
         "zorder": 4,
         "rasterized": True,
     },
     8: {
         "marker": ".",
         "c": QC_COLORS[8],
-        "s": 8,
-        "linewidths": 0.5,
+        "s": 6,
+        "linewidths": 0,
         "zorder": 2,
         "rasterized": True,
     },
 }
+
+
+#: The flag sets an instrument page reads: oceanarray's and the originator's
+#: (translated to oceanarray's table).
+FLAG_SOURCES: tuple[str, ...] = ("_qc", "_qc_originator_mapped")
+
+
+def as_dataset(src: Path | str | xr.Dataset) -> xr.Dataset:
+    """Return a stage file's data in memory: read from *src*, or *src* itself.
+
+    A page that has the file open already passes it, so each figure does not read
+    it again; a shallow copy, so a figure adding variables leaves the page's own.
+
+    Parameters
+    ----------
+    src : pathlib.Path, str or xarray.Dataset
+        The file, or the dataset already read from it.
+
+    Returns
+    -------
+    xarray.Dataset
+        Loaded; closing it closes nothing the caller holds.
+    """
+    import xarray as xr
+
+    if isinstance(src, xr.Dataset):
+        return src.copy()
+    with xr.open_dataset(src, decode_timedelta=False, engine="netcdf4") as ds:
+        return ds.load()
+
+
+def marker_flags(
+    ds: Any, var: str, sources: Sequence[str] = FLAG_SOURCES
+) -> np.ndarray | None:
+    """Return the flag each value of *var* is marked with: the worse of the sets.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        An instrument's stage file.
+    var : str
+        The data variable.
+    sources : sequence of str, optional
+        The flag-variable suffixes read (``"_qc"`` oceanarray's,
+        ``"_qc_originator_mapped"`` the originator's).
+
+    Returns
+    -------
+    numpy.ndarray or None
+        int8, the shape of ``ds[var]``: 4 where any set says bad, else 3 where any
+        says suspect, else 8 where ours says interpolated, else 1; None when the
+        file has none of these flag sets for *var*.
+    """
+    sets = [
+        np.asarray(ds[f"{var}{s}"].values)
+        for s in sources
+        if f"{var}{s}" in ds.data_vars
+    ]
+    if not sets:
+        return None
+    out = np.ones(sets[0].shape, dtype=np.int8)
+    for flag in (8, 3, 4):  # in rising order: a worse flag overwrites
+        for flags in sets:
+            out[flags == flag] = flag
+    return out
 
 
 def tukey_smooth(arr: np.ndarray, window_n: int) -> np.ndarray:
@@ -566,7 +636,7 @@ def _rose_ax(
     # hidden because fewer than 2 finite values are present.
     import matplotlib.pyplot as plt
 
-    from oceanarray.analysis.derived import speed_direction
+    from oceanarray.physics import speed_direction
 
     speed, direction = speed_direction(east, north)
     valid = np.isfinite(speed) & np.isfinite(direction)
@@ -647,13 +717,16 @@ def current_rose(
     title: str = "",
     n_dir: int = 16,
     cmap: str = "Blues",
+    r_max: float | None = None,
 ) -> bool:
     """Draw a current rose on a polar Axes: the stack and grid pages' one design.
 
     Each wedge is a direction toward which the current flows (16 sectors,
     compass convention: north up, clockwise); its length is the percentage of the
     record in that direction, split into the speed classes
-    :data:`ROSE_SPEED_CLASSES_CMS` (light to dark).  Rings are labelled in percent.
+    :data:`ROSE_SPEED_CLASSES_CMS` (light to dark).  Rings are labelled in percent
+    along the bearing where the wedges are shortest (that sector and its two
+    neighbours), so the labels sit clear of the wedges.
 
     Parameters
     ----------
@@ -667,6 +740,10 @@ def current_rose(
         Number of direction sectors (default 16).
     cmap : str, optional
         Colormap of the speed classes (default ``"Blues"``).
+    r_max : float or None, optional
+        The radial scale (%): one value for every rose of a figure
+        (:func:`rose_max_percent`), so their rings compare; the rose's own longest
+        wedge when not given.
 
     Returns
     -------
@@ -675,7 +752,7 @@ def current_rose(
     """
     from matplotlib.ticker import MaxNLocator
 
-    from oceanarray.analysis.derived import speed_direction
+    from oceanarray.physics import speed_direction
 
     speed, direction = speed_direction(
         np.asarray(east, dtype=float), np.asarray(north, dtype=float)
@@ -710,7 +787,7 @@ def current_rose(
     ax.set_xticks(np.radians([0, 90, 180, 270]))
     ax.set_xticklabels(["N", "E", "S", "W"])
     ax.tick_params(axis="x", pad=1.75)
-    top = float(bottom.max())
+    top = float(bottom.max()) if r_max is None else float(r_max)
     rings = [
         r
         for r in MaxNLocator(nbins=3, steps=[1, 2, 2.5, 5, 10]).tick_values(0, top)
@@ -719,9 +796,151 @@ def current_rose(
     ax.set_ylim(0, max(top, rings[-1] if rings else top) * 1.05)
     ax.set_rticks(rings)
     ax.set_yticklabels([f"{r:g} %" for r in rings], fontsize=7, color="0.35")
-    ax.set_rlabel_position(157.5)
+    ax.set_rlabel_position(_quiet_bearing(bottom))
     ax.set_title(title, pad=2)
     return True
+
+
+def _quiet_bearing(lengths: np.ndarray) -> float:
+    """Return the compass bearing (°) where a rose's wedges are shortest.
+
+    Parameters
+    ----------
+    lengths : numpy.ndarray
+        Total wedge length (%) of each of the rose's equal sectors, clockwise
+        from north.
+
+    Returns
+    -------
+    float
+        Centre of the sector whose own and two neighbours' longest wedge is the
+        shortest (a ring label spans about three sectors near the centre); the
+        first such sector clockwise from north on a tie.
+    """
+    lengths = np.asarray(lengths, dtype=float)
+    n = len(lengths)
+    span = np.maximum.reduce([np.roll(lengths, 1), lengths, np.roll(lengths, -1)])
+    return (int(np.argmin(span)) + 0.5) * 360.0 / n
+
+
+def nominal_depths(ds: xr.Dataset) -> np.ndarray | None:
+    """Return each level's nominal depth (m): ``InstrDepth``, else water depth minus HAB.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A stack on ``N_LEVELS``.
+
+    Returns
+    -------
+    numpy.ndarray or None
+        One value per level (NaN where unknown); None without either source.
+    """
+    if "InstrDepth" in ds.variables and ds["InstrDepth"].ndim == 1:
+        return np.asarray(ds["InstrDepth"].values, dtype=float)
+    waterdepth = ds.attrs.get("waterdepth")
+    if "hab" in ds.variables and waterdepth not in (None, ""):
+        try:
+            return float(waterdepth) - np.asarray(ds["hab"].values, dtype=float)
+        except (TypeError, ValueError):
+            return None
+    return None
+
+
+def rose_max_percent(east: np.ndarray, north: np.ndarray, n_dir: int = 16) -> float:
+    """Return the longest wedge (% of the record) of :func:`current_rose`'s rose.
+
+    Parameters
+    ----------
+    east, north : numpy.ndarray
+        Velocity components (m s⁻¹).
+    n_dir : int, optional
+        Number of direction sectors.
+
+    Returns
+    -------
+    float
+        0.0 when fewer than two values are present.
+    """
+    from oceanarray.physics import speed_direction
+
+    _, direction = speed_direction(
+        np.asarray(east, dtype=float), np.asarray(north, dtype=float)
+    )
+    direction = direction[np.isfinite(direction)]
+    if len(direction) < 2:
+        return 0.0
+    edges = np.linspace(0.0, 360.0, n_dir + 1)
+    sector = np.clip(np.digitize(direction, edges) - 1, 0, n_dir - 1)
+    return float(np.bincount(sector, minlength=n_dir).max() * 100.0 / len(direction))
+
+
+def draw_roses(
+    roses: list[tuple[np.ndarray, np.ndarray, str]],
+    *,
+    width_in: float,
+    max_cols: int = 4,
+    own_scale: bool = False,
+) -> plt.Figure | None:
+    """Draw current roses in rows of up to *max_cols*, each a quarter of the width.
+
+    The roses share one radial scale (the longest wedge of any of them), so their
+    rings compare, unless *own_scale*; one speed-class legend; the figure is as
+    wide as the roses it holds, centred.
+
+    Parameters
+    ----------
+    roses : list of (numpy.ndarray, numpy.ndarray, str)
+        ``(east, north, title)`` per rose (m s⁻¹).
+    width_in : float
+        Width of the slot (inches); each rose takes ``width_in / max_cols``.
+    max_cols : int, optional
+        Roses per row.
+    own_scale : bool, optional
+        Give each rose its own radial scale (its longest wedge), for roses of
+        subsets of very different size.
+
+    Returns
+    -------
+    matplotlib.figure.Figure or None
+        None when *roses* is empty.
+    """
+    import math
+
+    import matplotlib.pyplot as plt
+
+    if not roses:
+        return None
+    n = len(roses)
+    ncols = min(n, max_cols)
+    nrows = math.ceil(n / ncols)
+    legend_in = 0.6
+    fig_h = nrows * (width_in / max_cols + 0.65) + legend_in
+    fig, axs = plt.subplots(
+        nrows,
+        ncols,
+        figsize=(width_in, fig_h),
+        subplot_kw={"projection": "polar"},
+        squeeze=False,
+    )
+    side = ncols * width_in / max_cols
+    margin = (width_in - side) / 2 / width_in
+    fig.subplots_adjust(
+        left=0.05 * side / width_in + margin,
+        right=1 - 0.05 * side / width_in - margin,
+        wspace=0.4,
+        hspace=0.45,
+        top=1 - 0.4 / fig_h,
+        bottom=(0.2 + legend_in) / fig_h,
+    )
+    r_max = None if own_scale else max(rose_max_percent(e, v) for e, v, _ in roses)
+    axs_flat = axs.flatten()
+    for ax, (east, north, title) in zip(axs_flat, roses, strict=False):
+        current_rose(ax, east, north, title=title, r_max=r_max or None)
+    for ax in axs_flat[n:]:
+        ax.set_visible(False)
+    rose_legend(fig, y=0.05 / fig_h)
+    return fig
 
 
 def rose_legend(fig: plt.Figure, *, cmap: str = "Blues", y: float = 0.0) -> None:

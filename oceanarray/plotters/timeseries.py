@@ -61,8 +61,10 @@ from ..config.unit_tables import unit_label
 from .helpers import (
     DEPLOYMENT_BOUNDARY,
     OKABE_ITO,
+    as_dataset,
     grid_despine,
     level_line_styles,
+    marker_flags,
     masked,
 )
 from .primitives import (
@@ -817,9 +819,8 @@ def draw_analog_timeseries(
 
     """
     import matplotlib.pyplot as plt
-    import xarray as xr
 
-    ds = xr.open_dataset(nc_path, decode_timedelta=False).load()
+    ds = as_dataset(nc_path)
     try:
         if "time" not in ds.dims:
             return None
@@ -873,6 +874,23 @@ def draw_analog_timeseries(
         ds.close()
 
 
+def _as_time_level(values: np.ndarray) -> np.ndarray:
+    """Return *values* as ``(time, level)``: a 1-D record becomes one column.
+
+    Parameters
+    ----------
+    values : numpy.ndarray
+        ``(time,)`` or ``(time, level)``.
+
+    Returns
+    -------
+    numpy.ndarray
+        ``(time, level)``.
+    """
+    values = np.asarray(values)
+    return values[:, np.newaxis] if values.ndim == 1 else values
+
+
 def draw_stack_timeseries(
     ds: xr.Dataset,
     rows: list[tuple[str, str, bool, set[str] | None]],
@@ -882,6 +900,11 @@ def draw_stack_timeseries(
     deployments: list[tuple[np.datetime64, np.datetime64, str]] | None = None,
     legend_shallow_first: bool = False,
     width_in: float = report_tokens.W_FULL,
+    label_lines: bool = False,
+    row_heights: Sequence[float] | None = None,
+    mark_suspect: bool = False,
+    record: dict | None = None,
+    keyed: Sequence[str] | None = None,
 ) -> plt.Figure | None:
     """Stack time series: one row per variable, one line per instrument level.
 
@@ -916,6 +939,25 @@ def draw_stack_timeseries(
     width_in : float, optional
         Figure width in inches -- the display-slot width the report builder
         resolves; standalone callers get the full content width.
+    label_lines : bool, optional
+        Name each line by its serial at its right end in the first row (spread
+        apart so they do not overlap) instead of a legend; instruments with no
+        line in the first row get a small legend.
+    row_heights : sequence of float, optional
+        Relative height of each row (e.g. a shorter upward-velocity row); equal
+        rows when not given.
+    mark_suspect : bool, optional
+        Mark the values flagged suspect (oceanarray's or the originator's flag)
+        with small black dots.
+    record : dict or None, optional
+        Filled with what was drawn: ``serials`` (the instruments with a line),
+        ``labelled`` (those named at their line's end), ``suspect`` (values
+        marked) and ``legend`` (the serials in a legend).
+    keyed : sequence of str, optional
+        Instruments already named on another figure of the page (the
+        hydrography's line labels): left out of the legend, so the legend lists
+        only the others; with one instrument and nothing keyed, no legend (the
+        caption names it).
 
     Returns
     -------
@@ -933,17 +975,31 @@ def draw_stack_timeseries(
     time = ds["time"].values[::step]
     colors, styles = level_line_styles(serials, color_var)
 
+    heights = (
+        [float(h) for h, r in zip(row_heights, rows, strict=False)]
+        if row_heights is not None
+        else [1.0] * len(rows)
+    )
     fig, axs = plt.subplots(
         len(rows),
         1,
-        figsize=(width_in, params.STACK_PANEL_ROW_IN * len(rows)),
+        figsize=(width_in, params.STACK_PANEL_ROW_IN * sum(heights)),
         sharex=True,
         squeeze=False,
         layout="constrained",
+        height_ratios=heights,
     )
     handles: dict = {}
-    for ax, (var, ylabel, invert, exclude) in zip(axs[:, 0], rows, strict=True):
-        values = masked(ds, var)
+    first_row: dict[str, float] = {}
+    n_suspect = 0
+    for row_i, (ax, (var, ylabel, invert, exclude)) in enumerate(
+        zip(axs[:, 0], rows, strict=True)
+    ):
+        # (time, level); a one-level variable may come back as (time,).
+        values = _as_time_level(masked(ds, var))
+        suspect = marker_flags(ds, var) if mark_suspect else None
+        if suspect is not None:
+            suspect = _as_time_level(suspect)
         for i, serial in enumerate(serials):
             if exclude and types[i] in exclude:
                 continue
@@ -970,6 +1026,14 @@ def draw_stack_timeseries(
                     alpha=0.85,
                 )
             handles.setdefault(serial, line)
+            if row_i == 0:
+                finite = np.flatnonzero(np.isfinite(y))
+                first_row[serial] = float(y[finite[-1]])
+            if suspect is not None:
+                s = (suspect[::step, i] == 3) & np.isfinite(y)
+                if s.any():
+                    n_suspect += int(s.sum())
+                    ax.plot(time[s], y[s], ".", color="k", markersize=2.5, zorder=3)
         if invert:
             ax.invert_yaxis()
         ax.set_ylabel(ylabel)
@@ -997,13 +1061,74 @@ def draw_stack_timeseries(
     ordered = [s for s in dict.fromkeys(serials) if s in handles]
     if legend_shallow_first:
         ordered.reverse()
-    fig.legend(
-        handles=[handles[s] for s in ordered],
-        labels=ordered,
-        loc="outside right center",
-        framealpha=0.8,
-    )
+    in_legend = ordered
+    if label_lines and first_row:
+        _label_line_ends(axs[0, 0], first_row, colors)
+        in_legend = [s for s in ordered if s not in first_row]
+    elif keyed is not None:
+        in_legend = [s for s in ordered if s not in set(keyed)]
+        if len(ordered) == 1 and not keyed:
+            in_legend = []
+    if in_legend:
+        fig.legend(
+            handles=[handles[s] for s in in_legend],
+            labels=in_legend,
+            loc="outside right center",
+            framealpha=0.8,
+            fontsize="small" if label_lines else None,
+        )
+    if record is not None:
+        record.update(
+            serials=ordered,
+            labelled=list(first_row) if label_lines else [],
+            suspect=n_suspect,
+            legend=in_legend,
+        )
     return fig
+
+
+def _label_line_ends(
+    ax: plt.Axes, ends: Mapping[str, float], colors: Mapping[str, object]
+) -> None:
+    """Write each serial just right of the axes at its line's last value, spread apart.
+
+    Labels closer than about one line of text are pushed apart vertically, in
+    order, so none overlaps another; each keeps its line's colour.
+    """
+    fig = ax.figure
+    fig.canvas.draw()
+    to_px = ax.transData.transform
+    height = ax.bbox.height
+    gap = 9.0 * fig.dpi / 72.0  # one small label's height, in pixels
+    ys = sorted(
+        (
+            (ax.transAxes.inverted().transform(to_px((0, v)))[1], s)
+            for s, v in ends.items()
+        ),
+        key=lambda p: p[0],
+    )
+    placed: list[tuple[float, str]] = []
+    for frac, serial in ys:
+        y = min(max(frac, 0.0), 1.0) * height
+        if placed and y - placed[-1][0] < gap:
+            y = placed[-1][0] + gap
+        placed.append((y, serial))
+    overflow = placed[-1][0] - height if placed else 0.0
+    if overflow > 0:  # shift down, keeping the spacing, so the top label stays in
+        placed = [(y - overflow, s) for y, s in placed]
+    for y, serial in placed:
+        ax.annotate(
+            serial,
+            xy=(1.0, y / height),
+            xycoords="axes fraction",
+            xytext=(3, 0),
+            textcoords="offset points",
+            va="center",
+            ha="left",
+            fontsize="small",
+            color=colors[serial],
+            annotation_clip=False,
+        )
 
 
 def _mark_deployments(

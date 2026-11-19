@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 {% import "_macros.html" as m %}
-{% block title %}{{ instr_type | title }} &ndash; s/n {{ serial }}{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 {% block page_styles %}
+  .th-unit { display: block; font-weight: 400; font-size: 0.72rem; opacity: 0.85; }
+  td.nowrap { white-space: nowrap; }
   :root { --accent:#1e8449; --accent-link:#d5f5e3; }
   /* Table style is canonical in emit_css now; only the file-table's cell
      colour classes remain page-specific. */
@@ -17,20 +19,38 @@
   .qc-bar { display:flex; width:180px; height:13px; border-radius:3px;
              overflow:hidden; gap:1px; background:#ecf0f1; }
   .qc-bar div { height:100%; }
+  .qc-legend { font-size:0.78rem; margin:0.2rem 0 0.4rem; }
+  .qc-legend span { display:inline-block; width:0.8em; height:0.8em; margin:0 0.25em 0 0.6em; vertical-align:middle; border-radius:2px; }
+  th.group { text-align:center; }
+  .meta-grid dd { overflow-wrap:anywhere; }
+  .meta-grid dd a { color:inherit; }
+  h3.sub { font-size:0.85rem; color:var(--ocean); margin:0.8rem 0 0.3rem; }
 {% endblock %}
-{% block masthead_title %}{{ instr_type | title }}&ensp;&mdash;&ensp;s/n&nbsp;{{ serial }}{% endblock %}
+{% block masthead_title %}{{ title }}{% endblock %}
 {% block masthead_sub %}{{ mooring_name }}{% endblock %}
 {% block masthead_meta %}
     <div{% if cruise == '—' %} class="meta-miss"{% endif %}><dt>Cruise</dt><dd>{{ cruise }}</dd></div>
-    {% if hab is not none %}<div><dt>HAB</dt><dd>{{ "%.1f"|format(hab) }}&thinsp;m</dd></div>{% else %}<div class="meta-miss"><dt>HAB</dt><dd>—</dd></div>{% endif %}
-    <div{% if depth is none %} class="meta-miss"{% endif %}><dt>Depth</dt><dd>{% if depth is not none %}~{{ "%.0f"|format(depth) }}&thinsp;m{% else %}&mdash;{% endif %}</dd></div>
-    <div{% if t_start is none or t_start == '—' %} class="meta-miss"{% endif %}><dt>Start</dt><dd>{{ t_start | default("—") }}</dd></div>
-    <div{% if t_end is none or t_end == '—' %} class="meta-miss"{% endif %}><dt>End</dt><dd>{{ t_end | default("—") }}</dd></div>
-    <div{% if duration == '—' %} class="meta-miss"{% endif %}><dt>Duration</dt><dd>{{ duration }}</dd></div>
-    <div{% if median_dt is none or median_dt == '—' %} class="meta-miss"{% endif %}><dt>Samp.&nbsp;&Delta;t</dt><dd>{{ median_dt | default("—") }}</dd></div>
+    <div{% if depth is none %} class="meta-miss"{% endif %}><dt>Nominal depth</dt><dd>{% if depth is not none %}{{ "%.0f"|format(depth) }}&thinsp;m{% else %}&mdash;{% endif %}</dd></div>
+    {% if hab is not none %}<div><dt>HAB</dt><dd>{{ "%.0f"|format(hab) }}&thinsp;m</dd></div>{% else %}<div class="meta-miss"><dt>HAB</dt><dd>—</dd></div>{% endif %}
+    <div{% if t_start is none or t_start == '—' %} class="meta-miss"{% endif %}><dt>Start (UTC)</dt><dd>{{ t_start | default("—") }}</dd></div>
+    <div{% if t_end is none or t_end == '—' %} class="meta-miss"{% endif %}><dt>End (UTC)</dt><dd>{{ t_end | default("—") }}</dd></div>
+    <div{% if median_dt is none or median_dt == '—' %} class="meta-miss"{% endif %}><dt>Sampling interval</dt><dd>{{ median_dt | default("—") }}</dd></div>
     <div{% if n_records is none or n_records == '—' %} class="meta-miss"{% endif %}><dt>Records</dt><dd>{{ n_records | default("—") }}</dd></div>
-    <div><dt>Source&nbsp;file</dt><dd>{{ nc_file }}{% if data_stage and data_stage != 'stage3' %} <span style="color:var(--warn);font-weight:bold">({{ data_stage }} — QC not applied)</span>{% endif %}</dd></div>
+    {% if originator %}
+    <div><dt>{{ originator.label }}</dt><dd>{% if originator.href %}<a href="{{ originator.href }}">{{ originator.name }}</a>{% else %}{{ originator.name }}{% endif %}</dd></div>
+    {% elif raw_name %}
+    <div><dt>Instrument's file</dt><dd>{{ raw_name }}</dd></div>
+    {% endif %}
+    {% if data_stage and data_stage != 'stage3' %}<div><dt>Checks</dt><dd><span style="color:var(--warn);font-weight:bold">not run on this file</span></dd></div>{% endif %}
   {% endblock %}
 {% block content %}
 {{ m.report_body(report, "instrument", generated, cruise) }}
+<script>
+  // A link to a collapsed box (e.g. #start) opens it.
+  (function () {
+    const open = () => { const el = location.hash && document.getElementById(location.hash.slice(1));
+      if (el && el.tagName === 'DETAILS') { el.open = true; el.scrollIntoView(); } };
+    window.addEventListener('hashchange', open); open();
+  })();
+</script>
 {% endblock %}

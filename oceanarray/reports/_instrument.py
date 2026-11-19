@@ -3,37 +3,36 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+
+import numpy as np
 
 from oceanarray import paths
 from oceanarray.paths import should_skip_regeneration
 
 from ..config import parameters as params
 from ..paths import safe_serial
-from . import _html_helpers
+from ..pipeline import masking
+from . import _html_helpers, _instrument_text, _qcflags
 from ._breadcrumb import page_crumbs
 from ._env import (
     render_history,
-    render_nc_coords,
-    render_nc_globals,
-    render_nc_scalars,
-    render_nc_variables,
+    render_nc_collapsed,
     render_template,
 )
 from ._figdebug import as_panel
 from ._html_helpers import (
     _file_info,
-    _format_duration,
-    _parse_dt,
     _parse_history,
     _resolve_array_report_href,
     _stage_file_details,
     make_fig_panel,
 )
 from ._masthead import cruise_label
-from ._navs import mooring_nav
+from ._navs import _type_label, mooring_nav
 from ._plots import (
     _make_adcp_hodograph_b64,
     _make_adcp_rose_b64,
@@ -48,7 +47,7 @@ from ._plots import (
     _make_ts_diagram_b64,
     _make_windows_b64s,
 )
-from ._read import _read_nc_metadata, _read_qc_summary, _read_qc_thresholds
+from ._read import _read_nc_metadata, _read_qc_thresholds
 from ._vendored.page_model import Panel, PanelGroup, Profile, Section, resolve
 
 # ---------------------------------------------------------------------------
@@ -71,48 +70,80 @@ from ._vendored.page_model import Panel, PanelGroup, Profile, Section, resolve
 # ---------------------------------------------------------------------------
 
 #: Instrument figure captions, keyed by panel id — plain text, Unicode notation.
+#: The captions of the figures shown on every instrument (time series, T-S, rose,
+#: distributions) are generated from the file by ``_instrument_text``; these are the
+#: fixed ones.
 INSTRUMENT_CAPTIONS: dict[str, str] = {
     "adcp_velocity": (
         "Time–range colour plots of the four velocity components (east, north, "
         "up, error). Y-axis: range from transducer (m). Colour scale: symmetric "
         "about zero; percentile 2/98 of all components combined. Magnetic "
-        "declination is applied at stage 3 only."
+        "declination is applied when the record is checked."
     ),
-    "ts_diagram": (
-        "Coloured by pressure (or sample index). × = suspect | × = bad (QC flags)."
-    ),
+    "ts_diagram": "",
     "adcp_rose": (
         "Depth-average followed by bins nearest 100, 200, 300 and 400 m from the "
         "transducer. Bins with fewer than two valid samples are omitted. "
         "Direction toward which the current flows; 0° = N, clockwise. Magnetic "
-        "declination is applied at stage 3 only."
+        "declination is applied when the record is checked."
     ),
-    "rose": (
-        "ENU panels split by QC flag: usable (flags 0–2, 7 nominal, 8 "
-        "interpolated; Blues), suspect (flag 3, Oranges), fail (flag 4, Reds); "
-        "missing (9) not drawn. Direction toward which the "
-        "current flows; 0° = N, clockwise."
-    ),
+    "rose": "",
     "trajectory": (
-        "Pseudo-Lagrangian displacement obtained by integrating east/north "
-        "velocity over time (Euler forward; NaN velocities set to zero). Coloured "
-        "by temperature. Origin (0, 0) = deployment position; axes in metres."
+        "Cumulative displacement from adding up the measured velocity (a "
+        "progressive vector diagram): how far water passing the instrument would "
+        "travel if the flow were the same everywhere. It shows the mean flow "
+        "direction and how steady it is, not the path of a water parcel. Coloured "
+        "by temperature; axes in metres from the start."
     ),
     "hodograph": (
         f"East vs north velocity ({params.vunit('east_velocity')}). Left: full "
         "record. Right: eddy component — raw minus 4-day low-pass (rolling mean)."
     ),
-    "dist": (
-        "Orange dashed = suspect threshold | Red dotted = fail threshold "
-        "(gross-range QC). Histogram shows non-bad data only; bad-flagged count "
-        "noted in red."
-    ),
+    "dist": "",
     "analog": (
         "Full-record time series of analog channel variables containing "
         "non-zero, non-NaN data. One panel per channel. Labels and units are read "
-        "from the mooring YAML — update them there to change what appears here."
+        "from the mooring description — change them there to change what appears "
+        "here."
     ),
+    "steps": (
+        "What was done to this instrument's record, entry by entry as the file's "
+        "history attribute records it, with the settings read from the file."
+    ),
+    "nc_file": _instrument_text.NETCDF_CAPTION,
 }
+
+
+def _declination_unapplied_reason(ds: Any) -> str:
+    """Return why a stage-3 file's east/north velocities are not in true north.
+
+    Oceanarray records the declination it applied in the ``magnetic_declination``
+    attribute (``"UNK"`` when stage 3 had no mooring position); a reader records
+    the originator's in ``originator_magnetic_declination``. Stage-2 files are not
+    checked: their velocities are magnetic north by design.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset or None
+        The instrument's stage-3 file, or None when the page shows an earlier stage.
+
+    Returns
+    -------
+    str
+        ``"no mooring position at stage 3"``, ``"the stage-3 file records no
+        declination"``, or ``""`` when the velocities are in true north (or the
+        file has none).
+    """
+    if ds is None or not {"east_velocity", "north_velocity"} <= set(ds.data_vars):
+        return ""
+    if "originator_magnetic_declination" in ds.attrs:
+        return ""
+    decl = ds.attrs.get("magnetic_declination")
+    if decl == "UNK":
+        return "no mooring position at stage 3"
+    if decl is None:
+        return "the stage-3 file records no declination"
+    return ""
 
 
 def _has_fig(key: str) -> Callable:
@@ -148,20 +179,57 @@ def _empty_note(pid: str, reason: str, when_empty: Callable) -> Panel:
     )
 
 
+def _images(value: Any) -> list[str]:
+    """Return the base64 images of a figure value (one, a list, or a stub)."""
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, list):
+        return [v for v in value if isinstance(v, str)]
+    return []
+
+
+def _collapsed_figure(pid: str, key: str, summary: str, *, anchor: str = "") -> Panel:
+    """Build a panel showing figure *key* collapsed, with ``captions[pid]`` above it."""
+    return Panel(
+        pid,
+        render=lambda c: render_template(
+            "_collapsed_figure.html",
+            summary=summary,
+            caption=c["captions"].get(pid, ""),
+            images=_images(c.get(key)),
+            anchor=anchor,
+        ),
+        kind="html",
+        applies_to=lambda c: bool(_images(c.get(key))),
+    )
+
+
 #: Instrument panel registry (dict-context: panels read ctx by key).
 INSTRUMENT_PANELS: dict[str, Panel] = {
+    "steps": Panel(
+        "steps",
+        render=lambda c: render_template("_history_steps.html", rows=c["steps"]),
+        kind="html",
+        caption=INSTRUMENT_CAPTIONS["steps"],
+        applies_to=lambda c: bool(c.get("steps")),
+    ),
     "files": Panel(
         "files",
         render=lambda c: render_template(
             "_instrument_files.html",
             raw_file=c["raw_file"],
             stage_files=c["stage_files"],
+            originator=c.get("originator"),
         ),
-        kind="table",
+        kind="html",
     ),
     "history": Panel(
         "history",
-        render=lambda c: render_history(c["history_entries"]),
+        render=lambda c: render_template(
+            "_instrument_history.html",
+            history=render_history(c["history_entries"]),
+            levels=c.get("processing_levels", []),
+        ),
         kind="html",
         unavailable_if=_history_unavailable,
     ),
@@ -170,15 +238,17 @@ INSTRUMENT_PANELS: dict[str, Panel] = {
         "No plottable variables found.",
         lambda c: not c.get("fig_ts_b64"),
     ),
-    "windows_empty": _empty_note(
-        "windows_empty",
-        "Insufficient data for start/end windows.",
-        lambda c: not c.get("fig_windows_b64"),
-    ),
     "adcp_velocity": _fig_panel("adcp_velocity", "fig_adcp_velocity_b64"),
-    "windows_note": Panel(
-        "windows_note",
-        render=lambda _c: render_template("_instrument_windows_note.html"),
+    "windows": Panel(
+        "windows",
+        render=lambda c: render_template(
+            "_instrument_windows_note.html",
+            hours=c.get("window_hours", 6),
+            kinds={label for _t, _c, label in c.get("window_vlines", [])},
+            end_suggested=c.get("end_suggested", False),
+            disturbed=c.get("disturbed_end", ""),
+            images=_images(c.get("fig_windows_b64")),
+        ),
         kind="html",
         applies_to=_has_fig("fig_windows_b64"),
     ),
@@ -186,7 +256,9 @@ INSTRUMENT_PANELS: dict[str, Panel] = {
     "adcp_rose": _fig_panel("adcp_rose", "fig_adcp_rose_b64"),
     "rose_declination": Panel(
         "rose_declination",
-        render=lambda _c: render_template("_instrument_rose_note.html"),
+        render=lambda c: render_template(
+            "_instrument_rose_note.html", reason=c.get("declination_reason", "")
+        ),
         kind="html",
         applies_to=lambda c: bool(c.get("declination_warn")),
     ),
@@ -203,47 +275,24 @@ INSTRUMENT_PANELS: dict[str, Panel] = {
         kind="html",
         applies_to=lambda c: bool(c.get("analog_yaml_info")),
     ),
-    "dist": Panel(
-        "dist",
-        render=lambda c: c.get("fig_dt_b64"),
-        slot=None,
-        caption=INSTRUMENT_CAPTIONS["dist"],
-        unavailable_if=lambda c: (
-            None if c.get("fig_dt_b64") else "Not enough samples to compute."
-        ),
-    ),
+    "dist": _collapsed_figure("dist", "fig_dt_b64", "Data value distributions"),
     "qc": Panel(
         "qc",
         render=lambda c: render_template(
             "_instrument_qc.html",
-            qc_summary=c["qc_summary"],
+            table=c["flag_table"],
             qc_thresholds=c["qc_thresholds"],
+            good_sentence=_qcflags.good_sentence(),
         ),
-        kind="table",
-        applies_to=lambda c: bool(c.get("qc_summary")),
+        kind="html",
+        applies_to=lambda c: c.get("flag_table") is not None,
     ),
-    "nc_coords": Panel(
-        "nc_coords",
-        render=lambda c: render_nc_coords(c["nc_meta"]),
-        kind="table",
-        applies_to=lambda c: bool(c.get("nc_meta", {}).get("coords_rows")),
-    ),
-    "nc_variables": Panel(
-        "nc_variables",
-        render=lambda c: render_nc_variables(c["nc_meta"]),
-        kind="table",
-    ),
-    "nc_scalars": Panel(
-        "nc_scalars",
-        render=lambda c: render_nc_scalars(c["nc_meta"]),
-        kind="table",
-        applies_to=lambda c: bool(c.get("nc_meta", {}).get("scalar_rows")),
-    ),
-    "nc_globals": Panel(
-        "nc_globals",
-        render=lambda c: render_nc_globals(c["nc_meta"]),
-        kind="table",
-        applies_to=lambda c: bool(c.get("nc_meta", {}).get("global_groups")),
+    "nc_file": Panel(
+        "nc_file",
+        render=lambda c: render_nc_collapsed(c["nc_meta"]),
+        kind="html",
+        caption=INSTRUMENT_CAPTIONS["nc_file"],
+        applies_to=lambda c: bool(c.get("nc_meta")),
     ),
 }
 
@@ -252,86 +301,99 @@ _TIMESERIES_IMGS = PanelGroup(
     over=lambda c: list(enumerate(c.get("fig_ts_b64") or [])),
     panel=lambda pair: _image_panel(f"timeseries_{pair[0]}", pair[1]),
 )
-#: Paginated start/end-window images.
-_WINDOWS_IMGS = PanelGroup(
-    over=lambda c: list(enumerate(c.get("fig_windows_b64") or [])),
-    panel=lambda pair: _image_panel(f"windows_{pair[0]}", pair[1]),
-)
 
 
-#: Instrument sections.  ``start`` keeps its id (mooring.html deep-links to it).
+#: Instrument sections.  The start and end windows keep the ``start`` anchor
+#: (mooring.html deep-links to it) on their collapsed box in the processing section.
 #: Sections whose only figures come from a PanelGroup pair an ``*_empty`` note
 #: panel (a specific "nothing to show" message) with the image run, so the
-#: section is always kept via an applicable panel — no explicit section predicate
-#: is needed.
+#: section is always kept via an applicable panel.
 INSTRUMENT_SECTIONS: dict[str, Section] = {
-    "files": Section("files", "Files", ("files",)),
-    "processing_history": Section(
-        "processing_history",
-        "Processing history",
-        ("history",),
-    ),
     "adcp_velocity": Section("adcp_velocity", "Velocity", ("adcp_velocity",)),
     "timeseries": Section(
-        "timeseries",
-        "Time series (full deployment)",
-        ("timeseries_empty", _TIMESERIES_IMGS),
-        intro="line = data; × = suspect; × = bad; + = interpolated.",
-    ),
-    "start": Section(
-        "start",
-        "Start & end windows — first / last 6 h",
-        ("windows_note", "windows_empty", _WINDOWS_IMGS),
+        "timeseries", "Time series", ("timeseries_empty", _TIMESERIES_IMGS)
     ),
     "ts_diagram": Section("ts_diagram", "T-S diagram", ("ts_diagram",)),
     "adcp_rose": Section("adcp_rose", "Current roses", ("adcp_rose",)),
-    "rose": Section("rose", "Current rose diagrams", ("rose_declination", "rose")),
-    "trajectory": Section("trajectory", "Particle trajectory", ("trajectory",)),
+    "rose": Section("rose", "Current rose", ("rose_declination", "rose")),
+    "trajectory": Section("trajectory", "Progressive vector diagram", ("trajectory",)),
     "hodograph": Section("hodograph", "Hodograph", ("hodograph",)),
     "speed": Section("speed", "Current speed distribution", ("speed",)),
     "analog": Section("analog", "Analog channels", ("analog", "analog_yaml")),
-    "distributions": Section(
-        "distributions",
-        "Data value distributions",
-        ("dist",),
+    "qc": Section("qc", "Quality flags", ("qc",)),
+    "processing": Section(
+        "processing",
+        "Processing",
+        ("steps", "files", "history", "windows", "dist"),
     ),
-    "qc": Section("qc", "QC flag breakdown", ("qc",)),
-    "netcdf_variables": Section(
-        "netcdf_variables",
-        "NetCDF variables",
-        ("nc_coords", "nc_variables", "nc_scalars"),
-        role="appendix",
-    ),
-    "netcdf_attributes": Section(
-        "netcdf_attributes",
-        "NetCDF attributes",
-        ("nc_globals",),
-        role="appendix",
-    ),
+    "netcdf": Section("netcdf", "NetCDF file", ("nc_file",), role="appendix"),
 }
 
 #: Default instrument profile.
 INSTRUMENT_DEFAULT = Profile(
     numbering="flat",
-    entries=(
-        INSTRUMENT_SECTIONS["files"],
-        INSTRUMENT_SECTIONS["processing_history"],
-        INSTRUMENT_SECTIONS["adcp_velocity"],
-        INSTRUMENT_SECTIONS["timeseries"],
-        INSTRUMENT_SECTIONS["start"],
-        INSTRUMENT_SECTIONS["ts_diagram"],
-        INSTRUMENT_SECTIONS["adcp_rose"],
-        INSTRUMENT_SECTIONS["rose"],
-        INSTRUMENT_SECTIONS["trajectory"],
-        INSTRUMENT_SECTIONS["hodograph"],
-        INSTRUMENT_SECTIONS["speed"],
-        INSTRUMENT_SECTIONS["analog"],
-        INSTRUMENT_SECTIONS["distributions"],
-        INSTRUMENT_SECTIONS["qc"],
-        INSTRUMENT_SECTIONS["netcdf_variables"],
-        INSTRUMENT_SECTIONS["netcdf_attributes"],
+    entries=tuple(
+        INSTRUMENT_SECTIONS[k]
+        for k in (
+            "adcp_velocity",
+            "timeseries",
+            "ts_diagram",
+            "adcp_rose",
+            "rose",
+            "trajectory",
+            "hodograph",
+            "speed",
+            "analog",
+            "qc",
+            "processing",
+            "netcdf",
+        )
     ),
 )
+
+
+def _profile(captions: dict[str, str]) -> Profile:
+    """Return the instrument profile with the page's generated section captions."""
+    timeseries = replace(
+        INSTRUMENT_SECTIONS["timeseries"], intro=captions.get("timeseries") or None
+    )
+    return replace(
+        INSTRUMENT_DEFAULT,
+        entries=tuple(
+            timeseries if s.id == "timeseries" else s
+            for s in INSTRUMENT_DEFAULT.entries
+        ),
+    )
+
+
+def _panels(captions: dict[str, str]) -> dict[str, Panel]:
+    """Return the panel registry with the page's generated figure captions."""
+    out = dict(INSTRUMENT_PANELS)
+    for pid in ("ts_diagram", "rose"):
+        if captions.get(pid):
+            out[pid] = replace(out[pid], caption=captions[pid])
+    return out
+
+
+def _interval_text(dt_s: float | None) -> str:
+    """Return a sampling interval for the header: ``"16 min"``, ``"30 min"``, ``"1 h"``.
+
+    The observed interval (90th percentile of the steps) is rounded to whole
+    seconds below a minute and to a tenth of a minute (or hour) above, so clock
+    jitter does not show as ``"30.0167 min"``.
+    """
+    if dt_s is None or not np.isfinite(dt_s) or dt_s <= 0:
+        return "—"
+    if dt_s < 60:
+        return f"{dt_s:.0f} s"
+    if dt_s < 3600:
+        return f"{round(dt_s / 60.0, 1):g} min"
+    return f"{round(dt_s / 3600.0, 1):g} h"
+
+
+def _title(type_label: str, serial: str, depth: float | None) -> str:
+    """Return the page's title: ``"MicroCAT 14644 · 2190 m"``."""
+    return f"{type_label} {serial}" + (f" · {depth:.0f} m" if depth is not None else "")
 
 
 # ---------------------------------------------------------------------------
@@ -445,51 +507,67 @@ def generate_instrument_pages(
                 else ("stage1" if _stage1_nc.exists() else None)
             )
         )
-        nc_file = best_nc.name if best_nc else "—"
 
         nc_info = instr.get("nc", {}) or {}
         n_records = nc_info.get("n_records", "—")
         t_start = nc_info.get("t_start", "—")
         t_end = nc_info.get("t_end", "—")
         dt_s = nc_info.get("dt_s")
-        median_dt = f"{dt_s:.0f} s" if dt_s and dt_s == dt_s else "—"
-        duration = _format_duration(_parse_dt(t_start), _parse_dt(t_end))
+        median_dt = _interval_text(dt_s)
+        nominal_depth = instr.get("nominal_depth", instr.get("depth"))
+        type_label = instr.get("type_label") or _type_label(instr_type)
+        title = _title(type_label, serial, nominal_depth)
 
+        # One read of the file the page shows: its attributes, flags and history
+        # feed the header, the generated captions and the step table.
         history_entries: list[dict[str, str]] = []
         _sugg_deploy_utc: str | None = None
         _sugg_recover_utc: str | None = None
+        who: _instrument_text.Originator | None = None
+        steps: list = []
+        levels: list = []
+        flag_table = None
+        disturbed = ""
+        captions: dict[str, str] = {}
+        # The flag rule the stack and grid apply, chosen once for every figure and
+        # caption of the page.
+        rule = masking.stack_rule(cfg)
+        ds_page = None
         if best_nc:
             try:
                 import xarray as xr
 
+                # Loaded and closed at once: the figures open the file again.
                 with xr.open_dataset(best_nc, decode_timedelta=False) as _ds:
-                    history_entries = _parse_history(_ds.attrs.get("history", ""))
-                    _sugg_deploy_utc = _ds.attrs.get("suggested_deployment_time_utc")
-                    _sugg_recover_utc = _ds.attrs.get("suggested_recovery_time_utc")
+                    ds_page = _ds.load()
             except Exception:
-                pass
+                ds_page = None
+        if ds_page is not None:
+            history_entries = _parse_history(ds_page.attrs.get("history", ""))
+            _sugg_deploy_utc = ds_page.attrs.get("suggested_deployment_time_utc")
+            _sugg_recover_utc = ds_page.attrs.get("suggested_recovery_time_utc")
+            who = _instrument_text.originator_identity(ds_page.attrs)
+            steps = _instrument_text.instrument_history_rows(
+                ds_page,
+                file_type=str(instr.get("file_type", "")),
+                raw_name=str(instr.get("filename", "")),
+                rule=rule,
+            )
+            levels = _instrument_text.processing_levels(ds_page)
+            if stage3_nc is not None:
+                flag_table = _instrument_text.flag_table(ds_page)
+            if who is not None:
+                disturbed = _instrument_text.disturbed_end(ds_page)
 
-        # Build vertical-line markers for the start/end window plots.
-        # Orange = auto-detected from pressure; green = set in the YAML.
-        _yaml_deploy_str = cfg.get("deployment_time")
-        _yaml_recover_str = cfg.get("recovery_time")
-        # PyYAML may parse bare ISO datetime values as datetime objects; normalise to
-        # ISO strings so the vlines normalizer in _plots.py can handle them uniformly.
-        if hasattr(_yaml_deploy_str, "isoformat"):
-            _yaml_deploy_str = _yaml_deploy_str.isoformat()
-        if hasattr(_yaml_recover_str, "isoformat"):
-            _yaml_recover_str = _yaml_recover_str.isoformat()
-        _window_vlines: list[tuple] = []
-        if _sugg_deploy_utc:
-            _window_vlines.append((_sugg_deploy_utc, "#e67e22", "Suggested"))
-        if _sugg_recover_utc:
-            _window_vlines.append((_sugg_recover_utc, "#e67e22", "Suggested"))
-        if _yaml_deploy_str:
-            _window_vlines.append((_yaml_deploy_str, "#27ae60", "YAML"))
-        if _yaml_recover_str:
-            _window_vlines.append((_yaml_recover_str, "#27ae60", "YAML"))
+        # Vertical lines on the start/end windows: one per time, a suggested
+        # time (orange, from pressure) and the description's (green) drawn as one
+        # line when they agree.
+        _window_vlines = _instrument_text.window_lines(
+            (_sugg_deploy_utc, _sugg_recover_utc),
+            (cfg.get("deployment_time"), cfg.get("recovery_time")),
+        )
 
-        # File listing — raw source and stage1/2/3 NC files
+        # File listing — the data read and the file of each processing step
         raw_filename = instr.get("filename", "")
         if raw_filename and raw_dir is not None:
             # New layout: {raw_dir}/{mooring}/{instrument}/filename
@@ -510,23 +588,38 @@ def generate_instrument_pages(
             raw_file = {"exists": False, "name": "—", "size": "", "mtime": ""}
         stage_files = _stage_file_details(proc_dir, instr_type, mooring_name, serial)
 
+        # The figures draw from the file the page already read (read again only
+        # when that failed).
+        src = ds_page if ds_page is not None else best_nc
+        ts_record: dict = {}
+        tsd_record: dict = {}
+        rose_title = _title("", serial, nominal_depth).strip()
         ctx = {
             "mooring_name": mooring_name,
             "cruise": cruise,
             "serial": serial,
             "instr_type": instr_type,
+            "type_label": type_label,
+            "title": title,
             "hab": instr["hab"],
-            "depth": instr["depth"],
+            "depth": nominal_depth,
             "n_records": (
                 f"{n_records:,}" if isinstance(n_records, int) else n_records
             ),
             "t_start": t_start,
             "t_end": t_end,
-            "duration": duration,
             "median_dt": median_dt,
-            "nc_file": nc_file,
+            "originator": who,
+            "raw_name": raw_filename,
             "raw_file": raw_file,
             "stage_files": stage_files,
+            "steps": steps,
+            "processing_levels": levels,
+            "flag_table": flag_table,
+            "disturbed_end": disturbed,
+            "window_vlines": _window_vlines,
+            "window_hours": 6,
+            "end_suggested": bool(_sugg_recover_utc),
             "mooring_report_link": mooring_report_link,
             "nav": mooring_nav(
                 mooring_name,
@@ -545,72 +638,92 @@ def generate_instrument_pages(
             # multiple render_b64 calls) — not as_panel's str|None single-figure
             # contract — so they are not wrapped (a Stub cannot stand in for a list).
             "fig_ts_b64": (
-                _make_instrument_b64s(best_nc, instr_type) if best_nc else None
+                _make_instrument_b64s(src, instr_type, title=title, record=ts_record)
+                if best_nc
+                else None
             ),
             "fig_windows_b64": (
                 _make_windows_b64s(
-                    best_nc,
+                    src,
                     instr_type,
                     vlines=_window_vlines,
                     stage1_nc=(_stage1_nc if _stage1_nc.exists() else None),
+                    title=title,
                 )
                 if best_nc
                 else None
             ),
             "fig_tsd_b64": (
-                as_panel(lambda bn=best_nc: _make_ts_diagram_b64(bn))
+                as_panel(
+                    lambda bn=src, rec=tsd_record: _make_ts_diagram_b64(bn, record=rec)
+                )
                 if best_nc
                 else None
             ),
             "fig_rose_b64": (
-                as_panel(lambda bn=best_nc: _make_instrument_rose_b64(bn))
+                as_panel(
+                    lambda bn=src, r=rule, rt=rose_title: _make_instrument_rose_b64(
+                        bn, title=rt, rule=r
+                    )
+                )
                 if best_nc and instr_type.lower() != "adcp"
                 else None
             ),
             "fig_adcp_velocity_b64": (
-                as_panel(lambda bn=best_nc: _make_adcp_velocity_b64(bn))
+                as_panel(lambda bn=src: _make_adcp_velocity_b64(bn))
                 if best_nc and instr_type.lower() == "adcp"
                 else None
             ),
             "fig_adcp_rose_b64": (
-                as_panel(lambda bn=best_nc: _make_adcp_rose_b64(bn))
+                as_panel(lambda bn=src: _make_adcp_rose_b64(bn))
                 if best_nc and instr_type.lower() in ("adcp", "rdi")
                 else None
             ),
             "fig_trajectory_b64": (
-                as_panel(lambda bn=best_nc: _make_temperature_trajectory_b64(bn))
+                as_panel(lambda bn=src: _make_temperature_trajectory_b64(bn))
                 if best_nc and instr_type.lower() == "aquadopp"
                 else None
             ),
             "fig_speed_boxplot_b64": (
-                as_panel(lambda bn=best_nc: _make_speed_boxplot_b64(bn))
+                as_panel(lambda bn=src: _make_speed_boxplot_b64(bn))
                 if best_nc and instr_type.lower() == "aquadopp"
                 else None
             ),
             "fig_hodograph_b64": (
-                as_panel(lambda bn=best_nc: _make_hodograph_b64(bn))
+                as_panel(lambda bn=src: _make_hodograph_b64(bn))
                 if best_nc and instr_type.lower() == "aquadopp"
                 else (
-                    as_panel(lambda bn=best_nc: _make_adcp_hodograph_b64(bn))
+                    as_panel(lambda bn=src: _make_adcp_hodograph_b64(bn))
                     if best_nc and instr_type.lower() in ("adcp", "rdi")
                     else None
                 )
             ),
             "fig_dt_b64": (
-                as_panel(lambda bn=best_nc: _make_data_histogram_b64(bn))
+                as_panel(lambda bn=src, r=rule: _make_data_histogram_b64(bn, rule=r))
                 if best_nc
                 else None
             ),
-            "qc_summary": _read_qc_summary(stage3_nc) if stage3_nc else [],
             "qc_thresholds": _read_qc_thresholds(stage3_nc) if stage3_nc else [],
             "nc_meta": _read_nc_metadata(best_nc) if best_nc else {},
             "data_stage": data_stage,  # "stage1", "stage2", "stage3", or None
         }
+        if ds_page is not None:
+            drawn = ts_record.get("variables", [])
+            captions["timeseries"] = _instrument_text.timeseries_caption(
+                ds_page, drawn, ts_record.get("counts", {})
+            )
+            if tsd_record:
+                captions["ts_diagram"] = _instrument_text.ts_caption(
+                    ds_page, tsd_record, tsd_record.get("counts", {})
+                )
+            captions["rose"] = _instrument_text.rose_caption(ds_page, rule)
+            captions["dist"] = _instrument_text.distributions_caption(
+                ds_page, [v for v in drawn if v in ds_page.data_vars], rule
+            )
+        ctx["captions"] = captions
         analog_vars = ctx["nc_meta"].get("analog_vars", [])
         ctx["fig_analog_b64"] = (
-            as_panel(
-                lambda bn=best_nc, av=analog_vars: _make_analog_timeseries_b64(bn, av)
-            )
+            as_panel(lambda bn=src, av=analog_vars: _make_analog_timeseries_b64(bn, av))
             if best_nc and analog_vars
             else None
         )
@@ -647,28 +760,13 @@ def generate_instrument_pages(
                 }
             )
         ctx["analog_yaml_info"] = analog_yaml_info
-        # Warn if magnetic declination was not applied (lat/lon missing from YAML)
-        _global_attrs = {
-            attr: _val
-            for _title, rows in ctx["nc_meta"].get("global_groups", [])
-            for attr, _type, _val in rows
-        }
-        # Warn when declination was not applied: the attribute is absent, or "UNK"
-        # (stage 3 had no mooring position), so the velocities are magnetic north.
-        ctx["declination_warn"] = (
-            instr_type.lower() == "aquadopp"
-            and _global_attrs.get("magnetic_declination") in (None, "UNK")
+        ctx["declination_reason"] = _declination_unapplied_reason(
+            ds_page if best_nc is not None and best_nc == stage3_nc else None
         )
-        # True when the NC contains instrument-frame XYZ velocities (rose has XYZ panel)
-        _tvar_names = {
-            r["name"]
-            for _title, rows in ctx["nc_meta"].get("var_groups", [])
-            for r in rows
-        }
-        ctx["rose_has_xyz"] = "velocity_x" in _tvar_names
+        ctx["declination_warn"] = bool(ctx["declination_reason"])
 
         try:
-            ctx["report"] = resolve(INSTRUMENT_DEFAULT, ctx, INSTRUMENT_PANELS)
+            ctx["report"] = resolve(_profile(captions), ctx, _panels(captions))
             # Instrument pages sit a level deeper (instrument/), so ancestors are
             # rebased by "../" back to the mooring directory; the mooring crumb links
             # up to the summary. Always shown, with ancestors in front when given.

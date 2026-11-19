@@ -10,6 +10,7 @@ originator flag table.
 from __future__ import annotations
 
 import json
+import logging
 from typing import Any
 
 import numpy as np
@@ -22,6 +23,8 @@ from oceanarray.plotters.flags import SHORT, SHOWN_ORIGINATOR, SHOWN_OURS
 from oceanarray.plotters.flags import level_dim as _level_dim
 from oceanarray.plotters.flags import level_labels as _labels
 from oceanarray.plotters.helpers import QC_COLORS
+
+log = logging.getLogger(__name__)
 
 
 def rule_text(ds: xr.Dataset) -> str:
@@ -41,32 +44,170 @@ def rule_text(ds: xr.Dataset) -> str:
 _QUALITY = (3, 4)
 
 
+def share_text(n: int, total: int) -> str:
+    """Return a count as a share of *total*, as the QC tables write it.
+
+    Parameters
+    ----------
+    n : int
+        Values in a class.
+    total : int
+        Values in all.
+
+    Returns
+    -------
+    str
+        One decimal without a trailing zero (``"2.1"``, ``"50"``), ``"<0.1"``
+        for a share that would round to zero, ``""`` for none.
+    """
+    if n == 0 or total == 0:
+        return ""
+    pct = 100.0 * n / total
+    return f"{pct:.1f}".rstrip("0").rstrip(".") if pct >= 0.1 else "<0.1"
+
+
+def flag_counts(flags: np.ndarray, here: np.ndarray | None = None) -> dict[int, int]:
+    """Return how many values carry each flag: the QC tables' one count.
+
+    Parameters
+    ----------
+    flags : numpy.ndarray
+        A flag variable's values (any shape).
+    here : numpy.ndarray of bool, optional
+        Which values to count (those present); every value when not given.
+
+    Returns
+    -------
+    dict of int to int
+        Flag -> number of values, in flag order, flags with none left out.
+    """
+    flags = np.asarray(flags)
+    if here is not None:
+        flags = flags[np.asarray(here, dtype=bool)]
+    flags = flags[np.isfinite(flags)] if flags.dtype.kind == "f" else flags
+    values, counts = np.unique(flags.astype(int), return_counts=True)
+    return {int(f): int(c) for f, c in zip(values, counts, strict=True) if c}
+
+
+def flag_bar(counts: dict[int, int], total: int) -> list[dict[str, Any]]:
+    """Return a QC table's bar: one segment per flag present, in flag order.
+
+    Parameters
+    ----------
+    counts : dict of int to int
+        From :func:`flag_counts`.
+    total : int
+        Values the shares are of.
+
+    Returns
+    -------
+    list of dict
+        ``flag``, ``n``, ``pct`` (float, %, one decimal), ``text`` (:func:`share_text`),
+        ``label`` (the flag's word) and ``color``.
+    """
+    return [
+        {
+            "flag": f,
+            "n": c,
+            "pct": round(100.0 * c / total, 1),
+            "text": share_text(c, total),
+            "label": params.QC_FLAG_LABEL.get(f, str(f)),
+            "color": QC_COLORS.get(f, "#999"),
+        }
+        for f, c in sorted(counts.items())
+        if c and total
+    ]
+
+
+def good_share(counts: dict[int, int], total: int) -> dict[str, Any]:
+    """Return a QC table's Good % cell: the share flagged good, coloured.
+
+    Good is any of ``parameters.QC_GOOD_FLAGS``. Green at or above
+    ``parameters.QC_GOOD_PCT``, amber at or above ``parameters.QC_GOOD_FAIR_PCT``,
+    red below; a set whose every value is 0 reads "not checked", uncoloured.
+
+    Parameters
+    ----------
+    counts : dict of int to int
+        From :func:`flag_counts`.
+    total : int
+        Values the share is of.
+
+    Returns
+    -------
+    dict
+        ``pct`` (float, %), ``text`` (``"0"`` when none is good) and ``color``
+        (a page colour variable).
+    """
+    if set(counts) == {params.QC_NOT_EVALUATED}:
+        return {"pct": 0.0, "text": "not checked", "color": "inherit"}
+    good = sum(counts.get(f, 0) for f in params.QC_GOOD_FLAGS)
+    pct = 100.0 * good / total if total else 0.0
+    if pct >= params.QC_GOOD_PCT:
+        color = "var(--good)"
+    elif pct >= params.QC_GOOD_FAIR_PCT:
+        color = "var(--warn)"
+    else:
+        color = "var(--bad)"
+    return {
+        "pct": pct,
+        "text": share_text(good, total) or "0",
+        "color": color,
+    }
+
+
+def good_sentence() -> str:
+    """Return the caption sentence that states the Good % colours."""
+    good = f"{params.QC_GOOD_PCT:g}"
+    fair = f"{params.QC_GOOD_FAIR_PCT:g}"
+    return (
+        f"Good % (values flagged good or interpolated): green ≥ {good} %, amber "
+        f"{fair}–{good} %, red < {fair} %."
+    )
+
+
 def _percent(n: int, total: int) -> str:
     """Return ``"2.2% (415)"``, ``"<0.1% (6)"``, or ``"–"`` for none."""
-    if n == 0 or total == 0:
-        return "–"
-    pct = 100.0 * n / total
-    return f"<0.1% ({n})" if pct < 0.1 else f"{pct:.1f}% ({n})"
+    text = share_text(n, total)
+    return f"{text}% ({n})" if text else "–"
 
 
 def _summary(
     flags: np.ndarray | None, here: np.ndarray, shown: tuple[int, ...]
 ) -> dict[str, Any] | None:
-    """Return the bar segments and labelled percentages of one flag set, or None."""
+    """Return the bar segments, labelled percentages and Good % of one flag set.
+
+    Parameters
+    ----------
+    flags : numpy.ndarray or None
+        The set's flags for one level and variable; None when the file lacks it.
+    here : numpy.ndarray of bool
+        Where the variable has a value.
+    shown : tuple of int
+        The flags drawn as their own segments and named; the rest of the bar is
+        green.
+
+    Returns
+    -------
+    dict or None
+        ``segments`` (``flag``, ``pct``, ``color``), ``parts`` (one per shown
+        flag present) and ``good`` (:func:`good_share`); None without the set.
+    """
     if flags is None:
         return None
     total = int(here.sum())
-    counts = {f: int(((flags == f) & here).sum()) for f in shown}
+    every = flag_counts(flags, here)
+    counts = {f: every.get(f, 0) for f in shown}
     flagged = sum(counts.values())
     segments = [
         {"flag": f, "pct": 100.0 * c / total, "color": QC_COLORS[f]}
         for f, c in counts.items()
         if c
     ]
-    good = total - flagged
-    if good:
+    rest = total - flagged
+    if rest:
         segments.insert(
-            0, {"flag": 1, "pct": 100.0 * good / total, "color": QC_COLORS[1]}
+            0, {"flag": 1, "pct": 100.0 * rest / total, "color": QC_COLORS[1]}
         )
     return {
         "segments": segments,
@@ -74,13 +215,60 @@ def _summary(
             {
                 "flag": f,
                 "meaning": params.QC_FLAG_MEANING[f],
+                "word": params.QC_FLAG_LABEL[f],
                 "text": _percent(c, total),
                 "color": QC_COLORS[f],
             }
             for f, c in counts.items()
             if c
         ],
+        "good": good_share(every, total),
     }
+
+
+def instrument_labels(ds: xr.Dataset) -> list[str]:
+    """Return one label per level: ``"MicroCAT 2941 · 1500 m"`` (type, serial, nominal depth).
+
+    A Stack cat's depths keep :func:`~oceanarray.plotters.flags.level_labels`.
+    A level beyond the end of a shorter ``instrument_type`` or depth array is
+    labelled without that part, with a warning.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A stack (``N_LEVELS``) or Stack cat (``N_DEPTHS``).
+
+    Returns
+    -------
+    list of str
+        One label per level.
+    """
+    from oceanarray.plotters.helpers import nominal_depths
+
+    from ._navs import _type_label
+
+    if "N_DEPTHS" in ds.dims or "serial" not in ds.variables:
+        return _labels(ds)
+    types = ds["instrument_type"].values if "instrument_type" in ds else None
+    depths = nominal_depths(ds)
+    serials = ds["serial"].values
+    for name, arr in (("instrument_type", types), ("nominal depth", depths)):
+        if arr is not None and len(arr) < len(serials):
+            log.warning(
+                f"{name} has {len(arr)} values for {len(serials)} levels; "
+                "the levels past its end are labelled without it"
+            )
+    out = []
+    for k, serial in enumerate(serials):
+        kind = (
+            _type_label(str(types[k]).lower())
+            if types is not None and k < len(types)
+            else ""
+        )
+        depth = depths[k] if depths is not None and k < len(depths) else np.nan
+        label = f"{kind} {serial}".strip()
+        out.append(f"{label} · {depth:.0f} m" if np.isfinite(depth) else label)
+    return out
 
 
 def count_rows(ds: xr.Dataset) -> tuple[list[dict[str, Any]], list[str], int]:
@@ -105,7 +293,7 @@ def count_rows(ds: xr.Dataset) -> tuple[list[dict[str, Any]], list[str], int]:
     """
     dim = _level_dim(ds)
     rule = masking.from_attrs(ds.attrs)
-    labels = _labels(ds)
+    labels = instrument_labels(ds)
     tds = ds.transpose(dim, "time", ...)
     rows: list[dict[str, Any]] = []
     has_values: set[int] = set()

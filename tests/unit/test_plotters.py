@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import matplotlib
 import numpy as np
 import pandas as pd
@@ -273,47 +275,74 @@ def test_figure_title_is_centered():
     plt.close(fig)
 
 
-def _rose_ds(n=240, suspect=0):
-    """1-D ENU-velocity dataset for a rose: no magnetic tier, *suspect* samples flagged 3."""
-    ang = np.linspace(0.0, 2 * np.pi, n, endpoint=False)
-    qc = np.ones(n, dtype=int)
-    qc[:suspect] = 3
-    return xr.Dataset(
-        {
-            "east_velocity": ("time", np.cos(ang)),
-            "north_velocity": ("time", np.sin(ang)),
-            "east_velocity_qc": ("time", qc),
-        },
-        coords={"time": pd.date_range("2021-01-01", periods=n, freq="h")},
-    )
+_EGM2_CM = (
+    Path(__file__).resolve().parents[1]
+    / "fixtures/proc/egM2_concat/egM2_2018/aquadopp/egM2_2018_CM2000_stage3.nc"
+)
 
 
-def test_instrument_rose_lone_tier_is_boxed_to_third_slot(tmp_path):
-    """One QC tier gives one rose at third-slot height, centred in a narrow box.
+def test_instrument_rose_is_one_stack_page_rose():
+    """One instrument's rose is the stack page's design: one rose a quarter wide, titled."""
+    import matplotlib.pyplot as plt
 
-    The narrow box makes the circle width-limited so its 2-line title clears; a
-    full-width lone rose fills the short figure and clips the title's first line.
-    """
-    path = tmp_path / "one.nc"
-    _rose_ds().to_netcdf(path)
-    fig = draw_instrument_rose(path, width_in=W_FULL)
+    fig = draw_instrument_rose(_EGM2_CM, width_in=W_FULL, title="CM2000 · 2000 m")
     assert fig is not None
-    assert len(fig.axes) == 1
-    assert fig.get_size_inches()[1] == pytest.approx(W_FULL / 3 + 0.4)
-    assert fig.subplotpars.left > 1 / 3
-    assert fig.subplotpars.right < 2 / 3
-    # The bug this guards: a full-width lone rose fills the short figure and the
-    # 2-line title clips above it.  Assert the rendered title stays in the figure.
-    fig.canvas.draw()
-    ax = fig.axes[0]
-    assert "\n" in ax.get_title()  # the ENU-true panel title is two lines
-    assert ax.title.get_window_extent().y1 <= fig.bbox.y1 + 1
+    polar = [ax for ax in fig.axes if ax.name == "polar" and ax.get_visible()]
+    assert len(polar) == 1
+    assert polar[0].get_title() == "CM2000 · 2000 m"
+    assert fig.get_size_inches()[1] == pytest.approx(W_FULL / 4 + 0.65 + 0.6)
+    # Rings are labelled in percent of the record.
+    assert all(t.get_text().endswith("%") for t in polar[0].get_yticklabels())
+    plt.close(fig)
 
 
-def test_instrument_rose_two_tiers_keep_half_slot_height(tmp_path):
-    """Two QC tiers (good + suspect) keep width_in/2 height; the lone-rose cap must not shrink them."""
-    path = tmp_path / "two.nc"
-    _rose_ds(suspect=60).to_netcdf(path)
-    fig = draw_instrument_rose(path, width_in=W_FULL)
-    assert len(fig.axes) == 2
-    assert fig.get_size_inches()[1] == pytest.approx(W_FULL / 2 + 0.4)
+def test_rose_ring_labels_sit_where_the_wedges_are_shortest():
+    """egM2 CM2000: the percent labels go along the quietest bearing, not on a wedge."""
+    import matplotlib.pyplot as plt
+
+    from oceanarray.physics import speed_direction
+
+    with xr.open_dataset(_EGM2_CM, engine="netcdf4") as ds:
+        east = ds["east_velocity"].values
+        north = ds["north_velocity"].values
+    fig = draw_instrument_rose(_EGM2_CM, width_in=W_FULL)
+    ax = next(a for a in fig.axes if a.name == "polar" and a.get_visible())
+    _, direction = speed_direction(east, north)
+    direction = direction[np.isfinite(direction)]
+    sector = np.clip(np.digitize(direction, np.linspace(0, 360, 17)) - 1, 0, 15)
+    share = np.bincount(sector, minlength=16) / len(direction)
+    span = np.maximum.reduce([np.roll(share, 1), share, np.roll(share, -1)])
+    at = int(ax.get_rlabel_position() // 22.5)
+    assert span[at] == span.min()
+    assert share[at] < share.max()
+    plt.close(fig)
+
+
+def test_instrument_rose_draws_suspect_values_in_their_own_rose():
+    """dune2 Aquadopp 9920: good and suspect (oceanarray) roses, each on its own scale."""
+    import matplotlib.pyplot as plt
+
+    path = (
+        Path(__file__).resolve().parents[1]
+        / "fixtures/proc/dune2_1_2026/aquadopp/dune2_1_2026_9920_stage3.nc"
+    )
+    fig = draw_instrument_rose(path, width_in=W_FULL, title="9920")
+    polar = [ax for ax in fig.axes if ax.name == "polar" and ax.get_visible()]
+    titles = [ax.get_title() for ax in polar]
+    assert len(polar) == 2 and titles[0].startswith("Good: ")
+    assert titles[1] == "Suspect (oceanarray): 1,087 values"
+    assert polar[0].get_ylim() != polar[1].get_ylim()
+    plt.close(fig)
+
+
+def test_instrument_rose_leaves_out_what_the_rule_hides():
+    """A rule hiding every flag the file has leaves nothing to draw."""
+    import matplotlib.pyplot as plt
+
+    from oceanarray.pipeline.masking import resolve_mask_flags
+
+    everything = resolve_mask_flags([0, 1, 2, 3, 4, 5, 7, 8, 9])
+    fig = draw_instrument_rose(_EGM2_CM, width_in=W_FULL, rule=everything)
+    polar = [ax for ax in fig.axes if ax.name == "polar"]
+    assert not any(ax.get_visible() for ax in polar)
+    plt.close(fig)

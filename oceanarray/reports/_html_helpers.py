@@ -375,6 +375,14 @@ def _file_info(path: Path) -> dict[str, str]:
     }
 
 
+#: What each processing step's file holds, in reader words.
+_STAGE_WORDS: dict[str, str] = {
+    "stage1": "As read",
+    "stage2": "Standardized and trimmed",
+    "stage3": "Checked",
+}
+
+
 def _stage_file_details(
     proc_dir: Path, instr_type: str, mooring: str, serial: str
 ) -> list:
@@ -385,6 +393,7 @@ def _stage_file_details(
         p = Path(str(base) + f"_{stage}.nc")
         info = _file_info(p)
         info["label"] = stage.capitalize()
+        info["reader_label"] = _STAGE_WORDS[stage]
         rows.append(info)
     return rows
 

@@ -30,21 +30,18 @@ import numpy as np
 import xarray as xr
 from matplotlib.collections import LineCollection
 
-from oceanarray.analysis.derived import speed_direction
 from oceanarray.config import parameters as params
 from oceanarray.config.unit_tables import (
     unit_label,
     var_unit_label,
     warn_if_not_canonical,
 )
-from oceanarray.pipeline.coordinate import xyz_to_enu
+from oceanarray.physics import flow_direction, speed_direction
 from oceanarray.plotters import helpers
 from oceanarray.plotters.helpers import (
     _rose_ax,
     _velocity_panel_style,
-    current_rose,
     grid_despine,
-    rose_legend,
     tukey_smooth,
 )
 from oceanarray.plotters.primitives import (
@@ -841,117 +838,112 @@ def draw_adcp_progressive_vector(
     return fig
 
 
-def draw_instrument_rose(
-    nc_path: Path,
-    *,
-    width_in: float = report_tokens.W_FULL,
-) -> plt.Figure | None:
-    """Rose diagram grid for a single Aquadopp instrument; return Figure or None.
+def rose_panels(
+    ds: xr.Dataset, rule: dict | None = None
+) -> list[tuple[np.ndarray, np.ndarray, str, int]]:
+    """Return an instrument rose's panels: good, suspect and bad values apart.
 
-    Loads the stage-3 NetCDF at *nc_path*, builds one polar panel per available
-    velocity QC tier (ENU magnetic, ENU good, suspect, fail), and returns the
-    Figure.  Returns ``None`` when no velocity data are found.
+    A value's flag is the worse of the originator's and oceanarray's for east and
+    north velocity (:func:`~oceanarray.plotters.helpers.marker_flags`). Good holds
+    the values flagged neither suspect nor bad, less any *rule* hides; a suspect
+    or bad panel is returned only when such values exist.
 
     Parameters
     ----------
-    nc_path : Path
-        Path to a stage-3 NetCDF file for a single Aquadopp instrument.
+    ds : xarray.Dataset
+        An instrument's stage file with ``east_velocity`` and ``north_velocity``.
+    rule : dict or None, optional
+        The flag rule (``masking.resolve_mask_flags``); the default when not given.
+
+    Returns
+    -------
+    list of (numpy.ndarray, numpy.ndarray, str, int)
+        ``(east, north, label, n)`` per panel, e.g. ``"Suspect (originator)"``
+        with its number of values; good first.
+    """
+    from oceanarray.pipeline import masking
+    from oceanarray.pipeline.qc.originator import MAPPED_SUFFIX
+
+    rule = rule if rule is not None else masking.resolve_mask_flags(None)
+    east = np.asarray(ds["east_velocity"].values, dtype=float)
+    north = np.asarray(ds["north_velocity"].values, dtype=float)
+    here = np.isfinite(east) & np.isfinite(north)
+    who: dict[int, list[str]] = {3: [], 4: []}
+    worst = np.ones(east.shape, dtype=np.int8)
+    for suffix, name in ((MAPPED_SUFFIX, "originator"), ("_qc", "oceanarray")):
+        flags = [
+            helpers.marker_flags(ds, v, sources=(suffix,))
+            for v in ("east_velocity", "north_velocity")
+        ]
+        flags = [f for f in flags if f is not None]
+        for f in (3, 4):
+            hit = np.logical_or.reduce([fl == f for fl in flags]) if flags else False
+            if np.any(hit & here):
+                who[f].append(name)
+                worst[hit & (worst < f)] = f
+    good = here & (worst == 1)
+    kept_e = np.where(good, masking.masked(ds, "east_velocity", rule), np.nan)
+    kept_n = np.where(good, masking.masked(ds, "north_velocity", rule), np.nan)
+    kept = np.isfinite(kept_e) & np.isfinite(kept_n)
+    panels = [(kept_e, kept_n, "Good", int(kept.sum()))]
+    for f, word in ((3, "Suspect"), (4, "Bad")):
+        sel = here & (worst == f)
+        if sel.any():
+            panels.append(
+                (
+                    np.where(sel, east, np.nan),
+                    np.where(sel, north, np.nan),
+                    f"{word} ({', '.join(who[f])})",
+                    int(sel.sum()),
+                )
+            )
+    return panels
+
+
+def draw_instrument_rose(
+    nc_path: Path | xr.Dataset,
+    *,
+    width_in: float = report_tokens.W_FULL,
+    title: str | None = None,
+    rule: dict | None = None,
+) -> plt.Figure | None:
+    """Draw one instrument's current roses in the stack page's design; return Figure or None.
+
+    The good values' rose (:func:`oceanarray.plotters.helpers.current_rose`),
+    with the values *rule* hides left out, and beside it a rose of the values
+    flagged suspect and one of those flagged bad, when there are any
+    (:func:`rose_panels`). Each rose has its own ring scale: the flagged ones are
+    small subsets. One speed-class legend.
+
+    Parameters
+    ----------
+    nc_path : Path or xarray.Dataset
+        The instrument's stage-3 NetCDF file, or the file already open.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width in inches (the display slot).
+    title : str or None, optional
+        The rose's title (the page's ``"{serial} · {depth} m"``) when only the
+        good rose is drawn; the serial when not given. With flagged roses each
+        is titled by its values instead (``"Suspect (originator): 246 values"``).
+    rule : dict or None, optional
+        The flag rule (``masking.resolve_mask_flags``); the default rule when
+        not given.
 
     Returns
     -------
     matplotlib.figure.Figure or None
-
+        None without east and north velocity.
     """
-    import matplotlib.pyplot as plt
-    import xarray as xr
-
-    ds = xr.open_dataset(nc_path, decode_timedelta=False).load()
-    ds.close()
-
-    panels = []
-
-    has_xyz = all(f"velocity_{c}" in ds.data_vars for c in ("x", "y", "z"))
-    has_orientation = all(v in ds.data_vars for v in ("heading", "pitch", "roll"))
-    decl = ds.attrs.get("magnetic_declination")
-    if has_xyz and has_orientation and decl is not None:
-        vx_r = ds["velocity_x"].values.astype(float)
-        vy_r = ds["velocity_y"].values.astype(float)
-        vz_r = ds["velocity_z"].values.astype(float)
-        hdg = ds["heading"].values.astype(float)
-        pch = ds["pitch"].values.astype(float)
-        rll = ds["roll"].values.astype(float)
-        e_mag, n_mag, _ = xyz_to_enu(vx_r, vy_r, vz_r, hdg, pch, rll, 0.0)
-        if np.any(np.isfinite(e_mag)):
-            panels.append((e_mag, n_mag, "ENU magnetic\n(decl = 0°)", "Purples"))
-
-    if "east_velocity" in ds.data_vars and "north_velocity" in ds.data_vars:
-        e_all = ds["east_velocity"].values.astype(float)
-        n_all = ds["north_velocity"].values.astype(float)
-        qc = (
-            ds["east_velocity_qc"].values.astype(int)
-            if "east_velocity_qc" in ds.data_vars
-            else np.ones(len(e_all), dtype=int)
-        )
-
-        def _masked(flag_mask: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-            e = e_all.copy()
-            n = n_all.copy()
-            e[~flag_mask] = np.nan
-            n[~flag_mask] = np.nan
-            return e, n
-
-        # Every flag but 3, 4 and 9 (params.QC_BAD_FLAGS) is usable: good (1),
-        # probably good (2), unknown (0), nominal (7) and interpolated (8).
-        good_mask = ~np.isin(qc, params.QC_BAD_FLAGS)
-        susp_mask = qc == 3
-        fail_mask = qc == 4
-
-        # decl is a float when applied, None when absent, or "UNK" when stage 3 had
-        # no position; show "?" for anything non-numeric.
-        decl_str = f"{float(decl):+.1f}°" if isinstance(decl, (int, float)) else "?"
-        enu_title = f"ENU true (decl = {decl_str})\nflags 0–2, 7, 8 (usable)"
-        if np.any(np.isfinite(e_all[good_mask])):
-            panels.append((*_masked(good_mask), enu_title, "Blues"))
-        if np.any(np.isfinite(e_all[susp_mask])):
-            panels.append((*_masked(susp_mask), "ENU — suspect\n(flag 3)", "Oranges"))
-        if np.any(np.isfinite(e_all[fail_mask])):
-            panels.append((*_masked(fail_mask), "ENU — fail\n(flag 4)", "Reds"))
-
-    if not panels:
+    ds = helpers.as_dataset(nc_path)
+    if "east_velocity" not in ds.data_vars or "north_velocity" not in ds.data_vars:
         return None
-
-    ncols = len(panels)
-    # Each rose is a circle (polar axes keep a circular aspect).  The figure keeps the
-    # full slot width so the PNG is displayed at 100% and the browser does not rescale
-    # it (which shrinks the panel fonts).  Row height is one rose-diameter per column;
-    # a lone rose (ncols == 1) uses the same third-slot row height and is centred in a
-    # narrow box below (see subplots_adjust) so it is a small centred circle with its
-    # 2-line title clear, not a full-slot-width square.
-    lone = ncols == 1
-    per_rose = width_in / 3.0 if lone else width_in / ncols
-    fig, axs = plt.subplots(
-        1,
-        ncols,
-        figsize=(width_in, per_rose + 0.4),
-        subplot_kw={"projection": "polar"},
-        squeeze=False,
-    )
-    for ax, (east, north, title, cmap) in zip(axs[0], panels, strict=False):
-        _rose_ax(ax, east, north, title=title, cmap=cmap)
-
-    # Polar figures skip the encoder's tight_layout, so set panel spacing here.  A lone
-    # rose is centred in a box ~a fifth of the width so the circle is width-limited
-    # (like a 3-panel cell), leaving vertical room for its 2-line title; without this
-    # the circle fills the short figure's height and the title's first line clips.
-    # Multi-panel rows get wspace for room left-to-right.
-    if lone:
-        fig.subplots_adjust(left=0.39, right=0.61)
-    else:
-        fig.subplots_adjust(wspace=0.5)
-    return fig
+    panels = rose_panels(ds, rule)
+    if title is None:
+        title = str(ds.attrs.get("serial", ""))
+    if len(panels) == 1:
+        return helpers.draw_roses([panels[0][:2] + (title,)], width_in=width_in)
+    roses = [(e, n, f"{label}: {count:,} values") for e, n, label, count in panels]
+    return helpers.draw_roses(roses, width_in=width_in, own_scale=True)
 
 
 def draw_rose_grid(
@@ -960,7 +952,10 @@ def draw_rose_grid(
     *,
     width_in: float = report_tokens.W_FULL,
 ) -> tuple[plt.Figure, int] | None:
-    """Grid of current roses (max 4 per row) for instruments with ENU velocity data.
+    """Draw current roses (up to 4 per row) for the instruments with ENU velocity data.
+
+    Each rose is titled with the serial and nominal depth; all share one radial
+    scale (:func:`oceanarray.plotters.helpers.draw_roses`).
 
     Parameters
     ----------
@@ -978,10 +973,6 @@ def draw_rose_grid(
         Figure and the number of rose panels rendered, or None if no velocity data.
 
     """
-    import math
-
-    import matplotlib.pyplot as plt
-
     if "east_velocity" not in ds.data_vars or "north_velocity" not in ds.data_vars:
         return None
 
@@ -1055,53 +1046,14 @@ def draw_rose_grid(
     n = len(aqd_idx)
     if n == 0:
         return None
-
-    # Always a 4-wide grid; vary the number of rows and render at full width so
-    # every rose is the same size regardless of instrument count (empty trailing
-    # cells are hidden below).  Row height tracks the ¼-width cell so roses stay
-    # square-ish.
-    ncols = 4
-    nrows = math.ceil(n / ncols)
-
-    _legend_in = 0.6
-    _fig_h = nrows * (width_in / ncols + 0.65) + _legend_in
-    fig, axs = plt.subplots(
-        nrows,
-        ncols,
-        figsize=(width_in, _fig_h),
-        subplot_kw={"projection": "polar"},
-        squeeze=False,
-    )
-    # Trim the outer left/right margins and the inter-panel gap (the tucked-in
-    # N/E/S/W labels no longer need the wide gap).  Also trim the top/bottom
-    # margins to a small fixed inch reserve: the matplotlib defaults (0.88/0.11)
-    # left ~1-2 rows of whitespace above and below on a tall grid (Eleanor
-    # 2026-08-18).  Encoder skips tight_layout for polar figures, so set the
-    # margins explicitly.
-    fig.subplots_adjust(
-        left=0.05,
-        right=0.95,
-        wspace=0.4,
-        hspace=0.45,
-        top=1 - 0.4 / _fig_h,
-        bottom=(0.2 + _legend_in) / _fig_h,
-    )
-    axs_flat = axs.flatten()
-
-    for plot_i, instr_i in enumerate(aqd_idx):
+    depths = helpers.nominal_depths(ds)
+    roses = []
+    for instr_i in aqd_idx:
         serial = serial_list[instr_i] if instr_i < len(serial_list) else "?"
-        if hab_vals is not None and instr_i < len(hab_vals):
-            title = f"{serial} ({hab_vals[instr_i]:.0f} m)"
-        else:
-            title = str(serial)
-        current_rose(
-            axs_flat[plot_i], east_all[:, instr_i], north_all[:, instr_i], title=title
-        )
-
-    for k in range(n, len(axs_flat)):
-        axs_flat[k].set_visible(False)
-    rose_legend(fig, y=0.05 / _fig_h)
-
+        depth = depths[instr_i] if depths is not None else np.nan
+        title = f"{serial} · {depth:.0f} m" if np.isfinite(depth) else str(serial)
+        roses.append((east_all[:, instr_i], north_all[:, instr_i], title))
+    fig = helpers.draw_roses(roses, width_in=width_in)
     return fig, n
 
 
@@ -1137,10 +1089,6 @@ def draw_grid_rose(
     matplotlib.figure.Figure or None
         None when velocity is absent or no level qualifies.
     """
-    import math
-
-    import matplotlib.pyplot as plt
-
     from oceanarray.analysis.derived import velocity_levels
 
     if "east_velocity" not in ds.data_vars or "north_velocity" not in ds.data_vars:
@@ -1153,38 +1101,10 @@ def draw_grid_rose(
     if not levels:
         return None
 
-    n = len(levels)
-    ncols = min(n, 4)
-    nrows = math.ceil(n / ncols)
-    legend_in = 0.6
-    fig_h = nrows * (width_in / 4 + 0.65) + legend_in
-    fig, axs = plt.subplots(
-        nrows,
-        ncols,
-        figsize=(width_in, fig_h),
-        subplot_kw={"projection": "polar"},
-        squeeze=False,
+    return helpers.draw_roses(
+        [(east_all[:, k], north_all[:, k], f"{pressure[k]:.0f} dbar") for k in levels],
+        width_in=width_in,
     )
-    # Each rose the size of a stack-page rose (a quarter of the width).
-    side = ncols * width_in / 4
-    margin = (width_in - side) / 2 / width_in
-    fig.subplots_adjust(
-        left=0.05 * side / width_in + margin,
-        right=1 - 0.05 * side / width_in - margin,
-        wspace=0.4,
-        hspace=0.45,
-        top=1 - 0.4 / fig_h,
-        bottom=(0.2 + legend_in) / fig_h,
-    )
-    axs_flat = axs.flatten()
-    for ax, k in zip(axs_flat, levels, strict=False):
-        current_rose(
-            ax, east_all[:, k], north_all[:, k], title=f"{pressure[k]:.0f} dbar"
-        )
-    for ax in axs_flat[n:]:
-        ax.set_visible(False)
-    rose_legend(fig, y=0.05 / fig_h)
-    return fig
 
 
 def draw_grid_progressive_vector(
@@ -1339,7 +1259,6 @@ def draw_adcp_velocity(
 
     """
     import matplotlib.pyplot as plt
-    import xarray as xr
 
     # (varname, label, panel_type)  — panel_type: "div" | "seq" | "cyc"
     _COMPONENTS = [
@@ -1352,7 +1271,7 @@ def draw_adcp_velocity(
         ("bin_pressure", f"Bin pressure ({unit_label('dbar')})", "seq"),
     ]
 
-    with xr.open_dataset(nc_path, decode_timedelta=False) as ds:
+    with helpers.as_dataset(nc_path) as ds:
         # Compute speed and direction from east/north if both present
         arrays = {}
         for v in ds.data_vars:
@@ -1529,11 +1448,10 @@ def draw_adcp_rose(
 
     """
     import matplotlib.pyplot as plt
-    import xarray as xr
 
     _PERCENTILES = [10, 37, 63, 90]
 
-    with xr.open_dataset(nc_path, decode_timedelta=False) as ds:
+    with helpers.as_dataset(nc_path) as ds:
         if "east_velocity" not in ds or "north_velocity" not in ds:
             return None
 
@@ -1726,9 +1644,7 @@ def draw_adcp_hodograph(
         Figure, or None if velocity data are absent or insufficient.
 
     """
-    import xarray as xr
-
-    with xr.open_dataset(nc_path, decode_timedelta=False) as ds:
+    with helpers.as_dataset(nc_path) as ds:
         # Support both canonical names and legacy dolfyn names
         u_var = next((v for v in ("east_velocity", "u") if v in ds), None)
         v_var = next((v for v in ("north_velocity", "v") if v in ds), None)
@@ -2481,7 +2397,7 @@ def draw_direction_profile_by_deployment(
                 (
                     k,
                     y + offset,
-                    float(np.degrees(np.arctan2(mu, mv)) % 360.0),
+                    float(flow_direction(mu, mv)),
                     min(spread, 180.0),
                     steadiness >= params.SLOPE_STEADINESS_MIN,
                 )
@@ -2490,7 +2406,7 @@ def draw_direction_profile_by_deployment(
             sum_v += mv
     if not points:
         return None
-    centre = float(np.degrees(np.arctan2(sum_u, sum_v)) % 360.0)
+    centre = float(flow_direction(sum_u, sum_v))
 
     fig, ax = plt.subplots(figsize=(width_in, width_in * 0.9), layout="constrained")
     used: set[int] = set()

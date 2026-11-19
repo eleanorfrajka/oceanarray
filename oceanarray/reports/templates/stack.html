@@ -2,6 +2,8 @@
 {% import "_macros.html" as m %}
 {% block title %}Stack report &ndash; {{ mooring_name }}{% endblock %}
 {% block page_styles %}
+  .th-unit { display: block; font-weight: 400; font-size: 0.72rem; opacity: 0.85; }
+  td.nowrap { white-space: nowrap; }
   :root { --accent:#2980b9; --accent-link:#cef; }
   /* No width here: the slot class sets each figure's width; width:100%
      would override the slot and force full-width. */

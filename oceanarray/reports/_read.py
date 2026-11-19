@@ -12,7 +12,6 @@ import numpy as np
 from oceanarray import paths
 
 from ..config import parameters as params
-from ..plotters.helpers import QC_COLORS as _QC_COLORS
 
 #: Reader-facing words for the flag values, from the central flag table.
 _QC_LABELS: dict[int, str] = params.QC_FLAG_LABEL
@@ -198,36 +197,46 @@ def _read_qc_thresholds(nc_path: Path) -> list[dict[str, Any]]:
 
 
 def _read_qc_summary(nc_path: Path) -> list[dict[str, Any]]:
-    """Return per-variable QC flag breakdown from a stage3 NC file."""
+    """Return the per-variable flag counts of a stage-3 file, for the deployment page.
+
+    Parameters
+    ----------
+    nc_path : pathlib.Path
+        The stage-3 file.
+
+    Returns
+    -------
+    list of dict
+        One per ``<var>_qc`` with its variable: ``var``, ``total`` (samples),
+        ``flags`` (``_qcflags.flag_bar``: the flags present) and ``good``
+        (``_qcflags.good_share``); empty when the file cannot be read.
+    """
+    from ._qcflags import flag_bar, flag_counts, good_share
+
     try:
         import xarray as xr
 
-        ds = xr.open_dataset(nc_path, decode_timedelta=False)
-        rows = []
-        for v in sorted(ds.data_vars):
-            if not v.endswith("_qc") or v.endswith("_orig_qc"):
-                continue
-            base = v[:-3]
-            if base not in ds.data_vars:
-                continue
-            flags = ds[v].values.astype(int).ravel()
-            total = len(flags)
-            if total == 0:
-                continue
-            flag_rows = []
-            for fval in params.QC_FLAG_VALUES:
-                n = int(np.sum(flags == fval))
-                flag_rows.append(
+        with xr.open_dataset(nc_path, decode_timedelta=False, engine="netcdf4") as ds:
+            rows = []
+            for v in sorted(ds.data_vars):
+                if not v.endswith("_qc") or v.endswith("_orig_qc"):
+                    continue
+                base = v[:-3]
+                if base not in ds.data_vars:
+                    continue
+                flags = ds[v].values.astype(int).ravel()
+                total = len(flags)
+                if total == 0:
+                    continue
+                counts = flag_counts(flags)
+                rows.append(
                     {
-                        "flag": fval,
-                        "label": _QC_LABELS.get(fval, str(fval)),
-                        "color": _QC_COLORS.get(fval, "#999"),
-                        "n": n,
-                        "pct": round(100.0 * n / total, 1),
+                        "var": base,
+                        "total": total,
+                        "flags": flag_bar(counts, total),
+                        "good": good_share(counts, total),
                     }
                 )
-            rows.append({"var": base, "total": total, "flags": flag_rows})
-        ds.close()
         return rows
     except Exception:
         return []

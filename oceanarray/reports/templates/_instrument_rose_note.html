@@ -1,6 +1,8 @@
 {# Magnetic-declination warning for the current-roses section — the
-   `rose_declination` panel payload (kind="html"). #}
+   `rose_declination` panel payload (kind="html").  `reason` says why the
+   east/north velocities were not rotated to true north. #}
 <p style="font-size:0.82rem;background:var(--warn-bg);border-left:4px solid var(--warn);padding:0.5rem 0.8rem;margin-bottom:0.6rem;">
-  ⚠ Magnetic declination could not be applied &mdash; latitude/longitude are missing or all-zero in the mooring YAML (check <code>seabed_latitude</code>, <code>deployment_latitude</code>, or <code>latitude</code>/<code>longitude</code>).
-  ENU velocities use 0° declination (magnetic north, not true north).
+  ⚠ Magnetic declination was not applied ({{ reason }}): the east/north velocities are relative to magnetic north, not true north.
+  {% if reason == "no mooring position at stage 3" %}Set the position in the mooring YAML (<code>seabed_latitude</code>, <code>deployment_latitude</code>, or <code>latitude</code>/<code>longitude</code>), then re-run{% else %}Re-run{% endif %}
+  <code>oceanarray process … --stage 3</code> for this instrument.
 </p>

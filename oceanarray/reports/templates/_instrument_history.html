@@ -1,0 +1,17 @@
+{# The file's own processing record — the `history` panel payload (kind="html"),
+   collapsed: the history attribute entry by entry, then each variable's
+   processing_level where the file sets one. #}
+<details class="processing"><summary>As recorded in the file's history attribute</summary>
+{{ history | safe }}
+{%- if levels %}
+<p class="caption">Processing level of each variable (OceanSITES reference table 3), as the file records it.</p>
+<table>
+  <thead><tr><th>Variable</th><th>Processing level</th></tr></thead>
+  <tbody>
+  {%- for var, level in levels %}
+  <tr><td><code>{{ var }}</code></td><td>{{ level }}</td></tr>
+  {%- endfor %}
+  </tbody>
+</table>
+{%- endif %}
+</details>

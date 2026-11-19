@@ -1,6 +1,50 @@
-{# QC thresholds + flag-count breakdown — the `qc` panel payload (kind="table"). #}
+{# Quality flags of one instrument — the `qc` panel payload (kind="html"): the flags
+   by variable, the originator's and oceanarray's in separate column groups (classes
+   other than good only, as the deployment page's QC table), the one-line notes, and
+   the limits of oceanarray's tests.  `table` is _instrument_text.FlagTable. #}
+{% import "_mooring_cols.html" as cols %}
+<h3 class="sub">Flags by variable</h3>
+{% if table.rows %}
+<p class="caption">Share of each variable's values in each flag class other than good,
+as flagged {% for g in table.groups %}{% if not loop.first %} and {% endif %}{% if g.suffix.endswith("mapped") %}by the originator (their flags translated to oceanarray's by meaning){% else %}by oceanarray (its automatic tests){% endif %}{% endfor %}.
+Variables with every value good are not listed. Colours are the flag classes. {{ good_sentence }}</p>
+<div class="qc-legend">
+  {% for f in table.legend %}<span style="background:{{ f.color }}"></span>{{ f.label }} {% endfor %}
+</div>
+<table>
+  <thead>
+    <tr>
+      <th rowspan="2">Variable</th>
+      <th rowspan="2" class="num">Values</th>
+      {% for g in table.groups %}<th colspan="{{ g.flags | length + 2 }}" class="group">{{ g.heading }}</th>{% endfor %}
+    </tr>
+    <tr>
+      {% for g in table.groups %}{{ cols.th("Good", "%", true) }}{% for f in g.flags %}{{ cols.th(f.label | capitalize, "%", true) }}{% endfor %}<th>Distribution</th>{% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in table.rows %}
+    <tr>
+      <td><code>{{ row.var }}</code></td>
+      <td class="num">{{ "{:,}".format(row.n) }}</td>
+      {% for g in table.groups %}{% set s = row.sets.get(g.suffix) %}
+      <td class="num">{% if s %}<span style="color:{{ s.good.color }}">{{ s.good.text }}</span>{% else %}&ndash;{% endif %}</td>
+      {% for f in g.flags %}<td class="num">{% if s and s.pct.get(f.flag) %}<span style="color:{{ f.color }}">{{ s.pct[f.flag] }}</span>{% else %}&ndash;{% endif %}</td>{% endfor %}
+      <td>{% if s %}<div class="qc-bar">{% for b in s.bar %}<div style="width:{{ b.pct }}%;background:{{ b.color }};" title="{{ b.label }}: {{ b.text }}%"></div>{% endfor %}</div>{% else %}<span class="none-note">&mdash;</span>{% endif %}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% for line in table.lines %}<p class="one-line">{{ line }}</p>
+{% endfor %}
+{% if table.n_good %}<p class="one-line">{% if table.rows %}All other variables{% else %}All variables{% endif %} ({{ table.n_good }}): every value good.</p>{% endif %}
 {% if qc_thresholds %}
-<h3 style="font-size:0.85rem;color:var(--ocean);margin:0.8rem 0 0.3rem;">Thresholds applied (as stored in stage&nbsp;3 file)</h3>
+<h3 class="sub">QC test limits</h3>
+<p class="caption">Limits of oceanarray's automatic tests, as stored with each flag variable:
+a value outside the suspect range (or changing by more than the spike threshold) is
+flagged suspect, outside the fail range bad.</p>
 <table style="font-size:0.82rem;margin-bottom:1rem;">
   <thead>
     <tr>
@@ -22,44 +66,3 @@
   </tbody>
 </table>
 {% endif %}
-
-<h3 style="font-size:0.85rem;color:var(--ocean);margin:0.8rem 0 0.3rem;">Flag counts</h3>
-<table>
-  <thead>
-    <tr>
-      <th>Variable</th>
-      <th class="num">N</th>
-      <th class="num">Good&nbsp;%</th>
-      <th class="num">Suspect&nbsp;%</th>
-      <th class="num">Bad&nbsp;%</th>
-      <th class="num">Interp.&nbsp;%</th>
-      <th class="num">Missing&nbsp;%</th>
-      <th>Distribution</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for row in qc_summary %}
-    {% set good   = row.flags | selectattr("flag", "eq", 1) | first %}
-    {% set susp   = row.flags | selectattr("flag", "eq", 3) | first %}
-    {% set bad    = row.flags | selectattr("flag", "eq", 4) | first %}
-    {% set interp = row.flags | selectattr("flag", "eq", 8) | first %}
-    {% set miss   = row.flags | selectattr("flag", "eq", 9) | first %}
-    <tr>
-      <td class="mono">{{ row.var }}</td>
-      <td class="num">{{ "{:,}".format(row.total) }}</td>
-      <td class="num" style="color:{% if good.pct >= 95 %}var(--good){% elif good.pct >= 80 %}var(--warn){% else %}var(--bad){% endif %}">{{ good.pct }}</td>
-      <td class="num">{% if susp.n > 0 %}<span style="color:var(--warn)" title="{{ susp.n }} records">{% if susp.pct > 0 %}{{ susp.pct }}{% else %}&lt;0.1%&nbsp;({{ susp.n }}){% endif %}</span>{% else %}&ndash;{% endif %}</td>
-      <td class="num">{% if bad.n > 0 %}<span style="color:var(--bad)" title="{{ bad.n }} records">{% if bad.pct > 0 %}{{ bad.pct }}{% else %}&lt;0.1%&nbsp;({{ bad.n }}){% endif %}</span>{% else %}&ndash;{% endif %}</td>
-      <td class="num">{% if interp.n > 0 %}<span style="color:var(--interp)" title="{{ interp.n }} records">{% if interp.pct > 0 %}{{ interp.pct }}{% else %}&lt;0.1%&nbsp;({{ interp.n }}){% endif %}</span>{% else %}&ndash;{% endif %}</td>
-      <td class="num">{% if miss.n > 0 %}<span title="{{ miss.n }} records">{% if miss.pct > 0 %}{{ miss.pct }}{% else %}&lt;0.1%&nbsp;({{ miss.n }}){% endif %}</span>{% else %}&ndash;{% endif %}</td>
-      <td>
-        <div class="qc-bar">
-          {% for f in row.flags %}{% if f.pct > 0 %}
-          <div style="width:{{ f.pct }}%;background:{{ f.color }};" title="{{ f.label }}: {{ f.pct }}%"></div>
-          {% endif %}{% endfor %}
-        </div>
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>

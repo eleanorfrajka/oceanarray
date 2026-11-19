@@ -162,7 +162,7 @@ def _keep_originator_salinity(
     else:
         detail = "(no value in common)"
     note = (
-        "salinity recomputed from C, T, P; the originator's kept as "
+        "salinity recomputed from C, T, P, the originator's kept as "
         f"salinity_originator {detail}"
     )
     return ds, note
@@ -423,7 +423,7 @@ def _stage3_instrument(
         # Front-of-Stage-3 caldip correction is the first step; record the null action
         # in the timestamped history so the stub → real transition is dated.
         history_notes.append(
-            "caldip: correction requested but not implemented (stub); "
+            "caldip: correction requested but not implemented (stub), "
             "science data unchanged"
         )
 
@@ -536,7 +536,7 @@ def _stage3_instrument(
 
     qc_summary = _format_qc_summary(ds)
     if qc_summary:
-        history_notes.append("QARTOD gross-range+spike: " + "; ".join(qc_summary))
+        history_notes.append("QARTOD gross-range+spike: " + " | ".join(qc_summary))
     _stage.append_history(ds, " | ".join(history_notes))
 
     # The QC treatment, reconstructible from the file alone: flag convention, worst-wins

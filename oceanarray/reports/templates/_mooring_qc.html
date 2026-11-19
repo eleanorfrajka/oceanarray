@@ -21,7 +21,7 @@
 <p class="caption">
   Share of each variable's samples in each quality class, on the OceanSITES flag scale
   used throughout these pages; the originator's flags are translated by their meaning.
-  Only variables with anything not flagged good are listed. HAB: height above bottom.
+  Only variables with anything not flagged good are listed. {{ good_sentence }} HAB: height above bottom.
 </p>
 <div class="qc-legend">
   {% for f in qc.flags %}<span style="background:{{ f.color }}"></span>{{ f.label }}&nbsp;({{ f.flag }}) {% endfor %}
@@ -34,7 +34,8 @@
       <th>Serial</th>
       <th>Variable</th>
       {{ cols.th("Samples", "", true) }}
-      {% for f in qc.flags %}{{ cols.th(f.label | capitalize, "%", true) }}{% endfor %}
+      {{ cols.th("Good", "%", true) }}
+      {% for f in qc.flags if f.flag != 1 %}{{ cols.th(f.label | capitalize, "%", true) }}{% endfor %}
       <th>Distribution</th>
     </tr>
   </thead>
@@ -46,13 +47,14 @@
       <td><code>{{ row.serial }}</code></td>
       <td><code>{{ row.var }}</code></td>
       <td class="num">{{ "{:,}".format(row.total) }}</td>
-      {% for f in qc.flags %}
+      <td class="num"><span style="color:{{ row.good.color }}">{{ row.good.text }}</span></td>
+      {% for f in qc.flags if f.flag != 1 %}
       <td class="num">{% if row.pct.get(f.flag) %}<span style="color:{{ f.color }}">{{ row.pct[f.flag] }}</span>{% else %}&ndash;{% endif %}</td>
       {% endfor %}
       <td>
         <div class="qc-bar">
           {% for f in row.bar %}
-          <div style="width:{{ f.pct }}%; background:{{ f.color }};" title="{{ f.label }}: {{ f.pct }}%"></div>
+          <div style="width:{{ f.pct }}%; background:{{ f.color }};" title="{{ f.label }}: {{ f.text }}%"></div>
           {% endfor %}
         </div>
       </td>

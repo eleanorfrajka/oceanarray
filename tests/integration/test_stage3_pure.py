@@ -216,7 +216,9 @@ def test_instrument_report_warns_when_declination_unknown(no_position, tmp_path)
     html = (mdir / "report" / "instrument" / "dune2_1_2026_9920_report.html").read_text(
         encoding="utf-8"
     )
-    assert "Magnetic declination could not be applied" in html
+    assert (
+        "Magnetic declination was not applied (no mooring position at stage 3)" in html
+    )
 
 
 def test_stage3_native_enu_without_position_records_declination_not_applied():

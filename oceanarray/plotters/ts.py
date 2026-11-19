@@ -14,7 +14,7 @@ from oceanarray.reports._vendored import design_tokens as report_tokens
 
 from ..config import parameters as params
 from .helpers import QC_MARKER as _QC_MARKER
-from .helpers import masked
+from .helpers import as_dataset, masked
 from .primitives import colorbar_norm, plot_title, square_axes_grid, unit_colorbar
 
 if TYPE_CHECKING:
@@ -181,7 +181,18 @@ def draw_sigma0_contours(ax: plt.Axes, contours: SigmaContours | None) -> float 
     digits = max(0, -int(np.floor(np.log10(interval) + 1e-9)))
     if abs(interval * 10**digits - round(interval * 10**digits)) > 1e-6:
         digits += 1
-    ax.clabel(cs, fmt=f"%.{digits}f", fontsize=report_tokens.CLABEL_FS, inline=True)
+    labels = ax.clabel(
+        cs, fmt=f"%.{digits}f", fontsize=report_tokens.CLABEL_FS, inline=True
+    )
+    # The grid spans the figure's axis limits: a label is kept only well inside
+    # them (4 % from each edge), so none is cut by the frame.
+    s_lo, s_hi = float(np.min(contours.salinity)), float(np.max(contours.salinity))
+    t_lo, t_hi = float(np.min(contours.theta)), float(np.max(contours.theta))
+    ds_, dt_ = 0.04 * (s_hi - s_lo), 0.04 * (t_hi - t_lo)
+    for label in labels:
+        x, y = label.get_position()
+        if not (s_lo + ds_ <= x <= s_hi - ds_ and t_lo + dt_ <= y <= t_hi - dt_):
+            label.remove()
     return interval
 
 
@@ -362,10 +373,16 @@ def draw_ts_diagram(
     *,
     width_in: float = report_tokens.W_FULL,
     derived: DerivedFields | None = None,
+    flag_sources: tuple[str, ...] | None = None,
+    record: dict | None = None,
 ) -> plt.Figure | None:
     """T-S diagram from a NetCDF path; return a Figure.
 
-    Scatter by pressure, 2-D count heatmap, and (when present) scatter by O2 saturation.
+    Scatter by pressure, 2-D count heatmap, and (when present) scatter by O2
+    saturation: the stack page's figure for one instrument. Every value is drawn;
+    values flagged suspect (dots) or bad (crosses), in the worse of the flag sets
+    read, are marked on the left panel. The pressure colour bar runs shallow at
+    the top; σθ contours are labelled inside the axes.
 
     Parameters
     ----------
@@ -377,6 +394,13 @@ def draw_ts_diagram(
     derived : DerivedFields or None, optional
         The page's derived quantities (position, θ); read from the file when not
         given.
+    flag_sources : tuple of str or None, optional
+        Flag-variable suffixes read for the markers (default oceanarray's and the
+        originator's).
+    record : dict or None, optional
+        Filled with what was drawn: ``theta``, ``sigma_interval``, ``colour``
+        (``"pressure"`` or ``"sample"``), ``oxygen``, ``counts`` (values marked per
+        flag).
 
     Returns
     -------
@@ -386,11 +410,11 @@ def draw_ts_diagram(
         in-situ temperature without contours otherwise.
 
     """
-    import xarray as xr
+    from .helpers import FLAG_SOURCES, marker_flags
 
-    with xr.open_dataset(nc_path, decode_timedelta=False) as ds:
-        ds.load()
+    sources = flag_sources if flag_sources is not None else FLAG_SOURCES
 
+    with as_dataset(nc_path) as ds:
         if "temperature" not in ds.data_vars or "salinity" not in ds.data_vars:
             return None
 
@@ -409,24 +433,19 @@ def draw_ts_diagram(
             _cbar_unit = ""  # sample index — no unit
             cmap_sc = "plasma"
 
-        t_flags = (
-            ds["temperature_qc"].values.astype(int)
-            if "temperature_qc" in ds
-            else np.ones(len(T), dtype=int)
-        )
-        s_flags = (
-            ds["salinity_qc"].values.astype(int)
-            if "salinity_qc" in ds
-            else np.ones(len(T), dtype=int)
-        )
-        combined_flags = np.where(
-            np.maximum(t_flags, s_flags) >= 4,
-            4,
-            np.where(np.maximum(t_flags, s_flags) == 3, 3, 1),
-        )
-        good_mask = finite & (combined_flags == 1)
+        # The worse of temperature's and salinity's flags, each the worse of the
+        # sets read (oceanarray's, the originator's).
+        combined_flags = np.ones(len(T), dtype=np.int8)
+        for var in ("temperature", "salinity"):
+            flags = marker_flags(ds, var, sources)
+            if flags is not None:
+                for f in (3, 4):
+                    combined_flags[flags == f] = np.maximum(
+                        combined_flags[flags == f], f
+                    )
         suspect_mask = finite & (combined_flags == 3)
         bad_mask = finite & (combined_flags == 4)
+        good_mask = finite & ~suspect_mask & ~bad_mask
 
         has_sat = "oxygen_saturation_pct" in ds.data_vars
         sat_data = ds["oxygen_saturation_pct"].values.astype(float) if has_sat else None
@@ -451,13 +470,13 @@ def draw_ts_diagram(
     ax_l, ax_r = _ax[0, 0], _ax[0, 1]
     ax_sat = _ax[0, 2] if has_sat else None
 
-    # Panel 1: T-S scatter coloured by pressure
+    # Panel 1: T-S scatter coloured by pressure (every value; flagged ones marked)
     vmin = np.nanpercentile(C[finite], 5)
     vmax = np.nanpercentile(C[finite], 95)
     sc = ax_l.scatter(
-        S[good_mask],
-        T[good_mask],
-        c=C[good_mask],
+        S[finite],
+        T[finite],
+        c=C[finite],
         cmap=cmap_sc,
         vmin=vmin,
         vmax=vmax,
@@ -473,20 +492,12 @@ def draw_ts_diagram(
         unit=_cbar_unit,
         ticks=nice_colorbar_ticks(float(vmin), float(vmax)),
     )
+    if _cbar_unit:
+        _cax[0, 0].invert_yaxis()  # shallow at the top
     if suspect_mask.any():
-        ax_l.scatter(
-            S[suspect_mask],
-            T[suspect_mask],
-            label=f"suspect ({suspect_mask.sum()})",
-            **_QC_MARKER[3],
-        )
+        ax_l.scatter(S[suspect_mask], T[suspect_mask], label="suspect", **_QC_MARKER[3])
     if bad_mask.any():
-        ax_l.scatter(
-            S[bad_mask],
-            T[bad_mask],
-            label=f"bad ({bad_mask.sum()})",
-            **_QC_MARKER[4],
-        )
+        ax_l.scatter(S[bad_mask], T[bad_mask], label="bad", **_QC_MARKER[4])
     if suspect_mask.any() or bad_mask.any():
         ax_l.legend(loc="best", framealpha=0.8)
 
@@ -498,10 +509,19 @@ def draw_ts_diagram(
     _s_lim = (float(np.nanmin(_sf)) - _sp, float(np.nanmax(_sf)) + _sp)
     _t_lim = (float(np.nanmin(_tf)) - _tp, float(np.nanmax(_tf)) + _tp)
     contours = _figure_sigma0_contours(ax_l, ds, derived, position, _s_lim, _t_lim)
-    draw_sigma0_contours(ax_l, contours)
+    interval = draw_sigma0_contours(ax_l, contours)
     ax_l.set_xlabel(SALINITY_LABEL)
     ax_l.set_ylabel(t_label)
-    plot_title(ax_l, "T-S (colour = pressure)")
+    plot_title(ax_l, f"T-S (colour = {'pressure' if _cbar_unit else 'sample'})")
+    if record is not None:
+        record.update(
+            theta=position is not None,
+            sigma_interval=interval,
+            no_sigma=None if contours is not None else no_sigma_reason(ds, derived),
+            colour="pressure" if _cbar_unit else "sample",
+            oxygen=False,
+            counts={3: int(suspect_mask.sum()), 4: int(bad_mask.sum())},
+        )
     ax_l.set_xlim(*_s_lim)
     ax_l.set_ylim(*_t_lim)
 
@@ -547,6 +567,8 @@ def draw_ts_diagram(
                 ticks=nice_colorbar_ticks(float(bounds_s[0]), float(bounds_s[-1])),
             )
             draw_sigma0_contours(ax_sat, contours)
+            if record is not None:
+                record["oxygen"] = True
         ax_sat.set_xlabel(SALINITY_LABEL)
         ax_sat.set_ylabel(t_label)
         plot_title(ax_sat, "T-S (colour = O₂ sat.)")
@@ -579,6 +601,7 @@ def draw_stack_ts_diagram(
     *,
     width_in: float = report_tokens.W_FULL,
     derived: DerivedFields | None = None,
+    record: dict | None = None,
 ) -> plt.Figure | None:
     """T-S diagram for a stacked dataset; return a Figure.
 
@@ -600,6 +623,10 @@ def draw_stack_ts_diagram(
     derived : DerivedFields or None, optional
         The page's derived quantities (position, θ), computed once by the report;
         read from *ds* when not given.
+    record : dict or None, optional
+        Filled with what was drawn: ``theta``, ``sigma_interval``, ``no_sigma``
+        (why σθ is not drawn, or None), ``colour`` (``"pressure"`` or None) and
+        ``oxygen`` (bool).
 
     Returns
     -------
@@ -676,6 +703,7 @@ def draw_stack_ts_diagram(
             unit=params.vunit("pressure"),
             ticks=nice_colorbar_ticks(float(bounds_p[0]), float(bounds_p[-1])),
         )
+        _cax[0, 0].invert_yaxis()  # shallow at the top
     else:
         _cax[0, 0].set_visible(False)  # no pressure → no colorbar
         ax_scatter.scatter(
@@ -694,7 +722,15 @@ def draw_stack_ts_diagram(
     contours = _figure_sigma0_contours(
         ax_scatter, ds, derived, position, _s_lim, _t_lim
     )
-    draw_sigma0_contours(ax_scatter, contours)
+    interval = draw_sigma0_contours(ax_scatter, contours)
+    if record is not None:
+        record.update(
+            theta=position is not None,
+            sigma_interval=interval,
+            no_sigma=None if contours is not None else no_sigma_reason(ds, derived),
+            colour="pressure" if P_flat is not None else None,
+            oxygen=False,
+        )
     ax_scatter.set_xlabel(SALINITY_LABEL)
     ax_scatter.set_ylabel(t_label)
     plot_title(ax_scatter, "T-S (colour = pressure)")
@@ -742,6 +778,8 @@ def draw_stack_ts_diagram(
             ticks=nice_colorbar_ticks(float(bounds_s[0]), float(bounds_s[-1])),
         )
         draw_sigma0_contours(ax_sat, contours)
+        if record is not None:
+            record["oxygen"] = True
         ax_sat.set_xlabel(SALINITY_LABEL)
         ax_sat.set_ylabel(t_label)
         plot_title(ax_sat, "T-S (colour = O₂ sat.)")

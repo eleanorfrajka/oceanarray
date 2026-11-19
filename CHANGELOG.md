@@ -9,6 +9,9 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Added
 
+- Instrument page header: "{Type} {serial} · {depth} m", nominal depth, HAB, start/end, sampling interval, records, and the originator's file (or ERDDAP dataset) linked to its archive.
+- Instrument page: a Quality flags table of the originator's flags (`*_qc_originator_mapped`) beside ours, classes other than good only, and the QC test limits.
+- Instrument and stack pages: a processing table with one row per `history` entry (When / What was done / Settings), settings read from the file's attributes.
 - Every report page has a right-justified Expand all / Collapse all button under the jump-nav; printing opens every collapsed box and restores them afterwards.
 - `spectrum_markers:` in the mooring YAML adds periods (e.g. `4 d: 4 d`) to the grid page's temperature and rotary spectra and names them in the captions; `validate` checks them.
 - Grid page: σ0 and σ2 sections over the full column, from θ and practical salinity (`draw_grid_potential_density`).
@@ -43,6 +46,19 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Changed
 
+- Instrument page: files table, history record, start/end windows and value distributions move into a collapsed Processing section; one NetCDF file appendix.
+- Instrument time series and T-S mark the worse of the originator's and our flags: dots suspect, crosses bad, legend in words; captions generated from the file.
+- Instrument T-S is the stack's figure: every value drawn, pressure colour bar shallow at the top, σθ labelled inside the axes; the stack T-S does the same.
+- Instrument current rose is the stack's design; the direction clause comes from the velocity `comment`, else "as provided by the originator".
+- Instrument value distributions keep what the flag rule keeps (ours or the originator's flag) and name the sensor resolution the originator gives.
+- Start/end windows: one line where the description and suggested times agree; a disturbed-end note for originator data; reader words in the note.
+- Stack page captions build the flag sentence from `stack_mask_flags` (ours and the originator's); the Stack cat captions too.
+- Stack hydrography names each line at its end in the pressure panel (no legend); velocity takes the hydrography's colours, a shorter upward panel, suspect values as black dots.
+- Stack roses: titled "serial · nominal depth", one ring scale for every rose, figure sized to the number of roses; grid roses share the scale too.
+- Stack Instruments table: nominal depth, HAB, readable type, linked serial; spacing histogram collapsed in Processing history; one NetCDF file appendix.
+- Stack clock check for originator data: a one-line "Not applicable" instead of no section; an empty figure always says why.
+- Quality flags table and strip: "Instrument" (type, serial, nominal depth) for "Level", legend words for flag tokens, captions per the review.
+- Stage history notes say what each stage did ("stage 2: clock corrected and trimmed ...") and the stack writes dated "stack:" and "flags:" entries.
 - Salinity is labelled "Salinity (PSU)" on T-S axes, grid hydrography titles and captions (was "Practical salinity").
 - Grid captions are generated from the file: interpolation, flags left out, levels chosen, window lengths, instrument count and velocity reference; jargon and wrong claims removed.
 - Grid hydrography: colour limits at the 1st–99th percentiles with arrows, instrument median pressures as triangles at the right edge.
@@ -109,10 +125,13 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Fixed
 
+- The deployment page's QC table no longer repeats the Good column (once from Good %, once from the per-flag columns).
+- Rose pages no longer warn of a missing declination when the originator rotated to true north (stack `originator_magnetic_declination`); the warning names who and why.
 - Thermistors, TR-1050 and Seapoint instruments get readable type names on report pages (were upper-cased codes).
 - The deployment page's regrid command names the mooring description and `--from 3`, so it runs as copied (no raw files needed).
 
 - A relative `sensor_catalog` in a mooring YAML reached through a symbolic link is read from the real file's folder, not the link's.
+- `append_history` cleans "; " inside a note to ", ", and the salinity, flag-translation, QC-count, people and source notes no longer contain it, so `history` reads back whole.
 - Velocity-profile seabed line and the Overflow near-bottom level convert the water depth to pressure (they read metres as dbar).
 - σθ contours on T-S figures were computed from in-situ temperature at 0° N 0° E; now from θ at the mooring position.
 - N²: an unknown longitude warns instead of silently using 0.

@@ -1066,13 +1066,23 @@ def stack(
                 mooring_config, stack={"dt_seconds": dt_seconds}
             ),
             "Conventions": "CF-1.13",
-            "history": (
-                f"Step 1 stack: {n_instr} instruments onto a {dt_seconds} s time axis "
-                f"(whole multiples of {dt_seconds} s); each step takes the nearest "
-                f"sample within ±{dt_seconds / 2:g} s (no interpolation or averaging "
-                f"in time); steps with no sample are empty"
-            ),
+            "history": "",
         }
+    )
+    # Two dated entries, one per step, so the page's processing table reads them
+    # back as written (no entry separator inside a note).
+    _stage.append_history(
+        ds_out,
+        f"stack: {n_instr} instruments placed on a {dt_seconds} s time axis (whole "
+        f"multiples of {dt_seconds} s), each step taking the instrument's nearest "
+        f"sample within ±{dt_seconds / 2:g} s, with no interpolation or averaging in "
+        "time, steps with no sample left empty",
+    )
+    _stage.append_history(
+        ds_out,
+        f"flags: values flagged {_rule_words(rule)} by oceanarray or the "
+        "originator hidden on the stack pages and left out of the grid "
+        f"({masking.STACK_ATTR})",
     )
 
     # The people stage 1 cleaned for each instrument, joined without repeats. A
@@ -1290,6 +1300,17 @@ def _relative(path: Path, mooring_dir: Path) -> str:
         return Path(path).name
 
 
+def _rule_words(rule: Mapping[str, tuple[int, ...]]) -> str:
+    """Return a flag rule for the history: ``"4"``, ``"4 (velocity 3, 4)"``."""
+    text = ", ".join(map(str, rule["default"])) or "none"
+    others = [
+        f"{key.replace('_', ' ')} {', '.join(map(str, flags)) or 'none'}"
+        for key, flags in rule.items()
+        if key != "default"
+    ]
+    return f"{text} ({', '.join(others)})" if others else text
+
+
 def stack_stale_reason(
     stack_path: Path,
     inputs: Mapping[str, Path],
@@ -1439,7 +1460,8 @@ def people_source_sha256(mooring: Mapping) -> str:
 
 
 #: Per level, what an imported level's originator file was: which file, which
-#: release of it, its own sampling and processing level.
+#: release of it, its own sampling and processing level, and the magnetic
+#: declination its originator applied to the east/north velocities.
 ORIGINATOR_LEVEL_ATTRS: tuple[str, ...] = tuple(
     f"originator_{key}"
     for key in (
@@ -1451,8 +1473,19 @@ ORIGINATOR_LEVEL_ATTRS: tuple[str, ...] = tuple(
         "time_coverage_resolution",
         "processing_level",
         "QC_indicator",
+        "magnetic_declination",
     )
 )
+
+#: CF ``comment`` for the per-level variables of :data:`ORIGINATOR_LEVEL_ATTRS`
+#: that need one.
+_ORIGINATOR_LEVEL_COMMENTS: dict[str, str] = {
+    "originator_magnetic_declination": (
+        "declination (degrees east) or a note, as the originator's file gives it; "
+        "set when the originator rotated the east/north velocities to true north, "
+        "so oceanarray did not apply magnetic_declination; empty for other levels"
+    ),
+}
 
 #: Per deployment, what the originators say of it: one value when every imported
 #: instrument agrees, else the distinct values joined.
@@ -1479,6 +1512,14 @@ def _add_originator_levels(ds: xr.Dataset, infos: Sequence[Mapping]) -> None:
     """Write :data:`ORIGINATOR_LEVEL_ATTRS` per level, in place (an ADCP's bins share).
 
     A level with no originator gets ``""``; a name no level has is not written.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The stack, with a ``serial`` coordinate on ``N_LEVELS``; changed in place.
+    infos : sequence of mapping
+        One entry per stacked instrument, each with its ``"serial"`` (str) and its
+        stage file as ``"ds"`` (xarray.Dataset), whose attributes are read.
     """
     by_serial = {
         paths.adcp_parent_serial(str(info["serial"])): info["ds"].attrs
@@ -1490,14 +1531,13 @@ def _add_originator_levels(ds: xr.Dataset, infos: Sequence[Mapping]) -> None:
     for key in ORIGINATOR_LEVEL_ATTRS:
         values = [str(attrs.get(key, "") or "") for attrs in levels]
         if any(values):
-            ds[key] = xr.Variable(
-                ("N_LEVELS",),
-                np.array(values, dtype=object),
-                {
-                    "long_name": f"{key.removeprefix('originator_').replace('_', ' ')} "
-                    "of the originator's file the level was read from"
-                },
-            )
+            attrs = {
+                "long_name": f"{key.removeprefix('originator_').replace('_', ' ')} "
+                "of the originator's file the level was read from"
+            }
+            if key in _ORIGINATOR_LEVEL_COMMENTS:
+                attrs["comment"] = _ORIGINATOR_LEVEL_COMMENTS[key]
+            ds[key] = xr.Variable(("N_LEVELS",), np.array(values, dtype=object), attrs)
 
 
 def _originator_globals(infos: Sequence[Mapping]) -> dict[str, str]:

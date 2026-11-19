@@ -2,7 +2,7 @@
 
 Pure-structural checks over the registry and profile (no rendering): panel ids
 resolve, no orphans, no duplicate section id/title, and — critically — the
-"Start & end windows" section keeps the id ``start`` that ``mooring.html``
+collapsed start and end windows keep the anchor ``start`` that ``mooring.html``
 deep-links to.
 """
 
@@ -42,10 +42,19 @@ def test_no_duplicate_section_id_or_title():
 
 
 def test_start_anchor_is_preserved():
-    """The windows section keeps id 'start' — mooring.html deep-links to #start."""
-    start = INSTRUMENT_SECTIONS["start"]
-    assert start.id == "start"
-    assert start in INSTRUMENT_DEFAULT.entries
+    """The windows box in the processing section keeps id 'start' (mooring.html links #start)."""
+    from oceanarray.reports._env import render_template
+
+    assert "windows" in INSTRUMENT_SECTIONS["processing"].panels
+    html = render_template(
+        "_instrument_windows_note.html",
+        hours=6,
+        kinds=set(),
+        end_suggested=True,
+        disturbed="",
+        images=[],
+    )
+    assert '<details class="processing" id="start">' in html
 
 
 def test_rose_sections_are_distinct():
@@ -54,18 +63,16 @@ def test_rose_sections_are_distinct():
     assert INSTRUMENT_SECTIONS["adcp_rose"].title != INSTRUMENT_SECTIONS["rose"].title
 
 
-def test_timeseries_and_windows_use_panelgroups():
-    """Paginated time-series and window runs expand as panels, not sections."""
+def test_timeseries_uses_a_panelgroup():
+    """The paginated time-series run expands as panels, not sections."""
     ts = INSTRUMENT_SECTIONS["timeseries"]
-    start = INSTRUMENT_SECTIONS["start"]
     assert any(isinstance(p, PanelGroup) for p in ts.panels)
-    assert any(isinstance(p, PanelGroup) for p in start.panels)
 
 
-def test_appendix_is_the_netcdf_sections():
-    """NetCDF variables and attributes are the two appendix-role sections (A, B)."""
+def test_appendix_is_the_netcdf_file():
+    """The one appendix is the collapsed NetCDF file (A)."""
     appendix = [s for s in INSTRUMENT_DEFAULT.entries if s.role == "appendix"]
-    assert [s.id for s in appendix] == ["netcdf_variables", "netcdf_attributes"]
+    assert [s.id for s in appendix] == ["netcdf"]
 
 
 def test_all_profile_entries_are_sections():

@@ -76,7 +76,7 @@ def test_source_comes_from_the_file_first_and_the_yaml_fills_the_rest(caplog):
         "'CC-BY 4.0' is not used",
     ]
     assert (
-        "source: citation, license, acknowledgement, references from the file; doi "
+        "source: citation, license, acknowledgement, references from the file | doi "
         "from the mooring YAML (Arctic Data Center package)"
     ) in ds.attrs["history"]
 

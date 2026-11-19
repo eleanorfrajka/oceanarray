@@ -45,7 +45,13 @@ from oceanarray.reports._vendored import design_tokens as report_tokens
 
 from ..config import parameters as params
 from ..config.unit_tables import unit_label, var_unit_label
-from .helpers import distinct_line_styles, grid_despine
+from .helpers import (
+    QC_MARKER,
+    as_dataset,
+    distinct_line_styles,
+    grid_despine,
+    marker_flags,
+)
 from .primitives import (
     date_offset_left,
     figure_title,
@@ -105,45 +111,14 @@ _CANONICAL_PANELS: list[tuple] = [
     ("battery_voltage", "Battery (V)", "tab:pink", False),
 ]
 
-_COMPACT_PANEL_VARS: frozenset = frozenset({"battery_voltage", "speed_of_sound"})
+_COMPACT_PANEL_VARS: frozenset = frozenset(
+    {"battery_voltage", "speed_of_sound", "up_velocity"}
+)
 _COMPACT_PANEL_HEIGHT: float = 1.5
 #: Height (relative units) of a normal, non-compact instrument panel row.  Shared
 #: by ``draw_windows`` here and ``_draw_instrument_panels`` in ``report/_plots.py`` so
 #: the full time-series and start/end-window figures use the same row height.
 _PANEL_HEIGHT: float = 2.0
-
-# QC overlay marker styles (OceanSITES flag codes 3, 4, 8).
-_QC_COLORS: dict[int, str] = {
-    3: "#f39c12",
-    4: "#e74c3c",
-    8: "#3498db",
-}
-_QC_MARKER: dict[int, dict] = {
-    3: {
-        "marker": "+",
-        "c": _QC_COLORS[3],
-        "s": 15,
-        "linewidths": 0.8,
-        "zorder": 3,
-        "rasterized": True,
-    },
-    4: {
-        "marker": "+",
-        "c": _QC_COLORS[4],
-        "s": 15,
-        "linewidths": 0.8,
-        "zorder": 4,
-        "rasterized": True,
-    },
-    8: {
-        "marker": ".",
-        "c": _QC_COLORS[8],
-        "s": 8,
-        "linewidths": 0.5,
-        "zorder": 2,
-        "rasterized": True,
-    },
-}
 
 
 def _instrument_panels(ds: xr.Dataset, combine_pitch_roll: bool = False) -> list[tuple]:
@@ -939,6 +914,7 @@ def draw_windows(
     panels: list | None = None,
     *,
     width_in: float = report_tokens.W_FULL,
+    title: str | None = None,
 ) -> plt.Figure | None:
     """Draw the combined start + end window figure: (nrows × 2) — left = first N h, right = last N h.
 
@@ -974,6 +950,8 @@ def draw_windows(
     width_in : float, optional
         Figure width in inches -- the display-slot width the report builder
         resolves; standalone callers get the full content width.
+    title : str or None, optional
+        The figure title (the page's ``"{Type} {serial} · {depth} m"``).
 
     Returns
     -------
@@ -987,7 +965,7 @@ def draw_windows(
 
     from .primitives import date_axis
 
-    ds = xr.open_dataset(nc_path, decode_timedelta=False).load()
+    ds = as_dataset(nc_path)
     # Stage1 background data (optional).  Closed in the finally block.
     # Masks are computed later, after the stage2/3 x-axis bounds are known,
     # so the grey trace is selected by the same window as the coloured data.
@@ -1086,9 +1064,10 @@ def draw_windows(
                 ax.axhline(_fail_t, color="tab:red", lw=0.9, ls="--", zorder=2)
             # ylim for inverted variables is set from the outer loop using the
             # combined range of both panels, so we do not set it here.
-            if show_qc and f"{vname}_qc" in ds.data_vars:
-                flags = ds[f"{vname}_qc"].values.astype(int)[mask]
-                for fval, mkw in _QC_MARKER.items():
+            all_flags = marker_flags(ds, vname) if show_qc else None
+            if all_flags is not None:
+                flags = all_flags[mask]
+                for fval, mkw in QC_MARKER.items():
                     m2 = flags == fval
                     if m2.any():
                         ax.scatter(t[m2], d[m2], **mkw)
@@ -1234,7 +1213,7 @@ def draw_windows(
         )
         figure_title(
             fig,
-            f"{instr_type.title()} s/n {serial} — deployment start / end",
+            f"{title or f'{instr_type.title()} {serial}'} · start and end of the record",
         )
         return fig
     finally:
@@ -1247,11 +1226,12 @@ def draw_data_histogram(
     nc_path: Path,
     *,
     width_in: float = report_tokens.W_FULL,
+    rule: dict | None = None,
 ) -> plt.Figure | None:
     """Histogram of data values for each main variable; return a Figure.
 
-    Each panel shows grey bars (all finite data) and blue bars (kept: not flagged 3, 4 or 9),
-    with QC range threshold lines overlaid.
+    Each panel shows grey bars (all finite data) and coloured bars (the values
+    kept), with the gross-range limits drawn where they fall inside the axes.
 
     Parameters
     ----------
@@ -1260,6 +1240,10 @@ def draw_data_histogram(
     width_in : float, optional
         Figure width in inches -- the display-slot width the report builder
         resolves; standalone callers get the full content width.
+    rule : dict or None, optional
+        The flag rule (``masking.resolve_mask_flags``): a value is kept unless
+        oceanarray's or the originator's flag is in it. Without one, values
+        flagged 3, 4 or 9 by oceanarray are not kept.
 
     Returns
     -------
@@ -1270,13 +1254,12 @@ def draw_data_histogram(
     import math
 
     import matplotlib.pyplot as plt
-    import xarray as xr
+
+    from oceanarray.pipeline import masking
 
     from ..config import parameters as params
 
-    with xr.open_dataset(nc_path, decode_timedelta=False) as ds:
-        ds.load()
-
+    with as_dataset(nc_path) as ds:
         panels = _instrument_panels(ds)
         _HIST_EXCLUDE = {"battery_voltage"}
         plot_panels: list = [
@@ -1322,7 +1305,11 @@ def draw_data_histogram(
 
             qc_var = f"{vname}_qc"
             has_qc = qc_var in ds
-            if has_qc:
+            if rule is not None:
+                kept_mask = (
+                    np.isfinite(data) & ~masking.flagged(ds, vname, rule).ravel()
+                )
+            elif has_qc:
                 flags = (
                     ds[qc_var].values.astype(int).ravel()
                     if flatten

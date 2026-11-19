@@ -111,7 +111,9 @@ SHOWN_OURS = (3, 4, 8)
 SHOWN_ORIGINATOR = (3, 4, 5)
 
 
-def flagged_rows(ds: xr.Dataset) -> dict[int, list[tuple[str, np.ndarray, np.ndarray]]]:
+def flagged_rows(
+    ds: xr.Dataset,
+) -> dict[int, list[tuple[str, np.ndarray | None, np.ndarray | None]]]:
     """Return, per level with anything flagged, the variables' flag rows.
 
     Parameters
@@ -121,9 +123,11 @@ def flagged_rows(ds: xr.Dataset) -> dict[int, list[tuple[str, np.ndarray, np.nda
 
     Returns
     -------
-    dict of int to list of (str, numpy.ndarray, numpy.ndarray)
+    dict of int to list of (str, numpy.ndarray or None, numpy.ndarray or None)
         Level index → ``(variable, originator, ours)`` for each variable flagged
-        by either; a flag set the file lacks, and a step with no value, are 9.
+        by either. A flag set the file lacks is None (no row is drawn for it: it
+        was not checked, which is not the same as missing); in a set the file
+        has, a step with no value is 9 and a value with no flag 0.
     """
     dim = level_dim(ds)
     tds = ds.transpose(dim, "time", ...)
@@ -132,24 +136,54 @@ def flagged_rows(ds: xr.Dataset) -> dict[int, list[tuple[str, np.ndarray, np.nda
         if var not in ds.data_vars:
             continue
         here = np.isfinite(tds[var].values)
-        sets = []
+        sets: list[np.ndarray | None] = []
         for name in (f"{var}{MAPPED_SUFFIX}", f"{var}_qc"):
-            if name in ds.data_vars:
-                sets.append(np.where(here, tds[name].values, params.QC_MISSING))
-            else:
-                sets.append(np.full(here.shape, params.QC_MISSING))
-        theirs, ours = (a.astype(np.int8) for a in sets)
+            if name not in ds.data_vars:
+                sets.append(None)
+                continue
+            flags = np.asarray(tds[name].values, dtype=float)
+            base = np.where(here, params.QC_NOT_EVALUATED, params.QC_MISSING)
+            sets.append(
+                np.where(here & np.isfinite(flags), flags, base).astype(np.int8)
+            )
+        theirs, ours = sets
+        if theirs is None and ours is None:
+            continue
         for k in range(here.shape[0]):
-            if (
-                np.isin(theirs[k], SHOWN_ORIGINATOR).any()
-                or np.isin(ours[k], SHOWN_OURS).any()
+            if (theirs is not None and np.isin(theirs[k], SHOWN_ORIGINATOR).any()) or (
+                ours is not None and np.isin(ours[k], SHOWN_OURS).any()
             ):
-                out.setdefault(k, []).append((var, theirs[k], ours[k]))
+                out.setdefault(k, []).append(
+                    (
+                        var,
+                        None if theirs is None else theirs[k],
+                        None if ours is None else ours[k],
+                    )
+                )
     return out
 
 
+def _rows(
+    entries: list[tuple[str, np.ndarray | None, np.ndarray | None]],
+) -> list[tuple[str, np.ndarray]]:
+    """Return a panel's ``(label, flags)`` bars: the originator's above oceanarray's.
+
+    A flag set that is None (not in the file) gets no bar.
+    """
+    bars = []
+    for var, theirs, ours in entries:
+        short = SHORT.get(var, var)
+        for who, row in (("originator", theirs), ("oceanarray", ours)):
+            if row is not None:
+                bars.append((f"{short} {who}", row))
+    return bars
+
+
 def draw_flag_strip(
-    ds: xr.Dataset, *, width_in: float = report_tokens.W_FULL
+    ds: xr.Dataset,
+    *,
+    width_in: float = report_tokens.W_FULL,
+    labels: list[str] | None = None,
 ) -> plt.Figure | None:
     """Draw flags through time: one panel per instrument, a pair of bars per variable.
 
@@ -157,7 +191,9 @@ def draw_flag_strip(
     originator, the originator's flags (translated to our table) above ours on a
     shared time axis, so where one flagged a value and the other did not reads
     straight down the pair. Panels sit two to a row (half width, even alone).
-    Instruments with nothing flagged are left out. 9: no value; 0: a value with no flag.
+    Instruments with nothing flagged are left out, and so is a flag set the file
+    does not have (oceanarray runs no conductivity QC, say). 9: no value; 0: a
+    value with no flag.
 
     Parameters
     ----------
@@ -165,6 +201,9 @@ def draw_flag_strip(
         A stack or Stack cat.
     width_in : float, optional
         Figure width in inches.
+    labels : list of str, optional
+        One title per level (the page's instrument names); :func:`level_labels`
+        when not given.
 
     Returns
     -------
@@ -183,8 +222,9 @@ def draw_flag_strip(
     # Always two columns, so a panel is half the page wide even when alone.
     ncols = 2
     nrows = -(-len(levels) // ncols)
+    rows = {k: _rows(panels[k]) for k in levels}
     heights = [
-        max(len(panels[k]) for k in levels[r * ncols : (r + 1) * ncols])
+        max(len(rows[k]) for k in levels[r * ncols : (r + 1) * ncols])
         for r in range(nrows)
     ]
     values = [f for f in params.QC_FLAG_VALUES if f in QC_COLORS]
@@ -192,7 +232,7 @@ def draw_flag_strip(
     norm = BoundaryNorm([*(v - 0.5 for v in values), values[-1] + 0.5], cmap.N)
     time = ds["time"].values
     t_num = mdates.date2num(time.astype("datetime64[ns]"))
-    labels = level_labels(ds)
+    labels = labels if labels is not None else level_labels(ds)
     fig, axs = plt.subplots(
         nrows,
         ncols,
@@ -205,11 +245,8 @@ def draw_flag_strip(
     present: set[int] = set()
     for n, k in enumerate(levels):
         ax = axs[n // ncols, n % ncols]
-        bars, ticks = [], []
-        for var, theirs, ours in panels[k]:
-            short = SHORT.get(var, var)
-            bars += [theirs, ours]
-            ticks += [f"{short} orig", f"{short} OA"]
+        ticks = [label for label, _row in rows[k]]
+        bars = [row for _label, row in rows[k]]
         image = np.stack(bars)
         present |= {int(f) for f in np.unique(image)}
         ax.imshow(
@@ -227,8 +264,10 @@ def draw_flag_strip(
                 at = t_num[row == f]
                 if at.size:
                     ax.vlines(at, r - 0.5, r + 0.5, color=QC_COLORS[f])
-        for r in range(2, len(bars), 2):
-            ax.axhline(r - 0.5, color="white")
+        # A white line between variables (a pair, or one bar when a set is absent).
+        for r in range(1, len(ticks)):
+            if ticks[r].split(" ")[0] != ticks[r - 1].split(" ")[0]:
+                ax.axhline(r - 0.5, color="white")
         ax.set_yticks(range(len(bars)), ticks)
         ax.tick_params(axis="y", length=0)
         ax.set_title(labels[k], loc="left")
@@ -241,10 +280,10 @@ def draw_flag_strip(
     for ax in axs[-1]:
         ax.xaxis.set_major_locator(locator)
         ax.xaxis.set_major_formatter(mdates.ConciseDateFormatter(locator))
-    meanings = params.QC_FLAG_MEANING
+    words = params.QC_FLAG_LABEL
     shown = sorted(f for f in present if f in QC_COLORS)
     fig.legend(
-        handles=[Patch(color=QC_COLORS[f], label=f"{f} {meanings[f]}") for f in shown],
+        handles=[Patch(color=QC_COLORS[f], label=words[f]) for f in shown],
         loc="outside lower center",
         ncols=min(len(shown), 4),
         frameon=False,

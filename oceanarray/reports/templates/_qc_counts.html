@@ -1,28 +1,30 @@
 {# Quality flags per level and variable — the `qc_counts` panel (kind="table"). #}
 {% macro bar(s) -%}
-{%- if s is none %}<span class="muted">no flags</span>{% else -%}
+{%- if s is none %}<span class="muted">no flags in the file</span>{% else -%}
 <div style="display:flex;height:0.7em;width:9em;border-radius:2px;overflow:hidden;margin-bottom:2px">
 {%- for seg in s.segments %}<span style="flex:0 0 {{ '%.3f' % seg.pct }}%;min-width:{{ '0' if seg.flag == 1 else '2px' }};background:{{ seg.color }}"></span>{% endfor -%}
 </div>
-{%- for part in s.parts %}<div style="color:{{ part.color }};white-space:nowrap">{{ part.flag }} {{ part.text }}</div>{% else %}<div>–</div>{% endfor -%}
+<div style="color:{{ s.good.color }};white-space:nowrap">good {{ s.good.text }}%</div>
+{%- for part in s.parts %}<div style="color:{{ part.color }};white-space:nowrap">{{ part.word }} {{ part.text }}</div>{% else %}<div>–</div>{% endfor -%}
 {%- endif %}
 {%- endmacro %}
-<p class="caption">Values flagged per instrument and variable, the originator's
-translated to oceanarray's table (3, 4, 5 value changed) beside oceanarray's
-(<code>&lt;var&gt;_qc</code>: 3 suspect, 4 bad, 8 interpolated); each bar is the whole record, green
-for the rest. <strong>Both / Originator only / oceanarray only</strong>: values flagged 3 or 4
-by both, by one only. <strong>Hidden</strong>: values this page does not show and the
-grid leaves out, by the rule <code>mask_flags</code> = {{ rule }} (oceanarray's or
-the originator's flag in the rule); flagged values stay in the file.
-{%- if note is not none %} oceanarray's flags come from the QARTOD tests at each instrument's
-thresholds; {% if note %}<strong>the description changes them</strong> for {{ note }}{% else %}every
-instrument ran with oceanarray's default thresholds{% endif %}.{% endif %}
+<p class="caption">Share of each variable's record flagged by the originator and by
+oceanarray (its automatic tests), and which values the plots and the gridded
+product leave out. Variables with nothing flagged are not listed.
+{%- if sentence %} {{ sentence }}{% endif %} Each bar is the whole record, green for the
+values not flagged. {{ good_sentence }} <strong>Both / Originator only / oceanarray only</strong>: values flagged
+suspect or bad by both, by one only. <strong>Hidden</strong>: values the plots and the grid
+leave out (rule {{ rule }}); flagged values stay in the file.
+{%- if note is not none %} oceanarray's tests ran {% if note %}with <strong>limits changed by the
+mooring description</strong> for {{ note }}{% else %}with oceanarray's default limits for every
+instrument{% endif %}.{% endif %}
 {%- if quiet %} {{ quiet }} instrument-and-variable pairs with nothing flagged are not
 listed.{% endif %}
-{%- if unflagged %} Nothing flagged: {{ unflagged | join(", ") }}.{% endif %}</p>
+{%- if unflagged %} Nothing flagged: {{ unflagged | join(", ") }}.{% endif %}
+How the tests work: <a href="{{ package_docs_url }}">oceanarray documentation</a>.</p>
 {% if rows %}
 <table class="instr-table">
-  <thead><tr><th>Level</th><th>Variable</th><th>N</th><th>Originator</th><th>oceanarray</th><th>Both</th><th>Originator only</th><th>oceanarray only</th><th>Hidden</th></tr></thead>
+  <thead><tr><th>Instrument</th><th>Variable</th><th>Values</th><th>Originator</th><th>oceanarray</th><th>Both</th><th>Originator only</th><th>oceanarray only</th><th>Hidden</th></tr></thead>
   <tbody>
   {% for row in rows %}
   <tr>
@@ -35,5 +37,5 @@ listed.{% endif %}
   </tbody>
 </table>
 {% else %}
-<p>No value is flagged 3, 4, 5 or 8.</p>
+<p>No value is flagged suspect, bad, value changed or interpolated.</p>
 {% endif %}

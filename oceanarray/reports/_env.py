@@ -194,3 +194,32 @@ def render_nc_globals(nc_meta: Any) -> str:
     return str(
         _NC.globals_tables(nc_meta["global_groups"], source=nc_meta.get("global_src"))
     )
+
+
+def render_nc_collapsed(nc_meta: Any) -> str:
+    """Render a file's NetCDF appendix: its four tables in one collapsed block.
+
+    Parameters
+    ----------
+    nc_meta : dict
+        The file's metadata (``_read.read_nc_metadata``).
+
+    Returns
+    -------
+    str
+        HTML: coordinates, variables, scalar variables and global attributes
+        (:func:`render_nc_coords` and the others) inside ``_collapsed.html``.
+    """
+    return render_template(
+        "_collapsed.html",
+        summary="show the coordinates, variables and global attributes",
+        body="".join(
+            render(nc_meta)
+            for render in (
+                render_nc_coords,
+                render_nc_variables,
+                render_nc_scalars,
+                render_nc_globals,
+            )
+        ),
+    )

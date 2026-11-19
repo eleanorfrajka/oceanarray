@@ -582,15 +582,15 @@ def _add_people(dataset: xr.Dataset, mooring: Mapping[str, Any]) -> xr.Dataset:
         dataset.attrs.update(people)
         _stage.append_history(
             dataset,
-            f"people: from the mooring YAML ({block.get('people_source') or 'no people_source given'}; "
-            f"{_people_counts(people)}; {n_warn} warning{'' if n_warn == 1 else 's'})",
+            f"people: from the mooring YAML ({block.get('people_source') or 'no people_source given'}, "
+            f"{_people_counts(people)}, {n_warn} warning{'' if n_warn == 1 else 's'})",
         )
         return dataset
     dataset.attrs.update(people)
     if any(k.startswith("originator_") for k in dataset.attrs):
         _stage.append_history(
             dataset,
-            f"people: cleaned per OceanSITES 1.4 from originator_* ({_people_counts(people)}; "
+            f"people: cleaned per OceanSITES 1.4 from originator_* ({_people_counts(people)}, "
             f"{n_warn} warning{'' if n_warn == 1 else 's'})",
         )
     return dataset
@@ -624,7 +624,7 @@ def _add_source(dataset: xr.Dataset, mooring: Mapping[str, Any]) -> xr.Dataset:
     if given:
         note = (block or {}).get("source_note") or "no source_note given"
         parts.append(f"{', '.join(given)} from the mooring YAML ({note})")
-    _stage.append_history(dataset, f"source: {'; '.join(parts)}")
+    _stage.append_history(dataset, f"source: {' | '.join(parts)}")
     return dataset
 
 

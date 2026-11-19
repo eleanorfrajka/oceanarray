@@ -6,7 +6,7 @@ import math
 import os
 import warnings
 from collections import Counter
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -22,7 +22,7 @@ from oceanarray.pipeline.concat import cell_deployment
 from ..config import parameters as params
 from ..plotters import helpers as _helpers
 from ..plotters import ts as _ts
-from . import _html_helpers, _masthead, _qcflags
+from . import _captions, _html_helpers, _masthead, _qcflags
 from ._breadcrumb import page_crumbs
 from ._env import render_history, render_template
 from ._figdebug import as_panel
@@ -65,13 +65,10 @@ _OVERLAP_NOTE = (
     "other's values are in the file's overlap block."
 )
 
+#: Captions of the concatenated page's own figures; ``{flags}`` is replaced by the
+#: page's flag sentence (``_captions.stack_flag_sentences``). The time series and
+#: the T-S diagram take the stack page's generated captions, with the turnarounds.
 CONCAT_CAPTIONS: dict[str, str] = {
-    "hydro_pts": STACK_CAPTIONS["hydro_pts"].replace(
-        "for the full deployment", "for every deployment"
-    )
-    + _TURNAROUND,
-    "vel_uvw": STACK_CAPTIONS["vel_uvw"] + _TURNAROUND,
-    "turbidity": STACK_CAPTIONS["turbidity"] + _TURNAROUND,
     "ts_by_deployment": (
         "Temperature against salinity, one color per deployment. For each "
         f"instrument level, the outline encloses the densest {_ts.TS_OUTLINE_FRACTION:.0%} "
@@ -81,29 +78,27 @@ CONCAT_CAPTIONS: dict[str, str] = {
         "deployment's medians in order of pressure (a guide to the eye, not "
         "interpolated data; levels less than "
         f"{_ts.TS_COLOCATED_DBAR:g} dbar apart are averaged for the line). With more "
-        f"than {_ts.TS_MAX_OUTLINES} levels the outlines are left out. Values flagged "
-        "3, 4 or 9 left out. A shift between deployments at the same depth is a "
+        f"than {_ts.TS_MAX_OUTLINES} levels the outlines are left out. "
+        "{flags} A shift between deployments at the same depth is a "
         "sensor offset or a change in the water." + _OVERLAP_NOTE
     ),
     "ts_points": (
         "Temperature against salinity, one color per deployment: at most "
         f"{_ts.TS_MAX_POINTS:,} values per deployment, picked at random (the same "
         "ones each time the page is drawn), drawn in random order so no deployment "
-        "covers the others. Values flagged 3, 4 or 9 left out. Dashed: σ0."
-        + _OVERLAP_NOTE
+        "covers the others. {flags} Dashed: σ0." + _OVERLAP_NOTE
     ),
     "ts_medians": (
         "Draft. Median salinity and temperature of each depth in each "
         "deployment, with interquartile whiskers, one color per deployment (with "
         "more than seven deployments, colors repeat in pairs, the second of a pair "
-        "with a square marker). Values flagged 3, 4 or 9 left out; the scatter below "
+        "with a square marker). {flags} The scatter below "
         "carries the pressure." + _OVERLAP_NOTE
     ),
     "roses": (
         "One rose per depth, one outline per "
         "deployment: the share of that deployment's samples flowing toward each "
-        "direction (oceanographic convention, 0° = N). Values flagged 3, 4 or 9 "
-        "left out." + _OVERLAP_NOTE
+        "direction (oceanographic convention, 0° = N). {flags}" + _OVERLAP_NOTE
     ),
     "speed_profile": (
         "Current speed per depth, one box per deployment in its color "
@@ -111,8 +106,8 @@ CONCAT_CAPTIONS: dict[str, str] = {
         "depth's nominal depth; with more than seven deployments colors repeat in "
         "pairs, the second of a pair hatched. A deployment is drawn at a depth only "
         "where it has velocity for at least "
-        f"{_helpers.PROFILE_MIN_FRACTION:.0%} of its time steps. Values flagged "
-        "3, 4 or 9 left out." + _OVERLAP_NOTE
+        f"{_helpers.PROFILE_MIN_FRACTION:.0%} of its time steps. "
+        "{flags}" + _OVERLAP_NOTE
     ),
     "direction_profile": (
         "Current direction per depth, one marker per deployment in its color: the "
@@ -192,6 +187,23 @@ def _figure_panel(pid: str, applies_to: Any = None, slot: str | None = None) -> 
         slot=slot if slot is not None else (base.slot if base else None),
         applies_to=applies_to or (base.applies_to if base else _always),
     )
+
+
+def _page_panels(view: Any) -> dict[str, Panel]:
+    """Return the panels with this page's captions: flag sentences from its rule."""
+    flags = _captions.stack_flag_sentences(view)
+    stack = _captions.stack_captions(view)
+    out = dict(CONCAT_PANELS)
+    for pid in ("hydro_pts", "vel_uvw", "turbidity"):
+        text = stack[pid].replace("over the deployment", "over every deployment")
+        out[pid] = replace(out[pid], caption=text + _TURNAROUND)
+    out["ts_diagram"] = replace(out["ts_diagram"], caption=stack["ts_diagram"])
+    for pid, panel in out.items():
+        if panel.caption and "{flags}" in panel.caption:
+            out[pid] = replace(
+                panel, caption=panel.caption.replace("{flags}", flags.get(pid, ""))
+            )
+    return out
 
 
 CONCAT_PANELS: dict[str, Panel] = {
@@ -279,7 +291,9 @@ CONCAT_SECTIONS: dict[str, Section] = {
         ("deployments",),
         intro="Each deployment links to its own stack report.",
     ),
-    "processing_history": STACK_SECTIONS["processing_history"],
+    "processing_history": Section(
+        "processing_history", "Processing history", ("history",)
+    ),
     "instruments": Section(
         "instruments",
         "Instruments by depth (deep-first)",
@@ -1015,13 +1029,11 @@ def generate_concat_page(
             instr_types={str(t).lower() for t in ds["instrument_type"].values},
             n_instr=ds.sizes["N_LEVELS"],
             has_analog=bool(analog_vars),
-            history_entries=_parse_history(ds.attrs.get("history", "")),
             instr_rows=[],
             nc_meta=nc_meta,
             nc_file=stack_path.name,
             rose_note=None,
-            rose_warn=False,
-            rose_missing_serials=[],
+            rose_unapplied=[],
             deployment_rows=deployment_rows,
             deployment_names=[short[n] for n in names],
             depth_rows=_depth_rows(ds, stack_path, out_dir, report_dir),
@@ -1032,7 +1044,7 @@ def generate_concat_page(
                 for k in range(len(names))
             ],
         )
-        report = resolve(CONCAT_DEFAULT, context, CONCAT_PANELS)
+        report = resolve(CONCAT_DEFAULT, context, _page_panels(view))
         html = render_template(
             "concat.html",
             mooring_name=label or name,

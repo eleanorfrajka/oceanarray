@@ -1,0 +1,12 @@
+{# The processing table of a stack or instrument page — the `steps` panel payload
+   (kind="html"): one row per entry of the file's history attribute, its events one
+   per line, the settings read from the file's attributes
+   (reports._captions.history_rows). #}
+<table class="steps">
+  <thead><tr><th>When<span class="th-unit">UTC</span></th><th>What was done</th><th>Settings</th></tr></thead>
+  <tbody>
+  {%- for r in rows %}
+    <tr><td class="nowrap">{{ r.when }}</td><td>{% for e in r.events %}{% if not loop.first %}<br>{% endif %}{{ e }}{% endfor %}</td><td>{{ r.settings }}</td></tr>
+  {%- endfor %}
+  </tbody>
+</table>

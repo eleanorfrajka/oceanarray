@@ -16,6 +16,7 @@ from oceanarray.analysis.derived import knockdown as build_knockdown
 from oceanarray.instruments import instrument_entries
 from oceanarray.paths import should_skip_regeneration
 
+from ..config import parameters as params
 from ..paths import safe_serial
 from . import _figdebug, _masthead, _qcflags
 from ._breadcrumb import crumbs_from_ctx
@@ -162,11 +163,11 @@ def _trim_note(timing: dict[str, Any]) -> str:
 
 #: Variables whose every sample carries one of these flags are listed in one line
 #: each under the QC table instead of a row: a row would only repeat "100 %".  Flag
-#: 0 (not checked) is never counted as good.
+#: 0 (not checked) is never counted as good; interpolated (8) is
+#: (``parameters.QC_GOOD_FLAGS``), so an all-8 variable is all good.
 _QC_SINGLE_FLAG_LINES: dict[int, str] = {
     0: "Not checked",
     7: "Nominal values only",
-    8: "Interpolated throughout",
 }
 
 
@@ -186,10 +187,11 @@ def _qc_table(instruments: list[dict[str, Any]]) -> dict[str, Any]:
         ``rows`` (one per instrument and variable with a mix of flags or any flag
         other than good, deepest first), ``flags`` (the flag values present in
         those rows, each with its word and colour, for the columns and the
-        legend), ``lines`` (variables whose every sample is not checked (0),
-        nominal (7) or interpolated (8): one entry per such flag, with ``label``,
-        ``n`` and ``names``, the variable names each followed by the serials that
-        carry it), ``n_good`` (variables left out because every sample is good) and
+        legend), ``lines`` (variables whose every sample is not checked (0) or
+        nominal (7): one entry per such flag, with ``label``, ``n`` and
+        ``names``, the variable names each followed by the serials that carry
+        it), ``n_good`` (variables left out because every sample is good or
+        interpolated, ``parameters.QC_GOOD_FLAGS``) and
         ``any`` (whether any stage-3 QC file was read).
     """
     rows, n_good, present = [], 0, set()
@@ -197,7 +199,7 @@ def _qc_table(instruments: list[dict[str, Any]]) -> dict[str, Any]:
     for instr in instruments:
         for row in instr.get("qc_summary") or []:
             counts = {f["flag"]: f for f in row["flags"] if f["n"] > 0}
-            if set(counts) <= {1}:
+            if set(counts) <= set(params.QC_GOOD_FLAGS):
                 n_good += 1
                 continue
             if len(counts) == 1 and next(iter(counts)) in single:
@@ -213,11 +215,9 @@ def _qc_table(instruments: list[dict[str, Any]]) -> dict[str, Any]:
                     "serial": instr.get("serial", ""),
                     "var": row["var"],
                     "total": row["total"],
-                    # Rounded share as text; a flag present below 0.05 % reads "<0.1".
-                    "pct": {
-                        k: (f"{f['pct']:g}" if f["pct"] >= 0.1 else "<0.1")
-                        for k, f in counts.items()
-                    },
+                    # Share as text (_qcflags.share_text); a flag below 0.1 % reads "<0.1".
+                    "pct": {k: f["text"] for k, f in counts.items()},
+                    "good": row["good"],
                     "bar": [f for f in row["flags"] if f["n"] > 0],
                 }
             )
@@ -354,7 +354,9 @@ MOORING_PANELS: dict[str, Panel] = {
     ),
     "qc": Panel(
         "qc",
-        render=lambda c: render_template("_mooring_qc.html", qc=c["qc_table"]),
+        render=lambda c: render_template(
+            "_mooring_qc.html", qc=c["qc_table"], good_sentence=_qcflags.good_sentence()
+        ),
         kind="html",
     ),
     "knockdown_hab": _fig_panel("knockdown_hab", "fig_knockdown_hab_b64", slot="half"),
@@ -888,6 +890,11 @@ class MooringReport:
                     "hab": hab,
                     "no_hab_note": NO_HAB_NOTE if hab is None else "",
                     "depth": depth,
+                    "nominal_depth": (
+                        float(entry["nominal_depth"])
+                        if entry.get("nominal_depth") is not None
+                        else depth
+                    ),
                     "filename": filename,
                     "file_type": file_type,
                     "imported": file_type in _IMPORTED_FILE_TYPES,

@@ -283,12 +283,15 @@ def test_the_mooring_page_lists_each_sensor_record(cf7, tmp_path):
 
 
 def test_no_clock_check_when_every_instrument_was_imported(cf7, tmp_path):
+    """No figure: one line says why the check does not apply to originator data."""
     oa.report(
         cf7 / "cf7_2020.mooring.yaml", out_dir=tmp_path, instruments=False, grid=False
     )
     (page,) = tmp_path.rglob("*_stack_report.html")
     html = page.read_text()
-    assert 'id="clock_check"' not in html
+    section = html[html.index('id="clock_check"') : html.index('id="quality_flags"')]
+    assert "Not applicable: clocks were aligned by the originator" in section
+    assert "<img" not in section
     assert 'id="quality_flags"' in html
 
 

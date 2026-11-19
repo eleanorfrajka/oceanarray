@@ -1,13 +1,14 @@
 {# Magnetic-declination warning + note for the current-roses section — the
    `roses_declination` panel payload (kind="html").  Rendered above the rose
-   figure; applies only when there is a warning or a note. #}
-{% if warn %}
+   figure; applies only when there is a warning or a note.  `unapplied` lists
+   (instrument, reason) for the velocities nobody rotated to true north. #}
+{% if unapplied %}
 <p style="font-size:0.82rem;background:var(--warn-bg);border-left:4px solid var(--warn);padding:0.5rem 0.8rem;margin-bottom:0.6rem;">
-  ⚠ Magnetic declination could not be applied to
-  {% if missing %}Aquadopp(s) s/n&nbsp;{{ missing | join(', ') }}{% else %}one or more Aquadopps{% endif %}
-  &mdash; latitude/longitude are missing or all-zero in the mooring YAML (check <code>seabed_latitude</code>, <code>deployment_latitude</code>, or <code>latitude</code>/<code>longitude</code>).
-  Re-run <code>oceanarray process … --stage 3</code> for the affected instrument(s) after fixing the YAML.
-  Affected ENU velocities currently use 0° declination (magnetic north, not true north).
+  ⚠ Magnetic declination was not applied to
+  {% for name, reason in unapplied %}{{ name }} ({{ reason }}){% if not loop.last %}; {% endif %}{% endfor %}:
+  their east/north velocities are relative to magnetic north, not true north.
+  {% if unapplied | selectattr(1, 'equalto', 'no mooring position at stage 3') | list %}Set the position in the mooring YAML (<code>seabed_latitude</code>, <code>deployment_latitude</code>, or <code>latitude</code>/<code>longitude</code>), then re-run{% else %}Re-run{% endif %}
+  <code>oceanarray process … --stage 3</code> for them.
 </p>
 {% endif %}
 {% if note %}<p class="caption">{{ note }}</p>{% endif %}

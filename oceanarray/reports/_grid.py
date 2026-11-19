@@ -22,10 +22,7 @@ from . import _captions, _html_helpers, _masthead
 from ._breadcrumb import crumbs_from_ctx
 from ._env import (
     render_history,
-    render_nc_coords,
-    render_nc_globals,
-    render_nc_scalars,
-    render_nc_variables,
+    render_nc_collapsed,
     render_template,
 )
 from ._figdebug import as_panel
@@ -313,6 +310,7 @@ def build_grid_context(
         potential_density,
         seabed_pressure,
         sparse_velocity_levels,
+        velocity_coverage,
         velocity_levels,
     )
     from oceanarray.analysis.spectral import select_levels
@@ -339,8 +337,9 @@ def build_grid_context(
     if {"east_velocity", "north_velocity"} <= set(ds.data_vars):
         east = ds["east_velocity"].transpose("time", "pressure").values
         north = ds["north_velocity"].transpose("time", "pressure").values
-        rose = velocity_levels(east, north)
-        left_out = sparse_velocity_levels(east, north)
+        filled = velocity_coverage(east, north)
+        rose = velocity_levels(east, north, coverage=filled)
+        left_out = sparse_velocity_levels(east, north, coverage=filled)
         speed = derived.speed.transpose("time", "pressure").values
         speed_level = level_of_max_speed(speed)
         both = np.where(np.isfinite(east) & np.isfinite(north), east, np.nan).T
@@ -534,19 +533,7 @@ GRID_PANELS: dict[str, Panel] = {
     ),
     "nc_file": Panel(
         "nc_file",
-        render=lambda c: render_template(
-            "_collapsed.html",
-            summary="show the coordinates, variables and global attributes",
-            body="".join(
-                render(c.nc_meta)
-                for render in (
-                    render_nc_coords,
-                    render_nc_variables,
-                    render_nc_scalars,
-                    render_nc_globals,
-                )
-            ),
-        ),
+        render=lambda c: render_nc_collapsed(c.nc_meta),
         kind="html",
         caption=GRID_CAPTIONS["nc_file"],
     ),

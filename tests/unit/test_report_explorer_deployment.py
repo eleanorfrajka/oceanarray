@@ -140,11 +140,12 @@ def _qc_instrument(path: pathlib.Path, serial: str) -> dict:
 
 
 def test_qc_single_flag_variables_are_one_line_each(tmp_path) -> None:
-    """A variable never checked (all 0) or interpolated throughout (all 8) is not a row.
+    """A variable never checked (all 0) is a line, not a row; all interpolated (8) is good.
 
     The MicroCAT 2941 file is real; its pressure is interpolated from the
-    neighbouring instrument throughout (flag 8).  To exercise the not-checked line
-    its temperature flags are set to 0, as an originator file without flags reads.
+    neighbouring instrument throughout (flag 8), which counts as good.  To exercise
+    the not-checked line its temperature flags are set to 0, as an originator file
+    without flags reads.
     """
     from oceanarray.reports._mooring import _qc_table
 
@@ -159,14 +160,15 @@ def test_qc_single_flag_variables_are_one_line_each(tmp_path) -> None:
     assert qc["rows"] == []
     lines = {line["label"]: line for line in qc["lines"]}
     assert lines["Not checked"]["names"] == ["temperature (2941)"]
-    assert lines["Interpolated throughout"]["names"] == ["pressure (2941)"]
-    assert qc["n_good"] == 2  # conductivity, salinity: flag 0 is never counted as good
+    assert set(lines) == {"Not checked"}
+    # pressure (all 8), conductivity, salinity; flag 0 is never counted as good
+    assert qc["n_good"] == 3
 
     html = __import__("oceanarray.reports._env", fromlist=["x"]).render_template(
         "_mooring_qc.html", qc=qc
     )
     assert "Not checked (1): temperature (2941)." in html
-    assert "All other variables (2): 100&nbsp;% good." in html
+    assert "All other variables (3): 100&nbsp;% good." in html
 
 
 def test_qc_value_changed_rows_read_the_reader_word(tmp_path) -> None:
@@ -296,3 +298,29 @@ def test_every_known_instrument_type_has_a_readable_label() -> None:
         t for t in params.KNOWN_INSTRUMENT_TYPES if t.lower() not in _TYPE_LABELS
     )
     assert not missing, missing
+
+
+def test_good_share_counts_interpolated_as_good_and_zero_as_not_checked() -> None:
+    """MicroCAT 2941: interpolated pressure (all 8) is a green 100; all-0 is not checked."""
+    from oceanarray.reports._qcflags import flag_counts, good_share
+
+    src = _PROC / _MOORING / "microcat" / f"{_MOORING}_2941_stage3.nc"
+    with xr.open_dataset(src, engine="netcdf4") as ds:
+        flags = ds["pressure_qc"].values
+    counts = flag_counts(flags)
+    assert set(counts) == {8}
+    good = good_share(counts, flags.size)
+    assert (good["text"], good["color"]) == ("100", "var(--good)")
+    assert good_share({0: flags.size}, flags.size)["text"] == "not checked"
+
+
+def test_qc_table_has_one_good_column(page: str) -> None:
+    """The explicit Good % column is not repeated by the per-flag columns."""
+    import re
+
+    table = page.split('id="qc"', 1)[-1].split("</table>", 1)[0]
+    heads = re.findall(r"<th[^>]*>(.*?)</th>", table, flags=re.S)
+    assert (
+        sum(1 for h in heads if re.sub("<[^>]+>", "", h).strip().startswith("Good"))
+        == 1
+    )

@@ -418,6 +418,8 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
   .masthead, th { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 }
 
+  .th-unit { display: block; font-weight: 400; font-size: 0.72rem; opacity: 0.85; }
+  td.nowrap { white-space: nowrap; }
   :root { --accent:#2980b9; --accent-link:#cef; }
   /* No width here: the slot class sets each figure's width; width:100%
      would override the slot and force full-width. */
@@ -490,12 +492,10 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
 <a href="#ts_diagram">(5) T-S diagram</a>
 <a href="#roses">(6) Current rose diagrams</a>
 <a href="#processing_history">(7) Processing history</a>
-<a href="#instruments">(8) Instruments (deep-first)</a>
+<a href="#instruments">(8) Instruments</a>
 <a href="#tilt">(9) Aquadopp tilt (|pitch| / |roll| / pressure estimate)</a>
-<a href="#spacing">(10) Adjacent instrument spacing</a>
-<a href="#clock_check">(11) Clock alignment check</a>
-<a href="#netcdf_variables">(A) NetCDF variables</a>
-<a href="#netcdf_attributes">(B) NetCDF attributes</a>
+<a href="#clock_check">(10) Clock alignment check</a>
+<a href="#netcdf">(A) NetCDF file</a>
 </nav>
 <div class="expand-all-bar">
 <p class="see-also">Mooring description (the configuration this page was built from):
@@ -504,14 +504,14 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
 
 <h2 id="hydrography">(1) Hydrography</h2>
 
-<p class="caption">Pressure, temperature and salinity for the full deployment — one row each on a shared time axis. One colour per instrument (shared across rows, ordered by height) so a line can be followed through all three panels; the single legend spans the union of instruments. Values flagged 3, 4 or 9 (correctable bad, bad, missing) are left out; interpolated (8) and nominal (7) values are drawn. ADCP excluded from pressure.</p>
+<p class="caption">Pressure, temperature and salinity from every instrument over the deployment, on a shared time axis. Each instrument keeps one colour and line style in all three panels, from the deepest (blue) to the shallowest (red); the serial at the right end of each line in the pressure panel names it. Values flagged suspect or bad by oceanarray are left out (a stack written before its rule was recorded). Downward spikes in pressure are the mooring being pushed down by strong currents.</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig" src="data:image/png;base64,<PNG>" alt="hydro_pts">
 </details><div class="fig-source">source: oceanarray/plotters/timeseries.py:draw_stack_timeseries</div>
 
 <h2 id="velocity">(2) Velocity</h2>
 
-<p class="caption">Eastward (U), northward (V) and upward (W) velocity in the ENU frame — one row each on a shared time axis, one colour per instrument (shared across rows, ordered by height) with a single legend over the union of instruments. Values flagged 3, 4 or 9 left out; instruments without velocity data omitted.</p>
+<p class="caption">Eastward, northward and upward velocity from each current meter over the deployment, relative to true north, declination applied. Colours and line styles as in the hydrography figure. Upward velocity is in a shorter panel: its spread is expected to be small. Values flagged suspect or bad by oceanarray are left out (a stack written before its rule was recorded).</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig" src="data:image/png;base64,<PNG>" alt="vel_uvw">
 </details><div class="fig-source">source: oceanarray/plotters/timeseries.py:draw_stack_timeseries</div>
@@ -537,7 +537,7 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
 
 <h2 id="ts_diagram">(5) T-S diagram</h2>
 
-<p class="caption">Left: scatter coloured by pressure. Middle: 2-D count heatmap. Right (when oxygen data present): scatter coloured by O₂ saturation (%). Values flagged 3, 4 or 9 (probably bad, bad, missing) left out; nominal and interpolated values (flags 7, 8) kept.</p>
+<p class="caption">Potential temperature against salinity (PSU) for all samples. Left: coloured by pressure. Right: number of hourly samples in each bin (log scale), showing where the record spends most of its time. Dashed lines: potential density σθ, every 0.2 kg/m³. Values flagged suspect or bad by oceanarray are left out (a stack written before its rule was recorded).</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig" src="data:image/png;base64,<PNG>" alt="ts_diagram">
 </details><div class="fig-source">source: oceanarray/plotters/ts.py:draw_stack_ts_diagram</div>
@@ -548,228 +548,190 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
 
 <p class="caption">Magnetic declination applied: -13.97°</p>
 
-<p class="caption">Direction toward which the current flows (relative to true north, declination applied) and speed for each current meter. Wedge length is the percentage of the record in that direction; colours are speed classes. Which flags were left out is not recorded in this file.</p>
+<p class="caption">Distribution of current direction (the direction the water flows toward, relative to true north, declination applied) and speed for each current meter. Wedge length is the percentage of the record in that direction; colours are speed classes; rings share one scale. Values flagged suspect or bad by oceanarray are left out (a stack written before its rule was recorded).</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig" src="data:image/png;base64,<PNG>" alt="roses">
 </details><div class="fig-source">source: oceanarray/plotters/current.py:draw_rose_grid</div>
 
 <h2 id="processing_history">(7) Processing history</h2>
 
-<p class="caption">Processing steps that produced this combined record, with the settings used.</p>
+<p class="caption">What was done to produce this combined record, entry by entry as the stack file&#39;s history attribute records it, with the settings read from the file.</p>
 
 <table class="steps">
-  <thead><tr><th>Step</th><th>What was done</th><th>Settings</th></tr></thead>
+  <thead><tr><th>When<span class="th-unit">UTC</span></th><th>What was done</th><th>Settings</th></tr></thead>
   <tbody>
-    <tr><td>1. Combine</td><td>The 22 instruments were placed on a common time axis; instruments sampling at least once a step take the nearest sample within ±30 min, slower ones were interpolated linearly in time</td><td>1 h steps</td></tr>
-    <tr><td>2. Flags</td><td>Which flags were left out is not recorded in this file</td><td>not recorded</td></tr>
+    <tr><td class="nowrap">—</td><td>Step 1 stack: 22 instruments onto 3600s grid<br>fast instruments (dt&lt;=3600s) subsampled (nearest-neighbour in time), slow instruments interpolated (linear in time)</td><td>1 h steps</td></tr>
   </tbody>
 </table>
 
 
-<details class="processing"><summary>show the file&#39;s processing record (dated events)</summary>
+<details class="processing"><summary>Spacing of neighbouring instruments</summary>
+<p class="caption">Vertical distance between neighbouring instruments, from their measured pressures. This sets how finely the gridded product can resolve the water column; pairs closer than 2 dbar count as one level.</p>
+<img class="fig slot-third" src="data:image/png;base64,<PNG>" alt="Spacing of neighbouring instruments">
 
-
-
-
-<table class="nc properties" data-nosort>
-
-<thead><tr><th>Property</th><th>Value</th></tr></thead>
-<tbody>
-<tr><td>Step 1 stack</td><td>22 instruments onto 3600s grid</td></tr>
-</tbody></table>
-<table class="sortable">
-
-<thead>
-  <tr><th tabindex="0">#</th><th tabindex="0">Time</th><th tabindex="0">Event</th></tr>
-</thead>
-<tbody>
-  <tr><td>1</td><td></td><td>fast instruments (dt&lt;=3600s) subsampled (nearest-neighbour in time), slow instruments interpolated (linear in time)</td></tr>
-</tbody>
-</table><div class="fig-source">source: oceanarray/reports/_html_helpers.py:_build_history_tables</div>
 </details>
 
-<h2 id="instruments">(8) Instruments (deep-first)</h2>
-<p class="caption">HAB = height above bottom (m).</p>
+<h2 id="instruments">(8) Instruments</h2>
+
+<p class="caption">Deepest first. HAB: height above bottom. A serial links to the instrument&#39;s own page.</p>
 
 
 <table class="instr-table">
-  <thead><tr><th>#</th><th>Type</th><th>Serial</th><th>HAB (m)</th><th>~Depth (m)</th></tr></thead>
+  <thead><tr><th class="num">Nominal depth<span class="th-unit">m</span></th><th class="num">HAB<span class="th-unit">m</span></th><th>Type</th><th>Serial</th></tr></thead>
   <tbody>
   
   <tr>
-    <td>0</td>
-    <td>rbrsolo</td>
-    <td>240231</td>
-    <td>8</td>
-    <td>737</td>
+    <td class="num">737</td>
+<td class="num">8</td>
+    <td>RBRsolo</td>
+    <td><span class="serial">240231</span></td>
   </tr>
   
   <tr>
-    <td>1</td>
-    <td>microcat</td>
-    <td>26269</td>
-    <td>25</td>
-    <td>720</td>
+    <td class="num">720</td>
+<td class="num">25</td>
+    <td>MicroCAT</td>
+    <td><span class="serial">26269</span></td>
   </tr>
   
   <tr>
-    <td>2</td>
-    <td>aquadopp</td>
-    <td>14321</td>
-    <td>26</td>
-    <td>719</td>
+    <td class="num">719</td>
+<td class="num">26</td>
+    <td>Aquadopp</td>
+    <td><span class="serial">14321</span></td>
   </tr>
   
   <tr>
-    <td>3</td>
-    <td>rbrsolo</td>
-    <td>240230</td>
-    <td>75</td>
-    <td>670</td>
+    <td class="num">670</td>
+<td class="num">75</td>
+    <td>RBRsolo</td>
+    <td><span class="serial">240230</span></td>
   </tr>
   
   <tr>
-    <td>4</td>
-    <td>microcat</td>
-    <td>5367</td>
-    <td>125</td>
-    <td>620</td>
+    <td class="num">620</td>
+<td class="num">125</td>
+    <td>MicroCAT</td>
+    <td><span class="serial">5367</span></td>
   </tr>
   
   <tr>
-    <td>5</td>
-    <td>aquadopp</td>
-    <td>14284</td>
-    <td>126</td>
-    <td>619</td>
+    <td class="num">619</td>
+<td class="num">126</td>
+    <td>Aquadopp</td>
+    <td><span class="serial">14284</span></td>
   </tr>
   
   <tr>
-    <td>6</td>
-    <td>rbrsolo</td>
-    <td>240234</td>
-    <td>175</td>
-    <td>570</td>
+    <td class="num">570</td>
+<td class="num">175</td>
+    <td>RBRsolo</td>
+    <td><span class="serial">240234</span></td>
   </tr>
   
   <tr>
-    <td>7</td>
-    <td>microcat</td>
-    <td>2942</td>
-    <td>225</td>
-    <td>520</td>
+    <td class="num">520</td>
+<td class="num">225</td>
+    <td>MicroCAT</td>
+    <td><span class="serial">2942</span></td>
   </tr>
   
   <tr>
-    <td>8</td>
-    <td>aquadopp</td>
-    <td><a href="instrument/dune2_1_2026_9920_report.html">9920</a></td>
-    <td>226</td>
-    <td>519</td>
+    <td class="num">519</td>
+<td class="num">226</td>
+    <td>Aquadopp</td>
+    <td><a href="instrument/dune2_1_2026_9920_report.html" class="serial">9920</a></td>
   </tr>
   
   <tr>
-    <td>9</td>
-    <td>rbrsolo</td>
-    <td>240236</td>
-    <td>275</td>
-    <td>470</td>
+    <td class="num">470</td>
+<td class="num">275</td>
+    <td>RBRsolo</td>
+    <td><span class="serial">240236</span></td>
   </tr>
   
   <tr>
-    <td>10</td>
-    <td>microcat</td>
-    <td>3026</td>
-    <td>325</td>
-    <td>420</td>
+    <td class="num">420</td>
+<td class="num">325</td>
+    <td>MicroCAT</td>
+    <td><span class="serial">3026</span></td>
   </tr>
   
   <tr>
-    <td>11</td>
-    <td>aquadopp</td>
-    <td>400125</td>
-    <td>326</td>
-    <td>419</td>
+    <td class="num">419</td>
+<td class="num">326</td>
+    <td>Aquadopp</td>
+    <td><span class="serial">400125</span></td>
   </tr>
   
   <tr>
-    <td>12</td>
-    <td>rbrsolo</td>
-    <td>240235</td>
-    <td>375</td>
-    <td>370</td>
+    <td class="num">370</td>
+<td class="num">375</td>
+    <td>RBRsolo</td>
+    <td><span class="serial">240235</span></td>
   </tr>
   
   <tr>
-    <td>13</td>
-    <td>microcat</td>
-    <td><a href="instrument/dune2_1_2026_2941_report.html">2941</a></td>
-    <td>425</td>
-    <td>320</td>
+    <td class="num">320</td>
+<td class="num">425</td>
+    <td>MicroCAT</td>
+    <td><a href="instrument/dune2_1_2026_2941_report.html" class="serial">2941</a></td>
   </tr>
   
   <tr>
-    <td>14</td>
-    <td>aquadopp</td>
-    <td>400118</td>
-    <td>426</td>
-    <td>319</td>
+    <td class="num">319</td>
+<td class="num">426</td>
+    <td>Aquadopp</td>
+    <td><span class="serial">400118</span></td>
   </tr>
   
   <tr>
-    <td>15</td>
-    <td>rbrsolo</td>
-    <td>240233</td>
-    <td>475</td>
-    <td>270</td>
+    <td class="num">270</td>
+<td class="num">475</td>
+    <td>RBRsolo</td>
+    <td><span class="serial">240233</span></td>
   </tr>
   
   <tr>
-    <td>16</td>
-    <td>microcat</td>
-    <td>7507</td>
-    <td>525</td>
-    <td>220</td>
+    <td class="num">220</td>
+<td class="num">525</td>
+    <td>MicroCAT</td>
+    <td><span class="serial">7507</span></td>
   </tr>
   
   <tr>
-    <td>17</td>
-    <td>aquadopp</td>
-    <td>400123</td>
-    <td>526</td>
-    <td>219</td>
+    <td class="num">219</td>
+<td class="num">526</td>
+    <td>Aquadopp</td>
+    <td><span class="serial">400123</span></td>
   </tr>
   
   <tr>
-    <td>18</td>
-    <td>rbrsolo</td>
-    <td>240232</td>
-    <td>575</td>
-    <td>170</td>
+    <td class="num">170</td>
+<td class="num">575</td>
+    <td>RBRsolo</td>
+    <td><span class="serial">240232</span></td>
   </tr>
   
   <tr>
-    <td>19</td>
-    <td>microcat</td>
-    <td>25586</td>
-    <td>625</td>
-    <td>120</td>
+    <td class="num">120</td>
+<td class="num">625</td>
+    <td>MicroCAT</td>
+    <td><span class="serial">25586</span></td>
   </tr>
   
   <tr>
-    <td>20</td>
-    <td>aquadopp</td>
-    <td>400115</td>
-    <td>626</td>
-    <td>119</td>
+    <td class="num">119</td>
+<td class="num">626</td>
+    <td>Aquadopp</td>
+    <td><span class="serial">400115</span></td>
   </tr>
   
   <tr>
-    <td>21</td>
-    <td>rbrsolo</td>
-    <td>240250</td>
-    <td>675</td>
-    <td>70</td>
+    <td class="num">70</td>
+<td class="num">675</td>
+    <td>RBRsolo</td>
+    <td><span class="serial">240250</span></td>
   </tr>
   
   </tbody>
@@ -777,27 +739,23 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
 
 <h2 id="tilt">(9) Aquadopp tilt (|pitch| / |roll| / pressure estimate)</h2>
 
-<p class="caption">|pitch| / |roll| / pressure-estimate tilt per Aquadopp, sharing a y-axis. Horizontal lines mark the suspect and fail thresholds from the file attributes.</p>
+<p class="caption">|pitch| / |roll| / pressure-estimate tilt per Aquadopp, sharing a y-axis. Horizontal lines mark the suspect and fail limits stored with the flags.</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig" src="data:image/png;base64,<PNG>" alt="tilt">
 </details><div class="fig-source">source: oceanarray/plotters/current.py:draw_aquadopp_tilt_panels</div>
 
-<h2 id="spacing">(10) Adjacent instrument spacing</h2>
-
-<p class="caption">Distribution of pressure differences between adjacent instrument pairs (pairs &lt; 2 dbar apart excluded as co-located).</p>
-<details open><summary class="collapse-toggle">show / hide</summary>
-<img class="fig slot-third" src="data:image/png;base64,<PNG>" alt="spacing">
-</details><div class="fig-source">source: oceanarray/plotters/diagnostic.py:draw_instrument_spacing</div>
-
-<h2 id="clock_check">(11) Clock alignment check</h2>
+<h2 id="clock_check">(10) Clock alignment check</h2>
 
 <p class="caption">One temperature trace per instrument, zoomed to the first and last 30 min of the deployment, to check clock alignment across instruments.</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig" src="data:image/png;base64,<PNG>" alt="clock_check">
 </details><div class="fig-source">source: oceanarray/plotters/diagnostic.py:draw_clock_offset_check</div>
 
-<h2 id="netcdf_variables">(A) NetCDF variables</h2>
+<h2 id="netcdf">(A) NetCDF file</h2>
 
+<p class="caption">Contents of the stack file this page was drawn from, as written by oceanarray. To produce it yourself, run oceanarray with the mooring description at the end of the deployment page; the originator&#39;s data are linked at the top of each instrument&#39;s page.</p>
+
+<details class="processing"><summary>show the coordinates, variables and global attributes</summary>
 <h3>Coordinates</h3>
 <table class="sortable var-table">
 
@@ -821,8 +779,6 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
 <table data-nosort><tbody><tr><th>axis</th><td>T</td></tr>
 </tbody></table></details></td></tr>
 </tbody></table><div class="fig-source">source: oceanarray/reports/_vendored/nc_tables.py:coords_rows</div>
-
-
 <h3>Variables on N_LEVELS (22 samples)</h3>
 <table class="sortable var-table">
 
@@ -965,9 +921,7 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
 <td data-sort="100.0">100.0</td><td data-nosort><details class="attr-disclosure"><summary>4 attrs</summary>
 <table data-nosort><tbody><tr><th>comment</th><td>Worst OceanSITES flag across east/north/up_velocity; apply to the velocity components before use.</td></tr><tr><th>flag_values</th><td>[0 1 2 3 4 7 8 9]</td></tr><tr><th>flag_meanings</th><td>unknown good_data probably_good_data potentially_correctable_bad_data bad_data nominal_value interpolated_value missing_</td></tr><tr><th>conventions</th><td>OceanSITES reference table 2</td></tr>
 </tbody></table></details></td></tr>
-</tbody></table><div class="fig-source">source: oceanarray/reports/_vendored/nc_tables.py:variables_rows</div>
-
-<h3>Scalar variables</h3>
+</tbody></table><div class="fig-source">source: oceanarray/reports/_vendored/nc_tables.py:variables_rows</div><h3>Scalar variables</h3>
 <table class="sortable var-table">
 
 
@@ -985,10 +939,6 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
 <td data-sort="start_time">start_time</td><td><code>string</code></td><td>—</td>
 <td class="cell-wrap">2026-07-11T20:30</td></tr>
 </tbody></table><div class="fig-source">source: oceanarray/reports/_vendored/nc_tables.py:scalars_rows</div>
-
-<h2 id="netcdf_attributes">(B) NetCDF attributes</h2>
-
-
 <h3>Identity &amp; discovery</h3>
 <table class="sortable">
 
@@ -1021,6 +971,7 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
 <tr><td class="mono">dt_seconds</td><td><code>int64</code></td><td>3600</td></tr>
 <tr><td class="mono">Conventions</td><td><code>string</code></td><td>CF-1.13</td></tr>
 </tbody></table><div class="fig-source">source: oceanarray/reports/_vendored/nc_tables.py:globals_rows</div>
+</details>
 
 
 <p class="none-note">Not applicable to this deployment: Turbidity, Analog channels, Quality flags.</p>

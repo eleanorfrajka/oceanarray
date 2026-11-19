@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import json
 import re
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
@@ -265,6 +265,103 @@ def flag_sentence(
     return f"Flagged values were {action} ({'; '.join(parts)})."
 
 
+def _flag_names(flags: Sequence[int]) -> str:
+    """Return flags in words, without missing (9, nothing to draw): ``"suspect or bad"``."""
+    return _join(
+        [params.QC_FLAG_LABEL.get(int(f), str(f)) for f in flags if int(f) != 9], "or"
+    )
+
+
+def rule_sentence(
+    rule: Mapping[str, tuple[int, ...]] | None,
+    variables: Sequence[str],
+    *,
+    ours: bool = True,
+    theirs: bool = True,
+    suspect: int | None = None,
+) -> str:
+    """Return the sentence saying which flagged values a figure leaves out, in words.
+
+    Parameters
+    ----------
+    rule : Mapping or None
+        The flag rule (``masking.resolve_mask_flags``); None when the file does
+        not record one.
+    variables : sequence of str
+        The variables the figure shows.
+    ours, theirs : bool, optional
+        Whether oceanarray's and the originator's flags are present for them.
+    suspect : int or None, optional
+        How many values flagged suspect the figure draws (its figure record).
+        The sentence says suspect values are shown only when this is positive;
+        otherwise it says nothing of them.
+
+    Returns
+    -------
+    str
+        E.g. ``"Values flagged bad, by the originator or oceanarray, are left
+        out."``, with ``"; suspect values are shown"`` before the full stop when
+        the figure draws some.
+    """
+    if rule is None:
+        return "Which flags were left out is not recorded in this file."
+    groups: dict[tuple[int, ...], list[str]] = {}
+    for v in variables:
+        groups.setdefault(masking.flags_for(rule, v), []).append(v)
+    if not groups:
+        groups = {tuple(rule["default"]): []}
+    if ours and theirs:
+        who = ", by the originator or oceanarray,"
+    elif theirs:
+        who = " by the originator"
+    else:
+        who = " by oceanarray"
+    if len(groups) == 1:
+        flags = next(iter(groups))
+        words = _flag_names(flags)
+        if not words:
+            return "No flagged values are left out."
+        shown = "; suspect values are shown" if suspect and 3 not in flags else ""
+        return f"Values flagged {words}{who} are left out{shown}."
+    parts = [
+        f"{_join([v.replace('_', ' ') for v in names])}: {_flag_names(flags) or 'none'}"
+        for flags, names in groups.items()
+    ]
+    return f"Flagged values{who.rstrip(',')} are left out ({', '.join(parts)})."
+
+
+def stack_rule_sentence(ds: Any, variables: Sequence[str]) -> str:
+    """Return :func:`rule_sentence` for a stack's figure, from its recorded rule.
+
+    A stack written before the rule was recorded (no ``stack_mask_flags``) is
+    drawn as such stacks always were: oceanarray's suspect, bad and missing
+    values left out (``parameters.QC_BAD_FLAGS``); the sentence says so.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The stack (or Stack cat); its ``stack_mask_flags`` is the rule.
+    variables : sequence of str
+        The variables the figure shows.
+
+    Returns
+    -------
+    str
+    """
+    names = set(getattr(ds, "data_vars", ()))
+    present = [v for v in variables if v in names] or list(variables)
+    rule = _rule(ds.attrs, masking.STACK_ATTR)
+    if rule is None:
+        old = masking.resolve_mask_flags(list(params.QC_BAD_FLAGS))
+        return rule_sentence(old, present, ours=True, theirs=False).replace(
+            " are left out",
+            " are left out (a stack written before its rule was recorded)",
+        )
+    ours = any(f"{v}_qc" in names for v in present)
+    theirs = any(f"{v}{MAPPED_SUFFIX}" in names for v in present)
+    return rule_sentence(rule, present, ours=ours or not theirs, theirs=theirs)
+
+
 # ---------------------------------------------------------------------------
 # Processing steps
 # ---------------------------------------------------------------------------
@@ -298,7 +395,7 @@ def _n_from_history(history: str) -> int | None:
     return int(m.group(1)) if m else None
 
 
-def _combine_what(n: int | None, dt: float, history: str, *, stack: bool) -> str:
+def _combine_what(n: int | None, dt: float, history: str) -> str:
     """Return the Combine step's text, as the file's history says it was done."""
     who = f"The {n} instruments" if n else "The instruments"
     half = duration_words(dt / 2.0 / 86400.0) if np.isfinite(dt) else "half a step"
@@ -308,12 +405,6 @@ def _combine_what(n: int | None, dt: float, history: str, *, stack: bool) -> str
             f"{who} were placed on a common time axis; instruments sampling at "
             f"least once a step take the nearest sample within ±{half}, slower ones "
             "were interpolated linearly in time"
-        )
-    if stack:
-        return (
-            f"{who} were placed on a common time axis; each step takes the "
-            f"instrument's nearest sample within ±{half}, with no interpolation or "
-            "averaging in time; steps with no sample are left empty"
         )
     return (
         f"{who} were placed on a common time axis; each step takes the nearest "
@@ -378,7 +469,7 @@ def grid_steps(
         dp = float(np.median(np.diff(pressure)))
     pmin = attrs.get("p_start_dbar", pressure.min() if len(pressure) else np.nan)
     pmax = attrs.get("p_end_dbar", pressure.max() if len(pressure) else np.nan)
-    combine = _combine_what(n, dt, history, stack=False)
+    combine = _combine_what(n, dt, history)
     return [
         Step(
             "Combine",
@@ -396,8 +487,92 @@ def grid_steps(
     ]
 
 
-def stack_steps(ds: Any) -> list[Step]:
-    """Return the processing steps that produced a stack, with the settings used.
+# ---------------------------------------------------------------------------
+# Processing history, entry by entry
+# ---------------------------------------------------------------------------
+
+#: A dated history entry's timestamp (``2026-07-29T12:10Z``).
+_WHEN = re.compile(r"^(\d{4}-\d\d-\d\d)T(\d\d:\d\d)")
+#: A reader's own processed-by line: ``2026-11-15T21:09:44.4Z - Processed by …``.
+_READER_LINE = re.compile(r"^(\d{4}-\d\d-\d\dT[\d:.]+Z?) - (.*)$")
+
+
+@dataclass(frozen=True)
+class HistoryRow:
+    """One entry of a file's ``history`` attribute, as the processing table shows it.
+
+    Attributes
+    ----------
+    when : str
+        The entry's time (``"2026-11-18 18:35"``, UTC), ``"—"`` for an undated entry.
+    events : tuple of str
+        What was done: the entry's text, one item per event it records.
+    settings : str
+        The settings used, read from the file's attributes.
+    """
+
+    when: str
+    events: tuple[str, ...]
+    settings: str = ""
+
+
+def _when(stamp: str) -> str:
+    """Return a history timestamp as ``"2026-11-18 18:35"``."""
+    m = _WHEN.match(stamp)
+    return f"{m.group(1)} {m.group(2)}" if m else stamp
+
+
+def history_rows(
+    history: str, settings: Callable[[str], str] | None = None
+) -> list[HistoryRow]:
+    """Return a file's ``history`` attribute as table rows, one per entry.
+
+    The attribute is read as the pipeline writes it (entries separated by
+    ``"; "``, each ``"<time>: <text>"``, events of one entry joined by ``" | "``);
+    an undated item (a reader's ``Reader: …`` line) is added to the entry before it.
+
+    Parameters
+    ----------
+    history : str
+        The ``history`` attribute.
+    settings : callable, optional
+        Given an entry's text, returns its settings (from the file's attributes).
+
+    Returns
+    -------
+    list of HistoryRow
+    """
+    from ._html_helpers import _parse_history
+
+    rows: list[dict[str, Any]] = []
+    for entry in _parse_history(history or ""):
+        stamp, text = entry["timestamp"], entry["text"]
+        if _WHEN.match(stamp):
+            rows.append(
+                {"when": _when(stamp), "events": [e.strip() for e in text.split(" | ")]}
+            )
+            continue
+        m = _READER_LINE.match(text) if not stamp else None
+        if m:
+            rows.append({"when": _when(m.group(1)), "events": [m.group(2)]})
+            continue
+        line = f"{stamp}: {text}" if stamp else text
+        if rows:
+            rows[-1]["events"].append(line)
+        else:
+            rows.append({"when": "—", "events": [line]})
+    return [
+        HistoryRow(
+            r["when"],
+            tuple(r["events"]),
+            settings(" | ".join(r["events"])) if settings else "",
+        )
+        for r in rows
+    ]
+
+
+def stack_history_rows(ds: Any) -> list[HistoryRow]:
+    """Return a stack's processing table: its history, with the settings of each step.
 
     Parameters
     ----------
@@ -406,23 +581,25 @@ def stack_steps(ds: Any) -> list[Step]:
 
     Returns
     -------
-    list of Step
-        Combine, Flags.
+    list of HistoryRow
     """
-    attrs = ds.attrs
-    history = str(attrs.get("history", ""))
     from oceanarray.pipeline.dataset import time_step_seconds
 
+    attrs = ds.attrs
     dt = time_step_seconds(ds)
-    n = ds.sizes.get("N_LEVELS") or _n_from_history(history)
-    return [
-        Step(
-            "Combine",
-            _combine_what(n, dt, history, stack=True),
-            f"{step_text(dt)} steps",
-        ),
-        _flags_step(attrs, masking.STACK_ATTR, "left out"),
-    ]
+
+    def settings(text: str) -> str:
+        if text.startswith(("stack:", "Step 1 stack:")):
+            return f"{step_text(dt)} steps"
+        if text.startswith("flags:"):
+            rule = _rule(attrs, masking.STACK_ATTR)
+            if rule is None:
+                return ""
+            source = _rule_sources(attrs)
+            return f"rule: {rule_text(rule)}" + (f" ({source})" if source else "")
+        return ""
+
+    return history_rows(str(attrs.get("history", "")), settings)
 
 
 # ---------------------------------------------------------------------------
@@ -847,15 +1024,183 @@ def stack_rose_caption(ds_stack: Any) -> str:
     str
     """
     reference = direction_reference(ds_stack)
-    directions = f" ({reference})" if reference else ""
     return (
-        f"Direction toward which the current flows{directions} and speed for each "
-        "current meter. Wedge length is the percentage of the record in that "
-        "direction; colours are speed classes. "
-        + flag_sentence(
-            ds_stack.attrs,
-            ["east_velocity", "north_velocity"],
-            key=masking.STACK_ATTR,
-            action="left out",
-        )
+        "Distribution of current direction (the direction the water flows toward"
+        + (f", {reference}" if reference else "")
+        + ") and speed for each current meter. Wedge length is the percentage of the "
+        "record in that direction; colours are speed classes; rings share one scale. "
+        + stack_rule_sentence(ds_stack, ["east_velocity", "north_velocity"])
     )
+
+
+# ---------------------------------------------------------------------------
+# Stack captions
+# ---------------------------------------------------------------------------
+
+#: The variables each stack figure shows, for its flag sentence.
+STACK_FIGURE_VARIABLES: dict[str, tuple[str, ...]] = {
+    "hydro_pts": ("pressure", "temperature", "salinity"),
+    "dissolved_oxygen": ("dissolved_oxygen",),
+    "vel_uvw": ("east_velocity", "north_velocity", "up_velocity"),
+    "turbidity": ("turbidity",),
+    "ts_diagram": ("temperature", "salinity"),
+    "ts_points": ("temperature", "salinity"),
+    "ts_medians": ("temperature", "salinity"),
+    "ts_by_deployment": ("temperature", "salinity"),
+    "roses": ("east_velocity", "north_velocity"),
+    "speed_profile": ("east_velocity", "north_velocity"),
+    "direction_profile": ("east_velocity", "north_velocity"),
+}
+
+
+def _suspect_sentence(record: Mapping[str, Any] | None) -> str:
+    """Return the caption sentence for the black dots, when the figure drew any."""
+    n = int((record or {}).get("suspect", 0) or 0)
+    return f" Black dots: values flagged suspect ({n:,})." if n else ""
+
+
+def _legend_sentence(record: Mapping[str, Any] | None) -> str:
+    """Return a sentence naming the instruments in the small legend, if any."""
+    legend = list((record or {}).get("legend") or [])
+    if not legend:
+        return ""
+    one = len(legend) == 1
+    return (
+        f" {_join(legend)} {'has' if one else 'have'} no line in the pressure panel: "
+        f"the legend names {'it' if one else 'them'}."
+    )
+
+
+def stack_flag_sentences(ds: Any) -> dict[str, str]:
+    """Return each stack figure's flag sentence, by panel id, from the stack's rule.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The stack (or Stack cat).
+
+    Returns
+    -------
+    dict of str to str
+        :func:`stack_rule_sentence` for the variables of each figure
+        (:data:`STACK_FIGURE_VARIABLES`).
+    """
+    return {
+        pid: stack_rule_sentence(ds, list(variables))
+        for pid, variables in STACK_FIGURE_VARIABLES.items()
+    }
+
+
+def _dt(ds: Any) -> float:
+    """Return a stack's time step (s), NaN when unknown."""
+    from oceanarray.pipeline.dataset import time_step_seconds
+
+    try:
+        return float(time_step_seconds(ds))
+    except (TypeError, ValueError, KeyError):
+        return float("nan")
+
+
+def stack_captions(
+    ds: Any, records: Mapping[str, Mapping[str, Any]] | None = None
+) -> dict[str, str]:
+    """Return the stack page's figure captions, built from the stack and its figures.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The stack.
+    records : Mapping, optional
+        What each figure drew (by panel id): the time series' ``suspect``,
+        ``serials`` and ``legend``; the T-S diagram's ``theta``,
+        ``sigma_interval``, ``colour`` and ``oxygen``.
+
+    Returns
+    -------
+    dict of str to str
+        Captions by panel id.
+    """
+    records = records or {}
+    flags = stack_flag_sentences(ds)
+    hydro = records.get("hydro_pts")
+    vel = records.get("vel_uvw") or {}
+    labelled = bool((hydro or {}).get("serials"))
+    out = {
+        "hydro_pts": (
+            "Pressure, temperature and salinity from every instrument over the "
+            "deployment, on a shared time axis. Each instrument keeps one colour and "
+            "line style in all three panels, from the deepest (blue) to the shallowest "
+            "(red)"
+            + (
+                "; the serial at the right end of each line in the pressure panel "
+                "names it."
+                if labelled
+                else "."
+            )
+            + _legend_sentence(hydro)
+            + f" {flags['hydro_pts']}"
+            + _suspect_sentence(hydro)
+            + " Downward spikes in pressure are the mooring being pushed down by "
+            "strong currents."
+        ),
+        "dissolved_oxygen": (
+            "Dissolved oxygen from each instrument with an oxygen sensor "
+            f"({params.vunit('dissolved_oxygen')}), in the colours of the hydrography "
+            f"figure. {flags['dissolved_oxygen']} Oxygen saturation (%) is on each "
+            "instrument's own page."
+        ),
+        "turbidity": (
+            "Turbidity from each instrument with a turbidity sensor, in the colours "
+            "of the hydrography figure; dots mark each sample so values near zero "
+            "show. Units as in the files (NTU, FTU or V, depending on the sensor). "
+            + flags["turbidity"]
+        ),
+    }
+    reference = direction_reference(ds)
+    serials = list(vel.get("serials") or [])
+    who = (
+        f"the current meter {serials[0]}" if len(serials) == 1 else "each current meter"
+    )
+    has_w = "up_velocity" in getattr(ds, "data_vars", ())
+    components = "Eastward, northward and upward" if has_w else "Eastward and northward"
+    keyed = set((hydro or {}).get("labelled") or [])
+    legend = list(vel.get("legend") or [])
+    colours = ""
+    if len(serials) != 1 or keyed:
+        colours = " Colours and line styles as in the hydrography figure" + (
+            "; the legend names the instruments not in it." if legend else "."
+        )
+    out["vel_uvw"] = (
+        f"{components} velocity from {who} over the deployment"
+        + (f", {reference}" if reference else "")
+        + "."
+        + colours
+        + (
+            " Upward velocity is in a shorter panel: its spread is expected to be small."
+            if has_w
+            else ""
+        )
+        + f" {flags['vel_uvw']}"
+        + _suspect_sentence(vel)
+    )
+    ts = records.get("ts_diagram") or {}
+    t = (
+        "Potential temperature"
+        if ts.get("theta", True)
+        else f"In-situ temperature ({ts.get('no_sigma') or 'position unknown'}, no σθ)"
+    )
+    cadence = cadence_word(_dt(ds))
+    text = (
+        f"{t} against salinity (PSU) for all samples. Left: coloured by pressure. "
+        f"Right: number of {cadence + ' ' if cadence else ''}samples in each bin "
+        "(log scale), showing where the record spends most of its time."
+    )
+    if ts.get("oxygen"):
+        text += " A third panel is coloured by oxygen saturation."
+    if ts.get("sigma_interval"):
+        text += (
+            f" Dashed lines: potential density σθ, every {ts['sigma_interval']:g} "
+            f"{params.vunit('potential_density')}."
+        )
+    out["ts_diagram"] = f"{text} {flags['ts_diagram']}"
+    return out
