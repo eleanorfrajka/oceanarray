@@ -19,6 +19,7 @@ from scipy.signal import find_peaks
 from oceanarray import mooring as _mooring
 from oceanarray import paths
 from oceanarray.instruments import instrument_entries
+from oceanarray.pipeline import _stage
 from oceanarray.pipeline.clock import deployment as find_deployment
 
 _STAGE2_TAG = paths.stage_suffix(2).removesuffix(".nc")
@@ -69,15 +70,11 @@ def load_mooring_instruments(
 
         if Path(rawfile).exists():
             print(rawfile)
-            ds1 = xr.open_dataset(rawfile)
+            ds1 = _stage.normalize_identity_names(xr.open_dataset(rawfile))
 
             # Add metadata from YAML
-            if "InstrDepth" not in ds1.variables and "depth" in i:
-                ds1["InstrDepth"] = i["depth"]
             if "instrument" not in ds1.variables and "instrument" in i:
                 ds1["instrument"] = i["instrument"]
-            if "serial_number" not in ds1.variables and "serial" in i:
-                ds1["serial_number"] = i["serial"]
             if "timeS" in ds1.variables:
                 ds1 = ds1.drop_vars("timeS")
 
@@ -167,8 +164,8 @@ def interpolate_datasets_to_grid(datasets, time_grid):
             if interp_vars:
                 ds_interp = xr.Dataset(interp_vars, coords={"time": time_grid})
 
-                if "InstrDepth" in ds:
-                    ds_interp = ds_interp.assign_coords(depth=ds["InstrDepth"])
+                if "instrument_depth" in ds:
+                    ds_interp = ds_interp.assign_coords(depth=ds["instrument_depth"])
                 if "clock_offset" in ds:
                     ds_interp = ds_interp.assign_coords(
                         seconds_offset=ds["clock_offset"]
@@ -236,8 +233,12 @@ def combine_interpolated_datasets(datasets_interp):
     instrtype = []
 
     for ds in datasets_clean:
-        depths.append(float(ds["InstrDepth"].item()) if "InstrDepth" in ds else np.nan)
-        serial.append(ds["serial_number"].item() if "serial_number" in ds else np.nan)
+        depths.append(
+            float(ds["instrument_depth"].item()) if "instrument_depth" in ds else np.nan
+        )
+        serial.append(
+            ds["instrument_serial"].item() if "instrument_serial" in ds else np.nan
+        )
         instrtype.append(ds["instrument"].item() if "instrument" in ds else "unknown")
 
         if "clock_offset" in ds:
@@ -254,7 +255,7 @@ def combine_interpolated_datasets(datasets_interp):
             "time": time_coord,
             "N_LEVELS": np.arange(N_LEVELS),
             "clock_offset": ("N_LEVELS", np.array(clock_offsets)),
-            "serial_number": ("N_LEVELS", np.array(serial)),
+            "instrument_serial": ("N_LEVELS", np.array(serial)),
             "nominal_depth": ("N_LEVELS", np.array(depths)),
             "instrument": ("N_LEVELS", np.asarray(instrtype)),
         },
@@ -428,7 +429,7 @@ def print_timing_offset_summary(combined_ds, offset_results):
     """
     N = combined_ds.sizes["N_LEVELS"]
     labels = combined_ds["instrument"].values
-    serial = combined_ds["serial_number"].values
+    serial = combined_ds["instrument_serial"].values
 
     start_times = pd.to_datetime(combined_ds["start_time"].values)
     end_times = pd.to_datetime(combined_ds["end_time"].values)
@@ -488,7 +489,7 @@ def suggest_reference_instrument(combined_ds, offset_results):
     min_abs_idx = finite_indices[np.argmin(abs_offsets[finite_mask])]
 
     instruments = combined_ds["instrument"].values
-    serial = combined_ds["serial_number"].values
+    serial = combined_ds["instrument_serial"].values
     depths = combined_ds["nominal_depth"].values
 
     suggestion = {
@@ -523,7 +524,7 @@ def print_correlation_summary(combined_ds, correlation_results):
         Results from perform_lag_correlation_analysis()
 
     """
-    serial = combined_ds["serial_number"].values
+    serial = combined_ds["instrument_serial"].values
 
     print("Lag Correlation Analysis Results:")
     print("(Enter the summed value, no sign change, in the yaml as clock_offset)")

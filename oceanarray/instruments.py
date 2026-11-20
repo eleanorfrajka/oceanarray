@@ -20,6 +20,29 @@ def hab_for(entry: dict[str, Any]) -> Any:
     return entry.get("hab_bottom")
 
 
+def nominal_depth(entry: dict[str, Any], waterdepth: Any) -> float | None:
+    """Return an instrument's design depth below the surface (m).
+
+    Parameters
+    ----------
+    entry : dict
+        The instrument entry of a mooring description.
+    waterdepth : float or None
+        The mooring's water depth (m).
+
+    Returns
+    -------
+    float or None
+        The entry's ``nominal_depth``, else ``waterdepth - hab``; None without either.
+    """
+    if entry.get("nominal_depth") is not None:
+        return float(entry["nominal_depth"])
+    hab = hab_for(entry)
+    if hab is None or waterdepth is None:
+        return None
+    return float(waterdepth) - float(hab)
+
+
 def extract_inline_instruments(
     inline_list: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:

@@ -13,6 +13,7 @@ import xarray as xr
 
 from oceanarray import readers
 from oceanarray.pipeline.coordinate import apply_declination_to_enu
+from oceanarray.pipeline.stage3 import _fill_cf_attrs
 from oceanarray.pipeline.units import UnitsError, to_canonical_units
 from oceanarray.readers import read_oceansites, read_rodb
 
@@ -341,3 +342,15 @@ def test_lowedt_is_tagged_low_passed(tmp_path):
     path.write_text(RODB_EDT.read_text())
     ds = read_rodb(path)
     assert ds.attrs["originator_low_passed"].startswith("2-day low-pass")
+
+
+def test_oceansites_without_standard_name_gets_the_registry_one(tmp_path):
+    """A variable with no standard_name is filled from the registry, not left empty."""
+    path = tmp_path / WHOI_CM.name
+    shutil.copy(WHOI_CM, path)
+    with netCDF4.Dataset(path, "a") as nc:
+        nc["PRES"].delncattr("standard_name")
+    ds = read_oceansites(path)
+    assert "standard_name" not in ds["pressure"].attrs
+    _fill_cf_attrs(ds)
+    assert ds["pressure"].attrs["standard_name"] == "sea_water_pressure"

@@ -192,8 +192,11 @@ def read_oceansites(path: str | Path) -> xr.Dataset:
     for code in found:
         da = _squeeze_non_time(src[code])
         name = OCEANSITES_VARIABLES[code]
-        attrs = {k: v for k, v in da.attrs.items() if k in ("units", "long_name")}
-        attrs["standard_name"] = da.attrs.get("standard_name", "")
+        attrs = {
+            k: v
+            for k, v in da.attrs.items()
+            if k in ("units", "long_name", "standard_name") and v != ""
+        }
         attrs["original_name"] = code
         # The originator's own description of the variable and its sensor, verbatim
         # (stage 1 moves them to the sensor record).

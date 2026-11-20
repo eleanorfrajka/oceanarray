@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from oceanarray import paths
+from oceanarray.plotters.helpers import nominal_depth_text
 
 #: Variables whose presence the summary lists, in this order.
 _SUMMARY_VARS = (
@@ -101,7 +102,7 @@ def _format_instrument_line(
         n_rec = len(ds.time)
         t0 = str(ds.time.values[0])[:16].replace("T", " ")
         t1 = str(ds.time.values[-1])[:16].replace("T", " ")
-        depth = f"{ds['InstrDepth'].item():.0f} m" if "InstrDepth" in ds else "?"
+        depth = nominal_depth_text(ds)
         present = [v for v in _SUMMARY_VARS if v in ds.data_vars]
         if n_rec > 1:
             dt_s = np.median(

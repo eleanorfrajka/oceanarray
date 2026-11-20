@@ -56,7 +56,6 @@ def find_best_dtype(var_name: str, da: xr.DataArray) -> type:
     - String / datetime / timedelta / object variables: unchanged.
     - ``time`` in name: unchanged (preserve datetime64 / float encoding).
     - ``*_qc`` suffix or ``flag`` in name: ``int8``.
-    - ``serial_number`` or ``serial``: ``int32``.
     - ``latitude`` / ``longitude`` in name: ``float64``.
     - Integer input: downsize to ``int32`` if stored as ``int64``, else unchanged.
     - ``float64`` input: ``float32``.
@@ -70,8 +69,6 @@ def find_best_dtype(var_name: str, da: xr.DataArray) -> type:
         return input_dtype
     if var_name.endswith("_qc") or "flag" in var_name:
         return np.int8
-    if var_name in ("serial_number", "serial"):
-        return np.int32
     if is_position(var_name):
         return np.float64
     if da.dtype.kind in ("i", "u") and da.dtype.itemsize == 8:

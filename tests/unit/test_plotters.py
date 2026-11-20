@@ -330,7 +330,7 @@ def test_instrument_rose_draws_suspect_values_in_their_own_rose():
     polar = [ax for ax in fig.axes if ax.name == "polar" and ax.get_visible()]
     titles = [ax.get_title() for ax in polar]
     assert len(polar) == 2 and titles[0].startswith("Good: ")
-    assert titles[1] == "Suspect (oceanarray): 1,087 values"
+    assert titles[1] == "Suspect (oceanarray): 1,127 values"
     assert polar[0].get_ylim() != polar[1].get_ylim()
     plt.close(fig)
 
@@ -346,3 +346,27 @@ def test_instrument_rose_leaves_out_what_the_rule_hides():
     polar = [ax for ax in fig.axes if ax.name == "polar"]
     assert not any(ax.get_visible() for ax in polar)
     plt.close(fig)
+
+
+_OLD_STAGE3 = Path(
+    "tests/fixtures/proc/egM2_concat/egM2_2018/microcat/egM2_2018_13220_stage3.nc"
+)
+
+
+def test_plot_titles_read_files_before_0_6_1():
+    """InstrDepth and serial_number (text or integer) reach the titles and labels."""
+    from oceanarray.config import parameters as params
+    from oceanarray.plotters import _cli_legacy
+    from oceanarray.plotters.helpers import nominal_depth_text, serial_text
+
+    with xr.open_dataset(_OLD_STAGE3) as ds:
+        assert (serial_text(ds), nominal_depth_text(ds)) == ("13220", "1500 m")
+        label = _cli_legacy._instrument_label(_OLD_STAGE3, ds)
+        title = _cli_legacy.draw_microcat_raw(ds).axes[0].get_title()
+    assert label == f"{params.INSTRUMENT_ABBREV['microcat']}13220 1500m"
+    assert title == "MicroCAT s/n: 13220  |  Target depth: 1500 m"
+    old_int = Path(
+        "tests/fixtures/proc/before_sensor_records/dune2_1_2026_2941_stage3.nc"
+    )
+    with xr.open_dataset(old_int) as ds:
+        assert (serial_text(ds), nominal_depth_text(ds)) == ("2941", "320 m")

@@ -15,6 +15,7 @@ import pytest
 import xarray as xr
 
 from oceanarray import mooring as _mooring
+from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
 from oceanarray.pipeline.grid import grid
 from oceanarray.pipeline.read_mooring import read_mooring
@@ -136,3 +137,42 @@ def test_stacker_records_an_unreadable_file_as_omitted(tmp_path):
     with xr.open_dataset(moor / "dune2_1_2026_stack.nc") as ds:
         assert "2941" in ds.attrs["instruments_omitted"]
         assert ds["serial"].values.tolist() == ["9920"]
+
+
+def test_stack_output_metadata(ds_stack):
+    """Serials stay text, depths carry units, positions are numbers, times ISO 8601."""
+    serial = ds_stack["instrument_serial"]
+    assert serial.dtype.kind in "OU"
+    assert serial.values.tolist() == ["9920*", "2941"]
+    assert ds_stack["instrument_depth"].values.tolist() == [745 - 226, 745 - 425]
+    assert ds_stack["instrument_depth"].attrs["units"] == "m"
+    assert ds_stack.attrs["latitude"] == pytest.approx(65 + 43.913 / 60)
+    assert ds_stack.attrs["longitude"] == pytest.approx(-27.8)
+    assert ds_stack.attrs["waterdepth"] == 745.0
+    assert ds_stack.attrs["deployment_time"] == "2026-07-11T20:30:00Z"
+    assert ds_stack["sigma0"].attrs["standard_name"] == "sea_water_sigma_theta"
+    assert ds_stack["current_direction"].attrs["units"] == "degree"
+
+
+def test_stack_accepts_stage_files_before_0_6_1(stage3, cfg):
+    """A stage file with InstrDepth and an integer serial_number stacks under the new names."""
+    old = {}
+    for s, ds in stage3.items():
+        renamed = ds.rename(instrument_depth="InstrDepth")
+        old[s] = renamed.drop_vars("instrument_serial").assign(
+            serial_number=int(s.rstrip("*"))
+        )
+    out = stack(old, cfg, dt_seconds=_DT)
+    assert "InstrDepth" not in out and "serial_number" not in out
+    assert out["instrument_serial"].values.tolist() == ["9920", "2941"]
+    assert out["instrument_depth"].attrs["long_name"] == "nominal instrument depth"
+
+
+@pytest.mark.parametrize(
+    ("ref", "name", "entry"),
+    [(0, "sigma0", "potential_density"), (2000, "sigma2", "sigma2")],
+)
+def test_stack_sigma_attributes_come_from_the_registry(stage3, cfg, ref, name, entry):
+    """σ0 is the registry's potential_density (sea_water_sigma_theta); σ2 has no standard name."""
+    out = stack(stage3, {**cfg, "density_reference": ref}, dt_seconds=_DT)
+    assert out[name].attrs == {**params.cf_attrs(entry), "reference_pressure_dbar": ref}

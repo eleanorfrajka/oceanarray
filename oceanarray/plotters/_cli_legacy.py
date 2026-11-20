@@ -10,6 +10,7 @@ build new code on these functions or add to this module — new plotting belongs
 the three-tier ``plotters/`` package.
 """
 
+import re
 from pathlib import Path
 
 import matplotlib.dates as mdates
@@ -19,6 +20,7 @@ import xarray as xr
 
 from oceanarray import paths
 from oceanarray.config import parameters as params
+from oceanarray.plotters.helpers import nominal_depth_text, serial_text
 
 #: The report style, applied while each figure is drawn and saved (never set
 #: globally, so later figures in the same process are not changed).
@@ -47,13 +49,9 @@ def draw_microcat_raw(ds, save_path=None):
         ax.set_ylabel(label)
     axs[-1].set_xlabel("Time")
 
-    serial = (
-        ds["serial_number"].item()
-        if "serial_number" in ds
-        else ds.attrs.get("serial_number", "?")
+    axs[0].set_title(
+        f"MicroCAT s/n: {serial_text(ds)}  |  Target depth: {nominal_depth_text(ds)}"
     )
-    depth = ds["InstrDepth"].item() if "InstrDepth" in ds else "?"
-    axs[0].set_title(f"MicroCAT s/n: {serial}  |  Target depth: {depth} m")
 
     locator = mdates.AutoDateLocator()
     formatter = mdates.ConciseDateFormatter(locator)
@@ -101,13 +99,9 @@ def draw_aquadopp_raw(ds, save_path=None):
             ax.set_ylim(vmax + pad, vmin - pad)
     axs[-1].set_xlabel("Time")
 
-    serial = (
-        ds["serial_number"].item()
-        if "serial_number" in ds
-        else ds.attrs.get("serial_number", "?")
+    axs[0].set_title(
+        f"Aquadopp s/n: {serial_text(ds)}  |  Target depth: {nominal_depth_text(ds)}"
     )
-    depth = f"{ds['InstrDepth'].item():.0f} m" if "InstrDepth" in ds else "?"
-    axs[0].set_title(f"Aquadopp s/n: {serial}  |  Target depth: {depth}")
 
     locator = mdates.AutoDateLocator()
     axs[-1].xaxis.set_major_locator(locator)
@@ -130,14 +124,10 @@ def _instrument_label(nc_path: Path, ds: xr.Dataset) -> str:
     instrument_dir = nc_path.parent.name
     prefix = params.INSTRUMENT_ABBREV.get(instrument_dir, instrument_dir[:2].upper())
 
-    serial = ds["serial_number"].item() if "serial_number" in ds else "?"
     # Strip trailing non-alphanumeric chars (e.g. * markers in serial strings)
-    import re
-
-    serial = re.sub(r"[^\w]", "", str(serial))
-
-    depth = f"{ds['InstrDepth'].item():.0f}m" if "InstrDepth" in ds else ""
-    return f"{prefix}{serial} {depth}".strip()
+    serial = re.sub(r"[^\w]", "", serial_text(ds))
+    depth = nominal_depth_text(ds).replace(" ", "")
+    return f"{prefix}{serial} {depth if depth != '?' else ''}".strip()
 
 
 @_STYLE

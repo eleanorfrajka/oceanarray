@@ -297,13 +297,6 @@ def _speed_direction(
         "from the gridded east_velocity and north_velocity (each linear in pressure; "
         f"no extrapolation outside {pmin:.0f}–{pmax:.0f} dbar)"
     )
-    defaults = {
-        "current_speed": {"units": "m s-1", "standard_name": "sea_water_speed"},
-        "current_direction": {
-            "units": "degree",
-            "standard_name": "sea_water_velocity_to_direction",
-        },
-    }
     speed, direction = speed_direction(east, north)
     values = {"current_speed": speed, "current_direction": direction}
     return {
@@ -311,7 +304,7 @@ def _speed_direction(
             ("time", "pressure"),
             values[name],
             attrs={
-                **(dict(ds[name].attrs) if name in ds else defaults[name]),
+                **(dict(ds[name].attrs) if name in ds else params.cf_attrs(name)),
                 "vertical_interpolation": note,
             },
         )

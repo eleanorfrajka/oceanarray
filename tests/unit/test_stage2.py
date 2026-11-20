@@ -29,6 +29,24 @@ from oceanarray.pipeline.stage2 import (
 
 pytestmark = pytest.mark.needs_seasenselib
 
+_DUNE2 = Path(__file__).parents[1] / "fixtures" / "proc" / "dune2_1_2026"
+
+
+@pytest.fixture
+def dune2_stage1() -> xr.Dataset:
+    """The committed dune2 MicroCAT 2941 stage-1 file."""
+    with xr.open_dataset(_DUNE2 / "microcat" / "dune2_1_2026_2941_stage1.nc") as ds:
+        return ds.load()
+
+
+@pytest.fixture
+def dune2_entry() -> dict:
+    """The description entry of MicroCAT 2941."""
+    from oceanarray import mooring
+
+    cfg = mooring.load(_DUNE2 / "dune2_1_2026.mooring.yaml")
+    return next(e for e in cfg["clamp"] if str(e["serial"]) == "2941")
+
 
 class TestStage2Processor:
     """Test cases for Stage2Processor class."""
@@ -81,9 +99,9 @@ class TestStage2Processor:
         ds = xr.Dataset(data, coords={"time": time_range})
 
         ds.attrs["mooring_name"] = "test_mooring"
-        ds["serial_number"] = 7518
+        ds["instrument_serial"] = "7518"
         ds["instrument"] = "microcat"
-        ds["InstrDepth"] = 100
+        ds["instrument_depth"] = 100.0
 
         return ds
 
@@ -233,47 +251,45 @@ class TestStage2Processor:
 
         assert len(result.time) == 0
 
-    def test_add_missing_metadata(self, sample_raw_dataset):
-        """Metadata scalar variables are added from the description entry when absent."""
-        ds = sample_raw_dataset.copy()
-        ds = ds.drop_vars(["InstrDepth", "instrument", "serial_number"])
+    def test_add_missing_metadata(self, dune2_stage1, dune2_entry):
+        """The identity scalars are added from the description entry when absent."""
+        ds = dune2_stage1.drop_vars(["instrument_depth", "instrument_serial"])
+        result = _add_missing_metadata(ds, dune2_entry)
 
-        instrument_config = {"depth": 150, "instrument": "new_microcat", "serial": 9999}
-        result = _add_missing_metadata(ds, instrument_config)
+        assert result["instrument_serial"].values == "2941"
+        assert result["instrument_depth"].values == 745 - 425  # waterdepth - hab
+        assert result["instrument_depth"].attrs["units"] == "m"
 
-        assert result["InstrDepth"].values == 150
-        assert result["instrument"].values == "new_microcat"
-        assert result["serial_number"].values == 9999
+    def test_add_missing_metadata_prefers_nominal_depth(
+        self, dune2_stage1, dune2_entry
+    ):
+        """A nominal_depth in the entry wins over waterdepth - hab; YAML depth is not read."""
+        ds = dune2_stage1.drop_vars(["instrument_depth"])
+        entry = {**dune2_entry, "nominal_depth": 318, "depth": 999}
+        assert _add_missing_metadata(ds, entry)["instrument_depth"].values == 318
 
-    def test_add_missing_metadata_no_overwrite(self, sample_raw_dataset):
-        """Existing metadata variables are not overwritten."""
-        instrument_config = {
-            "depth": 999,
-            "instrument": "different_instrument",
-            "serial": 8888,
-        }
-        result = _add_missing_metadata(sample_raw_dataset, instrument_config)
+    def test_add_missing_metadata_no_overwrite(self, dune2_stage1, dune2_entry):
+        """Existing identity scalars are not overwritten."""
+        entry = {**dune2_entry, "hab": 0, "instrument": "different_instrument"}
+        result = _add_missing_metadata(dune2_stage1, entry)
 
-        assert result["InstrDepth"].values == 100
+        assert result["instrument_depth"].values == 320
         assert result["instrument"].values == "microcat"
-        assert result["serial_number"].values == 7518
 
-    def test_add_missing_metadata_depth_default(self):
-        """A missing depth defaults InstrDepth to 0; identity comes from read_mooring.
+    def test_add_missing_metadata_renames_old_names(self, dune2_stage1, dune2_entry):
+        """A stage-1 file before 0.6.1 (InstrDepth, integer serial_number) gets the new names."""
+        old = dune2_stage1.drop_vars(["instrument_depth", "instrument_serial"])
+        old = old.assign(InstrDepth=320, serial_number=2941)
+        result = _add_missing_metadata(old, dune2_entry)
 
-        The old filepath-fallback (instrument/serial inferred from the filename) is
-        gone — ``read_mooring`` joins the file with its description instead.
-        """
-        ds = xr.Dataset(
-            {"temperature": (["time"], np.random.random(10))},
-            coords={"time": pd.date_range("2018-01-01", periods=10, freq="h")},
-        )
-        result = _add_missing_metadata(ds, {"instrument": "microcat", "serial": 7518})
+        assert "InstrDepth" not in result and "serial_number" not in result
+        assert result["instrument_serial"].values == "2941"
 
-        assert result["instrument"].values == "microcat"
-        assert result["serial_number"].values == 7518
-        assert result["InstrDepth"].values == 0
-        assert "history" not in result.attrs
+    def test_add_missing_metadata_without_a_depth(self, dune2_stage1, dune2_entry):
+        """An entry with neither nominal_depth nor hab writes no instrument_depth."""
+        ds = dune2_stage1.drop_vars(["instrument_depth"])
+        entry = {k: v for k, v in dune2_entry.items() if k != "hab"}
+        assert "instrument_depth" not in _add_missing_metadata(ds, entry)
 
     def test_clean_unnecessary_variables(self, sample_raw_dataset):
         """Test removal of unnecessary variables."""

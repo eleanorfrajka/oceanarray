@@ -150,3 +150,16 @@ class TestIsKnownInstrumentType:
 
     def test_unknown_type_is_rejected(self):
         assert not params.is_known_instrument_type("xbt")
+
+
+def test_valid_limits_only_where_a_physical_limit_is_known():
+    """valid_min / valid_max come from the OceanSITES table, never the QC gross range."""
+    limited = {v for v, e in params.VARIABLES.items() if "valid_min" in e}
+    assert limited == {
+        "temperature",
+        "conservative_temperature",
+        "potential_temperature",
+        "conductivity",
+        "pressure",
+        "depth",
+    }

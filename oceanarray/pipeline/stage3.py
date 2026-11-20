@@ -366,20 +366,10 @@ def _format_qc_summary(ds: xr.Dataset) -> list[str]:
 
 def _fill_cf_attrs(ds: xr.Dataset) -> None:
     """Fill missing CF attributes from the registry and normalize QC attributes."""
-    for vname, entry in params.VARIABLES.items():
-        if vname not in ds.data_vars:
-            continue
-        vattrs = ds[vname].attrs
-        if "standard_name" not in vattrs and entry.get("standard_name"):
-            vattrs["standard_name"] = entry["standard_name"]
-        if "long_name" not in vattrs and entry.get("label"):
-            vattrs["long_name"] = entry["label"]
-        if "units" not in vattrs and entry.get("units"):
-            vattrs["units"] = entry["units"]
-        if "valid_min" not in vattrs and "valid_min" in entry:
-            vattrs["valid_min"] = entry["valid_min"]
-        if "valid_max" not in vattrs and "valid_max" in entry:
-            vattrs["valid_max"] = entry["valid_max"]
+    for vname in params.VARIABLES:
+        if vname in ds.data_vars:
+            for key, value in params.cf_attrs(vname).items():
+                ds[vname].attrs.setdefault(key, value)
     # After the CF pass, so each parent's standard_name is available. *_orig_qc (the
     # pre-interpolation flag) is skipped here: interpolate_pressure sets its flag attrs.
     for qv in [
@@ -515,12 +505,8 @@ def _stage3_instrument(
         ds = unify_velocity_qc(ds)
 
     if ds.attrs.get("coordinate_system") == "ENU" and coord_sys_before != "ENU":
-        beam_angle = ds.attrs.get("nortek_beam_angle", "?")
-        assumed = "ASSUMED DEFAULT" in ds.attrs.get("nortek_beam_angle_source", "")
         history_notes.append(
-            f"BEAM→ENU rotation applied: "
-            f"beam_angle={beam_angle}° "
-            f"({'ASSUMED DEFAULT — not from datasheet' if assumed else 'from YAML'}), "
+            f"BEAM→ENU rotation applied ({ds.attrs['coordinate_system_source']}), "
             + _declination_clause(ds.attrs.get("magnetic_declination"))
         )
     elif ds.attrs.get("magnetic_declination") == "UNK":

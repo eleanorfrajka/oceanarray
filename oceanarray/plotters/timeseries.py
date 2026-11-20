@@ -769,7 +769,7 @@ def draw_grid_timeseries(
 
     # Panel 0: speed
     axs[0].plot(time_vals, spd_ts, color="k", linewidth=0.8)
-    axs[0].set_ylabel(params.vlabel("speed"))
+    axs[0].set_ylabel(params.vlabel("current_speed"))
     axs[0].set_ylim(bottom=0)
 
     # Panel 1: east and north on the same axes

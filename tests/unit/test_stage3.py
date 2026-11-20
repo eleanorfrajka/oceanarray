@@ -345,3 +345,25 @@ def test_declination_skipped_if_no_velocity():
     )
     result = _apply_declination_to_enu(ds, lat=55.0, lon=-20.0)
     assert "magnetic_declination" not in result.attrs
+
+
+def test_fill_cf_attrs_keeps_what_a_variable_has():
+    """The registry fills what a variable lacks and never overwrites what it has."""
+    from pathlib import Path
+
+    from oceanarray.config import parameters as params
+    from oceanarray.pipeline.stage3 import _fill_cf_attrs
+
+    path = Path("tests/fixtures/proc/dune2_1_2026/microcat/dune2_1_2026_2941_stage3.nc")
+    with xr.open_dataset(path) as f:
+        ds = f.load()
+    ds["temperature"].attrs = {"long_name": "originator's temperature"}
+    ds["salinity"].attrs = {}
+    _fill_cf_attrs(ds)
+    assert ds["temperature"].attrs == {
+        **params.cf_attrs("temperature"),
+        "long_name": "originator's temperature",
+    }
+    assert ds["temperature"].attrs["valid_min"] == -5.0
+    assert ds["salinity"].attrs == params.cf_attrs("salinity")
+    assert "valid_min" not in ds["salinity"].attrs  # no physical limit known

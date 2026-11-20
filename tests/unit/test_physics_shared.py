@@ -200,3 +200,30 @@ def test_report_and_pipeline_use_the_same_helpers() -> None:
         t = ds["temperature"].values.astype(float)
     with pytest.raises(ValueError, match="1500 dbar"):
         physics.potential_density_anomaly(s, t, 1500)
+
+
+@pytest.mark.parametrize(
+    "path, rdi",
+    [
+        (_FIX / "adcp" / "dsG2_adcp_stage3_knockdown.nc", True),
+        (_DUNE2 / "aquadopp" / "dune2_1_2026_9920_stage2.nc", False),
+    ],
+)
+def test_instrument_tilt_is_the_report_panel_tilt(
+    path: pathlib.Path, rdi: bool
+) -> None:
+    """RDI pitch is converted to true pitch; Nortek pitch is used as recorded."""
+    from oceanarray.reports._plots import _add_tilt
+
+    with xr.open_dataset(path, decode_timedelta=False) as src:
+        ds = src[["pitch", "roll"]].load()
+        ds.attrs = dict(src.attrs)
+    pitch, roll = ds["pitch"].values.astype(float), ds["roll"].values.astype(float)
+    if rdi:
+        pitch = np.degrees(
+            np.arctan(np.tan(np.radians(pitch)) * np.cos(np.radians(roll)))
+        )
+    got = physics.instrument_tilt(ds)
+
+    np.testing.assert_array_equal(got, physics.tilt(pitch, roll))
+    np.testing.assert_array_equal(_add_tilt(ds)["tilt"].values, got)

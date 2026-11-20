@@ -20,11 +20,12 @@ from oceanarray import mooring as _mooring
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
 from oceanarray.instruments import extract_inline_instruments, instrument_entries
+from oceanarray.location import parse_coordinate
 from oceanarray.logger import with_stage_handlers
 from oceanarray.paths import safe_serial, should_skip_regeneration
 from oceanarray.pipeline import _stage, attribution, sensors
 from oceanarray.pipeline.raw_files import read_raw_file, resolve_raw_file
-from oceanarray.pipeline.read_mooring import join_raw
+from oceanarray.pipeline.read_mooring import header_attrs, join_raw
 from oceanarray.pipeline.units import UnitsError, to_canonical_units
 from oceanarray.writers import write
 from oceanarray.writers.netcdf import as_stored
@@ -231,24 +232,36 @@ def _drop_file_type_variables(dataset: xr.Dataset, file_type: str) -> xr.Dataset
 def _add_global_attributes(
     dataset: xr.Dataset, yaml_data: dict[str, Any]
 ) -> xr.Dataset:
-    """Add global attributes from YAML configuration."""
-    global_attrs = {
-        "mooring_name": yaml_data["name"],
-        "waterdepth": yaml_data["waterdepth"],
-        "longitude": yaml_data.get("longitude", 0.0),
-        "latitude": yaml_data.get("latitude", 0.0),
-        "deployment_latitude": yaml_data.get("deployment_latitude", "00 00.000 N"),
-        "deployment_longitude": yaml_data.get("deployment_longitude", "000 00.000 W"),
-        "deployment_time": yaml_data.get("deployment_time", "YYYY-mm-ddTHH:MM:ss"),
-        "seabed_latitude": yaml_data.get("seabed_latitude", "00 00.000 N"),
-        "seabed_longitude": yaml_data.get("seabed_longitude", "000 00.000 W"),
-        "recovery_time": yaml_data.get("recovery_time", "YYYY-mm-ddTHH:MM:ss"),
-    }
+    """Set the description's name, position, water depth and deployment window.
 
-    for attr, value in global_attrs.items():
-        dataset.attrs[attr] = value
-
+    They replace any an imported file carries. Positions are decimal degrees, the
+    deployment and seabed positions only when the description gives them.
+    """
+    header = header_attrs(yaml_data, warn=False)
+    for key in _HEADER_ATTRS:
+        if key in header:
+            dataset.attrs[key] = header[key]
+    for key in (
+        "deployment_latitude",
+        "deployment_longitude",
+        "seabed_latitude",
+        "seabed_longitude",
+    ):
+        value = parse_coordinate(yaml_data.get(key))
+        if value is not None:
+            dataset.attrs[key] = value
     return dataset
+
+
+#: The description's header attributes stage 1 writes over an imported file's own.
+_HEADER_ATTRS = (
+    "mooring_name",
+    "waterdepth",
+    "latitude",
+    "longitude",
+    "deployment_time",
+    "recovery_time",
+)
 
 
 def _add_sources(dataset: xr.Dataset, yaml_data: dict[str, Any]) -> xr.Dataset:
@@ -274,17 +287,10 @@ def _add_instrument_metadata(
     instrument_config: dict[str, Any],
     yaml_data: dict[str, Any],
 ) -> xr.Dataset:
-    """Add instrument-specific metadata to dataset."""
-    dataset["serial_number"] = instrument_config.get("serial", 0)
-    # Support both 'depth' (absolute) and 'hab' (height above bottom)
-    if "depth" in instrument_config:
-        depth = instrument_config["depth"]
-    elif "hab" in instrument_config:
-        waterdepth = yaml_data.get("waterdepth") or 0
-        depth = waterdepth - instrument_config["hab"]
-    else:
-        depth = 0
-    dataset["InstrDepth"] = depth
+    """Add the instrument's identity, clock offset and record window scalars."""
+    dataset = dataset.assign(
+        _stage.identity_variables(instrument_config, yaml_data.get("waterdepth"))
+    )
     dataset["instrument"] = instrument_config.get("instrument", "Unknown")
     dataset["clock_offset"] = instrument_config.get("clock_offset", 0)
     dataset["clock_offset"].attrs["units"] = "s"
@@ -294,7 +300,6 @@ def _add_instrument_metadata(
     dataset["end_time"] = instrument_config.get(
         "end_time", dataset.attrs["recovery_time"]
     )
-
     return dataset
 
 

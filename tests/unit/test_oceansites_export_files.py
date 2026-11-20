@@ -99,6 +99,9 @@ def test_required_globals_present(stage3: xr.Dataset, description: dict) -> None
     assert out.attrs["format_version"] == "1.4"
     assert "OceanSITES-1.4" in out.attrs["Conventions"]
     assert out.attrs["time_coverage_start"].endswith("Z")
+    # From the time axis: the MicroCAT samples every 60 s, the Aquadopp every 120 s.
+    step = {"2941": "PT1M", "9920": "PT2M"}[stage3.attrs["serial"]]
+    assert out.attrs["time_coverage_resolution"] == step
 
 
 def test_site_code_only_from_the_array_description(description: dict) -> None:
@@ -305,3 +308,12 @@ def test_adcp_flags_bin_pressure_from_the_transducer_and_seabed_on_velocity() ->
     assert (ucur_qc[has_value, -1] == 4).all()
     # A passed seabed test leaves the (unchecked, 0) velocity flags as they were.
     assert set(np.unique(ucur_qc[:, 0])) <= {0, 9}
+
+
+def test_depth_of_a_stage3_file_before_0_6_1(description: dict) -> None:
+    """A file with InstrDepth exports at that depth, without falling back to the HAB."""
+    with xr.open_dataset(_PROC.parent / "before_sensor_records" / _MICROCAT.name) as f:
+        old = f.load()
+    del old.attrs["hab"]
+    out = to_oceansites(old, description)
+    assert out["DEPTH"].values.tolist() == [320.0]

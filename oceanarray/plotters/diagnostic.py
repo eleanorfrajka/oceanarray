@@ -51,6 +51,7 @@ from .helpers import (
     distinct_line_styles,
     grid_despine,
     marker_flags,
+    serial_text,
 )
 from .primitives import (
     date_offset_left,
@@ -1206,14 +1207,9 @@ def draw_windows(
                 plot_title(ax_l, f"First {hours} h")
                 plot_title(ax_r, f"Last {hours} h")
 
-        serial = (
-            ds["serial_number"].item()
-            if "serial_number" in ds
-            else ds.attrs.get("serial_number", "?")
-        )
         figure_title(
             fig,
-            f"{title or f'{instr_type.title()} {serial}'} · start and end of the record",
+            f"{title or f'{instr_type.title()} {serial_text(ds)}'} · start and end of the record",
         )
         return fig
     finally:

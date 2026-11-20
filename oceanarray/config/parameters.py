@@ -543,7 +543,7 @@ ALL_FILE_TYPES: frozenset = frozenset(
 #:     CF ``valid_min`` / ``valid_max`` attributes written to NetCDF output
 #:     (physically valid range).  Present only where
 #:     :file:`legacy/OS1_variable_attributes.yaml` provides an authoritative value;
-#:     absent for other variables.
+#:     absent for other variables (:data:`QC_GROSS_RANGE` is for flagging only).
 VARIABLES: dict[str, dict] = {
     "temperature": {
         "label": "Temperature",
@@ -613,6 +613,16 @@ VARIABLES: dict[str, dict] = {
         "standard_name": "sea_water_sigma_theta",
         "cmap": "BuPu",
     },
+    # σ at 1000–4000 dbar (the stack's sigma1 … sigma4); CF has no standard name.
+    **{
+        f"sigma{n}": {
+            "label": f"σ{sub}",
+            "units": "kg m-3",
+            "standard_name": None,
+            "cmap": None,
+        }
+        for n, sub in zip((1, 2, 3, 4), "₁₂₃₄", strict=True)
+    },
     "u": {
         "label": "Eastward velocity",
         "units": "m s-1",
@@ -649,8 +659,8 @@ VARIABLES: dict[str, dict] = {
         "standard_name": "upward_sea_water_velocity",
         "cmap": "RdBu_r",
     },
-    "speed": {
-        "label": "Speed",
+    "current_speed": {
+        "label": "Current speed",
         "units": "m s-1",
         "standard_name": "sea_water_speed",
         "cmap": "plasma",
@@ -762,6 +772,29 @@ VARIABLES: dict[str, dict] = {
     },
 }
 
+
+def cf_attrs(var: str) -> dict[str, str | float]:
+    """Return the CF attributes of *var* from :data:`VARIABLES`.
+
+    Parameters
+    ----------
+    var : str
+        A registered variable name.
+
+    Returns
+    -------
+    dict of str to str or float
+        ``units``, ``long_name``, and ``standard_name``, ``valid_min`` and
+        ``valid_max`` where the registry gives them.
+    """
+    entry = VARIABLES[var]
+    attrs = {"units": entry["units"], "long_name": entry["label"]}
+    if entry.get("standard_name"):
+        attrs["standard_name"] = entry["standard_name"]
+    attrs.update({k: entry[k] for k in ("valid_min", "valid_max") if k in entry})
+    return attrs
+
+
 #: Colormap lookup derived from :data:`VARIABLES` — single source of truth so
 #: the two cannot drift.  Excludes entries where ``cmap`` is ``None``.
 CMAPS_BY_VARIABLE: dict[str, str] = {
@@ -822,7 +855,7 @@ VAR_COLORS: dict[str, str] = {
     "v": "#0072B2",
     "up_velocity": "#CC79A7",  # reddish purple (W)
     "w": "#CC79A7",
-    "speed": "#D55E00",
+    "current_speed": "#D55E00",
     # Biogeochemistry — Paul Tol
     "dissolved_oxygen": "#332288",  # indigo
     "dissolved_oxygen_2": "#332288",
