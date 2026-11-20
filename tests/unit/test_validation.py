@@ -28,7 +28,7 @@ _VALID_MINIMAL = {
         {
             "instrument": "microcat",
             "serial": 7518,
-            "depth": 100,
+            "nominal_depth": 100,
             "filename": "test_data.cnv",
             "file_type": "sbe-cnv",
         }
@@ -225,7 +225,7 @@ def test_validate_no_filename_is_warning(tmp_path):
     """Instrument without filename → WARNING (not staged), not ERROR."""
     data = dict(_VALID_MINIMAL)
     data["instruments"] = [
-        {"instrument": "microcat", "serial": 7518, "depth": 100}
+        {"instrument": "microcat", "serial": 7518, "nominal_depth": 100}
         # no filename
     ]
     path = _write_yaml(tmp_path, data)
@@ -548,3 +548,25 @@ def test_wildcard_filename_only_for_rodb_adcp_bins(
     )
     errs = [e for e in _errors(mooring.check(cfg)) if "wildcard" in e.message]
     assert len(errs) == n_errors
+
+
+def _dune2_with_depth_key(tmp_path, *, drop_hab=False):
+    """The dune2 fixture YAML with ``depth:`` added to 2941 (and its hab dropped)."""
+    text = _DUNE2_YAML.read_text().replace(
+        "- serial: 2941\n", "- serial: 2941\n  depth: 320\n", 1
+    )
+    if drop_hab:
+        text = text.replace("  hab: 425\n", "", 1)
+    d = tmp_path / "dune2_1_2026"
+    d.mkdir()
+    path = d / _DUNE2_YAML.name
+    path.write_text(text)
+    return path
+
+
+@pytest.mark.parametrize(("drop_hab", "level"), [(False, "WARNING"), (True, "ERROR")])
+def test_depth_key_is_not_read(tmp_path, drop_hab, level):
+    """depth: warns; with neither nominal_depth nor hab it is an error."""
+    issues = mooring.check(_dune2_with_depth_key(tmp_path, drop_hab=drop_hab))
+    found = [i for i in issues if "depth is not read" in i.message]
+    assert [(i.level, "2941" in i.message) for i in found] == [(level, True)]

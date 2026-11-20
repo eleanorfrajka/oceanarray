@@ -7,6 +7,7 @@ and when the Aquadopp sits in the legacy ``nortek/`` folder.
 """
 
 import copy
+import logging
 import shutil
 import warnings
 from pathlib import Path
@@ -258,3 +259,18 @@ def test_stage1_records_records_dropped_for_missing_time(tmp_path):
     written = xr.open_dataset(write(out, tmp_path / "stage1.nc"), engine="netcdf4")
     assert int(written.attrs["n_records_without_time"]) == 1
     written.close()
+
+
+def test_stage1_warns_once_on_an_unread_depth_key(caplog):
+    """An entry's depth: key is not read; stage 1 says so once for the instrument."""
+    cfg = copy.deepcopy(_mooring.load(_YAML))
+    cfg["clamp"][0]["depth"] = 320
+    datasets = read_mooring(cfg, stage=None, raw_dir=_RAW, serials=["2941"])
+    with (
+        caplog.at_level(logging.WARNING, logger="oceanarray"),
+        warnings.catch_warnings(),
+    ):
+        warnings.simplefilter("ignore")
+        stage1(datasets, cfg)
+    msgs = [r.message for r in caplog.records if "depth is not read" in r.message]
+    assert len(msgs) == 1 and "2941" in msgs[0]

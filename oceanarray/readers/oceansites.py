@@ -250,7 +250,8 @@ def _add_bin_geometry(
     Raises
     ------
     ValueError
-        If the file has no bin depths, or its stated orientation contradicts them.
+        If the file has no bin depths, no head depth to place them from, no bin
+        with a depth, or a stated orientation that contradicts them.
     """
     from oceanarray.pipeline.pressure import (
         ORIGINATOR_BIN_PRESSURE_ATTRS,
@@ -261,6 +262,8 @@ def _add_bin_geometry(
 
     lat = float(np.ravel(src["LATITUDE"].values)[0])
     head = float(np.ravel(src["INSTRDEPTH"].values)[0]) if "INSTRDEPTH" in src else None
+    if head is not None and not np.isfinite(head):
+        head = None  # INSTRDEPTH at its fill value
     depth_var = next(
         (v for v in ("DEPTH", prof) if v in src and src[v].dims == ("TIME", prof)),
         None,
@@ -294,12 +297,19 @@ def _add_bin_geometry(
                 "placed relative to the instrument. Give the file one of them."
             )
         offset = bin_depth - head
-    elif prof in src and src[prof].ndim == 1 and head is not None:
+    elif prof in src and src[prof].ndim == 1:
+        if head is None:
+            raise ValueError(
+                f"{name}: no INSTRDEPTH; the bins on {prof} cannot be placed "
+                "relative to the instrument. Give the file one."
+            )
         offset = src[prof].values.astype(float) - head
     else:
         raise ValueError(f"{name}: no bin depths on {prof}; cannot place the bins")
 
     geometry, rng = originator_bin_geometry(offset)
+    if not np.isfinite(rng).any():
+        raise ValueError(f"{name}: no bin has a depth; cannot place the bins")
     stated = _ORIENTATION.get(str(src["UCUR"].attrs.get("sensor_orientation", "")))
     if stated and stated != geometry:
         raise ValueError(

@@ -183,6 +183,71 @@ per instrument in the mooring YAML — see `Configuration`_ below.
      - 0.0 to 150.0
      - > 200 % implies bubble entrainment or sensor fault
 
+**Physical limits** (``valid_min`` / ``valid_max`` on the variable) — gross-range limits
+flag a value (3 or 4) and keep it; ``valid_min`` / ``valid_max`` declare a physical
+limit, and CF-aware readers (e.g. netCDF4-python) read values outside it as missing. A
+variable not listed carries neither:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 14 14 16 26
+
+   * - Variable
+     - valid_min
+     - valid_max
+     - Units
+     - Source
+   * - ``temperature``
+     - −5.0
+     - 42.0
+     - ``degree_Celsius``
+     - OceanSITES table (TEMP)
+   * - ``conservative_temperature``
+     - −5.0
+     - 42.0
+     - ``degree_Celsius``
+     - as temperature
+   * - ``potential_temperature``
+     - −5.0
+     - 42.0
+     - ``degree_Celsius``
+     - as temperature
+   * - ``conductivity``
+     - 0.0
+     - 80.0
+     - ``mS cm-1``
+     - OceanSITES table (CNDC)
+   * - ``salinity``
+     - 0.0
+     - 42.0
+     - ``1``
+     - TEOS-10 / GSW range
+   * - ``pressure``
+     - 0.0
+     - 11000.0
+     - ``dbar``
+     - OceanSITES table (PRES)
+   * - ``depth``
+     - 0.0
+     - 12000.0
+     - ``m``
+     - OceanSITES table (DEPTH)
+   * - ``east_velocity``
+     - −10.0
+     - 10.0
+     - ``m s-1``
+     - physical bound on ocean currents
+   * - ``north_velocity``
+     - −10.0
+     - 10.0
+     - ``m s-1``
+     - physical bound on ocean currents
+   * - ``up_velocity``
+     - −10.0
+     - 10.0
+     - ``m s-1``
+     - physical bound on ocean currents
+
 **Spike test** — point *n* is spiked when ``|x[n] − (x[n-1]+x[n+1])/2|`` exceeds the threshold → flag 3:
 
 .. list-table::

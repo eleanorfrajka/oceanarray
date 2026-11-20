@@ -366,4 +366,3 @@ def test_fill_cf_attrs_keeps_what_a_variable_has():
     }
     assert ds["temperature"].attrs["valid_min"] == -5.0
     assert ds["salinity"].attrs == params.cf_attrs("salinity")
-    assert "valid_min" not in ds["salinity"].attrs  # no physical limit known

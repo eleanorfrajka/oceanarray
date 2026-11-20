@@ -122,6 +122,24 @@ class ValidationIssue(NamedTuple):
     message: str
 
 
+def check_depth_key(entry: dict) -> ValidationIssue | None:
+    """Return the issue for an instrument entry's ``depth:`` key, which is not read.
+
+    A WARNING when the entry also gives ``nominal_depth`` or a HAB, else an ERROR
+    (the instrument then has no depth); None without ``depth:``.
+    """
+    if "depth" not in entry:
+        return None
+    level = (
+        "WARNING"
+        if entry.get("nominal_depth") is not None or hab_for(entry) is not None
+        else "ERROR"
+    )
+    return ValidationIssue(
+        level, "depth is not read; give nominal_depth (m, positive down) or hab"
+    )
+
+
 def check_serials(entries: list[dict]) -> list[ValidationIssue]:
     """Return ERRORs for serials whose output files would silently overwrite.
 
@@ -240,6 +258,8 @@ def validate_mooring(
     - Instruments without ``filename`` are flagged as warnings (not yet staged)
     - Stacked instruments with a ``filename`` (not ``skip``, not ``stack: false``)
       and no ``hab`` are flagged as warnings (the stack omits them)
+    - A ``depth`` key, which is not read, is a warning, or an error without
+      ``nominal_depth`` or ``hab``
 
     Parameters
     ----------
@@ -511,6 +531,12 @@ def validate_mooring(
                         f"will omit it; set hab, or stack: false",
                     )
                 )
+
+        depth_issue = check_depth_key(entry)
+        if depth_issue is not None:
+            issues.append(
+                depth_issue._replace(message=f"{prefix} {depth_issue.message}")
+            )
 
         # Clock correction field checks
         has_comp = "computer_clock_at_recovery" in entry

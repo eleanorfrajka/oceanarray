@@ -466,11 +466,30 @@ def test_oceansites_heading_unit_correction_keeps_the_file_s_word(tmp_path):
     assert rest.get("standard_name") == ref.get("standard_name")
 
 
-def test_oceansites_profile_with_no_head_depth_is_refused(tmp_path):
+@pytest.mark.parametrize("instrdepth", ["dropped", "fill"])
+def test_oceansites_profile_with_no_head_depth_is_refused(tmp_path, instrdepth):
+    """No PREST and an INSTRDEPTH absent or at its fill: refused, not zero bins."""
     path = tmp_path / "no_head.nc"
-    with xr.open_dataset(WHOI_ADCP) as src:
-        src.drop_vars(["PREST", "INSTRDEPTH"]).to_netcdf(path)
+    with xr.open_dataset(WHOI_ADCP, decode_cf=False) as src:
+        src = src.load().drop_vars("PREST")
+    if instrdepth == "dropped":
+        src = src.drop_vars("INSTRDEPTH")
+    else:
+        fill = np.float32(99999.0)
+        src["INSTRDEPTH"] = src["INSTRDEPTH"].copy(data=[fill])
+        src["INSTRDEPTH"].encoding["_FillValue"] = fill
+    src.to_netcdf(path)
     with pytest.raises(ValueError, match="no head pressure"):
+        read_oceansites(path)
+
+
+def test_oceansites_profile_with_no_bin_depth_is_refused(tmp_path):
+    """Every bin depth at its fill: refused, not an ADCP with zero bins."""
+    path = tmp_path / "no_bins.nc"
+    shutil.copy(WHOI_ADCP, path)
+    with netCDF4.Dataset(path, "a") as nc:
+        nc["DEPTH"][:] = nc["DEPTH"]._FillValue
+    with pytest.raises(ValueError, match="no bin has a depth"):
         read_oceansites(path)
 
 

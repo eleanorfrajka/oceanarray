@@ -546,9 +546,9 @@ ALL_FILE_TYPES: frozenset = frozenset(
 #:     without a natural diverging / sequential convention.
 #: ``valid_min`` / ``valid_max``
 #:     CF ``valid_min`` / ``valid_max`` attributes written to NetCDF output
-#:     (physically valid range).  Present only where
-#:     :file:`legacy/OS1_variable_attributes.yaml` provides an authoritative value;
-#:     absent for other variables (:data:`QC_GROSS_RANGE` is for flagging only).
+#:     (physically valid range).  Present only where a physical limit is known,
+#:     with its source in a comment; absent for other variables
+#:     (:data:`QC_GROSS_RANGE` is for flagging only).
 VARIABLES: dict[str, dict] = {
     "temperature": {
         "label": "Temperature",
@@ -587,6 +587,8 @@ VARIABLES: dict[str, dict] = {
         "units": "1",  # PSS-78 is dimensionless per CF
         "standard_name": "sea_water_practical_salinity",
         "cmap": "YlGnBu_r",
+        "valid_min": 0.0,  # the TEOS-10 / GSW range
+        "valid_max": 42.0,
     },
     "absolute_salinity": {
         "label": "Absolute salinity",
@@ -651,18 +653,24 @@ VARIABLES: dict[str, dict] = {
         "units": "m s-1",
         "standard_name": "eastward_sea_water_velocity",
         "cmap": "RdBu_r",
+        "valid_min": -10.0,  # physical bound on ocean currents, instrument-independent
+        "valid_max": 10.0,
     },
     "north_velocity": {
         "label": "Northward velocity",
         "units": "m s-1",
         "standard_name": "northward_sea_water_velocity",
         "cmap": "RdBu_r",
+        "valid_min": -10.0,  # physical bound on ocean currents, instrument-independent
+        "valid_max": 10.0,
     },
     "up_velocity": {
         "label": "Upward velocity",
         "units": "m s-1",
         "standard_name": "upward_sea_water_velocity",
         "cmap": "RdBu_r",
+        "valid_min": -10.0,  # physical bound on ocean currents, instrument-independent
+        "valid_max": 10.0,
     },
     "error_velocity": {
         # ADCP error velocity; registered so imported cm/s values are converted.

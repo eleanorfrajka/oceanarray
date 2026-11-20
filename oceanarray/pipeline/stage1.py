@@ -18,6 +18,7 @@ import xarray as xr
 from oceanarray import catalog, logger, paths
 from oceanarray import mooring as _mooring
 from oceanarray.config import parameters as params
+from oceanarray.config.validation import check_depth_key
 from oceanarray.exceptions import MooringError
 from oceanarray.instruments import extract_inline_instruments, instrument_entries
 from oceanarray.location import parse_coordinate
@@ -648,6 +649,9 @@ def _stage1_instrument(
 ) -> xr.Dataset:
     """Apply stage 1's transforms to one instrument's raw dataset, in the order they run."""
     file_type = dataset.attrs.get("file_type") or entry.get("file_type", "")
+    depth_issue = check_depth_key(entry)
+    if depth_issue is not None:
+        log.warning(f"  [serial {entry.get('serial')}] {depth_issue.message}")
 
     if file_type == "rdi-raw":
         dataset = _to_canonical_rdi(dataset, entry)

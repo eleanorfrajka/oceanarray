@@ -1,146 +1,50 @@
 # Changelog
 
-All notable changes to oceanarray are documented here, one line per change. Upgrading from 0.5: see
-*Upgrading from 0.5 to 0.6* in the docs (`migrating_0_6_0`).
+All notable changes to oceanarray are documented here, one line per change. Upgrading: see
+*Upgrading from 0.6.0 to 0.6.1* (`migrating_0_6_1`) and *Upgrading from 0.5 to 0.6* (`migrating_0_6_0`) in the docs.
 
 ---
 
 ## [Unreleased]
 
+---
+
+## [0.6.1] — 2026-11-20
+
 ### Added
 
-- `file_type: oceansites` reads originator ADCP profiles (`TIME × BINDEPTH`) as one ADCP on `(time, N_BINS)`, keeping the originator's bin pressures.
-- `file_type: rodb` reads an ADCP's per-bin `.edt` files from one `filename: <name>_bin*.edt` pattern as one ADCP, rows named by the originator's bin numbers; `-3276.8` is a fill.
-- OceanSITES positions (`BINDEPTH`, `DEPTH`, `PRES`, `INSTRDEPTH`) outside the file's valid range read as missing; other values are kept; both counted in `history`.
-- A wildcard `filename` matching several files is refused except for `file_type: rodb` per-bin ADCP files.
-- Year page "OSNAP East 2016": header with moorings per array, deployed and recovered dates with cruises and ships, instruments by function; one moorings table with "14 of 15" instruments.
-- Year page: moorings grouped by `subarray:` in the array YAML, named in a `subarrays:` table (full name in the table, short name in the map legend).
-- `report --array --bathymetry FILE` / `oa.report(kind="array", bathymetry=)`: 500–2500 m contours on the year page's map from a GEBCO or ETOPO file, named from its title.
-- Grid cat: velocity rotated to the record-mean flow at page time, or to `concat --rotate-to DEG` / `generate_gridcat_page(rotate_to=)`; the unsteady-flow warning is the page's.
-- Stack cat and Grid cat: a deployment with values at a depth for less than half its time is left out of every figure, and the captions name it.
-- Deployment page QC summary reads the originator's flags (`*_qc_originator_mapped`) beside oceanarray's, in a "Flags by" column.
-- Instrument page header: "{Type} {serial} · {depth} m", nominal depth, HAB, start/end, sampling interval, records, and the originator's file (or ERDDAP dataset) linked to its archive.
-- Instrument page: a Quality flags table of the originator's flags (`*_qc_originator_mapped`) beside ours, classes other than good only, and the QC test limits.
-- Instrument and stack pages: a processing table with one row per `history` entry (When / What was done / Settings), settings read from the file's attributes.
-- Every report page has a right-justified Expand all / Collapse all button under the jump-nav; printing opens every collapsed box and restores them afterwards.
-- `spectrum_markers:` in the mooring YAML adds periods (e.g. `4 d: 4 d`) to the grid page's temperature and rotary spectra and names them in the captions; `validate` checks them.
-- Grid page: σ0 and σ2 sections over the full column, from θ and practical salinity (`draw_grid_potential_density`).
-- Stack and grid pages open their Processing history with a step table (Step / What was done / Settings) read from the file; the dated record is collapsed below it.
-- Deployment report: a closing *Mooring description* section with the mooring YAML in a collapsed box with a Copy button, so a reader can rerun it.
-- `OCEANARRAY_FIGURE_SOURCE=0` turns off the per-figure `source:` line (for a public build).
-- `oceanarray concat` / `oa.concat` join one site's deployment stacks by depth into `<site>_stackcat.nc`, with a Stack cat report page (#135).
-- Stage 1 writes an imported file's principal investigators and contributors as OceanSITES lists; the stack and Stack cat join them (#135).
-- `writers.write(chunks=)` sets the chunk length along a dimension (#135).
-- Every file names the oceanarray that wrote it (`oceanarray_version`, `+g<hash>` from a checkout; `stage<n>_oceanarray_version`) and its units changes (`units_converted`) (#135).
-- `oceanarray concat` also grids the Stack cat, one mooring per profile, into `<site>_gridcat.nc` with a Grid cat report page; `--no-grid` skips it.
-- `stack: mask_flags` (default 4; `--mask-flags`): what the stack pages hide and the grid leaves out, recorded as `stack_mask_flags`; `grid: mask_flags` may only add.
-- Originator flags are translated to our table by meaning into `<var>_qc_originator_mapped`, with the dictionary per level; a `<CODE>_flag` is read when there is no `<CODE>_QC`.
-- Flag 5 `value_changed` (oceanarray's one extension to OceanSITES 1.4): an originator flag saying its QC modified the value.
-- A Quality flags section on the stack and Stack cat pages: counts per level (ours, the originator's, hidden by the rule), a flag strip, and the flag translation table.
+- ADCP import: `file_type: oceansites` reads originator ADCP profiles (`TIME × BINDEPTH`) as one ADCP on `(time, N_BINS)`, with their bin pressures; "MT" files as `thermistor`.
+- ADCP import: `file_type: rodb` reads per-bin `.edt` files from one `filename: <name>_bin*.edt` pattern as one ADCP; other file types refuse a wildcard matching several files.
+- `oceanarray concat` / `oa.concat` join a site's stacks by depth and grid them (`<site>_stackcat.nc`, `<site>_gridcat.nc`), each with a report page (#135).
+- The Grid cat page rotates velocity to the record-mean flow, or to `concat --rotate-to DEG` / `generate_gridcat_page(rotate_to=)`.
+- Year page for an array: moorings by `subarray:`, deployed and recovered dates with cruises and ships, instruments by function; `--bathymetry FILE` adds GEBCO or ETOPO contours.
+- Report pages: a Processing history table from `history`, Expand all / Collapse all, a link to the *Mooring description* (YAML); `OCEANARRAY_FIGURE_SOURCE=0` drops figure `source:` lines.
+- Grid page: σ0 and σ2 sections over the full column; `spectrum_markers:` in the mooring YAML adds periods to the spectra.
+- `stack: mask_flags` (default 4; `--mask-flags`): what the stack pages hide and the grid leaves out, recorded as `stack_mask_flags`.
+- Originator flags are translated by meaning into `<var>_qc_originator_mapped`, shown beside ours on the report pages; flag 5 `value_changed` marks a value their QC modified.
 - Each QC'd variable gets `processing_level` (OceanSITES reference table 3); interpolated pressure records its inputs' flags in `pressure_source_flags`.
-- Stacks record the settings that built them (the step used, the settings blocks, the instruments) as YAML text in `deployment_settings` (#134).
-- `<field>_source` in the mooring YAML (waterdepth, deployment/recovery time, latitude, longitude) is written beside the field in every file and in the Stack cat's deployment record.
-- `oceanarray -q` / `-v` set the console log level (warnings only / debug); each run ends with a per-mooring warning summary, also written to `processing_logs/<name>_summary.json`.
-- Stage 2 warns when a record starts well after deployment or ends well before recovery (more than 5 % of the planned window), naming the gap.
-- `thermistor` is a known instrument type (OceanSITES "MT" files).
-- `people:` and `source:` blocks in the mooring YAML give the people, DOI, citation, license and acknowledgement that data files do not; the file's own values win.
-- Every product keeps where its data came from (`source_*`, per deployment in the Stack cat); its `citation` is its sources' own, `license` lists theirs, and how it was built is in `history` (#141).
-- One OG1-style sensor record per instrument (`SENSOR_<type>_<serial>`, MicroCATs `SENSOR_CTD_…`) with each sensor's calibration; data variables name it in `sensor`.
-- `run` keeps a stack and grid that are still current and says why it rebuilds; stacks and grids record their input files' SHA-256.
-- An imported file's variable attributes (`comment`, `uncertainty`, `accuracy`, …) go on the sensor record as `originator_<variable>_<attribute>` (#141).
-- When stage 3 recomputes salinity for an imported file, the originator's is kept as `salinity_originator`, with the difference in `history` (#141).
-- Stacks name each level's originator file, its SHA-256, release dates, sampling and processing level; the originators' title, institution, project … are kept as `originator_*` (#141).
-- `sensor_catalog:` in the mooring YAML names a catalog of sensor models with their NERC vocabularies; stage 1 describes each MicroCAT from it, by serial (#141).
-- The mooring page lists each instrument's sensor record: model, maker, pumping, where they came from, and the originator's description (#141).
-- The OceanSITES export writes `license`, `citation` and `references` (#141).
+- Every file names the oceanarray that wrote it (`oceanarray_version`) and its units changes (`units_converted`); `writers.write(chunks=)` sets chunk lengths (#135).
+- Products keep their sources (`source_*`, originator files with SHA-256, `originator_*`); `citation` and `license` are the sources' own, also in the OceanSITES export (#141).
+- Stacks record the settings that built them in `deployment_settings` (#134); `run` keeps a stack and grid that are still current and says why it rebuilds.
+- Mooring YAML: `people:` and `source:` blocks fill in what data files lack; `<field>_source` is written beside waterdepth, times and position (#135).
+- One OG1-style sensor record per instrument (`SENSOR_<type>_<serial>`) with its calibration; `sensor_catalog:` adds models and NERC vocabularies by serial (#141).
+- An imported file's variable attributes go on its sensor record (`originator_<variable>_<attribute>`); a recomputed salinity keeps the originator's as `salinity_originator` (#141).
+- Stage 2 warns when a record starts well after deployment or ends well before recovery (more than 5 % of the planned window).
 
 ### Changed
 
-- Velocity, speed and direction attributes come from the variable registry (`params.cf_attrs`); the registry key is `current_speed`, as written (Nortek `Speed` too).
-- Direction and tilt units are spelled `degree` everywhere (stage 3, stack, grid).
-- `valid_min` / `valid_max` are written only where a physical limit is known, in the variable's stored dtype; gross-range limits are used for flagging only.
-- The stage-3 history names the rotation's transformation matrix source instead of `beam_angle=?°`.
-- OceanSITES `time_coverage_resolution` of a deployment file is read from its time axis.
-- Tilt QC, the report tilt panel and ADCP bin pressure use one tilt, arccos(cos pitch · cos roll), with RDI pitch converted to true pitch; QC flags it at `QC_TILT` 30°/50° even where `pitch_qc` / `roll_qc` exist.
-- Stack cat captions are built from the file: flag sentence, direction reference, σθ interval; grey bands named only when a turnaround has a gap.
-- Stack cat: depths labelled "1824 m" (type added when two share a depth), shorter upward-velocity panel, time axis ends at the data, T-S axes over every value.
-- Stack cat: roses share one ring scale, direction profile drops the steadiness markers, T-S medians lose "Draft"; one NetCDF file appendix.
-- Stack cat and Grid cat processing tables are read from `history`, one dated row per step, with each deployment's own table collapsed below.
-- Stack cat Instruments table: reader type names and a generated caption; Deployments table without "#", its caption the one place the overlap block is named.
-- Grid cat: one intro above the sections; isopycnals labelled "σ₀ 27.7" in the right margin with a thin white edge; "Mean direction (X°)" / "Cross direction".
-- Grid cat: a given rotation is titled "Towards X°" / "Across (towards X+90°)"; cropped velocity panels share one pressure label and no longer crowd.
-- Stack cat, Grid cat and year page name instruments by function (CTD, current meter, temperature logger, ADCP; CM, T); deployment and instrument pages keep the model.
-- Stack cat: a depth label takes its type only where two depths round alike in the same figure (hydrography legend), e.g. "2724 m CTD".
-- Stack cat direction profile: a bar past the axis edge stops there with an arrow.
-- T-S σθ labels: placed along each contour (two on a long one) and kept unless within 1 % of the frame, so every contour drawn has one.
-- Deployment QC table: the caption says rows are per flag source and figures mark the worse of the two, when both sources are present.
-- Grid cat T-S: σ₀ dashed and σ₂ solid over the full range of the medians; velocity profiles cropped to their pressures with a dashed zero line.
-- `concat` and `grid` write one dated `history` entry per step (join, overlaps, flags, grid) in place of one undated line.
-- Durations use one unit per table, named in the column header: decimal years past a year, else months past a month, else days (13.6 for "13d 15h").
-- The instrument header's sampling interval is the median time step (was the 90th percentile).
-- Instrument page: files table, history record, start/end windows and value distributions move into a collapsed Processing section; one NetCDF file appendix.
-- Instrument time series and T-S mark the worse of the originator's and our flags: dots suspect, crosses bad, legend in words; captions generated from the file.
-- Instrument T-S is the stack's figure: every value drawn, pressure colour bar shallow at the top, σθ labelled inside the axes; the stack T-S does the same.
-- Instrument current rose is the stack's design; the direction clause comes from the velocity `comment`, else "as provided by the originator".
-- Instrument value distributions keep what the flag rule keeps (ours or the originator's flag) and name the sensor resolution the originator gives.
-- Start/end windows: one line where the description and suggested times agree; a disturbed-end note for originator data; reader words in the note.
-- Stack page captions build the flag sentence from `stack_mask_flags` (ours and the originator's); the Stack cat captions too.
-- Stack hydrography names each line at its end in the pressure panel (no legend); velocity takes the hydrography's colours, a shorter upward panel, suspect values as black dots.
-- Stack roses: titled "serial · nominal depth", one ring scale for every rose, figure sized to the number of roses; grid roses share the scale too.
-- Stack Instruments table: nominal depth, HAB, readable type, linked serial; spacing histogram collapsed in Processing history; one NetCDF file appendix.
-- Stack clock check for originator data: a one-line "Not applicable" instead of no section; an empty figure always says why.
-- Quality flags table and strip: "Instrument" (type, serial, nominal depth) for "Level", legend words for flag tokens, captions per the review.
-- Stage history notes say what each stage did ("stage 2: clock corrected and trimmed ...") and the stack writes dated "stack:" and "flags:" entries.
-- Salinity is labelled "Salinity (PSU)" on T-S axes, grid hydrography titles and captions (was "Practical salinity").
-- Grid captions are generated from the file: interpolation, flags left out, levels chosen, window lengths, instrument count and velocity reference; jargon and wrong claims removed.
-- Grid hydrography: colour limits at the 1st–99th percentiles with arrows, instrument median pressures as triangles at the right edge.
-- Grid velocity sections are cropped to the velocity levels, drawn at the hydrography's dbar per inch, with triangles at the current meters.
-- Grid velocity sections: the three components share one scale and colour bar; speed and direction have their own.
-- Grid roses and hodographs: captions state the 50 % coverage rule and name each level (and current meter) left out for low coverage.
-- Grid captions name the interpolation method only when the file records it; otherwise "interpolated in pressure".
-- Caption thresholds (coverage bands, rose and spectrum coverage, target σ₀) are read from the constants that draw the figures.
-- T-S figures: one σθ grid per figure over the shared axes; without a position the figure notes and logs "σθ not drawn".
-- Grid page computes σ0 and σ2 once, for its Stratification sections only; other pages no longer compute them.
-- Deployment QC summary counts every flag in the table, including 5 (value changed), read by its word.
-- Stage 3, stack and grid compute speed, direction and σ with the report's helpers (`oceanarray.physics`); output values unchanged.
-- Grid velocity profiles: drawn at the same vertical scale, down to the seabed; speed legend at centre right, labels "Middle 50 %", count axis "Hourly values".
-- Stack page: "Particle trajectories" is now "Progressive vector diagram" (`draw_multi_aquadopp_progressive_vector`, `draw_adcp_progressive_vector`; old names kept as aliases).
-- Stack and grid current roses share one design: speed classes 0–5/5–10/10–20/20–30/>30 cm/s, rings in %, a speed-class legend; grid roses at up to 4 levels filled ≥ 50 % of the time.
-- Grid hodographs are drawn at the current roses' levels, titled by pressure.
-- "Particle trajectory" on the grid page is now the progressive vector diagram (`draw_grid_progressive_vector`; `draw_grid_trajectory` kept as an alias).
-- Grid temperature spectrum: 14-day and 7-day windows (right panel periods under 2 days), 3 or 5 levels at instrument pressures filled ≥ 90 %, a pressure colour bar; titles give the windows used.
-- Spectra mark M2, K1 and the inertial period only by default (1.8 d, 4 d and 9 min removed from the defaults).
-- Grid wavelet: at most 3 levels (outermost filled ≥ 90 % and one between), periods from 6 time steps (at least 2 h), gap-filled columns cross-hatched.
-- Grid rotary spectrum: 3 levels filled ≥ 90 %, chosen by the helper the temperature spectrum and wavelet use.
-- T-S σθ contours are drawn at a round interval, named in the grid caption.
-- Grid NetCDF appendix: one collapsed "NetCDF file" section; serial-like, index and flag-code variables show no min/max in the variables tables.
-- T-S figures plot potential temperature θ against practical salinity, with labelled σθ contours from θ at the mooring position (was in-situ T).
-- Report pages derive θ, speed, direction and the knockdown inputs once (`oceanarray.analysis.derived`) and share them across their figures.
-- `pipeline.pressure.pressure_from_depth` / `depth_from_pressure`: one depth↔pressure conversion, used by ADCP QC and the figures.
-- Deployment report: the instrument summary comes first; processing pipeline, deployment timing and clock corrections follow it, the pipeline table collapsed.
-- Deployment report tables identify instruments by nominal depth and HAB (units on their own header line) with readable type names; sampling interval as "1 h", pressure range as "2358–2376".
-- Deployment report: originator timing, clock corrections and calibration show one line when there is nothing to show.
-- Deployment report QC summary: a row only for variables not all good; columns and legend from the flags present.
-- QC summary: variables never checked (flag 0), nominal (7) or interpolated (8) throughout get one line per flag, never counted as good.
-- Stack, grid, Stack cat and Grid cat pages link the deployment page's *Mooring description* on the expand-all line, left-justified with the button at the right (one link per deployment).
-- Instrument summary caption states why a row is shaded (record ends more than 12 h before recovery).
-- Report captions rewritten for readers who did not run the pipeline (deployment report); flag words replace the table tokens ("suspect", "interpolated", "no QC").
-- Report footer: the package name links to the documentation; cruise and config path removed.
-- Deployments on the Stack cat page are colored red to purple in time order; their start lines are dotted.
-- Site figures: up to seven deployments get a color each; more share colors in pairs, the second dashed, hatched or with a square marker.
-- A ▼ above each Stack cat and Grid cat time axis marks a deployment's start.
-- The Stack cat T-S diagram shows each level's 50 % outline and median, joined per deployment, instead of every point.
-- The Stack cat has current direction by depth beside speed; both are drawn at a depth only when at least half of that depth's own samples in the deployment have valid velocity (so a depth sampled for only part of a deployment is judged on its own record).
-- The Grid cat T-S diagram marks each T-and-S instrument at its mean pressure.
-- Grid cat isopycnals are labeled with the value only; display bins with data for less than half their time are blank; sections have no horizontal grid.
-- Site time means are summed in float64.
-- Minimum matplotlib raised to 3.10 (the by-deployment speed panel uses `boxplot(orientation=)`, added in 3.10).
-- The Stack cat's depth columns are named for what they are: dimension `N_DEPTHS`, `depth_index`, `nominal_depth`, `depth_family`, `depth_match_value`, `depth_tolerance`, `overlap_depth_index`; the YAML keys are `stack: depth_match` / `depth_tolerance_m`.
-- Numbers in global attributes (`dp_dbar`, `p_start_dbar`, `dt_seconds` ...) are stored as `float32` / `int32` like the variables; positions stay double.
-- Report pages list principal-investigator and contributor email, url and id under People & institutions.
-- Pipeline progress goes to stderr via standard logging (one line per step; `-v` for per-instrument detail); a command's result still goes to stdout.
-- The Stack cat's Instruments table names the instrument type per row and gives each deployment one column (serial and depth) (#141).
-- The stack page leaves out the clock alignment check when every instrument was imported from an originator's processed files (#141).
+- OceanSITES positions (`BINDEPTH`, `DEPTH`, `PRES`, `INSTRDEPTH`) outside the file's valid range read as missing, counted in `history`.
+- Output attributes: velocity, speed and direction from the variable registry (key `current_speed`); units `degree`; global-attribute numbers `float32` / `int32`.
+- `history` has one dated entry per step, saying what was done, in every stage, the stack, `concat` and `grid`.
+- Logging: progress goes to stderr (one line per step), `oceanarray -q` / `-v` set the level, and each run ends with a warning summary (`processing_logs/<name>_summary.json`).
+- Deployment page: instrument summary first, instruments by nominal depth and HAB, QC summary only for variables not all good, captions in words.
+- Instrument page: a header (type, serial, depths, times, sampling, originator's file linked); figures mark the worse of both flag sets; processing details collapsed.
+- Stack page: lines named at their ends, roses on one ring scale, captions built from the file; no clock check when every instrument was imported (#141).
+- Grid page: captions built from the file; sections share scales and mark instrument pressures; roses, hodographs and spectra pick levels by coverage.
+- T-S figures plot potential temperature θ against practical salinity, labelled "Salinity (PSU)", with σθ contours at a round interval.
+- Spectra mark M2, K1 and the inertial period only by default (1.8 d, 4 d and 9 min removed); add others with `spectrum_markers:`.
+- "Particle trajectories" are progressive vector diagrams (`draw_*_progressive_vector`; old `*_trajectories` / `draw_grid_trajectory` names kept as aliases).
+- Minimum matplotlib raised to 3.10.
 
 ### Deprecated
 
@@ -149,50 +53,30 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Breaking changes
 
-- An ADCP without `orientation: up|down` is refused (`validate` error, stage 1); no `down` default in stage 3, the stack or the plots.
-- `InstrDepth` is now `instrument_depth` (m, nominal depth: `nominal_depth`, else water depth − HAB; the YAML `depth` key is not read).
+What to do for each: *Upgrading from 0.6.0 to 0.6.1* (`migrating_0_6_1`).
+
+- An ADCP without `orientation: up|down` is refused (`validate` error, stage 1); there is no `down` default.
+- `InstrDepth` is now `instrument_depth` (m, from `nominal_depth`, else water depth − HAB; the YAML `depth` key is not read).
 - `serial_number` is now `instrument_serial`, always text; the stack's `serial` stays the per-level key. Older stage files are read under the new names.
-- `latitude`, `longitude`, `waterdepth` and the deployment and seabed positions are numbers (decimal degrees, m), not text; absent positions are left out (an imported file keeps its own).
-- `deployment_time` / `recovery_time` are ISO 8601 UTC to the second (`2026-07-11T20:30:00Z`), as OceanSITES 1.4.
-- Stacks write σ0 as `sea_water_sigma_theta`; σ1…σ4 carry no standard name (none exists in CF). σ attributes come from the variable registry: long names are `σ₀` … `σ₄`.
-- A stack with magnetic-north stage-2 velocities gives east/north velocity and direction no standard name; originator true-north levels are not counted.
-- Stage files no longer carry `sample_interval_seconds`.
-- The year page ignores the array YAML's cruise, ship, dates, position, water-depth range, `vocab` and `bathymetry` (one warning names them); values come from the mooring YAMLs.
-- Site grids no longer record `slope_angle_deg` / `slope_angle_source`; `concat --slope-angle` and `grid(slope_angle=)` warn until 0.7.0 (use `--rotate-to`).
-- `site.slope_components` is `site.rotated_components`; `SLOPE_STEADINESS_MIN` is `ROTATION_STEADINESS_MIN`.
-- The stack keeps every value with ours and the originator's flags; suspect (3) values are shown and gridded by default (`stack: mask_flags: [3, 4]` keeps the old way).
-- In the stack and Stack cat a value with no flag variable is 0 (not QC'd) and a missing one 9; flags are int8.
-- Interpolated pressure never uses an input flagged 4 or 9; such times are missing (9), not interpolated.
-- Raw Sea-Bird stage files hold one `SENSOR_<type>_<serial>` record instead of `SENSOR_TEMP_` / `_CNDC_` / `_PRES_<serial>`.
-- Grids change: velocity flagged 3 (suspect) is kept unless `mask_flags` says otherwise (the default leaves out 4), and current speed and direction come from the gridded east and north velocity.
+- Positions (`latitude`, `longitude`, `waterdepth` …) are numbers, not text, and left out when absent; `deployment_time` / `recovery_time` are ISO 8601 UTC with `Z`.
+- `valid_min` / `valid_max` are written only where a physical limit is known, no longer from the gross-range limits.
+- Tilt QC flags velocity on the geometric tilt at `QC_TILT` 30° / 50°, even where `pitch_qc` / `roll_qc` exist; their gross-range flags no longer reach velocity.
+- Raw Sea-Bird stage files hold one `SENSOR_<type>_<serial>` record, not `SENSOR_TEMP_` / `_CNDC_` / `_PRES_<serial>`; no stage file carries `sample_interval_seconds`.
+- Stacks write σ0 as `sea_water_sigma_theta`, σ1…σ4 with no standard name, long names `σ₀` … `σ₄`; magnetic-north velocity and direction carry no standard name.
+- The stack keeps every value with both flag sets; suspect (3) is shown and gridded by default (`mask_flags: [3, 4]` keeps the old way); no flag variable reads 0, missing 9 (int8).
+- Interpolated pressure never uses an input flagged 4 or 9; such times are missing (9).
+- Grids keep velocity flagged 3 unless `mask_flags` says otherwise; current speed and direction come from the gridded east and north velocity.
+- Site grids no longer record `slope_angle_deg` (use `--rotate-to`); `site.slope_components` is `site.rotated_components`, `SLOPE_STEADINESS_MIN` is `ROTATION_STEADINESS_MIN`.
+- The year page ignores the array YAML's cruise, ship, dates, positions, water depths, `vocab` and `bathymetry` (one warning names them); `line:` is now `subarray:`.
 
 ### Fixed
 
-- An OceanSITES variable without a `standard_name` gets the registry's, not an empty one.
-- An OceanSITES file with a variable on a second dimension (several depths) is refused by name instead of a bare `ValueError`.
-- The instrument page's flag table counts a per-beam variable (ADCP `percent_good`) per bin instead of failing.
-- Stack cat and Grid cat sections: deployment names beyond the time axis no longer collapse the figure's layout (titles crowded the panel above).
-- The year page creates its report folder when it does not exist.
-- Year array page: a mooring YAML whose `waterdepth` is text ("unknown") no longer stops the page; the table shows the text, the header and map leave it out.
-- Deployment page QC summary reads character flags (originator files) as numbers; a variable whose flags are not digits is left out with a warning.
-- Grid cat T-S diagram pairs each deployment's instrument circles with its curve by deployment name, not by position.
-- Grid cat isopycnal labels sit at the right pressure where density decreases with pressure between two levels.
-- `oceanarray plot` and `process --plot` apply the report style to their own figures only; it no longer stays set for later figures in the same Python session.
-- The deployment page's QC table no longer repeats the Good column (once from Good %, once from the per-flag columns).
-- Rose pages no longer warn of a missing declination when the originator rotated to true north (stack `originator_magnetic_declination`); the warning names who and why.
-- Thermistors, TR-1050 and Seapoint instruments get readable type names on report pages (were upper-cased codes).
-- The deployment page's regrid command names the mooring description and `--from 3`, so it runs as copied (no raw files needed).
-
-- A relative `sensor_catalog` in a mooring YAML reached through a symbolic link is read from the real file's folder, not the link's.
-- `append_history` cleans "; " inside a note to ", ", and the salinity, flag-translation, QC-count, people and source notes no longer contain it, so `history` reads back whole.
-- Velocity-profile seabed line and the Overflow near-bottom level convert the water depth to pressure (they read metres as dbar).
-- σθ contours on T-S figures were computed from in-situ temperature at 0° N 0° E; now from θ at the mooring position.
-- N²: an unknown longitude warns instead of silently using 0.
-- Knockdown figures compare the design depth converted to pressure (`gsw.p_from_z`) with measured pressure; they compared metres with dbar, a 1–1.5 % bias read as knockdown.
-- Knockdown figures: an unknown latitude warns and leaves out the design pressure instead of using the equator; the HAB axis stops at the water depth.
-- `OCEANARRAY_FIGURE_SOURCE` is read when a page renders, not when oceanarray is imported.
+- OceanSITES reader: a variable without a `standard_name` gets the registry's, not an empty one; one on a second dimension is refused by name, not a bare `ValueError`.
+- `oceanarray plot` and `process --plot` no longer leave the report style set for later figures in the same Python session.
+- Rose pages no longer warn of a missing declination when the originator rotated to true north.
+- Knockdown figures, the velocity-profile seabed line and the Overflow near-bottom level convert depth to pressure (they read metres as dbar); they and N² warn without a position.
+- σθ contours on T-S figures are computed from θ at the mooring position (were in-situ temperature at 0° N 0° E).
 - A grid's current direction is no longer interpolated across 0/360° (it pointed the wrong way between a 355° and a 5° instrument).
-
 - `stage2_source_sha256` is the full SHA-256, not its first 8 digits (#135).
 - The stack time axis keeps a last step that falls exactly on the recovery time (#135).
 
