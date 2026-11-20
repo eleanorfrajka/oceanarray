@@ -106,6 +106,19 @@ def percent_text(share: float) -> str:
     return f"{100.0 * float(share):g} %"
 
 
+def record_fraction_text() -> str:
+    """Return the short-record rule's share as words before "its time".
+
+    Returns
+    -------
+    str
+        ``"half"`` when :data:`~oceanarray.config.parameters.MIN_RECORD_FRACTION`
+        is 0.5, else e.g. ``"30 % of"``.
+    """
+    share = params.MIN_RECORD_FRACTION
+    return "half" if share == 0.5 else f"{percent_text(share)} of"
+
+
 #: Added to a T-S caption whose figure has no σθ contours for want of a position.
 NO_SIGMA_CAPTION: str = "(no σθ: position unknown)"
 
@@ -572,12 +585,12 @@ def history_rows(
 
 
 def stack_history_rows(ds: Any) -> list[HistoryRow]:
-    """Return a stack's processing table: its history, with the settings of each step.
+    """Return a stack, Stack cat or Grid cat's processing table: its history, with settings.
 
     Parameters
     ----------
     ds : xarray.Dataset
-        The stack.
+        The stack, site stack or site grid.
 
     Returns
     -------
@@ -588,18 +601,57 @@ def stack_history_rows(ds: Any) -> list[HistoryRow]:
     attrs = ds.attrs
     dt = time_step_seconds(ds)
 
-    def settings(text: str) -> str:
-        if text.startswith(("stack:", "Step 1 stack:")):
-            return f"{step_text(dt)} steps"
-        if text.startswith("flags:"):
-            rule = _rule(attrs, masking.STACK_ATTR)
-            if rule is None:
-                return ""
-            source = _rule_sources(attrs)
-            return f"rule: {rule_text(rule)}" + (f" ({source})" if source else "")
-        return ""
+    def flags(key: str) -> str:
+        rule = _rule(attrs, key)
+        if rule is None:
+            return ""
+        source = _rule_sources(attrs) if key == masking.STACK_ATTR else ""
+        return f"rule: {rule_text(rule)}" + (f" ({source})" if source else "")
 
-    return history_rows(str(attrs.get("history", "")), settings)
+    def depths() -> str:
+        tolerance = attrs.get("depth_tolerance_m")
+        match = attrs.get("depth_match", "depth")
+        return f"{step_text(dt)} steps" + (
+            f", one depth within {float(tolerance):g} m by {match}"
+            if tolerance not in (None, "")
+            else ""
+        )
+
+    # The settings of each entry, by the text it starts with (and, for flags,
+    # the attribute it names).
+    stack_step = ("stack:", "Step 1 stack:")
+    by_prefix: tuple[tuple[str | tuple[str, ...], Callable[[], str]], ...] = (
+        (stack_step, lambda: f"{step_text(dt)} steps"),
+        ("join:", depths),
+        ("overlaps:", lambda: f"rule: the {attrs.get('overlap_rule', 'newer')} one"),
+        ("grid:", lambda: f"{float(attrs.get('dp_dbar', np.nan)):g} dbar levels"),
+    )
+
+    def settings(text: str) -> str:
+        if text.startswith("flags:"):
+            key = "grid_mask_flags" if "grid_mask_flags" in text else masking.STACK_ATTR
+            return flags(key)
+        return next((f() for prefix, f in by_prefix if text.startswith(prefix)), "")
+
+    rows = history_rows(str(attrs.get("history", "")), settings)
+    if "deployment_history" not in ds:
+        return rows
+    # A site record starts with each deployment's own stack step.
+    stamps = sorted(
+        r.when
+        for h in ds["deployment_history"].values
+        for r in history_rows(str(h))
+        if r.events and r.events[0].startswith(stack_step)
+    )
+    combine = HistoryRow(
+        f"{stamps[0]} – {stamps[-1]}" if len(set(stamps)) > 1 else (stamps or ["—"])[0],
+        (
+            "combine: each deployment's instruments placed on its own time axis "
+            "(its stack page; its record is below)",
+        ),
+        f"{step_text(dt)} steps",
+    )
+    return [combine, *rows]
 
 
 # ---------------------------------------------------------------------------
@@ -613,7 +665,7 @@ def direction_reference(ds_stack: Any) -> str:
     Parameters
     ----------
     ds_stack : xarray.Dataset or None
-        The stack the velocities came from.
+        The stack (or site stack) the velocities came from.
 
     Returns
     -------
@@ -626,8 +678,11 @@ def direction_reference(ds_stack: Any) -> str:
     if ds_stack is None or "east_velocity" not in getattr(ds_stack, "data_vars", ()):
         return ""
     dim = "N_LEVELS"
-    east = ds_stack["east_velocity"].transpose("time", dim).values
-    has_vel = np.isfinite(east).any(axis=0)
+    site = "N_DEPTHS" in ds_stack["east_velocity"].dims
+    east = ds_stack["east_velocity"].transpose("time", "N_DEPTHS" if site else dim)
+    has_vel = np.isfinite(east.values).any(axis=0)
+    if site:  # a site stack: a level has velocity when its depth does
+        has_vel = has_vel[ds_stack["depth_index"].values]
     n = int(has_vel.sum())
     if n == 0:
         return ""
@@ -636,7 +691,15 @@ def direction_reference(ds_stack: Any) -> str:
         if "originator_file" in ds_stack.variables
         else np.zeros(ds_stack.sizes[dim], dtype=bool)
     )
-    magnetic = set(str(ds_stack.attrs.get("stage2_magnetic_north", "")).split())
+    # The stage-2 serials; per deployment in a site stack whose deployments differ
+    # (concat writes the attribute as a deployment_ variable).
+    attr = "stage2_magnetic_north"
+    shared = set(str(ds_stack.attrs.get(attr, "")).split())
+    per_deployment = (
+        [set(str(m).split()) for m in ds_stack[f"deployment_{attr}"].values]
+        if f"deployment_{attr}" in ds_stack.variables
+        else None
+    )
     serials = (
         [str(s) for s in ds_stack["serial"].values]
         if "serial" in ds_stack.variables
@@ -644,6 +707,11 @@ def direction_reference(ds_stack: Any) -> str:
     )
     kinds = set()
     for i in np.flatnonzero(has_vel):
+        magnetic = (
+            per_deployment[int(ds_stack["deployment"].values[i])]
+            if per_deployment is not None
+            else shared
+        )
         if serials and serials[i] in magnetic:
             kinds.add("magnetic")
         elif imported[i]:
@@ -843,10 +911,6 @@ def grid_captions(c: Any) -> dict[str, str]:
     )
 
     out.update(_spectral_captions(c, pressure))
-    out["nc_file"] = (
-        f"The grid file {c.nc_file}: its coordinates, variables and global "
-        "attributes, as stored."
-    )
     return out
 
 
@@ -989,26 +1053,28 @@ def _spectral_captions(c: Any, pressure: np.ndarray) -> dict[str, str]:
     return out
 
 
-def stack_ts_caption(default: str, derived: Any) -> str:
-    """Return the stack page's T-S caption: *default*, led by the no-σθ note when needed.
+def netcdf_caption(
+    file: str, description: str = "at the end of the deployment page"
+) -> str:
+    """Return the caption of a page's NetCDF appendix.
 
     Parameters
     ----------
-    default : str
-        The page's standing caption.
-    derived : DerivedFields or None
-        The page's derived quantities; without a position the figure plots
-        in-situ temperature and draws no σθ.
+    file : str
+        What the file is: ``"file"``, ``"stack file"``, ``"site grid file"``.
+    description : str, optional
+        Where the mooring description is, from this page.
 
     Returns
     -------
     str
     """
-    if derived is not None and (derived.latitude is None or derived.longitude is None):
-        return (
-            f"In-situ temperature against salinity (PSU) {NO_SIGMA_CAPTION}. {default}"
-        )
-    return default
+    where = "at the top" if file == "file" else "at the top of each instrument's page"
+    return (
+        f"Contents of the {file} this page was drawn from, as written by oceanarray. "
+        f"To produce it yourself, run oceanarray with the mooring description "
+        f"{description}; the originator's data are linked {where}."
+    )
 
 
 def stack_rose_caption(ds_stack: Any) -> str:
@@ -1102,7 +1168,9 @@ def _dt(ds: Any) -> float:
 
 
 def stack_captions(
-    ds: Any, records: Mapping[str, Mapping[str, Any]] | None = None
+    ds: Any,
+    records: Mapping[str, Mapping[str, Any]] | None = None,
+    ds_stack: Any = None,
 ) -> dict[str, str]:
     """Return the stack page's figure captions, built from the stack and its figures.
 
@@ -1114,6 +1182,9 @@ def stack_captions(
         What each figure drew (by panel id): the time series' ``suspect``,
         ``serials`` and ``legend``; the T-S diagram's ``theta``,
         ``sigma_interval``, ``colour`` and ``oxygen``.
+    ds_stack : xarray.Dataset, optional
+        The stack the velocities came from, for :func:`direction_reference`;
+        default *ds*.
 
     Returns
     -------
@@ -1124,7 +1195,7 @@ def stack_captions(
     flags = stack_flag_sentences(ds)
     hydro = records.get("hydro_pts")
     vel = records.get("vel_uvw") or {}
-    labelled = bool((hydro or {}).get("serials"))
+    labelled = bool((hydro or {}).get("labelled"))
     out = {
         "hydro_pts": (
             "Pressure, temperature and salinity from every instrument over the "
@@ -1137,7 +1208,7 @@ def stack_captions(
                 if labelled
                 else "."
             )
-            + _legend_sentence(hydro)
+            + (_legend_sentence(hydro) if labelled else "")
             + f" {flags['hydro_pts']}"
             + _suspect_sentence(hydro)
             + " Downward spikes in pressure are the mooring being pushed down by "
@@ -1156,7 +1227,7 @@ def stack_captions(
             + flags["turbidity"]
         ),
     }
-    reference = direction_reference(ds)
+    reference = direction_reference(ds if ds_stack is None else ds_stack)
     serials = list(vel.get("serials") or [])
     who = (
         f"the current meter {serials[0]}" if len(serials) == 1 else "each current meter"
@@ -1168,7 +1239,7 @@ def stack_captions(
     colours = ""
     if len(serials) != 1 or keyed:
         colours = " Colours and line styles as in the hydrography figure" + (
-            "; the legend names the instruments not in it." if legend else "."
+            "; the legend names the instruments not in it." if legend and keyed else "."
         )
     out["vel_uvw"] = (
         f"{components} velocity from {who} over the deployment"

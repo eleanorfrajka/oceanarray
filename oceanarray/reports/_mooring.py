@@ -204,7 +204,12 @@ def _qc_table(instruments: list[dict[str, Any]]) -> dict[str, Any]:
                 continue
             if len(counts) == 1 and next(iter(counts)) in single:
                 serials = single[next(iter(counts))].setdefault(row["var"], [])
-                serials.append(str(instr.get("serial", "")))
+                by = (
+                    ""
+                    if row.get("by", "oceanarray") == "oceanarray"
+                    else ", originator"
+                )
+                serials.append(f"{instr.get('serial', '')}{by}")
                 continue
             present.update(counts)
             rows.append(
@@ -214,6 +219,7 @@ def _qc_table(instruments: list[dict[str, Any]]) -> dict[str, Any]:
                     "type_label": instr.get("type_label", ""),
                     "serial": instr.get("serial", ""),
                     "var": row["var"],
+                    "by": row.get("by", "oceanarray"),
                     "total": row["total"],
                     # Share as text (_qcflags.share_text); a flag below 0.1 % reads "<0.1".
                     "pct": {k: f["text"] for k, f in counts.items()},

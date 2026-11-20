@@ -229,7 +229,7 @@ def _summary(
 def instrument_labels(ds: xr.Dataset) -> list[str]:
     """Return one label per level: ``"MicroCAT 2941 · 1500 m"`` (type, serial, nominal depth).
 
-    A Stack cat's depths keep :func:`~oceanarray.plotters.flags.level_labels`.
+    A Stack cat's depth is labelled by its most common type: ``"MicroCAT · 1500 m"``.
     A level beyond the end of a shorter ``instrument_type`` or depth array is
     labelled without that part, with a warning.
 
@@ -247,7 +247,14 @@ def instrument_labels(ds: xr.Dataset) -> list[str]:
 
     from ._navs import _type_label
 
-    if "N_DEPTHS" in ds.dims or "serial" not in ds.variables:
+    if "N_DEPTHS" in ds.dims:
+        from oceanarray.pipeline.concat import depth_types
+
+        return [
+            f"{_type_label(t.lower())} · {d:.0f} m" if np.isfinite(d) else t
+            for t, d in zip(depth_types(ds), nominal_depths(ds), strict=True)
+        ]
+    if "serial" not in ds.variables:
         return _labels(ds)
     types = ds["instrument_type"].values if "instrument_type" in ds else None
     depths = nominal_depths(ds)
@@ -370,6 +377,16 @@ def _used_by(levels: dict[str, list[str]], users: dict[str, str]) -> str:
     return "; ".join(f"{lvl}: {', '.join(v)}" for lvl, v in levels.items())
 
 
+def _used_by_site(levels: dict[str, list[str]]) -> str:
+    """Return one line for a site: ``"12 instruments in FLMB_2016, FLMB_2017: T, S"``."""
+    deployments = sorted({lvl.split(" ", 1)[0] for lvl in levels})
+    variables = sorted({v for vs in levels.values() for v in vs})
+    return (
+        f"{len(levels)} instrument{'s' if len(levels) > 1 else ''} in "
+        f"{', '.join(deployments)}: {', '.join(variables)}"
+    )
+
+
 def translation_tables(ds: xr.Dataset) -> list[dict[str, Any]]:
     """Return one dictionary per originator flag table found in the file.
 
@@ -435,7 +452,11 @@ def translation_tables(ds: xr.Dataset) -> list[dict[str, Any]]:
                         if row["ours"] is not None
                         else "unknown (no known meaning)"
                     ),
-                    "used_by": _used_by(row["levels"], users[text]),
+                    "used_by": (
+                        _used_by_site(row["levels"])
+                        if site
+                        else _used_by(row["levels"], users[text])
+                    ),
                 }
             )
         out.append(

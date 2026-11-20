@@ -8,15 +8,13 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-import numpy as np
-
 from oceanarray import paths
 from oceanarray.paths import should_skip_regeneration
 
 from ..config import parameters as params
 from ..paths import safe_serial
 from ..pipeline import masking
-from . import _html_helpers, _instrument_text, _qcflags
+from . import _captions, _html_helpers, _instrument_text, _qcflags
 from ._breadcrumb import page_crumbs
 from ._env import (
     render_history,
@@ -26,6 +24,7 @@ from ._env import (
 from ._figdebug import as_panel
 from ._html_helpers import (
     _file_info,
+    _format_seconds,
     _parse_history,
     _resolve_array_report_href,
     _stage_file_details,
@@ -110,7 +109,7 @@ INSTRUMENT_CAPTIONS: dict[str, str] = {
         "What was done to this instrument's record, entry by entry as the file's "
         "history attribute records it, with the settings read from the file."
     ),
-    "nc_file": _instrument_text.NETCDF_CAPTION,
+    "nc_file": _captions.netcdf_caption("file", "on the deployment page"),
 }
 
 
@@ -375,22 +374,6 @@ def _panels(captions: dict[str, str]) -> dict[str, Panel]:
     return out
 
 
-def _interval_text(dt_s: float | None) -> str:
-    """Return a sampling interval for the header: ``"16 min"``, ``"30 min"``, ``"1 h"``.
-
-    The observed interval (90th percentile of the steps) is rounded to whole
-    seconds below a minute and to a tenth of a minute (or hour) above, so clock
-    jitter does not show as ``"30.0167 min"``.
-    """
-    if dt_s is None or not np.isfinite(dt_s) or dt_s <= 0:
-        return "—"
-    if dt_s < 60:
-        return f"{dt_s:.0f} s"
-    if dt_s < 3600:
-        return f"{round(dt_s / 60.0, 1):g} min"
-    return f"{round(dt_s / 3600.0, 1):g} h"
-
-
 def _title(type_label: str, serial: str, depth: float | None) -> str:
     """Return the page's title: ``"MicroCAT 14644 · 2190 m"``."""
     return f"{type_label} {serial}" + (f" · {depth:.0f} m" if depth is not None else "")
@@ -513,7 +496,7 @@ def generate_instrument_pages(
         t_start = nc_info.get("t_start", "—")
         t_end = nc_info.get("t_end", "—")
         dt_s = nc_info.get("dt_s")
-        median_dt = _interval_text(dt_s)
+        median_dt = _format_seconds(dt_s)
         nominal_depth = instr.get("nominal_depth", instr.get("depth"))
         type_label = instr.get("type_label") or _type_label(instr_type)
         title = _title(type_label, serial, nominal_depth)

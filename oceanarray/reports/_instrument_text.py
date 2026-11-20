@@ -841,15 +841,7 @@ def rose_caption(ds: Any, rule: Mapping[str, tuple[int, ...]]) -> str:
     return text
 
 
-#: Caption of the collapsed NetCDF appendix of an instrument page.
-NETCDF_CAPTION = (
-    "Contents of the file this page was drawn from, as written by oceanarray. To "
-    "produce it yourself, run oceanarray with the mooring description on the "
-    "deployment page; the originator's data are linked at the top."
-)
-
 __all__ = [
-    "NETCDF_CAPTION",
     "FlagTable",
     "Originator",
     "direction_clause",

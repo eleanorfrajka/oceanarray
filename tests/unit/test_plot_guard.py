@@ -266,7 +266,6 @@ def test_render_b64_skips_tight_layout_for_constrained_layout_fig(monkeypatch):
 GRID_DS_FUNCS = [
     "_make_grid_hydro_b64",
     "_make_grid_velocity_stacked_b64",
-    "_make_grid_sigma_b64",
     "_make_grid_rose_b64",
     "_make_grid_progressive_vector_b64",
     "_make_grid_timeseries_b64",
@@ -280,6 +279,13 @@ def test_grid_figure_functions(grid_ds, fn_name):
     """Each grid figure function builds without tripping the guard."""
     result = getattr(_plots, fn_name)(grid_ds)
     assert result is not None
+
+
+def test_grid_sigma_draws(grid_ds):
+    """The potential-density panels build without tripping the guard."""
+    from oceanarray.plotters.timeseries import draw_grid_sigma
+
+    assert _plots.render_slot(draw_grid_sigma, grid_ds, optional=True) is not None
 
 
 def test_grid_n2_b64(grid_ds):

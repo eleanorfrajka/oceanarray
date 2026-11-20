@@ -2063,9 +2063,9 @@ def draw_rose_outlines(
     """One current rose per velocity depth of a concatenated stack, one outline per deployment.
 
     Each outline is the share (%) of that deployment's samples in each direction
-    sector, so deployments of different length compare directly. Direction is
-    where the current flows to (oceanographic convention, 0° = N). Values flagged
-    3, 4 or 9 (``parameters.QC_BAD_FLAGS``) are left out.
+    sector, so deployments of different length compare directly; every rose has
+    the same ring scale. Direction is where the current flows to (0° = N). Values
+    the Stack cat's ``mask_flags`` rule hides are left out.
 
     Parameters
     ----------
@@ -2083,7 +2083,7 @@ def draw_rose_outlines(
     plt.Figure or None
         None when no level has velocity.
     """
-    from oceanarray.plotters.helpers import deployment_line
+    from oceanarray.plotters.helpers import deployment_line, short_names
 
     groups = _velocity_groups(ds)
     if not groups:
@@ -2091,7 +2091,7 @@ def draw_rose_outlines(
     u = helpers.masked(ds, "east_velocity")
     v = helpers.masked(ds, "north_velocity")
     cell_dep = ds["cell_deployment"].values
-    names = [str(n) for n in ds["deployment_name"].values]
+    names = short_names([str(n) for n in ds["deployment_name"].values])
     n_dep = len(names)
     edges = np.linspace(0.0, 2 * np.pi, n_sectors + 1)
     ncols = min(4, len(groups))
@@ -2106,6 +2106,7 @@ def draw_rose_outlines(
         layout="constrained",
     )
     used: set[int] = set()
+    rmax = 0.0
     for ax, (label, j) in zip(axs.ravel(), groups, strict=False):
         ax.set_theta_zero_location("N")
         ax.set_theta_direction(-1)
@@ -2133,7 +2134,10 @@ def draw_rose_outlines(
                 **deployment_line(k, n_dep),
             )
             used.add(k)
+            rmax = max(rmax, float(share.max()))
         plot_title(ax, label)
+    for ax in axs.ravel()[: len(groups)]:
+        ax.set_ylim(0.0, rmax * 1.05)  # one ring scale, so roses compare
     for ax in axs.ravel()[len(groups) :]:
         ax.set_visible(False)
     fig.legend(
@@ -2165,20 +2169,17 @@ def _velocity_by_depth(ds: xr.Dataset) -> dict | None:
     -------
     dict or None
         ``groups`` (``(label, column)`` with a known depth), ``depth`` (per group),
-        ``u``, ``v`` (time × column, flags 3, 4 and 9 set to NaN), ``cell_dep``,
+        ``u``, ``v`` (time × column, the values the rule hides set to NaN), ``cell_dep``,
         ``names``, ``offset`` (spacing of side-by-side markers, m) and ``cells``:
         for each group, the deployments drawn there as ``(k, rows)``, ``rows`` the
         boolean time mask of that deployment's finite velocity. A deployment is
         drawn at a depth only when at least
-        :data:`~oceanarray.plotters.helpers.PROFILE_MIN_FRACTION` of its own steps
+        :data:`~oceanarray.config.parameters.MIN_RECORD_FRACTION` of its own steps
         at that depth have valid velocity, so a depth sampled for only part of a
         deployment is judged on its own record, not the whole deployment window.
         None when no depth has velocity.
     """
-    from oceanarray.plotters.helpers import (
-        PROFILE_MIN_FRACTION,
-        short_names,
-    )
+    from oceanarray.plotters.helpers import short_names
 
     depth = ds["depth"].values.astype(float)
     # Placed at depth: a depth with no known depth cannot be drawn.
@@ -2195,7 +2196,7 @@ def _velocity_by_depth(ds: xr.Dataset) -> dict | None:
             k = int(k)
             in_dep = cell_dep[:, j] == k
             rows = in_dep & np.isfinite(u[:, j]) & np.isfinite(v[:, j])
-            if rows.sum() >= max(3, PROFILE_MIN_FRACTION * int(in_dep.sum())):
+            if rows.sum() >= max(3, params.MIN_RECORD_FRACTION * int(in_dep.sum())):
                 drawn.append((k, rows))
         cells.append(drawn)
     group_depth = [float(depth[j]) for _, j in groups]
@@ -2235,9 +2236,9 @@ def draw_speed_profile_by_deployment(
     Boxes of one depth sit at the depth's nominal depth, one per deployment in its
     color (two consecutive deployments share a color, the second hatched), so a
     change in speed between deployments shows as boxes that do not overlap.
-    Values flagged 3, 4 or 9 are left out, and a deployment's box is drawn at a
+    Values the ``mask_flags`` rule hides are left out, and a deployment's box is drawn at a
     depth only when at least
-    :data:`~oceanarray.plotters.helpers.PROFILE_MIN_FRACTION` of that depth's own
+    :data:`~oceanarray.config.parameters.MIN_RECORD_FRACTION` of that depth's own
     steps in the deployment have valid velocity (a depth sampled for only part of
     the deployment is judged on its own record, not the whole window).
 
@@ -2341,11 +2342,7 @@ def draw_direction_profile_by_deployment(
     Direction is where the water flows **to**, degrees clockwise from true north.
     Each marker is the direction of the deployment's mean velocity at that depth
     (from daily means, so tides do not count); its bar is the circular standard
-    deviation of the daily-mean directions. Where the mean flow is weak against
-    its variability (steadiness, the mean velocity's speed over the mean speed,
-    below :data:`~oceanarray.config.parameters.SLOPE_STEADINESS_MIN`) the marker
-    is hollow: the mean direction is not meaningful there. The direction axis is
-    centred on the mean direction of all depths and deployments, ±180°, so a flow
+    deviation of the daily-mean directions. The direction axis is centred on the mean direction of all depths and deployments, ±180°, so a flow
     near north is not split across 0°/360°.
 
     Parameters
@@ -2370,7 +2367,7 @@ def draw_direction_profile_by_deployment(
     if by is None:
         return None
     time = ds["time"].values
-    points = []  # (k, y, direction °, spread °, steady)
+    points = []  # (k, y, direction °, spread °)
     sum_u = sum_v = 0.0
     for (_label, j), y, drawn in zip(
         by["groups"], by["depth"], by["cells"], strict=True
@@ -2383,8 +2380,6 @@ def draw_direction_profile_by_deployment(
                 continue
             du, dv = du[:n], dv[:n]
             mu, mv = float(du.mean()), float(dv.mean())
-            mean_speed = float(np.hypot(du, dv).mean())
-            steadiness = float(np.hypot(mu, mv)) / mean_speed if mean_speed > 0 else 0.0
             angle = np.arctan2(du, dv)
             resultant = float(np.hypot(np.cos(angle).mean(), np.sin(angle).mean()))
             spread = (
@@ -2399,7 +2394,6 @@ def draw_direction_profile_by_deployment(
                     y + offset,
                     float(flow_direction(mu, mv)),
                     min(spread, 180.0),
-                    steadiness >= params.SLOPE_STEADINESS_MIN,
                 )
             )
             sum_u += mu
@@ -2410,7 +2404,7 @@ def draw_direction_profile_by_deployment(
 
     fig, ax = plt.subplots(figsize=(width_in, width_in * 0.9), layout="constrained")
     used: set[int] = set()
-    for k, y, direction, spread, steady in points:
+    for k, y, direction, spread in points:
         x = centre + ((direction - centre + 180.0) % 360.0) - 180.0
         color = deployment_color(k, by["n"])
         ax.errorbar(
@@ -2419,8 +2413,6 @@ def draw_direction_profile_by_deployment(
             xerr=spread,
             fmt=deployment_marker(k, by["n"]),
             color=color,
-            mfc=color if steady else "white",
-            mec=color,
             ms=5,
             elinewidth=1.0,
             capsize=2,

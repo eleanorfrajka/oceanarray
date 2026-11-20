@@ -1,16 +1,18 @@
-"""Array-level HTML summary report.
+"""Year array page: the moorings of one array YAML, with a map and their instruments.
 
-Reads a ``*.array.yaml`` file, gathers per-mooring metadata from each
-mooring's YAML, draws a simple position map, and writes a single HTML
-index page with clickable links to every mooring's report.
+Reads a ``*.array.yaml`` file, gathers per-mooring metadata from each mooring's
+YAML, draws a position map, and writes one HTML page linking every mooring's
+pages.
 
 Entry point: :func:`generate_array_report`.
 """
 
 from __future__ import annotations
 
+import json
 import logging
 import warnings
+from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -27,15 +29,17 @@ from oceanarray.instruments import instrument_entries
 from ..config.unit_tables import unit_label
 from ..paths import safe_serial
 from ..plotters.helpers import grid_despine
+from . import _masthead
 from ._breadcrumb import page_crumbs
 from ._env import render_template
 from ._html_helpers import (
     STOPPED_EARLY_HOURS,
-    _format_duration,
     _parse_dt,
     _stage_files,
+    format_durations,
+    span_seconds,
 )
-from ._navs import _TYPE_ORDER, _type_label
+from ._navs import _TYPE_ORDER, _type_label, type_word
 from ._plots import render_b64
 from ._read import _read_instrument_info
 from ._vendored import design_tokens as report_tokens
@@ -44,19 +48,42 @@ from .design import ARRAY_MAP_LEAFLET
 
 _log = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------
-# Lat/lon parsing
-# ---------------------------------------------------------------------------
+#: Depth contours on the map (m) and their line colours, shallow to deep.
+CONTOURS: dict[int, str] = {
+    500: "#c6dbef",
+    1000: "#9ecae1",
+    2000: "#6baed6",
+    2500: "#2c7fb8",
+}
+#: Bathymetry is averaged to about this resolution (degrees, 4 arc-minutes) before
+#: contouring.
+CONTOUR_RESOLUTION_DEG: float = 4.0 / 60.0
+#: Contour pieces with fewer points than this (seamount specks) are dropped.
+CONTOUR_MIN_POINTS: int = 30
+#: Contours are drawn this far (degrees) beyond the moorings, so panning shows them.
+CONTOUR_PAD_DEG: float = 3.0
+#: The line of the vendored map script after which the contours are added, so
+#: they are drawn once the map exists and before the markers.
+CONTOUR_HOOK = "map.addControl(new ResetControl());"
+CONTOUR_JS = """
+  (function () {
+    var CONTOURS = __CONTOURS__, COLORS = __COLORS__;
+    L.geoJSON(CONTOURS, {
+      interactive: false,
+      style: function (f) { return { color: COLORS[f.properties.depth], weight: 0.9, opacity: 0.9 }; }
+    }).addTo(map);
+  })();"""
 
+#: Why an instrument the description skips has no pages: not processed here, not
+#: missing at the originator.
+NOT_HERE = "not processed here"
 
-def _parse_coordinate(val: Any) -> float | None:
-    """Parse one latitude or longitude value to decimal degrees, None if absent or unparseable."""
-    return location.parse_coordinate(val)
-
-
-# ---------------------------------------------------------------------------
-# Mooring metadata extraction
-# ---------------------------------------------------------------------------
+#: A mooring's pages the year page links: key and file suffix.
+_PAGES: tuple[tuple[str, str], ...] = (
+    ("report", "_report.html"),
+    ("stack", "_stack_report.html"),
+    ("grid", "_grid_report.html"),
+)
 
 
 def _resolve_lat_lon(cfg: dict[str, Any]) -> tuple[float | None, float | None]:
@@ -67,164 +94,157 @@ def _resolve_lat_lon(cfg: dict[str, Any]) -> tuple[float | None, float | None]:
     return lat, lon
 
 
-def _count_instruments(cfg: dict[str, Any]) -> int:
-    """Count the not-skipped instruments in a mooring YAML (clamp or legacy key, plus inline)."""
-    return sum(
-        1 for e in instrument_entries(cfg) if isinstance(e, dict) and not e.get("skip")
-    )
-
-
-# ---------------------------------------------------------------------------
-# Map figure
-# ---------------------------------------------------------------------------
-
-
 def _square_map_limits(
     yl0: float, yl1: float, xl0: float, xl1: float, cos_lat: float
 ) -> tuple[float, float, float, float]:
     """Widen longitude so the extent is roughly square in Mercator proportion."""
     lon_span = xl1 - xl0
     lat_span = yl1 - yl0
-    # Mercator-equivalent width (as ctdcast's cruise maps); widen symmetrically
-    # so moorings strung along a line do not render as a sliver.
-    x_width = lon_span * cos_lat
-    if lat_span > x_width:
-        lon_span_sq = lat_span / cos_lat
-        extra = (lon_span_sq - lon_span) / 2
+    if lat_span > lon_span * cos_lat:
+        extra = (lat_span / cos_lat - lon_span) / 2
         xl0, xl1 = xl0 - extra, xl1 + extra
     return yl0, yl1, xl0, xl1
 
 
-def _build_array_masthead(
-    array_cfg: dict[str, Any],
-    rows: list[dict[str, Any]],
-    type_summary: list[dict[str, Any]],
-    deploy_dt_arr: datetime | None,
-    recover_dt_arr: datetime | None,
-    array_yaml_path: Path,
-) -> dict[str, str]:
-    """Return the array masthead metadata from the YAMLs (missing → em-dash)."""
-    # Nothing is invented: values come from the YAMLs or the per-mooring rows.
-    lats = [r["lat"] for r in rows if r["lat"] is not None]
-    lons = [r["lon"] for r in rows if r["lon"] is not None]
-    wds = [float(r["waterdepth"]) for r in rows if r["waterdepth"] is not None]
-    deps = [r["_deploy_dt"] for r in rows if r["_deploy_dt"] is not None]
-    recs = [r["_recover_dt"] for r in rows if r["_recover_dt"] is not None]
-    dep_dt = deploy_dt_arr or (min(deps) if deps else None)
-    rec_dt = recover_dt_arr or (max(recs) if recs else None)
+def bathymetry_contours(
+    path: Path, extent: tuple[float, float, float, float], cache: Path
+) -> str | None:
+    """Return depth contours over *extent* as GeoJSON, cached between runs.
 
-    vocab = {
-        str(v.get("instrument_in", "")).lower(): v.get("instrument_out")
-        for v in array_cfg.get("vocab", [])
-        if isinstance(v, dict)
+    Parameters
+    ----------
+    path : Path
+        A bathymetry file (GEBCO, ETOPO): one elevation variable (m, negative
+        below sea level) on latitude and longitude.
+    extent : tuple of float
+        West, south, east, north, in degrees.
+    cache : Path
+        JSON file the contours are kept in, reused while the file, extent and
+        depths are the same.
+
+    Returns
+    -------
+    str or None
+        A GeoJSON FeatureCollection, one MultiLineString per depth in
+        :data:`CONTOURS` (property ``depth``, m); None, with a warning, when *path*
+        does not exist or does not cover *extent*.
+    """
+    import matplotlib.pyplot as plt
+    import xarray as xr
+
+    key = {
+        "extent": [round(v, 2) for v in extent],
+        "depths": list(CONTOURS),
+        "file": path.name,
     }
-    by_type: list[str] = []
-    skipped = 0
-    for t in type_summary:
-        skipped += t.get("skipped", 0)
-        active = t["deployed"] - t.get("skipped", 0)
-        if active > 0:
-            itype = t["itype"].lower()
-            by_type.append(f"{vocab.get(itype) or _type_label(itype)} {active}")
-    total = sum(r["n_instruments"] for r in rows)
-    recovered = sum(1 for r in rows if r["_recover_dt"] is not None)
-    deployed_only = len(rows) - recovered
+    if cache.exists():
+        cached = json.loads(cache.read_text(encoding="utf-8"))
+        if cached.get("key") == key:
+            return json.dumps(cached["geojson"], separators=(",", ":"))
+    if not path.exists():
+        _log.warning("no depth contours on the map: %s not found", path)
+        return None
+    west, south, east, north = extent
+    with xr.open_dataset(path, engine="netcdf4") as ds:
+        z = next(ds[v] for v in ds.data_vars if ds[v].ndim == 2)
+        lat_dim, lon_dim = z.dims
+        # Some files run north to south; sorted, the selection works either way.
+        z = z.sortby([lat_dim, lon_dim]).sel(
+            {lat_dim: slice(south, north), lon_dim: slice(west, east)}
+        )
+        if min(z.shape) >= 2:
+            step = float(z[lon_dim].values[1] - z[lon_dim].values[0])
+            n = max(1, round(CONTOUR_RESOLUTION_DEG / step))
+            z = z.coarsen({lat_dim: n, lon_dim: n}, boundary="trim").mean().load()
+    if min(z.shape) < 2:
+        _log.warning(
+            "no depth contours on the map: %s does not cover %.1f–%.1f°E, %.1f–%.1f°N",
+            path.name,
+            west,
+            east,
+            south,
+            north,
+        )
+        return None
+    depths = sorted(CONTOURS)
+    fig, ax = plt.subplots()
+    lines = ax.contour(z[lon_dim].values, z[lat_dim].values, -z.values, levels=depths)
+    features = []
+    for depth, segments in zip(depths, lines.allsegs, strict=True):
+        coords = []
+        for segment in segments:
+            if len(segment) < CONTOUR_MIN_POINTS:
+                continue
+            points = np.round(segment, 2).tolist()
+            coords.append(
+                [p for i, p in enumerate(points) if i == 0 or p != points[i - 1]]
+            )
+        features.append(
+            {
+                "type": "Feature",
+                "properties": {"depth": depth},
+                "geometry": {"type": "MultiLineString", "coordinates": coords},
+            }
+        )
+    plt.close(fig)
+    geojson = {"type": "FeatureCollection", "features": features}
+    cache.write_text(
+        json.dumps({"key": key, "geojson": geojson}, separators=(",", ":")),
+        encoding="utf-8",
+    )
+    return json.dumps(geojson, separators=(",", ":"))
 
-    lat_dd = _parse_coordinate(array_cfg.get("latitude"))
-    lon_dd = _parse_coordinate(array_cfg.get("longitude"))
-    wd_min, wd_max = array_cfg.get("waterdepth_min"), array_cfg.get("waterdepth_max")
 
-    instruments = str(total)
-    if by_type:
-        instruments += " (" + " · ".join(by_type) + ")"
-    if skipped:
-        instruments += f" · {skipped} skipped"
-
-    return {
-        "deployed": dep_dt.strftime("%Y-%m-%d") if dep_dt else "—",
-        "recovered": rec_dt.strftime("%Y-%m-%d") if rec_dt else "—",
-        "duration": _format_duration(dep_dt, rec_dt),
-        "position": (
-            f"{location.format_ddm(lat_dd, is_lat=True)} / {location.format_ddm(lon_dd, is_lat=False)}"
-            if lat_dd is not None and lon_dd is not None
-            else "—"
-        ),
-        "extent": (
-            f"{location.format_ddm(min(lats), is_lat=True)}–{location.format_ddm(max(lats), is_lat=True)} / "
-            f"{location.format_ddm(min(lons), is_lat=False)}–{location.format_ddm(max(lons), is_lat=False)}"
-            if lats and lons
-            else "—"
-        ),
-        "waterdepth": (
-            f"{wd_min}–{wd_max} m"
-            if wd_min is not None and wd_max is not None
-            else (f"{min(wds):.0f}–{max(wds):.0f} m" if wds else "—")
-        ),
-        "instruments": instruments if total else "—",
-        "status": (
-            f"{recovered} recovered"
-            + (f" · {deployed_only} deployed" if deployed_only else "")
-        ),
-        "processed": "stage 3: {} · stack: {} · grid: {}".format(
-            sum(1 for r in rows if r["report_exists"]),
-            sum(1 for r in rows if r["stack_exists"]),
-            sum(1 for r in rows if r["grid_exists"]),
-        ),
-        "source": array_yaml_path.name,
-    }
+def _with_contours(html: str, contours: str) -> str:
+    """Return the page with the depth contours added to its map script."""
+    if html.count(CONTOUR_HOOK) != 1:
+        _log.warning("no depth contours: the map script has changed (CONTOUR_HOOK)")
+        return html
+    js = CONTOUR_JS.replace("__CONTOURS__", contours).replace(
+        "__COLORS__", json.dumps({str(k): v for k, v in CONTOURS.items()})
+    )
+    return html.replace(CONTOUR_HOOK, CONTOUR_HOOK + js)
 
 
 def _make_array_map_b64(rows: list[dict[str, Any]]) -> str | None:
-    """Return a base64-encoded PNG of mooring positions, or None on failure."""
+    """Return a base64 PNG of the mooring positions (the printed map), or None."""
     import math
 
     import matplotlib.pyplot as plt
 
-    pts = [
-        (r["lat"], r["lon"])
-        for r in rows
-        if r["lat"] is not None and r["lon"] is not None
-    ]
-    if not pts:
+    placed = [r for r in rows if r["lat"] is not None and r["lon"] is not None]
+    if not placed:
         return None
-
-    lats = [p[0] for p in pts]
-    lons = [p[1] for p in pts]
+    lats = [r["lat"] for r in placed]
+    lons = [r["lon"] for r in placed]
     cos_lat = math.cos(math.radians(sum(lats) / len(lats)))
-    # Framed extent: data bounds + a margin, widened to a Mercator-square aspect so a
-    # line of moorings frames sensibly rather than as a sliver.
     lat_margin = max(0.05, (max(lats) - min(lats)) * 0.1)
     lon_margin = max(0.05, (max(lons) - min(lons)) * 0.1)
-    yl0, yl1 = min(lats) - lat_margin, max(lats) + lat_margin
-    xl0, xl1 = min(lons) - lon_margin, max(lons) + lon_margin
-    yl0, yl1, xl0, xl1 = _square_map_limits(yl0, yl1, xl0, xl1, cos_lat)
-    # Size the figure from the framed extent so the map is undistorted.
+    yl0, yl1, xl0, xl1 = _square_map_limits(
+        min(lats) - lat_margin,
+        max(lats) + lat_margin,
+        min(lons) - lon_margin,
+        max(lons) + lon_margin,
+        cos_lat,
+    )
     width_in = report_tokens.W_HALF
     lon_span, lat_span = (xl1 - xl0), (yl1 - yl0)
     height_in = width_in * lat_span / (lon_span * cos_lat) if lon_span > 0 else 5.0
     height_in = min(8.0, max(2.5, height_in))
-    # Family TRACK_COLORS so markers match the Leaflet map; no in-figure title
-    # (the section heading names the map).
-    colors = report_tokens.TRACK_COLORS
 
     def _draw() -> plt.Figure:
         fig, ax = plt.subplots(figsize=(width_in, height_in))
         ax.set_aspect(1.0 / cos_lat)
-        for idx, r in enumerate(rows):
-            if r["lat"] is None or r["lon"] is None:
-                continue
-            color = colors[idx % len(colors)]
-            r["color_hex"] = color
-            ax.scatter(r["lon"], r["lat"], s=60, color=color, zorder=3)
-            if r.get("_recover_dt") is not None:
-                ax.annotate(
-                    r["mooring"],
-                    (r["lon"], r["lat"]),
-                    textcoords="offset points",
-                    xytext=(5, 3),
-                    fontsize=report_tokens.ANNOT_FS,
-                    color=color,
-                )
+        for r in placed:
+            ax.scatter(r["lon"], r["lat"], s=60, color=r["color_hex"], zorder=3)
+            ax.annotate(
+                r["mooring"],
+                (r["lon"], r["lat"]),
+                textcoords="offset points",
+                xytext=(5, 3),
+                fontsize=report_tokens.ANNOT_FS,
+                color=r["color_hex"],
+            )
         ax.set_xlim(xl0, xl1)
         ax.set_ylim(yl0, yl1)
         ax.set_xlabel(f"Longitude ({unit_label('degrees_east')})")
@@ -238,81 +258,44 @@ def _make_array_map_b64(rows: list[dict[str, Any]]) -> str | None:
     )
 
 
-# ---------------------------------------------------------------------------
-# Instrument status helpers
-# ---------------------------------------------------------------------------
-
-
 def _build_mooring_instruments(
     proc_dir: Path,
     mooring_id: str,
     mcfg: dict[str, Any],
     recover_dt: Any,
 ) -> list[dict[str, Any]]:
-    """Return a lightweight instrument status list for array-level tables."""
-    # proc_dir is the cruise-level processed dir; recover_dt is the YAML recovery time.
-
+    """Return one status record per instrument of a mooring, for the array tables."""
     mooring_proc = proc_dir / mooring_id
-    waterdepth = mcfg.get("waterdepth")
-    entries = instrument_entries(mcfg)
-
     results = []
-    for entry in entries:
+    for entry in instrument_entries(mcfg):
         if not isinstance(entry, dict):
             continue
         serial = safe_serial(entry.get("serial", ""))
-        itype = entry.get("instrument", "unknown")
-        hab = entry.get("hab") or entry.get("hab_bottom") or entry.get("hab_top")
-        try:
-            hab = float(hab) if hab is not None else None
-        except (TypeError, ValueError):
-            hab = None
-        depth = (
-            float(waterdepth) - hab
-            if (waterdepth is not None and hab is not None)
-            else None
-        )
-
+        # The stage files are in a folder named as the YAML writes the type.
+        folder = str(entry.get("instrument", "unknown"))
+        itype = folder.strip().lower()
         skipped = bool(entry.get("skip"))
-        skip_reason = entry.get("skip_reason") or ("skip: true" if skipped else "")
-
-        stages = _stage_files(mooring_proc, itype, mooring_id, serial)
-        stage1_exists = bool(stages.get("stage1"))
-        stage3_exists = bool(stages.get("stage3"))
-
-        no_raw = not skipped and not stage1_exists
-
-        nc_info = _read_instrument_info(mooring_proc, itype, mooring_id, serial)
-        t_end = nc_info.get("t_end") if nc_info and not nc_info.get("error") else None
-        t_end_raw = (
-            nc_info.get("t_end_raw") if nc_info and not nc_info.get("error") else None
-        )
-        n_records = (
-            nc_info.get("n_records") if nc_info and not nc_info.get("error") else None
-        )
-
+        stages = _stage_files(mooring_proc, folder, mooring_id, serial)
+        no_file = not skipped and not stages.get("stage1")
+        info = _read_instrument_info(mooring_proc, folder, mooring_id, serial)
+        t_end_raw = info.get("t_end_raw") if info and not info.get("error") else None
         stopped_early = False
         if recover_dt and t_end_raw is not None:
             rec_np = np.datetime64(recover_dt.replace(tzinfo=None).isoformat(), "ns")
             gap_s = float((rec_np - t_end_raw) / np.timedelta64(1, "s"))
             stopped_early = gap_s > STOPPED_EARLY_HOURS * 3600
-
-        complete = stage3_exists and not skipped and not stopped_early and not no_raw
-
+        processed = bool(stages.get("stage3")) and not skipped
         results.append(
             {
                 "serial": serial,
                 "itype": itype,
-                "hab": hab,
-                "depth": depth,
-                "skipped": skipped or no_raw,
-                "skip_reason": skip_reason
+                "skipped": skipped or no_file,
+                "skip_reason": NOT_HERE
                 if skipped
-                else ("no raw file" if no_raw else ""),
+                else ("no file found" if no_file else ""),
+                "yaml_reason": str(entry.get("skip_reason") or ""),
                 "stopped_early": stopped_early,
-                "complete": complete,
-                "n_records": n_records,
-                "t_end": t_end,
+                "processed": processed,
             }
         )
     return results
@@ -321,45 +304,117 @@ def _build_mooring_instruments(
 def _build_type_summary(
     mooring_instruments: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
-    """Aggregate per-instrument records into a per-type summary table."""
-    from collections import defaultdict
-
-    counts: dict[str, dict[str, int]] = defaultdict(
-        lambda: {"deployed": 0, "complete": 0, "skipped": 0, "stopped_early": 0}
-    )
+    """Return the instrument-type table: one row per type, deployed and processed."""
+    by_type: dict[str, list[dict[str, Any]]] = {}
     for instr in mooring_instruments:
-        itype = instr["itype"].lower()
-        counts[itype]["deployed"] += 1
-        if instr["complete"]:
-            counts[itype]["complete"] += 1
-        if instr["skipped"]:
-            counts[itype]["skipped"] += 1
-        if instr["stopped_early"]:
-            counts[itype]["stopped_early"] += 1
-
-    # Sort: canonical order first, then alphabetical remainder
+        by_type.setdefault(instr["itype"], []).append(instr)
     canonical = [t.lower() for t in _TYPE_ORDER]
-    all_types = list(counts.keys())
-    ordered = [t for t in canonical if t in all_types] + sorted(
-        t for t in all_types if t not in canonical
+    order = [t for t in canonical if t in by_type] + sorted(
+        t for t in by_type if t not in canonical
     )
+    rows = []
+    for itype in order:
+        group = by_type[itype]
+        rows.append(
+            {
+                "itype": itype,
+                "label": _type_label(itype),
+                "deployed": len(group),
+                "processed": sum(i["processed"] for i in group),
+                "skipped": sum(i["skipped"] for i in group),
+                "not_here": sum(i.get("skip_reason") == NOT_HERE for i in group),
+                "stopped_early": sum(i["stopped_early"] for i in group),
+                "notes": "; ".join(
+                    sorted(
+                        {
+                            i.get("yaml_reason") or i.get("skip_reason", "")
+                            for i in group
+                            if i["skipped"]
+                        }
+                    )
+                ),
+            }
+        )
+    return rows
 
+
+def _instruments_cell(instrs: list[dict[str, Any]]) -> str:
+    """Return ``"14 of 15 (1 ADCP not processed here)"`` for one mooring."""
+    processed = sum(i["processed"] for i in instrs)
+    missing = Counter(
+        (type_word(i["itype"]), i["skip_reason"]) for i in instrs if i["skipped"]
+    )
+    notes = ", ".join(f"{n} {t} {why}" for (t, why), n in missing.items())
+    return f"{processed} of {len(instrs)}" + (f" ({notes})" if notes else "")
+
+
+def _build_array_masthead(
+    array_cfg: dict[str, Any],
+    rows: list[dict[str, Any]],
+    type_summary: list[dict[str, Any]],
+    now: datetime | None = None,
+) -> list[_masthead.Fact]:
+    """Return the header: year deployed, project, moorings, status, water depth, instruments.
+
+    Parameters
+    ----------
+    array_cfg : dict
+        The array YAML.
+    rows : list of dict
+        One row per mooring (``_deploy_dt``, ``_recover_dt``, ``waterdepth``).
+    type_summary : list of dict
+        :func:`_build_type_summary`.
+    now : datetime, optional
+        When the status is judged; default now (UTC).
+
+    Returns
+    -------
+    list of Fact
+        In the page's order; each type with instruments not processed adds a fact.
+    """
+    now = now or datetime.now(UTC)
+    years = sorted({r["_deploy_dt"].year for r in rows if r["_deploy_dt"]})
+    recovered = sum(
+        1
+        for r in rows
+        if r["_recover_dt"] is not None
+        and r["_recover_dt"].replace(tzinfo=r["_recover_dt"].tzinfo or UTC) <= now
+    )
+    if recovered == len(rows):
+        status = "recovered"
+    else:
+        status = (
+            f"{recovered} of {len(rows)} recovered" if recovered else "in the water"
+        )
+    depths = [r["waterdepth"] for r in rows if r["waterdepth"] is not None]
+    by_type = " · ".join(
+        f"{type_word(t['itype'])} {t['deployed']}" for t in type_summary
+    )
+    total = sum(t["deployed"] for t in type_summary)
+    f = _masthead._fact
     return [
-        {
-            "itype": itype,
-            "deployed": counts[itype]["deployed"],
-            "complete": counts[itype]["complete"],
-            "skipped": counts[itype]["skipped"],
-            "stopped_early": counts[itype]["stopped_early"],
-            "notes": "",
-        }
-        for itype in ordered
+        f("Year deployed", array_cfg.get("year") or (years[0] if years else None)),
+        f("Project", array_cfg.get("project")),
+        f("Number of moorings", len(rows)),
+        f("Status", status if rows else None),
+        f(
+            "Water depth",
+            f"{min(depths):.0f}–{max(depths):.0f}" if depths else None,
+            "m",
+        ),
+        f("Instruments", f"{total} ({by_type})" if total else None),
+    ] + [
+        f(f"{_type_label(t['itype'])}s {NOT_HERE}", t["not_here"])
+        for t in type_summary
+        if t["not_here"]
     ]
 
 
 def _array_map_payload(rows: list[dict[str, Any]]) -> tuple[str, str, str]:
     """Return (payload, coastline, bounds) JSON strings for the Leaflet array map."""
     marks = [r for r in rows if r.get("lat") is not None and r.get("lon") is not None]
+    if not marks:
+        return safe_json([]), "null", "null"
     payload = []
     for r in marks:
         # Per-marker info HTML is pre-escaped here, then embedded via safe_json.
@@ -368,14 +423,11 @@ def _array_map_payload(rows: list[dict[str, Any]]) -> tuple[str, str, str]:
             f"{location.format_ddm(r['lat'], is_lat=True)}, "
             f"{location.format_ddm(r['lon'], is_lat=False)}",
         ]
-        if r.get("waterdepth"):
-            info.append(f"{escape(str(r['waterdepth']))} m")
+        if r.get("waterdepth") is not None:
+            info.append(f"{r['waterdepth']:.0f} m")
         info.append(f"{escape(r['deploy_time'])} &ndash; {escape(r['recover_time'])}")
-        info.append(f"{escape(str(r['n_instruments']))} instruments")
         if r.get("report_exists"):
-            info.append(
-                f'<a href="{escape(r["report_href"])}">&rarr; Mooring report</a>'
-            )
+            info.append(f'<a href="{escape(r["report_href"])}">&rarr; Overview</a>')
         payload.append(
             {
                 "id": r["mooring"],
@@ -385,22 +437,19 @@ def _array_map_payload(rows: list[dict[str, Any]]) -> tuple[str, str, str]:
                 "info": "<br>".join(info),
             }
         )
-    # No positioned mooring: payload "[]", coastline and bounds "null".
-    if not marks:
-        return safe_json([]), "null", "null"
     lats = [r["lat"] for r in marks]
     lons = [r["lon"] for r in marks]
-    lat_min, lat_max = min(lats), max(lats)
-    lon_min, lon_max = min(lons), max(lons)
-    # Pad the fit-bounds so a single marker (or a tight cluster) frames with context
-    # instead of fit-to-bounds collapsing onto a zero-size box and over-zooming.
-    lat_pad = max((lat_max - lat_min) * 0.15, 0.5)
-    lon_pad = max((lon_max - lon_min) * 0.15, 0.5)
+    # Padded, so one marker (or a tight cluster) frames with context.
+    lat_pad = max((max(lats) - min(lats)) * 0.15, 0.5)
+    lon_pad = max((max(lons) - min(lons)) * 0.15, 0.5)
     bounds_json = safe_json(
-        [[lat_min - lat_pad, lon_min - lon_pad], [lat_max + lat_pad, lon_max + lon_pad]]
+        [
+            [min(lats) - lat_pad, min(lons) - lon_pad],
+            [max(lats) + lat_pad, max(lons) + lon_pad],
+        ]
     )
     coastline_json = coastline_geojson(
-        (lon_min, lat_min, lon_max, lat_max), pad_deg=1.0
+        (min(lons), min(lats), max(lons), max(lats)), pad_deg=1.0
     )
     if coastline_json == "null":
         _log.warning(
@@ -410,9 +459,76 @@ def _array_map_payload(rows: list[dict[str, Any]]) -> tuple[str, str, str]:
     return safe_json(payload), coastline_json, bounds_json
 
 
-# ---------------------------------------------------------------------------
-# Public entry point
-# ---------------------------------------------------------------------------
+def _mooring_yaml(config_path: Path) -> dict[str, Any]:
+    """Return a mooring YAML, unvalidated when it has errors (its own page names them)."""
+    if not config_path.exists():
+        warnings.warn(f"mooring YAML not found: {config_path}", stacklevel=3)
+        return {}
+    try:
+        return _mooring.load(config_path)
+    except MooringError as exc:
+        warnings.warn(
+            f"{config_path} has validation errors ({exc}); shown unvalidated.",
+            stacklevel=3,
+        )
+        with config_path.open() as fh:
+            return yaml.safe_load(fh) or {}
+
+
+def _mooring_row(
+    entry: dict[str, Any],
+    array_dir: Path,
+    proc_dir: Path,
+    report_dir: Path | None,
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Return one mooring's table row and its instruments' status records."""
+    mooring_id = entry.get("mooring", "")
+    # A config path is relative to the array YAML (or absolute); the per-mooring
+    # proc-dir convention is the fallback.
+    config_path = Path(entry.get("config", f"{mooring_id}.mooring.yaml"))
+    if not config_path.is_absolute():
+        beside = array_dir / config_path
+        config_path = beside if beside.exists() else proc_dir / mooring_id / config_path
+    mcfg = _mooring_yaml(config_path)
+    lat, lon = _resolve_lat_lon(mcfg)
+    deploy_dt = _parse_dt(mcfg.get("deployment_time"))
+    recover_dt = _parse_dt(mcfg.get("recovery_time"))
+    rpt_dir, prefix = (
+        (report_dir / mooring_id, mooring_id)
+        if report_dir is not None
+        else (proc_dir / mooring_id / "report", f"{mooring_id}/report")
+    )
+    instrs = _build_mooring_instruments(proc_dir, mooring_id, mcfg, recover_dt)
+    # An unvalidated YAML may give the depth as text ("unknown", "~2000"): the
+    # table shows that text and the header and map leave it out.
+    depth = mcfg.get("waterdepth")
+    try:
+        depth_m = float(depth)
+    except (TypeError, ValueError):
+        depth_m = None
+    row = {
+        "mooring": mooring_id,
+        "line": entry.get("line"),
+        "lat": lat,
+        "lon": lon,
+        "position": (
+            f"{location.format_ddm(lat, is_lat=True)}, "
+            f"{location.format_ddm(lon, is_lat=False)}"
+            if lat is not None and lon is not None
+            else _masthead.MISSING
+        ),
+        "waterdepth": depth_m,
+        "waterdepth_text": f"{depth_m:.0f}" if depth_m is not None else depth or "—",
+        "deploy_time": deploy_dt.strftime("%Y-%m-%d %H:%M") if deploy_dt else "—",
+        "recover_time": recover_dt.strftime("%Y-%m-%d %H:%M") if recover_dt else "—",
+        "_deploy_dt": deploy_dt,
+        "_recover_dt": recover_dt,
+        "instruments": _instruments_cell(instrs),
+    }
+    for page, suffix in _PAGES:
+        row[f"{page}_exists"] = (rpt_dir / f"{mooring_id}{suffix}").exists()
+        row[f"{page}_href"] = f"{prefix}/{mooring_id}{suffix}"
+    return row, instrs
 
 
 def generate_array_report(
@@ -422,215 +538,121 @@ def generate_array_report(
     force: bool = False,
     report_dir: Path | None = None,
     breadcrumb: list[tuple[str, str | None]] | None = None,
+    bathymetry: Path | None = None,
 ) -> Path | None:
-    """Generate an HTML array-level summary report from an array YAML file.
+    """Generate the year array page from an array YAML file.
 
     Parameters
     ----------
     array_yaml_path : Path
-        Path to the ``*.array.yaml`` file.
+        Path to the ``*.array.yaml`` file. A mooring entry may name its ``line``
+        (moorings are coloured by line); ``bathymetry:`` names a bathymetry file
+        for the map's depth contours, relative to the YAML.
     proc_dir : Path
-        Root processing directory.  Each mooring directory is expected to be
-        ``proc_dir / mooring_id``.
+        Root processing directory; each mooring is ``proc_dir / mooring_id``.
     out_path : Path, optional
-        Output HTML path.  Defaults to
-        ``proc_dir / "{array_name}_array_report.html"`` (or
-        ``report_dir / "{array_name}_array_report.html"`` when *report_dir* is
-        set).
+        Output HTML path. Default ``{array_name}_array_report.html`` in
+        *report_dir*, else in *proc_dir*.
     force : bool
-        Overwrite existing output file.
+        Overwrite an existing page.
     report_dir : Path, optional
-        Central report directory.  When provided, each mooring's reports are
-        expected under ``report_dir / mooring_id /`` (the layout produced by
-        ``oceanarray report --report-dir``).  The array report itself is
-        written to ``report_dir / "{array_name}_array_report.html"`` and the
-        per-mooring links use the shorter relative path
-        ``{mooring}/{mooring}_report.html``.  When absent (default), the
-        legacy layout ``{mooring}/report/{mooring}_report.html`` is assumed.
+        Central report directory: each mooring's pages are expected under
+        ``report_dir / mooring_id /``; default ``{mooring}/report/`` beside each
+        mooring.
     breadcrumb : list of (str, str or None) or None, optional
-        An optional trail of ancestor crumbs shown above the title; the array index
-        is the top of its own output, so the hrefs are used as given.
+        Ancestor crumbs shown above the title; hrefs are used as given.
+    bathymetry : Path, optional
+        A bathymetry file (GEBCO or ETOPO) for the depth contours, in place of
+        the YAML's ``bathymetry:``. Without either, the map has no contours.
 
     Returns
     -------
     Path or None
-        Path to the written HTML file, or None on failure.
-
+        The page written, or None when the array YAML is not found.
     """
     array_yaml_path = Path(array_yaml_path)
     proc_dir = Path(proc_dir)
-
     if not array_yaml_path.exists():
         warnings.warn(f"array YAML not found: {array_yaml_path}", stacklevel=2)
         return None
-
     with array_yaml_path.open() as fh:
         array_cfg = yaml.safe_load(fh)
-
     array_name = array_cfg.get("name", array_yaml_path.stem)
-
     if out_path is None:
-        _out_root = report_dir if report_dir is not None else proc_dir
-        out_path = _out_root / f"{array_name}_array_report.html"
-
+        out_path = (report_dir or proc_dir) / f"{array_name}_array_report.html"
     if out_path.exists() and not force:
         logger.status("skip", str(out_path))
         return out_path
 
-    mooring_entries = array_cfg.get("moorings", [])
-    rows: list[dict[str, Any]] = []
-    all_instruments: list[dict[str, Any]] = []  # flat list across all moorings
-    mooring_completeness: list[dict[str, Any]] = []
-
-    for pos_idx, entry in enumerate(mooring_entries, start=1):
-        mooring_id = entry.get("mooring", "")
-        config_name = entry.get("config", f"{mooring_id}.mooring.yaml")
-        # A config path is resolved relative to the array YAML (or absolute), so a
-        # mooring description kept outside proc/ can be used; the per-mooring proc-dir
-        # convention is the fallback, so existing arrays are unchanged.
-        config_path = Path(config_name)
-        if not config_path.is_absolute():
-            _rel = array_yaml_path.parent / config_path
-            config_path = _rel if _rel.exists() else proc_dir / mooring_id / config_name
-
-        mcfg: dict[str, Any] = {}
-        if config_path.exists():
-            try:
-                mcfg = _mooring.load(config_path)
-            except MooringError as exc:
-                # The array report shows what it can: a validation ERROR should not blank
-                # the row, so fall back to the raw parse (the mooring's own report
-                # surfaces the error).
-                warnings.warn(
-                    f"{config_path} has validation errors ({exc}); shown unvalidated.",
-                    stacklevel=2,
-                )
-                try:
-                    with config_path.open() as fh:
-                        mcfg = yaml.safe_load(fh) or {}
-                except Exception as exc2:  # noqa: BLE001
-                    warnings.warn(f"could not read {config_path}: {exc2}", stacklevel=2)
-            except Exception as exc:  # noqa: BLE001
-                warnings.warn(f"could not read {config_path}: {exc}", stacklevel=2)
-        else:
-            warnings.warn(f"mooring YAML not found: {config_path}", stacklevel=2)
-
-        lat, lon = _resolve_lat_lon(mcfg)
-        deploy_dt = _parse_dt(mcfg.get("deployment_time"))
-        recover_dt = _parse_dt(mcfg.get("recovery_time"))
-
-        if report_dir is not None:
-            # Centralised layout: report_dir/{mooring}/{mooring}_report.html
-            mooring_rpt_dir = report_dir / mooring_id
-            _href_prefix = mooring_id
-        else:
-            # Legacy layout: proc_dir/{mooring}/report/{mooring}_report.html
-            mooring_rpt_dir = proc_dir / mooring_id / "report"
-            _href_prefix = f"{mooring_id}/report"
-
-        rows.append(
-            {
-                "position": entry.get("position", str(pos_idx)),
-                "mooring": mooring_id,
-                "lat": lat,
-                "lon": lon,
-                "color_hex": None,
-                "waterdepth": mcfg.get("waterdepth"),
-                "deploy_time": deploy_dt.strftime("%Y-%m-%d %H:%M")
-                if deploy_dt
-                else "—",
-                "recover_time": recover_dt.strftime("%Y-%m-%d %H:%M")
-                if recover_dt
-                else "—",
-                "duration": _format_duration(deploy_dt, recover_dt),
-                "_deploy_dt": deploy_dt,
-                "_recover_dt": recover_dt,
-                "n_instruments": _count_instruments(mcfg),
-                "report_exists": (
-                    mooring_rpt_dir / f"{mooring_id}_report.html"
-                ).exists(),
-                "stack_exists": (
-                    mooring_rpt_dir / f"{mooring_id}_stack_report.html"
-                ).exists(),
-                "grid_exists": (
-                    mooring_rpt_dir / f"{mooring_id}_grid_report.html"
-                ).exists(),
-                "report_href": f"{_href_prefix}/{mooring_id}_report.html",
-                "stack_href": f"{_href_prefix}/{mooring_id}_stack_report.html",
-                "grid_href": f"{_href_prefix}/{mooring_id}_grid_report.html",
-            }
-        )
-
-        # Collect per-instrument status for summary tables
-        instrs = _build_mooring_instruments(proc_dir, mooring_id, mcfg, recover_dt)
-        all_instruments.extend(instrs)
-        n_deployed = len(instrs)
-        n_complete = sum(1 for i in instrs if i["complete"])
-        n_skipped = sum(1 for i in instrs if i["skipped"])
-        n_early = sum(1 for i in instrs if i["stopped_early"])
-        mooring_completeness.append(
-            {
-                "mooring": mooring_id,
-                "waterdepth": mcfg.get("waterdepth"),
-                "deployed": n_deployed,
-                "complete": n_complete,
-                "skipped": n_skipped,
-                "stopped_early": n_early,
-                "deploy_time": deploy_dt.strftime("%Y-%m-%d %H:%M")
-                if deploy_dt
-                else "—",
-                "recover_time": recover_dt.strftime("%Y-%m-%d %H:%M")
-                if recover_dt
-                else "—",
-                "duration": _format_duration(deploy_dt, recover_dt),
-            }
-        )
-
-    fig_map_b64 = _make_array_map_b64(rows)
-    # Array map: the vendored Leaflet track_map when design.ARRAY_MAP_LEAFLET is on;
-    # while off (the macro can't yet draw a single-point mooring — see F8), an empty
-    # payload makes track_map show the matplotlib PNG fallback, so the map is never blank.
-    _, leaflet_css = load_leaflet()
-    if ARRAY_MAP_LEAFLET:
-        payload_json, coastline_json, bounds_json = _array_map_payload(rows)
-        leaflet_js, _ = load_leaflet()
-    else:
-        payload_json, coastline_json, bounds_json = "[]", "null", "null"
-        leaflet_js = ""
-
-    deploy_dt_arr = _parse_dt(array_cfg.get("deployment_time"))
-    recover_dt_arr = _parse_dt(array_cfg.get("recovery_time"))
-    type_summary = _build_type_summary(all_instruments)
-    masthead = _build_array_masthead(
-        array_cfg, rows, type_summary, deploy_dt_arr, recover_dt_arr, array_yaml_path
+    entries = array_cfg.get("moorings", [])
+    rows, instruments = [], []
+    for entry in entries:
+        row, instrs = _mooring_row(entry, array_yaml_path.parent, proc_dir, report_dir)
+        rows.append(row)
+        instruments.extend(instrs)
+    lines = list(dict.fromkeys(r["line"] for r in rows if r["line"]))
+    colors = report_tokens.TRACK_COLORS
+    durations = format_durations(
+        [span_seconds(r["_deploy_dt"], r["_recover_dt"]) for r in rows]
     )
+    for k, (row, duration) in enumerate(zip(rows, durations, strict=True)):
+        row["duration"] = duration
+        # One colour per line; without lines, one per mooring.
+        at = lines.index(row["line"]) if row["line"] in lines else k
+        row["color_hex"] = colors[at % len(colors)]
 
-    ctx = {
-        "array_name": array_name,
-        "year": array_cfg.get("year"),
-        "cruise": array_cfg.get("cruise"),
-        "ship": array_cfg.get("ship"),
-        "project": array_cfg.get("project"),
-        "deploy_time": deploy_dt_arr.strftime("%Y-%m-%d") if deploy_dt_arr else "",
-        "recover_time": recover_dt_arr.strftime("%Y-%m-%d") if recover_dt_arr else "",
-        "moorings": rows,
-        "fig_map_b64": fig_map_b64,
-        "payload_json": payload_json,
-        "coastline_json": coastline_json,
-        "bounds_json": bounds_json,
-        "leaflet_js": leaflet_js,
-        "leaflet_css": leaflet_css,
-        "map_height": 460,
-        "type_summary": type_summary,
-        "masthead": masthead,
-        "mooring_completeness": mooring_completeness,
-        "generated": datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC"),
-        # The array index is the top of its own output, so ancestor hrefs need no
-        # rebasing; with no ancestors and no own crumbs it shows no trail.
-        "breadcrumb": page_crumbs(breadcrumb, "", []),
-    }
-
-    html = render_template("array.html", **ctx)
+    type_summary = _build_type_summary(instruments)
+    fig_map_b64 = _make_array_map_b64(rows)
+    leaflet_js, leaflet_css = load_leaflet()
+    payload_json, coastline_json, bounds_json = (
+        _array_map_payload(rows) if ARRAY_MAP_LEAFLET else ("[]", "null", "null")
+    )
+    gebco = bathymetry or (
+        array_yaml_path.parent / array_cfg["bathymetry"]
+        if array_cfg.get("bathymetry")
+        else None
+    )
+    placed = [r for r in rows if r["lat"] is not None and r["lon"] is not None]
+    contours = None
+    if gebco and placed and payload_json != "[]":
+        contours = bathymetry_contours(
+            Path(gebco),
+            (
+                min(r["lon"] for r in placed) - CONTOUR_PAD_DEG,
+                min(r["lat"] for r in placed) - CONTOUR_PAD_DEG,
+                max(r["lon"] for r in placed) + CONTOUR_PAD_DEG,
+                max(r["lat"] for r in placed) + CONTOUR_PAD_DEG,
+            ),
+            out_path.parent / f"_{array_name}_contours.json",
+        )
+    html = render_template(
+        "array.html",
+        array_name=array_name,
+        year=array_cfg.get("year")
+        or next((r["_deploy_dt"].year for r in rows if r["_deploy_dt"]), ""),
+        moorings=rows,
+        lines=[(name, colors[i % len(colors)]) for i, name in enumerate(lines)],
+        fig_map_b64=fig_map_b64,
+        payload_json=payload_json,
+        coastline_json=coastline_json,
+        bounds_json=bounds_json,
+        leaflet_js=leaflet_js if ARRAY_MAP_LEAFLET else "",
+        leaflet_css=leaflet_css,
+        map_height=460,
+        contours=CONTOURS if contours else {},
+        contour_file=Path(gebco).name if contours else "",
+        type_summary=type_summary,
+        stopped_hours=STOPPED_EARLY_HOURS,
+        meta_facts=_build_array_masthead(array_cfg, rows, type_summary),
+        processing={
+            "pages": {p: sum(r[f"{p}_exists"] for r in rows) for p, _ in _PAGES},
+            "source": array_yaml_path.name,
+        },
+        generated=datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC"),
+        breadcrumb=page_crumbs(breadcrumb, "", []),
+    )
+    if contours:
+        html = _with_contours(html, contours)
     out_path.write_text(html, encoding="utf-8")
     logger.status("file", str(out_path))
     return out_path

@@ -176,7 +176,7 @@ GRID_CAPTIONS: dict[str, str] = {
         "CW) (right; r < 0: clockwise dominant). Welch estimate, 14-day Hann "
         "windows, 50 % overlap. Vertical lines: M2, K1 and the inertial period f."
     ),
-    "nc_file": "The grid file: its coordinates, variables and global attributes.",
+    "nc_file": _captions.netcdf_caption("grid file"),
 }
 
 

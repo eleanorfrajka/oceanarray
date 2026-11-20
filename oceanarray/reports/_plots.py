@@ -58,7 +58,6 @@ from ..plotters.timeseries import (
     draw_grid_hydro,
     draw_grid_n2,
     draw_grid_potential_density,
-    draw_grid_sigma,
     draw_grid_timeseries,
     draw_grid_velocity_stacked,
     draw_stack_timeseries,
@@ -66,9 +65,7 @@ from ..plotters.timeseries import (
 from ..plotters.ts import (
     draw_grid_ts_diagram,
     draw_stack_ts_diagram,
-    draw_ts_by_deployment,
     draw_ts_diagram,
-    draw_ts_medians,
 )
 from ._figdebug import render_b64
 from ._read import _QC_LABELS
@@ -469,11 +466,6 @@ def _make_ts_diagram_b64(
     return render_b64(draw_ts_diagram, nc_path, record=record, optional=True)
 
 
-def _make_grid_sigma_b64(ds: xr.Dataset) -> str | None:
-    """Stacked sigma0 pcolormesh panel(s) for the stratification section."""
-    return render_slot(draw_grid_sigma, ds, optional=True)
-
-
 def _make_grid_potential_density_b64(
     ds: xr.Dataset,
     reference: str = "sigma0",
@@ -583,15 +575,14 @@ def _make_flag_strip_b64(ds: xr.Dataset, labels: list[str] | None = None) -> str
 
 
 def _make_stack_ts_diagram_b64(
-    ds: xr.Dataset, derived: Any = None, *, record: dict | None = None
+    ds: xr.Dataset, derived: Any = None, **kwargs: Any
 ) -> str | None:
     """Return base64 PNG: T-S diagram for a stacked dataset (*derived*: the page's).
 
-    *record*, when given, is filled with what the figure drew (see
-    ``plotters.ts.draw_stack_ts_diagram``) for the caption.
+    Keywords (``record``, ``full_range``) go to ``plotters.ts.draw_stack_ts_diagram``.
     """
     return render_b64(
-        draw_stack_ts_diagram, ds, derived=derived, record=record, optional=True
+        draw_stack_ts_diagram, ds, derived=derived, optional=True, **kwargs
     )
 
 
@@ -776,118 +767,6 @@ def _make_stack_timeseries_b64(
         legend_shallow_first=legend_shallow_first,
         optional=True,
         **kwargs,
-    )
-
-
-def _make_ts_by_deployment_b64(ds: xr.Dataset, derived: Any = None) -> str | None:
-    """T-S outlines by deployment, half width, for the concatenated page."""
-    return render_slot(
-        draw_ts_by_deployment, ds, derived=derived, slot="half", optional=True
-    )
-
-
-def _make_ts_points_by_deployment_b64(
-    ds: xr.Dataset, derived: Any = None
-) -> str | None:
-    """Render the thinned T-S point cloud by deployment, half width, for the concatenated page."""
-    from oceanarray.plotters.ts import draw_ts_points_by_deployment
-
-    return render_slot(
-        draw_ts_points_by_deployment, ds, derived=derived, slot="half", optional=True
-    )
-
-
-def _make_ts_medians_b64(ds: xr.Dataset, derived: Any = None) -> str | None:
-    """T-S medians with IQR whiskers per level, half width, for the concatenated page."""
-    return render_slot(draw_ts_medians, ds, derived=derived, slot="half", optional=True)
-
-
-def _make_rose_outlines_b64(ds: xr.Dataset) -> str | None:
-    """One rose per velocity slot, one outline per deployment, for the concatenated page."""
-    from oceanarray.plotters.current import draw_rose_outlines
-
-    return render_slot(draw_rose_outlines, ds, optional=True)
-
-
-def _make_speed_profile_by_deployment_b64(ds: xr.Dataset) -> str | None:
-    """Speed boxes per slot and deployment, half width, for the concatenated page."""
-    from oceanarray.plotters.current import draw_speed_profile_by_deployment
-
-    return render_slot(draw_speed_profile_by_deployment, ds, slot="half", optional=True)
-
-
-def _make_direction_profile_by_deployment_b64(ds: xr.Dataset) -> str | None:
-    """Render current direction per depth and deployment, half width, for the concatenated page."""
-    from oceanarray.plotters.current import draw_direction_profile_by_deployment
-
-    return render_slot(
-        draw_direction_profile_by_deployment, ds, slot="half", optional=True
-    )
-
-
-def _make_site_sections_b64(
-    panels: list[dict],
-    time: np.ndarray,
-    pressure: np.ndarray,
-    time_edges: np.ndarray,
-    owner: np.ndarray,
-    deployments: list[tuple],
-    isopycnals: list[tuple],
-    crop: bool = False,
-) -> str | None:
-    """Stacked pressure × time sections of a site grid, full width, for the site grid page."""
-    from oceanarray.plotters.site import draw_site_sections
-
-    return render_slot(
-        draw_site_sections,
-        panels,
-        time,
-        pressure,
-        time_edges=time_edges,
-        owner=owner,
-        deployments=deployments,
-        isopycnals=isopycnals,
-        crop=crop,
-        optional=True,
-    )
-
-
-def _make_site_profiles_b64(
-    columns: list[dict], pressure: np.ndarray, names: list[str], slot: str
-) -> str | None:
-    """Median profile per deployment, at *slot* width, for the site grid page."""
-    from oceanarray.plotters.site import draw_site_profiles
-
-    return render_slot(
-        draw_site_profiles, columns, pressure, names, slot=slot, optional=True
-    )
-
-
-def _make_site_ts_b64(
-    theta: np.ndarray,
-    salinity: np.ndarray,
-    names: list[str],
-    position: tuple[float, float] | None,
-    sigma0_levels: tuple,
-    sigma2_levels: tuple,
-    pressure: np.ndarray | None = None,
-    pins: list | None = None,
-) -> str | None:
-    """θ-S of each deployment's median profile, half width, for the site grid page."""
-    from oceanarray.plotters.site import draw_site_ts
-
-    return render_slot(
-        draw_site_ts,
-        theta,
-        salinity,
-        names,
-        *(position or (None, None)),
-        sigma0_levels=sigma0_levels,
-        sigma2_levels=sigma2_levels,
-        pressure=pressure,
-        pins=pins,
-        slot="half",
-        optional=True,
     )
 
 

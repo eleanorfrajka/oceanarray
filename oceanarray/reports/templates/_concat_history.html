@@ -1,7 +1,8 @@
-{# The concat step's own history, then each deployment's stack history folded under its name. #}
-{{ concat_html }}
-{% for name, html in deployments %}
+{# A site page's processing table (reports._captions.stack_history_rows), then each
+   deployment's own, collapsed under its name. #}
+{% include "_history_steps.html" %}
+{% for name, deployment_rows in deployments %}
 <details class="deployment-history"><summary>{{ name }}</summary>
-{{ html }}
+{% with rows = deployment_rows %}{% include "_history_steps.html" %}{% endwith %}
 </details>
 {% endfor %}

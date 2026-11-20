@@ -296,7 +296,7 @@ def test_the_report_page(site):
     assert "Instruments (avg)" in html and "3 (MicroCAT 2" in html
     for section in (
         "Deployments",
-        "Instruments by depth",
+        "Instruments",
         "Hydrography",
         "T-S diagram",
     ):
@@ -629,3 +629,153 @@ def test_validate_wants_a_source_as_text():
         i.level == "ERROR" and "'waterdepth_source' must be text" in i.message
         for i in mooring.check(cfg)
     )
+
+
+# The Stack cat page for a reader who did not run the pipeline -------------------
+
+
+@pytest.fixture(scope="module")
+def flmb_site(flmb) -> xr.Dataset:
+    """The FLMB 2016 and 2017 stacks joined."""
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        return concat(flmb, name="FLMB")
+
+
+def test_the_history_records_each_step_dated(flmb_site):
+    """Join, overlaps and flags are dated history entries, read back as table rows."""
+    from oceanarray.reports._captions import stack_history_rows
+
+    rows = stack_history_rows(flmb_site)
+    events = [r.events[0].split(":", 1)[0] for r in rows]
+    assert events[:4] == ["combine", "join", "overlaps", "flags"]
+    assert all(r.when != "—" for r in rows[1:4])
+    by = {r.events[0].split(":", 1)[0]: r.settings for r in rows}
+    assert by["join"].startswith("1 h steps, one depth within")
+    assert by["overlaps"] == "rule: the newer one"
+    assert by["flags"].startswith("rule: 4")
+
+
+def test_depths_are_named_by_depth_and_told_apart_by_type(flmb_site):
+    """ "1824 m" for a depth; the MicroCAT and current meter at one depth add their type."""
+    from oceanarray.reports._concat import _depth_names
+
+    names = _depth_names(flmb_site)
+    assert "30 m" in names
+    assert {"1824 m MC", "1824 m CM"} <= set(names)
+    assert not any("≈" in n or "T/S" in n for n in names)
+
+
+def test_a_short_record_is_left_out_of_every_figure_and_named(flmb_site):
+    """A deployment with velocity at a depth for less than half its time is dropped."""
+    from oceanarray.reports._concat import _drop_short, _page_captions, _report_view
+
+    view = _report_view(flmb_site)
+    j = list(view["serial"].values).index("2724 m CM")
+    cell = view["cell_deployment"].values[:, j]
+    first = np.flatnonzero(cell == 0)
+    cut = view.copy(deep=True)
+    for v in ("east_velocity", "north_velocity"):
+        cut[v][first[: int(0.6 * first.size)], j] = np.nan
+    dropped, left_out = _drop_short(
+        cut, cut["cell_deployment"].values, ["2016", "2017"], cut["serial"].values
+    )
+    assert left_out == {"velocity": ["2016 at 2724 m CM"]}
+    assert np.isnan(dropped["east_velocity"].values[first, j]).all()
+    assert np.isfinite(dropped["temperature"].values[first, j]).any()
+    captions = _page_captions(flmb_site, dropped, {}, left_out, False, [])
+    assert "(2016 at 2724 m CM)" in captions["speed_profile"]
+    assert "2016 at 2724 m CM" in captions["roses"]
+    assert "2016 at 2724 m CM" not in captions["ts_points"]
+    # Oxygen goes with the hydrography; turbidity keeps the deployment marks.
+    short = {"hydrography": ["2016 at 30 m"]}
+    captions = _page_captions(flmb_site, view, {}, short, False, [])
+    assert "half their deployment: 2016 at 30 m" in captions["dissolved_oxygen"]
+    assert "▼" in captions["dissolved_oxygen"] and "▼" in captions["turbidity"]
+
+
+def test_the_short_record_rule_is_worded_from_its_fraction(flmb_site, monkeypatch):
+    from oceanarray.config import parameters as params
+    from oceanarray.reports._concat import _page_captions, _report_view
+
+    monkeypatch.setattr(params, "MIN_RECORD_FRACTION", 0.3)
+    short = {"velocity": ["2016 at 2724 m CM"]}
+    captions = _page_captions(flmb_site, _report_view(flmb_site), {}, short, False, [])
+    assert "less than 30 % of their time" in captions["speed_profile"]
+    assert "less than 30 % of their deployment" in captions["roses"]
+    assert "half" not in captions["speed_profile"] + captions["roses"]
+
+
+def test_the_instruments_caption_keys_the_types_the_cells_show(stacks, tmp_path):
+    """Paired at 100 m, the current meter and the Aquadopp share a row; only their
+    cells show a type, and the key names those two."""
+    from oceanarray.reports._concat import _depth_rows, _page_captions, _report_view
+
+    wide = []
+    for s in stacks:
+        s = s.copy()
+        settings = yaml.safe_load(s.attrs["deployment_settings"])
+        settings["stack"]["depth_tolerance_m"] = 100
+        s.attrs["deployment_settings"] = yaml.safe_dump(settings)
+        wide.append(s)
+    out = concat(wide, name="egM2")
+    rows = _depth_rows(out, tmp_path / "egM2_stackcat.nc", tmp_path)
+    (mixed,) = [r for r in rows if r["mixed"]]
+    assert {e["abbr"] for c in mixed["cells"] for e in c} == {"CM", "Aquadopp"}
+    caption = _page_captions(out, _report_view(out), {}, {}, False, rows)
+    assert (
+        "with the type in front where a depth holds more than one "
+        "(Aquadopp, CM current meter)." in caption["instr_table"]
+    )
+    alone = _page_captions(out, _report_view(out), {}, {}, False, [])
+    assert "type in front" not in alone["instr_table"]
+
+
+def test_one_deployments_magnetic_north_velocity_is_named(stacks):
+    """Stage-2 velocity in 2018 only: concat keeps it per deployment, the captions read it."""
+    from oceanarray.reports._captions import direction_reference
+
+    magnetic = stacks[1].copy()
+    magnetic.attrs["stage2_magnetic_north"] = "CM2000"
+    out = concat([stacks[0], magnetic], name="egM2")
+    assert list(out["deployment_stage2_magnetic_north"].values) == ["", "CM2000"]
+    assert direction_reference(out) == (
+        "relative to true north, as provided by the originator; some relative to "
+        "magnetic north, no declination applied"
+    )
+    assert direction_reference(concat(stacks, name="egM2")) == (
+        "relative to true north, as provided by the originator"
+    )
+
+
+def test_the_time_axis_ends_at_the_data(flmb_site):
+    """With deployment windows, the axis spans the values drawn, not the windows."""
+    from oceanarray.plotters.timeseries import draw_stack_timeseries
+    from oceanarray.reports._concat import _deployment_windows, _report_view
+
+    view = _report_view(flmb_site)
+    fig = draw_stack_timeseries(
+        view,
+        [("temperature", "T", False, None)],
+        color_var="temperature",
+        deployments=_deployment_windows(flmb_site),
+    )
+    import matplotlib.dates as mdates
+
+    last = np.datetime64(
+        mdates.num2date(fig.axes[0].get_xlim()[1]).replace(tzinfo=None)
+    )
+    finite = np.isfinite(view["temperature"].values).any(axis=1)
+    assert abs(last - view["time"].values[finite][-1]) < np.timedelta64(1, "s")
+
+
+def test_the_page_has_one_netcdf_appendix_and_reader_headings(site):
+    yamls = [site / n / f"{n}.mooring.yaml" for n in _NAMES]
+    with contextlib.redirect_stdout(io.StringIO()):
+        out = concat_moorings(yamls, name="egM2", overwrite=True)
+        html = generate_concat_page(out, out.parent / "report").read_text("utf-8")
+    assert 'id="netcdf"' in html and 'id="netcdf_variables"' not in html
+    assert "Instruments by depth" not in html and "Draft" not in html
+    assert "<th>#</th>" not in html
+    assert "overlap block" in html.split('id="deployments"')[1].split("</h2>", 2)[1]
+    assert html.count("overlap block") == 1

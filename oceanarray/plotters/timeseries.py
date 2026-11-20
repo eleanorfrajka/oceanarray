@@ -793,7 +793,7 @@ def draw_grid_timeseries(
 
 
 def draw_analog_timeseries(
-    nc_path: Path,
+    nc_path: Path | xr.Dataset,
     analog_vars: list[str],
     *,
     width_in: float = report_tokens.W_FULL,
@@ -804,8 +804,8 @@ def draw_analog_timeseries(
 
     Parameters
     ----------
-    nc_path : Path
-        Path to the stage-3 or stack NetCDF file.
+    nc_path : Path or xarray.Dataset
+        The stage-3 or stack NetCDF file, or the dataset already read from it.
     analog_vars : list of str
         Variable names to plot (caller must ensure the list is non-empty).
 
@@ -912,9 +912,10 @@ def draw_stack_timeseries(
     *color_var*, deep-first; see :func:`~oceanarray.plotters.helpers.level_line_styles`),
     so a colour tracks an instrument through every row, and one legend on the
     right lists the instruments plotted. Values the stack's ``mask_flags`` rule
-    hides (ours or the originator's flag; default 4) are left out. Long records are thinned to about 5000
-    points per line; the time axis spans ``time_coverage_start`` to
-    ``time_coverage_end`` when the stack records them.
+    hides (ours or the originator's flag; default 4) are left out. Long records are
+    thinned to about 5000 points per line. The time axis spans
+    ``time_coverage_start`` to ``time_coverage_end`` when the stack records them;
+    with *deployments* (a site), the data drawn.
 
     Parameters
     ----------
@@ -990,6 +991,7 @@ def draw_stack_timeseries(
         height_ratios=heights,
     )
     handles: dict = {}
+    spans: list[tuple[np.datetime64, np.datetime64]] = []
     first_row: dict[str, float] = {}
     n_suspect = 0
     for row_i, (ax, (var, ylabel, invert, exclude)) in enumerate(
@@ -1004,8 +1006,10 @@ def draw_stack_timeseries(
             if exclude and types[i] in exclude:
                 continue
             y = values[::step, i]
-            if not np.any(np.isfinite(y)):
+            finite = np.flatnonzero(np.isfinite(y))
+            if not finite.size:
                 continue
+            spans.append((time[finite[0]], time[finite[-1]]))
             (line,) = ax.plot(
                 time,
                 y,
@@ -1027,7 +1031,6 @@ def draw_stack_timeseries(
                 )
             handles.setdefault(serial, line)
             if row_i == 0:
-                finite = np.flatnonzero(np.isfinite(y))
                 first_row[serial] = float(y[finite[-1]])
             if suspect is not None:
                 s = (suspect[::step, i] == 3) & np.isfinite(y)
@@ -1042,7 +1045,7 @@ def draw_stack_timeseries(
             ds.attrs.get("time_coverage_start"),
             ds.attrs.get("time_coverage_end"),
         )
-        if start and end:
+        if start and end and not deployments:
             # A coverage attribute that does not parse leaves the data's own limits.
             with contextlib.suppress(ValueError, TypeError):
                 ax.set_xlim(
@@ -1054,6 +1057,8 @@ def draw_stack_timeseries(
         return None
     if deployments:
         _mark_deployments(list(axs[:, 0]), deployments)
+        # A site's axis spans its data, not the deployment windows.
+        axs[0, 0].set_xlim(min(t for t, _ in spans), max(t for _, t in spans))
     date_axis(axs[-1, 0])
     axs[-1, 0].set_xlabel("Time")
     fig.align_ylabels(axs[:, 0])

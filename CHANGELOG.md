@@ -9,6 +9,10 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Added
 
+- Year array page: header (year deployed, project, moorings, status, water depth, instruments), moorings coloured by `line:`, one moorings table with "14 of 15" instruments.
+- Array YAML `bathymetry:` (or `generate_array_report(bathymetry=)`): 500–2500 m depth contours on the year page's map from a GEBCO or ETOPO file, cached beside the page.
+- Stack cat and Grid cat: a deployment with values at a depth for less than half its time is left out of every figure, and the captions name it.
+- Deployment page QC summary reads the originator's flags (`*_qc_originator_mapped`) beside oceanarray's, in a "Flags by" column.
 - Instrument page header: "{Type} {serial} · {depth} m", nominal depth, HAB, start/end, sampling interval, records, and the originator's file (or ERDDAP dataset) linked to its archive.
 - Instrument page: a Quality flags table of the originator's flags (`*_qc_originator_mapped`) beside ours, classes other than good only, and the QC test limits.
 - Instrument and stack pages: a processing table with one row per `history` entry (When / What was done / Settings), settings read from the file's attributes.
@@ -46,6 +50,16 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Changed
 
+- Stack cat captions are built from the file: flag sentence, direction reference, σθ interval; grey bands named only when a turnaround has a gap.
+- Stack cat: depths labelled "1824 m" (type added when two share a depth), shorter upward-velocity panel, time axis ends at the data, T-S axes over every value.
+- Stack cat: roses share one ring scale, direction profile drops the steadiness markers, T-S medians lose "Draft"; one NetCDF file appendix.
+- Stack cat and Grid cat processing tables are read from `history`, one dated row per step, with each deployment's own table collapsed below.
+- Stack cat Instruments table: reader type names and a generated caption; Deployments table without "#", its caption the one place the overlap block is named.
+- Grid cat: one intro above the sections; isopycnals labelled "σ₀ 27.7" in the right margin with a thin white edge; "Mean direction" / "Cross direction".
+- Grid cat T-S: σ₀ dashed and σ₂ solid over the full range of the medians; velocity profiles cropped to their pressures with a dashed zero line.
+- `concat` and `grid` write one dated `history` entry per step (join, overlaps, flags, grid) in place of one undated line.
+- Durations use one unit per table: decimal years past a year, else months past a month, else days ("13.6 days" for "13d 15h").
+- The instrument header's sampling interval is the median time step (was the 90th percentile).
 - Instrument page: files table, history record, start/end windows and value distributions move into a collapsed Processing section; one NetCDF file appendix.
 - Instrument time series and T-S mark the worse of the originator's and our flags: dots suspect, crosses bad, legend in words; captions generated from the file.
 - Instrument T-S is the stack's figure: every value drawn, pressure colour bar shallow at the top, σθ labelled inside the axes; the stack T-S does the same.
@@ -117,6 +131,7 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Breaking changes
 
+- The array page no longer shows the array YAML's cruise, ship, dates, position or water-depth range, nor its `vocab` names; values come from the mooring YAMLs.
 - The stack keeps every value with ours and the originator's flags; suspect (3) values are shown and gridded by default (`stack: mask_flags: [3, 4]` keeps the old way).
 - In the stack and Stack cat a value with no flag variable is 0 (not QC'd) and a missing one 9; flags are int8.
 - Interpolated pressure never uses an input flagged 4 or 9; such times are missing (9), not interpolated.
@@ -125,6 +140,11 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Fixed
 
+- Year array page: a mooring YAML whose `waterdepth` is text ("unknown") no longer stops the page; the table shows the text, the header and map leave it out.
+- Deployment page QC summary reads character flags (originator files) as numbers; a variable whose flags are not digits is left out with a warning.
+- Grid cat T-S diagram pairs each deployment's instrument circles with its curve by deployment name, not by position.
+- Grid cat isopycnal labels sit at the right pressure where density decreases with pressure between two levels.
+- `oceanarray plot` and `process --plot` apply the report style to their own figures only; it no longer stays set for later figures in the same Python session.
 - The deployment page's QC table no longer repeats the Good column (once from Good %, once from the per-flag columns).
 - Rose pages no longer warn of a missing declination when the originator rotated to true north (stack `originator_magnetic_declination`); the warning names who and why.
 - Thermistors, TR-1050 and Seapoint instruments get readable type names on report pages (were upper-cased codes).

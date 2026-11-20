@@ -71,7 +71,7 @@ def test_dune2_common_facts_in_order():
     assert d["Latitude"] == ("65° 43.91′ N", False)
     assert d["Longitude"] == ("027° 48.00′ W", False)
     assert d["Water depth"] == ("745&thinsp;m", False)
-    assert d["Duration"] == ("13d 15h", False)
+    assert d["Duration"] == ("13.6 days", False)
     assert d["Instruments"] == ("2 (MicroCAT 1 · Aquadopp 1)", False)
 
 
@@ -81,7 +81,7 @@ def test_rodb_mooring_recovery_cruise_and_ship_unknown():
     assert d["Deployment ship"] == ("—", True)
     assert d["Recovery cruise"] == ("UNK", True)
     assert d["Recovery ship"] == ("UNK", True)
-    assert d["Duration"] == ("11.2mon", False)
+    assert d["Duration"] == ("11.2 months", False)
     assert d["Latitude"] == ("57° 28.24′ N", False)
 
 

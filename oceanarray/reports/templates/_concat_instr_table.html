@@ -4,13 +4,13 @@
    linked to the instrument page in that deployment's report, with the
    instrument's depth under it (and its type when the depth holds more than one). #}
 <table class="instr-table">
-  <thead><tr><th>~Depth (m)</th><th>Type</th>
+  <thead><tr><th>Nominal depth<span class="th-unit">m</span></th><th>Type</th>
   {% for name in deployments %}<th>{{ name }}</th>{% endfor %}</tr></thead>
   <tbody>
   {% for row in rows %}
   <tr>
     <td>{{ row.depth }}</td>
-    <td>{{ row.types or row.family }}</td>
+    <td>{{ row.types }}</td>
     {% for cell in row.cells %}<td{% if cell %} title="{% for e in cell %}{% if not loop.first %}; {% endif %}{{ e.type }} {{ e.serial }} ({{ e.depth }} m){% endfor %}"{% endif %}>
       {%- for e in cell %}{% if not loop.first %}<br>{% endif %}{% if row.mixed %}{{ e.abbr }} {% endif %}{% if e.href %}<a href="{{ e.href }}">{{ e.serial }}</a>{% else %}{{ e.serial }}{% endif %}<br><small>{{ e.depth }} m</small>{% else %}—{% endfor -%}
     </td>{% endfor %}

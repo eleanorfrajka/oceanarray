@@ -14,6 +14,8 @@ from typing import NamedTuple
 import numpy as np
 import xarray as xr
 
+from oceanarray.config import parameters as params
+
 #: Display averaging by record length: ``(longest span in years, pandas
 #: frequency, words)``; the first whose span exceeds the record's is used.
 DISPLAY_STEPS: tuple[tuple[float, str, str], ...] = (
@@ -116,13 +118,6 @@ def display_bins(
     return DisplayBins(edges, centers, bins, owner)
 
 
-#: A display bin of a section is shown only when its cell has finite values for at
-#: least this fraction of the bin's time steps; an edge level that the grid fills
-#: only part of the time (an instrument riding across it) is left blank instead of
-#: showing a chequer of partial means.
-DISPLAY_MIN_FRACTION: float = 0.5
-
-
 def bin_means(
     values: np.ndarray, bins: np.ndarray, n_bins: int, *, min_fraction: float = 0.0
 ) -> np.ndarray:
@@ -162,7 +157,7 @@ def display_means(ds: xr.Dataset, bins: DisplayBins) -> xr.Dataset:
     """Return the ``(time, pressure)`` variables of a grid averaged in deployment-bound bins.
 
     A cell is shown only where it has data for at least
-    :data:`DISPLAY_MIN_FRACTION` of its bin.
+    :data:`~oceanarray.config.parameters.MIN_DISPLAY_BIN_FRACTION` of its bin.
 
     Parameters
     ----------
@@ -185,7 +180,7 @@ def display_means(ds: xr.Dataset, bins: DisplayBins) -> xr.Dataset:
                     ds[v].values,
                     bins.step_bin,
                     len(bins.centers),
-                    min_fraction=DISPLAY_MIN_FRACTION,
+                    min_fraction=params.MIN_DISPLAY_BIN_FRACTION,
                 ),
                 dict(ds[v].attrs),
             )

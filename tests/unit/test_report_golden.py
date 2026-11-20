@@ -21,7 +21,6 @@ import re
 import pytest
 
 from oceanarray import logger
-from oceanarray.reports import MooringReport
 
 _FIXTURES = pathlib.Path(__file__).resolve().parents[1] / "fixtures"
 _PROC = _FIXTURES / "proc"
@@ -78,18 +77,9 @@ def test_safe_rel(tmp_path: pathlib.Path) -> None:
 
 
 @pytest.fixture(scope="module")
-def rendered_dir(tmp_path_factory) -> pathlib.Path:
-    """Render every dune2 report page once into a temp dir for the module."""
-    out = tmp_path_factory.mktemp("golden_render")
-    MooringReport(proc_dir=str(_PROC)).generate(
-        _MOORING,
-        force=True,
-        outdir=str(out),
-        instruments=True,
-        grid=True,
-        stack=True,
-    )
-    return out
+def rendered_dir(dune2_pages) -> pathlib.Path:
+    """The dune2 report pages, rendered once for the session."""
+    return dune2_pages
 
 
 @pytest.mark.parametrize("page", _PAGES)

@@ -18,7 +18,6 @@ import xarray as xr
 from oceanarray.analysis.derived import knockdown
 from oceanarray.location import parse_coordinate
 from oceanarray.pipeline.pressure import pressure_from_depth
-from oceanarray.reports import MooringReport
 from oceanarray.reports._html_helpers import _format_seconds
 from oceanarray.reports._mooring import SKIP_NO_REASON, _trim_note
 
@@ -27,13 +26,9 @@ _MOORING = "dune2_1_2026"
 
 
 @pytest.fixture(scope="module")
-def page(tmp_path_factory) -> str:
+def page(dune2_pages) -> str:
     """The rendered dune2 deployment page."""
-    out = tmp_path_factory.mktemp("explorer")
-    MooringReport(proc_dir=str(_PROC)).generate(
-        _MOORING, force=True, outdir=str(out), stack=True, grid=True
-    )
-    return (out / f"{_MOORING}_report.html").read_text(encoding="utf-8")
+    return (dune2_pages / f"{_MOORING}_report.html").read_text(encoding="utf-8")
 
 
 def test_instrument_summary_leads_and_description_closes(page: str) -> None:
@@ -85,7 +80,7 @@ def test_durations_and_trim_note() -> None:
         "2 h 30 min",
         "30 s",
     ]
-    assert _format_seconds(2 * 86400 + 6 * 3600) == "2d 6h"
+    assert _format_seconds(2 * 86400 + 6 * 3600) == "2.2 days"
     assert _format_seconds(float("nan")) == "—"
     timing = {
         "stage1_start": "2014-08-10 00:00",
@@ -251,14 +246,10 @@ def test_figure_source_is_read_when_the_page_renders(monkeypatch) -> None:
 
 
 def test_stack_and_grid_pages_link_the_mooring_description(
-    page: str, tmp_path_factory
+    page: str, dune2_pages
 ) -> None:
     """The stack and grid pages link the deployment page's description near the top."""
-    out = tmp_path_factory.getbasetemp()
-    pages = list(out.rglob(f"{_MOORING}_stack_report.html")) + list(
-        out.rglob(f"{_MOORING}_grid_report.html")
-    )
-    assert len(pages) >= 2
+    pages = [dune2_pages / f"{_MOORING}_{k}_report.html" for k in ("stack", "grid")]
     href = f'href="{_MOORING}_report.html#description"'
     for p in pages:
         html = p.read_text(encoding="utf-8")

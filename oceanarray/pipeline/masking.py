@@ -167,6 +167,27 @@ def to_json(rule: Mapping[str, tuple[int, ...]]) -> str:
     return json.dumps({k: list(v) for k, v in rule.items()})
 
 
+def rule_words(rule: Mapping[str, tuple[int, ...]]) -> str:
+    """Return a flag rule for the history: ``"4"``, ``"4 (velocity 3, 4)"``.
+
+    Parameters
+    ----------
+    rule : Mapping
+        From :func:`resolve_mask_flags`.
+
+    Returns
+    -------
+    str
+    """
+    text = ", ".join(map(str, rule["default"])) or "none"
+    others = [
+        f"{key.replace('_', ' ')} {', '.join(map(str, flags)) or 'none'}"
+        for key, flags in rule.items()
+        if key != "default"
+    ]
+    return f"{text} ({', '.join(others)})" if others else text
+
+
 def from_attrs(attrs: Mapping[str, object], key: str = STACK_ATTR) -> Rule:
     """Return the rule a file records, or the default when it records none.
 

@@ -17,118 +17,247 @@ from markupsafe import Markup
 from oceanarray import location, logger, paths
 from oceanarray.analysis.derived import derived_fields
 from oceanarray.pipeline import masking
-from oceanarray.pipeline.concat import cell_deployment
+from oceanarray.pipeline.concat import cell_deployment, depth_types
 
 from ..config import parameters as params
+from ..plotters import current as _current
 from ..plotters import helpers as _helpers
 from ..plotters import ts as _ts
+from ..plotters.helpers import nominal_depths
 from . import _captions, _html_helpers, _masthead, _qcflags
 from ._breadcrumb import page_crumbs
-from ._env import render_history, render_template
+from ._env import render_template
 from ._figdebug import as_panel
 from ._html_helpers import (
     DESCRIPTION_ANCHOR,
     _format_dt,
-    _format_duration,
     _parse_dt,
-    _parse_history,
     doi_link,
+    format_durations,
+    span_seconds,
 )
+from ._navs import type_word
 from ._plots import (
     _make_adcp_progressive_vector_b64,
     _make_analog_timeseries_b64,
-    _make_direction_profile_by_deployment_b64,
     _make_flag_strip_b64,
     _make_multi_aquadopp_progressive_vector_b64,
-    _make_rose_outlines_b64,
-    _make_speed_profile_by_deployment_b64,
     _make_stack_timeseries_b64,
     _make_stack_ts_diagram_b64,
-    _make_ts_by_deployment_b64,
-    _make_ts_medians_b64,
-    _make_ts_points_by_deployment_b64,
 )
 from ._read import _read_nc_metadata
-from ._stack import STACK_CAPTIONS, STACK_PANELS, STACK_SECTIONS, StackContext
+from ._slots import render as render_slot
+from ._stack import (
+    STACK_PANELS,
+    STACK_SECTIONS,
+    StackContext,
+    velocity_heights,
+    velocity_rows,
+)
 from ._vendored.page_model import Panel, Profile, Section, resolve, validate_nav
 
-#: Shading note added to the time-series captions on the concatenated page.
-_TURNAROUND = (
-    " Grey bands are the turnarounds (no instrument in the water); a thin line and a "
-    "▼ above the panel mark each deployment's start, and each deployment is named "
-    "along the top."
-)
+#: The variables a short record is judged on, by figure family: a deployment with
+#: values at a depth for less than ``MIN_RECORD_FRACTION`` of its time there is
+#: left out of every figure of that family, and the captions name it.
+SHORT_RECORD_TEST: dict[str, str] = {
+    "velocity": "east_velocity",
+    "hydrography": "temperature",
+}
 
-#: Added to the captions of the figures drawn per deployment.
-_OVERLAP_NOTE = (
-    " Where two deployments overlap, only the one filling the depth is drawn; the "
-    "other's values are in the file's overlap block."
-)
-
-#: Captions of the concatenated page's own figures; ``{flags}`` is replaced by the
-#: page's flag sentence (``_captions.stack_flag_sentences``). The time series and
-#: the T-S diagram take the stack page's generated captions, with the turnarounds.
-CONCAT_CAPTIONS: dict[str, str] = {
-    "ts_by_deployment": (
-        "Temperature against salinity, one color per deployment. For each "
-        f"instrument level, the outline encloses the densest {_ts.TS_OUTLINE_FRACTION:.0%} "
-        "of its T-S values (a 2-D histogram smoothed over 3 × 3 bins) and the dot is "
-        "its median; levels with fewer than "
-        f"{_ts.TS_MIN_LEVEL_POINTS:g} points of both T and S are left out. Lines join each "
-        "deployment's medians in order of pressure (a guide to the eye, not "
-        "interpolated data; levels less than "
-        f"{_ts.TS_COLOCATED_DBAR:g} dbar apart are averaged for the line). With more "
-        f"than {_ts.TS_MAX_OUTLINES} levels the outlines are left out. "
-        "{flags} A shift between deployments at the same depth is a "
-        "sensor offset or a change in the water." + _OVERLAP_NOTE
-    ),
-    "ts_points": (
-        "Temperature against salinity, one color per deployment: at most "
-        f"{_ts.TS_MAX_POINTS:,} values per deployment, picked at random (the same "
-        "ones each time the page is drawn), drawn in random order so no deployment "
-        "covers the others. {flags} Dashed: σ0." + _OVERLAP_NOTE
-    ),
-    "ts_medians": (
-        "Draft. Median salinity and temperature of each depth in each "
-        "deployment, with interquartile whiskers, one color per deployment (with "
-        "more than seven deployments, colors repeat in pairs, the second of a pair "
-        "with a square marker). {flags} The scatter below "
-        "carries the pressure." + _OVERLAP_NOTE
-    ),
-    "roses": (
-        "One rose per depth, one outline per "
-        "deployment: the share of that deployment's samples flowing toward each "
-        "direction (oceanographic convention, 0° = N). {flags}" + _OVERLAP_NOTE
-    ),
-    "speed_profile": (
-        "Current speed per depth, one box per deployment in its color "
-        "(median, interquartile range, whiskers to 1.5 × IQR), side by side at the "
-        "depth's nominal depth; with more than seven deployments colors repeat in "
-        "pairs, the second of a pair hatched. A deployment is drawn at a depth only "
-        "where it has velocity for at least "
-        f"{_helpers.PROFILE_MIN_FRACTION:.0%} of its time steps. "
-        "{flags}" + _OVERLAP_NOTE
-    ),
-    "direction_profile": (
-        "Current direction per depth, one marker per deployment in its color: the "
-        "direction the water flows toward (degrees clockwise from true north) of the "
-        "deployment's mean velocity, from daily means so tides do not count; the bar "
-        "is the circular standard deviation of the daily-mean directions. Hollow "
-        "markers: the flow is not steady enough for a mean direction to mean much "
-        "(mean velocity less than "
-        + f"{params.SLOPE_STEADINESS_MIN:g}"
-        + " of the mean speed). The axis is centred on the mean direction of all "
-        "depths, ±180°. Same depths, data rule and flags as the speed panel."
-        + _OVERLAP_NOTE
-    ),
-    "trajectories_aquadopp": (
-        "Cumulative displacement from adding up the measured velocity (a progressive "
-        "vector diagram), one line per depth, running through every deployment in "
-        "the depth (a turnaround "
-        "adds no displacement; where two deployments overlap, the one filling the "
-        "depth counts). Start at the origin; the label marks the end."
+#: The panels of each family, for the left-out sentence.
+_FAMILY_PANELS: dict[str, tuple[str, ...]] = {
+    "velocity": ("vel_uvw", "roses", "direction_profile", "trajectories_aquadopp"),
+    "hydrography": (
+        "hydro_pts",
+        "ts_points",
+        "ts_by_deployment",
+        "ts_medians",
+        "ts_diagram",
+        "dissolved_oxygen",
     ),
 }
+
+
+#: Where a site page's mooring descriptions are (the links near the top).
+SITE_DESCRIPTION = "of each deployment, linked near the top of this page"
+
+
+def _boundaries(gap: bool) -> str:
+    """Return the caption sentence for the deployment marks (grey bands only with a gap)."""
+    marks = (
+        "a thin line and a ▼ above the panel mark each deployment's start, and each "
+        "deployment is named along the top."
+    )
+    if gap:
+        return f" Grey bands are turnarounds with no instrument in the water; {marks}"
+    return f" {marks[0].upper()}{marks[1:]}"
+
+
+def _sigma(record: dict) -> str:
+    """Return the σθ sentence of a T-S caption, when contours were drawn."""
+    interval = record.get("sigma_interval")
+    if not interval:
+        return ""
+    return (
+        f" Dashed: σθ every {interval:g} {params.vunit('potential_density')}, labelled."
+    )
+
+
+def _left_out(short: dict[str, list[str]], family: str) -> str:
+    """Return the sentence naming the records left out of a figure (50 % rule)."""
+    if not short.get(family):
+        return ""
+    return (
+        f" Left out, with values for less than {_captions.record_fraction_text()} "
+        "their deployment: "
+        f"{_captions._join(short[family])}."
+    )
+
+
+def _page_captions(
+    ds: Any,
+    view: Any,
+    records: dict,
+    short: dict[str, list[str]],
+    gap: bool,
+    depth_rows: list[dict],
+) -> dict[str, str]:
+    """Return the page's captions, built from the view and what each figure drew.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The site stack, for the direction reference (the view has no file names).
+    view : xarray.Dataset
+        The report view (:func:`_report_view`).
+    records : dict
+        What each figure drew, by panel id.
+    short : dict of str to list of str
+        The records left out by the 50 % rule, by family (:func:`_drop_short`).
+    gap : bool
+        Whether a turnaround leaves time with no deployment in the water.
+    depth_rows : list of dict
+        The Instruments table's rows (:func:`_depth_rows`).
+
+    Returns
+    -------
+    dict of str to str
+        Captions by panel id.
+    """
+    flags = _captions.stack_flag_sentences(view)
+    stack = _captions.stack_captions(view, records, ds_stack=ds)
+    reference = _captions.direction_reference(ds)
+    toward = "the direction the water flows toward" + (
+        f", {reference}" if reference else ""
+    )
+    by_dep = records.get("ts_by_deployment", {})
+    n_levels = by_dep.get("levels", 0)
+    outlines = (
+        f"For each instrument level, the outline encloses the densest "
+        f"{_ts.TS_OUTLINE_FRACTION:.0%} of its values (a 2-D histogram smoothed "
+        "over 3 × 3 bins). "
+        if by_dep.get("outlines", True)
+        else f"Outlines not drawn: {n_levels} levels (more than {_ts.TS_MAX_OUTLINES}). "
+    )
+    out = {
+        "hydro_pts": stack["hydro_pts"].replace(
+            "over the deployment", "over every deployment"
+        )
+        + _boundaries(gap),
+        "vel_uvw": stack["vel_uvw"].replace(
+            "over the deployment", "over every deployment"
+        )
+        + _boundaries(gap),
+        "turbidity": stack["turbidity"] + _boundaries(gap),
+        "dissolved_oxygen": stack["dissolved_oxygen"] + _boundaries(gap),
+        "ts_diagram": stack["ts_diagram"].replace(
+            "for all samples", "for all samples of all deployments"
+        ),
+        "ts_points": (
+            "Potential temperature against salinity (PSU), one colour per "
+            f"deployment: at most {_ts.TS_MAX_POINTS:,} values per deployment, "
+            "picked at random (the same ones each time the page is drawn), drawn in "
+            "random order so no deployment covers the others."
+            + _sigma(records.get("ts_points", {}))
+            + f" {flags['ts_points']}"
+        ),
+        "ts_by_deployment": (
+            "Potential temperature against salinity (PSU), one colour per "
+            f"deployment. {outlines}The dot is each level's median; lines join each "
+            "deployment's medians in order of pressure (a guide to the eye, not "
+            f"interpolated data; levels less than {_ts.TS_COLOCATED_DBAR:g} dbar apart "
+            "are averaged for the line)."
+            + _sigma(by_dep)
+            + f" {flags['ts_by_deployment']} A shift between deployments at the same "
+            "depth is a sensor offset or a change in the water."
+        ),
+        "ts_medians": (
+            "Median potential temperature and salinity (PSU) at each depth in each "
+            "deployment; whiskers: the middle 50 %."
+            + _sigma(records.get("ts_medians", {}))
+            + f" {flags['ts_medians']}"
+        ),
+        "roses": (
+            f"One rose per depth, one outline per deployment: the percentage of that "
+            f"deployment's record flowing in each direction ({toward}); rings share "
+            f"one scale. {flags['roses']}"
+        ),
+        "speed_profile": (
+            "Current speed at each current-meter depth, one box per deployment "
+            "(median, middle 50 %, whiskers to 1.5 × that range). Deployments with "
+            f"velocity for less than {_captions.record_fraction_text()} their time "
+            "are left out ("
+            + (_captions._join(short["velocity"]) if short.get("velocity") else "none")
+            + f"). {flags['speed_profile']}"
+        ),
+        "direction_profile": (
+            "Current direction at each current-meter depth, one marker per "
+            f"deployment: {toward}, of the deployment's mean velocity, from daily "
+            "means so tides do not count; the bar is the circular standard deviation "
+            "of the daily-mean directions. The axis is centred on the mean direction "
+            f"of all depths, ±180°. {flags['direction_profile']}"
+        ),
+        "trajectories_aquadopp": (
+            "Cumulative displacement from adding up the measured velocity (a "
+            "progressive vector diagram), one line per depth, running through every "
+            "deployment in the depth (a turnaround adds no displacement). Start at "
+            "the origin; the label marks the end."
+        ),
+    }
+    for family, pids in _FAMILY_PANELS.items():
+        for pid in pids:
+            out[pid] += _left_out(short, family)
+    # The types written in the cells: only on rows whose depth holds more than one.
+    mixed = sorted(
+        {
+            e["type"].lower(): e["abbr"]
+            for r in depth_rows
+            if r["mixed"]
+            for c in r["cells"]
+            for e in c
+        }.items()
+    )
+    key = ", ".join(
+        abbr if abbr == type_word(t) else f"{abbr} {type_word(t)}" for t, abbr in mixed
+    )
+    tolerance = view.attrs.get("depth_tolerance_m")
+    out["instr_table"] = (
+        "Which instrument measured at each depth in each deployment, deepest first; "
+        "the Type column names the depth's instruments. Each cell: serial (linked "
+        "to its page) and nominal depth"
+        + (
+            f", with the type in front where a depth holds more than one ({key})"
+            if key
+            else ""
+        )
+        + "."
+        + (
+            f" Rows group instruments within {float(tolerance):g} m of the same depth."
+            if tolerance not in (None, "")
+            else ""
+        )
+    )
+    return out
 
 
 @dataclass(frozen=True)
@@ -142,33 +271,15 @@ class ConcatContext(StackContext):
     deployment_names : list of str
         Deployment names in time order (the instrument table's columns).
     depth_rows : list of dict
-        One row per depth (and per level without a depth) for the Instruments table.
-    concat_history : list
-        Parsed history entries of the concat step.
-    n_overlap : int
-        Length of the overlap block (``N_OVERLAP``); 0 when no deployments overlap.
-    deployment_histories : list of (str, list)
-        Each deployment's name and parsed stack history.
+        One row per depth for the Instruments table.
+    deployment_steps : list of (str, list)
+        Each deployment's name and its stack's processing table rows.
     """
 
     deployment_rows: list = field(default_factory=list)
     deployment_names: list = field(default_factory=list)
     depth_rows: list = field(default_factory=list)
-    concat_history: list = field(default_factory=list)
-    deployment_histories: list = field(default_factory=list)
-    n_overlap: int = 0
-
-
-def _render_histories(c: ConcatContext) -> str:
-    """Render the concat history, then each deployment's history folded under its name."""
-    return render_template(
-        "_concat_history.html",
-        concat_html=Markup(render_history(c.concat_history)),
-        deployments=[
-            (name, Markup(render_history(entries)))
-            for name, entries in c.deployment_histories
-        ],
-    )
+    deployment_steps: list = field(default_factory=list)
 
 
 def _always(_c: Any) -> bool:
@@ -177,51 +288,53 @@ def _always(_c: Any) -> bool:
 
 
 def _figure_panel(pid: str, applies_to: Any = None, slot: str | None = None) -> Panel:
-    """Build a figure panel with the concat caption (or the stack's)."""
+    """Build a figure panel; its caption is filled in per page."""
     base = STACK_PANELS.get(pid)
-    caption = CONCAT_CAPTIONS.get(pid, STACK_CAPTIONS.get(pid, ""))
     return Panel(
         pid,
         render=lambda c: c.figs.get(pid),
-        caption=caption,
+        caption="",
         slot=slot if slot is not None else (base.slot if base else None),
         applies_to=applies_to or (base.applies_to if base else _always),
     )
 
 
-def _page_panels(view: Any) -> dict[str, Panel]:
-    """Return the panels with this page's captions: flag sentences from its rule."""
-    flags = _captions.stack_flag_sentences(view)
-    stack = _captions.stack_captions(view)
-    out = dict(CONCAT_PANELS)
-    for pid in ("hydro_pts", "vel_uvw", "turbidity"):
-        text = stack[pid].replace("over the deployment", "over every deployment")
-        out[pid] = replace(out[pid], caption=text + _TURNAROUND)
-    out["ts_diagram"] = replace(out["ts_diagram"], caption=stack["ts_diagram"])
-    for pid, panel in out.items():
-        if panel.caption and "{flags}" in panel.caption:
-            out[pid] = replace(
-                panel, caption=panel.caption.replace("{flags}", flags.get(pid, ""))
-            )
-    return out
+def _page_panels(captions: dict[str, str]) -> dict[str, Panel]:
+    """Return the panels with this page's captions."""
+    captions = {
+        **captions,
+        "nc_file": _captions.netcdf_caption("site stack file", SITE_DESCRIPTION),
+    }
+    return {
+        pid: replace(panel, caption=captions[pid]) if pid in captions else panel
+        for pid, panel in CONCAT_PANELS.items()
+    }
+
+
+def _has_velocity(c: Any) -> bool:
+    """Return whether the page has east and north velocity."""
+    return "east_velocity" in c.present_vars and "north_velocity" in c.present_vars
+
+
+def _has_ts(c: Any) -> bool:
+    """Return whether the page has temperature and salinity."""
+    return "temperature" in c.present_vars and "salinity" in c.present_vars
 
 
 CONCAT_PANELS: dict[str, Panel] = {
     **STACK_PANELS,
-    "history": Panel(
-        "history",
-        render=_render_histories,
-        kind="html",
-        unavailable_if=lambda c: None if c.concat_history else _html_helpers.NO_HISTORY,
-    ),
-    "nc_overlap_note": Panel(
-        "nc_overlap_note",
-        render=lambda _c: Markup(
-            '<p class="none-note">No deployments overlap: the overlap block '
-            "(<code>N_OVERLAP</code>) is empty, so its variables are not listed.</p>"
+    "steps": Panel(
+        "steps",
+        render=lambda c: render_template(
+            "_concat_history.html", rows=c.steps, deployments=c.deployment_steps
         ),
         kind="html",
-        applies_to=lambda c: c.n_overlap == 0,
+        caption=(
+            "What was done to produce this record across the deployments, entry by "
+            "entry as the file's history attribute records it, with the settings "
+            "read from the file. Each deployment's own record is collapsed below."
+        ),
+        unavailable_if=lambda c: None if c.steps else _html_helpers.NO_HISTORY,
     ),
     "deployments": Panel(
         "deployments",
@@ -231,6 +344,13 @@ CONCAT_PANELS: dict[str, Panel] = {
             show_doi=any(r["doi"] for r in c.deployment_rows),
         ),
         kind="table",
+        caption=(
+            "One row per deployment; positions and water depth as deployed; each "
+            "deployment links to its own stack page. Overlap: both moorings in the "
+            "water during the turnaround; gap: neither. Where two deployments "
+            "overlap, only the one filling the depth is drawn on this page; the "
+            "other's values are in the file's overlap block."
+        ),
     ),
     "instr_table": Panel(
         "instr_table",
@@ -245,70 +365,21 @@ CONCAT_PANELS: dict[str, Panel] = {
     "vel_uvw": _figure_panel("vel_uvw"),
     "turbidity": _figure_panel("turbidity"),
     "roses": _figure_panel("roses"),
-    "speed_profile": _figure_panel(
-        "speed_profile",
-        lambda c: (
-            "east_velocity" in c.present_vars and "north_velocity" in c.present_vars
-        ),
-        slot="half",
-    ),
-    "direction_profile": _figure_panel(
-        "direction_profile",
-        lambda c: (
-            "east_velocity" in c.present_vars and "north_velocity" in c.present_vars
-        ),
-        slot="half",
-    ),
+    "speed_profile": _figure_panel("speed_profile", _has_velocity, slot="half"),
+    "direction_profile": _figure_panel("direction_profile", _has_velocity, slot="half"),
     "trajectories_aquadopp": _figure_panel("trajectories_aquadopp"),
-    "ts_points": _figure_panel(
-        "ts_points",
-        lambda c: "temperature" in c.present_vars and "salinity" in c.present_vars,
-        slot="half",
-    ),
-    "ts_medians": _figure_panel(
-        "ts_medians",
-        lambda c: "temperature" in c.present_vars and "salinity" in c.present_vars,
-        slot="half",
-    ),
+    "ts_points": _figure_panel("ts_points", _has_ts, slot="half"),
+    "ts_medians": _figure_panel("ts_medians", _has_ts, slot="half"),
     "ts_diagram": _figure_panel("ts_diagram", slot="full"),
-    "ts_by_deployment": _figure_panel(
-        "ts_by_deployment",
-        lambda c: "temperature" in c.present_vars and "salinity" in c.present_vars,
-        slot="half",
-    ),
+    "ts_by_deployment": _figure_panel("ts_by_deployment", _has_ts, slot="half"),
 }
 
 CONCAT_SECTIONS: dict[str, Section] = {
-    "netcdf_variables": Section(
-        "netcdf_variables",
-        "NetCDF variables",
-        ("nc_coords", "nc_variables", "nc_overlap_note", "nc_scalars"),
-        role="appendix",
-    ),
-    "deployments": Section(
-        "deployments",
-        "Deployments",
-        ("deployments",),
-        intro="Each deployment links to its own stack report.",
-    ),
+    "deployments": Section("deployments", "Deployments", ("deployments",)),
     "processing_history": Section(
-        "processing_history", "Processing history", ("history",)
+        "processing_history", "Processing history", ("steps",)
     ),
-    "instruments": Section(
-        "instruments",
-        "Instruments by depth (deep-first)",
-        ("instr_table",),
-        intro=(
-            "A depth holds the instruments of one family (hydrography, point "
-            "velocity, or ADCP bins) whose nominal depth (water depth − HAB) is "
-            "within the depth tolerance (half the bin size for ADCP bins), one per "
-            "deployment. Depths are named by their depth: their numbers change when "
-            "a deployment is added. Each cell: the instrument (MC MicroCAT, CM "
-            "current meter, MT thermistor), its serial linked to its own page, and "
-            "its depth; columns are the deployments, named as in the Deployments table "
-            "without the site's prefix."
-        ),
-    ),
+    "instruments": Section("instruments", "Instruments", ("instr_table",)),
     "speed_profile": Section(
         "speed_profile",
         "Current speed and direction by depth",
@@ -340,8 +411,7 @@ CONCAT_DEFAULT = Profile(
         CONCAT_SECTIONS["processing_history"],
         CONCAT_SECTIONS["instruments"],
         STACK_SECTIONS["quality_flags"],
-        CONCAT_SECTIONS["netcdf_variables"],
-        STACK_SECTIONS["netcdf_attributes"],
+        STACK_SECTIONS["netcdf"],
     ),
 )
 
@@ -411,7 +481,7 @@ def _masthead_facts(ds: Any, stack_path: Path) -> list:
         f("Site", ds.attrs.get("site_name")),
         f("Deployments", ds.sizes["DEPLOYMENT"]),
         f("Span", f"{_format_dt(start, '%Y-%m-%d')} → {_format_dt(end, '%Y-%m-%d')}"),
-        f("Duration", _format_duration(start, end)),
+        f("Duration", format_durations([span_seconds(start, end)])[0]),
         f(
             "Latitude",
             _ddm(
@@ -538,6 +608,15 @@ def _deployment_rows(
         )
     }
     instruments = Counter(dep for dep, _ in _physical_instruments(ds))
+    durations = format_durations(
+        [
+            span_seconds(
+                _parse_dt(str(ds["deployment_time"].values[k])),
+                _parse_dt(str(ds["recovery_time"].values[k])),
+            )
+            for k in range(len(names))
+        ]
+    )
     rows = []
     for k, name in enumerate(names):
         start = _parse_dt(str(ds["deployment_time"].values[k]))
@@ -579,7 +658,7 @@ def _deployment_rows(
                 ),
                 "deployed": _format_dt(start),
                 "recovered": _format_dt(end),
-                "duration": _format_duration(start, end),
+                "duration": durations[k],
                 "lat": _ddm(float(ds["deployment_latitude"].values[k]), is_lat=True),
                 "lon": _ddm(float(ds["deployment_longitude"].values[k]), is_lat=False),
                 "waterdepth": (
@@ -615,7 +694,8 @@ def _instrument_href(
     return Path(os.path.relpath(page.resolve(), out_dir.resolve())).as_posix()
 
 
-#: Short instrument types for the Instruments table's cells; others are shown whole.
+#: Short instrument types for the Instruments table's cells; others are written as
+#: a reader would (``type_word``).
 _TYPE_ABBR: dict[str, str] = {
     "microcat": "MC",
     "currentmeter": "CM",
@@ -641,7 +721,7 @@ def _depth_rows(
             "type": str(ds["instrument_type"].values[i]),
             "abbr": _TYPE_ABBR.get(
                 str(ds["instrument_type"].values[i]).lower(),
-                str(ds["instrument_type"].values[i]),
+                type_word(str(ds["instrument_type"].values[i]).lower()),
             ),
             "serial": str(ds["serial"].values[i]),
             "depth": f"{float(ds['depth'].values[i]):.0f}",
@@ -658,10 +738,9 @@ def _depth_rows(
         types = list(dict.fromkeys(e["type"] for cell in cells for e in cell))
         rows.append(
             {
-                "family": str(ds["depth_family"].values[k]).replace("_", " "),
                 # The instrument type heads the row; a cell names it only when
                 # the depth holds more than one type.
-                "types": " / ".join(types),
+                "types": " / ".join(type_word(t.lower()) for t in types),
                 "mixed": len(types) > 1,
                 "depth": f"{depths[k]:.0f}" if np.isfinite(depths[k]) else "—",
                 "cells": cells,
@@ -711,24 +790,6 @@ def _nav(
     return nav
 
 
-#: Short family names for the depth labels in figure legends.
-_FAMILY_SHORT = {
-    "hydrography": "T/S",
-    "point_velocity": "vel",
-    "adcp": "ADCP",
-    "adcp_head": "ADCP head",
-}
-
-
-def nominal_depths(ds: Any) -> np.ndarray:
-    """Return each depth's value: the mean nominal depth of its levels (``nominal_depth``).
-
-    Whatever the depth reference (depth or hab), the page orders and labels depths by
-    depth, never by their number.
-    """
-    return ds["nominal_depth"].values.astype(float)
-
-
 def _depth_order(ds: Any) -> np.ndarray:
     """Return the depths deep-first by depth; a depth with no known depth goes last."""
     depths = nominal_depths(ds)
@@ -736,25 +797,18 @@ def _depth_order(ds: Any) -> np.ndarray:
 
 
 def _depth_names(ds: Any) -> list[str]:
-    """Return each depth's label, ``≈1500 m T/S``; two depths that round alike are told apart.
+    """Return each depth's label, ``"1690 m"``; depths that round alike add their type.
 
-    The second and later of a clash get ``(2)``, ``(3)`` in depth order, so the
-    label never carries the depth index.
+    Labels never carry the depth index.
     """
     depths = nominal_depths(ds)
-    base = [
-        (f"≈{round(d, -1):.0f} m" if np.isfinite(d) else "depth ?")
-        + f" {_FAMILY_SHORT.get(str(ds['depth_family'].values[k]), str(ds['depth_family'].values[k]))}"
-        for k, d in enumerate(depths)
+    base = [f"{d:.0f} m" if np.isfinite(d) else "depth ?" for d in depths]
+    clash = Counter(base)
+    types = depth_types(ds)
+    return [
+        f"{b} {_TYPE_ABBR.get(t.lower(), t)}" if clash[b] > 1 else b
+        for b, t in zip(base, types, strict=True)
     ]
-    seen: Counter = Counter()
-    out = []
-    for k in _depth_order(ds):
-        seen[base[k]] += 1
-        out.append(
-            (k, base[k] if seen[base[k]] == 1 else f"{base[k]} ({seen[base[k]]})")
-        )
-    return [label for _, label in sorted(out)]
 
 
 def _report_view(ds: Any) -> Any:
@@ -769,12 +823,9 @@ def _report_view(ds: Any) -> Any:
 
     labels = _depth_names(ds)
     level_depth_index = ds["depth_index"].values
-    types, habs = [], []
+    types, habs = depth_types(ds), []
     for k in range(ds.sizes["N_DEPTHS"]):
-        members = np.flatnonzero(level_depth_index == k)
-        kinds = Counter(str(x) for x in ds["instrument_type"].values[members])
-        types.append(kinds.most_common(1)[0][0] if kinds else "")
-        hab = ds["hab"].values.astype(float)[members]
+        hab = ds["hab"].values.astype(float)[level_depth_index == k]
         habs.append(float(np.nanmean(hab)) if np.isfinite(hab).any() else np.nan)
     cell = cell_deployment(ds).astype(np.int16)
     data = {
@@ -800,6 +851,67 @@ def _report_view(ds: Any) -> Any:
         attrs=dict(ds.attrs),
     )
     return view.isel(N_LEVELS=_depth_order(ds))
+
+
+#: The variables left out with each family's short records.
+_FAMILY_VARIABLES: dict[str, frozenset[str]] = {
+    "velocity": masking.VELOCITY_GROUP,
+    "hydrography": frozenset(
+        {"temperature", "salinity", "conductivity", "pressure", "dissolved_oxygen"}
+    ),
+}
+
+
+def _drop_short(
+    view: Any, member: np.ndarray, names: list[str], at: np.ndarray | None = None
+) -> tuple[Any, dict[str, list[str]]]:
+    """Return *view* without the short records, and who was left out, by family.
+
+    A deployment whose values (by :data:`SHORT_RECORD_TEST`) cover less than
+    :data:`~oceanarray.config.parameters.MIN_RECORD_FRACTION` of its time is left
+    out of every figure of that family.
+
+    Parameters
+    ----------
+    view : xarray.Dataset
+        The report view (:func:`_report_view`) or a site grid.
+    member : numpy.ndarray of int
+        Each value's deployment index (-1 for none): ``(time, level)`` to judge each
+        level on its own, or ``(time,)`` to judge the steps with a value at any level.
+    names : list of str
+        Short deployment names, in deployment order.
+    at : numpy.ndarray of str, optional
+        Each level's label, for a per-level *member*.
+
+    Returns
+    -------
+    view : xarray.Dataset
+        A copy with those values set to NaN.
+    left_out : dict of str to list of str
+        ``"2016 at 1820 m"`` per record left out (``"2016"`` per step), by family.
+    """
+    cells = member if member.ndim == 2 else member[:, None]
+    view = view.copy(deep=True)
+    left_out: dict[str, list[str]] = {}
+    for family, test in SHORT_RECORD_TEST.items():
+        if test not in view:
+            continue
+        finite = np.isfinite(view[test].values)
+        if member.ndim == 1:
+            finite = finite.any(axis=1)[:, None]
+        drop = np.zeros_like(finite)
+        for j in range(cells.shape[1]):
+            for k in np.unique(cells[:, j][cells[:, j] >= 0]):
+                here = cells[:, j] == k
+                if 0 < finite[here, j].mean() < params.MIN_RECORD_FRACTION:
+                    drop[here, j] = True
+                    where = f" at {at[j]}" if member.ndim == 2 else ""
+                    left_out.setdefault(family, []).append(f"{names[k]}{where}")
+        if drop.any():
+            for v in _FAMILY_VARIABLES[family] & set(view.data_vars):
+                if view[v].dims == view[test].dims:
+                    view[v] = view[v].where(~drop)
+    return view, left_out
 
 
 def _depth_view(view: Any) -> Any:
@@ -916,15 +1028,38 @@ def generate_concat_page(
             ds = opened.load()
         name = str(ds.attrs.get("site_name", stack_path.stem))
         out_path = out_dir / f"{name}_stackcat_report.html"
-        view = _report_view(ds)
-        depth_view = _depth_view(view)
-        # Position and θ for the T-S figures, derived once for the page.
-        derived = derived_fields(view)
         names = [str(n) for n in ds["deployment_name"].values]
         # Deployments named without the site's prefix on the figures and in the
         # Instruments table (egM4_2014 → 2014); the Deployments table keeps the full name.
         short = dict(zip(names, _helpers.short_names(names), strict=True))
+        view = _report_view(ds)
+        view, left_out = _drop_short(
+            view,
+            view["cell_deployment"].values,
+            [short[n] for n in names],
+            view["serial"].values,
+        )
+        depth_view = _depth_view(view)
+        # Position and θ for the T-S figures, derived once for the page.
+        derived = derived_fields(view)
         windows = [(start, end, short[n]) for start, end, n in _deployment_windows(ds)]
+        spans = sorted(windows, key=lambda w: w[0])
+        gap = any(b[0] > a[1] for a, b in zip(spans, spans[1:], strict=False))
+        records: dict[str, dict] = {pid: {} for pid in _captions.STACK_FIGURE_VARIABLES}
+        series = {"deployments": windows, "legend_shallow_first": True}
+
+        def drawn(draw: Any, pid: str, **kwargs: Any) -> Any:
+            return as_panel(
+                lambda: render_slot(
+                    draw,
+                    view,
+                    derived=derived,
+                    record=records[pid],
+                    optional=True,
+                    **kwargs,
+                )
+            )
+
         figs = {
             "hydro_pts": _make_stack_timeseries_b64(
                 view,
@@ -934,47 +1069,45 @@ def generate_concat_page(
                     ("salinity", params.vlabel("salinity"), False, None),
                 ],
                 color_var="temperature",
-                deployments=windows,
-                legend_shallow_first=True,
+                record=records["hydro_pts"],
+                **series,
             ),
             "dissolved_oxygen": _make_stack_timeseries_b64(
                 view,
                 [("dissolved_oxygen", params.vlabel("dissolved_oxygen"), False, None)],
                 color_var="dissolved_oxygen",
-                deployments=windows,
-                legend_shallow_first=True,
+                **series,
             ),
             "vel_uvw": _make_stack_timeseries_b64(
                 view,
-                [
-                    (v, params.vlabel(v, prefix=f"{c} — "), False, None)
-                    for v, c in (
-                        ("east_velocity", "U"),
-                        ("north_velocity", "V"),
-                        ("up_velocity", "W"),
-                    )
-                ],
+                velocity_rows(view),
                 color_var="east_velocity",
-                deployments=windows,
-                legend_shallow_first=True,
+                row_heights=velocity_heights(view),
+                record=records["vel_uvw"],
+                **series,
             ),
             "turbidity": _make_stack_timeseries_b64(
                 view,
                 [("turbidity", params.vlabel("turbidity"), False, None)],
                 color_var="turbidity",
                 dot_overlay=True,
-                deployments=windows,
-                legend_shallow_first=True,
+                **series,
             ),
-            "roses": as_panel(lambda: _make_rose_outlines_b64(view)),
-            "ts_diagram": as_panel(lambda: _make_stack_ts_diagram_b64(view, derived)),
-            "ts_by_deployment": as_panel(
-                lambda: _make_ts_by_deployment_b64(view, derived)
+            "roses": as_panel(
+                lambda: render_slot(_current.draw_rose_outlines, view, optional=True)
             ),
-            "ts_points": as_panel(
-                lambda: _make_ts_points_by_deployment_b64(view, derived)
+            "ts_diagram": as_panel(
+                lambda: _make_stack_ts_diagram_b64(
+                    view, derived, record=records["ts_diagram"], full_range=True
+                )
             ),
-            "ts_medians": as_panel(lambda: _make_ts_medians_b64(view, derived)),
+            "ts_by_deployment": drawn(
+                _ts.draw_ts_by_deployment, "ts_by_deployment", slot="half"
+            ),
+            "ts_points": drawn(
+                _ts.draw_ts_points_by_deployment, "ts_points", slot="half"
+            ),
+            "ts_medians": drawn(_ts.draw_ts_medians, "ts_medians", slot="half"),
             "trajectories_aquadopp": as_panel(
                 lambda: (
                     _make_multi_aquadopp_progressive_vector_b64(depth_view)
@@ -986,17 +1119,26 @@ def generate_concat_page(
                 lambda: _make_adcp_progressive_vector_b64(view)
             ),
             "speed_profile": as_panel(
-                lambda: _make_speed_profile_by_deployment_b64(view)
+                lambda: render_slot(
+                    _current.draw_speed_profile_by_deployment,
+                    view,
+                    slot="half",
+                    optional=True,
+                )
             ),
             "direction_profile": as_panel(
-                lambda: _make_direction_profile_by_deployment_b64(view)
+                lambda: render_slot(
+                    _current.draw_direction_profile_by_deployment,
+                    view,
+                    slot="half",
+                    optional=True,
+                )
             ),
         }
         deployment_rows = _deployment_rows(ds, stack_path, out_dir, report_dir)
         nc_meta = _read_nc_metadata(stack_path)
-        n_overlap = int(ds.sizes.get("N_OVERLAP", 0))
-        if n_overlap == 0 and nc_meta.get("var_groups"):
-            # An empty overlap block is said in one line, not listed as a table.
+        if not ds.sizes.get("N_OVERLAP", 0) and nc_meta.get("var_groups"):
+            # An empty overlap block is not listed.
             nc_meta = {
                 **nc_meta,
                 "var_groups": [
@@ -1007,17 +1149,21 @@ def generate_concat_page(
             }
         analog_vars = nc_meta.get("analog_vars", [])
         figs["analog"] = (
-            as_panel(lambda: _make_analog_timeseries_b64(stack_path, analog_vars))
+            as_panel(lambda: _make_analog_timeseries_b64(ds, analog_vars))
             if analog_vars
             else None
         )
         qc_ruled = masking.STACK_ATTR in ds.attrs
         figs["qc_strip"] = (
-            as_panel(lambda: _make_flag_strip_b64(ds)) if qc_ruled else None
+            as_panel(lambda: _make_flag_strip_b64(ds, _qcflags.instrument_labels(ds)))
+            if qc_ruled
+            else None
         )
         qc_rows, qc_unflagged, qc_quiet = (
             _qcflags.count_rows(ds) if qc_ruled else ([], [], 0)
         )
+        types = {str(t).lower() for t in ds["instrument_type"].values}
+        depth_rows = _depth_rows(ds, stack_path, out_dir, report_dir)
         context = ConcatContext(
             figs=figs,
             qc_rows=qc_rows,
@@ -1025,8 +1171,9 @@ def generate_concat_page(
             qc_tables=_qcflags.translation_tables(ds) if qc_ruled else [],
             qc_unflagged=qc_unflagged,
             qc_quiet=qc_quiet,
+            qc_sentence=_captions.stack_rule_sentence(ds, masking.FLAGGED_VARIABLES),
             present_vars=set(ds.data_vars),
-            instr_types={str(t).lower() for t in ds["instrument_type"].values},
+            instr_types=types,
             n_instr=ds.sizes["N_LEVELS"],
             has_analog=bool(analog_vars),
             instr_rows=[],
@@ -1036,15 +1183,18 @@ def generate_concat_page(
             rose_unapplied=[],
             deployment_rows=deployment_rows,
             deployment_names=[short[n] for n in names],
-            depth_rows=_depth_rows(ds, stack_path, out_dir, report_dir),
-            concat_history=_parse_history(ds.attrs.get("history", "")),
-            n_overlap=n_overlap,
-            deployment_histories=[
-                (names[k], _parse_history(str(ds["deployment_history"].values[k])))
+            depth_rows=depth_rows,
+            steps=_captions.stack_history_rows(ds),
+            deployment_steps=[
+                (
+                    names[k],
+                    _captions.history_rows(str(ds["deployment_history"].values[k])),
+                )
                 for k in range(len(names))
             ],
         )
-        report = resolve(CONCAT_DEFAULT, context, _page_panels(view))
+        captions = _page_captions(ds, view, records, left_out, gap, depth_rows)
+        report = resolve(CONCAT_DEFAULT, context, _page_panels(captions))
         html = render_template(
             "concat.html",
             mooring_name=label or name,

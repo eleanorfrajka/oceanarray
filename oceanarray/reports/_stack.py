@@ -157,12 +157,7 @@ STACK_CAPTIONS: dict[str, str] = {
         "Deepest first. HAB: height above bottom. A serial links to the instrument's "
         "own page."
     ),
-    "nc_file": (
-        "Contents of the stack file this page was drawn from, as written by "
-        "oceanarray. To produce it yourself, run oceanarray with the mooring "
-        "description at the end of the deployment page; the originator's data are "
-        "linked at the top of each instrument's page."
-    ),
+    "nc_file": _captions.netcdf_caption("stack file"),
 }
 
 
@@ -235,6 +230,25 @@ class StackContext:
     qc_sentence: str = ""
     all_imported: bool = False
     steps: list = field(default_factory=list)
+
+
+#: The velocity figure's rows: variable and axis label.
+_VELOCITY_ROWS: tuple[tuple[str, str], ...] = (
+    ("east_velocity", "Eastward"),
+    ("north_velocity", "Northward"),
+    ("up_velocity", "Upward"),
+)
+
+
+def velocity_rows(ds: Any) -> list[tuple[str, str, bool, None]]:
+    """Return the stack velocity figure's rows (``draw_stack_timeseries`` form)."""
+    unit = params.vunit("east_velocity")
+    return [(v, f"{w} ({unit})", False, None) for v, w in _VELOCITY_ROWS if v in ds]
+
+
+def velocity_heights(ds: Any) -> list[float]:
+    """Return the rows' heights: upward velocity in a shorter row (its spread is small)."""
+    return [0.5 if v == "up_velocity" else 1.0 for v, *_ in velocity_rows(ds)]
 
 
 def _fig(panel_id: str) -> Callable[[StackContext], str | None]:
@@ -668,21 +682,11 @@ def generate_stack_page(
             [("dissolved_oxygen", params.vlabel("dissolved_oxygen"), False, None)],
             color_var="temperature",
         )
-        velocity_rows = [
-            (v, params.vlabel(v, prefix=f"{c} — "), False, None)
-            for v, c in (
-                ("east_velocity", "U"),
-                ("north_velocity", "V"),
-                ("up_velocity", "W"),
-            )
-            if v in ds.data_vars
-        ]
         fig_vel_uvw_b64 = _make_stack_timeseries_b64(
             ds,
-            velocity_rows,
+            velocity_rows(ds),
             color_var="temperature",
-            # Upward velocity in a shorter row: its spread is small, by design.
-            row_heights=[0.5 if v == "up_velocity" else 1.0 for v, *_ in velocity_rows],
+            row_heights=velocity_heights(ds),
             mark_suspect=True,
             record=records["vel_uvw"],
             keyed=records["hydro_pts"].get("labelled", []),

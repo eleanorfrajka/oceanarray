@@ -1,21 +1,20 @@
 """Unit tests for pure helper functions in oceanarray.reports._array.
 
-Tests cover _parse_coordinate, _resolve_lat_lon, _count_instruments, and
-_build_type_summary — all functions with no I/O dependencies that can be
-exercised without fixtures or seasenselib.
+Tests cover _parse_coordinate, _resolve_lat_lon, the type summary (on the dune2
+fixture), the header, the map payload and the year page (egM2 with ETOPO1).
 """
 
 import logging
+import re
 from pathlib import Path
 
 import pytest
 
+from oceanarray.location import parse_coordinate as _parse_coordinate
 from oceanarray.reports._array import (
     _array_map_payload,
     _build_array_masthead,
     _build_type_summary,
-    _count_instruments,
-    _parse_coordinate,
     _resolve_lat_lon,
 )
 
@@ -136,138 +135,95 @@ class TestLatLonFromCfg:
 
 
 # ---------------------------------------------------------------------------
-# _count_instruments
-# ---------------------------------------------------------------------------
-
-
-class TestCountInstruments:
-    """Tests for instrument counting from mooring YAML dicts."""
-
-    def test_empty_config_returns_zero(self):
-        assert _count_instruments({}) == 0
-
-    def test_clamp_list_counted(self):
-        cfg = {
-            "clamp": [
-                {"instrument": "microcat", "serial": "2941"},
-                {"instrument": "aquadopp", "serial": "9920"},
-            ]
-        }
-        assert _count_instruments(cfg) == 2
-
-    def test_instruments_key_fallback(self):
-        cfg = {
-            "instruments": [
-                {"instrument": "microcat", "serial": "2941"},
-            ]
-        }
-        assert _count_instruments(cfg) == 1
-
-    def test_skipped_entries_excluded(self):
-        cfg = {
-            "clamp": [
-                {"instrument": "microcat", "serial": "2941"},
-                {"instrument": "aquadopp", "serial": "9920", "skip": True},
-            ]
-        }
-        assert _count_instruments(cfg) == 1
-
-    def test_inline_instruments_counted(self):
-        cfg = {
-            "clamp": [{"instrument": "microcat", "serial": "2941"}],
-            "inline": [
-                {"name": "shackle"},
-                {"instrument": "adcp", "serial": "16430, R01-024", "filename": "a.000"},
-            ],
-        }
-        assert _count_instruments(cfg) == 2
-
-    def test_non_dict_entries_ignored(self):
-        # YAML inline sections sometimes have non-dict entries
-        cfg = {"clamp": [{"instrument": "microcat"}, "not a dict"]}
-        assert _count_instruments(cfg) == 1
-
-
-# ---------------------------------------------------------------------------
 # _build_type_summary
 # ---------------------------------------------------------------------------
 
+_DUNE2_DIR = Path(__file__).resolve().parents[1] / "fixtures" / "proc" / "dune2_1_2026"
+
+
+def _dune2_instruments(tmp_path, edit=None, recover=None):
+    """The dune2 MicroCAT and Aquadopp status records, from a copy of the fixture.
+
+    *edit* changes the copy's mooring YAML text; *recover* replaces its recovery time.
+    """
+    import shutil
+
+    import yaml
+
+    from oceanarray.reports._array import _build_mooring_instruments
+
+    shutil.copytree(_DUNE2_DIR, tmp_path / "dune2_1_2026")
+    text = (_DUNE2_DIR / "dune2_1_2026.mooring.yaml").read_text()
+    cfg = yaml.safe_load(edit(text) if edit else text)
+    return _build_mooring_instruments(tmp_path, "dune2_1_2026", cfg, recover)
+
 
 class TestBuildTypeSummary:
-    """Tests for the per-type aggregation table."""
-
-    def _make_instrument(
-        self, itype, complete=True, skipped=False, stopped_early=False
-    ):
-        return {
-            "itype": itype,
-            "complete": complete,
-            "skipped": skipped,
-            "stopped_early": stopped_early,
-        }
+    """The per-type table, from the dune2 MicroCAT 2941 and Aquadopp 9920."""
 
     def test_empty_list_returns_empty(self):
-        result = _build_type_summary([])
-        assert result == []
+        assert _build_type_summary([]) == []
 
-    def test_single_type_counted(self):
-        instruments = [self._make_instrument("microcat") for _ in range(3)]
-        result = _build_type_summary(instruments)
-        assert len(result) == 1
-        row = result[0]
-        assert row["itype"] == "microcat"
-        assert row["deployed"] == 3
-        assert row["complete"] == 3
-        assert row["skipped"] == 0
+    def test_each_type_deployed_and_processed(self, tmp_path):
+        rows = _build_type_summary(_dune2_instruments(tmp_path))
+        assert [r["itype"] for r in rows] == ["microcat", "aquadopp"]
+        assert all(r["deployed"] == r["processed"] == 1 for r in rows)
+        assert all(r["skipped"] == r["stopped_early"] == 0 for r in rows)
+        assert all(r["notes"] == "" for r in rows)
 
-    def test_incomplete_instrument_counted_separately(self):
-        instruments = [
-            self._make_instrument("microcat", complete=True),
-            self._make_instrument("microcat", complete=False),
-        ]
-        result = _build_type_summary(instruments)
-        assert result[0]["deployed"] == 2
-        assert result[0]["complete"] == 1
+    def test_a_skipped_instrument_is_counted_with_its_reason(self, tmp_path):
+        def skip(text):
+            return text.replace(
+                "  instrument: aquadopp\n",
+                "  instrument: aquadopp\n  skip: true\n  skip_reason: flooded\n",
+            )
 
-    def test_canonical_type_order_respected(self):
-        # microcat should appear before aquadopp in canonical order
-        instruments = [
-            self._make_instrument("aquadopp"),
-            self._make_instrument("microcat"),
-        ]
-        result = _build_type_summary(instruments)
-        itypes = [r["itype"] for r in result]
-        assert itypes.index("microcat") < itypes.index("aquadopp")
+        rows = {
+            r["itype"]: r
+            for r in _build_type_summary(_dune2_instruments(tmp_path, skip))
+        }
+        assert rows["aquadopp"]["skipped"] == rows["aquadopp"]["not_here"] == 1
+        assert rows["aquadopp"]["processed"] == 0
+        assert rows["aquadopp"]["notes"] == "flooded"
 
-    def test_unknown_type_appended_alphabetically(self):
-        instruments = [
-            self._make_instrument("microcat"),
-            self._make_instrument("rbrsolo"),
-        ]
-        result = _build_type_summary(instruments)
-        itypes = [r["itype"] for r in result]
-        assert "microcat" in itypes
-        assert "rbrsolo" in itypes
+    def test_inline_instruments_counted_and_non_mapping_entries_skipped(self, tmp_path):
+        """The Aquadopp moved to ``inline:`` beside a shackle, a bare string in ``clamp:``."""
 
-    def test_skipped_flag_counted(self):
-        instruments = [
-            self._make_instrument("microcat", skipped=True),
-            self._make_instrument("microcat", skipped=False),
-        ]
-        result = _build_type_summary(instruments)
-        assert result[0]["skipped"] == 1
+        def inline(text):
+            return text.replace(
+                "\n- serial: 9920*",
+                "\n- not a mapping\ninline:\n- name: shackle\n- serial: 9920*",
+            )
 
-    def test_stopped_early_flag_counted(self):
-        instruments = [
-            self._make_instrument("aquadopp", stopped_early=True),
-        ]
-        result = _build_type_summary(instruments)
-        assert result[0]["stopped_early"] == 1
+        rows = _build_type_summary(_dune2_instruments(tmp_path, inline))
+        assert [r["itype"] for r in rows] == ["microcat", "aquadopp"]
+        assert all(r["deployed"] == r["processed"] == 1 for r in rows)
 
-    def test_notes_key_present(self):
-        instruments = [self._make_instrument("microcat")]
-        result = _build_type_summary(instruments)
-        assert "notes" in result[0]
+    def test_records_ending_before_recovery_stopped_early(self, tmp_path):
+        from datetime import UTC, datetime
+
+        late = datetime(2026, 8, 25, tzinfo=UTC)
+        rows = _build_type_summary(_dune2_instruments(tmp_path, recover=late))
+        assert all(r["stopped_early"] == 1 for r in rows)
+
+    def test_a_mixed_case_type_finds_its_stage_files(self, tmp_path):
+        """Stage 1 names the folder as the YAML writes the type: ``MicroCAT/``."""
+
+        def mixed(text):
+            return text.replace("instrument: microcat", "instrument: MicroCAT")
+
+        _dune2_instruments(tmp_path)  # the copy
+        folder = tmp_path / "dune2_1_2026"
+        (folder / "microcat").rename(folder / "MicroCAT")
+        import yaml
+
+        from oceanarray.reports._array import _build_mooring_instruments
+
+        cfg = yaml.safe_load(mixed((folder / "dune2_1_2026.mooring.yaml").read_text()))
+        instrs = _build_mooring_instruments(tmp_path, "dune2_1_2026", cfg, None)
+        microcat = next(i for i in instrs if i["serial"] == "2941")
+        assert microcat["itype"] == "microcat"
+        assert microcat["processed"] and not microcat["skipped"]
 
 
 class TestArrayModeOutputDir:
@@ -318,44 +274,60 @@ class TestArrayModeOutputDir:
         assert seen["report_dir"] == Path(str(central))
 
 
-class TestArrayMastheadExtent:
-    """The masthead extent labels each endpoint from its coordinate sign.
-
-    Regression guard: the extent once hard-coded ``°N``/``°E``, so a western
-    longitude (MIXSED sits at ~29 °W) rendered as east.  It must read the
-    hemisphere from the sign, as ``position`` does via ``location.format_ddm``.
-    """
+class TestArrayHeader:
+    """The year page's header: the ruled fields, in order, and the status."""
 
     @staticmethod
-    def _row(lat, lon):
+    def _row(recovered):
+        from datetime import UTC, datetime
+
         return {
-            "lat": lat,
-            "lon": lon,
             "waterdepth": 800,
-            "n_instruments": 3,
-            "_deploy_dt": None,
-            "_recover_dt": None,
-            "report_exists": False,
-            "stack_exists": False,
-            "grid_exists": False,
+            "_deploy_dt": datetime(2016, 7, 10, tzinfo=UTC),
+            "_recover_dt": recovered,
         }
 
-    def test_western_longitude_reads_west_not_east(self):
-        rows = [self._row(65.0, -31.0), self._row(66.0, -27.0)]
-        masthead = _build_array_masthead(
-            {"waterdepth_min": 700, "waterdepth_max": 1000},
-            rows,
-            [],
-            None,
-            None,
-            Path("MIXSED2026.array.yaml"),
+    def test_fields_in_order(self, tmp_path):
+        from datetime import UTC, datetime
+
+        done = datetime(2018, 7, 24, tzinfo=UTC)
+        summary = _build_type_summary(
+            _dune2_instruments(
+                tmp_path,
+                lambda text: text.replace(
+                    "  instrument: aquadopp\n", "  instrument: aquadopp\n  skip: true\n"
+                ),
+            )
         )
-        extent = masthead["extent"]
-        # Western longitudes are labelled W, never E; northern latitudes N.  The old
-        # buggy form hard-coded °E, so a leaked signed decimal would also fail "W" here.
-        assert "W" in extent
-        assert "E" not in extent
-        assert "N" in extent
+        facts = _build_array_masthead(
+            {"year": 2016, "project": "OSNAP East"},
+            [self._row(done), self._row(done)],
+            summary,
+        )
+        labels = [f[0] for f in facts]
+        assert labels == [
+            "Year deployed",
+            "Project",
+            "Number of moorings",
+            "Status",
+            "Water depth",
+            "Instruments",
+            "Aquadopps not processed here",
+        ]
+        assert facts[3][1] == "recovered"
+        assert facts[-1][1] == "1"
+
+    def test_status_some_recovered_and_in_the_water(self):
+        from datetime import UTC, datetime
+
+        now = datetime(2017, 1, 1, tzinfo=UTC)
+        rows = [self._row(datetime(2016, 12, 1, tzinfo=UTC)), self._row(None)]
+        facts = {f[0]: f[1] for f in _build_array_masthead({}, rows, [], now)}
+        assert facts["Status"] == "1 of 2 recovered"
+        facts = {
+            f[0]: f[1] for f in _build_array_masthead({}, [self._row(None)], [], now)
+        }
+        assert facts["Status"] == "in the water"
 
 
 class TestNanPosition:
@@ -390,8 +362,171 @@ class TestNanPosition:
             "waterdepth": cfg["waterdepth"],
             "deploy_time": "2026-07-11",
             "recover_time": "2026-07-25",
-            "n_instruments": 2,
             "report_exists": False,
             "report_href": "",
         }
         assert _array_map_payload([row]) == ("[]", "null", "null")
+
+
+class TestBathymetryContours:
+    """Depth contours from the ETOPO1 subset of OSNAP East (56–64°N, 45–26°W)."""
+
+    _ETOPO = (
+        Path(__file__).resolve().parents[1]
+        / "fixtures"
+        / "bathymetry"
+        / "etopo1_osnap_east_8min.nc"
+    )
+    _EAST_GREENLAND = (-44.0, 57.0, -38.0, 62.0)
+
+    def test_north_to_south_files_give_the_same_contours(self, tmp_path):
+        import xarray as xr
+
+        from oceanarray.reports._array import bathymetry_contours
+
+        flipped = tmp_path / "flipped.nc"
+        with xr.open_dataset(self._ETOPO, engine="netcdf4") as ds:
+            ds.isel(latitude=slice(None, None, -1)).to_netcdf(flipped)
+        ascending = bathymetry_contours(
+            self._ETOPO, self._EAST_GREENLAND, tmp_path / "a.json"
+        )
+        assert '"coordinates":[[' in ascending
+        assert (
+            bathymetry_contours(flipped, self._EAST_GREENLAND, tmp_path / "b.json")
+            == ascending
+        )
+
+    def test_an_extent_the_file_does_not_cover_draws_no_contours(
+        self, tmp_path, caplog
+    ):
+        from oceanarray.reports._array import bathymetry_contours
+
+        with caplog.at_level(logging.WARNING, logger="oceanarray.reports._array"):
+            out = bathymetry_contours(
+                self._ETOPO, (10.0, -40.0, 20.0, -30.0), tmp_path / "c.json"
+            )
+        assert out is None
+        assert "does not cover" in caplog.text
+        assert not (tmp_path / "c.json").exists()
+
+
+class TestYearPage:
+    """The year page on the egM2 2016 and 2018 deployments, with ETOPO1 depth contours."""
+
+    _FIX = Path(__file__).resolve().parents[1] / "fixtures"
+
+    @pytest.fixture(scope="class")
+    def page(self, tmp_path_factory):
+        import warnings
+
+        from oceanarray.reports._array import generate_array_report
+
+        root = tmp_path_factory.mktemp("year")
+        moorings = "".join(
+            f"- mooring: {n}\n  config: {self._FIX / 'proc' / 'egM2_concat' / n / f'{n}.mooring.yaml'}\n"
+            "  line: East Greenland\n"
+            for n in ("egM2_2016", "egM2_2018")
+        )
+        array_yaml = root / "EG.array.yaml"
+        array_yaml.write_text(
+            f"name: EG\nyear: 2016\nproject: OSNAP East\n"
+            f"bathymetry: {self._FIX / 'bathymetry' / 'etopo1_osnap_east_8min.nc'}\n"
+            f"moorings:\n{moorings}",
+            encoding="utf-8",
+        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            out = generate_array_report(array_yaml, root, force=True)
+        return root, out.read_text(encoding="utf-8")
+
+    def test_header_fields_in_the_ruled_order(self, page):
+        _, html = page
+        labels = [
+            "Year deployed",
+            "Project",
+            "Number of moorings",
+            "Status",
+            "Water depth",
+            "Instruments",
+        ]
+        at = [html.index(f"<dt>{label}</dt>") for label in labels]
+        assert at == sorted(at)
+        assert "<dt>Recovered</dt>" not in html and "<dt>Position</dt>" not in html
+
+    def test_map_has_depth_contours_and_lines(self, page):
+        root, html = page
+        assert "L.geoJSON(CONTOURS" in html
+        assert (root / "_EG_contours.json").exists()
+        assert "Moorings deployed in 2016, coloured by line" in html
+        assert "etopo1_osnap_east_8min.nc" in html
+        assert '<div class="legend">' in html and "East Greenland" in html
+
+    def test_one_moorings_table_with_instruments_and_pages(self, page):
+        _, html = page
+        assert 'id="completeness"' not in html
+        assert "Overview</span>" in html and "Time series</span>" in html
+        assert "Gridded</span>" in html
+        # No stage files here: every instrument is counted, none processed.
+        assert re.search(r"<td>0 of \d+ \(", html)
+        durations = re.findall(r'<td class="num">([\d.]+ \w+)</td>', html)
+        assert len({d.split()[1] for d in durations}) == 1
+
+    def test_a_water_depth_given_as_text_is_shown_as_given(self, tmp_path):
+        """egM2_2016 with ``waterdepth: unknown`` (fails validation, read unvalidated)."""
+        import shutil
+        import warnings
+
+        from oceanarray.reports._array import generate_array_report
+
+        src = self._FIX / "proc" / "egM2_concat" / "egM2_2016"
+        shutil.copytree(src, tmp_path / "egM2_2016")
+        cfg = tmp_path / "egM2_2016" / "egM2_2016.mooring.yaml"
+        cfg.write_text(
+            cfg.read_text().replace("waterdepth: 2459.0", "waterdepth: unknown")
+        )
+        moorings = "".join(
+            f"- mooring: {n}\n  config: {d / n / f'{n}.mooring.yaml'}\n"
+            for n, d in (
+                ("egM2_2016", tmp_path),
+                ("egM2_2018", self._FIX / "proc" / "egM2_concat"),
+            )
+        )
+        array_yaml = tmp_path / "EG.array.yaml"
+        array_yaml.write_text(f"name: EG\nmoorings:\n{moorings}", encoding="utf-8")
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            out = generate_array_report(array_yaml, tmp_path)
+        html = out.read_text(encoding="utf-8")
+        assert '<td class="num">unknown</td>' in html
+        assert '<td class="num">2436</td>' in html
+        assert "2436–2436" in html  # the header's range, from the numeric depth
+
+    def test_without_lines_or_covering_bathymetry(self, tmp_path, caplog):
+        """One colour per mooring, and a file north of the moorings: no contours."""
+        import warnings
+
+        import xarray as xr
+
+        from oceanarray.reports._array import generate_array_report
+
+        north = tmp_path / "north.nc"
+        with xr.open_dataset(
+            self._FIX / "bathymetry" / "etopo1_osnap_east_8min.nc", engine="netcdf4"
+        ) as ds:
+            ds.sel(latitude=slice(63.5, 64.0)).to_netcdf(north)
+        moorings = "".join(
+            f"- mooring: {n}\n  config: {self._FIX / 'proc' / 'egM2_concat' / n / f'{n}.mooring.yaml'}\n"
+            for n in ("egM2_2016", "egM2_2018")
+        )
+        array_yaml = tmp_path / "EG.array.yaml"
+        array_yaml.write_text(f"name: EG\nmoorings:\n{moorings}", encoding="utf-8")
+        with (
+            warnings.catch_warnings(),
+            caplog.at_level(logging.WARNING, logger="oceanarray.reports._array"),
+        ):
+            warnings.simplefilter("ignore")
+            out = generate_array_report(array_yaml, tmp_path, bathymetry=north)
+        html = out.read_text(encoding="utf-8")
+        assert "one colour per mooring" in html and "coloured by line" not in html
+        assert "L.geoJSON(CONTOURS" not in html and "Depth contours" not in html
+        assert "north.nc does not cover" in caplog.text

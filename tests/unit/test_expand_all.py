@@ -10,18 +10,12 @@ from __future__ import annotations
 import contextlib
 import io
 import re
-import shutil
 import warnings
 from pathlib import Path
 
 import pytest
 import xarray as xr
 
-import oceanarray as oa
-from oceanarray import mooring, paths
-from oceanarray.cli import build_parser
-from oceanarray.pipeline.read_mooring import read_mooring
-from oceanarray.reports import MooringReport
 from oceanarray.reports._array import generate_array_report
 
 _FIX = Path(__file__).resolve().parents[1] / "fixtures" / "proc"
@@ -44,7 +38,7 @@ def _quiet(fn, *args, **kwargs):
 
 
 @pytest.fixture(scope="module")
-def pages(tmp_path_factory) -> dict[str, str]:
+def pages(tmp_path_factory, dune2_pages, egm2_site) -> dict[str, str]:
     """Every report page type, rendered once, keyed by page type.
 
     Returns
@@ -54,17 +48,7 @@ def pages(tmp_path_factory) -> dict[str, str]:
         Grid cat pages.
     """
     out: dict[str, str] = {}
-
-    dune2 = tmp_path_factory.mktemp("dune2_pages")
-    _quiet(
-        MooringReport(proc_dir=str(_FIX)).generate,
-        _DUNE2,
-        force=True,
-        outdir=str(dune2),
-        instruments=True,
-        grid=True,
-        stack=True,
-    )
+    dune2 = dune2_pages
     out["deployment"] = (dune2 / f"{_DUNE2}_report.html").read_text(encoding="utf-8")
     out["stack"] = (dune2 / f"{_DUNE2}_stack_report.html").read_text(encoding="utf-8")
     out["grid"] = (dune2 / f"{_DUNE2}_grid_report.html").read_text(encoding="utf-8")
@@ -89,22 +73,7 @@ def pages(tmp_path_factory) -> dict[str, str]:
     )
     out["array"] = Path(page).read_text(encoding="utf-8")
 
-    root = tmp_path_factory.mktemp("osnap")
-    for name in _EGM2:
-        shutil.copytree(_FIX / "egM2_concat" / name, root / name)
-        cfg = mooring.load(root / name / f"{name}.mooring.yaml")
-        data = _quiet(
-            read_mooring, cfg, stage=3, mooring_dir=root / name, allow_missing=True
-        )
-        oa.write(
-            _quiet(oa.stack, data, cfg), paths.product_file(root / name, name, "stack")
-        )
-    yamls = [str(root / n / f"{n}.mooring.yaml") for n in _EGM2]
-    args = build_parser().parse_args(
-        ["concat", *yamls, "--name", "egM2", "--dp", "50", "--force"]
-    )
-    assert _quiet(args.func, args) == 0
-    report = root / "egM2" / "report"
+    report = egm2_site / "report"
     out["stackcat"] = (report / "egM2_stackcat_report.html").read_text(encoding="utf-8")
     out["gridcat"] = (report / "egM2_gridcat_report.html").read_text(encoding="utf-8")
     return out

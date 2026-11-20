@@ -378,7 +378,7 @@ details summary.collapse-toggle { color:var(--muted); font-size:0.76rem; cursor:
 details summary.collapse-toggle::before { content:"▾ "; }
 details[open] summary.collapse-toggle::before { content:"▴ "; }
 /* Figures never exceed the content column; the oversampled PNG downscales
-   crisply (spec §11 OVERSAMPLE). Pages may override (e.g. array uses 60%). */
+   crisply (the figures' OVERSAMPLE). Pages may override (e.g. array uses 60%). */
 .fig { max-width:100%; height:auto; display:block; }
 /* A bare .fig (no slot class) is a full-width figure: fill the column. A
    slot-* figure gets its width from the .slot-* rule instead — so this must NOT
@@ -408,6 +408,9 @@ details[open] summary.collapse-toggle::before { content:"▴ "; }
 button.expand-all { margin-left:auto; font:inherit; font-size:var(--fs-cap); color:var(--ocean);
   background:var(--seafoam); border:1px solid var(--rule); border-radius:var(--radius-btn);
   padding:0.1rem 0.6rem; cursor:pointer; }
+/* Units on a second header row ("Nominal depth" / "m"). */
+td.nowrap { white-space:nowrap; }
+.th-unit { display:block; font-weight:400; font-size:0.72rem; opacity:0.85; }
 button.expand-all:hover { text-decoration:underline; }
 button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset:2px; }
 @media print {
@@ -418,8 +421,6 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
   .masthead, th { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 }
 
-  .th-unit { display: block; font-weight: 400; font-size: 0.72rem; opacity: 0.85; }
-  td.nowrap { white-space: nowrap; }
   :root { --accent:#2980b9; --accent-link:#cef; }
   /* No width here: the slot class sets each figure's width; width:100%
      would override the slot and force full-width. */
@@ -473,7 +474,7 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
     <div><dt>Water depth</dt><dd>745&thinsp;m</dd></div>
     <div><dt>Deployment</dt><dd>2026-07-11 20:30 UTC</dd></div>
     <div><dt>Recovery</dt><dd>2026-07-25 11:44 UTC</dd></div>
-    <div><dt>Duration</dt><dd>13d 15h</dd></div>
+    <div><dt>Duration</dt><dd>13.6 days</dd></div>
     <div><dt>Instruments</dt><dd>2 (MicroCAT 1 · Aquadopp 1)</dd></div>
     <div><dt>Samp.&nbsp;&Delta;t</dt><dd>3600&thinsp;s</dd></div>
     <div><dt>Records</dt><dd>328</dd></div>

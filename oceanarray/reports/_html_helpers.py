@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import base64
 import re
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -108,12 +108,10 @@ STOPPED_EARLY_HOURS = 12
 
 #: Mean month length in days, for the month form of a duration.
 _DAYS_PER_MONTH = 30.44
-#: Spans shorter than this many days (6 months of 30.44 d) print as days and hours.
-_MONTH_FORM_DAYS = 182.6
 
 
 def _format_seconds(seconds: float | None) -> str:
-    """Return a duration in seconds as text, in the units that suit its length.
+    """Return a duration as text: whole units under a day, else :func:`format_durations`.
 
     Parameters
     ----------
@@ -123,51 +121,65 @@ def _format_seconds(seconds: float | None) -> str:
     Returns
     -------
     str
-        Under a day the largest whole units: ``"1 h"``, ``"15 min"``,
-        ``"2 h 30 min"``, ``"30 s"``.  Under 182.6 days, days and hours
-        (``"13d 15h"``); longer, months of 30.44 d with one decimal (``"11.2mon"``)
-        or years and months (``"1y 10.0mon"``).  ``"—"`` when the value is
-        missing, not finite or negative.
+        ``"1 h"``, ``"15 min"``, ``"2 h 30 min"``, ``"30 s"``, ``"13.6 days"``;
+        ``"—"`` when missing, not finite or negative.
     """
-    # The year split is taken on the rounded tenths, so no string reads "12.0mon".
     if seconds is None or not np.isfinite(seconds) or seconds < 0:
         return "—"
     s = int(round(seconds))
-    if s < 86400:
-        if s >= 3600:
-            h, m = divmod(s // 60, 60)
-            return f"{h} h" + (f" {m} min" if m else "")
-        if s >= 60:
-            m, r = divmod(s, 60)
-            return f"{m} min" + (f" {r} s" if r else "")
-        return f"{s} s"
-    days = seconds / 86400
-    if days < _MONTH_FORM_DAYS:
-        d, rest = divmod(s, 86400)
-        return f"{d}d {rest // 3600}h"
-    tenths = round(days / _DAYS_PER_MONTH * 10)
-    years, tenths = divmod(tenths, 120)
-    months = f"{tenths / 10:.1f}mon"
-    return f"{years}y {months}" if years else months
+    if s >= 86400:
+        return format_durations([seconds])[0]
+    if s >= 3600:
+        h, m = divmod(s // 60, 60)
+        return f"{h} h" + (f" {m} min" if m else "")
+    if s >= 60:
+        m, r = divmod(s, 60)
+        return f"{m} min" + (f" {r} s" if r else "")
+    return f"{s} s"
 
 
-def _format_duration(start: datetime | None, end: datetime | None) -> str:
-    """Return the span between two times as text (see :func:`_format_seconds`).
+#: Units of a duration table, longest first: (name, seconds); the first a value in
+#: the table exceeds is the table's unit (the duration rule: one unit per table).
+_DURATION_UNITS: tuple[tuple[str, float], ...] = (
+    ("years", 365.25 * 86400),
+    ("months", _DAYS_PER_MONTH * 86400),
+    ("days", 86400.0),
+)
+
+
+def format_durations(seconds: Sequence[float | None]) -> list[str]:
+    """Return durations in one unit: years if any exceeds a year, else months, else days.
 
     Parameters
     ----------
-    start, end : datetime or None
-        Start and end of the span.
+    seconds : sequence of float or None
+        The durations of one table or figure, in seconds.
 
     Returns
     -------
-    str
-        For example ``"13d 15h"``, ``"11.2mon"`` or ``"12 h"``; ``"—"`` when either
-        time is missing or the span is negative.
+    list of str
+        ``"1.9 years"``, ``"10.1 months"`` or ``"13.6 days"``, one decimal; ``"—"``
+        for a missing, non-finite or negative value.
     """
-    if start is None or end is None:
-        return "—"
-    return _format_seconds((end - start).total_seconds())
+    ok = [s is not None and np.isfinite(s) and s >= 0 for s in seconds]
+    longest = max((s for s, good in zip(seconds, ok, strict=True) if good), default=0)
+    unit, size = next(
+        ((u, n) for u, n in _DURATION_UNITS if longest > n), _DURATION_UNITS[-1]
+    )
+    return [
+        f"{s / size:.1f} {unit}" if good else "—"
+        for s, good in zip(seconds, ok, strict=True)
+    ]
+
+
+def span_seconds(start: datetime | None, end: datetime | None) -> float | None:
+    """Return the seconds from *start* to *end*, None when either is missing."""
+    return None if start is None or end is None else (end - start).total_seconds()
+
+
+def _format_duration(start: datetime | None, end: datetime | None) -> str:
+    """Return one span as text, by the duration rule (:func:`format_durations`)."""
+    return format_durations([span_seconds(start, end)])[0]
 
 
 def _format_clock(s: str | None) -> str | None:

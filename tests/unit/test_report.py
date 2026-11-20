@@ -169,44 +169,35 @@ class TestHtmlHelpers:
     def test_fmt_dt_none_returns_dash(self):
         assert _format_dt(None) == "—"
 
-    # _format_duration
-    def test_duration_str_two_days(self):
-        from datetime import datetime
-
-        s = datetime(2024, 1, 1)
-        e = datetime(2024, 1, 3, 6)
-        result = _format_duration(s, e)
-        assert "2d" in result
-
-    def test_duration_dune2_days_and_hours(self):
+    # _format_duration: one span, by the duration rule
+    def test_duration_dune2_in_days(self):
         from datetime import datetime
 
         s = datetime(2026, 7, 11, 20, 30)
         e = datetime(2026, 7, 25, 11, 44)
-        assert _format_duration(s, e) == "13d 15h"
+        assert _format_duration(s, e) == "13.6 days"
 
     def test_duration_rodb_mooring_in_months(self):
         from datetime import datetime
 
-        # The OSNAP RODB mooring: 340 d, past the 182.6-day threshold.
+        # The OSNAP RODB mooring: 340 d.
         s = datetime(2014, 7, 17, 12)
         e = datetime(2015, 6, 22, 12)
-        assert _format_duration(s, e) == "11.2mon"
+        assert _format_duration(s, e) == "11.2 months"
 
-    def test_duration_over_a_year_in_years_and_months(self):
+    def test_duration_over_a_year_in_years(self):
         from datetime import datetime, timedelta
 
         s = datetime(2014, 7, 17, 12)
-        assert _format_duration(s, s + timedelta(days=669, hours=2)) == "1y 10.0mon"
+        assert _format_duration(s, s + timedelta(days=669, hours=2)) == "1.8 years"
 
-    def test_duration_threshold_and_year_boundary(self):
-        from datetime import datetime, timedelta
+    def test_one_unit_for_a_table(self):
+        from oceanarray.reports._html_helpers import format_durations
 
-        s = datetime(2014, 7, 17, 12)
-        assert _format_duration(s, s + timedelta(days=182.5)) == "182d 12h"
-        assert _format_duration(s, s + timedelta(days=182.6)) == "6.0mon"
-        # 364.9 d is 11.99 months: rounds to 12.0, so it reads as a year.
-        assert _format_duration(s, s + timedelta(days=364.9)) == "1y 0.0mon"
+        day = 86400.0
+        assert format_durations([10 * day, 400 * day]) == ["0.0 years", "1.1 years"]
+        assert format_durations([10 * day, 40 * day]) == ["0.3 months", "1.3 months"]
+        assert format_durations([10 * day, None]) == ["10.0 days", "—"]
 
     def test_duration_negative_span_is_dash(self):
         from datetime import datetime
@@ -861,7 +852,7 @@ def test_timing_table_mixed_marks_only_imported_rows():
     assert "09:09" not in html
 
 
-def test_grid_page_overflow_off_by_default_and_on_by_config(tmp_path):
+def test_grid_page_overflow_off_by_default_and_on_by_config(tmp_path, dune2_pages):
     """Overflow is absent (and not named in the not-applicable footer) unless the
     mooring YAML's report_sections turns it on; turning it on restores the section."""
     import shutil
@@ -893,7 +884,6 @@ def test_grid_page_overflow_off_by_default_and_on_by_config(tmp_path):
     )
     assert "Overflow" not in footer
 
-    on = tmp_path / "on"
-    shutil.copytree(src, on)  # fixture already has report_sections: {grid: [overflow]}
-    report(on, instruments=False, stack=False, grid=True, force=True)
-    assert "Overflow</h2>" in (on / grid).read_text(encoding="utf-8")
+    # The fixture's own description has report_sections: {grid: [overflow]}.
+    on = (dune2_pages / "dune2_1_2026_grid_report.html").read_text(encoding="utf-8")
+    assert "Overflow</h2>" in on

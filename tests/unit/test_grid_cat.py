@@ -357,7 +357,7 @@ def test_a_deployment_whose_grid_settings_differ_is_named(egm2, caplog):
     assert "egM2_2018's own grid: settings (" in caplog.text
 
 
-def test_without_a_position_no_isopycnals_are_drawn(egm2, tmp_path):
+def test_without_a_position_no_isopycnals_are_drawn(egm2, tmp_path, caplog):
     from oceanarray.reports._gridcat import generate_gridcat_page
 
     yamls = [egm2 / n / f"{n}.mooring.yaml" for n in _EGM2]
@@ -372,9 +372,9 @@ def test_without_a_position_no_isopycnals_are_drawn(egm2, tmp_path):
     nowhere["deployment_latitude"][:] = np.nan
     nowhere["deployment_longitude"][:] = np.nan
     oa.write(nowhere, folder / gridcat.name)
-    with contextlib.redirect_stdout(io.StringIO()) as out:
+    with caplog.at_level("WARNING", logger="oceanarray"):
         page = generate_gridcat_page(folder / gridcat.name, folder / "report")
-    assert "no deployment has a position" in out.getvalue()
+    assert "no deployment has a position" in caplog.text
     assert "No isopycnals: no deployment has a position" in page.read_text(
         encoding="utf-8"
     )
@@ -424,3 +424,115 @@ def test_still_water_has_no_along_slope_direction(flmb_site):
     out = _quiet(grid, still, pmin=200, pmax=2600, dp=50)
     assert "slope_angle_deg" not in out.attrs
     assert out.attrs["slope_angle_source"].startswith("none: steadiness 0.00")
+
+
+# The Grid cat page for a reader who did not run the pipeline -------------------
+
+
+def test_the_rotated_velocity_is_named_by_its_direction(flmb_site, tmp_path):
+    """ "Mean direction" and "Cross direction", never along/across-slope or steadiness."""
+    import re
+
+    from oceanarray.reports._gridcat import generate_gridcat_page
+
+    oa.write(flmb_site, tmp_path / "FLMB_stackcat.nc")
+    gridded = _quiet(grid_site, tmp_path / "FLMB_stackcat.nc", overwrite=True)
+    html = generate_gridcat_page(gridded, tmp_path / "report").read_text("utf-8")
+    import html as html_lib
+
+    # Not the NetCDF tables, which quote the file.
+    text = html_lib.unescape(re.sub(r"<td[^>]*>.*?</td>", "", html, flags=re.S))
+    assert "Mean direction (" in text or "mean-direction (toward" in text
+    assert "slope" not in text.lower() and "steadiness" not in text.lower()
+    assert "Each deployment's own record is collapsed below" in text
+    assert 'id="netcdf"' in html
+
+
+def test_section_isopycnals_are_labelled_in_the_right_margin(flmb_site):
+    """Labels "σ₀ 27.7" at each level's last depth, just right of the panel."""
+    from oceanarray.plotters.site import draw_site_sections
+
+    pressure = np.arange(20.0, 2800.0, 20.0)
+    time = flmb_site["time"].values[::24]
+    data = np.where(pressure < 1500, 27.6, 27.8)[None, :].repeat(time.size, 0)
+    owner = np.zeros(time.size, dtype=int)
+    edges = np.append(time, time[-1] + np.timedelta64(1, "D"))
+    fig = draw_site_sections(
+        [
+            {
+                "data": data,
+                "title": "T",
+                "units": "",
+                "cmap": "viridis",
+                "isopycnals": True,
+            }
+        ],
+        time,
+        pressure,
+        edges,
+        owner,
+        isopycnals=[(data, (27.7,), r"$\sigma_0$")],
+    )
+    labels = [t for t in fig.axes[0].texts if t.get_text().startswith(r"$\sigma_0$")]
+    assert [t.get_text() for t in labels] == [r"$\sigma_0$ 27.7"]
+    assert labels[0].xy[0] == 1.0  # the right edge, in axes fraction
+
+
+def test_velocity_profiles_are_cropped_with_a_zero_line():
+    """Cropped to the pressures with values, the figure made shorter; dashed zero."""
+    from oceanarray.plotters.site import draw_site_profiles
+
+    pressure = np.arange(20.0, 2800.0, 20.0)
+    medians = np.full((2, pressure.size), np.nan)
+    medians[:, pressure > 1800] = 0.05
+    columns = [{"medians": medians, "title": "U (m/s)"}]
+    full = draw_site_profiles(columns, pressure, ["2016", "2017"])
+    cropped = draw_site_profiles(
+        columns, pressure, ["2016", "2017"], crop=True, zero_line=True
+    )
+    assert cropped.get_figheight() < full.get_figheight()
+    assert max(cropped.axes[0].get_ylim()) < 2800
+    assert any(
+        ln.get_linestyle() == "--" and set(ln.get_xdata()) == {0.0}
+        for ln in cropped.axes[0].get_lines()
+    )
+
+
+def test_a_given_angle_is_not_called_the_mean_flow(flmb_site):
+    """``--slope-angle 210``: the captions name the given angle, not the mean flow."""
+    from oceanarray.reports._gridcat import _captions
+
+    given = _quiet(grid, flmb_site, pmin=200, pmax=2600, dp=50, slope_angle=210)
+    text = _captions(given, flmb_site, "daily", 210.0, True, {})
+    assert "toward 210°, the angle given for this site" in text["sections_uv"]
+    assert "record-mean" not in text["sections_uv"]
+    mean = _quiet(grid, flmb_site, pmin=200, pmax=2600, dp=50)
+    angle = mean.attrs["slope_angle_deg"]
+    text = _captions(mean, flmb_site, "daily", angle, True, {})
+    assert (
+        f"toward {angle:.0f}°, the direction of the record-mean flow"
+        in (text["sections_uv"])
+    )
+
+
+def test_deployment_marks_keep_their_names_when_one_has_no_window(
+    flmb_site, monkeypatch
+):
+    """FLMB 2016 without times or steps: 2017's mark is still named 2017."""
+    from oceanarray.reports import _gridcat
+
+    gridded = _quiet(grid, flmb_site, pmin=200, pmax=2600, dp=50)
+    for var in ("deployment_time", "recovery_time"):
+        gridded[var] = gridded[var].copy(data=np.array(["", gridded[var].values[1]]))
+    index = gridded["deployment_index"].values
+    gridded["deployment_index"] = gridded["deployment_index"].copy(
+        data=np.where(index == 0, 1, index)
+    )
+    seen = []
+
+    def spy(*_, **kwargs):
+        seen.append([name for *_, name in kwargs["deployments"]])
+
+    monkeypatch.setattr(_gridcat.site_plots, "draw_site_sections", spy)
+    _quiet(_gridcat._figures, gridded, flmb_site, ["2016", "2017"])
+    assert seen and all(names == ["2017"] for names in seen)

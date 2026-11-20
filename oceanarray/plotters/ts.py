@@ -602,6 +602,7 @@ def draw_stack_ts_diagram(
     width_in: float = report_tokens.W_FULL,
     derived: DerivedFields | None = None,
     record: dict | None = None,
+    full_range: bool = False,
 ) -> plt.Figure | None:
     """T-S diagram for a stacked dataset; return a Figure.
 
@@ -627,6 +628,8 @@ def draw_stack_ts_diagram(
         Filled with what was drawn: ``theta``, ``sigma_interval``, ``no_sigma``
         (why σθ is not drawn, or None), ``colour`` (``"pressure"`` or None) and
         ``oxygen`` (bool).
+    full_range : bool, optional
+        Axes over every value (the Stack cat), not the 1–99 % range.
 
     Returns
     -------
@@ -714,11 +717,11 @@ def draw_stack_ts_diagram(
             alpha=0.4,
             rasterized=True,
         )
-    # Shared limits from robust percentiles (1/99, padded 5% each side and rounded
-    # outward) so a few outliers don't stretch the box; the heatmap matches (boxes
-    # are already square from square_axes_grid), and one σθ grid covers them.
-    _s_lim = _nice_axis_limits(S_flat[finite])
-    _t_lim = _nice_axis_limits(T_flat[finite])
+    # Shared limits (1/99 percentiles unless full_range, padded and rounded outward);
+    # the heatmap matches, and one σθ grid covers them.
+    pct = {"plow": 0.0, "phigh": 100.0} if full_range else {}
+    _s_lim = _nice_axis_limits(S_flat[finite], **pct)
+    _t_lim = _nice_axis_limits(T_flat[finite], **pct)
     contours = _figure_sigma0_contours(
         ax_scatter, ds, derived, position, _s_lim, _t_lim
     )
@@ -1032,6 +1035,7 @@ def draw_ts_by_deployment(
     *,
     width_in: float = report_tokens.W_HALF,
     derived: DerivedFields | None = None,
+    record: dict | None = None,
 ) -> plt.Figure | None:
     """T-S of a concatenated stack by deployment: an outline and a median per instrument level.
 
@@ -1062,6 +1066,9 @@ def draw_ts_by_deployment(
         The page's derived quantities (position, θ), computed once by the report;
         read from *ds* when not given.  The y-axis is potential temperature with
         σθ contours when the position is known, else in-situ temperature.
+    record : dict or None, optional
+        Filled with ``levels`` (levels drawn), ``outlines`` (bool) and
+        ``sigma_interval``.
 
     Returns
     -------
@@ -1114,8 +1121,8 @@ def draw_ts_by_deployment(
     # median line runs off the panel.
     s_med = [float(np.median(c[2])) for c in cells]
     t_med = [float(np.median(c[3])) for c in cells]
-    s_lim = _cover(_nice_axis_limits(s_all), s_med)
-    t_lim = _cover(_nice_axis_limits(t_all), t_med)
+    s_lim = _cover(_nice_axis_limits(s_all, plow=0.0, phigh=100.0), s_med)
+    t_lim = _cover(_nice_axis_limits(t_all, plow=0.0, phigh=100.0), t_med)
     s_edges = np.linspace(*s_lim, TS_OUTLINE_BINS[0] + 1)
     t_edges = np.linspace(*t_lim, TS_OUTLINE_BINS[1] + 1)
     s_mid, t_mid = (s_edges[:-1] + s_edges[1:]) / 2, (t_edges[:-1] + t_edges[1:]) / 2
@@ -1162,9 +1169,11 @@ def draw_ts_by_deployment(
             ms=4.5,
             zorder=5,
         )
-    draw_sigma0_contours(
+    interval = draw_sigma0_contours(
         ax, _figure_sigma0_contours(ax, ds, derived, position, s_lim, t_lim)
     )
+    if record is not None:
+        record.update(levels=len(cells), outlines=outlines, sigma_interval=interval)
     ax.set_xlim(*s_lim)
     ax.set_ylim(*t_lim)
     ax.set_xlabel(SALINITY_LABEL)
@@ -1193,6 +1202,7 @@ def draw_ts_points_by_deployment(
     *,
     width_in: float = report_tokens.W_HALF,
     derived: DerivedFields | None = None,
+    record: dict | None = None,
 ) -> plt.Figure | None:
     """T-S point cloud of a concatenated stack, one color per deployment, thinned.
 
@@ -1215,6 +1225,8 @@ def draw_ts_points_by_deployment(
         The page's derived quantities (position, θ), computed once by the report;
         read from *ds* when not given.  The y-axis is potential temperature with
         σθ contours when the position is known, else in-situ temperature.
+    record : dict or None, optional
+        Filled with ``sigma_interval``.
 
     Returns
     -------
@@ -1278,10 +1290,13 @@ def draw_ts_points_by_deployment(
             c=colors[k_all[pick]],
             rasterized=True,
         )
-    s_lim, t_lim = _nice_axis_limits(s_all), _nice_axis_limits(t_all)
-    draw_sigma0_contours(
+    s_lim = _nice_axis_limits(s_all, plow=0.0, phigh=100.0)
+    t_lim = _nice_axis_limits(t_all, plow=0.0, phigh=100.0)
+    interval = draw_sigma0_contours(
         ax, _figure_sigma0_contours(ax, ds, derived, position, s_lim, t_lim)
     )
+    if record is not None:
+        record["sigma_interval"] = interval
     ax.set_xlim(*s_lim)
     ax.set_ylim(*t_lim)
     ax.set_xlabel(SALINITY_LABEL)
@@ -1309,6 +1324,7 @@ def draw_ts_medians(
     *,
     width_in: float = report_tokens.W_HALF,
     derived: DerivedFields | None = None,
+    record: dict | None = None,
 ) -> plt.Figure | None:
     """Median T and S of each instrument in each deployment, with interquartile whiskers.
 
@@ -1329,6 +1345,8 @@ def draw_ts_medians(
         The page's derived quantities (position, θ), computed once by the report;
         read from *ds* when not given.  The y-axis is potential temperature with
         σθ contours when the position is known, else in-situ temperature.
+    record : dict or None, optional
+        Filled with ``sigma_interval``.
 
     Returns
     -------
@@ -1336,8 +1354,9 @@ def draw_ts_medians(
         None when no level has both temperature and salinity.
     """
     import matplotlib.pyplot as plt
+    from matplotlib.ticker import FormatStrFormatter, MaxNLocator
 
-    from .helpers import deployment_color, deployment_marker
+    from .helpers import deployment_color, deployment_marker, short_names
 
     needed = ("temperature", "salinity", "cell_deployment", "deployment_name")
     if any(v not in ds.variables for v in needed):
@@ -1352,7 +1371,7 @@ def draw_ts_medians(
         masked(ds, "pressure") if "pressure" in ds.data_vars else None,
         derived,
     )
-    names = [str(n) for n in ds["deployment_name"].values]
+    names = short_names([str(n) for n in ds["deployment_name"].values])
     n_dep = len(names)
     cell_dep = ds["cell_deployment"].values
     rows = []
@@ -1389,12 +1408,17 @@ def draw_ts_medians(
         )
     all_s = np.concatenate([[r[1][0], r[1][2]] for r in rows])
     all_t = np.concatenate([[r[2][0], r[2][2]] for r in rows])
-    s_lim, t_lim = _nice_axis_limits(all_s), _nice_axis_limits(all_t)
-    draw_sigma0_contours(
+    s_lim = _nice_axis_limits(all_s, plow=0.0, phigh=100.0)
+    t_lim = _nice_axis_limits(all_t, plow=0.0, phigh=100.0)
+    interval = draw_sigma0_contours(
         ax, _figure_sigma0_contours(ax, ds, derived, position, s_lim, t_lim)
     )
+    if record is not None:
+        record["sigma_interval"] = interval
     ax.set_xlim(*s_lim)
     ax.set_ylim(*t_lim)
+    ax.xaxis.set_major_locator(MaxNLocator(4))
+    ax.xaxis.set_major_formatter(FormatStrFormatter("%.3f"))
     ax.set_xlabel(SALINITY_LABEL)
     ax.set_ylabel(t_label)
     used = sorted({r[0] for r in rows})

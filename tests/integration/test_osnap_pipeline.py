@@ -166,7 +166,7 @@ def test_imported_rodb_report_labels_current_meter(tmp_path):
     assert '<div class="meta-miss"><dt>Recovery ship</dt><dd>UNK</dd></div>' in html
     assert "<dd>57° 28.24′ N</dd>" in html
     assert "<dd>012° 42.30′ W</dd>" in html
-    assert "<dd>11.2mon</dd>" in html
+    assert "<dd>11.2 months</dd>" in html
     assert "<dd>1 (Current meter 1)</dd>" in html
 
 

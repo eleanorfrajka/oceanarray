@@ -1080,7 +1080,7 @@ def stack(
     )
     _stage.append_history(
         ds_out,
-        f"flags: values flagged {_rule_words(rule)} by oceanarray or the "
+        f"flags: values flagged {masking.rule_words(rule)} by oceanarray or the "
         "originator hidden on the stack pages and left out of the grid "
         f"({masking.STACK_ATTR})",
     )
@@ -1298,17 +1298,6 @@ def _relative(path: Path, mooring_dir: Path) -> str:
         return Path(path).resolve().relative_to(Path(mooring_dir).resolve()).as_posix()
     except ValueError:
         return Path(path).name
-
-
-def _rule_words(rule: Mapping[str, tuple[int, ...]]) -> str:
-    """Return a flag rule for the history: ``"4"``, ``"4 (velocity 3, 4)"``."""
-    text = ", ".join(map(str, rule["default"])) or "none"
-    others = [
-        f"{key.replace('_', ' ')} {', '.join(map(str, flags)) or 'none'}"
-        for key, flags in rule.items()
-        if key != "default"
-    ]
-    return f"{text} ({', '.join(others)})" if others else text
 
 
 def stack_stale_reason(

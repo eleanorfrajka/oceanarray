@@ -54,12 +54,6 @@ DEPLOYMENT_COLORS: list[str] = [
 #: Line styles that pair with :data:`DEPLOYMENT_COLORS` in :func:`deployment_line`.
 DEPLOYMENT_LINESTYLES: tuple[str, ...] = ("-", "--", ":", "-.")
 
-#: A level's per-deployment statistic (median speed, mean direction) is drawn only
-#: when the level has finite values for at least this fraction of the
-#: deployment's time steps, so a level that only has data part of the time (an
-#: instrument that stops, knockdown near the top) is not compared with full ones.
-PROFILE_MIN_FRACTION: float = 0.5
-
 
 def ruled(ds: xr.Dataset) -> bool:
     """Return whether *ds* records a ``mask_flags`` rule (a stack or Stack cat)."""
@@ -826,16 +820,20 @@ def _quiet_bearing(lengths: np.ndarray) -> float:
 def nominal_depths(ds: xr.Dataset) -> np.ndarray | None:
     """Return each level's nominal depth (m): ``InstrDepth``, else water depth minus HAB.
 
+    A Stack cat's depths have their own (``nominal_depth`` on ``N_DEPTHS``).
+
     Parameters
     ----------
     ds : xarray.Dataset
-        A stack on ``N_LEVELS``.
+        A stack on ``N_LEVELS``, or a Stack cat.
 
     Returns
     -------
     numpy.ndarray or None
-        One value per level (NaN where unknown); None without either source.
+        One value per level or depth (NaN where unknown); None without a source.
     """
+    if "N_DEPTHS" in ds.dims:
+        return ds["nominal_depth"].values.astype(float)
     if "InstrDepth" in ds.variables and ds["InstrDepth"].ndim == 1:
         return np.asarray(ds["InstrDepth"].values, dtype=float)
     waterdepth = ds.attrs.get("waterdepth")

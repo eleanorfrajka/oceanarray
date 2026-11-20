@@ -18,18 +18,19 @@ import numpy as np
 import xarray as xr
 
 from oceanarray import paths
+from oceanarray.config import parameters as params
+
+#: The report style, applied while each figure is drawn and saved (never set
+#: globally, so later figures in the same process are not changed).
+_STYLE = plt.style.context(str(params.MPLSTYLE))
 
 
+@_STYLE
 def draw_microcat_raw(ds, save_path=None):
     """Plot temperature, conductivity, and pressure from a raw/stage2 microcat NetCDF.
 
     Works with seasenselib variable names (temperature, conductivity, pressure).
     """
-    style_path = (
-        Path(__file__).parent.parent / "reports" / "_vendored" / "report.mplstyle"
-    )
-    plt.style.use(str(style_path))
-
     panels = [("temperature", "Temperature [°C]", "tab:red")]
     if "conductivity" in ds.data_vars:
         panels.append(("conductivity", "Conductivity [mS/cm]", "tab:blue"))
@@ -66,12 +67,9 @@ def draw_microcat_raw(ds, save_path=None):
     return fig
 
 
+@_STYLE
 def draw_aquadopp_raw(ds, save_path=None):
     """Plot east velocity, north velocity, and pressure from a raw/stage2 Aquadopp NetCDF."""
-    style_path = (
-        Path(__file__).parent.parent / "reports" / "_vendored" / "report.mplstyle"
-    )
-    plt.style.use(str(style_path))
 
     # Pick pressure variable — prefer 'pressure', fall back to 'pressure_1'
     pvar = next((v for v in ("pressure", "pressure_1") if v in ds.data_vars), None)
@@ -129,10 +127,8 @@ def draw_aquadopp_raw(ds, save_path=None):
 
 def _instrument_label(nc_path: Path, ds: xr.Dataset) -> str:
     """Build a short instrument label, e.g. 'MC2942 868m'."""
-    from ..config import parameters as P
-
     instrument_dir = nc_path.parent.name
-    prefix = P.INSTRUMENT_ABBREV.get(instrument_dir, instrument_dir[:2].upper())
+    prefix = params.INSTRUMENT_ABBREV.get(instrument_dir, instrument_dir[:2].upper())
 
     serial = ds["serial_number"].item() if "serial_number" in ds else "?"
     # Strip trailing non-alphanumeric chars (e.g. * markers in serial strings)
@@ -144,6 +140,7 @@ def _instrument_label(nc_path: Path, ds: xr.Dataset) -> str:
     return f"{prefix}{serial} {depth}".strip()
 
 
+@_STYLE
 def draw_mooring_timeseries(
     proc_dir: Path,
     mooring: str,
@@ -190,11 +187,8 @@ def draw_mooring_timeseries(
     matplotlib.figure.Figure
 
     """
-    from ..config import parameters as P
-
-    plt.style.use(str(P.MPLSTYLE))
-    cmap_name = colormap or P.DEFAULT_COLORMAP
-    dt_s = downsample_seconds or P.DOWNSAMPLE_SECONDS
+    cmap_name = colormap or params.DEFAULT_COLORMAP
+    dt_s = downsample_seconds or params.DOWNSAMPLE_SECONDS
 
     mooring_proc = Path(proc_dir) / mooring
     use_files = sorted(mooring_proc.rglob(paths.stage_glob(2)))
@@ -263,13 +257,13 @@ def draw_mooring_timeseries(
     if scatter_mode:
         all_c = np.concatenate([c for _, _, _, c in segments if c is not None])
         all_c = all_c[np.isfinite(all_c)]
-        vmin = float(np.percentile(all_c, P.COLORBAR_PLOW))
-        vmax = float(np.percentile(all_c, P.COLORBAR_PHIGH))
+        vmin = float(np.percentile(all_c, params.COLORBAR_PLOW))
+        vmax = float(np.percentile(all_c, params.COLORBAR_PHIGH))
 
     # ------------------------------------------------------------------
     # Draw
     # ------------------------------------------------------------------
-    fig, ax = plt.subplots(figsize=P.FIGURE_SIZE_WIDE)
+    fig, ax = plt.subplots(figsize=params.FIGURE_SIZE_WIDE)
 
     if scatter_mode:
         cmap = plt.get_cmap(cmap_name)
@@ -306,7 +300,7 @@ def draw_mooring_timeseries(
     title_parts = [mooring, f"dt={dt_s}s"]
     if scatter_mode:
         title_parts.append(
-            f"colour: {var_color}  [{P.COLORBAR_PLOW}–{P.COLORBAR_PHIGH}th pct]"
+            f"colour: {var_color}  [{params.COLORBAR_PLOW}–{params.COLORBAR_PHIGH}th pct]"
         )
     ax.set_title("  |  ".join(title_parts))
 

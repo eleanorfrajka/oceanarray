@@ -1,53 +1,68 @@
 {% extends "base.html" %}
-{% import "_macros.html" as m %}
 {% import "_map.html" as nc_map %}
 {% import "_expand_all.html" as xa %}
-{% block title %}{{ array_name }} &ndash; array summary{% endblock %}
+{% block title %}{{ array_name }} &ndash; moorings deployed in {{ year }}{% endblock %}
 {% block page_styles %}
-  /* Table + caption styles are canonical in emit_css now. */
-  .meta-grid div { font-size:0.82rem; }
   .btn { display:inline-block; padding:0.15em 0.55em; border-radius:4px; font-size:0.75rem;
          font-weight:700; text-decoration:none; color:#fff; margin:0 0.15rem 0.2rem 0; }
   .btn-sum { background:#2c3e50; }
   .btn-stk { background:#2980b9; }
   .btn-grd { background:#8e44ad; }
   .btn-miss { background:#bbb; cursor:default; pointer-events:none; }
+  .dot { display:inline-block; width:0.75em; height:0.75em; border-radius:50%;
+         margin-right:0.35em; vertical-align:middle; }
+  .legend { display:flex; flex-wrap:wrap; gap:0.3rem 1.2rem; font-size:var(--fs-nav); margin:0.6rem 0 0.2rem; }
   .fig { max-width:60%; display:block; margin:0.5rem auto 1rem; border:1px solid var(--rule); border-radius:4px; }
 {% endblock %}
 {% block head_extra %}{{ nc_map.map_styles(leaflet_css, map_height) }}{% endblock %}
 {% block masthead_title %}{{ array_name }}{% endblock %}
 {% block masthead_type %}Array{% endblock %}
 {% block masthead_nav %}{% endblock %}
-{% block masthead_meta %}
-    {% if year %}<div><dt>Year</dt><dd>{{ year }}</dd></div>{% endif %}
-    {% if cruise %}<div><dt>Cruise</dt><dd>{{ cruise }}</dd></div>{% endif %}
-    {% if ship %}<div><dt>Ship</dt><dd>{{ ship }}</dd></div>{% endif %}
-    {% if project %}<div><dt>Project</dt><dd>{{ project }}</dd></div>{% endif %}
-    <div><dt>Moorings</dt><dd>{{ moorings | length }}</dd></div>
-    <div><dt>Position</dt><dd>{{ masthead.position }}</dd></div>
-    <div><dt>Extent</dt><dd>{{ masthead.extent }}</dd></div>
-    <div><dt>Deployed</dt><dd>{{ masthead.deployed }}</dd></div>
-    <div><dt>Recovered</dt><dd>{{ masthead.recovered }}</dd></div>
-    <div><dt>Duration</dt><dd>{{ masthead.duration }}</dd></div>
-    <div><dt>Water depth</dt><dd>{{ masthead.waterdepth }}</dd></div>
-    <div><dt>Instruments</dt><dd>{{ masthead.instruments }}</dd></div>
-    <div><dt>Status</dt><dd>{{ masthead.status }}</dd></div>
-    <div><dt>Processed to</dt><dd>{{ masthead.processed }}</dd></div>
-    <div><dt>Source</dt><dd>{{ masthead.source }}</dd></div>
-    <div><dt>Processed</dt><dd>{{ generated }}</dd></div>
-  {% endblock %}
 {% block content %}
 
-<nav class="jump-nav"><a href="#moorings">Moorings</a><a href="#type-summary">Instrument summary</a><a href="#completeness">Completeness</a></nav>
+<nav class="jump-nav"><a href="#moorings">Moorings</a><a href="#type-summary">Instruments by type</a><a href="#processing">Processing</a></nav>
 {{ xa.button() }}
 
 {% if payload_json != "[]" or fig_map_b64 %}
 <h2>Mooring positions</h2>
+<p class="caption">Moorings deployed in {{ year }}, {% if lines %}coloured by line{% else %}one colour per mooring{% endif %}. Click a mooring for its page.{% if contours %}
+Depth contours{% for d, c in contours.items() %} <span style="color:{{ c }}">&#9644;</span> {{ d }}{% if not loop.last %},{% endif %}{% endfor %} m, from {{ contour_file }}.{% endif %}
+{% if payload_json != "[]" %}Where labels would overlap, only the westernmost is shown; zoom in to see the rest.{% endif %}</p>
 {% if payload_json != "[]" %}
-{# Either the Leaflet map or the PNG, never both: track_map shows the interactive map on
-   screen and swaps to the matplotlib PNG fallback when printing (Leaflet does not print). #}
 {{ nc_map.track_map(payload_json, coastline_json, bounds_json, fig_map_b64, leaflet_js) }}
-{% elif fig_map_b64 %}
+{% if lines %}<div class="legend">{% for name, color in lines %}<span><span class="dot" style="background:{{ color }}"></span>{{ name }}</span>{% endfor %}</div>{% endif %}
+<script>
+/* Hide map labels that overlap one already shown, taken west to east, again after
+   each zoom. A hidden label keeps its box, and a label is written only when it
+   changes, so the observer settles. */
+(function () {
+  var pane = document.querySelector('.leaflet-tooltip-pane');
+  if (!pane) { return; }
+  var pending = false;
+  function declutter() {
+    pending = false;
+    var labels = Array.prototype.map.call(pane.querySelectorAll('.track-id-label'), function (el) {
+      return { el: el, r: el.getBoundingClientRect() };
+    });
+    labels.sort(function (a, b) { return a.r.left - b.r.left; });
+    var shown = [];
+    labels.forEach(function (l) {
+      var r = l.r;
+      var hit = shown.some(function (s) {
+        return r.left < s.right && r.right > s.left && r.top < s.bottom && r.bottom > s.top;
+      });
+      var want = hit ? 'hidden' : 'visible';
+      if (l.el.style.visibility !== want) { l.el.style.visibility = want; }
+      if (!hit) { shown.push(r); }
+    });
+  }
+  new MutationObserver(function () {
+    if (!pending) { pending = true; requestAnimationFrame(declutter); }
+  }).observe(pane, { attributes: true, subtree: true, attributeFilter: ['style'] });
+  declutter();
+})();
+</script>
+{% else %}
 <div class="fig-row center">
   <figure class="fig-cell slot-half">
     <img class="fig" src="data:image/png;base64,{{ fig_map_b64 }}" alt="Mooring positions">
@@ -58,45 +73,30 @@
 {% endif %}
 
 <h2 id="moorings">Moorings</h2>
+<p class="caption">Moorings of the {{ year }} deployment cruises: as-deployed position and water depth,
+deployment and recovery (UTC); instruments processed of those deployed.</p>
 <table>
   <thead>
     <tr>
-      <th>#</th>
-      <th>Mooring</th>
-      <th class="num">Latitude</th>
-      <th class="num">Longitude</th>
-      <th class="num">Depth&nbsp;(m)</th>
-      <th>Deployment</th>
-      <th>Recovery</th>
-      <th class="num">Duration</th>
-      <th class="num">Instruments</th>
-      <th>Reports</th>
+      <th>Mooring</th><th>Position</th><th class="num">Water depth<span class="th-unit">m</span></th>
+      <th>Deployed<span class="th-unit">UTC</span></th><th>Recovered<span class="th-unit">UTC</span></th>
+      <th class="num">Duration</th><th>Instruments</th><th>Pages</th>
     </tr>
   </thead>
   <tbody>
   {% for r in moorings %}
   <tr data-track-id="{{ r.mooring }}">
-    <td class="num">{% if r.color_hex %}<span style="display:inline-block;width:0.75em;height:0.75em;border-radius:50%;background:{{ r.color_hex }};margin-right:0.35em;vertical-align:middle"></span>{% endif %}{{ r.position }}</td>
-    <td>{% if r.report_exists %}<a href="{{ r.report_href }}"><strong>{{ r.mooring }}</strong></a>{% else %}<strong>{{ r.mooring }}</strong>{% endif %}</td>
-    <td class="num">{{ "%.4f"|format(r.lat) if r.lat is not none else "—" }}</td>
-    <td class="num">{{ "%.4f"|format(r.lon) if r.lon is not none else "—" }}</td>
-    <td class="num">{{ r.waterdepth if r.waterdepth else "—" }}</td>
+    <td><span class="dot" style="background:{{ r.color_hex }}"></span>{% if r.report_exists %}<a href="{{ r.report_href }}"><strong>{{ r.mooring }}</strong></a>{% else %}<strong>{{ r.mooring }}</strong>{% endif %}</td>
+    <td>{{ r.position }}</td>
+    <td class="num">{{ r.waterdepth_text }}</td>
     <td>{{ r.deploy_time }}</td>
     <td>{{ r.recover_time }}</td>
     <td class="num">{{ r.duration }}</td>
-    <td class="num">{{ r.n_instruments }}</td>
+    <td>{{ r.instruments }}</td>
     <td>
-      {% if r.report_exists %}
-        <a class="btn btn-sum" href="{{ r.report_href }}">Summary</a>
-      {% else %}
-        <span class="btn btn-miss">Summary</span>
-      {% endif %}
-      {% if r.stack_exists %}
-        <a class="btn btn-stk" href="{{ r.stack_href }}">Stack</a>
-      {% endif %}
-      {% if r.grid_exists %}
-        <a class="btn btn-grd" href="{{ r.grid_href }}">Grid</a>
-      {% endif %}
+      {%- for page, label, cls in [("report", "Overview", "btn-sum"), ("stack", "Time series", "btn-stk"), ("grid", "Gridded", "btn-grd")] %}
+      {% if r[page ~ "_exists"] %}<a class="btn {{ cls }}" href="{{ r[page ~ '_href'] }}">{{ label }}</a>{% else %}<span class="btn btn-miss">{{ label }}</span>{% endif %}
+      {%- endfor %}
     </td>
   </tr>
   {% endfor %}
@@ -104,65 +104,29 @@
 </table>
 
 {% if type_summary %}
-<h2 id="type-summary">Instrument type summary</h2>
+<h2 id="type-summary">Instruments by type</h2>
+<p class="caption">Instruments on the {{ year }} moorings by type: deployed, processed here, not processed (with the
+reason the mooring description gives), and records that ended more than {{ stopped_hours }} h before recovery.</p>
 <table>
   <thead>
-    <tr>
-      <th>Type</th>
-      <th class="num">Deployed</th>
-      <th class="num">Complete&nbsp;(Stage&nbsp;3&nbsp;✓)</th>
-      <th class="num">Skipped&nbsp;/&nbsp;no&nbsp;raw</th>
-      <th class="num">Stopped&nbsp;early</th>
-      <th>Notes</th>
-    </tr>
+    <tr><th>Type</th><th class="num">Deployed</th><th class="num">Processed</th><th class="num">Not processed</th>
+    <th class="num">Stopped early</th><th>Why not processed</th></tr>
   </thead>
   <tbody>
   {% for row in type_summary %}
-  <tr>
-    <td>{{ row.itype }}</td>
-    <td class="num">{{ row.deployed }}</td>
-    <td class="num">{{ row.complete }}</td>
-    <td class="num">{{ row.skipped }}</td>
-    <td class="num">{{ row.stopped_early }}</td>
-    <td>{{ row.notes }}</td>
-  </tr>
+  <tr><td>{{ row.label }}</td><td class="num">{{ row.deployed }}</td><td class="num">{{ row.processed }}</td>
+  <td class="num">{{ row.skipped }}</td><td class="num">{{ row.stopped_early }}</td><td>{{ row.notes }}</td></tr>
   {% endfor %}
+  <tr><td><strong>All</strong></td>
+  {%- for key in ("deployed", "processed", "skipped", "stopped_early") %}<td class="num"><strong>{{ type_summary | sum(attribute=key) }}</strong></td>{% endfor %}<td></td></tr>
   </tbody>
 </table>
 {% endif %}
 
-{% if mooring_completeness %}
-<h2 id="completeness">Data completeness by mooring</h2>
-<table>
-  <thead>
-    <tr>
-      <th>Mooring</th>
-      <th class="num">Depth&nbsp;(m)</th>
-      <th class="num">Deployed</th>
-      <th class="num">Complete</th>
-      <th class="num">Skipped</th>
-      <th class="num">Stopped&nbsp;early</th>
-      <th>Deployment&nbsp;(UTC)</th>
-      <th>Recovery&nbsp;(UTC)</th>
-      <th class="num">Duration</th>
-    </tr>
-  </thead>
-  <tbody>
-  {% for row in mooring_completeness %}
-  <tr>
-    <td><strong>{{ row.mooring }}</strong></td>
-    <td class="num">{{ row.waterdepth if row.waterdepth else "—" }}</td>
-    <td class="num">{{ row.deployed }}</td>
-    <td class="num">{{ row.complete }}</td>
-    <td class="num">{{ row.skipped }}</td>
-    <td class="num">{{ row.stopped_early }}</td>
-    <td>{{ row.deploy_time }}</td>
-    <td>{{ row.recover_time }}</td>
-    <td class="num">{{ row.duration }}</td>
-  </tr>
-  {% endfor %}
-  </tbody>
-</table>
-{% endif %}
+<h2 id="processing">Processing</h2>
+<details><summary>Pages found and the description used</summary>
+<p>Pages found: overview {{ processing.pages.report }}, time series {{ processing.pages.stack }},
+gridded {{ processing.pages.grid }}, of {{ moorings | length }} moorings. Built from {{ processing.source }}.</p>
+</details>
 
 {% endblock %}

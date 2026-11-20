@@ -125,7 +125,7 @@ def test_header_names_the_instrument_and_the_originators_file(pages):
     assert "<title>MicroCAT 14644 · 2190 m</title>" in html
     text = _text(html)
     assert "Originator's file M2_MC_2018_2020_SN14644_2190m_cut.nc" in text
-    assert "Nominal depth 2190 m" in text and "Sampling interval 16 min" in text
+    assert "Nominal depth 2190 m" in text and "Sampling interval 15 min" in text
     assert "Source file" not in text and "stage3.nc" not in text.split("Jump to")[0]
 
 
@@ -209,3 +209,94 @@ def test_the_instrument_warning_says_why_declination_is_missing():
     ds.attrs["magnetic_declination"] = "UNK"
     assert _declination_unapplied_reason(ds) == "no mooring position at stage 3"
     assert _declination_unapplied_reason(None) == ""
+
+
+#: The 14644 page as committed, made stable (see :func:`_stable`).
+_GOLDEN = (
+    Path(__file__).parent.parent
+    / "fixtures"
+    / "golden"
+    / "osnap"
+    / "egM2_2018_14644_report.html"
+)
+
+
+def _stable(html: str) -> str:
+    """Return the page with what a rerun changes masked: run times, versions, file hashes and sizes."""
+    from unit.test_report_golden import _normalise
+
+    html = _normalise(html)
+    from datetime import UTC, datetime
+
+    # The page was built moments ago: today's times are the run's, not the data's.
+    today = re.escape(datetime.now(UTC).strftime("%Y-%m-%d"))
+    html = re.sub(today + r"[ T]\d\d:\d\d(:\d\d)?(\.\d+)?Z?", "<WHEN>", html)
+    html = re.sub(
+        r"(_version</td><td><code>string</code></td><td>)[^<]+", r"\1<V>", html
+    )
+    # Stage files are rewritten each run; their size moves by a few hundred bytes.
+    html = re.sub(r'(<td class="num">)[\d.,]+ (?:B|KB|MB)(</td>)', r"\1<SIZE>\2", html)
+    return re.sub(
+        r"(stage\d_source_sha256</td><td><code>string</code></td><td>)[0-9a-f]+",
+        r"\1<SHA>",
+        html,
+    )
+
+
+def test_the_14644_page_matches_its_golden(pages):
+    """The MicroCAT 14644 page, from the originator's file, as committed."""
+    import os
+
+    produced = _stable(pages["egM2_2018"][0])
+    if os.environ.get("REBASELINE_GOLDEN"):
+        assert not os.environ.get("CI"), "REBASELINE_GOLDEN must not be set in CI"
+        _GOLDEN.parent.mkdir(parents=True, exist_ok=True)
+        _GOLDEN.write_text(produced, encoding="utf-8")
+        pytest.skip("re-baselined the 14644 golden")
+    assert produced == _GOLDEN.read_text(encoding="utf-8")
+
+
+def test_the_deployment_qc_summary_reads_the_originators_flags(pages, tmp_path):
+    """14644's originator flags (2 bad, 12 value-changed salinities) reach the summary."""
+    from oceanarray.reports._read import _read_qc_summary
+
+    path = tmp_path / "egM2_2018_14644_stage3.nc"
+    oa.write(pages["egM2_2018"][1], path)
+    rows = {(r["var"], r["by"]): r for r in _read_qc_summary(path)}
+    theirs = rows[("salinity", "originator")]
+    counts = {f["flag"]: f["n"] for f in theirs["flags"]}
+    assert counts[4] == 2 and counts[5] == 12
+    assert ("salinity", "oceanarray") in rows
+
+
+def test_character_flags_are_read_as_numbers_and_letters_left_out(
+    pages, tmp_path, caplog
+):
+    """14644's flags written as characters, as originator (BODC-style) files have them.
+
+    No committed fixture has character flags: the mapped originator flags are
+    converted to digit characters and oceanarray's to letters, in a copy.
+    """
+    import logging
+
+    import numpy as np
+
+    from oceanarray.reports._read import _read_qc_summary
+
+    ds = pages["egM2_2018"][1].copy()
+    mapped = ds["salinity_qc_originator_mapped"]
+    ours = ds["salinity_qc"]
+    ds["salinity_qc_originator_mapped"] = (
+        mapped.dims,
+        mapped.values.astype(int).astype("S1"),
+        mapped.attrs,
+    )
+    ds["salinity_qc"] = (ours.dims, np.full(ours.shape, b"A"), ours.attrs)
+    path = tmp_path / "egM2_2018_14644_char_flags.nc"
+    ds.to_netcdf(path, engine="netcdf4")
+    with caplog.at_level(logging.WARNING, logger="oceanarray.reports._read"):
+        rows = {(r["var"], r["by"]): r for r in _read_qc_summary(path)}
+    counts = {f["flag"]: f["n"] for f in rows[("salinity", "originator")]["flags"]}
+    assert counts[4] == 2 and counts[5] == 12
+    assert ("salinity", "oceanarray") not in rows
+    assert "salinity_qc flags are not all digits" in caplog.text

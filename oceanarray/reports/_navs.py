@@ -62,6 +62,12 @@ def _type_label(itype: str) -> str:
     return _TYPE_LABELS.get(itype, itype.upper())
 
 
+def type_word(itype: str) -> str:
+    """Return the type as written inside a sentence or table cell ("current meter")."""
+    label = _type_label(itype)
+    return label.lower() if itype in ("currentmeter", "thermistor") else label
+
+
 def _state(*, is_current: bool, is_missing: bool) -> str:
     """Return a pill state, with ``current`` outranking ``missing``."""
     # The page being viewed always exists, so it is "current" even if flagged missing.

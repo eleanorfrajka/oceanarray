@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MicroCAT 14644 · 2190 m</title>
+<style>
+:root {
+  --ocean: #1a3a5c;
+  --seafoam: #e8f4f8;
+  --muted: #95a5a6;
+  --text: #2c3e50;
+  --rule: #dfe6e9;
+  --bg: #ffffff;
+  --bg-sunken: #f7f9fa;
+  --warn: #e67e22;
+  --warn-bg: #fdf3e7;
+  --error: #c0392b;
+  --gray-1: #f5f7fa;
+  --gray-2: #e0e0e0;
+  --gray-3: #aaaaaa;
+  --gray-4: #888888;
+  --gray-5: #555555;
+  --gray-6: #333333;
+  --gray-7: #111111;
+  --ok: #2c6e49;
+  --role-landing: #2980b9;
+  --role-entity: #1a3a5c;
+  --role-collection: #1a3a5c;
+  --role-component: #1a3a5c;
+  --role-aggregate-a: #8e44ad;
+  --role-aggregate-b: #27ae60;
+  --role-map: #ee3377;
+  --role-up: #5d6d7e;
+  --qc-mark: var(--ok);
+  --package-accent: var(--ocean);
+  --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+  --fs-root: 14px;
+  --fs-h1: 1.75rem;
+  --fs-type: 1.35rem;
+  --fs-h2: 1rem;
+  --fs-h3: 0.88rem;
+  --fs-meta: 0.84rem;
+  --fs-note: 0.92rem;
+  --fs-nav: 0.8rem;
+  --fs-cap: 0.92rem;
+  --fs-xs: 0.75rem;
+  --fs-top: 0.72rem;
+  --fs-dt: 0.7rem;
+  --lh-root: 1.5;
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --radius-card: 8px;
+  --radius-btn: 4px;
+  --radius-pill: 999px;
+  --qc-0: #999999;
+  --qc-1: #009E73;
+  --qc-2: #56B4E9;
+  --qc-3: #E69F00;
+  --qc-4: #D55E00;
+  --qc-7: #CC79A7;
+  --qc-8: #0072B2;
+  --qc-9: #bdbdbd;
+  --qc-3-text: #9A6B00;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: var(--font-sans);
+  font-size: var(--fs-root); color: var(--text);
+  max-width: 1150px; margin: 0 auto;
+  padding: 1.5rem 2rem 4rem; line-height: var(--lh-root);
+}
+p, li { max-width: 78ch; }
+.masthead {
+  background: var(--ocean); color: #fff; position: relative;
+  padding: 1.6rem 2rem; border-radius: var(--radius-card); margin-bottom: 0.9rem;
+}
+.masthead h1 { margin: 0 0 0.3rem; font-size: var(--fs-h1); font-weight: 700; }
+.masthead .sub { font-size: var(--fs-meta); opacity: 0.85; margin: 0 0 0.15rem; max-width: none; }
+.wordmark {
+  position: absolute; right: 2rem; bottom: 1.2rem;
+  font-size: var(--fs-dt); font-weight: 700; letter-spacing: 0.04em;
+  color: var(--package-accent); background: #fff; opacity: 0.85;
+  padding: 0.1rem 0.5rem; border-radius: var(--radius-pill); text-decoration: none;
+}
+.wordmark:hover { opacity: 1; }
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 0.5rem 2rem; font-size: var(--fs-meta); margin-top: 0.9rem;
+}
+.meta-grid dt {
+  opacity: 0.7; text-transform: uppercase; font-size: var(--fs-dt);
+  letter-spacing: 0.06em; margin-bottom: 0.1rem;
+}
+.meta-grid dd { margin: 0; font-weight: 600; }
+h2 {
+  color: var(--ocean); font-size: var(--fs-h2);
+  border-bottom: 2px solid var(--seafoam);
+  padding-bottom: 0.3rem; margin: 2.5rem 0 1rem;
+  display: flex; justify-content: space-between; align-items: baseline;
+}
+.top-link {
+  font-size: var(--fs-top); font-weight: 400; color: var(--muted);
+  text-decoration: none; margin-left: auto;
+}
+.top-link:hover { color: var(--ocean); text-decoration: underline; }
+.caption {
+  color: var(--gray-5); font-size: var(--fs-note);
+  margin-top: 0.75rem; margin-bottom: 0.75rem;
+}
+/* A section intro (the caption directly under a heading) is a lede for the whole
+   figure block, so it spans the content width rather than the 78ch prose measure a
+   paragraph would otherwise inherit — which left it stranded under full-width figures. */
+h2 + .caption { margin-top: -0.5rem; max-width: none; }
+/* Subsection headings inside a panel's own HTML — un-numbered, outside the jump
+   nav (the page model numbers Sections, not these).  Same navy as h2, smaller. */
+h3 {
+  color: var(--ocean); font-size: var(--fs-h3); margin: 1.2rem 0 0.4rem;
+}
+h3 + .caption { margin-top: -0.2rem; }
+figure h3, .fig-row > h3 { margin-top: 0.6rem; }  /* first heading inside a panel sits closer */
+.explainer {
+  font-size: var(--fs-note); color: var(--text);
+  background: var(--bg-sunken); border-left: 3px solid var(--muted);
+  padding: var(--sp-3); margin: -0.25rem 0 0.75rem; border-radius: var(--radius-btn);
+}
+.warn {
+  font-size: var(--fs-note); color: var(--text);
+  background: var(--warn-bg); border-left: 3px solid var(--warn);
+  padding: var(--sp-3); margin-bottom: 0.5rem; border-radius: var(--radius-btn);
+}
+.warn::before { content: "⚠ "; }
+.warn.error { border-left-color: var(--error); }
+.jump-nav {
+  background: var(--seafoam); padding: 0.55rem 1rem;
+  border-radius: 6px; margin-bottom: 1.5rem;
+  font-size: var(--fs-nav); line-height: 2.2;
+}
+.jump-nav::before { content: "Jump to: "; opacity: 0.55; font-size: var(--fs-xs); margin-right: 0.25rem; }
+.jump-nav a {
+  color: var(--ocean); text-decoration: none;
+  font-weight: 600; margin: 0 0.5rem 0 0;
+}
+.jump-nav a::before { content: "▸ "; font-size: var(--fs-dt); }
+.fig-row {
+  display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;
+  align-items: flex-start;
+}
+.fig-col { display: flex; flex-direction: column; gap: 0.75rem; }
+.fig-row.center { justify-content: center; }
+/* A multi-table panel (processing provenance) is one full-width flex item so its
+   headings and tables stack instead of tiling across the row. */
+.prov-panel { flex: 1 1 100%; }
+/* Conformance status pips — a green ✓ (matches), a red ✗ (differs) and a neutral
+   ringed dash (no reference), matching the LADCP-present/absent badges. */
+.conf {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.4em; height: 1.4em; border-radius: 50%;
+  font-size: var(--fs-xs); font-weight: 700; line-height: 1;
+}
+.conf-match { background: var(--ok); color: #fff; }
+.conf-differ { background: var(--error); color: #fff; }
+.conf-none { background: #fff; color: #000; border: 1px solid #000; }
+figure { margin: 0; }
+figure img {
+  border: 1px solid var(--rule); border-radius: var(--radius-btn);
+  display: block; width: 100%; height: auto;
+}
+figcaption { font-size: var(--fs-cap); color: var(--gray-5); margin-bottom: 0.25rem; }
+/* Optional provenance line under a figure: which draw function produced it.
+   Off by default (vendored SHOW_FIGURE_SOURCE); a package turns it on in its
+   owned design module. */
+.fig-source {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--fs-xs); color: var(--muted); margin-top: 0.15rem;
+}
+/* A stub panel's warning fills the figure slot it stands in for, rather than the
+   78ch prose reading measure it would otherwise inherit as a paragraph. */
+figure .warn { max-width: none; }
+table {
+  width: 100%; border-collapse: collapse;
+  font-size: var(--fs-note); margin: 0.6rem 0 1.2rem;
+}
+th {
+  background: var(--package-accent); color: #fff; text-align: left;
+  font-weight: 600; padding: 0.4rem 0.65rem;
+}
+th.num { text-align: right; }
+td {
+  padding: 0.35rem 0.65rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+tr:nth-child(even) td { background: var(--bg-sunken); }
+td.num, .num { text-align: right; font-variant-numeric: tabular-nums; }
+td.mono { font-family: var(--font-mono); font-size: var(--fs-xs); }
+/* netCDF inventory tables (vendored nc_tables): variable / coord / scalar / sensor /
+   global tables.  Package-neutral — the markup is emitted by templates/_nc_tables.html. */
+.var-table code { font-family: var(--font-mono); font-size: var(--fs-xs); }
+.muted { color: var(--muted); }
+.var-qc { color: var(--qc-mark); font-size: var(--fs-xs); }
+/* The original source name on its own muted line above the canonical name (name_cell), so the
+   Variable column does not widen to fit both on one line. */
+.var-orig { color: var(--muted); font-size: var(--fs-xs); }
+/* A long unbroken token (a tracking_id, a path, a dotted standard_name) in a scalar value or a
+   standard/long-name cell would widen the whole table; cap the width and break inside the word. */
+.cell-wrap { overflow-wrap: anywhere; max-width: 28rem; }
+.cell-bad { color: var(--warn); font-variant-numeric: tabular-nums; }
+tr.units th {
+  background: transparent; color: var(--muted); font-weight: 400;
+  font-size: var(--fs-xs); padding-top: 0;
+}
+.attr-disclosure summary { cursor: pointer; color: var(--muted); font-size: var(--fs-xs); }
+.attr-disclosure table { margin: 0.3rem 0; width: auto; }
+.attr-disclosure th { background: transparent; color: var(--text); font-weight: 600; }
+/* QC flag-count distribution bar and legend (qc_counts_table). Flag colours are inline on each
+   segment (from the vendored QC_FLAG_COLORS), so these rules carry only the layout. */
+.qc-bar { display: flex; width: 200px; height: 13px; border-radius: 3px; overflow: hidden; gap: 1px; background: #ecf0f1; }
+.qc-bar div { height: 100%; }
+.qc-legend { display: flex; flex-wrap: wrap; gap: 0.3rem 0.9rem; font-size: 0.75rem; margin: 0.2rem 0 0.6rem; }
+.qc-legend span { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: middle; margin-right: 3px; }
+/* The source: caption hugs the table it belongs to, not the next one: a table has 1.2rem
+   bottom margin, so pull the caption up under it and keep the gap below before the next table. */
+table + .fig-source { margin-top: -0.9rem; margin-bottom: 1.2rem; }
+/* Click-to-sort affordance: _JS_SORT_TABLES gives every sortable heading a tabindex, so
+   keying on th[tabindex] styles exactly the headings it wired (a data-nosort table or th
+   gets none).  The heading is a pointer; the active one shows the direction. */
+th[tabindex] { cursor: pointer; user-select: none; }
+th.sorted-asc::after { content: " \25B2"; font-size: 0.8em; }
+th.sorted-desc::after { content: " \25BC"; font-size: 0.8em; }
+.slot-full         { width: 100%; }
+.slot-twothirds     { width: calc(66.67% - 0.33rem); }
+.slot-three-fifths  { width: calc(60% - 0.40rem); }
+.slot-half          { width: calc(50% - 0.50rem); }
+.slot-two-fifths    { width: calc(40% - 0.60rem); }
+.slot-third         { width: calc(33.33% - 0.67rem); }
+.slot-quarter       { width: calc(25% - 0.75rem); }
+.masthead-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 0.3rem;
+}
+.masthead-header h1 { margin: 0 0 0.1rem; font-size: var(--fs-h1); font-weight: 700; }
+.masthead-type {
+  font-size: var(--fs-type); font-weight: 700; opacity: 0.88; line-height: 1.35;
+  padding-top: 0.25rem;
+}
+.nav-btns { display: flex; gap: 0.5rem; }
+.btn-nav {
+  background: var(--ocean); color: #fff; padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-pill); text-decoration: none; font-size: var(--fs-nav);
+}
+.btn-nav:hover { opacity: 0.85; }
+/* Masthead page-nav (vendored): the row of role pills under the masthead, and the
+   "Data inventory:" file strip.  A pill's colour is its role, never its page; the
+   current page's pill and an already-viewed file pill are muted the same way. */
+.page-nav { margin: 0.65rem 0 0.5rem; }
+/* Consecutive nav rows (a multi-row masthead) stack tighter than the first row's
+   top margin, which is sized for a single row. */
+.page-nav + .page-nav { margin-top: 0.15rem; }
+.page-nav-label { font-size: var(--fs-top); opacity: 0.75; margin-right: 0.3rem; }
+.nav-pill {
+  display: inline-block; padding: 0.2em 0.65em; border-radius: var(--radius-btn);
+  font-size: var(--fs-nav); font-weight: 700; text-decoration: none; color: #fff;
+  margin: 0 0.2rem 0.25rem 0;
+  /* A contrasting inner edge keeps a pill visible when its role colour matches the
+     masthead background, so colour-is-role holds on any masthead. */
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+}
+.nav-landing { background: var(--role-landing); }
+.nav-entity { background: var(--role-entity); }
+.nav-collection { background: var(--role-collection); }
+.nav-component { background: var(--role-component); }
+.nav-aggregate-a { background: var(--role-aggregate-a); }
+.nav-aggregate-b { background: var(--role-aggregate-b); }
+.nav-map { background: var(--role-map); }
+.nav-up { background: var(--role-up); }
+.masthead.role-landing { background: var(--role-landing); }
+.masthead.role-entity { background: var(--role-entity); }
+.masthead.role-collection { background: var(--role-collection); }
+.masthead.role-component { background: var(--role-component); }
+.masthead.role-aggregate-a { background: var(--role-aggregate-a); }
+.masthead.role-aggregate-b { background: var(--role-aggregate-b); }
+.masthead.role-map { background: var(--role-map); }
+.masthead.role-up { background: var(--role-up); }
+.nav-current { opacity: 0.5; pointer-events: none; }
+.nav-missing { background: var(--gray-3); opacity: 0.5; pointer-events: none; }
+.inventory-strip { margin: 0 0 1rem; }
+.inventory-strip .label { font-size: var(--fs-top); opacity: 0.75; margin-right: 0.3rem; }
+.file-pill {
+  display: inline-block; background: var(--role-component); color: #fff;
+  padding: 0.2rem 0.7rem; border-radius: var(--radius-pill);
+  font-family: var(--font-mono); font-size: 0.78rem;
+  text-decoration: none; margin: 0.1rem 0.05rem;
+}
+.file-pill:hover { opacity: 0.85; }
+.file-pill-active { opacity: 0.5; pointer-events: none; }
+/* Opt-in plain masthead (vendored) for landing / navigator pages: white panel,
+   ink text, rule border, wordmark hidden.  No ctdcast page uses it yet. */
+.masthead-plain { background: #fff; color: var(--text); border: 1px solid var(--rule); }
+.masthead-plain .wordmark { display: none; }
+footer {
+  text-align: center; padding: 1rem;
+  border-top: 1px solid var(--package-accent);
+  font-size: var(--fs-xs); color: var(--muted);
+}
+footer a { color: var(--muted); }
+@media print {
+  body { max-width: 100%; }
+  .masthead { -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 0.9rem 1.25rem; }
+  .masthead-header h1, .masthead h1 { font-size: 1.35rem; }
+  .meta-grid { grid-template-columns: repeat(4, 1fr); gap: 0.3rem 1rem; font-size: var(--fs-xs); }
+  h2 { page-break-after: avoid; }
+  h3 { page-break-after: avoid; }
+  .fig-row, figure, table { break-inside: avoid; }
+  .jump-nav { display: none; }
+}
+
+/* ── oceanarray-local report chrome: classes and vars the shared emit_css()
+   sheet above does not provide.  Values reference emit_css token variables
+   (U0.1 — the vendored _css.py is the single source of shared style). ── */
+/* Phone browsers enlarge text in wide blocks ("text autosizing"), so the same
+   class rendered at different sizes in a full-width section and in a half-width
+   cell.  Keep every size as the stylesheet sets it. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+:root { --accent:var(--ocean); --accent-link:#cfe3ff;
+        --good:#27ae60; --bad:var(--error); --interp:#2980b9;
+        --hl-amber:#fff3cd; --hl-orange:#fde3c0; }
+/* QC-flag legend swatches and the stage-1 line colour: data-viz palette that
+   must match the plot colormaps, NOT chrome.  Kept as named vars so the legend
+   has one definition; TODO source these from the Python QC colormap so the
+   legend cannot drift from the plotted colours. */
+:root { --qc-good2:#a8e6cf; --qc-suspect3:#f39c12; --qc-bad4:#e74c3c;
+        --qc-interp8:#3498db; --qc-missing9:#bdc3c7; --line-stage1:#cccccc; }
+/* emit_css caps prose at a 78ch measure (~half the content column); oceanarray's
+   explainer paragraphs sit above full-width tables, where that narrow measure reads
+   as broken.  Restore full content-width — the pre-U0.1 oceanarray behaviour. */
+p, li { max-width: none; }
+/* oceanarray's masthead nav has multiple rows (Reports + one per instrument type); the
+   vendored single-row `.page-nav` margin stacks into too much vertical space, so tighten the
+   inter-row gap. (ctdcast/glidertest have a single row and do not need this.) */
+.masthead .page-nav { margin:0.12rem 0 0; }
+.masthead .page-nav:first-of-type { margin-top:0.5rem; }
+/* Wordmark is now an <a> to the repo; keep the pill look (no link underline). */
+.wordmark, .wordmark:hover { text-decoration:none; }
+.masthead-title { display:flex; justify-content:space-between; align-items:baseline; gap:1rem; }
+.masthead-type { font-size:var(--fs-type); opacity:0.85; white-space:nowrap; }
+.masthead .sub { display:flex; justify-content:space-between; font-size:var(--fs-meta); opacity:0.88; margin:0 0 0.15rem; }
+.masthead .sub a { color:var(--accent-link); font-weight:600; text-decoration:none; }
+.masthead .sub a:hover { text-decoration:underline; }
+.meta-miss dd { color:var(--warn); opacity:1; }
+.top-link { font-size:var(--fs-top); font-weight:400; color:var(--muted);
+            text-decoration:none; margin-left:auto; white-space:nowrap; }
+.report-footer { margin-top:3rem; font-size:var(--fs-cap); color:var(--muted);
+                 border-top:1px solid var(--rule); padding-top:0.8rem;
+                 text-align:center; }
+.report-footer a { color:inherit; }
+.see-also { font-size:var(--fs-cap); color:var(--muted); margin:0.4rem 0 0.2rem; }
+.see-also a { color:var(--ocean); }
+.jump-nav a { color:var(--ocean); text-decoration:none; font-weight:600;
+              margin:0 0.5rem 0 0; white-space:nowrap; }
+.jump-nav a:hover { text-decoration:underline; }
+/* Caller-supplied breadcrumb trail above the masthead title (matches ctdcast's
+   .breadcrumb so it can be vendored later). */
+.breadcrumb { font-size:var(--fs-top); color:var(--muted); margin:0 0 0.4rem; }
+.breadcrumb a { color:var(--ocean); text-decoration:none; }
+.breadcrumb a:hover { text-decoration:underline; }
+.breadcrumb .sep { color:var(--muted); margin:0 0.25rem; }
+/* Figure collapse toggle (shared report chrome — used by the panel() macro on
+   every manifest-ported page). */
+details summary.collapse-toggle { color:var(--muted); font-size:0.76rem; cursor:pointer;
+  list-style:none; padding:0.15rem 0 0.4rem; user-select:none; }
+details summary.collapse-toggle::before { content:"▾ "; }
+details[open] summary.collapse-toggle::before { content:"▴ "; }
+/* Figures never exceed the content column; the oversampled PNG downscales
+   crisply (the figures' OVERSAMPLE). Pages may override (e.g. array uses 60%). */
+.fig { max-width:100%; height:auto; display:block; }
+/* A bare .fig (no slot class) is a full-width figure: fill the column. A
+   slot-* figure gets its width from the .slot-* rule instead — so this must NOT
+   apply to slotted figures (that was the width:100%-overrides-slot bug). */
+.fig:not([class*="slot-"]) { width:100%; }
+/* A cell in a Section.layout="row" flex row: its width comes from the slot-*
+   class the panel_row macro puts on the cell, and the bare .fig inside fills it. */
+.fig-cell { min-width:0; }
+.fig-cell > .fig { width:100%; }
+.none-note { color:var(--muted); font-style:italic; }
+/* Per-row NetCDF attribute disclosure in the inventory tables (the N attrs
+   expander). */
+.attr-disclosure summary { cursor:pointer; color:var(--muted); font-size:var(--fs-xs); white-space:nowrap; }
+.attr-disclosure table { margin:0.3rem 0 0.2rem; border:none; }
+.attr-disclosure td { border:none; padding:0.05rem 0.6rem 0.05rem 0; vertical-align:top;
+  font-size:var(--fs-xs); }
+.attr-disclosure td.mono { color:var(--muted); }
+/* Figure-debug line under a plot (OCEANARRAY_REPORT_DEBUG=1): slot the
+   template chose vs the render-side figsize/png, for eyeballing mismatches. */
+.debug { font-family:var(--font-mono); font-size:var(--fs-top); color:var(--muted);
+         background:var(--seafoam); border-left:3px solid var(--muted);
+         padding:0.2rem 0.5rem; margin:0 0 1rem; white-space:pre-wrap; }
+/* Expand-all button under the jump-nav (_expand_all.html). */
+.expand-all-bar { display:flex; justify-content:space-between; align-items:baseline; gap:0.8rem;
+  margin:0.2rem 0 0.6rem; }
+.expand-all-bar .see-also { margin:0; }
+button.expand-all { margin-left:auto; font:inherit; font-size:var(--fs-cap); color:var(--ocean);
+  background:var(--seafoam); border:1px solid var(--rule); border-radius:var(--radius-btn);
+  padding:0.1rem 0.6rem; cursor:pointer; }
+/* Units on a second header row ("Nominal depth" / "m"). */
+td.nowrap { white-space:nowrap; }
+.th-unit { display:block; font-weight:400; font-size:0.72rem; opacity:0.85; }
+button.expand-all:hover { text-decoration:underline; }
+button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset:2px; }
+@media print {
+  button.expand-all { display:none; }
+  body { padding:0; }
+  h2 { page-break-after:avoid; }
+  figure, table, .card { break-inside:avoid; }
+  .masthead, th { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+}
+
+  :root { --accent:#1e8449; --accent-link:#d5f5e3; }
+  /* Table style is canonical in emit_css now; only the file-table's cell
+     colour classes remain page-specific. */
+  .file-table .ok { color:var(--good); font-weight:700; }
+  .file-table .miss { color:var(--gray-3); }
+  .badge { display:inline-block; padding:0.12em 0.45em; border-radius:3px;
+           font-size:0.7rem; font-weight:700; white-space:nowrap; }
+  .b-ok   { background:var(--good);   color:#fff; }
+  .b-warn { background:var(--warn);   color:#fff; }
+  .b-miss { background:#dfe6e9;       color:#999; }
+  /* No width here: the slot class sets each figure's width (U0.2). */
+  img.fig { max-width:100%; border-radius:var(--radius-btn); margin-bottom:0.5rem; }
+  .qc-bar { display:flex; width:180px; height:13px; border-radius:3px;
+             overflow:hidden; gap:1px; background:#ecf0f1; }
+  .qc-bar div { height:100%; }
+  .qc-legend { font-size:0.78rem; margin:0.2rem 0 0.4rem; }
+  .qc-legend span { display:inline-block; width:0.8em; height:0.8em; margin:0 0.25em 0 0.6em; vertical-align:middle; border-radius:2px; }
+  th.group { text-align:center; }
+  .meta-grid dd { overflow-wrap:anywhere; }
+  .meta-grid dd a { color:inherit; }
+  h3.sub { font-size:0.85rem; color:var(--ocean); margin:0.8rem 0 0.3rem; }
+
+</style>
+
+</head>
+<body>
+<nav class="breadcrumb"><a href="../egM2_2018_report.html">egM2_2018</a><span class="sep">›</span><span>14644</span></nav>
+
+<div id="top" class="masthead ">
+  <h1 class="masthead-title"><span>MicroCAT 14644 · 2190 m</span><span class="masthead-type"></span></h1>
+  <p class="sub"><span>egM2_2018</span><span>generated <GENERATED></span></p>
+  
+
+<nav class="page-nav">
+  <span class="page-nav-label">Reports:</span>
+  
+  <a class="nav-pill nav-entity" href="../egM2_2018_report.html">Summary</a><a class="nav-pill nav-landing" href="../egM2_2018_stack_report.html">Stack</a><a class="nav-pill nav-aggregate-a" href="../egM2_2018_grid_report.html">Grid</a>
+</nav>
+
+<nav class="page-nav">
+  <span class="page-nav-label">MicroCAT:</span>
+  
+  <span class="nav-pill nav-aggregate-b nav-current" title="current page">14644</span>
+</nav>
+
+
+
+
+
+  <dl class="meta-grid">
+    
+    <div class="meta-miss"><dt>Cruise</dt><dd>—</dd></div>
+    <div><dt>Nominal depth</dt><dd>2190&thinsp;m</dd></div>
+    <div><dt>HAB</dt><dd>246&thinsp;m</dd></div>
+    <div><dt>Start (UTC)</dt><dd>2019-01-04 05:15</dd></div>
+    <div><dt>End (UTC)</dt><dd>2019-01-06 04:30</dd></div>
+    <div><dt>Sampling interval</dt><dd>15 min</dd></div>
+    <div><dt>Records</dt><dd>190</dd></div>
+    
+    <div><dt>Originator&#39;s file</dt><dd>M2_MC_2018_2020_SN14644_2190m_cut.nc</dd></div>
+    
+    
+  
+  </dl>
+  <a class="wordmark" href="https://github.com/ocean-uhh/oceanarray" target="_blank" rel="noopener noreferrer">oceanarray</a>
+</div>
+
+
+
+<nav class="jump-nav">
+<a href="#timeseries">(1) Time series</a>
+<a href="#ts_diagram">(2) T-S diagram</a>
+<a href="#qc">(3) Quality flags</a>
+<a href="#processing">(4) Processing</a>
+<a href="#netcdf">(A) NetCDF file</a>
+</nav>
+<div class="expand-all-bar">
+<button type="button" class="expand-all" aria-expanded="false" hidden>Expand all</button></div>
+
+<h2 id="timeseries">(1) Time series</h2>
+<p class="caption">The instrument&#39;s record over the deployment: pressure, temperature, conductivity and salinity (PSU, recomputed from C, T, P). Values flagged by the originator or oceanarray: crosses bad (2).</p>
+
+<details open><summary class="collapse-toggle">show / hide</summary>
+<img class="fig" src="data:image/png;base64,<PNG>" alt="timeseries_0">
+</details><div class="fig-source">source: oceanarray/reports/_plots.py:_draw_instrument_panels</div>
+
+<h2 id="ts_diagram">(2) T-S diagram</h2>
+
+<p class="caption">Potential temperature against salinity (PSU). Left: each sample coloured by pressure. Right: number of samples in each bin (log scale). Dashed: σθ every 0.05 kg/m³. Values flagged by the originator or oceanarray: crosses bad (2).</p>
+<details open><summary class="collapse-toggle">show / hide</summary>
+<img class="fig" src="data:image/png;base64,<PNG>" alt="ts_diagram">
+</details><div class="fig-source">source: oceanarray/plotters/ts.py:draw_ts_diagram</div>
+
+<h2 id="qc">(3) Quality flags</h2>
+
+
+
+<h3 class="sub">Flags by variable</h3>
+
+<p class="caption">Share of each variable's values in each flag class other than good,
+as flagged by the originator (their flags translated to oceanarray's by meaning) and by oceanarray (its automatic tests).
+Variables with every value good are not listed. Colours are the flag classes. Good % (values flagged good or interpolated): green ≥ 95 %, amber 80–95 %, red &lt; 80 %.</p>
+<div class="qc-legend">
+  <span style="background:#e74c3c"></span>bad <span style="background:#e67e22"></span>value changed 
+</div>
+<table>
+  <thead>
+    <tr>
+      <th rowspan="2">Variable</th>
+      <th rowspan="2" class="num">Values</th>
+      <th colspan="4" class="group">Originator</th><th colspan="2" class="group">oceanarray</th>
+    </tr>
+    <tr>
+      <th class="num">Good<span class="th-unit">%</span></th><th class="num">Bad<span class="th-unit">%</span></th><th class="num">Value changed<span class="th-unit">%</span></th><th>Distribution</th><th class="num">Good<span class="th-unit">%</span></th><th>Distribution</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td><code>salinity</code></td>
+      <td class="num">186</td>
+      
+      <td class="num"><span style="color:var(--warn)">92.5</span></td>
+      <td class="num"><span style="color:#e74c3c">1.1</span></td><td class="num"><span style="color:#e67e22">6.5</span></td>
+      <td><div class="qc-bar"><div style="width:92.5%;background:#27ae60;" title="good: 92.5%"></div><div style="width:1.1%;background:#e74c3c;" title="bad: 1.1%"></div><div style="width:6.5%;background:#e67e22;" title="value changed: 6.5%"></div></div></td>
+      
+      <td class="num"><span style="color:var(--good)">100</span></td>
+      
+      <td><div class="qc-bar"><div style="width:100.0%;background:#27ae60;" title="good: 100%"></div></div></td>
+      
+    </tr>
+    
+    <tr>
+      <td><code>conductivity</code></td>
+      <td class="num">186</td>
+      
+      <td class="num"><span style="color:var(--warn)">93.5</span></td>
+      <td class="num">&ndash;</td><td class="num"><span style="color:#e67e22">6.5</span></td>
+      <td><div class="qc-bar"><div style="width:93.5%;background:#27ae60;" title="good: 93.5%"></div><div style="width:6.5%;background:#e67e22;" title="value changed: 6.5%"></div></div></td>
+      
+      <td class="num"><span style="color:var(--good)">100</span></td>
+      
+      <td><div class="qc-bar"><div style="width:100.0%;background:#27ae60;" title="good: 100%"></div></div></td>
+      
+    </tr>
+    
+  </tbody>
+</table>
+
+
+<p class="one-line">All other variables (2): every value good.</p>
+
+<h3 class="sub">QC test limits</h3>
+<p class="caption">Limits of oceanarray's automatic tests, as stored with each flag variable:
+a value outside the suspect range (or changing by more than the spike threshold) is
+flagged suspect, outside the fail range bad.</p>
+<table style="font-size:0.82rem;margin-bottom:1rem;">
+  <thead>
+    <tr>
+      <th>Variable</th>
+      <th>Test</th>
+      <th>Suspect range / threshold</th>
+      <th>Fail range / threshold</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td class="mono">conductivity</td>
+      <td>gross-range</td>
+      <td class="num" style="color:var(--warn);font-family:monospace">[0.0, 65.0]</td>
+      <td class="num" style="color:var(--bad);font-family:monospace">[0.0, 75.0]</td>
+    </tr>
+    
+    <tr>
+      <td class="mono">conductivity</td>
+      <td>spike</td>
+      <td class="num" style="color:var(--warn);font-family:monospace">|Δ| &gt; 2.0</td>
+      <td class="num" style="color:var(--bad);font-family:monospace">|Δ| &gt; 5.0</td>
+    </tr>
+    
+    <tr>
+      <td class="mono">pressure</td>
+      <td>gross-range</td>
+      <td class="num" style="color:var(--warn);font-family:monospace">[-0.5, 7000.0]</td>
+      <td class="num" style="color:var(--bad);font-family:monospace">[-5.0, 7000.0]</td>
+    </tr>
+    
+    <tr>
+      <td class="mono">pressure</td>
+      <td>spike</td>
+      <td class="num" style="color:var(--warn);font-family:monospace">|Δ| &gt; 10.0</td>
+      <td class="num" style="color:var(--bad);font-family:monospace">|Δ| &gt; 50.0</td>
+    </tr>
+    
+    <tr>
+      <td class="mono">pressure</td>
+      <td>flat-line</td>
+      <td class="num" style="color:var(--warn);font-family:monospace">stuck ≥ 3 samples</td>
+      <td class="num" style="color:var(--bad);font-family:monospace">stuck ≥ 10 samples</td>
+    </tr>
+    
+    <tr>
+      <td class="mono">salinity</td>
+      <td>gross-range</td>
+      <td class="num" style="color:var(--warn);font-family:monospace">[2.0, 40.0]</td>
+      <td class="num" style="color:var(--bad);font-family:monospace">[0.0, 40.0]</td>
+    </tr>
+    
+    <tr>
+      <td class="mono">salinity</td>
+      <td>spike</td>
+      <td class="num" style="color:var(--warn);font-family:monospace">|Δ| &gt; 1.0</td>
+      <td class="num" style="color:var(--bad);font-family:monospace">|Δ| &gt; 2.0</td>
+    </tr>
+    
+    <tr>
+      <td class="mono">temperature</td>
+      <td>gross-range</td>
+      <td class="num" style="color:var(--warn);font-family:monospace">[-2.0, 35.0]</td>
+      <td class="num" style="color:var(--bad);font-family:monospace">[-2.5, 40.0]</td>
+    </tr>
+    
+    <tr>
+      <td class="mono">temperature</td>
+      <td>spike</td>
+      <td class="num" style="color:var(--warn);font-family:monospace">|Δ| &gt; 2.0</td>
+      <td class="num" style="color:var(--bad);font-family:monospace">|Δ| &gt; 6.0</td>
+    </tr>
+    
+  </tbody>
+</table>
+
+
+<h2 id="processing">(4) Processing</h2>
+
+<p class="caption">What was done to this instrument&#39;s record, entry by entry as the file&#39;s history attribute records it, with the settings read from the file.</p>
+
+<table class="steps">
+  <thead><tr><th>When<span class="th-unit">UTC</span></th><th>What was done</th><th>Settings</th></tr></thead>
+  <tbody>
+    <tr><td class="nowrap"><WHEN></td><td>people: cleaned per OceanSITES 1.4 from originator_* (2 PI, 5 contributor entries, 0 warnings)</td><td></td></tr>
+    <tr><td class="nowrap"><WHEN></td><td>source: citation, license, acknowledgement, references from the file</td><td></td></tr>
+    <tr><td class="nowrap"><WHEN></td><td>stage 1: read into oceanarray&#39;s variable names and units (processing_stage 1)</td><td>file type: oceansites, file: M2_MC_2018_2020_SN14644_2190m_cut.nc, unit spellings standardized</td></tr>
+    <tr><td class="nowrap"><WHEN></td><td>stage 2: clock corrected and trimmed to the deployment window (processing_stage 2)</td><td>window 2019-01-04 05:00 to 2019-01-06 05:00</td></tr>
+    <tr><td class="nowrap"><WHEN></td><td>salinity recomputed from C, T, P, the originator&#39;s kept as salinity_originator (ours - theirs: median +0.0000, largest +0.0000)<br>originator flags translated by meaning, originator-&gt;ours (samples): temperature: 1-&gt;1 (190)<br>salinity: 1-&gt;1 (172), 4-&gt;4 (2), 5-&gt;5 (12), 9-&gt;9 (4)<br>conductivity: 1-&gt;1 (174), 5-&gt;5 (12), 9-&gt;9 (4)<br>pressure: 1-&gt;1 (190)<br>QARTOD gross-range+spike: conductivity_qc=[good=186, missing=4]<br>pressure_qc=[good=190]<br>salinity_qc=[good=186, missing=4]<br>temperature_qc=[good=190]</td><td>tests: flat line, gross range, spike, stack and grid leave out bad</td></tr>
+    <tr><td class="nowrap"><WHEN></td><td>stage 3: checked (automatic tests, originator flags translated) and derived variables added (processing_stage 3)</td><td></td></tr>
+  </tbody>
+</table>
+
+
+<details class="processing"><summary>Files used to build this page</summary>
+<table class="file-table">
+  <thead><tr><th>#</th><th>File</th><th>Name</th><th>Size</th><th>Last modified</th></tr></thead>
+  <tbody>
+  <tr>
+    <td class="num">1</td>
+    <td>Originator's data</td>
+    
+    <td class="mono">M2_MC_2018_2020_SN14644_2190m_cut.nc</td>
+    <td colspan="2">&mdash; not checked (no --raw-dir)</td>
+    
+  </tr>
+  
+  <tr>
+    <td class="num">2</td>
+    <td>As read</td>
+    
+    <td class="mono">egM2_2018_14644_stage1.nc</td>
+    <td class="num"><SIZE></td>
+    <td><MTIME></td>
+    
+  </tr>
+  
+  <tr>
+    <td class="num">3</td>
+    <td>Standardized and trimmed</td>
+    
+    <td class="mono">egM2_2018_14644_stage2.nc</td>
+    <td class="num"><SIZE></td>
+    <td><MTIME></td>
+    
+  </tr>
+  
+  <tr>
+    <td class="num">4</td>
+    <td>Checked</td>
+    
+    <td class="mono">egM2_2018_14644_stage3.nc</td>
+    <td class="num"><SIZE></td>
+    <td><MTIME></td>
+    
+  </tr>
+  
+  </tbody>
+</table>
+</details>
+
+
+<details class="processing"><summary>As recorded in the file's history attribute</summary>
+
+
+
+<table class="sortable">
+
+<thead>
+  <tr><th tabindex="0">#</th><th tabindex="0">Time</th><th tabindex="0">Event</th></tr>
+</thead>
+<tbody>
+  <tr><td>1</td><td><WHEN></td><td>people: cleaned per OceanSITES 1.4 from originator_* (2 PI, 5 contributor entries, 0 warnings)</td></tr>
+  <tr><td>2</td><td><WHEN></td><td>source: citation, license, acknowledgement, references from the file</td></tr>
+  <tr><td>3</td><td><WHEN></td><td>stage 1: read into oceanarray&#39;s variable names and units (processing_stage 1)</td></tr>
+  <tr><td>4</td><td><WHEN></td><td>stage 2: clock corrected and trimmed to the deployment window (processing_stage 2)</td></tr>
+  <tr><td>5</td><td><WHEN></td><td>salinity recomputed from C, T, P, the originator&#39;s kept as salinity_originator (ours - theirs: median +0.0000, largest +0.0000)</td></tr>
+  <tr><td>6</td><td><WHEN></td><td>originator flags translated by meaning, originator-&gt;ours (samples): temperature: 1-&gt;1 (190)</td></tr>
+  <tr><td>7</td><td><WHEN></td><td>salinity: 1-&gt;1 (172), 4-&gt;4 (2), 5-&gt;5 (12), 9-&gt;9 (4)</td></tr>
+  <tr><td>8</td><td><WHEN></td><td>conductivity: 1-&gt;1 (174), 5-&gt;5 (12), 9-&gt;9 (4)</td></tr>
+  <tr><td>9</td><td><WHEN></td><td>pressure: 1-&gt;1 (190)</td></tr>
+  <tr><td>10</td><td><WHEN></td><td>QARTOD gross-range+spike: conductivity_qc=[good=186, missing=4]</td></tr>
+  <tr><td>11</td><td><WHEN></td><td>pressure_qc=[good=190]</td></tr>
+  <tr><td>12</td><td><WHEN></td><td>salinity_qc=[good=186, missing=4]</td></tr>
+  <tr><td>13</td><td><WHEN></td><td>temperature_qc=[good=190]</td></tr>
+  <tr><td>14</td><td><WHEN></td><td>stage 3: checked (automatic tests, originator flags translated) and derived variables added (processing_stage 3)</td></tr>
+</tbody>
+</table><div class="fig-source">source: oceanarray/reports/_html_helpers.py:_build_history_tables</div>
+<p class="caption">Processing level of each variable (OceanSITES reference table 3), as the file records it.</p>
+<table>
+  <thead><tr><th>Variable</th><th>Processing level</th></tr></thead>
+  <tbody>
+  <tr><td><code>temperature</code></td><td>Ranges applied, bad data flagged</td></tr>
+  <tr><td><code>salinity</code></td><td>Ranges applied, bad data flagged</td></tr>
+  <tr><td><code>conductivity</code></td><td>Ranges applied, bad data flagged</td></tr>
+  <tr><td><code>pressure</code></td><td>Ranges applied, bad data flagged</td></tr>
+  </tbody>
+</table>
+</details>
+
+
+<details class="processing" id="start"><summary>Start and end of the record</summary>
+<p class="caption">
+  Left: the first 6&thinsp;h of the record, with 1&thinsp;h before it; right: the
+  last 6&thinsp;h, with 1&thinsp;h after it. <span style="color:var(--warn)">Orange dashed</span>: the start
+  or end suggested from the pressure record. <span style="color:var(--good)">Green dashed</span>: the
+  deployment and recovery times in the mooring description.
+  Grey: the instrument's file as first read, before trimming (same variable, same units).
+</p>
+<p class="caption">
+  <strong>Reading the grey background:</strong> where the file as first read uses the
+  same units as the trimmed record, it is drawn in light grey, so you can check that
+  the chosen window covers the time in the water. Grey may be absent for:
+</p>
+<ul class="caption">
+  <li><em>sensors without their own pressure</em> (e.g. a MicroCAT using pressure
+  interpolated from a neighbouring instrument): the interpolated pressure is added only
+  when the record is checked, so the file as first read has none;</li>
+  <li><em>velocity in beam or instrument coordinates</em>: an Aquadopp or ADCP set to
+  record in BEAM or XYZ stores different variables from the east/north velocities shown
+  here;</li>
+  <li><em>conductivity</em>: when the units differ between the file as read and the
+  checked record (e.g. S/m and mS/cm), the grey trace is left out rather than drawn on
+  the wrong scale.</li>
+</ul>
+<img class="fig slot-full" src="data:image/png;base64,<PNG>" alt="start and end windows">
+
+</details>
+
+
+<details class="processing"><summary>Data value distributions</summary>
+<p class="caption">Distribution of each variable over the record (log count). Orange dashed: suspect limit; red dotted: fail limit of the gross-range test, drawn only when they fall inside the axes. Grey: every value; coloured: the values kept. Values flagged bad, by the originator or oceanarray, are left out.</p>
+<img class="fig slot-full" src="data:image/png;base64,<PNG>" alt="Data value distributions">
+
+</details>
+
+<h2 id="netcdf">(A) NetCDF file</h2>
+
+<p class="caption">Contents of the file this page was drawn from, as written by oceanarray. To produce it yourself, run oceanarray with the mooring description on the deployment page; the originator&#39;s data are linked at the top.</p>
+
+<details class="processing"><summary>show the coordinates, variables and global attributes</summary>
+<h3>Coordinates</h3>
+<table class="sortable var-table">
+
+
+<thead>
+  <tr><th tabindex="0">Variable</th><th tabindex="0">Dims</th><th tabindex="0">Type</th><th tabindex="0">Length</th><th tabindex="0">Min / Max</th></tr>
+</thead>
+<tbody>
+<tr>
+<td data-sort="time">time</td><td>time</td><td><code>datetime</code></td><td data-sort="190">190</td>
+<td>2019-01-04 05:15:00 / 2019-01-06 04:30:00</td></tr>
+</tbody></table><div class="fig-source">source: oceanarray/reports/_vendored/nc_tables.py:coords_rows</div>
+<h3>Variables on time (190 samples)</h3>
+<table class="sortable var-table">
+
+
+<thead>
+  <tr><th tabindex="0">Variable</th><th tabindex="0">Type</th><th tabindex="0">Units</th><th tabindex="0">Standard / long name</th><th tabindex="0">Min / Max</th><th tabindex="0">Valid</th><th tabindex="0">Valid %</th><th data-nosort>Attributes</th></tr>
+</thead>
+<tbody>
+<tr>
+<td data-sort="conductivity">conductivity <span class="var-qc">(_qc)</span></td>
+<td><code>float32</code></td><td>mS cm-1</td><td class="cell-wrap"><strong><code>sea_water_electrical_conductivity</code></strong><br>sea water conductivity</td><td data-sort="31.70904541015625">31.71 / 32.05</td>
+<td data-sort="186">186</td>
+<td data-sort="97.9" class="cell-bad">97.9</td><td data-nosort><details class="attr-disclosure"><summary>5 attrs</summary>
+<table data-nosort><tbody><tr><th>original_name</th><td>CNDC</td></tr><tr><th>sensor</th><td>SENSOR_CTD_14644</td></tr><tr><th>valid_min</th><td>0</td></tr><tr><th>valid_max</th><td>80</td></tr><tr><th>processing_level</th><td>Ranges applied, bad data flagged</td></tr>
+</tbody></table></details></td></tr>
+<tr>
+<td data-sort="conductivity_qc_originator">conductivity_qc_originator</td>
+<td><code>int8</code></td><td>—</td><td class="cell-wrap">originator QC flag (CNDC_flag)</td><td data-sort="-1e308">—</td>
+<td data-sort="190">190</td>
+<td data-sort="100.0">100.0</td><td data-nosort><details class="attr-disclosure"><summary>3 attrs</summary>
+<table data-nosort><tbody><tr><th>originator_flag_variable</th><td>CNDC_flag</td></tr><tr><th>flag_values</th><td>[0 1 2 3 4 5 6 7 8 9]</td></tr><tr><th>flag_meanings</th><td>no_qc_performed appears_correct appears_probably_good appears_probably_bad appears_bad modified_as_a_result_of_qc reserv</td></tr>
+</tbody></table></details></td></tr>
+<tr>
+<td data-sort="conductivity_qc_originator_mapped">conductivity_qc_originator_mapped</td>
+<td><code>int8</code></td><td>—</td><td class="cell-wrap">originator QC flag for conductivity, in oceanarray&#39;s flag table</td><td data-sort="-1e308">—</td>
+<td data-sort="190">190</td>
+<td data-sort="100.0">100.0</td><td data-nosort><details class="attr-disclosure"><summary>8 attrs</summary>
+<table data-nosort><tbody><tr><th>flag_values</th><td>[0 1 2 3 4 5 7 8 9]</td></tr><tr><th>flag_meanings</th><td>unknown good_data probably_good_data potentially_correctable_bad_data bad_data value_changed nominal_value interpolated_</td></tr><tr><th>conventions</th><td>OceanSITES reference table 2</td></tr><tr><th>originator_flag_meanings</th><td>no_qc_performed appears_correct appears_probably_good appears_probably_bad appears_bad modified_as_a_result_of_qc reserv</td></tr><tr><th>flag_translation</th><td>0 no_qc_performed -&gt; 0; 1 appears_correct -&gt; 1; 2 appears_probably_good -&gt; 2; 3 appears_probably_bad -&gt; 3; 4 appears_bad</td></tr><tr><th>flag_translation_counts</th><td>{&#34;1&#34;: 174, &#34;5&#34;: 12, &#34;9&#34;: 4}</td></tr><tr><th>comment</th><td>Flag 5 (value_changed) is oceanarray&#39;s one extension to the OceanSITES 1.4 flag table: the originator&#39;s QC modified the </td></tr><tr><th>originator_flag_variable</th><td>CNDC_flag</td></tr>
+</tbody></table></details></td></tr>
+<tr>
+<td data-sort="pressure">pressure <span class="var-qc">(_qc)</span></td>
+<td><code>float32</code></td><td>dbar</td><td class="cell-wrap"><strong><code>sea_water_pressure</code></strong><br>sea water pressure</td><td data-sort="2240.320068359375">2240 / 2245</td>
+<td data-sort="190">190</td>
+<td data-sort="100.0">100.0</td><td data-nosort><details class="attr-disclosure"><summary>5 attrs</summary>
+<table data-nosort><tbody><tr><th>original_name</th><td>PRES</td></tr><tr><th>sensor</th><td>SENSOR_CTD_14644</td></tr><tr><th>valid_min</th><td>0</td></tr><tr><th>valid_max</th><td>1.1e+04</td></tr><tr><th>processing_level</th><td>Ranges applied, bad data flagged</td></tr>
+</tbody></table></details></td></tr>
+<tr>
+<td data-sort="pressure_qc_originator">pressure_qc_originator</td>
+<td><code>int8</code></td><td>—</td><td class="cell-wrap">originator QC flag (PRES_flag)</td><td data-sort="-1e308">—</td>
+<td data-sort="190">190</td>
+<td data-sort="100.0">100.0</td><td data-nosort><details class="attr-disclosure"><summary>3 attrs</summary>
+<table data-nosort><tbody><tr><th>originator_flag_variable</th><td>PRES_flag</td></tr><tr><th>flag_values</th><td>[0 1 2 3 4 5 6 7 8 9]</td></tr><tr><th>flag_meanings</th><td>no_qc_performed appears_correct appears_probably_good appears_probably_bad appears_bad modified_as_a_result_of_qc reserv</td></tr>
+</tbody></table></details></td></tr>
+<tr>
+<td data-sort="pressure_qc_originator_mapped">pressure_qc_originator_mapped</td>
+<td><code>int8</code></td><td>—</td><td class="cell-wrap">originator QC flag for pressure, in oceanarray&#39;s flag table</td><td data-sort="-1e308">—</td>
+<td data-sort="190">190</td>
+<td data-sort="100.0">100.0</td><td data-nosort><details class="attr-disclosure"><summary>7 attrs</summary>
+<table data-nosort><tbody><tr><th>flag_values</th><td>[0 1 2 3 4 5 7 8 9]</td></tr><tr><th>flag_meanings</th><td>unknown good_data probably_good_data potentially_correctable_bad_data bad_data value_changed nominal_value interpolated_</td></tr><tr><th>conventions</th><td>OceanSITES reference table 2</td></tr><tr><th>originator_flag_meanings</th><td>no_qc_performed appears_correct appears_probably_good appears_probably_bad appears_bad modified_as_a_result_of_qc reserv</td></tr><tr><th>flag_translation</th><td>0 no_qc_performed -&gt; 0; 1 appears_correct -&gt; 1; 2 appears_probably_good -&gt; 2; 3 appears_probably_bad -&gt; 3; 4 appears_bad</td></tr><tr><th>flag_translation_counts</th><td>{&#34;1&#34;: 190}</td></tr><tr><th>originator_flag_variable</th><td>PRES_flag</td></tr>
+</tbody></table></details></td></tr>
+<tr>
+<td data-sort="salinity">salinity <span class="var-qc">(_qc)</span></td>
+<td><code>float32</code></td><td>1</td><td class="cell-wrap"><strong><code>sea_water_practical_salinity</code></strong><br>Practical Salinity</td><td data-sort="34.87213134765625">34.87 / 34.93</td>
+<td data-sort="186">186</td>
+<td data-sort="97.9" class="cell-bad">97.9</td><td data-nosort><details class="attr-disclosure"><summary>4 attrs</summary>
+<table data-nosort><tbody><tr><th>coverage_content_type</th><td>physicalMeasurement</td></tr><tr><th>comment</th><td>Derived from conductivity, temperature, pressure via gsw.SP_from_C</td></tr><tr><th>sensor</th><td>SENSOR_CTD_14644</td></tr><tr><th>processing_level</th><td>Ranges applied, bad data flagged</td></tr>
+</tbody></table></details></td></tr>
+<tr>
+<td data-sort="salinity_originator">salinity_originator</td>
+<td><code>float32</code></td><td>1</td><td class="cell-wrap"><strong><code>sea_water_pratical_salinity</code></strong><br>sea water pratical salinity</td><td data-sort="34.87213134765625">34.87 / 34.93</td>
+<td data-sort="186">186</td>
+<td data-sort="97.9" class="cell-bad">97.9</td><td data-nosort><details class="attr-disclosure"><summary>5 attrs</summary>
+<table data-nosort><tbody><tr><th>original_name</th><td>PSAL</td></tr><tr><th>data_min</th><td>34.8</td></tr><tr><th>data_max</th><td>34.98</td></tr><tr><th>comment</th><td>the originator&#39;s salinity, as delivered; salinity is recomputed from C, T, P</td></tr><tr><th>sensor</th><td>SENSOR_CTD_14644</td></tr>
+</tbody></table></details></td></tr>
+<tr>
+<td data-sort="salinity_qc_originator">salinity_qc_originator</td>
+<td><code>int8</code></td><td>—</td><td class="cell-wrap">originator QC flag (PSAL_flag)</td><td data-sort="-1e308">—</td>
+<td data-sort="190">190</td>
+<td data-sort="100.0">100.0</td><td data-nosort><details class="attr-disclosure"><summary>3 attrs</summary>
+<table data-nosort><tbody><tr><th>originator_flag_variable</th><td>PSAL_flag</td></tr><tr><th>flag_values</th><td>[0 1 2 3 4 5 6 7 8 9]</td></tr><tr><th>flag_meanings</th><td>no_qc_performed appears_correct appears_probably_good appears_probably_bad appears_bad modified_as_a_result_of_qc reserv</td></tr>
+</tbody></table></details></td></tr>
+<tr>
+<td data-sort="salinity_qc_originator_mapped">salinity_qc_originator_mapped</td>
+<td><code>int8</code></td><td>—</td><td class="cell-wrap">originator QC flag for salinity, in oceanarray&#39;s flag table</td><td data-sort="-1e308">—</td>
+<td data-sort="190">190</td>
+<td data-sort="100.0">100.0</td><td data-nosort><details class="attr-disclosure"><summary>8 attrs</summary>
+<table data-nosort><tbody><tr><th>flag_values</th><td>[0 1 2 3 4 5 7 8 9]</td></tr><tr><th>flag_meanings</th><td>unknown good_data probably_good_data potentially_correctable_bad_data bad_data value_changed nominal_value interpolated_</td></tr><tr><th>conventions</th><td>OceanSITES reference table 2</td></tr><tr><th>originator_flag_meanings</th><td>no_qc_performed appears_correct appears_probably_good appears_probably_bad appears_bad modified_as_a_result_of_qc reserv</td></tr><tr><th>flag_translation</th><td>0 no_qc_performed -&gt; 0; 1 appears_correct -&gt; 1; 2 appears_probably_good -&gt; 2; 3 appears_probably_bad -&gt; 3; 4 appears_bad</td></tr><tr><th>flag_translation_counts</th><td>{&#34;1&#34;: 172, &#34;4&#34;: 2, &#34;5&#34;: 12, &#34;9&#34;: 4}</td></tr><tr><th>comment</th><td>Flag 5 (value_changed) is oceanarray&#39;s one extension to the OceanSITES 1.4 flag table: the originator&#39;s QC modified the </td></tr><tr><th>originator_flag_variable</th><td>PSAL_flag</td></tr>
+</tbody></table></details></td></tr>
+<tr>
+<td data-sort="temperature">temperature <span class="var-qc">(_qc)</span></td>
+<td><code>float32</code></td><td>degree_Celsius</td><td class="cell-wrap"><strong><code>sea_water_temperature</code></strong><br>sea water temperature</td><td data-sort="2.061000108718872">2.061 / 2.45</td>
+<td data-sort="190">190</td>
+<td data-sort="100.0">100.0</td><td data-nosort><details class="attr-disclosure"><summary>6 attrs</summary>
+<table data-nosort><tbody><tr><th>original_name</th><td>TEMP</td></tr><tr><th>sensor</th><td>SENSOR_CTD_14644</td></tr><tr><th>units_metadata</th><td>temperature: on_scale</td></tr><tr><th>valid_min</th><td>-5</td></tr><tr><th>valid_max</th><td>42</td></tr><tr><th>processing_level</th><td>Ranges applied, bad data flagged</td></tr>
+</tbody></table></details></td></tr>
+<tr>
+<td data-sort="temperature_qc_originator">temperature_qc_originator</td>
+<td><code>int8</code></td><td>—</td><td class="cell-wrap">originator QC flag (TEMP_flag)</td><td data-sort="-1e308">—</td>
+<td data-sort="190">190</td>
+<td data-sort="100.0">100.0</td><td data-nosort><details class="attr-disclosure"><summary>3 attrs</summary>
+<table data-nosort><tbody><tr><th>originator_flag_variable</th><td>TEMP_flag</td></tr><tr><th>flag_values</th><td>[0 1 2 3 4 5 6 7 8 9]</td></tr><tr><th>flag_meanings</th><td>no_qc_performed appears_correct appears_probably_good appears_probably_bad appears_bad modified_as_a_result_of_qc reserv</td></tr>
+</tbody></table></details></td></tr>
+<tr>
+<td data-sort="temperature_qc_originator_mapped">temperature_qc_originator_mapped</td>
+<td><code>int8</code></td><td>—</td><td class="cell-wrap">originator QC flag for temperature, in oceanarray&#39;s flag table</td><td data-sort="-1e308">—</td>
+<td data-sort="190">190</td>
+<td data-sort="100.0">100.0</td><td data-nosort><details class="attr-disclosure"><summary>7 attrs</summary>
+<table data-nosort><tbody><tr><th>flag_values</th><td>[0 1 2 3 4 5 7 8 9]</td></tr><tr><th>flag_meanings</th><td>unknown good_data probably_good_data potentially_correctable_bad_data bad_data value_changed nominal_value interpolated_</td></tr><tr><th>conventions</th><td>OceanSITES reference table 2</td></tr><tr><th>originator_flag_meanings</th><td>no_qc_performed appears_correct appears_probably_good appears_probably_bad appears_bad modified_as_a_result_of_qc reserv</td></tr><tr><th>flag_translation</th><td>0 no_qc_performed -&gt; 0; 1 appears_correct -&gt; 1; 2 appears_probably_good -&gt; 2; 3 appears_probably_bad -&gt; 3; 4 appears_bad</td></tr><tr><th>flag_translation_counts</th><td>{&#34;1&#34;: 190}</td></tr><tr><th>originator_flag_variable</th><td>TEMP_flag</td></tr>
+</tbody></table></details></td></tr>
+</tbody></table><div class="fig-source">source: oceanarray/reports/_vendored/nc_tables.py:variables_rows</div><h3>Scalar variables</h3>
+<table class="sortable var-table">
+
+
+<thead>
+  <tr><th tabindex="0">Variable</th><th tabindex="0">Type</th><th tabindex="0">Units</th><th tabindex="0">Standard / long name</th><th tabindex="0">Value</th><th data-nosort>Attributes</th></tr>
+</thead>
+<tbody>
+<tr>
+<td data-sort="InstrDepth">InstrDepth</td><td><code>float32</code></td><td class="cell-bad">—</td>
+<td class="cell-wrap">—</td><td class="cell-wrap">2190</td><td data-nosort>—</td></tr>
+<tr>
+<td data-sort="SENSOR_CTD_14644">SENSOR_CTD_14644</td><td><code>int8</code></td><td>—</td>
+<td class="cell-wrap">s/n 14644</td><td class="cell-wrap">0</td><td data-nosort><details class="attr-disclosure"><summary>16 attrs</summary>
+<table data-nosort><tbody><tr><th>sensor_type</th><td>CTD</td></tr><tr><th>sensor_type_vocabulary</th><td>https://vocab.nerc.ac.uk/collection/L05/current/</td></tr><tr><th>sensor_serial_number</th><td>14644</td></tr><tr><th>originator_temperature_data_min</th><td>1.603</td></tr><tr><th>originator_temperature_data_max</th><td>2.968</td></tr><tr><th>originator_temperature_units</th><td>degree_Celsius</td></tr><tr><th>originator_conductivity_data_min</th><td>31.29</td></tr><tr><th>originator_conductivity_data_max</th><td>32.56</td></tr><tr><th>originator_conductivity_units</th><td>mS/cm</td></tr><tr><th>originator_pressure_data_min</th><td>2240</td></tr><tr><th>originator_pressure_data_max</th><td>2281</td></tr><tr><th>originator_pressure_units</th><td>decibar</td></tr><tr><th>sensor_model</th><td>UNK</td></tr><tr><th>sensor_metadata_source</th><td>none</td></tr><tr><th>cf_role</th><td>sensor_id</td></tr><tr><th>coverage_content_type</th><td>auxiliaryInformation</td></tr>
+</tbody></table></details></td></tr>
+<tr>
+<td data-sort="clock_offset">clock_offset</td><td><code>int32</code></td><td>s</td>
+<td class="cell-wrap">—</td><td class="cell-wrap">0</td><td data-nosort>—</td></tr>
+<tr>
+<td data-sort="end_time">end_time</td><td><code>string</code></td><td>—</td>
+<td class="cell-wrap">—</td><td class="cell-wrap">2019-01-06T05:00:00</td><td data-nosort>—</td></tr>
+<tr>
+<td data-sort="instrument">instrument</td><td><code>string</code></td><td>—</td>
+<td class="cell-wrap">—</td><td class="cell-wrap">microcat</td><td data-nosort>—</td></tr>
+<tr>
+<td data-sort="serial_number">serial_number</td><td><code>string</code></td><td>—</td>
+<td class="cell-wrap">—</td><td class="cell-wrap">14644</td><td data-nosort>—</td></tr>
+<tr>
+<td data-sort="start_time">start_time</td><td><code>string</code></td><td>—</td>
+<td class="cell-wrap">—</td><td class="cell-wrap">2019-01-04T05:00:00</td><td data-nosort>—</td></tr>
+</tbody></table><div class="fig-source">source: oceanarray/reports/_vendored/nc_tables.py:scalars_rows</div>
+<h3>Identity &amp; discovery</h3>
+<table class="sortable">
+
+<thead>
+  <tr><th tabindex="0">Attribute</th><th tabindex="0">Type</th><th tabindex="0">Value</th></tr>
+</thead>
+<tbody>
+<tr><td class="mono">mooring_name</td><td><code>string</code></td><td>egM2_2018</td></tr>
+</tbody></table>
+<h3>Spatiotemporal coverage</h3>
+<table class="sortable">
+
+<thead>
+  <tr><th tabindex="0">Attribute</th><th tabindex="0">Type</th><th tabindex="0">Value</th></tr>
+</thead>
+<tbody>
+<tr><td class="mono">latitude</td><td><strong><code>float64</code></strong></td><td>59.857</td></tr>
+<tr><td class="mono">longitude</td><td><strong><code>float64</code></strong></td><td>-40.6957</td></tr>
+<tr><td class="mono">deployment_time</td><td><code>string</code></td><td>2019-01-04T05:00:00</td></tr>
+<tr><td class="mono">recovery_time</td><td><code>string</code></td><td>2019-01-06T05:00:00</td></tr>
+<tr><td class="mono">waterdepth</td><td><code>float32</code></td><td>2436.0</td></tr>
+</tbody></table>
+<h3>People &amp; institutions</h3>
+<table class="sortable">
+
+<thead>
+  <tr><th tabindex="0">Attribute</th><th tabindex="0">Type</th><th tabindex="0">Value</th></tr>
+</thead>
+<tbody>
+<tr><td class="mono">principal_investigator</td><td><code>string</code></td><td>Amy Bower, Fiamma Straneo</td></tr>
+<tr><td class="mono">contributor_name</td><td><code>string</code></td><td>Tiago Bilo; Amy Bower; Fiamma Straneo; Heather Furey; Tiago Bilo</td></tr>
+<tr><td class="mono">contributor_role</td><td><code>string</code></td><td>originator; PI; PI; Data Processor; Data Processor</td></tr>
+<tr><td class="mono">contributor_email</td><td><code>string</code></td><td>tcarrilhobilo@ucsd.edu; ; ; ; tcarrilhobilo@ucsd.edu</td></tr>
+</tbody></table>
+<h3>Rights &amp; access</h3>
+<table class="sortable">
+
+<thead>
+  <tr><th tabindex="0">Attribute</th><th tabindex="0">Type</th><th tabindex="0">Value</th></tr>
+</thead>
+<tbody>
+<tr><td class="mono">source_citation</td><td><code>string</code></td><td>These data were collected and made freely available by the OSNAP project and the national programs that contribute to it.</td></tr>
+<tr><td class="mono">source_license</td><td><code>string</code></td><td>Follows CLIVAR (Climate Variability and Predictability) standards, cf. http://www.clivar.org/data/data_policy.php. Data available free of charge. User assumes all risk for use of data. User must display citation in any publication or product using data. User must contact PI prior to any commercial use of data.</td></tr>
+<tr><td class="mono">source_acknowledgement</td><td><code>string</code></td><td>Funding source: NSF OCE-1756361, NSF OCE-1258823, NSF OCE-1259618</td></tr>
+<tr><td class="mono">source_references</td><td><code>string</code></td><td>https://www2.whoi.edu/site/bower-lab/, http://www.o-snap.org, http://www.oceansites.org</td></tr>
+</tbody></table>
+<h3>Provenance &amp; processing</h3>
+<table class="sortable">
+
+<thead>
+  <tr><th tabindex="0">Attribute</th><th tabindex="0">Type</th><th tabindex="0">Value</th></tr>
+</thead>
+<tbody>
+<tr><td class="mono">data_mode</td><td><code>string</code></td><td>P</td></tr>
+</tbody></table>
+<h3>Other</h3>
+<table class="sortable">
+
+<thead>
+  <tr><th tabindex="0">Attribute</th><th tabindex="0">Type</th><th tabindex="0">Value</th></tr>
+</thead>
+<tbody>
+<tr><td class="mono">originator_project</td><td><code>string</code></td><td>OSNAP</td></tr>
+<tr><td class="mono">originator_summary</td><td><code>string</code></td><td>Water temperature, conductivity, pressure and salinity at nominal depth of 2190 m</td></tr>
+<tr><td class="mono">originator_instrument</td><td><code>string</code></td><td>Seabird 37SM microcat #14644</td></tr>
+<tr><td class="mono">originator_array</td><td><code>string</code></td><td>M</td></tr>
+<tr><td class="mono">originator_area</td><td><code>string</code></td><td>Subpolar North Atlantic</td></tr>
+<tr><td class="mono">originator_cdm_data_type</td><td><code>string</code></td><td>Station</td></tr>
+<tr><td class="mono">originator_featureType</td><td><code>string</code></td><td>timeseries</td></tr>
+<tr><td class="mono">originator_source</td><td><code>string</code></td><td>subsurface mooring</td></tr>
+<tr><td class="mono">originator_time_coverage_start</td><td><code>string</code></td><td>2018-06-19T00:00</td></tr>
+<tr><td class="mono">originator_time_coverage_end</td><td><code>string</code></td><td>2020-08-21T15:00</td></tr>
+<tr><td class="mono">originator_time_coverage_resolution</td><td><code>string</code></td><td>15 minutes</td></tr>
+<tr><td class="mono">originator_geospatial_lat_min</td><td><code>float32</code></td><td>59.857</td></tr>
+<tr><td class="mono">originator_geospatial_lat_max</td><td><code>float32</code></td><td>59.857</td></tr>
+<tr><td class="mono">originator_geospatial_lat_units</td><td><code>string</code></td><td>degrees_north</td></tr>
+<tr><td class="mono">originator_geospatial_lon_min</td><td><code>float32</code></td><td>-40.6957</td></tr>
+<tr><td class="mono">originator_geospatial_lon_max</td><td><code>float32</code></td><td>-40.6957</td></tr>
+<tr><td class="mono">originator_geospatial_lon_units</td><td><code>string</code></td><td>degrees_east</td></tr>
+<tr><td class="mono">originator_instrument_nominal_depth</td><td><code>int32</code></td><td>2190</td></tr>
+<tr><td class="mono">originator_instrument_nominal_depth_units</td><td><code>string</code></td><td>m</td></tr>
+<tr><td class="mono">originator_bathymetry_depth</td><td><code>float32</code></td><td>2436.0</td></tr>
+<tr><td class="mono">originator_bathymetry_depth_units</td><td><code>string</code></td><td>m</td></tr>
+<tr><td class="mono">originator_contributor_name</td><td><code>string</code></td><td>Amy Bower, Fiamma Straneo, Heather Furey, Tiago Bilo</td></tr>
+<tr><td class="mono">originator_contributor_role</td><td><code>string</code></td><td>Principal Investigator, Principal Investigator, Data Processor, Data Processor</td></tr>
+<tr><td class="mono">originator_pi_email</td><td><code>string</code></td><td>abower@whoi.edu</td></tr>
+<tr><td class="mono">originator_pi_institution</td><td><code>string</code></td><td>Woods Hole Oceanographic Institution</td></tr>
+<tr><td class="mono">originator_file_creator_name</td><td><code>string</code></td><td>Dr. Tiago Bilo</td></tr>
+<tr><td class="mono">originator_file_creator_email</td><td><code>string</code></td><td>tcarrilhobilo@ucsd.edu</td></tr>
+<tr><td class="mono">originator_file_creator_institution</td><td><code>string</code></td><td>Scripps Institution of Oceanography</td></tr>
+<tr><td class="mono">originator_references</td><td><code>string</code></td><td>https://www2.whoi.edu/site/bower-lab/, http://www.o-snap.org, http://www.oceansites.org</td></tr>
+<tr><td class="mono">originator_license</td><td><code>string</code></td><td>Follows CLIVAR (Climate Variability and Predictability) standards, cf. http://www.clivar.org/data/data_policy.php. Data available free of charge. User assumes all risk for use of data. User must display citation in any publication or product using data. User must contact PI prior to any commercial use of data.</td></tr>
+<tr><td class="mono">originator_date_created</td><td><code>string</code></td><td>06/05/2021 16:35:16</td></tr>
+<tr><td class="mono">originator_history</td><td><code>string</code></td><td>(1) Caldip calibration (Pre and Post-deployment caldips used following UM&#39;s protocol); (2) Quality Controll: instruments are individually inspected and, if necessary, further corrected (nearest CTD and neighboring instruments analysis).</td></tr>
+<tr><td class="mono">originator_citation</td><td><code>string</code></td><td>These data were collected and made freely available by the OSNAP project and the national programs that contribute to it.</td></tr>
+<tr><td class="mono">originator_acknowledgement</td><td><code>string</code></td><td>Funding source: NSF OCE-1756361, NSF OCE-1258823, NSF OCE-1259618</td></tr>
+<tr><td class="mono">originator_product_version</td><td><code>string</code></td><td><V></td></tr>
+<tr><td class="mono">originator_processing_level</td><td><code>string</code></td><td>Calibrated/Qualinity Controlled Data</td></tr>
+<tr><td class="mono">originator_comment_processing</td><td><code>string</code></td><td>Suspicious and corrected measurements are flagged</td></tr>
+<tr><td class="mono">originator_comment_flags</td><td><code>string</code></td><td>Flag: flagged as bad if a datapoint exceeds the one day running mean by three standard deviations</td></tr>
+<tr><td class="mono">originator_file</td><td><code>string</code></td><td>M2_MC_2018_2020_SN14644_2190m_cut.nc</td></tr>
+<tr><td class="mono">originator_sha256</td><td><code>string</code></td><td>b96ec2640b8c27988d7c790392e5178c4b826a3b933212f00e58ebec03ea713c</td></tr>
+<tr><td class="mono">source_file</td><td><code>string</code></td><td>M2_MC_2018_2020_SN14644_2190m_cut.nc</td></tr>
+<tr><td class="mono">file_type</td><td><code>string</code></td><td>oceansites</td></tr>
+<tr><td class="mono">location_source</td><td><code>string</code></td><td>latitude/longitude</td></tr>
+<tr><td class="mono">latitude_str</td><td><code>string</code></td><td>59.8570° N</td></tr>
+<tr><td class="mono">longitude_str</td><td><code>string</code></td><td>40.6957° W</td></tr>
+<tr><td class="mono">deployment_window_source</td><td><code>string</code></td><td>deployment_time/recovery_time</td></tr>
+<tr><td class="mono">serial</td><td><code>string</code></td><td>14644</td></tr>
+<tr><td class="mono">hab</td><td><code>float32</code></td><td>246.0</td></tr>
+<tr><td class="mono">instrument</td><td><code>string</code></td><td>microcat</td></tr>
+<tr><td class="mono">stack</td><td><code>int8</code></td><td>1</td></tr>
+<tr><td class="mono">deployment_latitude</td><td><code>string</code></td><td>00 00.000 N</td></tr>
+<tr><td class="mono">deployment_longitude</td><td><code>string</code></td><td>000 00.000 W</td></tr>
+<tr><td class="mono">seabed_latitude</td><td><code>string</code></td><td>00 00.000 N</td></tr>
+<tr><td class="mono">seabed_longitude</td><td><code>string</code></td><td>000 00.000 W</td></tr>
+<tr><td class="mono">units_converted</td><td><code>string</code></td><td>{&#34;conductivity&#34;: {&#34;factor&#34;: 1.0, &#34;from&#34;: &#34;mS/cm&#34;, &#34;to&#34;: &#34;mS cm-1&#34;}, &#34;pressure&#34;: {&#34;factor&#34;: 1.0, &#34;from&#34;: &#34;decibar&#34;, &#34;to&#34;: &#34;dbar&#34;}, &#34;salinity&#34;: {&#34;factor&#34;: 1.0, &#34;from&#34;: &#34;psu&#34;, &#34;to&#34;: &#34;1&#34;}}</td></tr>
+<tr><td class="mono">processing_stage</td><td><code>int32</code></td><td>3</td></tr>
+<tr><td class="mono">stage1_oceanarray_version</td><td><code>string</code></td><td><V></td></tr>
+<tr><td class="mono">oceanarray_version</td><td><code>string</code></td><td><V></td></tr>
+<tr><td class="mono">qc_convention</td><td><code>string</code></td><td>OceanSITES reference table 2</td></tr>
+<tr><td class="mono">suggested_deployment_time</td><td><code>string</code></td><td>2019-01-04T05:15:00</td></tr>
+<tr><td class="mono">suggested_recovery_time</td><td><code>string</code></td><td>2019-01-06T04:30:00</td></tr>
+<tr><td class="mono">suggested_window_source</td><td><code>string</code></td><td>pressure_pmin10dbar</td></tr>
+<tr><td class="mono">suggested_window_clock</td><td><code>string</code></td><td>raw_instrument_clock</td></tr>
+<tr><td class="mono">suggested_deployment_time_utc</td><td><code>string</code></td><td>2019-01-04T05:15:00</td></tr>
+<tr><td class="mono">suggested_recovery_time_utc</td><td><code>string</code></td><td>2019-01-06T04:30:00</td></tr>
+<tr><td class="mono">stage1_first_nonnull</td><td><code>string</code></td><td>2019-01-04T05:15:00</td></tr>
+<tr><td class="mono">stage1_last_nonnull</td><td><code>string</code></td><td>2019-01-06T04:30:00</td></tr>
+<tr><td class="mono">stage1_time_start</td><td><code>string</code></td><td>2019-01-04T05:15:00</td></tr>
+<tr><td class="mono">stage1_time_end</td><td><code>string</code></td><td>2019-01-06T04:30:00</td></tr>
+<tr><td class="mono">yaml_deployment_time</td><td><code>string</code></td><td>2019-01-04T05:00:00</td></tr>
+<tr><td class="mono">yaml_recovery_time</td><td><code>string</code></td><td>2019-01-06T05:00:00</td></tr>
+<tr><td class="mono">stage2_oceanarray_version</td><td><code>string</code></td><td><V></td></tr>
+<tr><td class="mono">qc_flag_convention</td><td><code>string</code></td><td>OceanSITES reference table 2</td></tr>
+<tr><td class="mono">qc_merge_rule</td><td><code>string</code></td><td>worst flag wins; priority weakest to strongest: 0 &lt; 1 &lt; 2 &lt; 5 &lt; 7 &lt; 8 &lt; 3 &lt; 4 &lt; 9</td></tr>
+<tr><td class="mono">qc_ingest_remap</td><td><code>string</code></td><td>QARTOD not_evaluated(2) -&gt; OceanSITES unknown(0) at test ingest</td></tr>
+<tr><td class="mono">stage3_oceanarray_version</td><td><code>string</code></td><td><V></td></tr>
+<tr><td class="mono">stage2_source_file</td><td><code>string</code></td><td>egM2_2018_14644_stage2.nc</td></tr>
+<tr><td class="mono">stage2_source_mtime</td><td><code>string</code></td><td><WHEN></td></tr>
+<tr><td class="mono">stage2_source_sha256</td><td><code>string</code></td><td><SHA></td></tr>
+</tbody></table><div class="fig-source">source: oceanarray/reports/_vendored/nc_tables.py:globals_rows</div>
+</details>
+
+
+<p class="none-note">Not applicable to this instrument: Velocity, Current roses, Current rose, Progressive vector diagram, Hodograph, Current speed distribution, Analog channels.</p>
+
+<div class="report-footer">
+  Generated by <a href="https://ocean-uhh.github.io/oceanarray"><strong>oceanarray</strong></a> v<VERSION> &bull; <GENERATED>
+</div>
+<script>
+  document.querySelectorAll('h2').forEach(h => {
+    const a = document.createElement('a'); a.href = '#top'; a.className = 'top-link'; a.textContent = '↑ top'; h.appendChild(a);
+  });
+</script>
+
+<script>
+  // A link to a collapsed box (e.g. #start) opens it.
+  (function () {
+    const open = () => { const el = location.hash && document.getElementById(location.hash.slice(1));
+      if (el && el.tagName === 'DETAILS') { el.open = true; el.scrollIntoView(); } };
+    window.addEventListener('hashchange', open); open();
+  })();
+</script>
+
+<script>
+/* Expand all / Collapse all: one button opens or closes every <details>. Before
+   printing every <details> is opened, and afterwards each is put back as it was. */
+(function () {
+  var all = function () { return Array.prototype.slice.call(document.querySelectorAll('details')); };
+  var buttons = Array.prototype.slice.call(document.querySelectorAll('button.expand-all'));
+  var sync = function () {
+    var d = all(), open = d.length > 0 && d.every(function (e) { return e.open; });
+    buttons.forEach(function (b) {
+      b.setAttribute('aria-expanded', open ? 'true' : 'false');
+      b.textContent = open ? 'Collapse all' : 'Expand all';
+    });
+  };
+  buttons.forEach(function (b) {
+    b.hidden = false;
+    b.addEventListener('click', function () {
+      var open = b.getAttribute('aria-expanded') !== 'true';
+      all().forEach(function (e) { e.open = open; });
+      sync();
+    });
+  });
+  document.addEventListener('toggle', sync, true);
+  var saved = null;
+  window.addEventListener('beforeprint', function () {
+    saved = all().map(function (e) { return [e, e.open]; });
+    saved.forEach(function (p) { p[0].open = true; });
+  });
+  window.addEventListener('afterprint', function () {
+    if (saved) { saved.forEach(function (p) { p[0].open = p[1]; }); saved = null; }
+    sync();
+  });
+  sync();
+})();
+</script>
+<script>
+document.querySelectorAll('table').forEach(function (table) {
+  if (table.hasAttribute('data-nosort')) { return; }
+  var head = table.tHead && table.tHead.rows[0];
+  var body = table.tBodies[0];
+  if (!head || !body) { return; }
+  function cellKey(row, idx) {
+    var cell = row.cells[idx];
+    if (!cell) { return ''; }
+    var ds = cell.getAttribute('data-sort');
+    return ds !== null ? ds : cell.textContent.trim();
+  }
+  function numeric(idx) {
+    var rows = body.rows, seen = false;
+    for (var i = 0; i < rows.length; i++) {
+      var k = cellKey(rows[i], idx);
+      if (k === '') { continue; }
+      if (!/^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/.test(k)) { return false; }
+      seen = true;
+    }
+    return seen;
+  }
+  Array.prototype.forEach.call(head.cells, function (th, idx) {
+    if (th.hasAttribute('data-nosort')) { return; }
+    th.tabIndex = 0;
+    function sort() {
+      var asc = !(th.classList.contains('sorted-asc'));
+      var isNum = numeric(idx);
+      var rows = Array.prototype.slice.call(body.rows);
+      rows.sort(function (a, b) {
+        var ka = cellKey(a, idx), kb = cellKey(b, idx);
+        if (isNum) { ka = parseFloat(ka) || 0; kb = parseFloat(kb) || 0; }
+        else { ka = ka.toLowerCase(); kb = kb.toLowerCase(); }
+        if (ka < kb) { return asc ? -1 : 1; }
+        if (ka > kb) { return asc ? 1 : -1; }
+        return 0;
+      });
+      rows.forEach(function (r) { body.appendChild(r); });
+      Array.prototype.forEach.call(head.cells, function (o) {
+        o.classList.remove('sorted-asc', 'sorted-desc');
+      });
+      th.classList.add(asc ? 'sorted-asc' : 'sorted-desc');
+    }
+    th.addEventListener('click', sort);
+    th.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sort(); }
+    });
+  });
+});
+</script>
+
+</body>
+</html>

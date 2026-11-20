@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-import json
+import logging
 import warnings
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -14,131 +15,149 @@ from oceanarray import logger, paths
 from oceanarray.analysis import site
 
 from ..config import parameters as params
+from ..plotters import helpers as _helpers
+from ..plotters import site as site_plots
+from ..plotters.site import section_cmap, symmetric_limit
+from . import _captions as _captions_mod
 from . import _masthead
 from ._breadcrumb import page_crumbs
 from ._concat import (
     CONCAT_PANELS,
     CONCAT_SECTIONS,
+    SITE_DESCRIPTION,
     ConcatContext,
     _deployment_rows,
     _deployment_windows,
     _description_links,
+    _drop_short,
     _masthead_facts,
     _nav,
 )
 from ._env import render_template
 from ._figdebug import as_panel
-from ._html_helpers import _parse_history
-from ._plots import _make_site_profiles_b64, _make_site_sections_b64, _make_site_ts_b64
 from ._read import _read_nc_metadata
+from ._slots import render as render_slot
 from ._stack import STACK_SECTIONS
 from ._vendored.page_model import Panel, Profile, Section, resolve
+
+log = logging.getLogger(__name__)
 
 #: The sections' and profiles' variables, in order, with their panel titles.
 _HYDRO = (("temperature", "Temperature"), ("salinity", "Salinity"))
 
 
 def _velocity_titles(angle: float | None) -> list[tuple[str, str]]:
-    """Return the velocity variables shown, with their titles (along/across with an angle)."""
+    """Return the velocity variables shown, with their titles (mean and cross direction)."""
     out = [("east_velocity", "U (east)"), ("north_velocity", "V (north)")]
     if angle is not None:
         out += [
-            ("along_slope", f"Along-slope ({angle:.0f}°)"),
-            ("across_slope", f"Across-slope ({(angle + 90) % 360:.0f}°)"),
+            ("mean_direction", f"Mean direction ({angle:.0f}°)"),
+            ("cross_direction", f"Cross direction ({(angle + 90) % 360:.0f}°)"),
         ]
     return out
 
 
-def _flags_text(ds: Any) -> str:
-    """Return the masked flags in words, from ``grid_mask_flags``."""
-    try:
-        flags = json.loads(str(ds.attrs.get("grid_mask_flags", "")))
-    except ValueError:
-        return ""
-
-    def flagged(values: list) -> str:
-        if not values:
-            return "nothing"
-        listed = ", ".join(map(str, values[:-1]))
-        return f"values flagged {listed + ' or ' if listed else ''}{values[-1]}"
-
-    words = [f"{flagged(flags.pop('default', []))} left out before gridding"]
-    words += [f"{key}: {flagged(values)}" for key, values in flags.items()]
-    return "; ".join(words).capitalize() + "."
-
-
 def _captions(
-    ds: Any, words: str, angle_source: str, positioned: bool
+    grid: Any,
+    stackcat: Any,
+    words: str,
+    angle: float | None,
+    positioned: bool,
+    left_out: dict[str, list[str]],
 ) -> dict[str, str]:
-    """Return the panel captions, which name the averaging, references and rules."""
+    """Return the page's captions: the shared intro, then one short caption per figure."""
     s0 = ", ".join(f"{v:g}" for v in params.SITE_SIGMA0_LEVELS)
     s2 = ", ".join(f"{v:g}" for v in params.SITE_SIGMA2_LEVELS)
     density = params.vunit("potential_density")
-    shown = (
+    hydro = ["temperature", "salinity"]
+    velocity = ["east_velocity", "north_velocity"]
+    flags_ts = _captions_mod.flag_sentence(grid.attrs, hydro)
+    flags_uv = _captions_mod.flag_sentence(grid.attrs, velocity)
+    short = [
+        f"{', '.join(names)} ({family})" for family, names in left_out.items() if names
+    ]
+    fraction = _captions_mod.record_fraction_text()
+    intro = (
         f"Shown as {words} means of the hourly grid ({site.display_steps_text()}); "
         "the bins restart at each deployment's start, so none spans two "
         "deployments and a step between deployments shows as a sharp edge. A bin "
-        f"with data for less than {site.DISPLAY_MIN_FRACTION:.0%} of its time "
-        "is left blank. Gray bands are the turnarounds; a dotted line and a ▼ above "
-        "the panel mark each deployment's start; gray lines are the pressures of "
-        "the instruments measuring the variable shown (between them the grid is "
-        "interpolated, so where the instruments' depths change between deployments, "
-        "part of a difference between deployments is the change in sampling). "
+        f"with data for less than {params.MIN_DISPLAY_BIN_FRACTION:.0%} of its time is "
+        f"left blank, and a deployment with values for less than {fraction} its "
+        "time is left out"
+        + (f" ({'; '.join(short)})" if short else " (none here)")
+        + ". "
+        "Grey bands are the turnarounds; a dotted line and a ▼ above the panel mark "
+        "each deployment's start; grey lines are the pressures of the instruments "
+        "measuring the variable shown (between them the grid is interpolated, so "
+        "where the instruments' depths change between deployments, part of a "
+        f"difference between deployments is the change in sampling). {flags_ts}"
     )
-    isopycnals = (
-        f"Black contours: σ0 {s0} and σ2 {s2} {density} (labeled with the value "
-        "only), each over the whole depth, drawn within each deployment. "
+    contours = (
+        f" Black contours: σ₀ {s0} and σ₂ {s2} {density}, drawn within each "
+        "deployment and labelled in the right margin."
         if positioned
-        else "No isopycnals: no deployment has a position. "
+        else " No isopycnals: no deployment has a position."
     )
-    flags = _flags_text(ds)
+    reference = _captions_mod.direction_reference(stackcat)
+    chosen = (
+        "the angle given for this site"
+        if grid.attrs.get("slope_angle_source") == "given"
+        else "the direction of the record-mean flow"
+    )
+    named = (
+        f"Eastward, northward, mean-direction (toward {angle:.0f}°, {chosen}) and "
+        f"cross-direction ({(angle + 90) % 360:.0f}°) velocity"
+        if angle is not None
+        else "Eastward and northward velocity (no mean direction: the flow has none)"
+    )
     return {
-        "sections_ts": shown + isopycnals + "20 discrete color levels. " + flags,
+        "intro": intro,
+        "sections_ts": "Temperature and salinity (PSU)." + contours,
         "anomalies_ts": (
-            "Temperature and salinity less their whole-record median at each level "
-            "(the median of the hourly values, which a spike or one bad instrument "
-            "does not move). Colors symmetric about zero, to ±the larger of the 2nd "
-            "and 98th percentiles. " + shown + isopycnals
-        ),
-        "profiles_ts": (
-            "Median of the hourly values at each level, one line per deployment "
-            "(red to purple in time order; with more than seven deployments each "
-            "color twice, solid then dashed). A level is drawn only where the "
-            f"deployment has values for at least {site.DISPLAY_MIN_FRACTION:.0%} of its "
-            "time: a level reached only when the mooring is knocked down sees only "
-            "the strong-flow hours. " + flags
-        ),
-        "profiles_uv": (
-            "Median velocity at each level, one line per deployment, where the "
-            f"deployment has velocity for at least {site.DISPLAY_MIN_FRACTION:.0%} of its "
-            "time. Along-slope "
-            f"direction: {angle_source}. " + flags
+            "Temperature and salinity (PSU) minus their median over the whole "
+            "record at each level. Red/brown: warmer/saltier than usual; colours "
+            "symmetric about zero, to ± the larger of the 2nd and 98th percentiles."
+            + contours
         ),
         "sections_uv": (
-            shown
-            + "Cropped to the pressures with velocity data, the panels made shorter "
-            "in proportion, so a dbar spans the same height as in the temperature "
-            "and salinity sections. Colors symmetric about zero on one scale for "
-            "every panel, to ±the "
-            "larger of the 2nd and 98th percentiles. Along-slope direction: "
-            + angle_source
-            + ". "
-            + flags
+            named
+            + (f", {reference}" if reference else "")
+            + ". Red: toward the named direction. Cropped to the pressures with "
+            "velocity, the panels made shorter in proportion, so a dbar spans the "
+            f"same height as in the sections above. {flags_uv}"
+        ),
+        "profiles_ts": (
+            "Median of the hourly values at each level, one line per deployment, "
+            "coloured in time order (see legend). A level is drawn only where the "
+            f"deployment has values for at least {fraction} its time: a level reached "
+            "only when the mooring is knocked down sees only the strong-flow hours. "
+            + flags_ts
+        ),
+        "profiles_uv": (
+            "Median velocity at each level, one line per deployment, coloured in "
+            "time order (see legend), where the deployment has velocity for at "
+            f"least {fraction} its time"
+            + (f"; mean direction toward {angle:.0f}°" if angle is not None else "")
+            + (f"; {reference}" if reference else "")
+            + ". Dashed: zero. Cropped to the velocity pressures, the figure made "
+            f"shorter in proportion. {flags_uv}"
         ),
         "site_ts": (
-            "Potential temperature and salinity of the median temperature and "
-            "salinity at each grid level, one line per deployment; a median is not "
-            "moved by a spike. Levels with values for less than "
-            f"{site.DISPLAY_MIN_FRACTION:.0%} of the deployment's time are left out. Axes span the 1–99 % range of the medians. Circles: "
-            "each deployment's instruments measuring both T and S, at their mean "
-            "pressure, so the curve between circles is the grid's interpolation. Gray "
-            f"contours: σ0 {s0} and σ2 {s2} {density} (labeled with the value only)."
+            "Potential temperature against salinity (PSU) of each deployment's "
+            "median profile, one line per deployment; a median is not moved by a "
+            f"spike. Levels with values for less than {fraction} the deployment's "
+            "time are left out. Axes span the full range of the medians. Circles: each "
+            "deployment's instruments measuring both T and S, at their mean "
+            "pressure, so the curve between circles is the grid's interpolation. "
+            f"Contours: σ₀ {s0} dashed and σ₂ {s2} solid {density} (they cross on "
+            "this diagram, so they are drawn differently)."
             if positioned
-            else "Median in-situ temperature and salinity at each grid level, one "
-            "line per deployment. Circles: each deployment's instruments measuring "
-            "both T and S, at their mean pressure. No deployment has a position, so "
-            "no potential temperature and no isopycnals."
-        ),
+            else "Median in-situ temperature and salinity (PSU) at each grid level, "
+            "one line per deployment. Circles: each deployment's instruments "
+            "measuring both T and S, at their mean pressure. No deployment has a "
+            "position, so no potential temperature and no isopycnals."
+        )
+        + f" {flags_ts}",
     }
 
 
@@ -169,105 +188,91 @@ def _panels(captions: dict[str, str]) -> dict[str, Panel]:
         "profiles_uv": _figure("profiles_uv", captions["profiles_uv"], "full", vel),
         "sections_uv": _figure("sections_uv", captions["sections_uv"], "full", vel),
         "site_ts": _figure("site_ts", captions["site_ts"], "half", ts),
+        "nc_file": replace(
+            CONCAT_PANELS["nc_file"],
+            caption=_captions_mod.netcdf_caption("site grid file", SITE_DESCRIPTION),
+        ),
     }
 
 
-GRIDCAT_SECTIONS: dict[str, Section] = {
-    "sections": Section("sections", "Sections over the years", ("sections_ts",)),
-    "anomalies": Section(
-        "anomalies", "Anomalies from the whole-record median", ("anomalies_ts",)
-    ),
-    "profiles": Section(
-        "profiles", "Median profiles per deployment", ("profiles_ts", "profiles_uv")
-    ),
-    "velocity": Section("velocity", "Velocity", ("sections_uv",)),
-    "ts_diagram": Section("ts_diagram", "T-S diagram", ("site_ts",)),
-}
-
-#: The site grid page.
-GRIDCAT_DEFAULT = Profile(
-    numbering="flat",
-    entries=(
-        GRIDCAT_SECTIONS["sections"],
-        GRIDCAT_SECTIONS["anomalies"],
-        GRIDCAT_SECTIONS["velocity"],
-        GRIDCAT_SECTIONS["ts_diagram"],
-        GRIDCAT_SECTIONS["profiles"],
-        CONCAT_SECTIONS["deployments"],
-        STACK_SECTIONS["processing_history"],
-        STACK_SECTIONS["netcdf_variables"],
-        STACK_SECTIONS["netcdf_attributes"],
-    ),
-)
+def _sections(intro: str) -> dict[str, Section]:
+    """Return the page's own sections; the first carries the intro shared by the sections."""
+    return {
+        "sections": Section(
+            "sections", "Sections over the years", ("sections_ts",), intro=intro
+        ),
+        "anomalies": Section(
+            "anomalies", "Anomalies from the whole-record median", ("anomalies_ts",)
+        ),
+        "velocity": Section("velocity", "Velocity", ("sections_uv",)),
+        "ts_diagram": Section("ts_diagram", "T-S diagram", ("site_ts",)),
+        "profiles": Section(
+            "profiles", "Median profiles per deployment", ("profiles_ts", "profiles_uv")
+        ),
+    }
 
 
-def _figures(grid: Any, stackcat: Any) -> tuple[dict, str, str]:
-    """Return the page's figures, the averaging in words and where the slope angle came from."""
-    from oceanarray.plotters.helpers import short_names
+def _profile(intro: str) -> Profile:
+    """Return the site grid page's sections, in order."""
+    return Profile(
+        numbering="flat",
+        entries=(
+            *_sections(intro).values(),
+            CONCAT_SECTIONS["deployments"],
+            CONCAT_SECTIONS["processing_history"],
+            STACK_SECTIONS["netcdf"],
+        ),
+    )
 
-    # Legends name each deployment without the site's prefix (egM4_2014 → 2014).
-    names = short_names([str(n) for n in grid["deployment_name"].values])
+
+def _figures(grid: Any, stackcat: Any, names: list[str]) -> tuple[dict, str]:
+    """Return the page's figures and the averaging in words."""
     pressure = grid["pressure"].values.astype(float)
     index = grid["deployment_index"].values
     freq, words = site.display_step(grid["time"].values)
     bins = site.display_bins(grid["time"].values, index, freq)
     shown = site.display_means(grid, bins)
-    angle = grid.attrs.get("slope_angle_deg")
-    angle = float(angle) if angle not in (None, "") else None
-    source = str(grid.attrs.get("slope_angle_source", ""))
-    angle_source = (
-        f"{angle:.0f}° clockwise from north, {source}"
-        if angle is not None
-        else source or "none (no velocity)"
-    )
+    angle = _angle(grid)
     hourly = {
         v: grid[v] for v in grid.data_vars if grid[v].dims == ("time", "pressure")
     }
     if angle is not None and "east_velocity" in grid and "north_velocity" in grid:
-        hourly["along_slope"], _ = site.slope_components(
+        hourly["mean_direction"], _ = site.slope_components(
             grid["east_velocity"], grid["north_velocity"], angle
         )
-        shown["along_slope"], shown["across_slope"] = site.slope_components(
+        shown["mean_direction"], shown["cross_direction"] = site.slope_components(
             shown["east_velocity"], shown["north_velocity"], angle
         )
 
     # The pressures of the instruments behind each panel, once per variable of
-    # the site stack (along and across slope are the velocity instruments').
+    # the site stack (the rotated components are the velocity instruments').
     measured: dict[str, np.ndarray] = {}
 
     def instruments(var: str) -> np.ndarray | None:
-        source = "east_velocity" if var in ("along_slope", "across_slope") else var
+        source = (
+            "east_velocity" if var in ("mean_direction", "cross_direction") else var
+        )
         if source not in stackcat:
             return None
         if source not in measured:
             measured[source] = site.instrument_pressures(stackcat, source, bins)
         return measured[source]
 
-    # Absolute salinity needs the position; without one, no density is drawn
-    # (rather than one computed at 0° N, 0° E).
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", RuntimeWarning)  # no deployment has one
-        lat = float(np.nanmedian(grid["deployment_latitude"].values))
-        lon = float(np.nanmedian(grid["deployment_longitude"].values))
-    position = (lon, lat) if np.isfinite(lat) and np.isfinite(lon) else None
+    position = _position(grid)
     isopycnals = []
     if position is not None and "temperature" in shown and "salinity" in shown:
         s0, s2 = site.density_fields(
             shown["temperature"].values, shown["salinity"].values, pressure, *position
         )
         isopycnals = [
-            (s0, params.SITE_SIGMA0_LEVELS, "%g"),
-            (s2, params.SITE_SIGMA2_LEVELS, "%g"),
+            (s0, params.SITE_SIGMA0_LEVELS, r"$\sigma_0$"),
+            (s2, params.SITE_SIGMA2_LEVELS, r"$\sigma_2$"),
         ]
 
-    from oceanarray.plotters.site import section_cmap, symmetric_limit
-
-    # Each deployment named without the site's prefix (FLMA_2014 → 2014).
-    site_name = str(grid.attrs.get("site_name", ""))
-    windows = [
-        (start, end, label.removeprefix(f"{site_name}_"))
-        for start, end, label in _deployment_windows(grid)
-    ]
+    short = dict(
+        zip([str(n) for n in grid["deployment_name"].values], names, strict=True)
+    )
+    windows = [(start, end, short[n]) for start, end, n in _deployment_windows(grid)]
     hydro = [(v, t) for v, t in _HYDRO if v in shown]
     sections = [
         {
@@ -301,7 +306,7 @@ def _figures(grid: Any, stackcat: Any) -> tuple[dict, str, str]:
             "data": shown[v].values,
             "title": title,
             "units": params.vunit("east_velocity"),
-            "cmap": section_cmap(v),
+            "cmap": section_cmap("east_velocity"),
             "limit": limit,
             "instruments": instruments(v),
         }
@@ -313,96 +318,120 @@ def _figures(grid: Any, stackcat: Any) -> tuple[dict, str, str]:
             hourly[var].values,
             index,
             len(names),
-            min_fraction=site.DISPLAY_MIN_FRACTION,
+            min_fraction=params.MIN_RECORD_FRACTION,
         )
 
     def sections_b64(panels: list[dict], contours: list, crop: bool = False) -> Any:
         return as_panel(
-            lambda: _make_site_sections_b64(
+            lambda: render_slot(
+                site_plots.draw_site_sections,
                 panels,
                 bins.centers,
                 pressure,
-                bins.edges,
-                bins.owner,
-                windows,
-                contours,
+                time_edges=bins.edges,
+                owner=bins.owner,
+                deployments=windows,
+                isopycnals=contours,
                 crop=crop,
+                optional=True,
             )
         )
 
+    def profiles_b64(columns: list[dict], slot: str, **kwargs: Any) -> Any:
+        return as_panel(
+            lambda: render_slot(
+                site_plots.draw_site_profiles,
+                columns,
+                pressure,
+                names,
+                slot=slot,
+                optional=True,
+                **kwargs,
+            )
+        )
+
+    hydro_medians = {v: medians(v) for v, _ in hydro}
+
     def site_ts() -> str | None:
-        if "temperature" not in hourly or "salinity" not in hourly:
+        if "temperature" not in hydro_medians or "salinity" not in hydro_medians:
             return None
-        salinity = medians("salinity")
+        salinity = hydro_medians["salinity"]
+        temperature = hydro_medians["temperature"]
         pins = None
         if "temperature" in stackcat and "salinity" in stackcat:
-            # pins (stackcat deployment order) line up positionally with the curves
-            # (grid order) because the grid carries the stack's whole deployment
-            # record unchanged; guard that invariant rather than assume it.
-            assert list(grid["deployment_name"].values) == list(
-                stackcat["deployment_name"].values
-            ), "grid and stackcat deployments differ; T-S pins would misalign"
-            pins = site.instrument_mean_pressures(stackcat)
-        if position is None:
-            return _make_site_ts_b64(
-                medians("temperature"),
-                salinity,
-                names,
-                None,
-                (),
-                (),
-                pressure=pressure,
-                pins=pins,
+            # Paired by name: the curves are in grid order, the pins in stack order.
+            by_name = dict(
+                zip(
+                    [str(n) for n in stackcat["deployment_name"].values],
+                    site.instrument_mean_pressures(stackcat),
+                    strict=True,
+                )
             )
-        theta = site.potential_temperature(
-            medians("temperature"), salinity, pressure, *position
-        )
-        return _make_site_ts_b64(
-            theta,
+            pins = [by_name.get(str(n), []) for n in grid["deployment_name"].values]
+        if position is not None:
+            temperature = site.potential_temperature(
+                temperature, salinity, pressure, *position
+            )
+        return render_slot(
+            site_plots.draw_site_ts,
+            temperature,
             salinity,
             names,
-            position,
-            params.SITE_SIGMA0_LEVELS,
-            params.SITE_SIGMA2_LEVELS,
+            *(position or (None, None)),
+            sigma0_levels=params.SITE_SIGMA0_LEVELS if position else (),
+            sigma2_levels=params.SITE_SIGMA2_LEVELS if position else (),
             pressure=pressure,
             pins=pins,
+            slot="half",
+            optional=True,
         )
 
     figs = {
         "sections_ts": sections_b64(sections, isopycnals),
         "anomalies_ts": sections_b64(anomalies, isopycnals),
         "sections_uv": sections_b64(vel_sections, [], crop=True),
-        "profiles_ts": as_panel(
-            lambda: _make_site_profiles_b64(
-                [{"medians": medians(v), "title": params.vlabel(v)} for v, _ in hydro],
-                pressure,
-                names,
-                "twothirds",
-            )
+        "profiles_ts": profiles_b64(
+            [
+                {"medians": hydro_medians[v], "title": params.vlabel(v)}
+                for v, _ in hydro
+            ],
+            "twothirds",
         ),
-        "profiles_uv": as_panel(
-            lambda: _make_site_profiles_b64(
-                [
-                    {
-                        "medians": medians(v),
-                        "title": f"{t} ({params.vunit('east_velocity')})",
-                    }
-                    for v, t in velocity
-                    if v != "across_slope"
-                ],
-                pressure,
-                names,
-                "full",
-            )
+        "profiles_uv": profiles_b64(
+            [
+                {
+                    "medians": medians(v),
+                    "title": f"{t} ({params.vunit('east_velocity')})",
+                }
+                for v, t in velocity
+                if v != "cross_direction"
+            ],
+            "full",
+            crop=True,
+            zero_line=True,
         ),
         "site_ts": as_panel(site_ts),
     }
     if position is None:
-        print(
-            "  WARNING: no deployment has a position: no isopycnals, and the T-S "
-            "diagram is in in-situ temperature."
+        log.warning(
+            "no deployment has a position: no isopycnals, and the T-S diagram is in "
+            "in-situ temperature"
         )
-    return figs, words, angle_source, position is not None
+    return figs, words
+
+
+def _angle(grid: Any) -> float | None:
+    """Return the grid's mean-direction angle (°), None when it has none."""
+    angle = grid.attrs.get("slope_angle_deg")
+    return float(angle) if angle not in (None, "") else None
+
+
+def _position(grid: Any) -> tuple[float, float] | None:
+    """Return the site's (lon, lat): the deployments' median, None when none has one."""
+    lat = grid["deployment_latitude"].values.astype(float)
+    lon = grid["deployment_longitude"].values.astype(float)
+    ok = np.isfinite(lat) & np.isfinite(lon)
+    return (float(np.median(lon[ok])), float(np.median(lat[ok]))) if ok.any() else None
 
 
 def generate_gridcat_page(
@@ -455,10 +484,13 @@ def generate_gridcat_page(
         with xr.open_dataset(stack_path, engine="netcdf4") as opened:
             stackcat = opened.load()
         out_path = out_dir / f"{name}_gridcat_report.html"
-        figs, words, angle_source, positioned = _figures(grid, stackcat)
-        names = [str(n) for n in grid["deployment_name"].values]
+        names = _helpers.short_names([str(n) for n in grid["deployment_name"].values])
+        grid, left_out = _drop_short(grid, grid["deployment_index"].values, names)
+        figs, words = _figures(grid, stackcat, names)
+        captions = _captions(
+            grid, stackcat, words, _angle(grid), _position(grid) is not None, left_out
+        )
         deployment_rows = _deployment_rows(stackcat, stack_path, out_dir, report_dir)
-        history = _parse_history(grid.attrs.get("history", ""))
         context = ConcatContext(
             figs=figs,
             present_vars=set(grid.data_vars),
@@ -472,16 +504,18 @@ def generate_gridcat_page(
             rose_unapplied=[],
             deployment_rows=deployment_rows,
             deployment_names=names,
-            concat_history=history,
-            deployment_histories=[
-                (names[k], _parse_history(str(grid["deployment_history"].values[k])))
-                for k in range(len(names))
+            steps=_captions_mod.stack_history_rows(grid),
+            deployment_steps=[
+                (
+                    str(grid["deployment_name"].values[k]),
+                    _captions_mod.history_rows(str(h)),
+                )
+                for k, h in enumerate(grid["deployment_history"].values)
             ]
             if "deployment_history" in grid
             else [],
         )
-        panels = _panels(_captions(grid, words, angle_source, positioned))
-        report = resolve(GRIDCAT_DEFAULT, context, panels)
+        report = resolve(_profile(captions["intro"]), context, _panels(captions))
         f = _masthead._fact
         facts = [
             fact

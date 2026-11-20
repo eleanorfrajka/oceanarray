@@ -243,31 +243,31 @@ def grid(
         },
     )
 
-    masked = ", ".join(
-        f"{k} {'/'.join(map(str, v)) or 'none'}" for k, v in flags.items()
-    )
-    prior_history = ds.attrs.get("history", "")
     ds_out.attrs.update(
         {
-            **{k: v for k, v in ds.attrs.items() if k not in ("history",)},
+            **ds.attrs,
             "data_mode": "P",
             "p_start_dbar": pmin,
             "p_end_dbar": pmax,
             "dp_dbar": dp,
             "grid_mask_flags": masking.to_json(flags),
-            "history": (
-                prior_history
-                + f"; grid: flags {masked} masked first, then linear interpolation "
-                f"in pressure onto {dp:g} dbar levels ({pmin:g}–{pmax:g} dbar), no "
-                "extrapolation"
-                + (
-                    ", one mooring per profile (the one `deployment_index` names), "
-                    "the overlap block not gridded, turnarounds empty"
-                    if site
-                    else ""
-                )
-            ),
         }
+    )
+    _stage.append_history(
+        ds_out,
+        f"flags: values flagged {masking.rule_words(flags)} left out before gridding "
+        "(grid_mask_flags)",
+    )
+    _stage.append_history(
+        ds_out,
+        f"grid: linear interpolation in pressure onto {dp:g} dbar levels "
+        f"({pmin:g}–{pmax:g} dbar), no extrapolation"
+        + (
+            ", one mooring per profile (the one `deployment_index` names), the "
+            "overlap block not gridded, turnarounds empty"
+            if site
+            else ""
+        ),
     )
     if site:
         ds_out.attrs.update(_slope_attrs(ds_out, slope_angle))

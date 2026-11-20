@@ -20,7 +20,7 @@
 {% else %}
 <p class="caption">
   Share of each variable's samples in each quality class, on the OceanSITES flag scale
-  used throughout these pages; the originator's flags are translated by their meaning.
+  used throughout these pages: oceanarray's and the originator's, the originator's translated by their meaning.
   Only variables with anything not flagged good are listed. {{ good_sentence }} HAB: height above bottom.
 </p>
 <div class="qc-legend">
@@ -33,6 +33,7 @@
       <th>Type</th>
       <th>Serial</th>
       <th>Variable</th>
+      <th>Flags by</th>
       {{ cols.th("Samples", "", true) }}
       {{ cols.th("Good", "%", true) }}
       {% for f in qc.flags if f.flag != 1 %}{{ cols.th(f.label | capitalize, "%", true) }}{% endfor %}
@@ -46,6 +47,7 @@
       <td>{{ row.type_label }}</td>
       <td><code>{{ row.serial }}</code></td>
       <td><code>{{ row.var }}</code></td>
+      <td>{{ row.by }}</td>
       <td class="num">{{ "{:,}".format(row.total) }}</td>
       <td class="num"><span style="color:{{ row.good.color }}">{{ row.good.text }}</span></td>
       {% for f in qc.flags if f.flag != 1 %}

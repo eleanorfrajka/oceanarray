@@ -8,8 +8,8 @@ An array is several moorings deployed together on one cruise. Its YAML file,
 ``{array}.array.yaml``, lists them and the facts they share; each mooring keeps its
 own :doc:`mooring YAML file <yaml_configuration>`. Two commands read it:
 
-- ``oceanarray report ARRAY.array.yaml --array`` builds the array page: a map and
-  one row per mooring, each linking to the mooring's report.
+- ``oceanarray report ARRAY.array.yaml --array`` builds the array page: a map, one
+  row per mooring linking to its pages, and the instruments by type.
 - ``oceanarray export MOORING --array ARRAY.array.yaml`` takes ``site_code`` and
   ``project`` from it for the OceanSITES files.
 
@@ -27,12 +27,13 @@ own :doc:`mooring YAML file <yaml_configuration>`. Two commands read it:
    longitude: 29 25.878 W
    waterdepth_min: 700
    waterdepth_max: 1000
+   bathymetry: ../bathymetry/GEBCO_2025.nc   # depth contours on the map
    moorings:
      - mooring: dsG1_1_2026
        config: dsG1_1_2026.mooring.yaml   # default: {mooring}.mooring.yaml
-       position: '1'
+       line: Denmark Strait sill          # moorings are coloured by line
      - mooring: dsK1_1_2026
-       position: '2'
+       line: Denmark Strait sill
 
 .. list-table::
    :header-rows: 1
@@ -44,20 +45,19 @@ own :doc:`mooring YAML file <yaml_configuration>`. Two commands read it:
      - The array's name: the page's title (default: the file name).
    * - ``moorings``
      - One entry per mooring: ``mooring`` (its name), ``config`` (its YAML file,
-       relative to the array file's folder) and ``position`` (its label on the
-       page, default its order).
-   * - ``year``, ``cruise``, ``ship``, ``project``
-     - Shown at the top of the array page; ``project`` is also written into the
-       OceanSITES files.
+       relative to the array file's folder) and ``line`` (the line it belongs to:
+       the map colours moorings by line; without lines, one colour per mooring).
+   * - ``year``, ``project``
+     - Shown at the top of the array page (the year the moorings were deployed);
+       ``project`` is also written into the OceanSITES files.
+   * - ``bathymetry``
+     - A bathymetry file (GEBCO or ETOPO, one elevation variable on latitude and
+       longitude), relative to the array file: the map draws its 500, 1000, 2000
+       and 2500 m contours, cached beside the page.
    * - ``site_code``
      - The OceanSITES site code, written into the exported files (left out, with a
        warning, when absent).
-   * - ``deployment_time``, ``recovery_time``, ``latitude``, ``longitude``,
-       ``waterdepth_min``, ``waterdepth_max``
-     - The array's span and position, shown at the top of the array page.
-   * - ``vocab``
-     - Short names for instrument types on the array page, e.g.
-       ``{instrument_in: MicroCAT, instrument_out: MC}``.
-
-Other keys (``y_offset``, ``plot_config``, …) are read by the mooring-diagram
-tool, not by oceanarray.
+Other keys (``cruise``, ``ship``, ``deployment_time``, ``recovery_time``,
+``latitude``, ``longitude``, ``waterdepth_min``, ``waterdepth_max``, ``vocab``,
+``position``, ``y_offset``, ``plot_config``, …) are not used by the array page,
+which takes dates, positions and depths from each mooring's own YAML file.

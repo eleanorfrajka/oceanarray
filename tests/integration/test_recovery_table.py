@@ -78,7 +78,7 @@ class TestRecoveryTable:
         ]
         assert "<dd>65° 43.91′ N</dd>" in meta
         assert "<dd>745&thinsp;m</dd>" in meta
-        assert "<dd>13d 15h</dd>" in meta
+        assert "<dd>13.6 days</dd>" in meta
 
 
 class TestRecoveryTableMissingYaml:

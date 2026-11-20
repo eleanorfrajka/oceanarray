@@ -23,7 +23,7 @@ from oceanarray import paths, provenance
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
 from oceanarray.location import parse_coordinate
-from oceanarray.pipeline import attribution, masking, sensors
+from oceanarray.pipeline import _stage, attribution, masking, sensors
 from oceanarray.pipeline.dataset import time_axis
 from oceanarray.pipeline.qc.originator import MAPPED_SUFFIX
 from oceanarray.provenance import sha256
@@ -970,20 +970,29 @@ def concat(
             "featureType": "timeSeries",
             "Conventions": "CF-1.13",
             "data_mode": "P",
-            "history": (
-                f"concat: {len(stacks)} deployment stacks ({', '.join(names)}) "
-                f"joined on one {dt} s time axis in {n_depths} depths, each depth "
-                "empty outside its levels' deployments, nothing filled across a "
-                "turnaround; "
-                + (
-                    f"where two deployments overlap the {overlap} one fills the "
-                    f"depth, the other's {ov_rows.size} depth steps are in the overlap "
-                    "block"
-                    if ov_rows.size
-                    else "no deployments overlap"
-                )
-            ),
+            "history": "",
         }
+    )
+    # One dated entry per step, so the page's processing table reads them back.
+    _stage.append_history(
+        out,
+        f"join: {len(stacks)} deployment stacks ({', '.join(names)}) on one {dt} s "
+        f"time axis in {n_depths} depths, each depth empty outside its levels' "
+        "deployments, nothing filled across a turnaround",
+    )
+    _stage.append_history(
+        out,
+        f"overlaps: where two deployments overlap the {overlap} one fills the depth, "
+        f"the other's {ov_rows.size} depth steps are in the overlap block"
+        if ov_rows.size
+        else "overlaps: no deployments overlap",
+    )
+    _stage.append_history(
+        out,
+        f"flags: values flagged {masking.rule_words(masking.from_attrs(out.attrs))} "
+        "by oceanarray or the originator hidden on the site pages and left out of "
+        "the site grid "
+        f"({masking.STACK_ATTR})",
     )
     return attribution.apply_product_citation(out, f"{name} site stack", sources)
 
@@ -1009,6 +1018,30 @@ def cell_deployment(ds: xr.Dataset) -> np.ndarray:
     level = ds["level_index"].values.astype(np.int64)
     deployment = ds["deployment"].values.astype(np.int64)
     return np.where(level >= 0, deployment[np.clip(level, 0, None)], -1)
+
+
+def depth_types(ds: xr.Dataset) -> list[str]:
+    """Return each depth's instrument type: the most common among its levels.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A site stack.
+
+    Returns
+    -------
+    list of str
+        One type per ``N_DEPTHS``, ``""`` for a depth with no level.
+    """
+    from collections import Counter
+
+    index = ds["depth_index"].values
+    types = [str(t) for t in ds["instrument_type"].values]
+    out = []
+    for k in range(ds.sizes["N_DEPTHS"]):
+        kinds = Counter(types[i] for i in np.flatnonzero(index == k))
+        out.append(kinds.most_common(1)[0][0] if kinds else "")
+    return out
 
 
 def own_levels(ds: xr.Dataset) -> np.ndarray:

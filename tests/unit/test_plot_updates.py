@@ -15,6 +15,7 @@ import pytest
 import xarray as xr
 
 from oceanarray.analysis import site
+from oceanarray.config import parameters as params
 from oceanarray.pipeline.concat import cell_deployment, concat
 from oceanarray.plotters import current, helpers, ts
 from oceanarray.plotters import site as site_plots
@@ -84,11 +85,11 @@ def test_a_level_is_drawn_only_with_half_its_own_deployment_steps(flmb_site):
             # Judged on the depth's own steps in that deployment, not the whole
             # deployment window, so a depth sampled part of the time is not penalised.
             own = int((cell_dep[:, j] == k).sum())
-            assert rows.sum() >= helpers.PROFILE_MIN_FRACTION * own
+            assert rows.sum() >= params.MIN_RECORD_FRACTION * own
 
 
 def test_no_level_is_drawn_when_none_has_enough_data(flmb_site, monkeypatch):
-    monkeypatch.setattr(helpers, "PROFILE_MIN_FRACTION", 1.01)
+    monkeypatch.setattr(params, "MIN_RECORD_FRACTION", 1.01)
     assert current.draw_speed_profile_by_deployment(flmb_site) is None
     assert current.draw_direction_profile_by_deployment(flmb_site) is None
 
