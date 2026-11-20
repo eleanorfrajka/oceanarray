@@ -865,8 +865,8 @@ flagged suspect, outside the fail range bad.</p>
 <td data-sort="salinity">salinity <span class="var-qc">(_qc)</span></td>
 <td><code>float32</code></td><td>1</td><td class="cell-wrap"><strong><code>sea_water_practical_salinity</code></strong><br>Practical Salinity</td><td data-sort="34.87213134765625">34.87 / 34.93</td>
 <td data-sort="186">186</td>
-<td data-sort="97.9" class="cell-bad">97.9</td><td data-nosort><details class="attr-disclosure"><summary>4 attrs</summary>
-<table data-nosort><tbody><tr><th>coverage_content_type</th><td>physicalMeasurement</td></tr><tr><th>comment</th><td>Derived from conductivity, temperature, pressure via gsw.SP_from_C</td></tr><tr><th>sensor</th><td>SENSOR_CTD_14644</td></tr><tr><th>processing_level</th><td>Ranges applied, bad data flagged</td></tr>
+<td data-sort="97.9" class="cell-bad">97.9</td><td data-nosort><details class="attr-disclosure"><summary>6 attrs</summary>
+<table data-nosort><tbody><tr><th>coverage_content_type</th><td>physicalMeasurement</td></tr><tr><th>comment</th><td>Derived from conductivity, temperature, pressure via gsw.SP_from_C</td></tr><tr><th>valid_min</th><td>0</td></tr><tr><th>valid_max</th><td>40</td></tr><tr><th>sensor</th><td>SENSOR_CTD_14644</td></tr><tr><th>processing_level</th><td>Ranges applied, bad data flagged</td></tr>
 </tbody></table></details></td></tr>
 <tr>
 <td data-sort="salinity_originator">salinity_originator</td>
@@ -919,9 +919,6 @@ flagged suspect, outside the fail range bad.</p>
 </thead>
 <tbody>
 <tr>
-<td data-sort="InstrDepth">InstrDepth</td><td><code>float32</code></td><td class="cell-bad">—</td>
-<td class="cell-wrap">—</td><td class="cell-wrap">2190</td><td data-nosort>—</td></tr>
-<tr>
 <td data-sort="SENSOR_CTD_14644">SENSOR_CTD_14644</td><td><code>int8</code></td><td>—</td>
 <td class="cell-wrap">s/n 14644</td><td class="cell-wrap">0</td><td data-nosort><details class="attr-disclosure"><summary>16 attrs</summary>
 <table data-nosort><tbody><tr><th>sensor_type</th><td>CTD</td></tr><tr><th>sensor_type_vocabulary</th><td>https://vocab.nerc.ac.uk/collection/L05/current/</td></tr><tr><th>sensor_serial_number</th><td>14644</td></tr><tr><th>originator_temperature_data_min</th><td>1.603</td></tr><tr><th>originator_temperature_data_max</th><td>2.968</td></tr><tr><th>originator_temperature_units</th><td>degree_Celsius</td></tr><tr><th>originator_conductivity_data_min</th><td>31.29</td></tr><tr><th>originator_conductivity_data_max</th><td>32.56</td></tr><tr><th>originator_conductivity_units</th><td>mS/cm</td></tr><tr><th>originator_pressure_data_min</th><td>2240</td></tr><tr><th>originator_pressure_data_max</th><td>2281</td></tr><tr><th>originator_pressure_units</th><td>decibar</td></tr><tr><th>sensor_model</th><td>UNK</td></tr><tr><th>sensor_metadata_source</th><td>none</td></tr><tr><th>cf_role</th><td>sensor_id</td></tr><tr><th>coverage_content_type</th><td>auxiliaryInformation</td></tr>
@@ -931,16 +928,21 @@ flagged suspect, outside the fail range bad.</p>
 <td class="cell-wrap">—</td><td class="cell-wrap">0</td><td data-nosort>—</td></tr>
 <tr>
 <td data-sort="end_time">end_time</td><td><code>string</code></td><td>—</td>
-<td class="cell-wrap">—</td><td class="cell-wrap">2019-01-06T05:00:00</td><td data-nosort>—</td></tr>
+<td class="cell-wrap">—</td><td class="cell-wrap">2019-01-06T05:00:00Z</td><td data-nosort>—</td></tr>
 <tr>
 <td data-sort="instrument">instrument</td><td><code>string</code></td><td>—</td>
 <td class="cell-wrap">—</td><td class="cell-wrap">microcat</td><td data-nosort>—</td></tr>
 <tr>
-<td data-sort="serial_number">serial_number</td><td><code>string</code></td><td>—</td>
-<td class="cell-wrap">—</td><td class="cell-wrap">14644</td><td data-nosort>—</td></tr>
+<td data-sort="instrument_depth">instrument_depth</td><td><code>float32</code></td><td>m</td>
+<td class="cell-wrap">nominal instrument depth</td><td class="cell-wrap">2190</td><td data-nosort><details class="attr-disclosure"><summary>1 attr</summary>
+<table data-nosort><tbody><tr><th>comment</th><td>design depth below the surface, from the mooring description</td></tr>
+</tbody></table></details></td></tr>
+<tr>
+<td data-sort="instrument_serial">instrument_serial</td><td><code>string</code></td><td>—</td>
+<td class="cell-wrap">the instrument&#39;s serial number; shared by all bins of one ADCP</td><td class="cell-wrap">14644</td><td data-nosort>—</td></tr>
 <tr>
 <td data-sort="start_time">start_time</td><td><code>string</code></td><td>—</td>
-<td class="cell-wrap">—</td><td class="cell-wrap">2019-01-04T05:00:00</td><td data-nosort>—</td></tr>
+<td class="cell-wrap">—</td><td class="cell-wrap">2019-01-04T05:00:00Z</td><td data-nosort>—</td></tr>
 </tbody></table><div class="fig-source">source: oceanarray/reports/_vendored/nc_tables.py:scalars_rows</div>
 <h3>Identity &amp; discovery</h3>
 <table class="sortable">
@@ -960,8 +962,8 @@ flagged suspect, outside the fail range bad.</p>
 <tbody>
 <tr><td class="mono">latitude</td><td><strong><code>float64</code></strong></td><td>59.857</td></tr>
 <tr><td class="mono">longitude</td><td><strong><code>float64</code></strong></td><td>-40.6957</td></tr>
-<tr><td class="mono">deployment_time</td><td><code>string</code></td><td>2019-01-04T05:00:00</td></tr>
-<tr><td class="mono">recovery_time</td><td><code>string</code></td><td>2019-01-06T05:00:00</td></tr>
+<tr><td class="mono">deployment_time</td><td><code>string</code></td><td>2019-01-04T05:00:00Z</td></tr>
+<tr><td class="mono">recovery_time</td><td><code>string</code></td><td>2019-01-06T05:00:00Z</td></tr>
 <tr><td class="mono">waterdepth</td><td><code>float32</code></td><td>2436.0</td></tr>
 </tbody></table>
 <h3>People &amp; institutions</h3>
@@ -1054,10 +1056,6 @@ flagged suspect, outside the fail range bad.</p>
 <tr><td class="mono">hab</td><td><code>float32</code></td><td>246.0</td></tr>
 <tr><td class="mono">instrument</td><td><code>string</code></td><td>microcat</td></tr>
 <tr><td class="mono">stack</td><td><code>int8</code></td><td>1</td></tr>
-<tr><td class="mono">deployment_latitude</td><td><code>string</code></td><td>00 00.000 N</td></tr>
-<tr><td class="mono">deployment_longitude</td><td><code>string</code></td><td>000 00.000 W</td></tr>
-<tr><td class="mono">seabed_latitude</td><td><code>string</code></td><td>00 00.000 N</td></tr>
-<tr><td class="mono">seabed_longitude</td><td><code>string</code></td><td>000 00.000 W</td></tr>
 <tr><td class="mono">units_converted</td><td><code>string</code></td><td>{&#34;conductivity&#34;: {&#34;factor&#34;: 1.0, &#34;from&#34;: &#34;mS/cm&#34;, &#34;to&#34;: &#34;mS cm-1&#34;}, &#34;pressure&#34;: {&#34;factor&#34;: 1.0, &#34;from&#34;: &#34;decibar&#34;, &#34;to&#34;: &#34;dbar&#34;}, &#34;salinity&#34;: {&#34;factor&#34;: 1.0, &#34;from&#34;: &#34;psu&#34;, &#34;to&#34;: &#34;1&#34;}}</td></tr>
 <tr><td class="mono">processing_stage</td><td><code>int32</code></td><td>3</td></tr>
 <tr><td class="mono">stage1_oceanarray_version</td><td><code>string</code></td><td><V></td></tr>

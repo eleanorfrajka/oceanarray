@@ -1207,9 +1207,9 @@ def draw_windows(
                 plot_title(ax_r, f"Last {hours} h")
 
         serial = (
-            ds["serial_number"].item()
-            if "serial_number" in ds
-            else ds.attrs.get("serial_number", "?")
+            ds["instrument_serial"].item()
+            if "instrument_serial" in ds
+            else ds.attrs.get("serial", "?")
         )
         figure_title(
             fig,

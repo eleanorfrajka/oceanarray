@@ -817,8 +817,31 @@ def _quiet_bearing(lengths: np.ndarray) -> float:
     return (int(np.argmin(span)) + 0.5) * 360.0 / n
 
 
+#: The nominal-depth variable; files before 0.6.1 call it ``InstrDepth``.
+_DEPTH_NAMES = ("instrument_depth", "InstrDepth")
+
+
+def nominal_depth_text(ds: xr.Dataset) -> str:
+    """Return one instrument file's nominal depth as ``"1500 m"``, or ``"?"``.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        An instrument's stage file.
+
+    Returns
+    -------
+    str
+        The depth to the metre, or ``"?"`` when the file has none.
+    """
+    for name in _DEPTH_NAMES:
+        if name in ds.variables:
+            return f"{float(ds[name].values):.0f} m"
+    return "?"
+
+
 def nominal_depths(ds: xr.Dataset) -> np.ndarray | None:
-    """Return each level's nominal depth (m): ``InstrDepth``, else water depth minus HAB.
+    """Return each level's nominal depth (m): ``instrument_depth``, else water depth minus HAB.
 
     A Stack cat's depths have their own (``nominal_depth`` on ``N_DEPTHS``).
 
@@ -834,8 +857,9 @@ def nominal_depths(ds: xr.Dataset) -> np.ndarray | None:
     """
     if "N_DEPTHS" in ds.dims:
         return ds["nominal_depth"].values.astype(float)
-    if "InstrDepth" in ds.variables and ds["InstrDepth"].ndim == 1:
-        return np.asarray(ds["InstrDepth"].values, dtype=float)
+    for name in _DEPTH_NAMES:
+        if name in ds.variables and ds[name].ndim == 1:
+            return np.asarray(ds[name].values, dtype=float)
     waterdepth = ds.attrs.get("waterdepth")
     if "hab" in ds.variables and waterdepth not in (None, ""):
         try:

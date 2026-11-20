@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 
 import numpy as np
 
+from .. import physics
 from ..plotters.current import (
     draw_adcp_hodograph,
     draw_adcp_rose,
@@ -39,6 +40,7 @@ from ..plotters.helpers import (  # noqa: F401
     _rose_ax,
     as_dataset,
     grid_despine,
+    nominal_depth_text,
 )
 from ..plotters.hydrography import (
     draw_isopycnal_coverage,
@@ -116,32 +118,14 @@ _MAX_TS_PANELS = 5
 
 
 def _add_tilt(ds: xr.Dataset) -> xr.Dataset:
-    """Return *ds* with a derived ``tilt`` variable added from pitch/roll."""
-    # Idempotent: re-running overwrites the derived variable.
-    _has_pitch = "pitch" in ds.data_vars
-    _has_roll = "roll" in ds.data_vars
-    if not (_has_pitch or _has_roll):
+    """Return *ds* with the derived ``tilt`` (:func:`oceanarray.physics.tilt`) added."""
+    if "pitch" not in ds.data_vars and "roll" not in ds.data_vars:
         return ds
-    _n = ds.sizes["time"]
-    _pitch_r = (
-        np.radians(ds["pitch"].values.astype(float)) if _has_pitch else np.zeros(_n)
-    )
-    _roll_r = np.radians(ds["roll"].values.astype(float)) if _has_roll else np.zeros(_n)
-    _cos_t = np.cos(_pitch_r) * np.cos(_roll_r)
-    _tilt = np.degrees(np.arccos(np.clip(_cos_t, -1.0, 1.0)))
-    if _has_pitch:
-        _tilt[~np.isfinite(ds["pitch"].values.astype(float))] = np.nan
-    if _has_roll:
-        _tilt[~np.isfinite(ds["roll"].values.astype(float))] = np.nan
-    import xarray as _xr
-
-    return ds.assign(
-        tilt=_xr.Variable(
-            "time",
-            _tilt,
-            {"units": "degrees", "long_name": "Instrument tilt from vertical"},
-        )
-    )
+    zeros = np.zeros(ds.sizes["time"])
+    pitch = ds["pitch"].values.astype(float) if "pitch" in ds.data_vars else zeros
+    roll = ds["roll"].values.astype(float) if "roll" in ds.data_vars else zeros
+    attrs = {"units": "degree", "long_name": "Instrument tilt from vertical"}
+    return ds.assign(tilt=("time", physics.tilt(pitch, roll), attrs))
 
 
 def _draw_instrument_panels(
@@ -325,12 +309,8 @@ def _draw_instrument_panels(
                 ax2.axhline(100.0, color="darkorange", lw=0.5, ls="--", alpha=0.4)
 
         if title is None:
-            serial = (
-                ds["serial_number"].item()
-                if "serial_number" in ds
-                else ds.attrs.get("serial_number", "?")
-            )
-            depth = f"{ds['InstrDepth'].item():.0f} m" if "InstrDepth" in ds else "?"
+            serial = ds.attrs.get("serial", "?")
+            depth = nominal_depth_text(ds)
             title = f"{instr_type.title()} {serial} · {depth}"
         if title_suffix:
             title += f"  [{title_suffix}]"

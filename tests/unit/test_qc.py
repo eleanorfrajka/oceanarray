@@ -10,6 +10,8 @@ Milestone B of ``.claude/notes/2026-08-19-stage-coverage-plan.md``.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 import pytest
 import xarray as xr
@@ -197,7 +199,7 @@ def test_apply_tilt_qc_noop_without_pitch_or_roll():
 
 
 def test_apply_tilt_qc_fallback_flags_by_threshold():
-    """tilt = max(|pitch|,|roll|); >=fail -> 4, >=suspect -> 3, else 1."""
+    """Geometric tilt; >=fail -> 4, >=suspect -> 3, else 1."""
     ds = _vel_ds_with_attitude(pitch=[10.0, 25.0, 35.0], roll=[5.0, 5.0, 5.0])
     out, n_suspect, n_bad = Q.apply_tilt_qc(
         ds, {"suspect_threshold": 20.0, "fail_threshold": 30.0}
@@ -207,6 +209,26 @@ def test_apply_tilt_qc_fallback_flags_by_threshold():
     # thresholds persisted for the report reference lines
     assert out.attrs["tilt_suspect_threshold"] == 20.0
     assert out.attrs["tilt_fail_threshold"] == 30.0
+
+
+def test_apply_tilt_qc_uses_the_geometric_tilt_and_qc_tilt_on_real_data():
+    """Aquadopp 9920 (dune2): the arccos tilt at QC_TILT 30/50 flags more than max(|P|,|R|)."""
+    from oceanarray import physics
+
+    path = (
+        Path(__file__).parents[1]
+        / "fixtures/proc/dune2_1_2026/aquadopp/dune2_1_2026_9920_stage2.nc"
+    )
+    with xr.open_dataset(path) as src:
+        ds = src.load()
+    pitch, roll = ds["pitch"].values.astype(float), ds["roll"].values.astype(float)
+    out, n_suspect, n_bad = Q.apply_tilt_qc(ds, {})
+
+    tilt = physics.tilt(pitch, roll)
+    assert (n_suspect, n_bad) == (int(np.sum((tilt >= 30) & (tilt < 50))), 0)
+    assert n_suspect > int(np.sum(np.maximum(abs(pitch), abs(roll)) >= 30))
+    assert out.attrs["tilt_suspect_threshold"] == 30.0
+    assert out.attrs["tilt_fail_threshold"] == 50.0
 
 
 # ---------------------------------------------------------------------------

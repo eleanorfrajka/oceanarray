@@ -9,7 +9,7 @@ from typing import Any
 import numpy as np
 import xarray as xr
 
-from oceanarray import logger
+from oceanarray import logger, physics
 from oceanarray.config import parameters as params
 from oceanarray.pipeline.units import UnitsError
 
@@ -207,7 +207,7 @@ def apply_tilt_qc(
 
     Fallback path — neither pitch_qc nor roll_qc exist:
 
-        tilt is computed as max(``|pitch|``, ``|roll|``) and compared against
+        the geometric tilt (:func:`oceanarray.physics.tilt`) is compared against
         tilt_cfg thresholds (``suspect_threshold`` / ``fail_threshold``).
 
     In both paths ``tilt_suspect_threshold`` and ``tilt_fail_threshold`` are
@@ -220,6 +220,7 @@ def apply_tilt_qc(
     has_roll = "roll" in ds.data_vars
     if not has_pitch and not has_roll:
         return ds, 0, 0
+    tilt_cfg = {**params.QC_TILT, **tilt_cfg}
 
     has_pitch_qc = "pitch_qc" in ds.data_vars
     has_roll_qc = "roll_qc" in ds.data_vars
@@ -238,14 +239,10 @@ def apply_tilt_qc(
         # report can draw consistent reference lines on the tilt panel.
         ref_attrs = ds["pitch_qc" if has_pitch_qc else "roll_qc"].attrs
         suspect_thresh = float(
-            ref_attrs.get(
-                "qc_gross_range_suspect_max", tilt_cfg.get("suspect_threshold", 20.0)
-            )
+            ref_attrs.get("qc_gross_range_suspect_max", tilt_cfg["suspect_threshold"])
         )
         fail_thresh = float(
-            ref_attrs.get(
-                "qc_gross_range_fail_max", tilt_cfg.get("fail_threshold", 30.0)
-            )
+            ref_attrs.get("qc_gross_range_fail_max", tilt_cfg["fail_threshold"])
         )
     else:
         # Fallback: compute from raw pitch/roll values.
@@ -253,11 +250,9 @@ def apply_tilt_qc(
         pitch = ds["pitch"].values.astype(float) if has_pitch else np.zeros(n_time)
         roll = ds["roll"].values.astype(float) if has_roll else np.zeros(n_time)
 
-        tilt = np.maximum(np.abs(pitch), np.abs(roll))
-        tilt[~np.isfinite(pitch) | ~np.isfinite(roll)] = np.nan
-
-        suspect_thresh = float(tilt_cfg.get("suspect_threshold", 20.0))
-        fail_thresh = float(tilt_cfg.get("fail_threshold", 30.0))
+        tilt = physics.tilt(pitch, roll)
+        suspect_thresh = float(tilt_cfg["suspect_threshold"])
+        fail_thresh = float(tilt_cfg["fail_threshold"])
 
         tilt_flags = np.where(
             ~np.isfinite(tilt),

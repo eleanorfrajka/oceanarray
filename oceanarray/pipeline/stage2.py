@@ -553,17 +553,20 @@ def _warn_short_record(
 def _add_missing_metadata(
     dataset: xr.Dataset, instrument_config: dict[str, Any]
 ) -> xr.Dataset:
-    """Add the InstrDepth, instrument and serial_number scalars from the YAML entry."""
+    """Add the identity scalars and ``instrument`` a stage-1 file lacks, from the YAML entry."""
     # read_mooring stamps the identity attributes; the report and stack also expect
     # these scalar variables.
-    if "InstrDepth" not in dataset.variables:
-        dataset["InstrDepth"] = instrument_config.get("depth", 0)
+    identity = _stage.identity_variables(
+        instrument_config, dataset.attrs.get("waterdepth")
+    )
+    # Stage-1 files before 0.6.1 hold these as InstrDepth and serial_number.
+    dataset = dataset.drop_vars(list(_stage.OLD_IDENTITY_NAMES), errors="ignore")
+    dataset = dataset.assign(
+        {k: v for k, v in identity.items() if k not in dataset.variables}
+    )
     instrument = instrument_config.get("instrument")
-    serial = instrument_config.get("serial")
     if "instrument" not in dataset.variables and instrument is not None:
         dataset["instrument"] = instrument
-    if "serial_number" not in dataset.variables and serial is not None:
-        dataset["serial_number"] = serial
     return dataset
 
 

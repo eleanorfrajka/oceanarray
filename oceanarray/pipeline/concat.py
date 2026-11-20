@@ -16,6 +16,7 @@ from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import xarray as xr
 
 from oceanarray import mooring as _mooring
@@ -283,13 +284,20 @@ def _assign_depths(
     return out, depth_groups
 
 
+def _time_text(value: object) -> str:
+    """Return a stack's deployment or recovery time as ISO 8601, or as given when blank."""
+    try:
+        return _stage.iso_time(value)
+    except (TypeError, ValueError):
+        return "" if value is None else str(value)
+
+
 def _deployment_code(ds: xr.Dataset) -> str:
     """Return a stack's deployment code, ``YYYYMM`` of its deployment time ("" if unknown)."""
     try:
-        month = np.datetime64(str(ds.attrs.get("deployment_time", "")), "M")
-    except ValueError:
+        return pd.Timestamp(str(ds.attrs["deployment_time"])).strftime("%Y%m")
+    except (KeyError, ValueError):
         return ""
-    return "" if np.isnat(month) else np.datetime_as_string(month).replace("-", "")
 
 
 def _per_level(ds: xr.Dataset, name: str) -> np.ndarray | None:
@@ -808,10 +816,10 @@ def concat(
             "deployment_name": _deployment_var(names),
             "deployment_stack_mask_flags": _deployment_var(own_rules),
             "deployment_time": _deployment_var(
-                [str(ds.attrs.get("deployment_time", "")) for ds in stacks]
+                [_time_text(ds.attrs.get("deployment_time")) for ds in stacks]
             ),
             "recovery_time": _deployment_var(
-                [str(ds.attrs.get("recovery_time", "")) for ds in stacks]
+                [_time_text(ds.attrs.get("recovery_time")) for ds in stacks]
             ),
             "deployment_latitude": _deployment_var(
                 [np.nan if v is None else v for v in lats],
@@ -963,10 +971,16 @@ def concat(
             "overlap_rule": overlap,
             masking.STACK_ATTR: site_rule,
             "stack_mask_flag_sources": masking.FLAG_SOURCES,
-            "latitude": f"{np.nanmedian(finite_lats):.5f}" if finite_lats else "",
-            "longitude": f"{np.nanmedian(finite_lons):.5f}" if finite_lons else "",
-            "deployment_time": str(stacks[0].attrs.get("deployment_time", "")),
-            "recovery_time": str(stacks[-1].attrs.get("recovery_time", "")),
+            **(
+                {
+                    "latitude": float(np.nanmedian(finite_lats)),
+                    "longitude": float(np.nanmedian(finite_lons)),
+                }
+                if finite_lats and finite_lons
+                else {}
+            ),
+            "deployment_time": _time_text(stacks[0].attrs.get("deployment_time")),
+            "recovery_time": _time_text(stacks[-1].attrs.get("recovery_time")),
             "featureType": "timeSeries",
             "Conventions": "CF-1.13",
             "data_mode": "P",

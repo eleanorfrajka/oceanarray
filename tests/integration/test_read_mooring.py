@@ -16,7 +16,7 @@ import xarray as xr
 from oceanarray import mooring as _mooring
 from oceanarray.exceptions import MooringError
 from oceanarray.pipeline import _stage
-from oceanarray.pipeline.read_mooring import _mooring_attrs, read_mooring
+from oceanarray.pipeline.read_mooring import header_attrs, read_mooring
 
 _FIX = Path(__file__).parent.parent / "fixtures"
 _PROC = _FIX / "proc"
@@ -113,7 +113,7 @@ def test_raw_without_raw_dir_raises():
 
 def test_mooring_attrs_stamp_position_and_window():
     """A full description stamps position/window with their real sources."""
-    attrs = _mooring_attrs(_cfg())
+    attrs = header_attrs(_cfg())
     assert attrs["mooring_name"] == "dune2_1_2026"
     assert attrs["location_source"] == "latitude/longitude"
     assert attrs["deployment_window_source"] == "deployment_time/recovery_time"
@@ -124,7 +124,7 @@ def test_mooring_attrs_stamp_position_and_window():
 def test_mooring_attrs_warn_and_mark_none_when_absent():
     """A description with no position/window stamps placeholders with *_source=none."""
     with pytest.warns(UserWarning):
-        attrs = _mooring_attrs({"name": "x"})
+        attrs = header_attrs({"name": "x"})
     assert attrs["latitude"] == 0.0
     assert attrs["location_source"] == "none"
     assert attrs["deployment_window_source"] == "none"

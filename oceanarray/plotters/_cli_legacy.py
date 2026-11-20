@@ -48,11 +48,11 @@ def draw_microcat_raw(ds, save_path=None):
     axs[-1].set_xlabel("Time")
 
     serial = (
-        ds["serial_number"].item()
-        if "serial_number" in ds
-        else ds.attrs.get("serial_number", "?")
+        ds["instrument_serial"].item()
+        if "instrument_serial" in ds
+        else ds.attrs.get("serial", "?")
     )
-    depth = ds["InstrDepth"].item() if "InstrDepth" in ds else "?"
+    depth = ds["instrument_depth"].item() if "instrument_depth" in ds else "?"
     axs[0].set_title(f"MicroCAT s/n: {serial}  |  Target depth: {depth} m")
 
     locator = mdates.AutoDateLocator()
@@ -102,11 +102,13 @@ def draw_aquadopp_raw(ds, save_path=None):
     axs[-1].set_xlabel("Time")
 
     serial = (
-        ds["serial_number"].item()
-        if "serial_number" in ds
-        else ds.attrs.get("serial_number", "?")
+        ds["instrument_serial"].item()
+        if "instrument_serial" in ds
+        else ds.attrs.get("serial", "?")
     )
-    depth = f"{ds['InstrDepth'].item():.0f} m" if "InstrDepth" in ds else "?"
+    depth = (
+        f"{ds['instrument_depth'].item():.0f} m" if "instrument_depth" in ds else "?"
+    )
     axs[0].set_title(f"Aquadopp s/n: {serial}  |  Target depth: {depth}")
 
     locator = mdates.AutoDateLocator()
@@ -130,13 +132,13 @@ def _instrument_label(nc_path: Path, ds: xr.Dataset) -> str:
     instrument_dir = nc_path.parent.name
     prefix = params.INSTRUMENT_ABBREV.get(instrument_dir, instrument_dir[:2].upper())
 
-    serial = ds["serial_number"].item() if "serial_number" in ds else "?"
+    serial = ds["instrument_serial"].item() if "instrument_serial" in ds else "?"
     # Strip trailing non-alphanumeric chars (e.g. * markers in serial strings)
     import re
 
     serial = re.sub(r"[^\w]", "", str(serial))
 
-    depth = f"{ds['InstrDepth'].item():.0f}m" if "InstrDepth" in ds else ""
+    depth = f"{ds['instrument_depth'].item():.0f}m" if "instrument_depth" in ds else ""
     return f"{prefix}{serial} {depth}".strip()
 
 

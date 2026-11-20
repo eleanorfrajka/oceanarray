@@ -8,7 +8,7 @@ from typing import Any
 import numpy as np
 import xarray as xr
 
-from oceanarray import logger
+from oceanarray import logger, physics
 from oceanarray.pipeline.qc import set_qc_attrs
 
 log = logging.getLogger(__name__)
@@ -754,7 +754,9 @@ def _compute_adcp_bin_pressure(
         p_true = np.arctan(
             np.tan(np.deg2rad(ds["pitch"].values.astype(float))) * np.cos(roll_r)
         )
-        tilt = np.arccos(np.clip(np.cos(p_true) * np.cos(roll_r), -1.0, 1.0))
+        tilt = np.radians(
+            physics.tilt(np.degrees(p_true), ds["roll"].values.astype(float))
+        )
         tilt_correction = "applied"
         tilt_definition = "arccos(cos(true_pitch)·cos(roll)); true_pitch = arctan(tan(tilt1)·cos(roll))"
         tilt_source = "pitch,roll"

@@ -90,9 +90,9 @@ class TestMicrocatStage1FromRaw:
     def test_processing_level_attr(self):
         assert self._gen.attrs.get("processing_level") == "L1"
 
-    def test_serial_number_scalar(self):
-        assert "serial_number" in self._gen.data_vars
-        assert self._gen["serial_number"].dims == ()
+    def test_instrument_serial_is_a_text_scalar(self):
+        assert self._gen["instrument_serial"].dims == ()
+        assert self._gen["instrument_serial"].dtype.kind in "OU"
 
     def test_sensor_metadata_scalars_present(self):
         # One sensor record per instrument, holding each sensor's calibration.

@@ -27,7 +27,7 @@ from oceanarray.config import parameters as params
 from oceanarray.instruments import instrument_entries
 from oceanarray.mooring import DEPLOYMENT_CODE_PATTERN
 from oceanarray.paths import safe_serial
-from oceanarray.pipeline import attribution, sensors
+from oceanarray.pipeline import _stage, attribution, dataset, sensors
 from oceanarray.pipeline.calibration import CALDIP_STUB_APPLIED
 from oceanarray.pipeline.qc.originator import MAPPED_SUFFIX
 from oceanarray.pipeline.stage1 import ADCP_BIN_DIM
@@ -75,11 +75,6 @@ _SEABED_VARIABLES = frozenset({"east_velocity", "north_velocity", "up_velocity"}
 
 class OceanSitesError(ValueError):
     """Raised when a dataset or description cannot make a valid OceanSITES file."""
-
-
-def _iso(t: Any) -> str:
-    """Return an instant as ISO 8601 UTC, ``YYYY-MM-DDThh:mm:ssZ`` (manual §2.2)."""
-    return pd.Timestamp(t).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _iso_duration(seconds: float) -> str:
@@ -130,9 +125,9 @@ def type_code(ds: xr.Dataset) -> str:
 
 
 def _nominal_depth(ds: xr.Dataset) -> float:
-    """Return the instrument's nominal depth (m): ``InstrDepth``, else water depth − HAB."""
-    if "InstrDepth" in ds.variables:
-        return float(ds["InstrDepth"].values)
+    """Return the instrument's nominal depth (m): ``instrument_depth``, else water depth − HAB."""
+    if "instrument_depth" in ds.variables:
+        return float(ds["instrument_depth"].values)
     try:
         return float(ds.attrs["waterdepth"]) - float(ds.attrs["hab"])
     except KeyError as e:
@@ -415,7 +410,7 @@ def _globals(
     """Return the §2.2 global attributes shared by every file this module writes."""
     now = dt.datetime.now(dt.UTC)
     history = history.rstrip()
-    history += ("\n" if history else "") + f"{_iso(now)} {note}"
+    history += ("\n" if history else "") + f"{_stage.iso_time(now)} {note}"
     times = out["TIME"].values
     attrs: dict[str, Any] = {
         "title": title,
@@ -437,13 +432,13 @@ def _globals(
         "geospatial_vertical_max": float(out["DEPTH"].values.max()),
         "geospatial_vertical_positive": "down",
         "geospatial_vertical_units": "meter",
-        "time_coverage_start": _iso(
+        "time_coverage_start": _stage.iso_time(
             _EPOCH + np.timedelta64(int(round(times[0] * 864e11)), "ns")
         ),
-        "time_coverage_end": _iso(
+        "time_coverage_end": _stage.iso_time(
             _EPOCH + np.timedelta64(int(round(times[-1] * 864e11)), "ns")
         ),
-        "date_created": _iso(now),
+        "date_created": _stage.iso_time(now),
         "history": history,
     }
     if mooring.get("waterdepth") is not None:
@@ -458,7 +453,9 @@ def _globals(
         attrs["project"] = str(array["project"])
     for when in ("deployment", "recovery"):
         if mooring.get(f"{when}_time"):
-            attrs[f"platform_{when}_date"] = _iso(str(mooring[f"{when}_time"]))
+            attrs[f"platform_{when}_date"] = _stage.iso_time(
+                str(mooring[f"{when}_time"])
+            )
         ship = _first(mooring, f"{when}_ship", "ship")
         cruise = _first(mooring, f"{when}_cruise", "cruise")
         if ship:
@@ -601,7 +598,7 @@ def _deployment_file(
     data_mode = distinct[0] if len(distinct) == 1 else "M"
 
     times = ds["time"].values.astype("datetime64[ns]")
-    start, end = _iso(times[0]), _iso(times[-1])
+    start, end = _stage.iso_time(times[0]), _stage.iso_time(times[-1])
     out = _coordinates(times, levels, level_comment, lat, lon)
 
     for name in names:
@@ -682,10 +679,9 @@ def _deployment_file(
     )
     out.attrs.update(_people(ds, file_id))
     out.attrs.update(_terms(ds))
-    if "sample_interval_seconds" in ds.attrs:
-        out.attrs["time_coverage_resolution"] = _iso_duration(
-            ds.attrs["sample_interval_seconds"]
-        )
+    step = dataset.time_step_seconds(ds)
+    if np.isfinite(step):
+        out.attrs["time_coverage_resolution"] = _iso_duration(step)
     return out
 
 

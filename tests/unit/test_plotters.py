@@ -330,7 +330,7 @@ def test_instrument_rose_draws_suspect_values_in_their_own_rose():
     polar = [ax for ax in fig.axes if ax.name == "polar" and ax.get_visible()]
     titles = [ax.get_title() for ax in polar]
     assert len(polar) == 2 and titles[0].startswith("Good: ")
-    assert titles[1] == "Suspect (oceanarray): 1,087 values"
+    assert titles[1] == "Suspect (oceanarray): 1,127 values"
     assert polar[0].get_ylim() != polar[1].get_ylim()
     plt.close(fig)
 

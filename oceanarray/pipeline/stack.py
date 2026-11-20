@@ -3,6 +3,7 @@
 import logging
 from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import xarray as xr
@@ -12,7 +13,11 @@ from oceanarray import mooring as _mooring
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
 from oceanarray.instruments import instrument_entries
-from oceanarray.location import parse_latlon
+from oceanarray.location import (
+    is_unknown_latlon_source,
+    parse_latlon,
+    parse_latlon_with_source,
+)
 from oceanarray.paths import safe_serial
 from oceanarray.physics import potential_density_anomaly, speed_direction
 from oceanarray.pipeline import _stage, attribution, masking, sensors
@@ -158,17 +163,12 @@ def _build_adcp_bin_ds(ds_parent: xr.Dataset, bin_idx: int) -> xr.Dataset:
         # 0 = northward, 90 = eastward, the opposite of meteorological "from".
         ds_bin = ds_bin.assign(
             current_speed=xr.Variable(
-                "time",
-                speed.astype(np.float32),
-                {"units": "m s-1", "long_name": "Current speed"},
+                "time", speed.astype(np.float32), params.cf_attrs("current_speed")
             ),
             current_direction=xr.Variable(
                 "time",
                 direction.astype(np.float32),
-                {
-                    "units": "degrees",
-                    "long_name": "Current direction (oceanographic, 0=N clockwise)",
-                },
+                params.cf_attrs("current_direction"),
             ),
         )
 
@@ -235,33 +235,15 @@ class _LowPassedError(ValueError):
     """A low-passed instrument file reached the stack without ``stack: false``."""
 
 
+#: Reference pressure (dbar) → variable name and long name. Only σ0 has a CF
+#: standard name (``sea_water_sigma_theta``); the others carry the long name alone.
 _SIGMA_META = {
-    0: (
-        "sigma0",
-        "Potential density anomaly referenced to surface (sigma-0)",
-        "sea_water_sigma_t",
-    ),
-    1000: (
-        "sigma1",
-        "Potential density anomaly referenced to 1000 dbar (sigma-1)",
-        "sea_water_sigma_1",
-    ),
-    2000: (
-        "sigma2",
-        "Potential density anomaly referenced to 2000 dbar (sigma-2)",
-        "sea_water_sigma_2",
-    ),
-    3000: (
-        "sigma3",
-        "Potential density anomaly referenced to 3000 dbar (sigma-3)",
-        "sea_water_sigma_3",
-    ),
-    4000: (
-        "sigma4",
-        "Potential density anomaly referenced to 4000 dbar (sigma-4)",
-        "sea_water_sigma_4",
-    ),
-}
+    ref: (
+        f"sigma{ref // 1000}",
+        f"Potential density anomaly referenced to {ref} dbar (sigma-{ref // 1000})",
+    )
+    for ref in (1000, 2000, 3000, 4000)
+} | {0: ("sigma0", "Potential density anomaly referenced to surface (sigma-0)")}
 
 
 def stack(
@@ -676,11 +658,17 @@ def stack(
         for vname, da in ds.data_vars.items():
             if da.dims or sensors.is_record(vname):  # time series; sensor records
                 continue
+            value, attrs = da.values.item(), dict(da.attrs)
+            if vname in _stage.OLD_IDENTITY_NAMES:  # a stage file before 0.6.1
+                vname = _stage.OLD_IDENTITY_NAMES[vname]
+                attrs = dict(_stage.IDENTITY_ATTRS[vname])
+                if vname == "instrument_serial":
+                    value = str(value)
             if vname not in scalar_meta:
                 # Back-fill with None for instruments processed before this variable appeared
                 scalar_meta[vname] = [None] * i
-                scalar_attrs[vname] = dict(da.attrs)
-            scalar_meta[vname].append(da.values.item())
+                scalar_attrs[vname] = attrs
+            scalar_meta[vname].append(value)
 
         # Collect magnetic_declination from global attrs (set by stage3 BEAM→ENU).
         # Must come BEFORE the fill-None loop so the length is already i+1 when
@@ -825,24 +813,21 @@ def stack(
                 SA, CT, ref_p, temperature=T_arr, pressure=P_arr
             )
             if not np.all(np.isnan(sigma_vals)):
-                vname, long_name, std_name = _SIGMA_META.get(
+                vname, long_name = _SIGMA_META.get(
                     ref_p,
                     (
                         f"sigma_{ref_p}",
                         f"Potential density anomaly referenced to {ref_p} dbar",
-                        "",
                     ),
                 )
-                data_vars[vname] = xr.Variable(
-                    ("N_LEVELS", "time"),
-                    sigma_vals,
-                    {
-                        "units": "kg m-3",
-                        "long_name": long_name,
-                        "standard_name": std_name,
-                        "reference_pressure_dbar": ref_p,
-                    },
-                )
+                attrs = {
+                    "units": "kg m-3",
+                    "long_name": long_name,
+                    "reference_pressure_dbar": ref_p,
+                }
+                if ref_p == 0:
+                    attrs["standard_name"] = "sea_water_sigma_theta"
+                data_vars[vname] = xr.Variable(("N_LEVELS", "time"), sigma_vals, attrs)
         except Exception as exc:  # noqa: BLE001  — gsw failure must not abort stack
             log.warning(f"  could not compute potential density: {exc}")
 
@@ -933,7 +918,7 @@ def stack(
                 ("N_LEVELS", "time"),
                 tilt_p,
                 {
-                    "units": "degrees",
+                    "units": "degree",
                     "long_name": "Tilt estimated from pressure difference",
                     "comment": (
                         "arccos(ΔP / rope_length) where ΔP = pressure[i] - pressure[ref] "
@@ -982,6 +967,8 @@ def stack(
         if vname in _coord_names:
             continue
         try:
+            if any(isinstance(v, str) for v in values_list):
+                raise TypeError("text, kept as text")  # e.g. "8080" serials
             arr = np.array(
                 [v if v is not None else np.nan for v in values_list],
                 dtype=np.float64,
@@ -1025,7 +1012,10 @@ def stack(
             "serial": xr.Variable(
                 "N_LEVELS",
                 np.array(serials),
-                {"long_name": "instrument serial number"},
+                {
+                    "long_name": "level key: the instrument serial, with _b01… for "
+                    "an ADCP's bins and _hd for its head data"
+                },
             ),
             "hab": xr.Variable(
                 "N_LEVELS",
@@ -1056,8 +1046,8 @@ def stack(
     ds_out.attrs.update(
         {
             **mooring_attrs(mooring_config),
-            "deployment_time": str(deploy_time),
-            "recovery_time": str(recover_time),
+            "deployment_time": _stage.iso_time(deploy_time),
+            "recovery_time": _stage.iso_time(recover_time),
             "dt_seconds": dt_seconds,
             masking.STACK_ATTR: masking.to_json(rule),
             "stack_mask_flag_sources": masking.FLAG_SOURCES,
@@ -1206,7 +1196,7 @@ def stack(
     return as_stored(ds_out)
 
 
-def mooring_attrs(mooring_config: Mapping) -> dict[str, str]:
+def mooring_attrs(mooring_config: Mapping) -> dict[str, Any]:
     """Return the mooring-level attributes a stack copies from its description.
 
     Parameters
@@ -1216,26 +1206,21 @@ def mooring_attrs(mooring_config: Mapping) -> dict[str, str]:
 
     Returns
     -------
-    dict of str to str
-        ``mooring_name``, ``waterdepth``, ``latitude``, ``longitude`` (the best
-        position the description gives: seabed, deployment, planned, then the bare
-        pair) and each ``<field>_source`` it states.
+    dict of str to Any
+        ``mooring_name``, ``waterdepth`` (m), ``latitude`` and ``longitude`` (decimal
+        degrees; the best position the description gives: seabed, deployment,
+        planned, then the bare pair), each when the description gives it, and each
+        ``<field>_source`` it states.
     """
-
-    def best(axis: str) -> str:
-        return str(
-            mooring_config.get(f"seabed_{axis}")
-            or mooring_config.get(f"deployment_{axis}")
-            or mooring_config.get(f"planned_{axis}")
-            or mooring_config.get(axis)
-            or ""
-        )
-
+    lat, lon, source = parse_latlon_with_source(mooring_config)
+    position = (
+        {} if is_unknown_latlon_source(source) else {"latitude": lat, "longitude": lon}
+    )
+    waterdepth = mooring_config.get("waterdepth")
     return {
         "mooring_name": str(mooring_config.get("name", "")),
-        "waterdepth": str(mooring_config.get("waterdepth", "")),
-        "latitude": best("latitude"),
-        "longitude": best("longitude"),
+        **({} if waterdepth is None else {"waterdepth": float(waterdepth)}),
+        **position,
         **{
             f"{field}_source": str(mooring_config[f"{field}_source"])
             for field in _mooring.SOURCE_FIELDS
@@ -1380,8 +1365,8 @@ def stack_stale_reason(
             return f"{label}{'s' if len(files) > 1 else ''}: {', '.join(files)}"
     expected = {
         **mooring_attrs(mooring),
-        "deployment_time": str(np.datetime64(mooring["deployment_time"], "ns")),
-        "recovery_time": str(np.datetime64(mooring["recovery_time"], "ns")),
+        "deployment_time": _stage.iso_time(mooring["deployment_time"]),
+        "recovery_time": _stage.iso_time(mooring["recovery_time"]),
     }
     for k in attrs:
         # A <field>_source the stack holds but the description no longer states.

@@ -99,6 +99,9 @@ def test_required_globals_present(stage3: xr.Dataset, description: dict) -> None
     assert out.attrs["format_version"] == "1.4"
     assert "OceanSITES-1.4" in out.attrs["Conventions"]
     assert out.attrs["time_coverage_start"].endswith("Z")
+    # From the time axis: the MicroCAT samples every 60 s, the Aquadopp every 120 s.
+    step = {"2941": "PT1M", "9920": "PT2M"}[stage3.attrs["serial"]]
+    assert out.attrs["time_coverage_resolution"] == step
 
 
 def test_site_code_only_from_the_array_description(description: dict) -> None:

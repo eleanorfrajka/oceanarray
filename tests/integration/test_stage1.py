@@ -39,9 +39,9 @@ class TestMicrocatStage1:
         for var in ("temperature", "conductivity"):
             assert var in self._ds.data_vars, f"missing {var}"
 
-    def test_serial_number_scalar(self):
-        assert "serial_number" in self._ds.data_vars
-        assert self._ds["serial_number"].dims == ()
+    def test_instrument_serial_is_a_text_scalar(self):
+        assert self._ds["instrument_serial"].dims == ()
+        assert self._ds["instrument_serial"].dtype.kind in "OU"
 
     def test_no_all_nan_temperature(self):
         assert not np.all(np.isnan(self._ds["temperature"].values))

@@ -515,12 +515,8 @@ def _stage3_instrument(
         ds = unify_velocity_qc(ds)
 
     if ds.attrs.get("coordinate_system") == "ENU" and coord_sys_before != "ENU":
-        beam_angle = ds.attrs.get("nortek_beam_angle", "?")
-        assumed = "ASSUMED DEFAULT" in ds.attrs.get("nortek_beam_angle_source", "")
         history_notes.append(
-            f"BEAM→ENU rotation applied: "
-            f"beam_angle={beam_angle}° "
-            f"({'ASSUMED DEFAULT — not from datasheet' if assumed else 'from YAML'}), "
+            f"BEAM→ENU rotation applied ({ds.attrs['coordinate_system_source']}), "
             + _declination_clause(ds.attrs.get("magnetic_declination"))
         )
     elif ds.attrs.get("magnetic_declination") == "UNK":

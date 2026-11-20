@@ -477,7 +477,11 @@ def find_deployment(
         ds["split_value"][i] = float(thr) if np.isfinite(thr) else np.nan
 
         # 5) print summary (same style as you had)
-        serial = str(ds["serial_number"].values[i]) if "serial_number" in ds else None
+        serial = (
+            str(ds["instrument_serial"].values[i])
+            if "instrument_serial" in ds
+            else None
+        )
         inst = str(ds["instrument"].values[i]) if "instrument" in ds else None
         label = f"{i}"
         if serial:

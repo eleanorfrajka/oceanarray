@@ -226,7 +226,7 @@ def draw_speed_boxplot(
     if speed_clean.size == 0:
         return None
 
-    units = params.vunit("speed") or ds[speed_var].attrs.get("units", "")
+    units = params.vunit("current_speed") or ds[speed_var].attrs.get("units", "")
     long_name = ds[speed_var].attrs.get("long_name", speed_var)
     ylabel = f"{long_name} ({units})" if units else long_name
 
@@ -679,7 +679,7 @@ def draw_aquadopp_speed_profile(
             color="#333",
         )
 
-    units = params.vunit("speed") or (
+    units = params.vunit("current_speed") or (
         ds[speed_var].attrs.get("units", "m/s") if speed_var in ds.data_vars else "m/s"
     )
     ax.set_xlabel(f"Current speed ({units})")
@@ -1538,7 +1538,7 @@ def draw_adcp_rose(
                 pad=0.08,
                 aspect=40,
             )
-            cbar.set_label(params.vlabel("speed"))
+            cbar.set_label(params.vlabel("current_speed"))
             cbar.set_ticks(spd_edges)
             cbar.set_ticklabels([f"{v:.2f}" for v in spd_edges])
 
@@ -2300,11 +2300,7 @@ def draw_speed_profile_by_deployment(
         plt.close(fig)
         return None
     _depth_axis(ax, by)
-    ax.set_xlabel(
-        params.vlabel("current_speed")
-        if "current_speed" in params.VARIABLES
-        else "Current speed (m/s)"
-    )
+    ax.set_xlabel(params.vlabel("current_speed"))
     ax.set_xlim(left=0)
     grid_despine(ax, axis="x")
     legend_below(

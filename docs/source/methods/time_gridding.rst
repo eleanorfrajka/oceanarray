@@ -144,7 +144,7 @@ Coordinates
 Scalar metadata
 ^^^^^^^^^^^^^^^
 
-Per-instrument scalar variables (such as ``InstrDepth`` and ``serial_number``) carried in
+Per-instrument scalar variables (such as ``instrument_depth`` and ``instrument_serial``) carried in
 the stage files are preserved as ``(N_LEVELS,)`` arrays in the stack file.
 
 Output file

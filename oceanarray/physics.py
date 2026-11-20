@@ -9,6 +9,7 @@ Functions
 ---------
 flow_direction : direction the water flows toward, degrees clockwise from north.
 speed_direction : current speed and flow direction.
+tilt : angle of an instrument's axis from vertical, from its pitch and roll.
 sigma_function : the TEOS-10 potential-density function for a reference pressure.
 potential_density_anomaly : σ at a reference pressure from Absolute Salinity and Conservative Temperature.
 """
@@ -59,6 +60,26 @@ def speed_direction(east: Any, north: Any) -> tuple[Any, Any]:
         :func:`flow_direction` of the components.
     """
     return np.hypot(east, north), flow_direction(east, north)
+
+
+def tilt(pitch: Any, roll: Any) -> Any:
+    """Return the angle of an instrument's axis from vertical, in degrees.
+
+    ``arccos(cos(pitch)·cos(roll))``: the geometric tilt, which is larger than
+    ``max(|pitch|, |roll|)`` whenever both are non-zero.
+
+    Parameters
+    ----------
+    pitch, roll : numpy.ndarray
+        Pitch and roll in degrees, of one shape.
+
+    Returns
+    -------
+    numpy.ndarray
+        Tilt in degrees; NaN where either angle is missing.
+    """
+    cos_t = np.cos(np.radians(pitch)) * np.cos(np.radians(roll))
+    return np.degrees(np.arccos(np.clip(cos_t, -1.0, 1.0)))
 
 
 def sigma_function(reference_dbar: int) -> Callable[[Any, Any], Any] | None:

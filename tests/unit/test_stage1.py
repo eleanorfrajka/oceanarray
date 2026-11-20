@@ -295,16 +295,18 @@ class TestMooringProcessor:
 
         updated_ds = s1._add_global_attributes(ds, yaml_data)
 
-        assert updated_ds.attrs["mooring_name"] == "test_mooring"
-        assert updated_ds.attrs["waterdepth"] == 1000
-        assert updated_ds.attrs["longitude"] == -30.0
-        assert updated_ds.attrs["latitude"] == 60.0
-        assert updated_ds.attrs["deployment_latitude"] == "60 00.000 N"
-        assert updated_ds.attrs["deployment_longitude"] == "030 00.000 W"
-        assert updated_ds.attrs["deployment_time"] == "2018-08-12T08:00:00"
-        assert updated_ds.attrs["seabed_latitude"] == "59 59.500 N"
-        assert updated_ds.attrs["seabed_longitude"] == "030 00.500 W"
-        assert updated_ds.attrs["recovery_time"] == "2018-08-26T20:47:24"
+        attrs = updated_ds.attrs
+        assert attrs["mooring_name"] == "test_mooring"
+        assert attrs["waterdepth"] == 1000
+        # The best position the description gives (seabed), in decimal degrees.
+        assert attrs["latitude"] == pytest.approx(59 + 59.5 / 60)
+        assert attrs["longitude"] == pytest.approx(-(30 + 0.5 / 60))
+        assert attrs["deployment_latitude"] == 60.0
+        assert attrs["deployment_longitude"] == -30.0
+        assert attrs["seabed_latitude"] == pytest.approx(59 + 59.5 / 60)
+        assert attrs["seabed_longitude"] == pytest.approx(-(30 + 0.5 / 60))
+        assert attrs["deployment_time"] == "2018-08-12T08:00:00Z"
+        assert attrs["recovery_time"] == "2018-08-26T20:47:24Z"
 
     def test_add_global_attributes_minimal(self):
         """Test adding global attributes with minimal YAML data."""
@@ -325,12 +327,11 @@ class TestMooringProcessor:
 
         assert updated_ds.attrs["longitude"] == 0.0
         assert updated_ds.attrs["latitude"] == 0.0
-        assert updated_ds.attrs["deployment_latitude"] == "00 00.000 N"
-        assert updated_ds.attrs["deployment_longitude"] == "000 00.000 W"
         assert updated_ds.attrs["deployment_time"] == "YYYY-mm-ddTHH:MM:ss"
-        assert updated_ds.attrs["seabed_latitude"] == "00 00.000 N"
-        assert updated_ds.attrs["seabed_longitude"] == "000 00.000 W"
         assert updated_ds.attrs["recovery_time"] == "YYYY-mm-ddTHH:MM:ss"
+        # A position the description does not give is left out, not a text placeholder.
+        for key in ("deployment_latitude", "seabed_latitude", "seabed_longitude"):
+            assert key not in updated_ds.attrs
 
 
 class TestErrorHandling:

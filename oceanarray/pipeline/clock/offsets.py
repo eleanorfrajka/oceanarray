@@ -72,12 +72,8 @@ def load_mooring_instruments(
             ds1 = xr.open_dataset(rawfile)
 
             # Add metadata from YAML
-            if "InstrDepth" not in ds1.variables and "depth" in i:
-                ds1["InstrDepth"] = i["depth"]
             if "instrument" not in ds1.variables and "instrument" in i:
                 ds1["instrument"] = i["instrument"]
-            if "serial_number" not in ds1.variables and "serial" in i:
-                ds1["serial_number"] = i["serial"]
             if "timeS" in ds1.variables:
                 ds1 = ds1.drop_vars("timeS")
 
@@ -167,8 +163,8 @@ def interpolate_datasets_to_grid(datasets, time_grid):
             if interp_vars:
                 ds_interp = xr.Dataset(interp_vars, coords={"time": time_grid})
 
-                if "InstrDepth" in ds:
-                    ds_interp = ds_interp.assign_coords(depth=ds["InstrDepth"])
+                if "instrument_depth" in ds:
+                    ds_interp = ds_interp.assign_coords(depth=ds["instrument_depth"])
                 if "clock_offset" in ds:
                     ds_interp = ds_interp.assign_coords(
                         seconds_offset=ds["clock_offset"]
@@ -236,8 +232,12 @@ def combine_interpolated_datasets(datasets_interp):
     instrtype = []
 
     for ds in datasets_clean:
-        depths.append(float(ds["InstrDepth"].item()) if "InstrDepth" in ds else np.nan)
-        serial.append(ds["serial_number"].item() if "serial_number" in ds else np.nan)
+        depths.append(
+            float(ds["instrument_depth"].item()) if "instrument_depth" in ds else np.nan
+        )
+        serial.append(
+            ds["instrument_serial"].item() if "instrument_serial" in ds else np.nan
+        )
         instrtype.append(ds["instrument"].item() if "instrument" in ds else "unknown")
 
         if "clock_offset" in ds:

@@ -541,9 +541,9 @@ ALL_FILE_TYPES: frozenset = frozenset(
 #:     without a natural diverging / sequential convention.
 #: ``valid_min`` / ``valid_max``
 #:     CF ``valid_min`` / ``valid_max`` attributes written to NetCDF output
-#:     (physically valid range).  Present only where
-#:     :file:`legacy/OS1_variable_attributes.yaml` provides an authoritative value;
-#:     absent for other variables.
+#:     (physically valid range): from :file:`legacy/OS1_variable_attributes.yaml`
+#:     where it gives one, else the gross-range ``fail_span`` of
+#:     :data:`QC_GROSS_RANGE` (a value outside it is flagged bad).
 VARIABLES: dict[str, dict] = {
     "temperature": {
         "label": "Temperature",
@@ -649,8 +649,8 @@ VARIABLES: dict[str, dict] = {
         "standard_name": "upward_sea_water_velocity",
         "cmap": "RdBu_r",
     },
-    "speed": {
-        "label": "Speed",
+    "current_speed": {
+        "label": "Current speed",
         "units": "m s-1",
         "standard_name": "sea_water_speed",
         "cmap": "plasma",
@@ -762,6 +762,32 @@ VARIABLES: dict[str, dict] = {
     },
 }
 
+for _var, _ranges in QC_GROSS_RANGE.items():
+    if _var in VARIABLES and "fail_span" in _ranges:
+        VARIABLES[_var].setdefault("valid_min", float(_ranges["fail_span"][0]))
+        VARIABLES[_var].setdefault("valid_max", float(_ranges["fail_span"][1]))
+
+
+def cf_attrs(var: str) -> dict[str, str]:
+    """Return the CF ``standard_name``, ``units`` and ``long_name`` of *var* from :data:`VARIABLES`.
+
+    Parameters
+    ----------
+    var : str
+        A registered variable name.
+
+    Returns
+    -------
+    dict of str to str
+        The attributes the registry gives (no ``standard_name`` where none exists).
+    """
+    entry = VARIABLES[var]
+    attrs = {"units": entry["units"], "long_name": entry["label"]}
+    if entry.get("standard_name"):
+        attrs["standard_name"] = entry["standard_name"]
+    return attrs
+
+
 #: Colormap lookup derived from :data:`VARIABLES` — single source of truth so
 #: the two cannot drift.  Excludes entries where ``cmap`` is ``None``.
 CMAPS_BY_VARIABLE: dict[str, str] = {
@@ -822,7 +848,7 @@ VAR_COLORS: dict[str, str] = {
     "v": "#0072B2",
     "up_velocity": "#CC79A7",  # reddish purple (W)
     "w": "#CC79A7",
-    "speed": "#D55E00",
+    "current_speed": "#D55E00",
     # Biogeochemistry — Paul Tol
     "dissolved_oxygen": "#332288",  # indigo
     "dissolved_oxygen_2": "#332288",

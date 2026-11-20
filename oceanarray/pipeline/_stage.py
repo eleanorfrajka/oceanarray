@@ -14,12 +14,87 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import pandas as pd
 import xarray as xr
 
 from oceanarray import provenance
 from oceanarray.exceptions import MooringError
+from oceanarray.instruments import nominal_depth
 
 STAGE_ATTR = "processing_stage"
+
+
+#: Attributes of the instrument's identity scalars.
+IDENTITY_ATTRS: dict[str, dict[str, str]] = {
+    "instrument_depth": {
+        "units": "m",
+        "long_name": "nominal instrument depth",
+        "comment": "design depth below the surface, from the mooring description",
+    },
+    "instrument_serial": {
+        "long_name": "the instrument's serial number; shared by all bins of one ADCP"
+    },
+}
+
+
+#: The names stage files before 0.6.1 gave the identity scalars.
+OLD_IDENTITY_NAMES: dict[str, str] = {
+    "InstrDepth": "instrument_depth",
+    "serial_number": "instrument_serial",
+}
+
+
+def identity_variables(
+    entry: Mapping, waterdepth: float | None
+) -> dict[str, xr.Variable]:
+    """Return an instrument's ``instrument_serial`` and ``instrument_depth`` scalars.
+
+    Parameters
+    ----------
+    entry : Mapping
+        The instrument entry of the mooring description.
+    waterdepth : float or None
+        The mooring's water depth (m).
+
+    Returns
+    -------
+    dict of str to xarray.Variable
+        ``instrument_serial`` (text) when the entry has a serial, and
+        ``instrument_depth`` (m) when :func:`oceanarray.instruments.nominal_depth`
+        gives one.
+    """
+    out = {}
+    if entry.get("serial") is not None:
+        out["instrument_serial"] = xr.Variable(
+            (), str(entry["serial"]), IDENTITY_ATTRS["instrument_serial"]
+        )
+    depth = nominal_depth(dict(entry), waterdepth)
+    if depth is not None:
+        out["instrument_depth"] = xr.Variable(
+            (), depth, IDENTITY_ATTRS["instrument_depth"]
+        )
+    return out
+
+
+def iso_time(value: object) -> str:
+    """Return an instant as ISO 8601 UTC to the second, ``YYYY-MM-DDThh:mm:ssZ``.
+
+    The OceanSITES 1.4 form (manual §2.2) for time attributes.
+
+    Parameters
+    ----------
+    value : object
+        A time :class:`pandas.Timestamp` accepts (string, datetime, datetime64).
+
+    Returns
+    -------
+    str
+        The time, truncated to whole seconds.
+    """
+    ts = pd.Timestamp(value)
+    if ts.tzinfo is not None:
+        ts = ts.tz_convert("UTC")
+    return ts.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 class StageError(MooringError):

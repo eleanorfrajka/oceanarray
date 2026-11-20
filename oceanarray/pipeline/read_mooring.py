@@ -44,7 +44,6 @@ _TIME_PLACEHOLDER = "YYYY-mm-ddTHH:MM:ss"
 _INSTRUMENT_ATTRS = (
     "hab",
     "clamp_id",
-    "sample_interval_seconds",
     "file_type",
 )
 
@@ -77,8 +76,23 @@ def _resolve_description(
     return _mooring.load(path), Path(mooring_dir or path.parent)
 
 
-def _mooring_attrs(cfg: Mapping[str, Any]) -> dict[str, Any]:
-    """Return the per-mooring header attributes, stamped on every instrument."""
+def header_attrs(cfg: Mapping[str, Any], *, warn: bool = True) -> dict[str, Any]:
+    """Return the per-mooring header attributes, stamped on every instrument.
+
+    Parameters
+    ----------
+    cfg : Mapping
+        The loaded mooring description.
+    warn : bool, optional
+        Warn when the position or deployment window is missing (default True).
+
+    Returns
+    -------
+    dict of str to Any
+        ``mooring_name``, ``latitude`` / ``longitude`` (decimal degrees) with their
+        source, the deployment window (ISO 8601) and, when given, ``waterdepth``
+        and ``density_reference``.
+    """
     # Position and deployment window are always stamped (placeholder + *_source
     # "none" when absent); other header values are omitted, never defaulted.
     name = cfg.get("name")
@@ -91,12 +105,13 @@ def _mooring_attrs(cfg: Mapping[str, Any]) -> dict[str, Any]:
     attrs["longitude"] = lon
     if is_unknown_latlon_source(source):
         attrs["location_source"] = "none"
-        warnings.warn(
-            f"{name}: no position in the mooring description "
-            f"(seabed_/deployment_/planned_latitude or latitude); "
-            f"stamping latitude=0, longitude=0 with location_source='none'.",
-            stacklevel=2,
-        )
+        if warn:
+            warnings.warn(
+                f"{name}: no position in the mooring description "
+                f"(seabed_/deployment_/planned_latitude or latitude); "
+                f"stamping latitude=0, longitude=0 with location_source='none'.",
+                stacklevel=2,
+            )
     else:
         attrs["location_source"] = source
         lat_s, lon_s = format_latlon(lat, lon)
@@ -106,19 +121,20 @@ def _mooring_attrs(cfg: Mapping[str, Any]) -> dict[str, Any]:
     deploy = cfg.get("deployment_time")
     recover = cfg.get("recovery_time")
     if deploy is not None and recover is not None:
-        attrs["deployment_time"] = str(deploy)
-        attrs["recovery_time"] = str(recover)
+        attrs["deployment_time"] = _stage.iso_time(deploy)
+        attrs["recovery_time"] = _stage.iso_time(recover)
         attrs["deployment_window_source"] = "deployment_time/recovery_time"
     else:
         attrs["deployment_time"] = _TIME_PLACEHOLDER
         attrs["recovery_time"] = _TIME_PLACEHOLDER
         attrs["deployment_window_source"] = "none"
-        warnings.warn(
-            f"{name}: no deployment window in the mooring description "
-            f"(deployment_time/recovery_time); stamping the placeholder with "
-            f"deployment_window_source='none'.",
-            stacklevel=2,
-        )
+        if warn:
+            warnings.warn(
+                f"{name}: no deployment window in the mooring description "
+                f"(deployment_time/recovery_time); stamping the placeholder with "
+                f"deployment_window_source='none'.",
+                stacklevel=2,
+            )
 
     for key in ("waterdepth", "density_reference"):
         if cfg.get(key) is not None:
@@ -188,7 +204,7 @@ def read_mooring(
 
     name = cfg["name"]
     wanted = {paths.safe_serial(s) for s in serials} if serials is not None else None
-    moor_attrs = _mooring_attrs(cfg)
+    moor_attrs = header_attrs(cfg)
 
     datasets: dict[str, xr.Dataset] = {}
     for entry in instrument_entries(cfg):
@@ -270,7 +286,7 @@ def join_raw(
             "'instrument' key; it names the subdirectory and the stamped "
             "instrument type, so it cannot be defaulted."
         )
-    return _join_description(ds, entry, serial, instr_type, _mooring_attrs(mooring))
+    return _join_description(ds, entry, serial, instr_type, header_attrs(mooring))
 
 
 def _join_description(

@@ -9,6 +9,7 @@ import numpy as np
 import xarray as xr
 
 from oceanarray import logger
+from oceanarray.config import parameters as params
 from oceanarray.physics import flow_direction
 
 log = logging.getLogger(__name__)
@@ -288,52 +289,19 @@ def _beam_to_enu(
     direction = np.where(both, flow_direction(east, north), np.nan)
 
     time_dim = ds["heading"].dims[0]
-    for name, arr, cf, units, long_name in [
-        (
-            "east_velocity",
-            east,
-            "eastward_sea_water_velocity",
-            "m s-1",
-            "Eastward sea water velocity",
-        ),
-        (
-            "north_velocity",
-            north,
-            "northward_sea_water_velocity",
-            "m s-1",
-            "Northward sea water velocity",
-        ),
-        (
-            "up_velocity",
-            up,
-            "upward_sea_water_velocity",
-            "m s-1",
-            "Upward sea water velocity",
-        ),
-        (
-            "current_speed",
-            speed,
-            "sea_water_speed",
-            "m s-1",
-            "Horizontal current speed",
-        ),
-        (
-            "current_direction",
-            direction,
-            "sea_water_velocity_to_direction",
-            "degrees",
-            "Current direction (0=N, clockwise)",
-        ),
-    ]:
-        ds[name] = xr.Variable(
-            time_dim,
-            arr,
-            attrs={"units": units, "standard_name": cf, "long_name": long_name},
-        )
+    for name, arr in (
+        ("east_velocity", east),
+        ("north_velocity", north),
+        ("up_velocity", up),
+        ("current_speed", speed),
+        ("current_direction", direction),
+    ):
+        ds[name] = xr.Variable(time_dim, arr, attrs=params.cf_attrs(name))
 
     ds.attrs["coordinate_system"] = "ENU"
     ds.attrs["coordinate_system_source"] = (
-        f"rotated from {coord_sys} by oceanarray stage3"
+        f"rotated from {coord_sys} by oceanarray stage3; transformation matrix "
+        f"{T_source}"
     )
     log.info(
         f"  BEAM→ENU: produced east/north/up_velocity, current_speed, current_direction "
