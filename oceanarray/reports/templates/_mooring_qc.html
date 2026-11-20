@@ -21,6 +21,7 @@
 <p class="caption">
   Share of each variable's samples in each quality class, on the OceanSITES flag scale
   used throughout these pages: oceanarray's and the originator's, the originator's translated by their meaning.
+  {%- if qc.rows | map(attribute="by") | unique | list | length > 1 %} Rows per flag source; figures mark the worse of the two.{% endif %}
   Only variables with anything not flagged good are listed. {{ good_sentence }} HAB: height above bottom.
 </p>
 <div class="qc-legend">

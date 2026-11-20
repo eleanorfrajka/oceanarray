@@ -56,6 +56,7 @@ def cmd_report(args: argparse.Namespace) -> int:
                 proc_dir=proc_root,
                 report_dir=report_dir,
                 force=args.force,
+                bathymetry=getattr(args, "bathymetry", None),
             )
         except MooringError as e:
             logger.status("error", str(e))
@@ -219,8 +220,9 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
             "  oceanarray report /data/proc/dsG3_1_2026\n"
             "  # every page, and the PDF\n"
             "  oceanarray report dsG3_1_2026 --proc-dir /data/proc --all --pdf\n"
-            "  # the array index\n"
-            "  oceanarray report /data/proc/MIXSED2026.array.yaml --array"
+            "  # the year page, with depth contours\n"
+            "  oceanarray report /data/proc/MIXSED2026.array.yaml --array \\\n"
+            "      --bathymetry /data/GEBCO_2025.nc"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -287,6 +289,14 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
         help="Treat the positional argument as an array YAML path (name ending "
         ".array.yaml) and generate an array-level HTML index linking all mooring "
         "reports.  --report-dir is the output root for the index.",
+    )
+    p_report.add_argument(
+        "--bathymetry",
+        type=Path,
+        default=None,
+        metavar="FILE",
+        help="With --array: a bathymetry file (GEBCO or ETOPO) for the depth contours "
+        "on the map.",
     )
     p_report.add_argument(
         "--cruise-table",

@@ -6,6 +6,7 @@ import argparse
 from pathlib import Path
 
 from oceanarray.cli._common import _add_dir_args, _add_mask_flags_arg, _mask_flags
+from oceanarray.cli._deprecate import DeprecatedAlias
 from oceanarray.cli.validate import _description_path
 
 
@@ -33,7 +34,6 @@ def cmd_concat(args: argparse.Namespace) -> int:
                 pmin=args.pmin,
                 pmax=args.pmax,
                 dp=args.dp,
-                slope_angle=args.slope_angle,
                 overwrite=args.force,
             )
     except MooringError as exc:
@@ -49,7 +49,10 @@ def cmd_concat(args: argparse.Namespace) -> int:
             from oceanarray.reports._gridcat import generate_gridcat_page
 
             generate_gridcat_page(
-                gridded, out.parent / "report", report_dir=args.report_dir
+                gridded,
+                out.parent / "report",
+                report_dir=args.report_dir,
+                rotate_to=args.rotate_to,
             )
     return 0
 
@@ -133,14 +136,23 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
     )
     _add_mask_flags_arg(p, from_description=False)
     p.add_argument(
-        "--slope-angle",
+        "--rotate-to",
         type=float,
         default=None,
         metavar="DEG",
         help=(
-            "Along-slope direction, degrees clockwise from north (default: the "
-            "direction of the mean flow, when it is steady enough)"
+            "The Grid cat page shows the velocity toward this direction and across "
+            "it, degrees clockwise from true north (default: the direction of the "
+            "mean flow, when it is steady enough)"
         ),
+    )
+    p.add_argument(
+        "--slope-angle",
+        dest="rotate_to",
+        type=float,
+        action=DeprecatedAlias,
+        new="--rotate-to",
+        help=argparse.SUPPRESS,
     )
     p.add_argument(
         "--report-dir",

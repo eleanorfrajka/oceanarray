@@ -9,8 +9,10 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Added
 
-- Year array page: header (year deployed, project, moorings, status, water depth, instruments), moorings coloured by `line:`, one moorings table with "14 of 15" instruments.
-- Array YAML `bathymetry:` (or `generate_array_report(bathymetry=)`): 500–2500 m depth contours on the year page's map from a GEBCO or ETOPO file, cached beside the page.
+- Year page "OSNAP East 2016": header with moorings per array, deployed and recovered dates with cruises and ships, instruments by function; one moorings table with "14 of 15" instruments.
+- Year page: moorings grouped by `subarray:` in the array YAML, named in a `subarrays:` table (full name in the table, short name in the map legend).
+- `report --array --bathymetry FILE` / `oa.report(kind="array", bathymetry=)`: 500–2500 m contours on the year page's map from a GEBCO or ETOPO file, named from its title.
+- Grid cat: velocity rotated to the record-mean flow at page time, or to `concat --rotate-to DEG` / `generate_gridcat_page(rotate_to=)`; the unsteady-flow warning is the page's.
 - Stack cat and Grid cat: a deployment with values at a depth for less than half its time is left out of every figure, and the captions name it.
 - Deployment page QC summary reads the originator's flags (`*_qc_originator_mapped`) beside oceanarray's, in a "Flags by" column.
 - Instrument page header: "{Type} {serial} · {depth} m", nominal depth, HAB, start/end, sampling interval, records, and the originator's file (or ERDDAP dataset) linked to its archive.
@@ -55,10 +57,16 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 - Stack cat: roses share one ring scale, direction profile drops the steadiness markers, T-S medians lose "Draft"; one NetCDF file appendix.
 - Stack cat and Grid cat processing tables are read from `history`, one dated row per step, with each deployment's own table collapsed below.
 - Stack cat Instruments table: reader type names and a generated caption; Deployments table without "#", its caption the one place the overlap block is named.
-- Grid cat: one intro above the sections; isopycnals labelled "σ₀ 27.7" in the right margin with a thin white edge; "Mean direction" / "Cross direction".
+- Grid cat: one intro above the sections; isopycnals labelled "σ₀ 27.7" in the right margin with a thin white edge; "Mean direction (X°)" / "Cross direction".
+- Grid cat: a given rotation is titled "Towards X°" / "Across (towards X+90°)"; cropped velocity panels share one pressure label and no longer crowd.
+- Stack cat, Grid cat and year page name instruments by function (CTD, current meter, temperature logger, ADCP; CM, T); deployment and instrument pages keep the model.
+- Stack cat: a depth label takes its type only where two depths round alike in the same figure (hydrography legend), e.g. "2724 m CTD".
+- Stack cat direction profile: a bar past the axis edge stops there with an arrow.
+- T-S σθ labels: placed along each contour (two on a long one) and kept unless within 1 % of the frame, so every contour drawn has one.
+- Deployment QC table: the caption says rows are per flag source and figures mark the worse of the two, when both sources are present.
 - Grid cat T-S: σ₀ dashed and σ₂ solid over the full range of the medians; velocity profiles cropped to their pressures with a dashed zero line.
 - `concat` and `grid` write one dated `history` entry per step (join, overlaps, flags, grid) in place of one undated line.
-- Durations use one unit per table: decimal years past a year, else months past a month, else days ("13.6 days" for "13d 15h").
+- Durations use one unit per table, named in the column header: decimal years past a year, else months past a month, else days (13.6 for "13d 15h").
 - The instrument header's sampling interval is the median time step (was the 90th percentile).
 - Instrument page: files table, history record, start/end windows and value distributions move into a collapsed Processing section; one NetCDF file appendix.
 - Instrument time series and T-S mark the worse of the originator's and our flags: dots suspect, crosses bad, legend in words; captions generated from the file.
@@ -131,7 +139,9 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Breaking changes
 
-- The array page no longer shows the array YAML's cruise, ship, dates, position or water-depth range, nor its `vocab` names; values come from the mooring YAMLs.
+- The year page ignores the array YAML's cruise, ship, dates, position, water-depth range, `vocab` and `bathymetry` (one warning names them); values come from the mooring YAMLs.
+- Site grids no longer record `slope_angle_deg` / `slope_angle_source`; `concat --slope-angle` and `grid(slope_angle=)` warn until 0.7.0 (use `--rotate-to`).
+- `site.slope_components` is `site.rotated_components`; `SLOPE_STEADINESS_MIN` is `ROTATION_STEADINESS_MIN`.
 - The stack keeps every value with ours and the originator's flags; suspect (3) values are shown and gridded by default (`stack: mask_flags: [3, 4]` keeps the old way).
 - In the stack and Stack cat a value with no flag variable is 0 (not QC'd) and a missing one 9; flags are int8.
 - Interpolated pressure never uses an input flagged 4 or 9; such times are missing (9), not interpolated.
@@ -140,6 +150,8 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Fixed
 
+- Stack cat and Grid cat sections: deployment names beyond the time axis no longer collapse the figure's layout (titles crowded the panel above).
+- The year page creates its report folder when it does not exist.
 - Year array page: a mooring YAML whose `waterdepth` is text ("unknown") no longer stops the page; the table shows the text, the header and map leave it out.
 - Deployment page QC summary reads character flags (originator files) as numbers; a variable whose flags are not digits is left out with a warning.
 - Grid cat T-S diagram pairs each deployment's instrument circles with its curve by deployment name, not by position.

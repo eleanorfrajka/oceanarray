@@ -1,6 +1,6 @@
 {# One row per deployment of a concatenated stack (the `deployments` panel). #}
 <table class="instr-table">
-  <thead><tr><th>Deployment</th><th>Deployed</th><th>Recovered</th><th>Duration</th>
+  <thead><tr><th>Deployment</th><th>Deployed</th><th>Recovered</th><th>Duration<span class="th-unit">{{ rows[0].duration_unit }}</span></th>
   <th>Latitude</th><th>Longitude</th><th>Water depth (m)</th><th>Instruments</th>
   <th>Cruises</th><th>To next</th>{% if show_doi %}<th>Source DOI</th>{% endif %}</tr></thead>
   <tbody>

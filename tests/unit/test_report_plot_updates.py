@@ -275,5 +275,5 @@ def test_the_grid_cat_pins_pair_with_their_deployment_by_name(egm2_site, monkeyp
         return draw(*args, **kwargs)
 
     monkeypatch.setattr(site_plots, "draw_site_ts", spy)
-    _quiet(_gridcat._figures, grid, stack, helpers.short_names(names))
+    _quiet(_gridcat._figures, grid, stack, helpers.short_names(names), None, False)
     assert seen["pins"] == [[], own[1]]

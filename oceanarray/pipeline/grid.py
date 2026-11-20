@@ -10,7 +10,7 @@ import xarray as xr
 
 from oceanarray import logger, paths, provenance
 from oceanarray.config import parameters as params
-from oceanarray.physics import flow_direction, speed_direction
+from oceanarray.physics import speed_direction
 from oceanarray.pipeline import _stage, attribution, masking
 from oceanarray.pipeline._run import DEFAULTS
 from oceanarray.pipeline.concat import chunks, is_site_stack, own_levels
@@ -77,8 +77,8 @@ def grid(
     A site stack (:func:`oceanarray.pipeline.concat.concat` output) is gridded one
     mooring per profile: at each step only the levels of the deployment
     ``deployment_index`` names; the overlap block is not gridded, and turnarounds
-    stay empty. Its grid also carries ``deployment_index``, the ``DEPLOYMENT``
-    record, and the along-slope angle.
+    stay empty. Its grid also carries ``deployment_index`` and the ``DEPLOYMENT``
+    record.
 
     Parameters
     ----------
@@ -93,11 +93,8 @@ def grid(
         least what the stack's does; default the stack's rule. Recorded as
         ``grid_mask_flags``.
     slope_angle : float, optional
-        Site stack only: the along-slope direction, in degrees clockwise from
-        north. Default: the direction of the record-mean, depth-mean velocity,
-        when the flow is steady enough (``parameters.SLOPE_STEADINESS_MIN``);
-        otherwise none, with a warning. Recorded as ``slope_angle_deg`` with
-        ``slope_angle_source``.
+        Deprecated and ignored: the Grid cat report chooses the rotation
+        (``rotate_to=``). Removed in 0.7.0.
 
     Returns
     -------
@@ -122,8 +119,16 @@ def grid(
         masking.from_attrs(ds_stack.attrs),
         None if mask_flags is None else resolve_mask_flags(mask_flags),
     )
-    if slope_angle is not None and not np.isfinite(float(slope_angle)):
-        raise ValueError(f"slope_angle={slope_angle!r} is not a finite number")
+    if slope_angle is not None:
+        from oceanarray._deprecated import REMOVED_IN
+
+        warnings.warn(
+            f"slope_angle= is deprecated, ignored, and removed in {REMOVED_IN}; the "
+            "grid no longer records a rotation: use rotate_to= of the Grid cat "
+            "report (oceanarray concat --rotate-to).",
+            DeprecationWarning,
+            stacklevel=2,
+        )
     p_grid = np.arange(pmin, pmax + dp * 0.5, dp)
     n_p = len(p_grid)
 
@@ -269,8 +274,6 @@ def grid(
             else ""
         ),
     )
-    if site:
-        ds_out.attrs.update(_slope_attrs(ds_out, slope_angle))
     # The grid's own citation, built from the sources it was derived from (each
     # deployment's, on a site grid).
     record = {
@@ -313,63 +316,6 @@ def _speed_direction(
             },
         )
         for name in values
-    }
-
-
-def _slope_attrs(ds: xr.Dataset, slope_angle: float | None) -> dict[str, object]:
-    """Return the along-slope angle attributes of a site grid.
-
-    Without a given angle, the direction of the record-mean, depth-mean velocity,
-    when the flow is steady enough to have one: its steadiness (the mean velocity's
-    speed over the mean of the daily speeds) must reach
-    ``parameters.SLOPE_STEADINESS_MIN``. Otherwise no angle is recorded and the
-    reason is.
-    """
-    if slope_angle is not None:
-        return {
-            "slope_angle_deg": float(slope_angle) % 360.0,
-            "slope_angle_source": "given",
-        }
-    if "east_velocity" not in ds or "north_velocity" not in ds:
-        return {}
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", RuntimeWarning)  # an empty step's mean
-        daily = (
-            ds[["east_velocity", "north_velocity"]]
-            .mean("pressure", skipna=True)
-            .resample(time="1D")
-            .mean()
-        )
-    east = daily["east_velocity"].values
-    north = daily["north_velocity"].values
-    ok = np.isfinite(east) & np.isfinite(north)
-    if not ok.any():
-        return {}
-    mean_east, mean_north = east[ok].mean(), north[ok].mean()
-    mean_speed = float(np.hypot(east[ok], north[ok]).mean())
-    # No flow at all has no direction (and would divide by zero).
-    steadiness = (
-        float(np.hypot(mean_east, mean_north)) / mean_speed if mean_speed > 0 else 0.0
-    )
-    if not steadiness >= params.SLOPE_STEADINESS_MIN:
-        log.warning(
-            f"no along-slope direction: the mean flow is weak against its "
-            f"variability (steadiness {steadiness:.2f} < "
-            f"{params.SLOPE_STEADINESS_MIN:g}); give slope_angle (--slope-angle)."
-        )
-        return {
-            "slope_angle_source": (
-                f"none: steadiness {steadiness:.2f} of the daily-mean, depth-mean "
-                f"velocity is below {params.SLOPE_STEADINESS_MIN:g}"
-            )
-        }
-    angle = float(flow_direction(mean_east, mean_north))
-    return {
-        "slope_angle_deg": round(angle, 1),
-        "slope_angle_source": (
-            "direction of the record-mean, depth-mean velocity "
-            f"(steadiness {steadiness:.2f})"
-        ),
     }
 
 
@@ -568,7 +514,7 @@ def grid_site(
     mask_flags : iterable of int, or Mapping of str to iterable of int, optional
         As for :func:`grid`.
     slope_angle : float, optional
-        As for :func:`grid`.
+        Deprecated and ignored, as for :func:`grid`.
     overwrite : bool, optional
         Replace an existing site grid.
 

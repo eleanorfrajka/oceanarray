@@ -657,13 +657,23 @@ def test_the_history_records_each_step_dated(flmb_site):
 
 
 def test_depths_are_named_by_depth_and_told_apart_by_type(flmb_site):
-    """ "1824 m" for a depth; the MicroCAT and current meter at one depth add their type."""
-    from oceanarray.reports._concat import _depth_names
+    """ "1824 m" for a depth; the CTD and current meter at one depth add their type
+    only where both are drawn (the hydrography legend, where both have temperature)."""
+    import numpy as np
 
-    names = _depth_names(flmb_site)
-    assert "30 m" in names
-    assert {"1824 m MC", "1824 m CM"} <= set(names)
-    assert not any("≈" in n or "T/S" in n for n in names)
+    from oceanarray.reports._concat import _depth_names, _report_view
+
+    unique = _depth_names(flmb_site)
+    assert "30 m" in unique
+    assert {"1824 m CTD", "1824 m CM"} <= set(unique)
+    assert not any("≈" in n or "T/S" in n for n in unique)
+    plain = _depth_names(flmb_site, np.zeros(flmb_site.sizes["N_DEPTHS"], bool))
+    assert "1824 m CTD" not in plain and plain.count("1824 m") == 2
+    held = np.isfinite(flmb_site["temperature"].values).any(0)
+    assert {"1824 m CTD", "1824 m CM"} <= set(_depth_names(flmb_site, held))
+    # The figures read the plain label; level_id stays unique.
+    view = _report_view(flmb_site)
+    assert "2724 m" in view["serial"].values and "2724 m CM" in view["level_id"].values
 
 
 def test_a_short_record_is_left_out_of_every_figure_and_named(flmb_site):
@@ -671,7 +681,7 @@ def test_a_short_record_is_left_out_of_every_figure_and_named(flmb_site):
     from oceanarray.reports._concat import _drop_short, _page_captions, _report_view
 
     view = _report_view(flmb_site)
-    j = list(view["serial"].values).index("2724 m CM")
+    j = list(view["level_id"].values).index("2724 m CM")
     cell = view["cell_deployment"].values[:, j]
     first = np.flatnonzero(cell == 0)
     cut = view.copy(deep=True)
@@ -680,13 +690,13 @@ def test_a_short_record_is_left_out_of_every_figure_and_named(flmb_site):
     dropped, left_out = _drop_short(
         cut, cut["cell_deployment"].values, ["2016", "2017"], cut["serial"].values
     )
-    assert left_out == {"velocity": ["2016 at 2724 m CM"]}
+    assert left_out == {"velocity": ["2016 at 2724 m"]}
     assert np.isnan(dropped["east_velocity"].values[first, j]).all()
     assert np.isfinite(dropped["temperature"].values[first, j]).any()
     captions = _page_captions(flmb_site, dropped, {}, left_out, False, [])
-    assert "(2016 at 2724 m CM)" in captions["speed_profile"]
-    assert "2016 at 2724 m CM" in captions["roses"]
-    assert "2016 at 2724 m CM" not in captions["ts_points"]
+    assert "(2016 at 2724 m)" in captions["speed_profile"]
+    assert "2016 at 2724 m" in captions["roses"]
+    assert "2016 at 2724 m" not in captions["ts_points"]
     # Oxygen goes with the hydrography; turbidity keeps the deployment marks.
     short = {"hydrography": ["2016 at 30 m"]}
     captions = _page_captions(flmb_site, view, {}, short, False, [])
@@ -699,16 +709,16 @@ def test_the_short_record_rule_is_worded_from_its_fraction(flmb_site, monkeypatc
     from oceanarray.reports._concat import _page_captions, _report_view
 
     monkeypatch.setattr(params, "MIN_RECORD_FRACTION", 0.3)
-    short = {"velocity": ["2016 at 2724 m CM"]}
+    short = {"velocity": ["2016 at 2724 m"]}
     captions = _page_captions(flmb_site, _report_view(flmb_site), {}, short, False, [])
     assert "less than 30 % of their time" in captions["speed_profile"]
     assert "less than 30 % of their deployment" in captions["roses"]
     assert "half" not in captions["speed_profile"] + captions["roses"]
 
 
-def test_the_instruments_caption_keys_the_types_the_cells_show(stacks, tmp_path):
-    """Paired at 100 m, the current meter and the Aquadopp share a row; only their
-    cells show a type, and the key names those two."""
+def test_instruments_are_named_by_function_not_model(stacks, tmp_path):
+    """Paired at 100 m, the RCM and the Aquadopp share a row as one function: the row
+    reads "current meter", no cell names a type, and the caption has no key."""
     from oceanarray.reports._concat import _depth_rows, _page_captions, _report_view
 
     wide = []
@@ -720,15 +730,12 @@ def test_the_instruments_caption_keys_the_types_the_cells_show(stacks, tmp_path)
         wide.append(s)
     out = concat(wide, name="egM2")
     rows = _depth_rows(out, tmp_path / "egM2_stackcat.nc", tmp_path)
-    (mixed,) = [r for r in rows if r["mixed"]]
-    assert {e["abbr"] for c in mixed["cells"] for e in c} == {"CM", "Aquadopp"}
+    assert [r["types"] for r in rows] == ["CTD", "current meter", "CTD"]
+    assert not any(r["mixed"] for r in rows)
+    (cm,) = [r for r in rows if r["types"] == "current meter"]
+    assert {e["abbr"] for c in cm["cells"] for e in c} == {"CM"}
     caption = _page_captions(out, _report_view(out), {}, {}, False, rows)
-    assert (
-        "with the type in front where a depth holds more than one "
-        "(Aquadopp, CM current meter)." in caption["instr_table"]
-    )
-    alone = _page_captions(out, _report_view(out), {}, {}, False, [])
-    assert "type in front" not in alone["instr_table"]
+    assert "type in front" not in caption["instr_table"]
 
 
 def test_one_deployments_magnetic_north_velocity_is_named(stacks):
@@ -779,3 +786,18 @@ def test_the_page_has_one_netcdf_appendix_and_reader_headings(site):
     assert "<th>#</th>" not in html
     assert "overlap block" in html.split('id="deployments"')[1].split("</h2>", 2)[1]
     assert html.count("overlap block") == 1
+
+
+def test_direction_bars_stop_at_the_axis_edge_with_an_arrow(flmb_site):
+    """FLMB: spreads that run past ±180° of the mean stop at the edge, marked ">" or "<"."""
+    from oceanarray.plotters.current import draw_direction_profile_by_deployment
+    from oceanarray.reports._concat import _report_view
+
+    fig = draw_direction_profile_by_deployment(_report_view(flmb_site))
+    ax = fig.axes[0]
+    lo, hi = ax.get_xlim()
+    lines = ax.get_lines()
+    assert all(lo <= x <= hi for ln in lines for x in ln.get_xdata())
+    arrows = [ln for ln in lines if ln.get_marker() in ("<", ">")]
+    assert arrows
+    assert all(ln.get_xdata()[0] in (lo, hi) for ln in arrows)

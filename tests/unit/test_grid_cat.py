@@ -10,6 +10,7 @@ import contextlib
 import io
 import json
 import logging
+import re
 import shutil
 import warnings
 from pathlib import Path
@@ -191,11 +192,13 @@ def test_a_site_grid_carries_the_deployment_record(flmb_site):
     np.testing.assert_array_equal(
         out["deployment_index"], flmb_site["deployment_index"]
     )
-    assert 0 <= out.attrs["slope_angle_deg"] < 360
-    assert "direction of the record-mean" in out.attrs["slope_angle_source"]
-    given = _quiet(grid, flmb_site, pmin=200, pmax=2600, dp=50, slope_angle=-30)
-    assert given.attrs["slope_angle_deg"] == 330
-    assert given.attrs["slope_angle_source"] == "given"
+    # The rotation is the report's choice: the file records none.
+    assert not any(k.startswith("slope_") for k in out.attrs)
+    with pytest.warns(
+        DeprecationWarning, match="slope_angle= is deprecated.*rotate_to"
+    ):
+        given = grid(flmb_site, pmin=200, pmax=2600, dp=50, slope_angle=-30)
+    assert not any(k.startswith("slope_") for k in given.attrs)
 
 
 def test_the_turnaround_is_empty(egm2):
@@ -245,6 +248,10 @@ def test_concat_writes_the_site_grid_and_both_pages(egm2):
     )
     assert 'href="egM2_gridcat_report.html"' in stack_page
     assert '<nav class="breadcrumb">' in stack_page
+    # Both Deployments tables: the duration's unit in the header, numbers in the cells.
+    for html in (page, stack_page):
+        assert 'Duration<span class="th-unit">days</span>' in html
+        assert not re.search(r"<td>[\d.]+ days</td>", html)
 
 
 def test_no_grid_writes_the_site_stack_only(egm2, tmp_path):
@@ -299,12 +306,37 @@ def test_a_level_without_a_qc_variable_is_kept(flmb):
     assert np.isfinite(out["temperature"].values[later]).any()
 
 
-def test_the_along_slope_axis_points_along_the_mean_flow(flmb_site):
+def test_the_rotated_axis_points_along_the_mean_flow(flmb_site):
+    from oceanarray.reports._gridcat import _rotation
+
     out = _quiet(grid, flmb_site, pmin=200, pmax=2600, dp=50)
-    along, _ = site.slope_components(
-        out["east_velocity"], out["north_velocity"], out.attrs["slope_angle_deg"]
+    angle, given = _rotation(out, None)
+    assert not given and 0 <= angle < 360
+    along, _ = site.rotated_components(
+        out["east_velocity"], out["north_velocity"], angle
     )
     assert float(along.mean()) > 0
+    assert _rotation(out, -30) == (330.0, True)
+    for bad in (float("nan"), float("inf")):
+        with pytest.raises(ValueError, match="finite"):
+            _rotation(out, bad)
+
+
+def test_a_short_deployment_is_left_out_of_every_grid_level(flmb_site):
+    """FLMB 2016 with hydrography at 40 % of its steps: NaN at every pressure."""
+    from oceanarray.reports._concat import _drop_short
+
+    out = _quiet(grid, flmb_site, pmin=200, pmax=2600, dp=50)
+    first = np.flatnonzero(out["deployment_index"].values == 0)
+    for v in ("temperature", "salinity"):
+        out[v][first[int(0.4 * first.size) :], :] = np.nan
+    shown, left_out = _drop_short(out, out["deployment_index"].values, ["2016", "2017"])
+    assert left_out == {"hydrography": ["2016"]}
+    later = out["deployment_index"].values == 1
+    for v in ("temperature", "salinity"):
+        assert np.isnan(shown[v].values[first]).all()
+        np.testing.assert_array_equal(shown[v].values[later], out[v].values[later])
+    assert np.isfinite(shown["east_velocity"].values[first]).any()
 
 
 def test_a_zero_grid_spacing_is_an_error_not_a_crash(egm2):
@@ -416,14 +448,19 @@ def test_a_grid_from_an_older_stack_is_not_linked(egm2, tmp_path):
     assert 'href="egM2_gridcat_report.html"' not in stale.read_text(encoding="utf-8")
 
 
-def test_still_water_has_no_along_slope_direction(flmb_site):
-    """FLMB with its velocities set to zero: no direction, not 0°."""
+def test_still_water_has_no_mean_direction(flmb_site, caplog):
+    """FLMB with its velocities set to zero: no rotation, not 0°, and the page warns."""
+    import logging
+
+    from oceanarray.reports._gridcat import _rotation
+
     still = flmb_site.copy()
     for v in ("east_velocity", "north_velocity"):
         still[v] = still[v] * 0.0
     out = _quiet(grid, still, pmin=200, pmax=2600, dp=50)
-    assert "slope_angle_deg" not in out.attrs
-    assert out.attrs["slope_angle_source"].startswith("none: steadiness 0.00")
+    with caplog.at_level(logging.WARNING, logger="oceanarray.reports._gridcat"):
+        assert _rotation(out, None) == (None, False)
+    assert "steadiness 0.00 < 0.3" in caplog.text and "--rotate-to" in caplog.text
 
 
 # The Grid cat page for a reader who did not run the pipeline -------------------
@@ -499,20 +536,50 @@ def test_velocity_profiles_are_cropped_with_a_zero_line():
 
 
 def test_a_given_angle_is_not_called_the_mean_flow(flmb_site):
-    """``--slope-angle 210``: the captions name the given angle, not the mean flow."""
-    from oceanarray.reports._gridcat import _captions
+    """``--rotate-to 210``: titles and captions name the angle, not the mean flow."""
+    from oceanarray.reports._gridcat import _captions, _rotation, _velocity_titles
 
-    given = _quiet(grid, flmb_site, pmin=200, pmax=2600, dp=50, slope_angle=210)
-    text = _captions(given, flmb_site, "daily", 210.0, True, {})
-    assert "toward 210°, the angle given for this site" in text["sections_uv"]
+    gridded = _quiet(grid, flmb_site, pmin=200, pmax=2600, dp=50)
+    text = _captions(gridded, flmb_site, "daily", 210.0, True, True, {})
+    assert "velocity toward 210° and across it (toward 300°)" in text["sections_uv"]
     assert "record-mean" not in text["sections_uv"]
-    mean = _quiet(grid, flmb_site, pmin=200, pmax=2600, dp=50)
-    angle = mean.attrs["slope_angle_deg"]
-    text = _captions(mean, flmb_site, "daily", angle, True, {})
+    assert dict(_velocity_titles(210.0, True)) == {
+        "east_velocity": "U (east)",
+        "north_velocity": "V (north)",
+        "mean_direction": "Towards 210°",
+        "cross_direction": "Across (towards 300°)",
+    }
+    angle, _ = _rotation(gridded, None)
+    text = _captions(gridded, flmb_site, "daily", angle, False, True, {})
     assert (
         f"toward {angle:.0f}°, the direction of the record-mean flow"
         in (text["sections_uv"])
     )
+    titles = dict(_velocity_titles(angle, False))
+    assert titles["mean_direction"] == f"Mean direction ({angle:.0f}°)"
+    assert titles["cross_direction"] == "Cross direction"
+
+
+def test_concat_rotate_to_reaches_the_page_and_slope_angle_warns(flmb_site, tmp_path):
+    """``concat --slope-angle`` is the deprecated spelling of ``--rotate-to``."""
+    from oceanarray.cli import build_parser
+    from oceanarray.reports._gridcat import generate_gridcat_page
+
+    parser = build_parser()
+    args = parser.parse_args(["concat", "a", "b", "--name", "X", "--rotate-to", "210"])
+    assert args.rotate_to == 210.0
+    with pytest.warns(
+        DeprecationWarning, match="--slope-angle is deprecated.*--rotate-to"
+    ):
+        old = parser.parse_args(
+            ["concat", "a", "b", "--name", "X", "--slope-angle", "210"]
+        )
+    assert old.rotate_to == 210.0
+    oa.write(flmb_site, tmp_path / "FLMB_stackcat.nc")
+    gridded = _quiet(grid_site, tmp_path / "FLMB_stackcat.nc", overwrite=True)
+    page = _quiet(generate_gridcat_page, gridded, tmp_path / "report", rotate_to=210)
+    html = page.read_text("utf-8")
+    assert "velocity toward 210° and across it" in html
 
 
 def test_deployment_marks_keep_their_names_when_one_has_no_window(
@@ -534,5 +601,5 @@ def test_deployment_marks_keep_their_names_when_one_has_no_window(
         seen.append([name for *_, name in kwargs["deployments"]])
 
     monkeypatch.setattr(_gridcat.site_plots, "draw_site_sections", spy)
-    _quiet(_gridcat._figures, gridded, flmb_site, ["2016", "2017"])
+    _quiet(_gridcat._figures, gridded, flmb_site, ["2016", "2017"], 210.0, True)
     assert seen and all(names == ["2017"] for names in seen)

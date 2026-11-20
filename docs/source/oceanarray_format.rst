@@ -302,7 +302,7 @@ Every grid records the QC flags it left out before gridding in ``grid_mask_flags
 (JSON, ``{"default": [4], "velocity": [3, 4]}``): the stack's rule and anything
 ``grid: mask_flags`` adds. A site grid
 (``<site>_gridcat.nc``) also records its site stack (``stackcat_file``,
-``stackcat_sha256``) and the along-slope direction (``slope_angle_deg``, degrees
-clockwise from north, with ``slope_angle_source``). The rest
+``stackcat_sha256``); the direction its page rotates the velocity to is the
+page's choice, not the file's. The rest
 of the attribution (``creator_*``, ``institution``, ``citation``, ``license``,
 ``references``) is not written yet; it will come from the array description.

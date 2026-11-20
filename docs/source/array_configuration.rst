@@ -8,8 +8,9 @@ An array is several moorings deployed together on one cruise. Its YAML file,
 ``{array}.array.yaml``, lists them and the facts they share; each mooring keeps its
 own :doc:`mooring YAML file <yaml_configuration>`. Two commands read it:
 
-- ``oceanarray report ARRAY.array.yaml --array`` builds the array page: a map, one
-  row per mooring linking to its pages, and the instruments by type.
+- ``oceanarray report ARRAY.array.yaml --array [--bathymetry FILE]`` builds the year
+  page: a map (with depth contours from a GEBCO or ETOPO file), one row per mooring
+  linking to its pages, and the instruments by function.
 - ``oceanarray export MOORING --array ARRAY.array.yaml`` takes ``site_code`` and
   ``project`` from it for the OceanSITES files.
 
@@ -17,23 +18,16 @@ own :doc:`mooring YAML file <yaml_configuration>`. Two commands read it:
 
    name: MIXSED
    year: 2026
-   cruise: msm142
-   ship: Merian
    project: AEI-DFG MIXSED
    site_code: MIXSED                # OceanSITES site; needed by the GDAC
-   deployment_time: '2026-05-05'
-   recovery_time: '2026-07-31'
-   latitude: 65 34.004 N
-   longitude: 29 25.878 W
-   waterdepth_min: 700
-   waterdepth_max: 1000
-   bathymetry: ../bathymetry/GEBCO_2025.nc   # depth contours on the map
+   subarrays:
+     sill: {name: Denmark Strait sill array, short: Sill}
    moorings:
      - mooring: dsG1_1_2026
        config: dsG1_1_2026.mooring.yaml   # default: {mooring}.mooring.yaml
-       line: Denmark Strait sill          # moorings are coloured by line
+       subarray: sill                     # moorings are coloured by subarray
      - mooring: dsK1_1_2026
-       line: Denmark Strait sill
+       subarray: sill
 
 .. list-table::
    :header-rows: 1
@@ -42,22 +36,27 @@ own :doc:`mooring YAML file <yaml_configuration>`. Two commands read it:
    * - Key
      - Use
    * - ``name``
-     - The array's name: the page's title (default: the file name).
+     - The array's name: the page's file name (default: the YAML file name).
    * - ``moorings``
      - One entry per mooring: ``mooring`` (its name), ``config`` (its YAML file,
-       relative to the array file's folder) and ``line`` (the line it belongs to:
-       the map colours moorings by line; without lines, one colour per mooring).
+       relative to the array file's folder) and ``subarray`` (a key of
+       ``subarrays``: the map colours moorings by subarray; moorings without one
+       are grouped as "other"; without any, one colour per mooring).
+   * - ``subarrays``
+     - Each subarray's ``name`` (the moorings table's Array column) and ``short``
+       name (the map legend). Not written to the OceanSITES ``array`` attribute.
    * - ``year``, ``project``
-     - Shown at the top of the array page (the year the moorings were deployed);
-       ``project`` is also written into the OceanSITES files.
-   * - ``bathymetry``
-     - A bathymetry file (GEBCO or ETOPO, one elevation variable on latitude and
-       longitude), relative to the array file: the map draws its 500, 1000, 2000
-       and 2500 m contours, cached beside the page.
+     - The page's title ("OSNAP East 2016") and header; ``project`` is also
+       written into the OceanSITES files.
    * - ``site_code``
      - The OceanSITES site code, written into the exported files (left out, with a
        warning, when absent).
-Other keys (``cruise``, ``ship``, ``deployment_time``, ``recovery_time``,
-``latitude``, ``longitude``, ``waterdepth_min``, ``waterdepth_max``, ``vocab``,
-``position``, ``y_offset``, ``plot_config``, …) are not used by the array page,
-which takes dates, positions and depths from each mooring's own YAML file.
+Other keys are not used by the year page, which takes cruises, ships, dates,
+positions and depths from each mooring's own YAML file; ``cruise``, ``ship``,
+``deployment_time``, ``recovery_time``, ``latitude``, ``longitude``, ``position``,
+``waterdepth_min``, ``waterdepth_max``, ``vocab`` and ``bathymetry`` get one warning
+naming them. The bathymetry file (GEBCO or ETOPO, one elevation variable on latitude
+and longitude) is given on the command line (``--bathymetry``) or as
+``oa.report(..., kind="array", bathymetry=...)``: the map draws its 500, 1000, 2000
+and 2500 m contours, cached beside the page, and names the dataset from the file's
+``title`` (e.g. "ETOPO1", "GEBCO 2025").

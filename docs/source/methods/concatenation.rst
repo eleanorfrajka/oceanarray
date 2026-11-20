@@ -101,29 +101,28 @@ each step only the levels of the deployment ``deployment_index`` names are
 interpolated, so a profile never mixes two moorings; the overlap block is not
 gridded and turnarounds stay empty. The file, ``<site>_gridcat.nc``, keeps the
 stack's time step, ``deployment_index`` and the ``DEPLOYMENT`` record. The
-settings come from the call (``--pmin``, ``--pmax``, ``--dp``, ``--mask-flags``,
-``--slope-angle``), not from the deployments' YAMLs, and are recorded in the file.
+settings come from the call (``--pmin``, ``--pmax``, ``--dp``, ``--mask-flags``),
+not from the deployments' YAMLs, and are recorded in the file.
 
 The site stack takes the deployments' ``mask_flags`` rule; when they differ,
 ``--mask-flags`` must give the site's (each deployment's own stays in
 ``deployment_stack_mask_flags``). A deployment without the originator's flags reads 0
 where it has values. Before gridding, values the rule hides are left out (default 4;
-``velocity=3,4`` adds suspect velocity). The
-along-slope direction is ``--slope-angle``, else the direction of the record-mean,
-depth-mean velocity, used only when the flow is steady enough to have one (the
-speed of the mean daily velocity over the mean daily speed at least 0.3; otherwise
-no along- and across-slope panels, and a warning). The pressure range is
-``--pmin`` / ``--pmax``, else from the 5th percentile of the shallowest depth's
-pressure to the 95th of the deepest's, so an instrument riding above or below its
-usual depth stays on the grid. Each deployment's own ``grid:`` settings are not
+``velocity=3,4`` adds suspect velocity). The Grid cat page rotates the velocity to
+``--rotate-to`` (not recorded in the file), else to the direction of the record-mean,
+depth-mean velocity, used only when the flow is steady enough to have one (the speed
+of the mean daily velocity over the mean daily speed at least 0.3; otherwise no
+rotated panels, and a warning). The pressure range is ``--pmin`` / ``--pmax``,
+else from the 5th percentile of the shallowest depth's pressure to the 95th of the
+deepest's, so an instrument riding above or below its usual depth stays on the grid. Each deployment's own ``grid:`` settings are not
 used; a deployment whose settings differ is named in a warning. Current speed and
 direction are computed from the gridded east and north velocity.
 
 Its page, ``<site>_gridcat_report.html`` (the "Grid cat" pill beside "Stack cat"),
 shows pressure × time sections of temperature and salinity with σ0 and σ2
 isopycnals, their anomalies from the whole-record median at each level, the median
-profile of each deployment, the velocity sections (east, north, along- and
-across-slope, cropped to the pressures with velocity data at the same dbar per inch
+profile of each deployment, the velocity sections (east, north, and the rotated
+pair, cropped to the pressures with velocity data at the same dbar per inch
 as the T and S sections) and a T-S diagram of the median profiles. The sections are
 averaged for display (daily for a record under a year, weekly under 3, 2-weekly
 under 20, monthly beyond), in bins that restart at each deployment's start, so no

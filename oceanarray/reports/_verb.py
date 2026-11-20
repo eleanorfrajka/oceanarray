@@ -33,6 +33,7 @@ def report(
     pdf_dir: PathLike | None = None,
     force: bool = False,
     skip_existing: bool = False,
+    bathymetry: PathLike | None = None,
 ) -> Path:
     """Build a report and return the path of its main page.
 
@@ -82,6 +83,9 @@ def report(
         Rebuild pages that are newer than their inputs.
     skip_existing : bool, optional
         Keep any page that exists, however old.
+    bathymetry : os.PathLike or None, optional
+        ``kind="array"`` only: a bathymetry file (GEBCO or ETOPO) for the depth
+        contours on the year page's map.
 
     Returns
     -------
@@ -110,6 +114,7 @@ def report(
             report_dir=report_dir,
             breadcrumb=crumbs,
             force=force,
+            bathymetry=bathymetry,
         )
     if kind not in ("mooring", "recovery"):
         raise ValueError(f"kind={kind!r}: expected 'mooring', 'array' or 'recovery'")
@@ -274,8 +279,9 @@ def _array_report(
     report_dir: PathLike | None,
     breadcrumb: list[tuple[str, str | None]] | None = None,
     force: bool,
+    bathymetry: PathLike | None = None,
 ) -> Path:
-    """Build the array index; raise MooringError if it cannot be built."""
+    """Build the year page; raise MooringError if it cannot be built."""
     from oceanarray.reports._array import generate_array_report
 
     root = Path(proc_dir) if proc_dir is not None else array_yaml.parent
@@ -288,6 +294,7 @@ def _array_report(
         force=force,
         report_dir=Path(report_dir) if report_dir is not None else None,
         breadcrumb=breadcrumb,
+        bathymetry=Path(bathymetry) if bathymetry is not None else None,
     )
     if not page:
         raise MooringError(f"{array_yaml.name}: the array report could not be built.")

@@ -33,10 +33,11 @@ from ._html_helpers import (
     _format_dt,
     _parse_dt,
     doi_link,
+    duration_cells,
     format_durations,
     span_seconds,
 )
-from ._navs import type_word
+from ._navs import function_abbr, function_word
 from ._plots import (
     _make_adcp_progressive_vector_b64,
     _make_analog_timeseries_b64,
@@ -214,7 +215,8 @@ def _page_captions(
             "Current direction at each current-meter depth, one marker per "
             f"deployment: {toward}, of the deployment's mean velocity, from daily "
             "means so tides do not count; the bar is the circular standard deviation "
-            "of the daily-mean directions. The axis is centred on the mean direction "
+            "of the daily-mean directions, with an arrow where it runs past the axis "
+            "edge. The axis is centred on the mean direction "
             f"of all depths, ±180°. {flags['direction_profile']}"
         ),
         "trajectories_aquadopp": (
@@ -230,16 +232,14 @@ def _page_captions(
     # The types written in the cells: only on rows whose depth holds more than one.
     mixed = sorted(
         {
-            e["type"].lower(): e["abbr"]
+            e["type"]: e["abbr"]
             for r in depth_rows
             if r["mixed"]
             for c in r["cells"]
             for e in c
         }.items()
     )
-    key = ", ".join(
-        abbr if abbr == type_word(t) else f"{abbr} {type_word(t)}" for t, abbr in mixed
-    )
+    key = ", ".join(abbr if abbr == word else f"{abbr} {word}" for word, abbr in mixed)
     tolerance = view.attrs.get("depth_tolerance_m")
     out["instr_table"] = (
         "Which instrument measured at each depth in each deployment, deepest first; "
@@ -608,7 +608,7 @@ def _deployment_rows(
         )
     }
     instruments = Counter(dep for dep, _ in _physical_instruments(ds))
-    durations = format_durations(
+    unit, durations = duration_cells(
         [
             span_seconds(
                 _parse_dt(str(ds["deployment_time"].values[k])),
@@ -659,6 +659,7 @@ def _deployment_rows(
                 "deployed": _format_dt(start),
                 "recovered": _format_dt(end),
                 "duration": durations[k],
+                "duration_unit": unit,
                 "lat": _ddm(float(ds["deployment_latitude"].values[k]), is_lat=True),
                 "lon": _ddm(float(ds["deployment_longitude"].values[k]), is_lat=False),
                 "waterdepth": (
@@ -694,16 +695,6 @@ def _instrument_href(
     return Path(os.path.relpath(page.resolve(), out_dir.resolve())).as_posix()
 
 
-#: Short instrument types for the Instruments table's cells; others are written as
-#: a reader would (``type_word``).
-_TYPE_ABBR: dict[str, str] = {
-    "microcat": "MC",
-    "currentmeter": "CM",
-    "thermistor": "MT",
-    "adcp": "ADCP",
-}
-
-
 def _depth_rows(
     ds: Any, stack_path: Path, out_dir: Path, report_dir: Path | None = None
 ) -> list[dict]:
@@ -717,12 +708,10 @@ def _depth_rows(
     dep = ds["deployment"].values
 
     def entry(i: int) -> dict:
+        itype = str(ds["instrument_type"].values[i]).lower()
         return {
-            "type": str(ds["instrument_type"].values[i]),
-            "abbr": _TYPE_ABBR.get(
-                str(ds["instrument_type"].values[i]).lower(),
-                type_word(str(ds["instrument_type"].values[i]).lower()),
-            ),
+            "type": function_word(itype),
+            "abbr": function_abbr(itype),
             "serial": str(ds["serial"].values[i]),
             "depth": f"{float(ds['depth'].values[i]):.0f}",
             "href": _instrument_href(ds, i, stack_path, out_dir, report_dir),
@@ -740,7 +729,7 @@ def _depth_rows(
             {
                 # The instrument type heads the row; a cell names it only when
                 # the depth holds more than one type.
-                "types": " / ".join(type_word(t.lower()) for t in types),
+                "types": " / ".join(types),
                 "mixed": len(types) > 1,
                 "depth": f"{depths[k]:.0f}" if np.isfinite(depths[k]) else "—",
                 "cells": cells,
@@ -796,18 +785,31 @@ def _depth_order(ds: Any) -> np.ndarray:
     return np.argsort(np.where(np.isfinite(depths), -depths, np.inf), kind="stable")
 
 
-def _depth_names(ds: Any) -> list[str]:
-    """Return each depth's label, ``"1690 m"``; depths that round alike add their type.
+def _depth_names(ds: Any, holds: np.ndarray | None = None) -> list[str]:
+    """Return each depth's label, ``"1690 m"``, with its type where two round alike.
 
     Labels never carry the depth index.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The site stack.
+    holds : numpy.ndarray of bool, optional
+        The depths a figure draws; only those that round alike take their type
+        (``"2724 m CTD"``). Default every depth, so the labels are unique.
+
+    Returns
+    -------
+    list of str
+        In depth-index order.
     """
     depths = nominal_depths(ds)
     base = [f"{d:.0f} m" if np.isfinite(d) else "depth ?" for d in depths]
-    clash = Counter(base)
-    types = depth_types(ds)
+    holds = np.ones(len(base), bool) if holds is None else holds
+    clash = Counter(b for b, h in zip(base, holds, strict=True) if h)
     return [
-        f"{b} {_TYPE_ABBR.get(t.lower(), t)}" if clash[b] > 1 else b
-        for b, t in zip(base, types, strict=True)
+        f"{b} {function_abbr(t.lower())}" if h and clash[b] > 1 else b
+        for b, t, h in zip(base, depth_types(ds), holds, strict=True)
     ]
 
 
@@ -815,16 +817,17 @@ def _report_view(ds: Any) -> Any:
     """Return the site stack with one column per depth, named by depth, deep-first.
 
     The figures read it like a stack (``time, N_LEVELS``): ``serial`` is the depth's
-    label, ``instrument_type`` its most common type, ``hab`` and ``depth`` its
+    label (``level_id`` the same, with the type where two depths round alike),
+    ``instrument_type`` its most common type, ``hab`` and ``depth`` its
     members' means, and ``cell_deployment`` the deployment behind each value (-1
     none), so a figure can color by deployment.
     """
     import xarray as xr
 
-    labels = _depth_names(ds)
     level_depth_index = ds["depth_index"].values
+    n = ds.sizes["N_DEPTHS"]
     types, habs = depth_types(ds), []
-    for k in range(ds.sizes["N_DEPTHS"]):
+    for k in range(n):
         hab = ds["hab"].values.astype(float)[level_depth_index == k]
         habs.append(float(np.nanmean(hab)) if np.isfinite(hab).any() else np.nan)
     cell = cell_deployment(ds).astype(np.int16)
@@ -842,8 +845,8 @@ def _report_view(ds: Any) -> Any:
         data,
         coords={
             "time": ds["time"],
-            "serial": ("N_LEVELS", np.array(labels)),
-            "level_id": ("N_LEVELS", np.array(labels)),
+            "serial": ("N_LEVELS", np.array(_depth_names(ds, np.zeros(n, bool)))),
+            "level_id": ("N_LEVELS", np.array(_depth_names(ds))),
             "instrument_type": ("N_LEVELS", np.array(types)),
             "hab": ("N_LEVELS", np.array(habs), {"units": "m"}),
             "depth": ("N_LEVELS", depths, {"units": "m"}),
@@ -1060,9 +1063,17 @@ def generate_concat_page(
                 )
             )
 
+        # The hydrography legend names the type where two depths with temperature
+        # round alike.
+        held = (
+            np.isfinite(ds["temperature"].values).any(0)
+            if "temperature" in ds
+            else None
+        )
+        typed = np.array(_depth_names(ds, held))
         figs = {
             "hydro_pts": _make_stack_timeseries_b64(
-                view,
+                view.assign_coords(serial=("N_LEVELS", typed[_depth_order(ds)])),
                 [
                     ("pressure", params.vlabel("pressure"), True, {"adcp"}),
                     ("temperature", params.vlabel("temperature"), False, None),

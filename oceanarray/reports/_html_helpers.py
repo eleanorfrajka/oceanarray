@@ -161,14 +161,32 @@ def format_durations(seconds: Sequence[float | None]) -> list[str]:
         ``"1.9 years"``, ``"10.1 months"`` or ``"13.6 days"``, one decimal; ``"—"``
         for a missing, non-finite or negative value.
     """
+    unit, cells = duration_cells(seconds)
+    return [c if c == "—" else f"{c} {unit}" for c in cells]
+
+
+def duration_cells(seconds: Sequence[float | None]) -> tuple[str, list[str]]:
+    """Return a duration column's unit (for its header) and its bare numbers.
+
+    Parameters
+    ----------
+    seconds : sequence of float or None
+        The durations of one table, in seconds.
+
+    Returns
+    -------
+    unit : str
+        ``"years"``, ``"months"`` or ``"days"`` (:func:`format_durations`).
+    cells : list of str
+        ``"1.9"``, one decimal; ``"—"`` for a missing, non-finite or negative value.
+    """
     ok = [s is not None and np.isfinite(s) and s >= 0 for s in seconds]
     longest = max((s for s, good in zip(seconds, ok, strict=True) if good), default=0)
     unit, size = next(
         ((u, n) for u, n in _DURATION_UNITS if longest > n), _DURATION_UNITS[-1]
     )
-    return [
-        f"{s / size:.1f} {unit}" if good else "—"
-        for s, good in zip(seconds, ok, strict=True)
+    return unit, [
+        f"{s / size:.1f}" if good else "—" for s, good in zip(seconds, ok, strict=True)
     ]
 
 

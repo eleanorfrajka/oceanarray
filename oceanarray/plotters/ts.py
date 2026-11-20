@@ -150,6 +150,15 @@ def sigma0_contours(
     return SigmaContours(Sg, Tg, sigma, interval, levels)
 
 
+#: A σθ label centred closer than this share of the axis range to a frame edge is
+#: removed (it would be cut).
+SIGMA_LABEL_EDGE: float = 0.01
+#: σθ labels placed along each contour, at even steps of its in-frame part; a
+#: contour shorter in the frame than SIGMA_LABEL_SPACING (axis fractions) gets one.
+SIGMA_LABELS_PER_CONTOUR: int = 2
+SIGMA_LABEL_SPACING: float = 0.6
+
+
 def draw_sigma0_contours(ax: plt.Axes, contours: SigmaContours | None) -> float | None:
     """Overlay labelled σθ contours on a θ-S axes.
 
@@ -181,17 +190,45 @@ def draw_sigma0_contours(ax: plt.Axes, contours: SigmaContours | None) -> float 
     digits = max(0, -int(np.floor(np.log10(interval) + 1e-9)))
     if abs(interval * 10**digits - round(interval * 10**digits)) > 1e-6:
         digits += 1
-    labels = ax.clabel(
-        cs, fmt=f"%.{digits}f", fontsize=report_tokens.CLABEL_FS, inline=True
-    )
-    # The grid spans the figure's axis limits: a label is kept only well inside
-    # them (4 % from each edge), so none is cut by the frame.
+    # The grid spans the figure's axis limits. Labels go at even steps along the
+    # in-frame part of each contour, and one is kept unless it is within
+    # SIGMA_LABEL_EDGE of a frame edge, where it would be cut.
     s_lo, s_hi = float(np.min(contours.salinity)), float(np.max(contours.salinity))
     t_lo, t_hi = float(np.min(contours.theta)), float(np.max(contours.theta))
-    ds_, dt_ = 0.04 * (s_hi - s_lo), 0.04 * (t_hi - t_lo)
+    ds_, dt_ = SIGMA_LABEL_EDGE * (s_hi - s_lo), SIGMA_LABEL_EDGE * (t_hi - t_lo)
+
+    def inside(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+        return (
+            (s_lo + ds_ <= x)
+            & (x <= s_hi - ds_)
+            & (t_lo + dt_ <= y)
+            & (y <= t_hi - dt_)
+        )
+
+    at = []
+    for segments in cs.allsegs:
+        line = [seg[inside(seg[:, 0], seg[:, 1])] for seg in segments if len(seg)]
+        line = np.concatenate(line) if line else np.empty((0, 2))
+        if len(line) < 2:
+            continue
+        # Distance along the contour, in axis fractions; a short one gets one label.
+        step = np.hypot(
+            np.diff(line[:, 0]) / (s_hi - s_lo), np.diff(line[:, 1]) / (t_hi - t_lo)
+        )
+        along = np.concatenate([[0.0], np.cumsum(step)])
+        n = SIGMA_LABELS_PER_CONTOUR if along[-1] >= SIGMA_LABEL_SPACING else 1
+        for frac in np.arange(1, n + 1) / (n + 1):
+            at.append(tuple(line[np.searchsorted(along, frac * along[-1])]))
+    labels = ax.clabel(
+        cs,
+        fmt=f"%.{digits}f",
+        fontsize=report_tokens.CLABEL_FS,
+        inline=True,
+        manual=at or False,
+    )
     for label in labels:
         x, y = label.get_position()
-        if not (s_lo + ds_ <= x <= s_hi - ds_ and t_lo + dt_ <= y <= t_hi - dt_):
+        if not inside(np.array(x), np.array(y)):
             label.remove()
     return interval
 

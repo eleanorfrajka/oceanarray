@@ -46,15 +46,31 @@ log = logging.getLogger(__name__)
 _HYDRO = (("temperature", "Temperature"), ("salinity", "Salinity"))
 
 
-def _velocity_titles(angle: float | None) -> list[tuple[str, str]]:
-    """Return the velocity variables shown, with their titles (mean and cross direction)."""
+def _velocity_titles(angle: float | None, given: bool) -> list[tuple[str, str]]:
+    """Return the velocity variables shown, with their titles.
+
+    Parameters
+    ----------
+    angle : float or None
+        The rotation, degrees clockwise from true north; None for none.
+    given : bool
+        Whether the angle was given (else it is the mean flow's direction).
+
+    Returns
+    -------
+    list of (str, str)
+    """
     out = [("east_velocity", "U (east)"), ("north_velocity", "V (north)")]
-    if angle is not None:
-        out += [
-            ("mean_direction", f"Mean direction ({angle:.0f}°)"),
-            ("cross_direction", f"Cross direction ({(angle + 90) % 360:.0f}°)"),
-        ]
-    return out
+    if angle is None:
+        return out
+    if given:
+        titles = (
+            f"Towards {angle:.0f}°",
+            f"Across (towards {(angle + 90) % 360:.0f}°)",
+        )
+    else:
+        titles = (f"Mean direction ({angle:.0f}°)", "Cross direction")
+    return out + list(zip(("mean_direction", "cross_direction"), titles, strict=True))
 
 
 def _captions(
@@ -62,6 +78,7 @@ def _captions(
     stackcat: Any,
     words: str,
     angle: float | None,
+    given: bool,
     positioned: bool,
     left_out: dict[str, list[str]],
 ) -> dict[str, str]:
@@ -99,17 +116,19 @@ def _captions(
         else " No isopycnals: no deployment has a position."
     )
     reference = _captions_mod.direction_reference(stackcat)
-    chosen = (
-        "the angle given for this site"
-        if grid.attrs.get("slope_angle_source") == "given"
-        else "the direction of the record-mean flow"
-    )
-    named = (
-        f"Eastward, northward, mean-direction (toward {angle:.0f}°, {chosen}) and "
-        f"cross-direction ({(angle + 90) % 360:.0f}°) velocity"
-        if angle is not None
-        else "Eastward and northward velocity (no mean direction: the flow has none)"
-    )
+    if angle is None:
+        named = "Eastward and northward velocity (no mean direction: the flow has none)"
+    elif given:
+        named = (
+            f"Eastward and northward velocity, and the velocity toward {angle:.0f}° "
+            f"and across it (toward {(angle + 90) % 360:.0f}°)"
+        )
+    else:
+        named = (
+            f"Eastward, northward, mean-direction (toward {angle:.0f}°, the direction "
+            "of the record-mean flow) and cross-direction "
+            f"({(angle + 90) % 360:.0f}°) velocity"
+        )
     return {
         "intro": intro,
         "sections_ts": "Temperature and salinity (PSU)." + contours,
@@ -137,7 +156,11 @@ def _captions(
             "Median velocity at each level, one line per deployment, coloured in "
             "time order (see legend), where the deployment has velocity for at "
             f"least {fraction} its time"
-            + (f"; mean direction toward {angle:.0f}°" if angle is not None else "")
+            + (
+                f"; {'rotated' if given else 'mean direction'} toward {angle:.0f}°"
+                if angle is not None
+                else ""
+            )
             + (f"; {reference}" if reference else "")
             + ". Dashed: zero. Cropped to the velocity pressures, the figure made "
             f"shorter in proportion. {flags_uv}"
@@ -225,22 +248,23 @@ def _profile(intro: str) -> Profile:
     )
 
 
-def _figures(grid: Any, stackcat: Any, names: list[str]) -> tuple[dict, str]:
+def _figures(
+    grid: Any, stackcat: Any, names: list[str], angle: float | None, given: bool
+) -> tuple[dict, str]:
     """Return the page's figures and the averaging in words."""
     pressure = grid["pressure"].values.astype(float)
     index = grid["deployment_index"].values
     freq, words = site.display_step(grid["time"].values)
     bins = site.display_bins(grid["time"].values, index, freq)
     shown = site.display_means(grid, bins)
-    angle = _angle(grid)
     hourly = {
         v: grid[v] for v in grid.data_vars if grid[v].dims == ("time", "pressure")
     }
     if angle is not None and "east_velocity" in grid and "north_velocity" in grid:
-        hourly["mean_direction"], _ = site.slope_components(
+        hourly["mean_direction"], _ = site.rotated_components(
             grid["east_velocity"], grid["north_velocity"], angle
         )
-        shown["mean_direction"], shown["cross_direction"] = site.slope_components(
+        shown["mean_direction"], shown["cross_direction"] = site.rotated_components(
             shown["east_velocity"], shown["north_velocity"], angle
         )
 
@@ -299,7 +323,7 @@ def _figures(grid: Any, stackcat: Any, names: list[str]) -> tuple[dict, str]:
                 "isopycnals": True,
             }
         )
-    velocity = [(v, t) for v, t in _velocity_titles(angle) if v in shown]
+    velocity = [(v, t) for v, t in _velocity_titles(angle, given) if v in shown]
     limit = symmetric_limit(*(shown[v].values for v, _ in velocity))
     vel_sections = [
         {
@@ -420,10 +444,41 @@ def _figures(grid: Any, stackcat: Any, names: list[str]) -> tuple[dict, str]:
     return figs, words
 
 
-def _angle(grid: Any) -> float | None:
-    """Return the grid's mean-direction angle (°), None when it has none."""
-    angle = grid.attrs.get("slope_angle_deg")
-    return float(angle) if angle not in (None, "") else None
+def _rotation(grid: Any, rotate_to: float | None) -> tuple[float | None, bool]:
+    """Return the velocity rotation (°) and whether it was given.
+
+    Without *rotate_to*, the direction of the record-mean flow, when it is steady
+    enough (:data:`~oceanarray.config.parameters.ROTATION_STEADINESS_MIN`);
+    otherwise none, with a warning.
+
+    Parameters
+    ----------
+    grid : xarray.Dataset
+        The site grid.
+    rotate_to : float or None
+        Degrees clockwise from true north, toward.
+
+    Returns
+    -------
+    angle : float or None
+    given : bool
+    """
+    if rotate_to is not None:
+        angle = float(rotate_to)
+        if not np.isfinite(angle):
+            raise ValueError(f"rotate_to={rotate_to!r} is not a finite angle")
+        return angle % 360.0, True
+    if "east_velocity" not in grid or "north_velocity" not in grid:
+        return None, False
+    angle, steadiness = site.mean_flow(grid["east_velocity"], grid["north_velocity"])
+    if not steadiness >= params.ROTATION_STEADINESS_MIN:
+        log.warning(
+            f"no mean direction: the mean flow is weak against its variability "
+            f"(steadiness {steadiness:.2f} < {params.ROTATION_STEADINESS_MIN:g}); "
+            "give rotate_to (--rotate-to)."
+        )
+        return None, False
+    return round(angle, 1), False
 
 
 def _position(grid: Any) -> tuple[float, float] | None:
@@ -442,6 +497,7 @@ def generate_gridcat_page(
     report_dir: Path | None = None,
     breadcrumb: list[tuple[str, str | None]] | None = None,
     label: str | None = None,
+    rotate_to: float | None = None,
 ) -> Path | None:
     """Write the site grid page for a site grid.
 
@@ -465,6 +521,9 @@ def generate_gridcat_page(
     label : str or None, optional
         The site's display name for the title and its own crumb; defaults to the
         file stem.
+    rotate_to : float or None, optional
+        Rotate the velocity to this direction, degrees clockwise from true north
+        (toward); default the direction of the record-mean flow, when it is steady.
 
     Returns
     -------
@@ -486,9 +545,10 @@ def generate_gridcat_page(
         out_path = out_dir / f"{name}_gridcat_report.html"
         names = _helpers.short_names([str(n) for n in grid["deployment_name"].values])
         grid, left_out = _drop_short(grid, grid["deployment_index"].values, names)
-        figs, words = _figures(grid, stackcat, names)
+        angle, given = _rotation(grid, rotate_to)
+        figs, words = _figures(grid, stackcat, names, angle, given)
         captions = _captions(
-            grid, stackcat, words, _angle(grid), _position(grid) is not None, left_out
+            grid, stackcat, words, angle, given, _position(grid) is not None, left_out
         )
         deployment_rows = _deployment_rows(stackcat, stack_path, out_dir, report_dir)
         context = ConcatContext(

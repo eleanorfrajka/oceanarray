@@ -83,7 +83,9 @@ def _first(cfg: Mapping[str, Any], *keys: str) -> Any:
 
 def _fact(label: str, value: Any, unit: str = "") -> Fact:
     """Return one fact, marking ``—`` and ``UNK`` as missing and adding the unit."""
-    text = MISSING if value is None else str(value)
+    text = (
+        MISSING if value is None else value if isinstance(value, Markup) else str(value)
+    )
     missing = text in (MISSING, UNKNOWN)
     if unit and not missing:
         text = Markup("{}&thinsp;{}").format(text, unit)

@@ -1142,7 +1142,9 @@ def _mark_deployments(
     """Shade the gaps between deployments, line each boundary, name each deployment on top.
 
     Each boundary line also gets a ▼ just above the top axes, pointing down at it,
-    on the strip where the deployment names are.
+    on the strip where the deployment names are. The names and ▼ stay out of the
+    layout (the top panel's title is lifted over them), so a name centred beyond a
+    cropped time axis cannot collapse it.
     """
     import matplotlib.dates as mdates
     import matplotlib.transforms as mtransforms
@@ -1168,7 +1170,7 @@ def _mark_deployments(
             transform=above,
             clip_on=False,
             zorder=5,
-        )
+        )[0].set_in_layout(False)
     for start, end, label in spans:
         mid = mdates.date2num(start + (end - start) / 2)
         top.text(
@@ -1179,6 +1181,7 @@ def _mark_deployments(
             ha="center",
             va="bottom",
             fontsize="small",
+            in_layout=False,
         )
 
 

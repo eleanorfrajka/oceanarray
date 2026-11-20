@@ -2342,8 +2342,9 @@ def draw_direction_profile_by_deployment(
     Direction is where the water flows **to**, degrees clockwise from true north.
     Each marker is the direction of the deployment's mean velocity at that depth
     (from daily means, so tides do not count); its bar is the circular standard
-    deviation of the daily-mean directions. The direction axis is centred on the mean direction of all depths and deployments, ±180°, so a flow
-    near north is not split across 0°/360°.
+    deviation of the daily-mean directions, stopped at the axis edge with an arrow
+    where it runs past. The direction axis is centred on the mean direction of all
+    depths and deployments, ±180°, so a flow near north is not split across 0°/360°.
 
     Parameters
     ----------
@@ -2404,22 +2405,24 @@ def draw_direction_profile_by_deployment(
 
     fig, ax = plt.subplots(figsize=(width_in, width_in * 0.9), layout="constrained")
     used: set[int] = set()
+    lo_edge, hi_edge = centre - 180.0, centre + 180.0
     for k, y, direction, spread in points:
         x = centre + ((direction - centre + 180.0) % 360.0) - 180.0
         color = deployment_color(k, by["n"])
-        ax.errorbar(
-            x,
-            y,
-            xerr=spread,
-            fmt=deployment_marker(k, by["n"]),
-            color=color,
-            ms=5,
-            elinewidth=1.0,
-            capsize=2,
+        # A bar past the axis edge stops there, with an arrow pointing on.
+        lo, hi = max(x - spread, lo_edge), min(x + spread, hi_edge)
+        ax.plot([lo, hi], [y, y], color=color, lw=1.0)
+        for end, clipped, arrow in (
+            (lo, lo > x - spread, "<"),
+            (hi, hi < x + spread, ">"),
+        ):
+            ax.plot(end, y, marker=arrow if clipped else "|", color=color, ms=4)
+        ax.plot(
+            x, y, marker=deployment_marker(k, by["n"]), color=color, ms=5, ls="none"
         )
         used.add(k)
     _depth_axis(ax, by)
-    ax.set_xlim(centre - 180.0, centre + 180.0)
+    ax.set_xlim(lo_edge, hi_edge)
     ticks = np.arange(
         np.ceil((centre - 180.0) / 90.0) * 90.0, centre + 180.0 + 1e-9, 90.0
     )

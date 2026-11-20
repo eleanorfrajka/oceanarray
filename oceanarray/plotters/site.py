@@ -272,6 +272,15 @@ def draw_site_sections(
                 zorder=3,
             )
         ax.set_ylim(p_range[1], p_range[0])
+        if crop:
+            ax.set_ylabel("")
+    if crop:
+        # One axis label for the short panels, each too short for its own, and
+        # room between them for the titles.
+        fig.supylabel(
+            params.vlabel("pressure"), fontsize=axes[0].yaxis.label.get_size()
+        )
+        fig.get_layout_engine().set(h_pad=0.1)
     if deployments:
         _mark_deployments(axes, list(deployments))
     date_axis(axes[-1])

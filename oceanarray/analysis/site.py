@@ -15,6 +15,7 @@ import numpy as np
 import xarray as xr
 
 from oceanarray.config import parameters as params
+from oceanarray.physics import flow_direction
 
 #: Display averaging by record length: ``(longest span in years, pandas
 #: frequency, words)``; the first whose span exceeds the record's is used.
@@ -219,17 +220,54 @@ def median_anomaly(hourly: xr.DataArray, shown: xr.DataArray) -> xr.DataArray:
     return out
 
 
-def slope_components(
+def mean_flow(east: xr.DataArray, north: xr.DataArray) -> tuple[float, float]:
+    """Return the direction of the record-mean, depth-mean velocity and its steadiness.
+
+    Parameters
+    ----------
+    east, north : xarray.DataArray
+        Velocity on ``(time, pressure)``.
+
+    Returns
+    -------
+    direction : float
+        Degrees clockwise from true north, toward; NaN with no velocity.
+    steadiness : float
+        The speed of the mean of the daily-mean, depth-mean velocity over the mean
+        of their speeds: 0 for flow that reverses evenly, 1 for flow that never
+        turns.
+    """
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)  # an empty step's mean
+        daily = (
+            xr.Dataset({"u": east, "v": north})
+            .mean("pressure", skipna=True)
+            .resample(time="1D")
+            .mean()
+        )
+    u, v = daily["u"].values, daily["v"].values
+    ok = np.isfinite(u) & np.isfinite(v)
+    mean_speed = float(np.hypot(u[ok], v[ok]).mean()) if ok.any() else 0.0
+    if not mean_speed > 0:
+        return float("nan"), 0.0
+    mean_u, mean_v = u[ok].mean(), v[ok].mean()
+    return (
+        float(flow_direction(mean_u, mean_v)),
+        float(np.hypot(mean_u, mean_v)) / mean_speed,
+    )
+
+
+def rotated_components(
     east: xr.DataArray, north: xr.DataArray, angle_deg: float
 ) -> tuple[xr.DataArray, xr.DataArray]:
-    """Return the along- and across-slope velocity for an along-slope direction.
+    """Return the velocity toward a direction and across it.
 
     Parameters
     ----------
     east, north : xarray.DataArray
         Velocity components.
     angle_deg : float
-        The along-slope direction, degrees clockwise from north.
+        The direction, degrees clockwise from true north.
 
     Returns
     -------

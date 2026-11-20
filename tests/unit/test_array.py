@@ -166,7 +166,7 @@ class TestBuildTypeSummary:
 
     def test_each_type_deployed_and_processed(self, tmp_path):
         rows = _build_type_summary(_dune2_instruments(tmp_path))
-        assert [r["itype"] for r in rows] == ["microcat", "aquadopp"]
+        assert [r["label"] for r in rows] == ["CTD", "current meter"]
         assert all(r["deployed"] == r["processed"] == 1 for r in rows)
         assert all(r["skipped"] == r["stopped_early"] == 0 for r in rows)
         assert all(r["notes"] == "" for r in rows)
@@ -179,12 +179,14 @@ class TestBuildTypeSummary:
             )
 
         rows = {
-            r["itype"]: r
+            r["label"]: r
             for r in _build_type_summary(_dune2_instruments(tmp_path, skip))
         }
-        assert rows["aquadopp"]["skipped"] == rows["aquadopp"]["not_here"] == 1
-        assert rows["aquadopp"]["processed"] == 0
-        assert rows["aquadopp"]["notes"] == "flooded"
+        assert (
+            rows["current meter"]["skipped"] == rows["current meter"]["not_here"] == 1
+        )
+        assert rows["current meter"]["processed"] == 0
+        assert rows["current meter"]["notes"] == "flooded"
 
     def test_inline_instruments_counted_and_non_mapping_entries_skipped(self, tmp_path):
         """The Aquadopp moved to ``inline:`` beside a shackle, a bare string in ``clamp:``."""
@@ -196,7 +198,7 @@ class TestBuildTypeSummary:
             )
 
         rows = _build_type_summary(_dune2_instruments(tmp_path, inline))
-        assert [r["itype"] for r in rows] == ["microcat", "aquadopp"]
+        assert [r["label"] for r in rows] == ["CTD", "current meter"]
         assert all(r["deployed"] == r["processed"] == 1 for r in rows)
 
     def test_records_ending_before_recovery_stopped_early(self, tmp_path):
@@ -273,6 +275,37 @@ class TestArrayModeOutputDir:
         # The flag that DOES apply in array mode is honoured, not dropped.
         assert seen["report_dir"] == Path(str(central))
 
+    def test_bathymetry_reaches_the_year_page(self, tmp_path):
+        """``report --array --bathymetry FILE`` draws the file's contours on the map."""
+        import warnings
+
+        from oceanarray.cli import build_parser
+
+        fix = Path(__file__).resolve().parents[1] / "fixtures"
+        config = fix / "proc" / "egM2_concat" / "egM2_2016" / "egM2_2016.mooring.yaml"
+        yaml_path = tmp_path / "EG.array.yaml"
+        yaml_path.write_text(
+            "name: EG\nyear: 2016\nmoorings:\n"
+            f"- mooring: egM2_2016\n  config: {config}\n",
+            encoding="utf-8",
+        )
+        args = build_parser().parse_args(
+            [
+                "report",
+                str(yaml_path),
+                "--array",
+                "--proc-dir",
+                str(tmp_path),
+                "--bathymetry",
+                str(fix / "bathymetry" / "etopo1_osnap_east_8min.nc"),
+            ]
+        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            assert args.func(args) == 0
+        html = (tmp_path / "EG_array_report.html").read_text(encoding="utf-8")
+        assert "L.geoJSON(CONTOURS" in html and "from ETOPO1." in html
+
 
 class TestArrayHeader:
     """The year page's header: the ruled fields, in order, and the status."""
@@ -285,6 +318,9 @@ class TestArrayHeader:
             "waterdepth": 800,
             "_deploy_dt": datetime(2016, 7, 10, tzinfo=UTC),
             "_recover_dt": recovered,
+            "group": "other",
+            "deployed_by": ("DY054", "RRS Discovery"),
+            "recovered_by": (None, None),
         }
 
     def test_fields_in_order(self, tmp_path):
@@ -308,13 +344,18 @@ class TestArrayHeader:
         assert labels == [
             "Year deployed",
             "Project",
-            "Number of moorings",
+            "Moorings",
             "Status",
+            "Deployed",
+            "Recovered",
             "Water depth",
             "Instruments",
-            "Aquadopps not processed here",
+            "Instruments not processed",
         ]
         assert facts[3][1] == "recovered"
+        assert facts[4][1] == "10 Jul 2016<small>DY054 (RRS Discovery)</small>"
+        assert facts[5][1] == "24 Jul 2018"
+        assert facts[7][1] == "2<small>CTD 1 · current meter 1</small>"
         assert facts[-1][1] == "1"
 
     def test_status_some_recovered_and_in_the_water(self):
@@ -409,6 +450,48 @@ class TestBathymetryContours:
         assert "does not cover" in caplog.text
         assert not (tmp_path / "c.json").exists()
 
+    def test_the_cache_follows_the_file_not_its_name(self, tmp_path):
+        """Another file of the same name, or the file rewritten, draws afresh."""
+        import shutil
+
+        import xarray as xr
+
+        from oceanarray.reports._array import bathymetry_contours
+
+        cache = tmp_path / "contours.json"
+        (tmp_path / "a").mkdir()
+        (tmp_path / "b").mkdir()
+        here = shutil.copy(self._ETOPO, tmp_path / "a" / "etopo.nc")
+        with xr.open_dataset(self._ETOPO, engine="netcdf4") as ds:
+            (ds - 500).to_netcdf(tmp_path / "b" / "etopo.nc")
+        first = bathymetry_contours(here, self._EAST_GREENLAND, cache)
+        assert bathymetry_contours(here, self._EAST_GREENLAND, cache) == first
+        other = bathymetry_contours(
+            tmp_path / "b" / "etopo.nc", self._EAST_GREENLAND, cache
+        )
+        assert other != first
+        assert bathymetry_contours(here, self._EAST_GREENLAND, cache) == first
+        shutil.copy(tmp_path / "b" / "etopo.nc", here)
+        assert bathymetry_contours(here, self._EAST_GREENLAND, cache) == other
+
+
+class TestDatasetName:
+    """The map caption names the bathymetry dataset from the file's title."""
+
+    _ETOPO = TestBathymetryContours._ETOPO
+
+    def test_etopo1_and_a_gebco_title(self, tmp_path):
+        import xarray as xr
+
+        from oceanarray.reports._array import dataset_name
+
+        assert dataset_name(self._ETOPO) == "ETOPO1"
+        gebco = tmp_path / "gebco.nc"
+        with xr.open_dataset(self._ETOPO, engine="netcdf4") as ds:
+            ds.attrs = {"title": "The GEBCO_2025 Grid - a continuous terrain model"}
+            ds.to_netcdf(gebco)
+        assert dataset_name(gebco) == "GEBCO 2025"
+
 
 class TestYearPage:
     """The year page on the egM2 2016 and 2018 deployments, with ETOPO1 depth contours."""
@@ -422,21 +505,27 @@ class TestYearPage:
         from oceanarray.reports._array import generate_array_report
 
         root = tmp_path_factory.mktemp("year")
+        # egM2_2018 has no subarray: it is grouped as "other".
         moorings = "".join(
             f"- mooring: {n}\n  config: {self._FIX / 'proc' / 'egM2_concat' / n / f'{n}.mooring.yaml'}\n"
-            "  line: East Greenland\n"
-            for n in ("egM2_2016", "egM2_2018")
+            + extra
+            for n, extra in (("egM2_2016", "  subarray: eg\n"), ("egM2_2018", ""))
         )
         array_yaml = root / "EG.array.yaml"
         array_yaml.write_text(
-            f"name: EG\nyear: 2016\nproject: OSNAP East\n"
-            f"bathymetry: {self._FIX / 'bathymetry' / 'etopo1_osnap_east_8min.nc'}\n"
+            "name: EG\nyear: 2016\nproject: OSNAP East\ncruise: DY054\n"
+            "subarrays:\n  eg: {name: East Greenland Array, short: East Greenland}\n"
             f"moorings:\n{moorings}",
             encoding="utf-8",
         )
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            out = generate_array_report(array_yaml, root, force=True)
+            out = generate_array_report(
+                array_yaml,
+                root,
+                force=True,
+                bathymetry=self._FIX / "bathymetry" / "etopo1_osnap_east_8min.nc",
+            )
         return root, out.read_text(encoding="utf-8")
 
     def test_header_fields_in_the_ruled_order(self, page):
@@ -444,22 +533,52 @@ class TestYearPage:
         labels = [
             "Year deployed",
             "Project",
-            "Number of moorings",
+            "Moorings",
             "Status",
+            "Deployed",
+            "Recovered",
             "Water depth",
             "Instruments",
         ]
         at = [html.index(f"<dt>{label}</dt>") for label in labels]
         assert at == sorted(at)
-        assert "<dt>Recovered</dt>" not in html and "<dt>Position</dt>" not in html
+        assert "<dt>Position</dt>" not in html
+        assert ">OSNAP East 2016<" in html and ">Deployment year<" in html
+        # The deployment cruises from the mooring YAMLs, grouped by ship.
+        assert "DY054 (RRS Discovery) · AR30-03 (RV Neil Armstrong)" in html
+        assert "AR46 (RV Neil Armstrong)" in html
 
-    def test_map_has_depth_contours_and_lines(self, page):
+    def test_map_has_depth_contours_and_subarrays(self, page):
         root, html = page
         assert "L.geoJSON(CONTOURS" in html
         assert (root / "_EG_contours.json").exists()
-        assert "Moorings deployed in 2016, coloured by line" in html
-        assert "etopo1_osnap_east_8min.nc" in html
-        assert '<div class="legend">' in html and "East Greenland" in html
+        assert "Moorings deployed in 2016, coloured by array" in html
+        # The dataset is named from the file's title, not the file name.
+        assert "from ETOPO1." in html and "etopo1_osnap_east_8min.nc" not in html
+        legend = html.split('<div class="legend">')[1].split("</div>")[0]
+        assert "East Greenland</span>" in legend and "other</span>" in legend
+        assert "East Greenland Array</td>" in html and "(East Greenland)" not in html
+
+    def test_unused_array_yaml_keys_warn_once(self, tmp_path, caplog):
+        """``cruise`` and a mooring's ``line`` are named in one warning."""
+        from oceanarray.reports._array import generate_array_report
+
+        config = (
+            self._FIX / "proc" / "egM2_concat" / "egM2_2016" / "egM2_2016.mooring.yaml"
+        )
+        array_yaml = tmp_path / "EG.array.yaml"
+        array_yaml.write_text(
+            "name: EG\ncruise: DY054\nvocab: []\nmoorings:\n"
+            f"- mooring: egM2_2016\n  config: {config}\n  line: East Greenland\n",
+            encoding="utf-8",
+        )
+        with caplog.at_level(logging.WARNING, logger="oceanarray.reports._array"):
+            generate_array_report(array_yaml, tmp_path)
+        unused = [r.message for r in caplog.records if "not used" in r.message]
+        assert unused == [
+            "EG.array.yaml: keys not used by the year page: cruise, vocab, "
+            "moorings: line (now subarray)"
+        ]
 
     def test_one_moorings_table_with_instruments_and_pages(self, page):
         _, html = page
@@ -468,8 +587,13 @@ class TestYearPage:
         assert "Gridded</span>" in html
         # No stage files here: every instrument is counted, none processed.
         assert re.search(r"<td>0 of \d+ \(", html)
-        durations = re.findall(r'<td class="num">([\d.]+ \w+)</td>', html)
-        assert len({d.split()[1] for d in durations}) == 1
+        # One unit, in the header; the cells are numbers.
+        assert re.search(
+            r'Duration<span class="th-unit">(years|months|days)</span>', html
+        )
+        assert re.findall(r'<td class="num">\d+\.\d</td>', html)
+        assert not re.search(r"<td[^>]*>[\d.]+ (years|months|days)</td>", html)
+        assert "Instruments by function</h2>" in html and "by type" not in html
 
     def test_a_water_depth_given_as_text_is_shown_as_given(self, tmp_path):
         """egM2_2016 with ``waterdepth: unknown`` (fails validation, read unvalidated)."""
@@ -501,7 +625,7 @@ class TestYearPage:
         assert '<td class="num">2436</td>' in html
         assert "2436–2436" in html  # the header's range, from the numeric depth
 
-    def test_without_lines_or_covering_bathymetry(self, tmp_path, caplog):
+    def test_without_subarrays_or_covering_bathymetry(self, tmp_path, caplog):
         """One colour per mooring, and a file north of the moorings: no contours."""
         import warnings
 
@@ -527,6 +651,7 @@ class TestYearPage:
             warnings.simplefilter("ignore")
             out = generate_array_report(array_yaml, tmp_path, bathymetry=north)
         html = out.read_text(encoding="utf-8")
-        assert "one colour per mooring" in html and "coloured by line" not in html
+        assert "one colour per mooring" in html and "coloured by array" not in html
+        assert "<th>Array</th>" not in html
         assert "L.geoJSON(CONTOURS" not in html and "Depth contours" not in html
         assert "north.nc does not cover" in caplog.text

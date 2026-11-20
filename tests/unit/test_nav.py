@@ -83,6 +83,24 @@ def test_type_labels_never_capitalize():
     assert _type_label("unknownthing") == "UNKNOWNTHING"
 
 
+def test_types_are_named_by_function_on_the_multi_deployment_pages():
+    """The model maps to its function: CTD, current meter (CM), temperature logger (T)."""
+    from oceanarray.reports._navs import function_abbr, function_word
+
+    assert [function_word(t) for t in ("microcat", "aquadopp", "currentmeter")] == [
+        "CTD",
+        "current meter",
+        "current meter",
+    ]
+    assert [function_abbr(t) for t in ("sbe37", "aquadopp", "tr1050", "adcp")] == [
+        "CTD",
+        "CM",
+        "T",
+        "ADCP",
+    ]
+    assert function_word("seapoint") == "Seapoint"  # no function: the model
+
+
 def test_rendered_nav_has_one_element_per_row_and_no_inline_style():
     nav = mooring_nav("m", _INSTR, current="summary", array_href="../a.html")
     html = _render(nav)

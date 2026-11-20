@@ -22,27 +22,36 @@ from typing import Any
 
 from ._vendored.page_model import validate_nav
 
-#: Display labels for the known instrument types (keyed by the lower-cased
-#: ``instr_type``).  Acronyms and model numbers are upper-cased, product names
-#: title-cased — never ``str.capitalize`` (which would render "Adcp").  An unknown
-#: type falls back to upper-case, which suits oceanarray's acronym/model-number
-#: naming.
-_TYPE_LABELS: dict[str, str] = {
-    "adcp": "ADCP",
-    "rdi": "RDI",
-    "aquadopp": "Aquadopp",
-    "nortek": "Nortek",
-    "microcat": "MicroCAT",
-    "currentmeter": "Current meter",
-    "rbr": "RBR",
-    "rbrduet": "RBRduet",
-    "rbrsolo": "RBRsolo",
-    "sbe16": "SBE16",
-    "sbe37": "SBE37",
-    "sbe56": "SBE56",
-    "thermistor": "Thermistor",
-    "tr1050": "TR-1050",
-    "seapoint": "Seapoint",
+#: Each known instrument type (keyed by the lower-cased ``instr_type``): its model
+#: label and its function. Model labels upper-case acronyms and model numbers and
+#: title-case product names, never ``str.capitalize`` ("Adcp"); an unknown type falls
+#: back to upper-case. The function names a type on the pages that mix deployments
+#: (Stack cat, Grid cat, year page); the model stays on the deployment and
+#: instrument pages.
+_TYPE_LABELS: dict[str, tuple[str, str | None]] = {
+    "adcp": ("ADCP", "ADCP"),
+    "rdi": ("RDI", "ADCP"),
+    "aquadopp": ("Aquadopp", "current meter"),
+    "nortek": ("Nortek", "current meter"),
+    "microcat": ("MicroCAT", "CTD"),
+    "currentmeter": ("Current meter", "current meter"),
+    "rbr": ("RBR", None),
+    "rbrduet": ("RBRduet", "temperature logger"),
+    "rbrsolo": ("RBRsolo", "temperature logger"),
+    "sbe16": ("SBE16", "CTD"),
+    "sbe37": ("SBE37", "CTD"),
+    "sbe56": ("SBE56", "temperature logger"),
+    "thermistor": ("Thermistor", "temperature logger"),
+    "tr1050": ("TR-1050", "temperature logger"),
+    "seapoint": ("Seapoint", None),
+}
+
+#: The abbreviation of each function.
+FUNCTION_ABBR: dict[str, str] = {
+    "CTD": "CTD",
+    "current meter": "CM",
+    "temperature logger": "T",
+    "ADCP": "ADCP",
 }
 
 #: Display order of instrument types in counts and summaries; other types follow
@@ -58,14 +67,29 @@ _TYPE_ORDER = [
 
 
 def _type_label(itype: str) -> str:
-    """Return the display label for an instrument type, upper-casing the unknown."""
-    return _TYPE_LABELS.get(itype, itype.upper())
+    """Return the model label for an instrument type, upper-casing the unknown."""
+    return _TYPE_LABELS.get(itype, (itype.upper(),))[0]
 
 
-def type_word(itype: str) -> str:
-    """Return the type as written inside a sentence or table cell ("current meter")."""
-    label = _type_label(itype)
-    return label.lower() if itype in ("currentmeter", "thermistor") else label
+def function_word(itype: str) -> str:
+    """Return the type's function ("current meter"), else its model label.
+
+    Parameters
+    ----------
+    itype : str
+        The lower-cased instrument type.
+
+    Returns
+    -------
+    str
+    """
+    return _TYPE_LABELS.get(itype, (None, None))[1] or _type_label(itype)
+
+
+def function_abbr(itype: str) -> str:
+    """Return the type's function abbreviation ("CM"), else its model label."""
+    word = function_word(itype)
+    return FUNCTION_ABBR.get(word, word)
 
 
 def _state(*, is_current: bool, is_missing: bool) -> str:

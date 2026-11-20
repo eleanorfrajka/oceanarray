@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% import "_map.html" as nc_map %}
 {% import "_expand_all.html" as xa %}
-{% block title %}{{ array_name }} &ndash; moorings deployed in {{ year }}{% endblock %}
+{% block title %}{{ title }} &ndash; moorings deployed in {{ year }}{% endblock %}
 {% block page_styles %}
   .btn { display:inline-block; padding:0.15em 0.55em; border-radius:4px; font-size:0.75rem;
          font-weight:700; text-decoration:none; color:#fff; margin:0 0.15rem 0.2rem 0; }
@@ -12,25 +12,26 @@
   .dot { display:inline-block; width:0.75em; height:0.75em; border-radius:50%;
          margin-right:0.35em; vertical-align:middle; }
   .legend { display:flex; flex-wrap:wrap; gap:0.3rem 1.2rem; font-size:var(--fs-nav); margin:0.6rem 0 0.2rem; }
+  .meta-grid dd small { display:block; font-weight:400; opacity:0.85; }
   .fig { max-width:60%; display:block; margin:0.5rem auto 1rem; border:1px solid var(--rule); border-radius:4px; }
 {% endblock %}
 {% block head_extra %}{{ nc_map.map_styles(leaflet_css, map_height) }}{% endblock %}
-{% block masthead_title %}{{ array_name }}{% endblock %}
-{% block masthead_type %}Array{% endblock %}
+{% block masthead_title %}{{ title }}{% endblock %}
+{% block masthead_type %}Deployment year{% endblock %}
 {% block masthead_nav %}{% endblock %}
 {% block content %}
 
-<nav class="jump-nav"><a href="#moorings">Moorings</a><a href="#type-summary">Instruments by type</a><a href="#processing">Processing</a></nav>
+<nav class="jump-nav"><a href="#moorings">Moorings</a><a href="#type-summary">Instruments by function</a><a href="#processing">Processing</a></nav>
 {{ xa.button() }}
 
 {% if payload_json != "[]" or fig_map_b64 %}
 <h2>Mooring positions</h2>
-<p class="caption">Moorings deployed in {{ year }}, {% if lines %}coloured by line{% else %}one colour per mooring{% endif %}. Click a mooring for its page.{% if contours %}
-Depth contours{% for d, c in contours.items() %} <span style="color:{{ c }}">&#9644;</span> {{ d }}{% if not loop.last %},{% endif %}{% endfor %} m, from {{ contour_file }}.{% endif %}
+<p class="caption">Moorings deployed in {{ year }}, {% if legend %}coloured by array{% else %}one colour per mooring{% endif %}. Click a mooring for its page.{% if contours %}
+Depth contours{% for d, c in contours.items() %} <span style="color:{{ c }}">&#9644;</span> {{ d }}{% if not loop.last %},{% endif %}{% endfor %} m, from {{ contour_source }}.{% endif %}
 {% if payload_json != "[]" %}Where labels would overlap, only the westernmost is shown; zoom in to see the rest.{% endif %}</p>
 {% if payload_json != "[]" %}
 {{ nc_map.track_map(payload_json, coastline_json, bounds_json, fig_map_b64, leaflet_js) }}
-{% if lines %}<div class="legend">{% for name, color in lines %}<span><span class="dot" style="background:{{ color }}"></span>{{ name }}</span>{% endfor %}</div>{% endif %}
+{% if legend %}<div class="legend">{% for a in legend %}<span><span class="dot" style="background:{{ a.color }}"></span>{{ a.short }}</span>{% endfor %}</div>{% endif %}
 <script>
 /* Hide map labels that overlap one already shown, taken west to east, again after
    each zoom. A hidden label keeps its box, and a label is written only when it
@@ -73,20 +74,21 @@ Depth contours{% for d, c in contours.items() %} <span style="color:{{ c }}">&#9
 {% endif %}
 
 <h2 id="moorings">Moorings</h2>
-<p class="caption">Moorings of the {{ year }} deployment cruises: as-deployed position and water depth,
+<p class="caption">Moorings of the {{ year }} deployment cruises: {% if legend %}the array each belongs to, {% endif %}as-deployed position and water depth,
 deployment and recovery (UTC); instruments processed of those deployed.</p>
 <table>
   <thead>
     <tr>
-      <th>Mooring</th><th>Position</th><th class="num">Water depth<span class="th-unit">m</span></th>
+      <th>Mooring</th>{% if legend %}<th>Array</th>{% endif %}<th>Position</th><th class="num">Water depth<span class="th-unit">m</span></th>
       <th>Deployed<span class="th-unit">UTC</span></th><th>Recovered<span class="th-unit">UTC</span></th>
-      <th class="num">Duration</th><th>Instruments</th><th>Pages</th>
+      <th class="num">Duration<span class="th-unit">{{ duration_unit }}</span></th><th>Instruments</th><th>Pages</th>
     </tr>
   </thead>
   <tbody>
   {% for r in moorings %}
   <tr data-track-id="{{ r.mooring }}">
-    <td><span class="dot" style="background:{{ r.color_hex }}"></span>{% if r.report_exists %}<a href="{{ r.report_href }}"><strong>{{ r.mooring }}</strong></a>{% else %}<strong>{{ r.mooring }}</strong>{% endif %}</td>
+    <td>{% if not legend %}<span class="dot" style="background:{{ r.color_hex }}"></span>{% endif %}{% if r.report_exists %}<a href="{{ r.report_href }}"><strong>{{ r.mooring }}</strong></a>{% else %}<strong>{{ r.mooring }}</strong>{% endif %}</td>
+    {% if legend %}<td><span class="dot" style="background:{{ r.color_hex }}"></span>{{ r.array.name }}</td>{% endif %}
     <td>{{ r.position }}</td>
     <td class="num">{{ r.waterdepth_text }}</td>
     <td>{{ r.deploy_time }}</td>
@@ -104,12 +106,12 @@ deployment and recovery (UTC); instruments processed of those deployed.</p>
 </table>
 
 {% if type_summary %}
-<h2 id="type-summary">Instruments by type</h2>
-<p class="caption">Instruments on the {{ year }} moorings by type: deployed, processed here, not processed (with the
+<h2 id="type-summary">Instruments by function</h2>
+<p class="caption">Instruments on the {{ year }} moorings by function: deployed, processed here, not processed (with the
 reason the mooring description gives), and records that ended more than {{ stopped_hours }} h before recovery.</p>
 <table>
   <thead>
-    <tr><th>Type</th><th class="num">Deployed</th><th class="num">Processed</th><th class="num">Not processed</th>
+    <tr><th>Function</th><th class="num">Deployed</th><th class="num">Processed</th><th class="num">Not processed</th>
     <th class="num">Stopped early</th><th>Why not processed</th></tr>
   </thead>
   <tbody>

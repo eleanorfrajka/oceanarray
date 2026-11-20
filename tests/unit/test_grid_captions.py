@@ -421,3 +421,35 @@ def test_sigma_contours_skip_all_nan_limits(stack, caplog):
         assert ts.sigma0_contours((np.nan, np.nan), (2.0, 8.0), (lat, lon)) is None
     assert "σθ contours not drawn" in caplog.text
     assert ts.draw_sigma0_contours(None, None) is None
+
+
+def test_every_sigma_contour_keeps_a_label_under_the_report_style(stack):
+    """dune2 stack T-S as the page draws it: each σθ contour in the frame is labelled."""
+    import matplotlib.pyplot as plt
+    from matplotlib.contour import ContourSet
+
+    from oceanarray.config import parameters as params
+    from oceanarray.plotters import ts
+    from oceanarray.reports._vendored import design_tokens
+
+    with plt.style.context(str(params.MPLSTYLE)):
+        fig = ts.draw_stack_ts_diagram(
+            stack, derived=derived_fields(stack), width_in=design_tokens.W_FULL
+        )
+        fig.canvas.draw()
+    for ax in fig.axes:
+        for cs in (c for c in ax.collections if isinstance(c, ContourSet)):
+            (x0, x1), (y0, y1) = ax.get_xlim(), ax.get_ylim()
+            shown = {float(t.get_text()) for t in ax.texts if t in cs.labelTexts}
+            for level, segments in zip(cs.levels, cs.allsegs, strict=True):
+                in_frame = any(
+                    (
+                        (s[:, 0] > x0)
+                        & (s[:, 0] < x1)
+                        & (s[:, 1] > y0)
+                        & (s[:, 1] < y1)
+                    ).any()
+                    for s in segments
+                )
+                assert not in_frame or round(level, 2) in shown, level
+    plt.close(fig)

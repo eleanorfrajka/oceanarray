@@ -1,4 +1,4 @@
-"""Year array page: the moorings of one array YAML, with a map and their instruments.
+"""Year page: the moorings of one array YAML, with a map and their instruments.
 
 Reads a ``*.array.yaml`` file, gathers per-mooring metadata from each mooring's
 YAML, draws a position map, and writes one HTML page linking every mooring's
@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import warnings
 from collections import Counter
 from datetime import UTC, datetime
@@ -19,7 +20,7 @@ from typing import Any
 
 import numpy as np
 import yaml
-from markupsafe import escape
+from markupsafe import Markup, escape
 
 from oceanarray import location, logger
 from oceanarray import mooring as _mooring
@@ -36,10 +37,10 @@ from ._html_helpers import (
     STOPPED_EARLY_HOURS,
     _parse_dt,
     _stage_files,
-    format_durations,
+    duration_cells,
     span_seconds,
 )
-from ._navs import _TYPE_ORDER, _type_label, type_word
+from ._navs import FUNCTION_ABBR, function_word
 from ._plots import render_b64
 from ._read import _read_instrument_info
 from ._vendored import design_tokens as report_tokens
@@ -58,6 +59,8 @@ CONTOURS: dict[int, str] = {
 #: Bathymetry is averaged to about this resolution (degrees, 4 arc-minutes) before
 #: contouring.
 CONTOUR_RESOLUTION_DEG: float = 4.0 / 60.0
+#: A bathymetry dataset's name in its title or summary.
+DATASET_NAME = re.compile(r"\b(GEBCO[ _]?\d{4}|GEBCO|ETOPO ?\d+|SRTM\w*|IBCAO\S*)\b")
 #: Contour pieces with fewer points than this (seamount specks) are dropped.
 CONTOUR_MIN_POINTS: int = 30
 #: Contours are drawn this far (degrees) beyond the moorings, so panning shows them.
@@ -77,6 +80,25 @@ CONTOUR_JS = """
 #: Why an instrument the description skips has no pages: not processed here, not
 #: missing at the originator.
 NOT_HERE = "not processed here"
+
+#: Array YAML keys the year page no longer reads (each mooring YAML gives these, and
+#: the bathymetry file is an argument).
+IGNORED_KEYS: tuple[str, ...] = (
+    "cruise",
+    "ship",
+    "deployment_time",
+    "recovery_time",
+    "latitude",
+    "longitude",
+    "position",
+    "waterdepth_min",
+    "waterdepth_max",
+    "vocab",
+    "bathymetry",
+)
+
+#: The group of the moorings an array YAML gives no ``subarray``.
+OTHER = "other"
 
 #: A mooring's pages the year page links: key and file suffix.
 _PAGES: tuple[tuple[str, str], ...] = (
@@ -119,8 +141,8 @@ def bathymetry_contours(
     extent : tuple of float
         West, south, east, north, in degrees.
     cache : Path
-        JSON file the contours are kept in, reused while the file, extent and
-        depths are the same.
+        JSON file the contours are kept in, reused while the file (path, size,
+        modification time), extent and depths are the same.
 
     Returns
     -------
@@ -132,18 +154,19 @@ def bathymetry_contours(
     import matplotlib.pyplot as plt
     import xarray as xr
 
+    if not path.exists():
+        _log.warning("no depth contours on the map: %s not found", path)
+        return None
+    stat = path.stat()
     key = {
         "extent": [round(v, 2) for v in extent],
         "depths": list(CONTOURS),
-        "file": path.name,
+        "file": [str(path.resolve()), stat.st_mtime_ns, stat.st_size],
     }
     if cache.exists():
         cached = json.loads(cache.read_text(encoding="utf-8"))
         if cached.get("key") == key:
             return json.dumps(cached["geojson"], separators=(",", ":"))
-    if not path.exists():
-        _log.warning("no depth contours on the map: %s not found", path)
-        return None
     west, south, east, north = extent
     with xr.open_dataset(path, engine="netcdf4") as ds:
         z = next(ds[v] for v in ds.data_vars if ds[v].ndim == 2)
@@ -193,6 +216,31 @@ def bathymetry_contours(
         encoding="utf-8",
     )
     return json.dumps(geojson, separators=(",", ":"))
+
+
+def dataset_name(path: Path) -> str:
+    """Return the bathymetry dataset's name ("ETOPO1", "GEBCO 2025") from its attributes.
+
+    Parameters
+    ----------
+    path : Path
+        The bathymetry file.
+
+    Returns
+    -------
+    str
+        The first dataset name in its ``title`` or ``summary``; else the title
+        itself; else "the bathymetry file".
+    """
+    import xarray as xr
+
+    with xr.open_dataset(path, engine="netcdf4") as ds:
+        attrs = ds.attrs
+    for key in ("title", "summary"):
+        found = DATASET_NAME.search(str(attrs.get(key, "")))
+        if found:
+            return found.group(0).replace("_", " ")
+    return str(attrs.get("title") or "the bathymetry file")
 
 
 def _with_contours(html: str, contours: str) -> str:
@@ -304,25 +352,23 @@ def _build_mooring_instruments(
 def _build_type_summary(
     mooring_instruments: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
-    """Return the instrument-type table: one row per type, deployed and processed."""
+    """Return the instrument-type table: one row per function, deployed and processed."""
     by_type: dict[str, list[dict[str, Any]]] = {}
     for instr in mooring_instruments:
-        by_type.setdefault(instr["itype"], []).append(instr)
-    canonical = [t.lower() for t in _TYPE_ORDER]
-    order = [t for t in canonical if t in by_type] + sorted(
-        t for t in by_type if t not in canonical
+        by_type.setdefault(function_word(instr["itype"]), []).append(instr)
+    order = [t for t in FUNCTION_ABBR if t in by_type] + sorted(
+        t for t in by_type if t not in FUNCTION_ABBR
     )
     rows = []
-    for itype in order:
-        group = by_type[itype]
+    for label in order:
+        group = by_type[label]
         rows.append(
             {
-                "itype": itype,
-                "label": _type_label(itype),
+                "label": label,
                 "deployed": len(group),
                 "processed": sum(i["processed"] for i in group),
                 "skipped": sum(i["skipped"] for i in group),
-                "not_here": sum(i.get("skip_reason") == NOT_HERE for i in group),
+                "not_here": sum(i["skip_reason"] == NOT_HERE for i in group),
                 "stopped_early": sum(i["stopped_early"] for i in group),
                 "notes": "; ".join(
                     sorted(
@@ -342,10 +388,49 @@ def _instruments_cell(instrs: list[dict[str, Any]]) -> str:
     """Return ``"14 of 15 (1 ADCP not processed here)"`` for one mooring."""
     processed = sum(i["processed"] for i in instrs)
     missing = Counter(
-        (type_word(i["itype"]), i["skip_reason"]) for i in instrs if i["skipped"]
+        (function_word(i["itype"]), i["skip_reason"]) for i in instrs if i["skipped"]
     )
     notes = ", ".join(f"{n} {t} {why}" for (t, why), n in missing.items())
     return f"{processed} of {len(instrs)}" + (f" ({notes})" if notes else "")
+
+
+def _date_range(dates: list[datetime]) -> str | None:
+    """Return ``"10 Jul – 16 Aug 2016"`` (the year once when shared), None when empty."""
+    if not dates:
+        return None
+    first, last = min(dates), max(dates)
+    end = f"{last.day} {last:%b %Y}"
+    if first.date() == last.date():
+        return end
+    start = f"{first.day} {first:%b}" + (
+        "" if first.year == last.year else f" {first:%Y}"
+    )
+    return f"{start} – {end}"
+
+
+def _cruises(rows: list[dict[str, Any]], key: str) -> str:
+    """Return the cruises of *key* (deployment or recovery) grouped by ship.
+
+    ``"DY053, DY054 (RRS Discovery) · AR07-01 (RV Neil Armstrong)"``.
+    """
+    by_ship: dict[str, list[str]] = {}
+    for r in rows:
+        cruise, ship = r[key]
+        if cruise:
+            names = by_ship.setdefault(ship or "", [])
+            if cruise not in names:
+                names.append(cruise)
+    return " · ".join(
+        ", ".join(sorted(c)) + (f" ({ship})" if ship else "")
+        for ship, c in by_ship.items()
+    )
+
+
+def _with_note(value: Any, note: str) -> Any:
+    """Return a header value with a second, lighter line."""
+    if value is None or not note:
+        return value
+    return Markup("{}<small>{}</small>").format(value, note)
 
 
 def _build_array_masthead(
@@ -354,14 +439,15 @@ def _build_array_masthead(
     type_summary: list[dict[str, Any]],
     now: datetime | None = None,
 ) -> list[_masthead.Fact]:
-    """Return the header: year deployed, project, moorings, status, water depth, instruments.
+    """Return the header facts of the year page.
 
     Parameters
     ----------
     array_cfg : dict
         The array YAML.
     rows : list of dict
-        One row per mooring (``_deploy_dt``, ``_recover_dt``, ``waterdepth``).
+        One row per mooring (``_deploy_dt``, ``_recover_dt``, ``waterdepth``,
+        ``deployed_by``, ``recovered_by``, ``group``).
     type_summary : list of dict
         :func:`_build_type_summary`.
     now : datetime, optional
@@ -370,16 +456,13 @@ def _build_array_masthead(
     Returns
     -------
     list of Fact
-        In the page's order; each type with instruments not processed adds a fact.
+        Year deployed, project, moorings, status, deployed, recovered, water
+        depth, instruments, and the instruments the descriptions skip, when any.
     """
     now = now or datetime.now(UTC)
-    years = sorted({r["_deploy_dt"].year for r in rows if r["_deploy_dt"]})
-    recovered = sum(
-        1
-        for r in rows
-        if r["_recover_dt"] is not None
-        and r["_recover_dt"].replace(tzinfo=r["_recover_dt"].tzinfo or UTC) <= now
-    )
+    deployed = [r["_deploy_dt"] for r in rows if r["_deploy_dt"]]
+    ended = [r["_recover_dt"] for r in rows if r["_recover_dt"]]
+    recovered = sum(1 for t in ended if t.replace(tzinfo=t.tzinfo or UTC) <= now)
     if recovered == len(rows):
         status = "recovered"
     else:
@@ -387,27 +470,33 @@ def _build_array_masthead(
             f"{recovered} of {len(rows)} recovered" if recovered else "in the water"
         )
     depths = [r["waterdepth"] for r in rows if r["waterdepth"] is not None]
-    by_type = " · ".join(
-        f"{type_word(t['itype'])} {t['deployed']}" for t in type_summary
-    )
+    groups = {r["group"] for r in rows if r["group"] != OTHER}
+    by_type = " · ".join(f"{t['label']} {t['deployed']}" for t in type_summary)
     total = sum(t["deployed"] for t in type_summary)
+    not_here = sum(t["not_here"] for t in type_summary)
     f = _masthead._fact
     return [
-        f("Year deployed", array_cfg.get("year") or (years[0] if years else None)),
+        f(
+            "Year deployed",
+            array_cfg.get("year") or (min(deployed).year if deployed else None),
+        ),
         f("Project", array_cfg.get("project")),
-        f("Number of moorings", len(rows)),
+        f(
+            "Moorings",
+            _with_note(
+                len(rows), f"in {len(groups)} arrays" if len(groups) > 1 else ""
+            ),
+        ),
         f("Status", status if rows else None),
+        f("Deployed", _with_note(_date_range(deployed), _cruises(rows, "deployed_by"))),
+        f("Recovered", _with_note(_date_range(ended), _cruises(rows, "recovered_by"))),
         f(
             "Water depth",
             f"{min(depths):.0f}–{max(depths):.0f}" if depths else None,
             "m",
         ),
-        f("Instruments", f"{total} ({by_type})" if total else None),
-    ] + [
-        f(f"{_type_label(t['itype'])}s {NOT_HERE}", t["not_here"])
-        for t in type_summary
-        if t["not_here"]
-    ]
+        f("Instruments", _with_note(total, by_type) if total else None),
+    ] + ([f("Instruments not processed", not_here)] if not_here else [])
 
 
 def _array_map_payload(rows: list[dict[str, Any]]) -> tuple[str, str, str]:
@@ -508,7 +597,15 @@ def _mooring_row(
         depth_m = None
     row = {
         "mooring": mooring_id,
-        "line": entry.get("line"),
+        "group": entry.get("subarray") or OTHER,
+        "deployed_by": (
+            _masthead._first(mcfg, "deployment_cruise", "cruise"),
+            _masthead._first(mcfg, "deployment_ship", "ship"),
+        ),
+        "recovered_by": (
+            _masthead._first(mcfg, "recovery_cruise"),
+            _masthead._first(mcfg, "recovery_ship"),
+        ),
         "lat": lat,
         "lon": lon,
         "position": (
@@ -540,14 +637,14 @@ def generate_array_report(
     breadcrumb: list[tuple[str, str | None]] | None = None,
     bathymetry: Path | None = None,
 ) -> Path | None:
-    """Generate the year array page from an array YAML file.
+    """Generate the year page from an array YAML file.
 
     Parameters
     ----------
     array_yaml_path : Path
-        Path to the ``*.array.yaml`` file. A mooring entry may name its ``line``
-        (moorings are coloured by line); ``bathymetry:`` names a bathymetry file
-        for the map's depth contours, relative to the YAML.
+        Path to the ``*.array.yaml`` file. A mooring entry may name its
+        ``subarray``, a key of the top-level ``subarrays`` table (``{key: {name:
+        ..., short: ...}}``); moorings are coloured by subarray.
     proc_dir : Path
         Root processing directory; each mooring is ``proc_dir / mooring_id``.
     out_path : Path, optional
@@ -562,8 +659,8 @@ def generate_array_report(
     breadcrumb : list of (str, str or None) or None, optional
         Ancestor crumbs shown above the title; hrefs are used as given.
     bathymetry : Path, optional
-        A bathymetry file (GEBCO or ETOPO) for the depth contours, in place of
-        the YAML's ``bathymetry:``. Without either, the map has no contours.
+        A bathymetry file (GEBCO or ETOPO) for the map's depth contours; without
+        it the map has none.
 
     Returns
     -------
@@ -583,23 +680,49 @@ def generate_array_report(
     if out_path.exists() and not force:
         logger.status("skip", str(out_path))
         return out_path
+    out_path.parent.mkdir(parents=True, exist_ok=True)
 
     entries = array_cfg.get("moorings", [])
+    ignored = [k for k in IGNORED_KEYS if k in array_cfg] + (
+        ["moorings: line (now subarray)"] if any("line" in e for e in entries) else []
+    )
+    if ignored:
+        _log.warning(
+            "%s: keys not used by the year page: %s",
+            array_yaml_path.name,
+            ", ".join(ignored),
+        )
     rows, instruments = [], []
     for entry in entries:
         row, instrs = _mooring_row(entry, array_yaml_path.parent, proc_dir, report_dir)
         rows.append(row)
         instruments.extend(instrs)
-    lines = list(dict.fromkeys(r["line"] for r in rows if r["line"]))
+    # One colour per subarray, "other" last; without subarrays, one per mooring.
+    names = array_cfg.get("subarrays") or {}
+    groups = sorted(dict.fromkeys(r["group"] for r in rows), key=lambda g: g == OTHER)
     colors = report_tokens.TRACK_COLORS
-    durations = format_durations(
+    by_group = len(groups) > 1 or groups != [OTHER]
+    legend = []
+    for k, group in enumerate(groups):
+        named = names.get(group) or {}
+        legend.append(
+            {
+                "key": group,
+                "name": named.get("name") or group,
+                "short": named.get("short") or group,
+                "color": colors[k % len(colors)],
+            }
+        )
+    duration_unit, durations = duration_cells(
         [span_seconds(r["_deploy_dt"], r["_recover_dt"]) for r in rows]
     )
     for k, (row, duration) in enumerate(zip(rows, durations, strict=True)):
         row["duration"] = duration
-        # One colour per line; without lines, one per mooring.
-        at = lines.index(row["line"]) if row["line"] in lines else k
-        row["color_hex"] = colors[at % len(colors)]
+        if by_group:
+            row["array"] = legend[groups.index(row["group"])]
+            row["color_hex"] = row["array"]["color"]
+        else:
+            row["color_hex"] = colors[k % len(colors)]
 
     type_summary = _build_type_summary(instruments)
     fig_map_b64 = _make_array_map_b64(rows)
@@ -607,16 +730,11 @@ def generate_array_report(
     payload_json, coastline_json, bounds_json = (
         _array_map_payload(rows) if ARRAY_MAP_LEAFLET else ("[]", "null", "null")
     )
-    gebco = bathymetry or (
-        array_yaml_path.parent / array_cfg["bathymetry"]
-        if array_cfg.get("bathymetry")
-        else None
-    )
     placed = [r for r in rows if r["lat"] is not None and r["lon"] is not None]
     contours = None
-    if gebco and placed and payload_json != "[]":
+    if bathymetry and placed and payload_json != "[]":
         contours = bathymetry_contours(
-            Path(gebco),
+            Path(bathymetry),
             (
                 min(r["lon"] for r in placed) - CONTOUR_PAD_DEG,
                 min(r["lat"] for r in placed) - CONTOUR_PAD_DEG,
@@ -625,13 +743,16 @@ def generate_array_report(
             ),
             out_path.parent / f"_{array_name}_contours.json",
         )
+    year = array_cfg.get("year") or next(
+        (r["_deploy_dt"].year for r in rows if r["_deploy_dt"]), ""
+    )
     html = render_template(
         "array.html",
-        array_name=array_name,
-        year=array_cfg.get("year")
-        or next((r["_deploy_dt"].year for r in rows if r["_deploy_dt"]), ""),
+        title=f"{array_cfg.get('project') or array_name} {year}".strip(),
+        year=year,
         moorings=rows,
-        lines=[(name, colors[i % len(colors)]) for i, name in enumerate(lines)],
+        duration_unit=duration_unit,
+        legend=legend if by_group else [],
         fig_map_b64=fig_map_b64,
         payload_json=payload_json,
         coastline_json=coastline_json,
@@ -640,7 +761,7 @@ def generate_array_report(
         leaflet_css=leaflet_css,
         map_height=460,
         contours=CONTOURS if contours else {},
-        contour_file=Path(gebco).name if contours else "",
+        contour_source=dataset_name(Path(bathymetry)) if contours else "",
         type_summary=type_summary,
         stopped_hours=STOPPED_EARLY_HOURS,
         meta_facts=_build_array_masthead(array_cfg, rows, type_summary),

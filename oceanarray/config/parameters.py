@@ -470,11 +470,11 @@ INSTRUMENT_FAMILIES: dict[str, str] = {
 SITE_SIGMA0_LEVELS: tuple[float, ...] = (27.6, 27.7, 27.75)
 SITE_SIGMA2_LEVELS: tuple[float, ...] = (36.9, 37.0, 37.1)
 
-#: The along-slope direction of a site grid, when none is given, is the direction
-#: of its mean flow, used only when the flow is steady enough: the speed of the
-#: mean of the daily-mean, depth-mean velocity over the mean of their speeds (0 for
-#: flow that reverses evenly, 1 for flow that never turns) must reach this.
-SLOPE_STEADINESS_MIN: float = 0.3
+#: The Grid cat page rotates the velocity to the direction of the mean flow, when no
+#: angle is given, only when the flow is steady enough: the speed of the mean of the
+#: daily-mean, depth-mean velocity over the mean of their speeds (0 for flow that
+#: reverses evenly, 1 for flow that never turns) must reach this.
+ROTATION_STEADINESS_MIN: float = 0.3
 
 #: The default pressure range of a site grid: from this low percentile of the
 #: shallowest depth's pressure to this high percentile of the deepest depth's.

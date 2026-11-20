@@ -315,3 +315,27 @@ def test_qc_table_has_one_good_column(page: str) -> None:
         sum(1 for h in heads if re.sub("<[^>]+>", "", h).strip().startswith("Good"))
         == 1
     )
+
+
+def test_qc_caption_names_the_flag_sources_only_when_both_are_shown(tmp_path) -> None:
+    """egM2 2018 MicroCAT 11514 with our flags only, then an originator's beside them."""
+    from oceanarray.reports import _qcflags
+    from oceanarray.reports._env import render_template
+    from oceanarray.reports._mooring import _qc_table
+
+    src = _PROC / "egM2_concat" / "egM2_2018" / "microcat" / "egM2_2018_11514_stage3.nc"
+    with xr.open_dataset(src, engine="netcdf4") as ds:
+        ds = ds.load()
+    mapped = ds["salinity_qc"].copy()
+    mapped[:] = 1
+    mapped[:10] = 3
+    ds["salinity_qc_originator_mapped"] = mapped
+    both = tmp_path / src.name
+    ds.to_netcdf(both, engine="netcdf4")
+    sentence = "Rows per flag source; figures mark the worse of the two."
+    for path, expected in ((src, False), (both, True)):
+        qc = _qc_table([_qc_instrument(path, "11514")])
+        html = render_template(
+            "_mooring_qc.html", qc=qc, good_sentence=_qcflags.good_sentence()
+        )
+        assert (sentence in html) is expected
