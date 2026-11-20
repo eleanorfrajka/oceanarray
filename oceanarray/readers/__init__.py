@@ -24,7 +24,7 @@ from oceanarray.readers import nortek
 from oceanarray.readers.netcdf import read_netcdf
 from oceanarray.readers.nortek import load_nortek_csv
 from oceanarray.readers.oceansites import read_oceansites
-from oceanarray.readers.rodb import read_rodb
+from oceanarray.readers.rodb import read_rodb, read_rodb_bins
 
 __all__ = [
     "load_nortek_csv",
@@ -32,6 +32,7 @@ __all__ = [
     "read_netcdf",
     "read_oceansites",
     "read_rodb",
+    "read_rodb_bins",
 ]
 
 #: OceanSITES parameter codes used to recognise an OceanSITES netCDF by content.

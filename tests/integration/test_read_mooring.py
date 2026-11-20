@@ -122,10 +122,10 @@ def test_mooring_attrs_stamp_position_and_window():
 
 
 def test_mooring_attrs_warn_and_mark_none_when_absent():
-    """A description with no position/window stamps placeholders with *_source=none."""
+    """No position: none stamped. No window: the placeholder. Both *_source=none."""
     with pytest.warns(UserWarning):
         attrs = header_attrs({"name": "x"})
-    assert attrs["latitude"] == 0.0
+    assert "latitude" not in attrs and "longitude" not in attrs
     assert attrs["location_source"] == "none"
     assert attrs["deployment_window_source"] == "none"
     assert "latitude_str" not in attrs  # not stamped for a placeholder position

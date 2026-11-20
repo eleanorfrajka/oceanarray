@@ -1,16 +1,20 @@
 """Unit tests for the Nortek CSV reader in :mod:`oceanarray.readers.nortek`.
 
-All tests use synthetic in-memory or tmp_path files — no raw instrument data
-required, no seasenselib dependency.  Safe to run on all CI platforms.
+Most tests use synthetic tmp_path files; one reads the committed dune2 Aquadopp
+record. No seasenselib dependency.  Safe to run on all CI platforms.
 """
 
+import re
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pytest
+import xarray as xr
 
+from oceanarray.pipeline.units import to_canonical_units
 from oceanarray.readers.nortek import (
+    _add_nortek_csv_attributes,
     _canonical_nortek_var_name,
     _parse_nortek_csv_columns,
     load_nortek_csv,
@@ -164,3 +168,21 @@ class TestParseNortekCsvColumns:
     def test_datetime_col_dropped(self):
         data_vars = _parse_nortek_csv_columns(self._df())
         assert "datetime" not in data_vars
+
+
+def test_nortek_speed_column_is_current_speed_with_units():
+    """A real Aquadopp record under its .hdr column names: Speed reads as current_speed."""
+    raw = Path(__file__).resolve().parents[1] / "fixtures" / "raw" / "dune2_1_2026"
+    hdr = (raw / "aquadopp" / "9920_recovery.hdr").read_text(encoding="latin-1")
+    # "26   Speed                            (m/s)": number, name, optional units.
+    names = re.findall(r"^\s*\d+\s+([A-Za-z][^(\n]*?)\s*(?:\(.*\))?$", hdr, re.M)
+    names = names[names.index("Month") : names.index("Direction") + 1]
+    df = pd.read_csv(
+        raw / "aquadopp" / "9920_recovery.dat", sep=r"\s+", header=None, nrows=50
+    )
+    df.columns = names
+    df = df.loc[:, ~df.columns.duplicated()]  # Pressure (dbar), then Pressure (m)
+    ds = _add_nortek_csv_attributes(xr.Dataset(_parse_nortek_csv_columns(df)))
+    assert "speed" not in ds
+    np.testing.assert_array_equal(ds["current_speed"].values, df["Speed"].values)
+    assert to_canonical_units(ds)["current_speed"].attrs["units"] == "m s-1"

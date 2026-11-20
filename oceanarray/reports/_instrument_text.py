@@ -505,7 +505,16 @@ def flag_table(ds: Any) -> FlagTable:
     present: dict[str, set[int]] = {s[0]: set() for s in sets}
     unchecked: dict[str, list[str]] = {s[0]: [] for s in sets}
     for var in variables:
-        here = np.isfinite(np.asarray(ds[var].values, dtype=float)).ravel()
+        finite = np.isfinite(ds[var].astype(float))
+        # A per-beam variable (ADCP percent_good) is flagged per bin: one value per flag.
+        qc_dims = next(
+            (ds[f"{var}{s[0]}"].dims for s in sets if f"{var}{s[0]}" in names),
+            finite.dims,
+        )
+        extra = [d for d in finite.dims if d not in qc_dims]
+        if extra:
+            finite = finite.any(extra).transpose(*qc_dims)
+        here = finite.values.ravel()
         total = int(here.sum())
         if not total:
             continue

@@ -325,11 +325,11 @@ class TestMooringProcessor:
         assert updated_ds.attrs["mooring_name"] == "minimal_mooring"
         assert updated_ds.attrs["waterdepth"] == 500
 
-        assert updated_ds.attrs["longitude"] == 0.0
-        assert updated_ds.attrs["latitude"] == 0.0
+        assert "latitude" not in updated_ds.attrs
+        assert "longitude" not in updated_ds.attrs
         assert updated_ds.attrs["deployment_time"] == "YYYY-mm-ddTHH:MM:ss"
         assert updated_ds.attrs["recovery_time"] == "YYYY-mm-ddTHH:MM:ss"
-        # A position the description does not give is left out, not a text placeholder.
+        # A position the description does not give is left out, not a placeholder.
         for key in ("deployment_latitude", "seabed_latitude", "seabed_longitude"):
             assert key not in updated_ds.attrs
 
@@ -377,3 +377,31 @@ class TestRbrHexOaAlias:
 
 if __name__ == "__main__":
     pytest.main([__file__])
+
+
+@pytest.mark.filterwarnings("ignore:.*no position in the mooring description")
+def test_a_description_without_position_keeps_the_files_own(tmp_path):
+    """No position in the YAML: stage 1 keeps the file's own, never writes 0, 0."""
+    from oceanarray import mooring as _mooring
+    from oceanarray.instruments import instrument_entries
+    from oceanarray.pipeline.read_mooring import join_raw
+
+    proc = Path(__file__).resolve().parents[1] / "fixtures" / "proc" / "dune2_1_2026"
+    lines = (proc / "dune2_1_2026.mooring.yaml").read_text().splitlines()
+    path = tmp_path / "dune2_1_2026.mooring.yaml"
+    path.write_text(
+        "\n".join(x for x in lines if not x.startswith(("latitude:", "longitude:")))
+    )
+    cfg = _mooring.load(path)
+    entry = next(e for e in instrument_entries(cfg) if e["serial"] == "9920*")
+    ds = xr.load_dataset(proc / "aquadopp" / "dune2_1_2026_9920_stage1.nc")
+    own = (ds.attrs["latitude"], ds.attrs["longitude"])
+
+    out = s1._add_global_attributes(join_raw(ds, entry, cfg), cfg)
+    assert (out.attrs["latitude"], out.attrs["longitude"]) == own
+
+    bare = ds.copy()
+    for key in ("latitude", "longitude"):
+        del bare.attrs[key]
+    out = s1._add_global_attributes(join_raw(bare, entry, cfg), cfg)
+    assert "latitude" not in out.attrs and "longitude" not in out.attrs

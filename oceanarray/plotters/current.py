@@ -21,6 +21,7 @@ Public draw_* functions (migrated from report/_plots.py):
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -59,6 +60,8 @@ from oceanarray.plotters.primitives import (
     ytick_reserve_in,
 )
 from oceanarray.reports._vendored import design_tokens as report_tokens
+
+logger = logging.getLogger(__name__)
 
 
 def progressive_vector(
@@ -1242,7 +1245,8 @@ def draw_adcp_velocity(
 
     Bins flagged at or below the seabed (``seabed_qc`` in ``QC_BAD_FLAGS``) are masked to NaN.
     Y-axis (range coordinate) is inverted for downward-looking instruments (pressure
-    increases into the page); non-inverted for upward-looking.
+    increases into the page); non-inverted for upward-looking.  It runs from 0 to the
+    far edge of the last bin with velocity data.
 
     Parameters
     ----------
@@ -1352,43 +1356,40 @@ def draw_adcp_velocity(
         else:
             abs_max = 1.0
 
+        orientation = ds.attrs.get("orientation_yaml") or ds.attrs.get(
+            "orientation_instrument"
+        )
+        if str(orientation).lower() not in ("up", "down"):
+            logger.warning(f"ADCP velocity panels omitted: orientation {orientation!r}")
+            return None
+
         n = len(present)
         fig, axes = plt.subplots(
             n, 1, figsize=(width_in, 3.5 * n), sharex=True, squeeze=False
         )
 
-        orientation = ds.attrs.get("orientation_yaml") or ds.attrs.get(
-            "orientation_instrument", "down"
-        )
         looking_down = str(orientation).lower() == "down"
         ylabel = "Range (m, ↓ deeper)" if looking_down else "Range (m from transducer)"
 
-        # Determine the deepest range to show.
-        # Prefer seabed_qc: deepest bin that is ever above the seabed
-        # (flag 1 = good).  Fall back to deepest bin with any finite
-        # velocity data.  Fall back further to the full range_coord span.
+        # The axis ends at the far edge of the last bin with velocity data that is
+        # ever above the seabed (seabed_qc 1): an upward-looking ADCP never sees
+        # the seabed, so its bins past the surface end only where the data do.
+        shown = np.ones(len(range_coord), dtype=bool)
         if "seabed_qc" in ds.data_vars:
-            seabed_qc_vals = ds["seabed_qc"].values  # (time, N_BINS)
-            bin_ever_good = np.any(seabed_qc_vals == 1, axis=0)  # (N_BINS,)
-            range_max = (
-                float(range_coord[bin_ever_good].max())
-                if bin_ever_good.any()
-                else float(range_coord.max())
+            shown &= np.any(ds["seabed_qc"].values == 1, axis=0)
+        vel_vars = [
+            v for v in ("east_velocity", "north_velocity", "up_velocity") if v in arrays
+        ]
+        if vel_vars:
+            shown &= np.any(
+                [np.isfinite(np.asarray(arrays[v])).any(axis=0) for v in vel_vars],
+                axis=0,
             )
-        else:
-            range_max = float(range_coord.max())
-            for vel_var in ("east_velocity", "north_velocity", "up_velocity"):
-                if vel_var not in arrays:
-                    continue
-                vel = (
-                    arrays[vel_var]
-                    if isinstance(arrays[vel_var], np.ndarray)
-                    else arrays[vel_var].values
-                )
-                bin_has_data = np.any(np.isfinite(vel), axis=0)  # (N_BINS,)
-                if bin_has_data.any():
-                    range_max = float(range_coord[bin_has_data].max())
-                break
+        range_max = float(
+            range_coord[shown].max() if shown.any() else range_coord.max()
+        )
+        if len(range_coord) > 1:
+            range_max += 0.5 * float(np.nanmedian(np.abs(np.diff(range_coord))))
 
         for ax, (var, label, _pt) in zip(axes[:, 0], present, strict=False):
             raw = arrays[var]
@@ -1409,7 +1410,7 @@ def draw_adcp_velocity(
             ax.set_ylabel(ylabel)
             plot_title(ax, label)
             grid_despine(ax)
-            # Show from 0 (includes blanking zone) to deepest valid bin.
+            # Show from 0 (includes blanking zone) to the last bin with data.
             # set_ylim with reversed args inverts for downward-looking.
             if looking_down:
                 ax.set_ylim(range_max, 0.0)

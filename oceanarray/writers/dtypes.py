@@ -8,6 +8,7 @@ import numpy as np
 import xarray as xr
 
 _INT32 = np.iinfo(np.int32)
+_VALID_ATTRS = ("valid_min", "valid_max", "valid_range")
 
 
 def is_position(name: str) -> bool:
@@ -82,7 +83,9 @@ def cast_output_dtypes(ds: xr.Dataset) -> xr.Dataset:
     """Cast every variable in *ds* to its optimal storage dtype.
 
     Calls :func:`find_best_dtype` per variable and rebuilds only those that
-    change.  Attributes are preserved.  The input dataset is not modified.
+    change.  Attributes are preserved, ``valid_min`` / ``valid_max`` /
+    ``valid_range`` cast to their variable's dtype.  The input dataset is not
+    modified.
 
     Parameters
     ----------
@@ -114,9 +117,22 @@ def cast_output_dtypes(ds: xr.Dataset) -> xr.Dataset:
                 updates[vname] = xr.Variable(
                     var.dims, var.values.astype(target), attrs=var.attrs
                 )
-    if not updates:
-        return ds
-    return ds.assign(updates)
+    out = ds.assign(updates) if updates else ds.copy()
+    for var in out.variables.values():
+        valid = {k: v for k, v in var.attrs.items() if k in _VALID_ATTRS}
+        if valid and var.dtype.kind in "iuf":
+            # CF 2.5.1: valid_min/max/range share the variable's stored type.
+            var.attrs = {
+                **var.attrs,
+                **{k: _as_dtype(v, var.dtype) for k, v in valid.items()},
+            }
+    return out
+
+
+def _as_dtype(value: Any, dtype: np.dtype) -> Any:  # a number or a pair
+    """Return *value* cast to *dtype*, a scalar staying a scalar."""
+    out = np.asarray(value).astype(dtype)
+    return out[()] if out.ndim == 0 else out
 
 
 def cast_attr(name: str, value: Any) -> Any:  # any attribute value

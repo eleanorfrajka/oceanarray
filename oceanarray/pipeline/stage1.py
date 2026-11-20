@@ -423,23 +423,33 @@ def _to_canonical_rdi(
             f"apply beam→ENU rotation.  Re-process after converting to earth frame."
         )
 
-    # 8. Store YAML orientation and warn on mismatch with raw file
-    orientation_yaml = instrument_config.get("orientation")
-    if orientation_yaml:
-        dataset.attrs["orientation_yaml"] = str(orientation_yaml)
-    _orient_instrument = dataset.attrs.get("orientation_instrument", "")
-    if (
-        orientation_yaml
-        and _orient_instrument
-        and orientation_yaml.lower() != _orient_instrument.lower()
-    ):
-        log.warning(
-            f"ADCP orientation mismatch — raw file says "
-            f"'{_orient_instrument}' but YAML says '{orientation_yaml}'. "
-            f"Velocity signs and beam geometry may be incorrect. "
-            f"A correction must be applied in stage3."
-        )
+    return dataset
 
+
+def _set_adcp_orientation(
+    dataset: xr.Dataset, entry: dict[str, Any], file_type: str
+) -> xr.Dataset:
+    """Set ``orientation_yaml`` from the entry; an ADCP without one is refused.
+
+    The file's own orientation (``orientation_instrument``) is a cross-check: an
+    imported file that disagrees is refused; an RDI header that disagrees is logged
+    and the YAML orientation is used (the header switch can be wrong).
+    """
+    serial = entry.get("serial", "?")
+    yaml_o = str(entry.get("orientation", "")).lower()
+    if yaml_o not in ("up", "down"):
+        raise MooringError(
+            f"ADCP s/n {serial}: orientation {entry.get('orientation')!r} in the "
+            "mooring YAML is not 'up' or 'down'; it is never assumed"
+        )
+    dataset.attrs["orientation_yaml"] = yaml_o
+    dataset.attrs["orientation_source"] = "yaml"
+    file_o = str(dataset.attrs.get("orientation_instrument", "")).lower()
+    if file_o and file_o != yaml_o:
+        msg = f"ADCP s/n {serial}: the file says '{file_o}', the YAML says '{yaml_o}'"
+        if file_type in ("oceansites", "rodb"):
+            raise MooringError(msg)
+        log.warning(f"  {msg}; the YAML orientation is used")
     return dataset
 
 
@@ -643,6 +653,8 @@ def _stage1_instrument(
         dataset = _to_canonical_rdi(dataset, entry)
     if file_type in _NORTEK_TYPES:
         dataset = _apply_nortek_xyz(dataset)
+    if str(entry.get("instrument", "")).lower() == "adcp":
+        dataset = _set_adcp_orientation(dataset, entry, file_type)
 
     dataset = _rename_conductivity(dataset)
     dataset = _rename_slash_vars(dataset)
@@ -684,6 +696,17 @@ def _stage1_instrument(
     # An imported file's units are the originator's word; check the values agree.
     if file_type in ("oceansites", "rodb"):
         _refuse_out_of_range(dataset, stated_units)
+    if params.ADCP_BIN_DIM in dataset.dims and file_type in ("oceansites", "rodb"):
+        _stage.append_history(
+            dataset,
+            f"imported ADCP: {dataset.sizes[params.ADCP_BIN_DIM]} bins, "
+            + (
+                "bin_pressure from the originator (no re-derivation)"
+                if "bin_pressure" in dataset.data_vars
+                else "bin depths fixed by the originator; bin_pressure from the "
+                "head pressure in stage 3"
+            ),
+        )
     # The reader drops records with no time and counts them; say so in history.
     n_no_time = dataset.attrs.get("n_records_without_time")
     if n_no_time:
@@ -942,7 +965,7 @@ def _stage1_file(
     )
     # Skip only if the output is present and newer than its raw input. The
     # mooring YAML is deliberately not a staleness source; force regenerates.
-    if should_skip_regeneration(output_file, force, False, raw.path):
+    if should_skip_regeneration(output_file, force, False, *raw.paths):
         logger.status("skip", rel(output_file))
         return "kept", output_file
 

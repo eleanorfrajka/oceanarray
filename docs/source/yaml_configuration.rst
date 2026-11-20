@@ -526,8 +526,9 @@ Valid values and their descriptions:
        from an OceanSITES or RODB archive)
      - ``oceansites``, ``rodb``
    * - ``ADCP``
-     - RDI WorkHorse broadband ADCP
-     - ``rdi-raw``
+     - RDI WorkHorse broadband ADCP, or an ADCP profile already processed by
+       its originator; ``orientation: up`` or ``down`` is required
+     - ``rdi-raw``, ``oceansites``, ``rodb``
    * - ``tr1050``
      - Turner TR-1050 fluorometer/turbidity
      - ``rbr-matlab``, ``rbr-hex``
@@ -585,7 +586,17 @@ Valid ``file_type`` values
        (variables on ``TIME``).  ``TEMP``, ``PSAL``, ``CNDC``, ``PRES``,
        ``UCUR``, ``VCUR``, ``WCUR`` are read; a ``<CODE>_QC`` variable is kept
        as ``<name>_qc_originator``.  Velocities are geographic, so Stage 3
-       applies no rotation and no magnetic declination.
+       applies no rotation and no magnetic declination.  An ADCP profile
+       (``UCUR``/``VCUR`` on ``TIME, BINDEPTH``) becomes one ADCP on
+       ``(time, N_BINS)``: the originator's per-bin ``PRES`` (or per-time bin
+       depths, converted with ``gsw.p_from_z``) is kept as ``bin_pressure``
+       and not re-derived; ``range`` is the median distance from the head;
+       ``PREST``, ``ECUR``, ``HEADING``, ``PITCH``, ``ROLL``, ``EAMP``,
+       ``CMAG``, ``PERG`` are read.  A file with only static bin depths gets
+       its ``bin_pressure`` from the head pressure in Stage 3.  The YAML
+       ``orientation`` must agree with the file's ``sensor_orientation`` and
+       bin depths.  Any other variable on a second dimension (a file holding
+       several depths) is refused by name.
    * - ``rodb``
      - RODB text (oceanarray reader)
      - MicroCAT, current meter
@@ -595,6 +606,21 @@ Valid ``file_type`` values
        as ``originator_magnetic_declination`` and not applied again.  A row
        with a fill (``-9999``) in ``YY``, ``MM``, ``DD`` or ``HH`` has no time
        and is dropped (see below).
+       An ADCP delivered as one ``.edt`` file per bin is named by one pattern,
+       ``filename: <name>_bin*.edt`` (``.lowedt`` sets are not read).  The
+       files are joined on ``N_BINS`` with a ``bin_number`` coordinate; a
+       missing bin number is warned about.  ``Z`` gives ``bin_depth`` and
+       ``bin_pressure`` (``gsw.p_from_z`` at the header latitude), kept through
+       Stage 3.  ``-3276.8`` (the RDI bad value in cm/s) is a fill.
+
+       .. code-block:: yaml
+
+          - serial: 20959
+            instrument: ADCP
+            file_type: rodb
+            filename: nocm4_03_2016_20959_bin*.edt
+            orientation: down
+            hab: 104
    * - ``rbr-rsk``
      - RBR Ruskin SQLite
      - RBR Solo, Duet, etc.
@@ -625,6 +651,21 @@ record that ended early, or a fill in a time column) is dropped when the file
 is read, with a warning naming the file and the count.  Stage 1 records the
 count in the ``n_records_without_time`` global attribute and a ``history``
 line; a file in which no record has a time is refused.
+
+Originator valid ranges
+~~~~~~~~~~~~~~~~~~~~~~~
+
+An ``oceansites`` file's ``valid_min``/``valid_max`` (or ``valid_range``) are
+applied only to positions: ``BINDEPTH``, ``DEPTH``, ``PRES`` and
+``INSTRDEPTH`` outside the range are set missing.  Originators use an
+undeclared 99999 as a fill there, and a wrong position puts data in the wrong
+place.  Every other variable keeps its values, because an originator's range
+can be wrong: ``ROLL`` with ``valid_min`` 0, or ``CNDC`` with a ``valid_max``
+of 7 (an S/m bound) on values in mS/cm.  A ``history`` line gives the count
+per variable, one line for "set missing" and one for "kept"; values kept
+outside the range also log a warning.  oceanarray writes its own
+``valid_min``/``valid_max`` only where a physical limit is known; the QC
+gross-range limits are used for flagging only.
 
 ----
 

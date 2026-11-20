@@ -1,9 +1,12 @@
 """Reader for RODB text files (``.microcat``, ``.edt``, ``.lowedt``).
 
 These are originator-processed RODB-format time series (RAPID/OSNAP).  Column
-codes are mapped to oceanarray names through :data:`RODB_COLUMNS`.
+codes are mapped to oceanarray names through :data:`RODB_COLUMNS`.  An ADCP
+delivered as one ``.edt`` file per bin is joined by :func:`read_rodb_bins`.
 """
 
+import logging
+import re
 from pathlib import Path
 
 import numpy as np
@@ -11,6 +14,9 @@ import pandas as pd
 import xarray as xr
 
 from oceanarray import provenance
+from oceanarray.config.parameters import ADCP_BIN_DIM, RDI_BAD_VALUE_CM_S
+
+log = logging.getLogger(__name__)
 
 #: RODB column codes → (oceanarray name, units).  Units are those documented for
 #: each code in ``config/legacy/rodb_keys.yaml`` (RODB files carry no units).
@@ -28,11 +34,20 @@ RODB_COLUMNS: dict[str, tuple[str, str]] = {
     "USS": ("signal_strength_east", "counts"),
     "VSS": ("signal_strength_north", "counts"),
     "WSS": ("signal_strength_up", "counts"),
+    "Z": ("bin_depth", "m"),
+    "EV": ("error_velocity", "cm s-1"),
+    **{f"BEAM{b}SS": (f"amplitude_beam{b}", "counts") for b in range(1, 5)},
+    **{f"BEAM{b}COR": (f"correlation_beam{b}", "counts") for b in range(1, 5)},
+    # RDI percent-good fields 1-4 (field 4: four-beam solutions), as in a raw file.
+    **{f"BEAM{b}PGP": (f"percent_good_beam{b}", "percent") for b in range(1, 5)},
 }
+
+#: Variables of a per-bin ADCP file that are the same in every bin (the head's).
+_HEAD_VARS = ("temperature", "heading", "pitch", "roll")
 
 #: RODB missing-data markers.  Only these: a value such as ``-9.0`` is a real
 #: velocity or roll in an ``.edt`` file and must not be blanked.
-RODB_FILL_VALUES: tuple[float, ...] = (-9999.0, 1e32)
+RODB_FILL_VALUES: tuple[float, ...] = (-9999.0, 1e32, RDI_BAD_VALUE_CM_S)
 
 #: RODB file extensions: ``.microcat`` (calibrated), ``.edt`` (magnetic deviation
 #: and sound speed corrected, despiked), ``.lowedt`` (``.edt`` low-passed).
@@ -150,4 +165,132 @@ def read_rodb(path: str | Path) -> xr.Dataset:
         )
     if path.suffix.lower() == ".lowedt":
         out.attrs["originator_low_passed"] = "2-day low-pass, 12-hour time step"
+    return out
+
+
+def read_rodb_bins(paths: list[str | Path]) -> xr.Dataset:
+    """Read one ADCP's RODB ``.edt`` files, one per bin, as one dataset on ``(time, N_BINS)``.
+
+    The bin number comes from ``_bin<NN>`` in each name; a missing number is
+    warned about and the bins present are kept, numbered by a ``bin_number``
+    coordinate. ``Z`` (bin depth) becomes ``bin_depth`` and ``bin_pressure``
+    (``gsw.p_from_z`` at the header latitude, kept as the originator's); ``range``
+    is the median distance from the head, placed one bin spacing before bin 1. Head variables are
+    taken from the first bin. The beam columns become ``amplitude``,
+    ``correlation`` and ``percent_good`` on ``(time, N_BINS, beam)``, ``beam``
+    numbered from the column names.
+
+    Parameters
+    ----------
+    paths : list of str or pathlib.Path
+        The per-bin files of one instrument.
+
+    Returns
+    -------
+    xarray.Dataset
+        One ADCP on ``time`` and ``N_BINS``, with ``originator_files``.
+
+    Raises
+    ------
+    ValueError
+        If a file is not ``.edt`` or has no bin number, two files share a bin, the
+        header serials differ, or the files' times differ.
+    """
+    from oceanarray.pipeline.pressure import (
+        ORIGINATOR_BIN_PRESSURE_ATTRS,
+        originator_bin_geometry,
+        pressure_from_depth,
+    )
+
+    paths = [Path(p) for p in paths]
+    numbered: dict[int, Path] = {}
+    for p in paths:
+        m = re.search(r"_bin(\d+)$", p.stem)
+        if p.suffix.lower() != ".edt" or m is None:
+            raise ValueError(f"{p.name}: not a per-bin .edt file (<name>_binNN.edt)")
+        if int(m.group(1)) in numbered:
+            raise ValueError(f"{p.name} and {numbered[int(m.group(1))].name}: same bin")
+        numbered[int(m.group(1))] = p
+    numbers = sorted(numbered)
+    parts = [read_rodb(numbered[n]) for n in numbers]
+    first = parts[0]
+    serials = {ds.attrs.get("originator_SerialNumber") for ds in parts}
+    if len(serials) > 1:
+        raise ValueError(f"{first.attrs['originator_file']}: serials differ: {serials}")
+    for ds in parts[1:]:
+        if not np.array_equal(ds["time"].values, first["time"].values):
+            raise ValueError(
+                f"{ds.attrs['originator_file']}: times differ from "
+                f"{first.attrs['originator_file']}"
+            )
+    missing = sorted(set(range(1, numbers[-1] + 1)) - set(numbers))
+    if missing:
+        log.warning(f"  {first.attrs['originator_file']}: no file for bin(s) {missing}")
+    for var in _HEAD_VARS:
+        if var in first and any(
+            not np.array_equal(ds[var], first[var], equal_nan=True) for ds in parts
+        ):
+            diff = max(float(np.nanmax(abs(ds[var] - first[var]))) for ds in parts)
+            log.warning(
+                f"  {var} differs between bins (max {diff:g}); bin {numbers[0]}'s kept"
+            )
+
+    out = first[[v for v in _HEAD_VARS if v in first]]
+    per_bin = [v for v in first.data_vars if v not in _HEAD_VARS and "_beam" not in v]
+    for var in per_bin:
+        out[var] = xr.concat([ds[var] for ds in parts], dim=ADCP_BIN_DIM).T
+    for name in ("amplitude", "correlation", "percent_good"):
+        beams = sorted(
+            (int(v.rsplit("_beam", 1)[1]), v)
+            for v in first.data_vars
+            if v.startswith(f"{name}_beam")
+        )
+        if beams:
+            da = xr.concat(
+                [xr.concat([ds[v] for _, v in beams], dim="beam") for ds in parts],
+                dim=ADCP_BIN_DIM,
+            ).transpose("time", ADCP_BIN_DIM, "beam")
+            out[name] = da.assign_coords(beam=np.array([n for n, _ in beams], "int8"))
+            out[name].attrs = {"units": first[beams[0][1]].attrs["units"]}
+
+    lat = first.attrs["originator_latitude"]
+    out["bin_pressure"] = xr.DataArray(
+        pressure_from_depth(out["bin_depth"].values, lat),
+        dims=("time", ADCP_BIN_DIM),
+        attrs={
+            **ORIGINATOR_BIN_PRESSURE_ATTRS,
+            "comment": f"gsw.p_from_z(-Z, {lat:.4f}) from the per-bin files",
+        },
+    )
+    # The header's InstrDepth can be the design depth, far from the deployed one, so
+    # the head is placed from the bins: one bin spacing before bin 1.
+    z = np.nanmedian(out["bin_depth"].values, axis=0)
+    if len(numbers) > 1:
+        spacing = (z[-1] - z[0]) / (numbers[-1] - numbers[0])
+        head, source = z[0] - spacing * numbers[0], "one bin spacing before bin 1"
+    else:
+        head, source = float(first.attrs["originator_InstrDepth"]), "header InstrDepth"
+    orientation, rng = originator_bin_geometry(z - head)
+    out = out.assign_coords(
+        range=(
+            ADCP_BIN_DIM,
+            rng,
+            {
+                "units": "m",
+                "long_name": "distance from the transducer to the bin centre",
+                "comment": f"nominal, median Z with the head {source}; places the "
+                "stack row only, not bin_pressure",
+            },
+        ),
+        bin_number=(ADCP_BIN_DIM, np.array(numbers, dtype="int16")),
+    )
+    out.attrs = dict(first.attrs)
+    out.attrs["originator_files"] = ", ".join(numbered[n].name for n in numbers)
+    out.attrs["orientation_instrument"] = orientation
+    out.attrs["orientation_instrument_source"] = (
+        f"file: Z relative to the head ({source})"
+    )
+    out.attrs["coordinate_system_source"] = (
+        "originator: geographic east/north velocity in the file"
+    )
     return out

@@ -89,30 +89,30 @@ def header_attrs(cfg: Mapping[str, Any], *, warn: bool = True) -> dict[str, Any]
     Returns
     -------
     dict of str to Any
-        ``mooring_name``, ``latitude`` / ``longitude`` (decimal degrees) with their
-        source, the deployment window (ISO 8601) and, when given, ``waterdepth``
-        and ``density_reference``.
+        ``mooring_name``, ``location_source``, the deployment window (ISO 8601)
+        and, when given, ``latitude`` / ``longitude`` (decimal degrees),
+        ``waterdepth`` and ``density_reference``.
     """
-    # Position and deployment window are always stamped (placeholder + *_source
-    # "none" when absent); other header values are omitted, never defaulted.
+    # The deployment window is always stamped (placeholder + *_source "none" when
+    # absent); a missing position is left out, so a file's own is kept.
     name = cfg.get("name")
     if name is None:
         raise MooringError("the mooring description has no 'name'; it is required.")
     attrs: dict[str, Any] = {"mooring_name": name}
 
     lat, lon, source = parse_latlon_with_source(cfg)
-    attrs["latitude"] = lat
-    attrs["longitude"] = lon
     if is_unknown_latlon_source(source):
         attrs["location_source"] = "none"
         if warn:
             warnings.warn(
                 f"{name}: no position in the mooring description "
                 f"(seabed_/deployment_/planned_latitude or latitude); "
-                f"stamping latitude=0, longitude=0 with location_source='none'.",
+                f"leaving latitude/longitude out, location_source='none'.",
                 stacklevel=2,
             )
     else:
+        attrs["latitude"] = lat
+        attrs["longitude"] = lon
         attrs["location_source"] = source
         lat_s, lon_s = format_latlon(lat, lon)
         attrs["latitude_str"] = lat_s

@@ -249,7 +249,7 @@ def to_canonical_nortek(dataset: xr.Dataset, coord_system: str = "ENU") -> xr.Da
         "Pitch": "pitch",
         "Roll": "roll",
         "Direction": "direction",
-        "Speed": "speed",
+        "Speed": "current_speed",
         "Error code": "error_code",
         "Status code": "status_code",
         # "Analog input 1" and "Analog input 2" come through as analog_input_1/2
@@ -370,7 +370,7 @@ def _parse_nortek_csv_columns(df: pd.DataFrame) -> dict:
         (["roll"], "roll"),
         (["soundspeed", "speedofsound"], "speed_of_sound"),
         (["battery voltage", "batteryvoltage"], "battery_voltage"),
-        (["speed"], "speed"),
+        (["speed"], "current_speed"),
     ]
     for csv_names, var_name in scalar_mappings:
         for csv_name in csv_names:
@@ -430,6 +430,7 @@ def _add_nortek_csv_attributes(ds: xr.Dataset) -> xr.Dataset:
         "roll": {"units": "degrees", "long_name": "Roll"},
         "speed_of_sound": {"units": "m/s", "long_name": "Speed of Sound"},
         "battery_voltage": {"units": "V", "long_name": "Battery Voltage"},
+        "current_speed": {"units": "m/s", "long_name": "Current speed"},
     }
     for var_name, attrs in attr_map.items():
         if var_name in ds.data_vars:

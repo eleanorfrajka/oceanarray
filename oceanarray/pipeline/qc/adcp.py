@@ -260,7 +260,8 @@ def apply_adcp_velocity_qc(
         100 % and cols 0–2 ≈ 0 %, giving a mean of ~25 %, which falls below
         any reasonable suspect threshold and flags everything.  This function
         therefore uses column 3 alone (falling back to the column mean for
-        non-4-beam ADCPs that store fewer than 4 columns).
+        non-4-beam ADCPs that store fewer than 4 columns).  A ``percent_good``
+        on ``(time, N_BINS)`` (one value per bin) is used as it is.
 
         Flags: col3 < *prcnt_gd_bad* → bad (4);
         col3 < *prcnt_gd_suspect* → suspect (3); otherwise good (1).
@@ -363,8 +364,10 @@ def _apply_adcp_velocity_qc(
     #    Using column 3 only; averaging all columns gives ~25% even for
     #    perfect data (100% 4-beam, 0% others), which would flag everything.
     if "percent_good" in ds.data_vars:
-        pg = ds["percent_good"].values.astype(float)  # (time, N_BINS, beam)
-        if pg.ndim == 3 and pg.shape[2] >= 4:
+        pg = ds["percent_good"].values.astype(float)  # (time, N_BINS[, beam])
+        if pg.ndim == 2:
+            pg_col3 = pg  # one value per bin
+        elif pg.shape[2] >= 4:
             pg_col3 = pg[:, :, 3]  # 4-beam solutions column
         else:
             pg_col3 = np.nanmean(pg, axis=-1)  # fallback for non-4-beam ADCPs

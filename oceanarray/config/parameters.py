@@ -367,6 +367,9 @@ QC_ADCP: dict = {
 # ---------------------------------------------------------------------------
 ADCP_BIN_DIM: str = "N_BINS"
 
+#: RDI bad velocity (-32768 mm/s, the PD0 int16 flag) as written in cm/s.
+RDI_BAD_VALUE_CM_S: float = -3276.8
+
 INSTRUMENT_ABBREV = {
     "microcat": "MC",
     "aquadopp": "AQ",
@@ -416,6 +419,8 @@ INSTRUMENT_FILE_TYPES: dict = {
     "ADCP": [
         "rdi-raw",  # RDI Workhorse / Sentinel via dolfyn (mhkit[dolfyn] required)
         "adcp-matlab",  # seasenselib auto-detects RD-ADCP vs UHHDS Matlab exports
+        "oceansites",  # originator-processed profiles on TIME × BINDEPTH
+        "rodb",  # originator-processed, one .edt file per bin (filename: *_bin*.edt)
     ],  # Generic ADCP (instrument: ADCP in YAML — note uppercase)
 }
 
@@ -657,6 +662,13 @@ VARIABLES: dict[str, dict] = {
         "label": "Upward velocity",
         "units": "m s-1",
         "standard_name": "upward_sea_water_velocity",
+        "cmap": "RdBu_r",
+    },
+    "error_velocity": {
+        # ADCP error velocity; registered so imported cm/s values are converted.
+        "label": "Error velocity",
+        "units": "m s-1",
+        "standard_name": None,
         "cmap": "RdBu_r",
     },
     "current_speed": {

@@ -9,6 +9,10 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Added
 
+- `file_type: oceansites` reads originator ADCP profiles (`TIME × BINDEPTH`) as one ADCP on `(time, N_BINS)`, keeping the originator's bin pressures.
+- `file_type: rodb` reads an ADCP's per-bin `.edt` files from one `filename: <name>_bin*.edt` pattern as one ADCP, rows named by the originator's bin numbers; `-3276.8` is a fill.
+- OceanSITES positions (`BINDEPTH`, `DEPTH`, `PRES`, `INSTRDEPTH`) outside the file's valid range read as missing; other values are kept; both counted in `history`.
+- A wildcard `filename` matching several files is refused except for `file_type: rodb` per-bin ADCP files.
 - Year page "OSNAP East 2016": header with moorings per array, deployed and recovered dates with cruises and ships, instruments by function; one moorings table with "14 of 15" instruments.
 - Year page: moorings grouped by `subarray:` in the array YAML, named in a `subarrays:` table (full name in the table, short name in the map legend).
 - `report --array --bathymetry FILE` / `oa.report(kind="array", bathymetry=)`: 500–2500 m contours on the year page's map from a GEBCO or ETOPO file, named from its title.
@@ -52,9 +56,9 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Changed
 
-- Velocity, speed and direction attributes come from the variable registry (`params.cf_attrs`); the registry key is `current_speed`, as written.
+- Velocity, speed and direction attributes come from the variable registry (`params.cf_attrs`); the registry key is `current_speed`, as written (Nortek `Speed` too).
 - Direction and tilt units are spelled `degree` everywhere (stage 3, stack, grid).
-- `valid_min` / `valid_max` are written only where a physical limit is known; gross-range limits are used for flagging only.
+- `valid_min` / `valid_max` are written only where a physical limit is known, in the variable's stored dtype; gross-range limits are used for flagging only.
 - The stage-3 history names the rotation's transformation matrix source instead of `beam_angle=?°`.
 - OceanSITES `time_coverage_resolution` of a deployment file is read from its time axis.
 - Tilt QC, the report tilt panel and ADCP bin pressure use one tilt, arccos(cos pitch · cos roll), with RDI pitch converted to true pitch; QC flags it at `QC_TILT` 30°/50° even where `pitch_qc` / `roll_qc` exist.
@@ -145,11 +149,13 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Breaking changes
 
+- An ADCP without `orientation: up|down` is refused (`validate` error, stage 1); no `down` default in stage 3, the stack or the plots.
 - `InstrDepth` is now `instrument_depth` (m, nominal depth: `nominal_depth`, else water depth − HAB; the YAML `depth` key is not read).
 - `serial_number` is now `instrument_serial`, always text; the stack's `serial` stays the per-level key. Older stage files are read under the new names.
-- `latitude`, `longitude`, `waterdepth` and the deployment and seabed positions are numbers (decimal degrees, m), not text; absent positions are left out.
+- `latitude`, `longitude`, `waterdepth` and the deployment and seabed positions are numbers (decimal degrees, m), not text; absent positions are left out (an imported file keeps its own).
 - `deployment_time` / `recovery_time` are ISO 8601 UTC to the second (`2026-07-11T20:30:00Z`), as OceanSITES 1.4.
 - Stacks write σ0 as `sea_water_sigma_theta`; σ1…σ4 carry no standard name (none exists in CF). σ attributes come from the variable registry: long names are `σ₀` … `σ₄`.
+- A stack with magnetic-north stage-2 velocities gives east/north velocity and direction no standard name; originator true-north levels are not counted.
 - Stage files no longer carry `sample_interval_seconds`.
 - The year page ignores the array YAML's cruise, ship, dates, position, water-depth range, `vocab` and `bathymetry` (one warning names them); values come from the mooring YAMLs.
 - Site grids no longer record `slope_angle_deg` / `slope_angle_source`; `concat --slope-angle` and `grid(slope_angle=)` warn until 0.7.0 (use `--rotate-to`).
@@ -163,6 +169,8 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 ### Fixed
 
 - An OceanSITES variable without a `standard_name` gets the registry's, not an empty one.
+- An OceanSITES file with a variable on a second dimension (several depths) is refused by name instead of a bare `ValueError`.
+- The instrument page's flag table counts a per-beam variable (ADCP `percent_good`) per bin instead of failing.
 - Stack cat and Grid cat sections: deployment names beyond the time axis no longer collapse the figure's layout (titles crowded the panel above).
 - The year page creates its report folder when it does not exist.
 - Year array page: a mooring YAML whose `waterdepth` is text ("unknown") no longer stops the page; the table shows the text, the header and map leave it out.

@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from typing import Any
 
 import numpy as np
 import xarray as xr
 
 from oceanarray import logger, physics
+from oceanarray.exceptions import MooringError
 from oceanarray.pipeline.qc import set_qc_attrs
 
 log = logging.getLogger(__name__)
@@ -58,6 +60,38 @@ def depth_from_pressure(pressure_dbar: Any, latitude: float) -> Any:
 
     z = -gsw.z_from_p(np.asarray(pressure_dbar, dtype=float), latitude)
     return float(z) if np.ndim(z) == 0 else z
+
+
+#: ``bin_pressure`` attributes of bin pressures read from an originator's file; stage 3
+#: keeps a ``bin_pressure`` with this ``bin_pressure_source``.
+ORIGINATOR_BIN_PRESSURE_ATTRS: dict[str, str] = {
+    "units": "dbar",
+    "bin_pressure_source": "originator",
+    "tilt_correction": "none (originator bin pressures)",
+}
+
+
+def originator_bin_geometry(offset: np.ndarray) -> tuple[str, np.ndarray]:
+    """Return an imported ADCP's orientation and its bins' distances from the head.
+
+    Parameters
+    ----------
+    offset : numpy.ndarray
+        Bin depth minus head depth (m), on ``(bin,)`` or ``(time, bin)``.
+
+    Returns
+    -------
+    orientation : str
+        ``"up"`` when the bins are above the head (median *offset* < 0), else ``"down"``.
+    range : numpy.ndarray
+        ``|offset|`` on ``(bin,)``; for a 2-D *offset*, the median over time.
+    """
+    rng = np.abs(offset)
+    if rng.ndim == 2:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            rng = np.nanmedian(rng, axis=0)
+    return ("up" if np.nanmedian(offset) < 0 else "down"), rng
 
 
 def _times_to_float(time_values: np.ndarray) -> np.ndarray:
@@ -576,8 +610,8 @@ def compute_adcp_bin_pressure(
     - Upward-looking (``orientation == "up"``): bins are shallower than the
       transducer → pressure decreases with bin index.
 
-    If orientation cannot be determined from dataset attributes a WARNING is emitted
-    and ``"down"`` is assumed.
+    Without an ``up`` / ``down`` orientation the ADCP is refused; no orientation is assumed.
+    A ``bin_pressure`` from the originator (``bin_pressure_source = "originator"``) is kept.
 
     Parameters
     ----------
@@ -662,8 +696,8 @@ def _compute_adcp_bin_pressure(
     - Upward-looking (``orientation == "up"``): bins are shallower than the
       transducer → pressure decreases with bin index.
 
-    If orientation cannot be determined from dataset attributes a WARNING is emitted
-    and ``"down"`` is assumed.
+    Without an ``up`` / ``down`` orientation the ADCP is refused; no orientation is assumed.
+    A ``bin_pressure`` from the originator (``bin_pressure_source = "originator"``) is kept.
 
     Parameters
     ----------
@@ -690,6 +724,12 @@ def _compute_adcp_bin_pressure(
 
     from oceanarray.config import parameters as params
 
+    if (
+        ds.get("bin_pressure", xr.DataArray()).attrs.get("bin_pressure_source")
+        == ORIGINATOR_BIN_PRESSURE_ATTRS["bin_pressure_source"]
+    ):
+        log.info("  ADCP bin_pressure: kept from the originator (not re-derived)")
+        return ds
     if "pressure" not in ds.data_vars or "range" not in ds.coords:
         log.warning("  ADCP bin_pressure: skipped (no pressure or range coord)")
         return ds
@@ -697,12 +737,10 @@ def _compute_adcp_bin_pressure(
     orientation = ds.attrs.get("orientation_yaml") or ds.attrs.get(
         "orientation_instrument"
     )
-    if not orientation:
-        orientation = "down"
-        log.warning(
-            "ADCP orientation unknown (no orientation_yaml or "
-            "orientation_instrument attr) — assuming downward-looking. "
-            "bin_pressure signs may be wrong for upward-looking instruments."
+    if str(orientation).lower() not in ("up", "down"):
+        raise MooringError(
+            f"ADCP orientation {orientation!r} is not 'up' or 'down'; set "
+            "orientation in the mooring YAML"
         )
     sign = 1.0 if str(orientation).lower() == "down" else -1.0
 

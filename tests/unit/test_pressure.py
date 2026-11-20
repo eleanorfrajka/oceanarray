@@ -5,8 +5,6 @@ answers on synthetic arrays (not instrument files) — per the fixture rule, the
 mathematics gets known answers rather than a file round-trip. A bug in this
 module would silently mis-place every instrument on the mooring, so the
 assertions are on values, not smoke.
-
-Milestone A of ``.claude/notes/2026-08-19-stage-coverage-plan.md``.
 """
 
 from __future__ import annotations
@@ -15,10 +13,13 @@ from pathlib import Path
 
 import gsw
 import numpy as np
+import pytest
 import xarray as xr
 
 from oceanarray.config import parameters as params
+from oceanarray.exceptions import MooringError
 from oceanarray.pipeline import pressure as P
+from oceanarray.readers import read_oceansites
 
 #: Trimmed real dsG2 WH75 ADCP stage-3 file over a knock-down window (earth + firmware
 #: bin mapping; tilt 4.6–45°).  Raw ``.000`` is not in the repo — see the file's attrs.
@@ -29,6 +30,13 @@ DSG2_KNOCKDOWN = (
     / "dsG2_adcp_stage3_knockdown.nc"
 )
 DSG2_LAT = 65.56
+OSNAP_ADCP = (
+    Path(__file__).resolve().parents[1]
+    / "fixtures"
+    / "raw"
+    / "osnap"
+    / "OS_OSNAP_CF1_202007_ADCP_173m_cut.nc"
+)
 
 
 def _dt(seconds: list[float]) -> np.ndarray:
@@ -321,13 +329,18 @@ def test_adcp_bin_pressure_up_decreases_with_bin():
     assert (np.diff(bp, axis=1) < 0).all()
 
 
-def test_adcp_bin_pressure_unknown_orientation_assumes_down_and_warns():
-    """Missing orientation assumes down-looking and emits a WARNING via log_fn."""
-    msgs: list[str] = []
-    out = P.compute_adcp_bin_pressure(_adcp_ds(None), lat=60.0, log_fn=msgs.append)
-    bp = out["bin_pressure"].values
-    assert (np.diff(bp, axis=1) > 0).all()  # behaves as down
-    assert any("orientation" in m for m in msgs)  # warns (now at log.warning level)
+def test_adcp_bin_pressure_refuses_an_unknown_orientation():
+    """No orientation is assumed."""
+    with pytest.raises(MooringError, match="orientation"):
+        P.compute_adcp_bin_pressure(_adcp_ds(None), lat=60.0)
+
+
+def test_adcp_bin_pressure_keeps_the_originators():
+    """An imported ADCP's bin pressures pass through unchanged."""
+    ds = read_oceansites(OSNAP_ADCP)
+    out = P.compute_adcp_bin_pressure(ds, lat=60.07)
+    assert out["bin_pressure"].attrs["bin_pressure_source"] == "originator"
+    np.testing.assert_array_equal(out["bin_pressure"].values, ds["bin_pressure"].values)
 
 
 def test_adcp_bin_pressure_records_formula_in_comment():

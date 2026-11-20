@@ -34,3 +34,13 @@ What changes for you:
   value).
 
 Rebuild existing stacks and grids with ``oceanarray run --force``.
+
+An ADCP needs ``orientation``
+-----------------------------
+
+Every ``instrument: ADCP`` entry that is processed now needs ``orientation: up`` or
+``orientation: down``. Before, a missing orientation was taken as ``down`` in stage 3,
+the stack and the plots, which put an upward-looking ADCP's bins below it. Now
+``validate`` reports it as an error and stage 1 refuses the instrument. An RDI header
+that disagrees with the YAML is logged and the YAML is used; an imported file that
+disagrees is refused.

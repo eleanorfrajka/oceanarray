@@ -6,12 +6,14 @@ import shutil
 import warnings
 from pathlib import Path
 
+import gsw
 import netCDF4
 import numpy as np
 import pytest
 import xarray as xr
 
 from oceanarray import readers
+from oceanarray.config import parameters as params
 from oceanarray.pipeline.coordinate import apply_declination_to_enu
 from oceanarray.pipeline.stage3 import _fill_cf_attrs
 from oceanarray.pipeline.units import UnitsError, to_canonical_units
@@ -23,6 +25,8 @@ GEOMAR_MCTD = OSNAP / "OS_OSNAP-10633_KPO_1111_K7_201408_D_MCTD_OSNAPstyleOceanS
 SCRIPPS_MCTD = OSNAP / "CF7_MCTD_2020_22225_50m.nc"
 RODB_MICROCAT = OSNAP / "rtwb1_01_2014_001.microcat"
 RODB_EDT = OSNAP / "rtwb1_01_2014_11021.edt"
+WHOI_ADCP = OSNAP / "OS_OSNAP_CF1_202007_ADCP_173m_cut.nc"
+UMM2_ADCP = OSNAP / "OS_OSNAP-UMM2_201407_ADCP_300m_cut.nc"
 
 
 def test_oceansites_current_meter_is_enu_with_originator_declination():
@@ -354,3 +358,195 @@ def test_oceansites_without_standard_name_gets_the_registry_one(tmp_path):
     assert "standard_name" not in ds["pressure"].attrs
     _fill_cf_attrs(ds)
     assert ds["pressure"].attrs["standard_name"] == "sea_water_pressure"
+
+
+def test_oceansites_adcp_profile_reads_as_an_adcp():
+    ds = read_oceansites(WHOI_ADCP)
+    assert dict(ds.sizes) == {"time": 480, params.ADCP_BIN_DIM: 23}
+    assert ds["east_velocity"].dims == ("time", params.ADCP_BIN_DIM)
+    assert ds["pressure"].dims == ("time",)  # PREST, the head
+    assert ds["error_velocity"].attrs["original_name"] == "ECUR"
+    assert (np.diff(ds["range"].values) > 0).all()
+    with netCDF4.Dataset(WHOI_ADCP) as nc:
+        np.testing.assert_array_equal(
+            ds["bin_pressure"].values, nc["PRES"][:].filled(np.nan)
+        )
+    assert ds["bin_pressure"].attrs["bin_pressure_source"] == "originator"
+    assert ds.attrs["orientation_instrument"] == "up"
+    assert ds.attrs["coordinate_system_source"].startswith("originator")
+    assert "MAGVAR median" in ds.attrs["originator_magnetic_declination"]
+
+
+def test_oceansites_values_outside_the_valid_range_are_missing():
+    """BINDEPTH 99999 (no _FillValue, valid_max 12000) is no depth, not 99999 m."""
+    with netCDF4.Dataset(UMM2_ADCP) as nc:
+        nc.set_auto_mask(False)
+        z = nc["BINDEPTH"][:]
+        assert "_FillValue" not in nc["BINDEPTH"].ncattrs()
+        assert (z > nc["BINDEPTH"].valid_max).any()
+    ds = read_oceansites(UMM2_ADCP)
+    assert float(ds["bin_depth"].max()) <= 12000
+    assert float(ds["bin_pressure"].max()) < 400  # head at 300 m
+    assert np.isfinite(ds["range"].values).all()
+    assert "set missing: BINDEPTH 3369" in ds.attrs["history"]
+
+
+def test_oceansites_integer_position_outside_the_valid_range_is_missing(tmp_path):
+    """An integer BINDEPTH's 99999 is set missing too, not kept as a depth."""
+    path = tmp_path / UMM2_ADCP.name
+    with xr.open_dataset(UMM2_ADCP, decode_cf=False) as src:
+        src = src.load()
+    src["BINDEPTH"] = src["BINDEPTH"].round().astype("int32")
+    src.to_netcdf(path)
+    ds = read_oceansites(path)
+    assert float(ds["bin_depth"].max()) <= 12000
+    assert "set missing: BINDEPTH 3369" in ds.attrs["history"]
+
+
+def test_oceansites_positions_set_missing_others_kept_with_counts(caplog):
+    """CF1: BINDEPTH outside the range is missing; ROLL (file valid_min 0) is kept."""
+    with netCDF4.Dataset(WHOI_ADCP) as nc:
+        nc.set_auto_mask(False)
+        roll = nc["ROLL"][:].ravel()
+    assert (roll < 0).sum() == 480
+    with caplog.at_level("INFO"):
+        ds = read_oceansites(WHOI_ADCP)
+    np.testing.assert_array_equal(ds["roll"].values, roll)
+    history = ds.attrs["history"]
+    assert "valid range, set missing: BINDEPTH 7" in history
+    assert "valid range, kept: ROLL 480" in history
+    assert "kept: ROLL 480" in caplog.text
+    assert "history" not in read_oceansites(WHOI_CM).attrs
+
+
+def test_oceansites_conductivity_with_an_s_per_m_bound_is_kept(caplog):
+    """K7 CNDC: valid_max 7 (S/m) on mS/cm values; kept, with a warning."""
+    with netCDF4.Dataset(GEOMAR_MCTD) as nc:
+        nc.set_auto_mask(False)
+        assert nc["CNDC"].units == "mS/cm" and nc["CNDC"].valid_max == 7
+        cndc = nc["CNDC"][:].ravel()
+    ds = read_oceansites(GEOMAR_MCTD)
+    np.testing.assert_array_equal(ds["conductivity"].values, cndc)
+    assert "valid range, kept: CNDC 480" in ds.attrs["history"]
+    assert any(
+        r.levelname == "WARNING" and "kept: CNDC 480" in r.message
+        for r in caplog.records
+    )
+
+
+@pytest.mark.parametrize("valid_range", [[0.0], [0.0, 5.0, 9.0], [0.0, 5.0]])
+def test_oceansites_valid_range_of_two_values_only(tmp_path, caplog, valid_range):
+    """A scalar or 3-element valid_range is ignored with a warning, not a crash."""
+    path = tmp_path / "vr.nc"
+    shutil.copy(WHOI_ADCP, path)
+    with netCDF4.Dataset(path, "a") as nc:
+        ecur = nc["ECUR"][:].filled(np.nan)
+        nc["ECUR"].delncattr("valid_min")
+        nc["ECUR"].delncattr("valid_max")
+        nc["ECUR"].valid_range = np.array(valid_range, dtype="f4")
+    ds = read_oceansites(path)
+    assert int(ds["error_velocity"].isnull().sum()) == np.isnan(ecur).sum()
+    kept = f"ECUR {int((ecur < 0).sum())}"
+    assert (kept in ds.attrs["history"]) == (len(valid_range) == 2)
+    assert ("ECUR valid_range" in caplog.text) == (len(valid_range) != 2)
+
+
+def test_oceansites_heading_unit_correction_keeps_the_file_s_word(tmp_path):
+    path = tmp_path / "hdg.nc"
+    shutil.copy(WHOI_ADCP, path)
+    with netCDF4.Dataset(path, "a") as nc:
+        nc["HEADING"].units = "decibar"
+    attrs = read_oceansites(path)["heading"].attrs
+    assert attrs["units"] == "degree"
+    assert attrs["originator_units"] == "decibar"
+    assert "corrected" in attrs["comment"]
+    ref = read_oceansites(WHOI_ADCP)["heading"].attrs
+    rest = {k: v for k, v in attrs.items() if k not in ("originator_units", "comment")}
+    assert rest.keys() == ref.keys()
+    assert rest.get("standard_name") == ref.get("standard_name")
+
+
+def test_oceansites_profile_with_no_head_depth_is_refused(tmp_path):
+    path = tmp_path / "no_head.nc"
+    with xr.open_dataset(WHOI_ADCP) as src:
+        src.drop_vars(["PREST", "INSTRDEPTH"]).to_netcdf(path)
+    with pytest.raises(ValueError, match="no head pressure"):
+        read_oceansites(path)
+
+
+def test_oceansites_profile_without_velocity_bins_is_refused(tmp_path):
+    """A variable on a second dimension it cannot place is refused by name."""
+    path = tmp_path / "no_ucur.nc"
+    with xr.open_dataset(WHOI_ADCP) as src:
+        src.drop_vars("UCUR").to_netcdf(path)
+    with pytest.raises(ValueError, match=r"is on BINDEPTH \(23 levels\)"):
+        read_oceansites(path)
+
+
+def test_oceansites_profile_orientation_contradicting_bin_depths_is_refused(tmp_path):
+    path = tmp_path / "down.nc"
+    shutil.copy(WHOI_ADCP, path)
+    with netCDF4.Dataset(path, "a") as nc:
+        nc["UCUR"].sensor_orientation = "downward"
+    with pytest.raises(ValueError, match="sensor_orientation says 'down'"):
+        read_oceansites(path)
+
+
+RODB_BINS = sorted(OSNAP.glob("nocm3_03_2016_20961_bin*.edt"))
+
+
+def test_rodb_bins_join_on_n_bins_keeping_the_numbers(caplog):
+    from oceanarray.readers import read_rodb_bins
+
+    ds = read_rodb_bins(RODB_BINS)
+    assert dict(ds.sizes) == {"time": 480, params.ADCP_BIN_DIM: 3, "beam": 4}
+    assert ds["bin_number"].values.tolist() == [1, 2, 4]
+    assert "no file for bin(s) [3]" in caplog.text
+    np.testing.assert_allclose(ds["range"], [4.0, 8.0, 16.0])
+    assert ds.attrs["orientation_instrument"] == "down"
+    z = read_rodb(RODB_BINS[2])["bin_depth"].values
+    np.testing.assert_array_equal(
+        ds["bin_pressure"].values[:, 2],
+        gsw.p_from_z(-z, ds.attrs["originator_latitude"]),
+    )
+    assert ds["percent_good"].dims == ("time", params.ADCP_BIN_DIM, "beam")
+    assert ds["error_velocity"].attrs["units"] == "cm s-1"
+
+
+def test_rodb_bins_beams_follow_their_numbers_not_the_column_order(tmp_path):
+    from oceanarray.readers import read_rodb_bins
+
+    ref = read_rodb_bins(RODB_BINS)
+    paths = [Path(shutil.copy(p, tmp_path)) for p in RODB_BINS]
+    for p in paths:
+        text = p.read_text()
+        p.write_text(text.replace("BEAM1SS:BEAM2SS", "BEAM2SS:BEAM1SS", 1))
+    ds = read_rodb_bins(paths)
+    assert ds["beam"].values.tolist() == [1, 2, 3, 4]
+    np.testing.assert_array_equal(
+        ds["amplitude"].sel(beam=1), ref["amplitude"].sel(beam=2)
+    )
+
+
+@pytest.mark.parametrize(
+    "change, match",
+    [
+        ("same_bin", "same bin"),
+        ("short", "times differ"),
+        ("lowedt", "not a per-bin .edt"),
+    ],
+)
+def test_rodb_bins_refusals(tmp_path, change, match):
+    from oceanarray.readers import read_rodb_bins
+
+    paths = [Path(shutil.copy(p, tmp_path)) for p in RODB_BINS]
+    if change == "same_bin":
+        paths.append(
+            Path(shutil.copy(paths[1], tmp_path / "nocm3_03_2016_20961_bin2.edt"))
+        )
+    elif change == "short":
+        paths[1].write_text("\n".join(paths[1].read_text().splitlines()[:-1]) + "\n")
+    else:
+        paths[1] = paths[1].rename(paths[1].with_suffix(".lowedt"))
+    with pytest.raises(ValueError, match=match):
+        read_rodb_bins(paths)

@@ -506,3 +506,45 @@ def test_adcp_missing_orientation_key_is_an_error():
             entry["orientation"] = "up"  # needs hab_top, which is absent
     errs = [e.message for e in _errors(mooring.check(cfg)) if "hab_top" in e.message]
     assert len(errs) == 1 and "2941" in errs[0] and "up" in errs[0]
+
+
+@pytest.mark.parametrize(
+    "extra, n_errors",
+    [
+        ({}, 1),
+        ({"orientation": "downward"}, 1),
+        ({"orientation": "down"}, 0),
+        ({"skip": True}, 0),
+    ],
+)
+def test_adcp_orientation_is_required(extra, n_errors):
+    """An ADCP to be processed needs orientation up or down; it is never assumed."""
+    cfg = mooring.load(_DUNE2_YAML)
+    entry = next(e for e in cfg["clamp"] if str(e["serial"]) == "2941")
+    entry.update({"instrument": "ADCP", "file_type": "oceansites", **extra})
+    errs = [e for e in _errors(mooring.check(cfg)) if "never assumed" in e.message]
+    assert len(errs) == n_errors
+
+
+@pytest.mark.parametrize(
+    "instrument, file_type, filename, n_errors",
+    [
+        ("ADCP", "rodb", "nocm3_03_2016_20961_bin*.edt", 0),
+        ("ADCP", "rodb", "nocm3_03_2016_20961_bin*", 1),
+        ("ADCP", "rodb", "nocm3_03_2016_20961_bin*.lowedt", 1),
+        ("microcat", "rodb", "nocm3_03_2016_*.microcat", 1),
+    ],
+)
+def test_wildcard_filename_only_for_rodb_adcp_bins(
+    instrument, file_type, filename, n_errors
+):
+    cfg = mooring.load(_DUNE2_YAML)
+    entry = next(e for e in cfg["clamp"] if str(e["serial"]) == "2941")
+    entry.update(
+        instrument=instrument,
+        file_type=file_type,
+        filename=filename,
+        orientation="down",
+    )
+    errs = [e for e in _errors(mooring.check(cfg)) if "wildcard" in e.message]
+    assert len(errs) == n_errors

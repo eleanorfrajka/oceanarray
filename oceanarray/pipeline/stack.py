@@ -438,14 +438,18 @@ def stack(
         orientation = ds_adcp.attrs.get("orientation_yaml") or ds_adcp.attrs.get(
             "orientation_instrument"
         )
-        if not orientation:
-            orientation = "down"
-            log.warning(
-                f"  ADCP {info['serial']} has no orientation attr — "
-                "assuming downward-looking. HAB offsets may be wrong for "
-                "upward-looking instruments."
-            )
+        if str(orientation).lower() not in ("up", "down"):
+            reason = f"ADCP orientation {orientation!r} is not 'up' or 'down'"
+            omitted.append(f"{info['instrument']} s/n {info['serial']} ({reason})")
+            log.warning(f"  omitting ADCP s/n {info['serial']} — {reason}")
+            continue
         looking_down = str(orientation).lower() == "down"
+        # Rows keep the originator's bin numbers when bins are missing (RODB sets).
+        bin_numbers = (
+            ds_adcp["bin_number"].values
+            if "bin_number" in ds_adcp.coords
+            else np.arange(n_bins)
+        )
         # Pre-compute seabed mask so always-submerged bins can be skipped.
         # seabed_qc has dims (time, N_BINS); a bin is permanently below the
         # seabed when every time step is flagged suspect or worse (>= 3).
@@ -484,7 +488,7 @@ def stack(
             expanded.append(
                 {
                     **info,
-                    "serial": f"{info['serial']}_b{i:02d}",
+                    "serial": f"{info['serial']}_b{int(bin_numbers[i]):02d}",
                     "hab": bin_hab,
                     "_adcp_bin_idx": i,
                     "_adcp_nc_key": nc_key,
@@ -1124,8 +1128,10 @@ def stack(
         ds_out.attrs["stage2_instruments"] = " ".join(at_stage2)
         ds_out.attrs["stage2_reason"] = stage2_reason
         # Stage 2 has no magnetic declination: name the levels whose east/north
-        # velocities are therefore referenced to magnetic north.
+        # velocities are therefore referenced to magnetic north (an originator that
+        # rotated to true north excepted).
         if "east_velocity" in ds_out:
+            rotated = ds_out.get("originator_magnetic_declination")
             magnetic = sorted(
                 {
                     s
@@ -1134,10 +1140,15 @@ def stack(
                     )
                     if label == "stage2"
                     and np.isfinite(ds_out["east_velocity"].isel(N_LEVELS=i)).any()
+                    and (rotated is None or not rotated.values[i])
                 }
             )
             if magnetic:
                 ds_out.attrs["stage2_magnetic_north"] = " ".join(magnetic)
+                # The CF standard names mean true north/east; not so for these.
+                for name in ("east_velocity", "north_velocity", "current_direction"):
+                    if name in ds_out:
+                        ds_out[name].attrs.pop("standard_name", None)
         # Current meters whose stage-2 velocities are in instrument coordinates
         # (beam or XYZ): stage 3 rotates them to east/north, so the stack has none.
         if "instrument_type" in ds_out:

@@ -455,6 +455,34 @@ def validate_mooring(
                 )
             )
 
+        if filename and any(c in str(filename) for c in "*?["):
+            ok = (
+                str(instrument).lower() == "adcp"
+                and entry.get("file_type") == "rodb"
+                and re.fullmatch(r"[^*?\[]*_bin\*\.edt", str(filename))
+            )
+            if not ok:
+                issues.append(
+                    ValidationIssue(
+                        "ERROR",
+                        f"{prefix} filename {filename!r}: a wildcard is only for an "
+                        "ADCP's RODB per-bin files, as <name>_bin*.edt",
+                    )
+                )
+
+        if (
+            str(instrument).lower() == "adcp"
+            and not entry.get("skip")
+            and str(entry.get("orientation", "")).lower() not in ("up", "down")
+        ):
+            issues.append(
+                ValidationIssue(
+                    "ERROR",
+                    f"{prefix} instrument='{instrument}' needs orientation: up or down "
+                    f"(got {entry.get('orientation')!r}); it is never assumed",
+                )
+            )
+
         # A stacked entry needs a height above bottom to be placed as a level. hab is
         # filled from hab_bottom (down) / hab_top (up) by orientation; if that resolves
         # to nothing the stack omits the instrument. An entry with no filename is already

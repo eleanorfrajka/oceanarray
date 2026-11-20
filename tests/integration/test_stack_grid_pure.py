@@ -176,3 +176,16 @@ def test_stack_sigma_attributes_come_from_the_registry(stage3, cfg, ref, name, e
     """σ0 is the registry's potential_density (sea_water_sigma_theta); σ2 has no standard name."""
     out = stack(stage3, {**cfg, "density_reference": ref}, dt_seconds=_DT)
     assert out[name].attrs == {**params.cf_attrs(entry), "reference_pressure_dbar": ref}
+
+
+def test_stack_omits_an_adcp_without_orientation(stage3, cfg):
+    """No orientation is assumed: the ADCP is left out, with the reason."""
+    adcp = xr.open_dataset(
+        _FIX.parents[1] / "adcp" / "dsG2_adcp_stage3_knockdown.nc"
+    ).load()
+    del adcp.attrs["orientation_yaml"], adcp.attrs["orientation_instrument"]
+    cfg2 = copy.deepcopy(cfg)
+    cfg2["clamp"].append({"serial": 16430, "instrument": "ADCP", "hab": 400})
+    ds = stack({**stage3, "16430": adcp}, cfg2, dt_seconds=_DT)
+    assert "ADCP s/n 16430 (ADCP orientation None" in ds.attrs["instruments_omitted"]
+    assert not any(str(s).startswith("16430") for s in ds["serial"].values)

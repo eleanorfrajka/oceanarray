@@ -498,3 +498,20 @@ def test_a_nan_attribute_is_unchanged_when_read_back(tmp_path):
         assert provenance.changed_attr(back.attrs, {"dp_dbar": 0.2}) == "dp_dbar"
     assert is_position("geospatial_lat_min") and is_position("deployment_latitude")
     assert not is_position("qc_flat_line")
+
+
+def test_valid_range_attributes_take_the_stored_dtype(tmp_path):
+    """CF 2.5.1: a float32 velocity has float32 valid_min / valid_max."""
+    with xr.open_dataset(_FIXTURES["aquadopp_stage3"], engine="netcdf4") as ds:
+        aqd = ds.load()
+    aqd["east_velocity"].attrs.update(valid_min=np.float64(-5), valid_max=np.float64(5))
+    aqd["east_velocity"].attrs["valid_range"] = [-5.0, 5.0]
+    src = aqd.copy()
+    out = tmp_path / "aquadopp.nc"
+    write(aqd, out)
+    with _open_raw(out) as back:
+        vel = back["east_velocity"]
+        assert vel.dtype == np.float32
+        for key in ("valid_min", "valid_max", "valid_range"):
+            assert vel.attrs[key].dtype == np.float32, key
+    assert src["east_velocity"].attrs["valid_min"].dtype == np.float64

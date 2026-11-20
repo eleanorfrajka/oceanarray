@@ -224,6 +224,160 @@ def test_units_override_with_reason_converts_kpa(tmp_path):
     np.testing.assert_allclose(p.values, stated.values * 0.1, rtol=1e-6)
 
 
+CF1 = {
+    "waterdepth": 170.0,
+    "latitude": 60.07013,
+    "longitude": -42.82545,
+    "deployment_time": "2020-07-15T09:59:59",
+    "recovery_time": "2022-08-25T09:55:28",
+}
+_CF1_ADCP = {
+    "serial": "CM173",
+    "instrument": "adcp",
+    "file_type": "oceansites",
+    "filename": "OS_OSNAP_CF1_202007_ADCP_173m_cut.nc",
+    "hab": 1.0,
+}
+
+
+@pytest.mark.parametrize(
+    "orientation, match",
+    [(None, "never assumed"), ("down", "the file says 'up', the YAML says 'down'")],
+)
+def test_oceansites_adcp_orientation_is_required_and_checked(orientation, match):
+    from oceanarray import readers
+    from oceanarray.exceptions import MooringError
+    from oceanarray.pipeline.stage1 import stage1
+
+    entry = {**_CF1_ADCP, "orientation": orientation}
+    ds = readers.read(OSNAP / entry["filename"])
+    ds.attrs["file_type"] = "oceansites"
+    with pytest.raises(MooringError, match=match):
+        stage1({"CM173": ds}, {"name": "cf1", **CF1, "clamp": [entry]})
+
+
+def test_oceansites_adcp_to_stage3_and_stack(tmp_path):
+    """The originator's bin pressures pass stage 3 unchanged and place the stack rows."""
+    import oceanarray as oa
+
+    raw, proc = _mooring(tmp_path, "cf1", CF1, [{**_CF1_ADCP, "orientation": "up"}])
+    files = oa.run(
+        proc / "cf1" / "cf1.mooring.yaml", raw_dir=raw, pmin=20, pmax=160, dp=20
+    )
+    s1 = _open(proc, "cf1", "adcp", "CM173", 1)
+    s3 = _open(proc, "cf1", "adcp", "CM173", 3)
+    np.testing.assert_array_equal(s3["bin_pressure"], s1["bin_pressure"])
+    assert "magnetic_declination" not in s3.attrs
+    assert {"seabed_qc", "surface_qc", "error_velocity_qc"} <= set(s3.data_vars)
+    with xr.open_dataset(files[-2]) as stack:
+        rows = stack["serial"].values.tolist()
+        assert rows[:2] == ["CM173_b00", "CM173_b01"][:0] + rows[:2]
+        assert "CM173_hd" in rows and "CM173_b13" in rows
+        k = rows.index("CM173_b05")
+        np.testing.assert_array_equal(
+            stack["pressure"]
+            .isel(N_LEVELS=k)
+            .sel(time=s3["time"], method="nearest")
+            .values,
+            s3["bin_pressure"].isel(N_BINS=5).values.astype(stack["pressure"].dtype),
+        )
+
+
+def test_adcp_velocity_axis_ends_at_the_last_bin_with_data(tmp_path):
+    """An upward ADCP's range axis stops at its last bin with data, not its last bin."""
+    import oceanarray as oa
+    from oceanarray.plotters import draw_adcp_velocity
+
+    raw, proc = _mooring(tmp_path, "cf1", CF1, [{**_CF1_ADCP, "orientation": "up"}])
+    oa.run(proc / "cf1" / "cf1.mooring.yaml", stages=[1, 2, 3], raw_dir=raw)
+    s3 = _open(proc, "cf1", "adcp", "CM173", 3)
+    rng = s3["range"].values
+    has_data = np.isfinite(s3["east_velocity"].values).any(axis=0)
+    assert not has_data[-1]  # the originator masked the bins near the surface
+    fig = draw_adcp_velocity(s3)
+    ax = fig.axes[0]
+    half_cell = 0.5 * float(np.median(np.diff(rng)))
+    assert ax.get_ylim() == pytest.approx((0.0, rng[has_data].max() + half_cell))
+    mesh = np.ma.filled(ax.collections[0].get_array(), np.nan).reshape(len(rng), -1)
+    np.testing.assert_array_equal(np.isfinite(mesh).any(axis=1), has_data)
+
+    # East masked further out than north and up: the axis follows them.
+    s3["east_velocity"][:, np.flatnonzero(has_data)[-1] - 2 :] = np.nan
+    ylim = draw_adcp_velocity(s3).axes[0].get_ylim()
+    assert ylim == pytest.approx((0.0, rng[has_data].max() + half_cell))
+
+
+IC1 = {
+    "waterdepth": 2472,
+    "latitude": 59.1,
+    "longitude": -33.7,
+    "deployment_time": "2016-08-09T14:20:00",
+    "recovery_time": "2018-07-15T07:38:41",
+}
+_IC1_ADCP = {
+    "serial": "ADCP480",
+    "instrument": "adcp",
+    "file_type": "oceansites",
+    "filename": "os_osnap-ic1_201608_adcp_480m_cut.nc",
+    "hab": 1997,
+    "orientation": "up",
+}
+
+
+def test_percent_good_per_bin_is_flagged_per_bin(tmp_path):
+    """A ``PERG`` on ``TIME × BINDEPTH`` (no beam) is one value per bin at stage 3."""
+    import oceanarray as oa
+    from oceanarray.config.parameters import QC_ADCP
+
+    raw, proc = _mooring(tmp_path, "ic1", IC1, [_IC1_ADCP])
+    path = raw / "ic1" / "adcp" / _IC1_ADCP["filename"]
+    with xr.open_dataset(path, decode_cf=False) as src:
+        src = src.load()
+    src["PERG"] = src["PERG"].isel(BEAM=3)  # the 4-beam column
+    src.to_netcdf(path, format="NETCDF3_CLASSIC")
+
+    oa.run(proc / "ic1" / "ic1.mooring.yaml", stages=[1, 2, 3], raw_dir=raw)
+    s3 = _open(proc, "ic1", "adcp", "ADCP480", 3)
+    pg = s3["percent_good"]
+    assert pg.dims == s3["percent_good_qc"].dims == ("time", "N_BINS")
+    expected = np.where(
+        pg < QC_ADCP["percent_good_bad"],
+        4,
+        np.where(pg < QC_ADCP["percent_good_suspect"], 3, 1),
+    )
+    np.testing.assert_array_equal(s3["percent_good_qc"], expected)
+    assert {1, 3, 4} <= set(np.unique(expected))
+
+
+def test_a_stage2_stack_names_true_north_only_when_it_is(tmp_path):
+    """Originator ENU is true north at stage 2; without it, no CF direction names."""
+    from oceanarray import mooring
+    from oceanarray.pipeline.read_mooring import read_mooring
+    from oceanarray.pipeline.stack import stack
+
+    raw, proc = _mooring(tmp_path, "cf1", CF1, [{**_CF1_ADCP, "orientation": "up"}])
+    assert process("cf1", [1, 2], proc_dir=proc, raw_dir=raw, force=True)
+    cfg = mooring.load(proc / "cf1" / "cf1.mooring.yaml")
+    names = ("east_velocity", "north_velocity", "current_direction")
+
+    s2 = {
+        k: v.load()
+        for k, v in read_mooring(cfg, stage=2, mooring_dir=proc / "cf1").items()
+    }
+    st = stack(s2, cfg, dt_seconds=3600)
+    assert "stage2_magnetic_north" not in st.attrs
+    assert st["current_direction"].attrs["standard_name"] == (
+        "sea_water_velocity_to_direction"
+    )
+    assert all("standard_name" in st[n].attrs for n in names)
+
+    for ds in s2.values():
+        del ds.attrs["originator_magnetic_declination"]
+    st = stack(s2, cfg, dt_seconds=3600)
+    assert "CM173_b05" in st.attrs["stage2_magnetic_north"].split()
+    assert not any("standard_name" in st[n].attrs for n in names)
+
+
 def test_oceansites_current_meter_to_stage3(tmp_path):
     raw, proc = _mooring(
         tmp_path,
@@ -482,3 +636,87 @@ def test_a_mooring_level_source_reaches_every_file(tmp_path, with_source):
         else:
             assert "waterdepth_source" not in ds.attrs
             assert "from the mooring YAML" not in ds.attrs["history"]
+
+
+EGM3 = {
+    "waterdepth": 2556.0,
+    "latitude": 59.8145,
+    "longitude": -40.277166666666666,
+    "deployment_time": "2016-08-16T10:00:00",
+    "recovery_time": "2018-06-16T12:07:00",
+}
+_EGM3_ADCP = {
+    "serial": "20961",
+    "instrument": "adcp",
+    "file_type": "rodb",
+    "filename": "nocm3_03_2016_20961_bin*.edt",
+    "orientation": "down",
+    "hab": 104.0,
+}
+
+
+def _egm3(tmp_path, pattern=_EGM3_ADCP["filename"]):
+    raw = tmp_path / "raw" / "egm3" / "adcp"
+    raw.mkdir(parents=True)
+    for p in sorted(OSNAP.glob(_EGM3_ADCP["filename"])):
+        shutil.copy(p, raw)
+    proc = tmp_path / "proc" / "egm3"
+    proc.mkdir(parents=True)
+    cfg = {"name": "egm3", **EGM3, "clamp": [{**_EGM3_ADCP, "filename": pattern}]}
+    (proc / "egm3.mooring.yaml").write_text(yaml.safe_dump(cfg, sort_keys=False))
+    return tmp_path / "raw", tmp_path / "proc"
+
+
+def test_rodb_bin_files_to_stage3_and_stack(tmp_path):
+    """Three per-bin files (bin 3 missing) become one ADCP; rows keep the bin numbers."""
+    import oceanarray as oa
+
+    raw, proc = _egm3(tmp_path)
+    files = oa.run(
+        proc / "egm3" / "egm3.mooring.yaml", raw_dir=raw, pmin=2400, pmax=2600, dp=50
+    )
+    s1 = _open(proc, "egm3", "adcp", "20961", 1)
+    s3 = _open(proc, "egm3", "adcp", "20961", 3)
+    np.testing.assert_array_equal(s3["bin_pressure"], s1["bin_pressure"])
+    assert s3["percent_good_qc"].dims == ("time", "N_BINS")
+    assert s3["error_velocity"].attrs["units"] == "m s-1"
+    with xr.open_dataset(files[-2]) as stack:
+        rows = stack["serial"].values.tolist()
+    assert {"20961_b01", "20961_b02", "20961_b04", "20961_hd"} <= set(rows)
+
+
+def test_rodb_bin_pattern_without_a_match_is_refused(tmp_path):
+    from oceanarray.exceptions import MooringError
+    from oceanarray.pipeline.raw_files import resolve_raw_file
+
+    raw, proc = _egm3(tmp_path, "nocm3_03_2016_99999_bin*.edt")
+    cfg = yaml.safe_load((proc / "egm3" / "egm3.mooring.yaml").read_text())
+    with pytest.raises(MooringError, match="no file matches"):
+        resolve_raw_file(cfg["clamp"][0], cfg, raw)
+
+
+def test_a_pattern_matching_several_files_is_refused_outside_rodb(tmp_path):
+    from oceanarray.exceptions import MooringError
+    from oceanarray.pipeline.raw_files import resolve_raw_file
+
+    raw, proc = _egm3(tmp_path)
+    cfg = yaml.safe_load((proc / "egm3" / "egm3.mooring.yaml").read_text())
+    entry = {**cfg["clamp"][0], "file_type": "oceansites"}
+    with pytest.raises(MooringError, match="matches 3 files"):
+        resolve_raw_file(entry, cfg, raw)
+
+
+def test_a_newer_bin_file_regenerates_stage1(tmp_path):
+    import os
+
+    from oceanarray.paths import should_skip_regeneration
+    from oceanarray.pipeline.raw_files import resolve_raw_file
+
+    raw, proc = _egm3(tmp_path)
+    cfg = yaml.safe_load((proc / "egm3" / "egm3.mooring.yaml").read_text())
+    rf = resolve_raw_file(cfg["clamp"][0], cfg, raw)
+    out = tmp_path / "stage1.nc"
+    out.write_text("")
+    os.utime(rf.paths[-1], (out.stat().st_mtime + 10,) * 2)
+    assert len(rf.paths) == 3
+    assert not should_skip_regeneration(out, False, False, *rf.paths)

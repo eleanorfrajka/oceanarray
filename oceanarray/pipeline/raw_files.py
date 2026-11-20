@@ -50,6 +50,9 @@ class RawFile:
         The instrument subdirectory (``"aquadopp"`` for the deprecated ``"nortek"``).
     tag : str
         The ``adcp-matlab`` per-file tag carried into the output filename, else ``""``.
+    paths : tuple of pathlib.Path
+        Every file a wildcard ``filename`` matches (RODB per-bin ADCP files), sorted;
+        ``path`` is the first.
     """
 
     entry: dict
@@ -58,6 +61,7 @@ class RawFile:
     file_type: str
     instrument_dir: str
     tag: str
+    paths: tuple[Path, ...] = ()
 
 
 def find_file_tag(
@@ -359,7 +363,26 @@ def resolve_raw_file(
             header = input_dir / instrument_dir / name / header_key
 
     tag = find_file_tag(filename) if file_type == "adcp-matlab" else ""
-    return RawFile(entry, path, header, file_type, instrument_dir, tag)
+    matches: tuple[Path, ...] = (path,)
+    if _is_pattern(filename):
+        matches = tuple(sorted(path.parent.glob(filename)))
+        if not matches:
+            raise MooringError(
+                f"{name}: {instrument} s/n {serial}: no file matches {filename} in "
+                f"{path.parent}"
+            )
+        if len(matches) > 1 and file_type != "rodb":
+            raise MooringError(
+                f"{name}: {instrument} s/n {serial}: {filename} matches "
+                f"{len(matches)} files in {path.parent}; only RODB per-bin ADCP files "
+                "are read as a set, so name one file"
+            )
+    return RawFile(entry, matches[0], header, file_type, instrument_dir, tag, matches)
+
+
+def _is_pattern(filename: str) -> bool:
+    """Return True when *filename* is a wildcard pattern."""
+    return any(c in filename for c in "*?[")
 
 
 def read_raw_file(raw: RawFile) -> xr.Dataset:
@@ -384,7 +407,12 @@ def read_raw_file(raw: RawFile) -> xr.Dataset:
     if raw.file_type == "sbe-ascii":
         read_path = sbe.repair_sbe_ascii(raw.path)
     header = str(raw.header) if raw.header is not None else None
-    dataset = readers._read_typed(raw.file_type, str(read_path), header)
+    if raw.file_type == "rodb" and _is_pattern(raw.entry["filename"]):
+        dataset = readers._drop_missing_time(
+            readers.read_rodb_bins(raw.paths), raw.entry["filename"]
+        )
+    else:
+        dataset = readers._read_typed(raw.file_type, str(read_path), header)
 
     if raw.file_type in ("nortek-raw", "nortek-ascii") and header:
         for key, value in _parse_nortek_pressure_cal(Path(header)).items():

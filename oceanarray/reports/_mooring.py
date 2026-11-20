@@ -823,6 +823,11 @@ class MooringReport:
                 # New layout: {raw_dir}/{mooring}/{instrument}/filename
                 raw_path = self._raw_dir / mooring_name / instr_type / filename
                 raw_path_str = raw_path.relative_to(self._raw_dir).as_posix()
+                # A wildcard (RODB per-bin ADCP files): count the matches, check one.
+                matches = sorted(raw_path.parent.glob(filename))
+                if matches and matches[0] != raw_path:
+                    raw_path_str += f" ({len(matches)} files)"
+                    raw_path = matches[0]
                 raw_exists = raw_path.exists()
                 readable, readable_note = (
                     _check_readable(raw_path, file_type)
