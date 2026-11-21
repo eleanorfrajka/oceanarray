@@ -89,8 +89,7 @@ and attributes in the files can still change between releases; the `changelog
    :hidden:
    :caption: Inputs and outputs
 
-   yaml_configuration
-   array_configuration
+   configuration_files
    oceanarray_format
    OceanSITES manual <oceanSITES_manual>
 
@@ -126,7 +125,7 @@ and attributes in the files can still change between releases; the `changelog
    :caption: Development
 
    roadmap
+   developer
    project_structure
-   style_guide
    Calibration correction (design) <methods/calibration>
    GitHub repository <https://github.com/ocean-uhh/oceanarray>

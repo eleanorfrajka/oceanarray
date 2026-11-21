@@ -4,12 +4,15 @@
 The mooring YAML file
 =====================
 
-Each mooring is configured with a single YAML file named
-``{mooring_name}.mooring.yaml``, placed in the processed directory for that
-mooring (see :doc:`files`).  This file tells ``oceanarray``
-everything it needs to know: where the raw data files are, what instruments
-were deployed, when the mooring was in the water, and how to quality-control
-the data.
+Each mooring is described by one YAML file, ``{mooring_name}.mooring.yaml``. It
+holds everything oceanarray needs to process the mooring: what instruments were
+deployed and at what depths, when the mooring was in the water, and how to
+quality-control the data. It does not choose where files are: the raw-data
+folder and the processed folder are given when the pipeline is run
+(``raw_dir`` / ``--raw-dir``, see :doc:`files`). Two keys still name a file
+relative to this YAML, ``sensor_catalog`` and ``caldip.root``; both are planned to
+move to the run. How this file relates to the
+other configuration files is on :doc:`configuration_files`.
 
 ----
 
@@ -67,7 +70,8 @@ mooring as a whole.
      - string
      - Required
      - Mooring identifier, e.g. ``dsG3_1_2026``.  Used in all output file
-       names.
+       names. The mooring's name is always this key, never the YAML's file name
+       or folder (see :doc:`configuration_files`).
    * - ``platform_code``
      - string
      - For export

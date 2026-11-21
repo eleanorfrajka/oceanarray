@@ -24,7 +24,7 @@ own :doc:`mooring YAML file <yaml_configuration>`. Two commands read it:
      sill: {name: Denmark Strait sill array, short: Sill}
    moorings:
      - mooring: dsG1_1_2026
-       config: dsG1_1_2026.mooring.yaml   # default: {mooring}.mooring.yaml
+       config: dsG1_1_2026.yaml           # only when not {mooring}.mooring.yaml
        subarray: sill                     # moorings are coloured by subarray
      - mooring: dsK1_1_2026
        subarray: sill
@@ -38,8 +38,11 @@ own :doc:`mooring YAML file <yaml_configuration>`. Two commands read it:
    * - ``name``
      - The array's name: the page's file name (default: the YAML file name).
    * - ``moorings``
-     - One entry per mooring: ``mooring`` (its name), ``config`` (its YAML file,
-       relative to the array file's folder) and ``subarray`` (a key of
+     - One entry per mooring: ``mooring`` (its name), ``config`` (its YAML's file
+       name, only when it is not ``{mooring}.mooring.yaml``; looked for beside the
+       array file, then in the mooring's processed folder; a path, relative to the
+       array file or absolute, is still accepted and is planned to be deprecated in
+       0.7.0) and ``subarray`` (a key of
        ``subarrays``: the map colours moorings by subarray; moorings without one
        are grouped as "other"; without any, one colour per mooring).
    * - ``subarrays``
@@ -51,6 +54,7 @@ own :doc:`mooring YAML file <yaml_configuration>`. Two commands read it:
    * - ``site_code``
      - The OceanSITES site code, written into the exported files (left out, with a
        warning, when absent).
+
 Other keys are not used by the year page, which takes cruises, ships, dates,
 positions and depths from each mooring's own YAML file; ``cruise``, ``ship``,
 ``deployment_time``, ``recovery_time``, ``latitude``, ``longitude``, ``position``,

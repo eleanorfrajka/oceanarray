@@ -7,6 +7,11 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ## [Unreleased]
 
+### Added
+
+- Developer guide (`developer`): principles, layers, one idiom per job, vocabulary, naming, branches and pull requests, known deviations; replaces the style guide (#154).
+- Configuration files page (`configuration_files`): the YAML files, which value wins, finding a mooring by name or by path; a sensor catalog page (`sensor_catalog`) with an example (#154).
+
 ### Removed
 
 - Unused helpers and constants: `plotters.diagnostic.draw_knockdown_pressure` (not drawn on any page), `plotters.flags.worst_flags`, `paths.product_glob`, `mooring.REQUIRED_KEYS`, `readers.rodb.RODB_EXTENSIONS` and `config.parameters` `INSTRUMENT_COLORS`, `FIGURE_SIZE_TALL`, `SIGMA_CONTOUR_LEVELS`.
