@@ -24,7 +24,6 @@ _REMOVED_PATHS = (
     "oceanarray.utilities",
     "oceanarray.pipeline.helpers",
     "oceanarray.pipeline.caldip",
-    "oceanarray.analysis.clock",
     "oceanarray.analysis.temporal",
     "oceanarray.analysis.science",
     "oceanarray.analysis.hydrographic",

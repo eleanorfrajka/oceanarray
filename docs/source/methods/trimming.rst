@@ -113,10 +113,28 @@ appropriate interpolated correction.  All values are **added** to instrument tim
    If the clock was also set incorrectly at deployment, set ``clock_offset`` for that
    initial error and let the two timestamps capture the total at recovery.
 
-To estimate an offset from the data — when each instrument entered the cold deep
-water, and the lag that best lines up neighboring temperature records —
-``oceanarray.pipeline.clock.offsets`` has the functions, shown in the notebook
-``notebooks/legacy/demo_clock_offset.ipynb``.
+Estimating a clock correction from the data
+-------------------------------------------
+
+When a recovery reading is missing (``unknown``) or looks wrong — for example a
+correction far from those of the other instruments on the mooring, which the mooring
+check warns about — ``oceanarray.analysis.clock`` can estimate it from the data. It
+lag-correlates each instrument's record with its neighbors' and finds the lag that
+best lines them up; the lag near deployment suggests a ``clock_offset``, and a lag that
+grows towards recovery suggests a drift. Nothing is written back: you check the suggestion and put
+it in the mooring YAML (or correct the logsheet value), then rerun stage 2.
+
+It works when:
+
+- the instruments compared see the same signal: neighbours a few metres apart
+  (tens of metres for smooth deep temperatures may not be enough);
+- the samples are fine compared with the error sought: a correction of tens of
+  seconds needs instruments sampling every few seconds; one sampling every few
+  minutes cannot resolve it.
+
+Offsets of minutes to days (a clock set to the wrong day or time zone) are found
+reliably. The functions are in ``oceanarray.analysis.clock.offsets``; the notebook
+``notebooks/legacy/demo_clock_offset.ipynb`` shows the original workflow.
 
 CLI usage
 ---------

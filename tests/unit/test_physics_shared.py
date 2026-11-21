@@ -82,6 +82,7 @@ def test_pipeline_does_not_import_analysis() -> None:
     bad = [
         f"{p.relative_to(_ROOT)}: {m}"
         for p in (_ROOT / "pipeline").rglob("*.py")
+        if p != _ROOT / "pipeline" / "clock" / "__init__.py"  # deprecated alias, 0.7.0
         for m in _imports(p)
         if m.startswith(("oceanarray.analysis", "..analysis"))
     ]

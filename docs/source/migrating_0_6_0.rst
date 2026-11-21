@@ -160,7 +160,7 @@ and ``oceanarray.legacy.tools`` are gone. ``oceanarray.tools.readers`` moved to 
    * - ``oceanarray.tools`` / ``analysis.science`` re-exports ``welch_psd``, ``welch_psd_gapaware``, ``compute_cwt``
      - ``oceanarray.analysis.spectral``
    * - ``oceanarray.tools`` re-exports ``lag_correlation``, ``split_value``, ``downsample_to_sparse``
-     - ``oceanarray.pipeline.clock.offsets`` (``lag_correlation``, ``split_value``), ``oceanarray.pipeline.gridders.climatology`` (``downsample_to_sparse``)
+     - ``oceanarray.analysis.clock.offsets`` (``lag_correlation``, ``split_value``), ``oceanarray.pipeline.gridders.climatology`` (``downsample_to_sparse``)
    * - ``oceanarray.tools`` re-exports ``flag_salinity_outliers``, ``flag_temporal_spikes``, ``flag_vertical_inconsistencies``, ``run_qc``
      - ``oceanarray.legacy.qc_rodb``
    * - ``oceanarray.pipeline.helpers`` (was ``processors.helpers``): ``STACK_VARS`` and the stack helpers
@@ -168,7 +168,7 @@ and ``oceanarray.legacy.tools`` are gone. ``oceanarray.tools.readers`` moved to 
    * - ``oceanarray.analysis.temporal.filter_sigma_tukey``
      - ``oceanarray.pipeline.gridders.filters``
    * - ``oceanarray.analysis.clock`` (``analyze_deployment_timing`` → ``deployment_timing``; + ``analysis.temporal.lag_correlation``, ``split_value``)
-     - ``oceanarray.pipeline.clock.offsets``
+     - ``oceanarray.analysis.clock.offsets``
    * - ``oceanarray.analysis.vector.progressive_vector``
      - ``oceanarray.plotters.current.progressive_vector``
    * - ``oceanarray.utilities`` (``get_dims``, ``check_necessary_variables``, ``get_time_key``)
@@ -180,7 +180,7 @@ and ``oceanarray.legacy.tools`` are gone. ``oceanarray.tools.readers`` moved to 
    * - ``oceanarray.config.validation.print_validation_report``
      - removed (``oceanarray validate`` prints the report)
    * - ``oceanarray.legacy.find_deployment``
-     - ``oceanarray.pipeline.clock.deployment``
+     - ``oceanarray.analysis.clock.deployment``
    * - ``oceanarray.pipeline.caldip`` (``normalize_serial`` → ``canonical_serial``)
      - ``oceanarray.pipeline.calibration``
    * - ``oceanarray.pipeline.coordinate.apply_adcp_seabed_qc`` / ``_surface_qc`` / ``_velocity_qc``

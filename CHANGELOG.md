@@ -14,6 +14,7 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Changed
 
+- The clock tools moved from `oceanarray.pipeline.clock` to `oceanarray.analysis.clock`, unchanged; the old path warns until 0.8.0 (#158).
 - Import rules are checked in CI by `lint-imports` (contracts in `pyproject.toml`), docstring examples run as doctests, and `AGENTS.md` points coding assistants to the developer guide (#156).
 - Every figure and the instrument summary hide flagged values by the `mask_flags` rule (default 4), like the grid: suspect (3) values are now drawn on instrument pages and on stacks without a recorded rule, and the Stack cat page marks them with black dots as the stack page does. Re-run the report to apply (#155).
 - Mooring check: warns when a recovery clock correction is over 120 s from the mooring median (`CLOCK_DRIFT_OUTLIER_SECONDS`), and errors on a non-numeric `clock_offset`/`clock_drift_seconds` (#157).

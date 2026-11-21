@@ -100,8 +100,8 @@ the code (analytic case, invariant, a ``gsw`` cross-check).
    * - Pipeline
      - ``pipeline/``
      - The verbs' bodies, one file per verb (``stage1.py`` … ``grid.py``,
-       ``concat.py``, ``export.py``), what they compose (``clock/``,
-       ``calibration/``, ``qc/``, ``gridders/``) and the shared transforms
+       ``concat.py``, ``export.py``), what they compose
+       (``calibration/``, ``qc/``, ``gridders/``) and the shared transforms
        (``units``, ``pressure``, ``coordinate``, ``masking``, ``dataset``). Stage
        functions take and return datasets; I/O is in ``process``/``run``.
    * - Writers
@@ -114,8 +114,10 @@ the code (analytic case, invariant, a ``gsw`` cross-check).
    * - Analysis
      - ``analysis/``
      - Physics on the products that is not a pipeline step: θ, σθ, speed and
-       direction, spectra, a site's record over the years. Computed once per page
-       and passed to every figure.
+       direction, spectra, a site's record over the years (computed once per page
+       and passed to every figure), and ``analysis/clock/``, which estimates clock
+       offsets from neighboring instruments for the mooring YAML. Nothing here is
+       written back to a product.
    * - Plotters
      - ``plotters/``
      - ``draw_<what>`` functions returning a matplotlib Figure. Know nothing about
@@ -1071,10 +1073,11 @@ that makes the change.
      - All tables from the shared macros
      - New templates use the shared macros (section 3.8); the older ones move
        over when they are next reworked.
-   * - Coverage gate 58 %; ``pipeline/clock/`` omitted
+   * - Coverage gate 58 %; ``analysis/clock/`` omitted
      - Higher gate, nothing omitted
-     - Held until coverage is measured per module; the clock code is omitted
-       until its use is settled.
+     - Held until coverage is measured per module. ``analysis/clock/`` is omitted
+       until tests pin its behavior, verified on real moorings; it is then
+       tidied and measured like the rest.
    * - Large plotter modules (``plotters/current.py``)
      - Modules of a few hundred lines
      - Splitting a plotter module only moves code; its figures share one set of

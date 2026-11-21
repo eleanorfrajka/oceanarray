@@ -5,6 +5,9 @@ import pandas as pd
 import pytest
 import xarray as xr
 
+from oceanarray.analysis.clock import offsets
+from oceanarray.analysis.clock.deployment import find_deployment
+from oceanarray.analysis.clock.offsets import lag_correlation, split_value
 from oceanarray.analysis.hydrography import (
     calc_ds_difference,
     calc_psal,
@@ -24,9 +27,6 @@ from oceanarray.legacy.qc_rodb import (
     flag_vertical_inconsistencies,
     run_qc,
 )
-from oceanarray.pipeline.clock import offsets
-from oceanarray.pipeline.clock.deployment import find_deployment
-from oceanarray.pipeline.clock.offsets import lag_correlation, split_value
 from oceanarray.pipeline.gridders.climatology import downsample_to_sparse
 
 

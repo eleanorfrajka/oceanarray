@@ -23,7 +23,7 @@ Status Overview
   ``pipeline/oceansites.py``; ``oceanarray export``)
 - HTML reports — mooring summary, per-instrument, stack and grid pages, and one A4 PDF
   (``reports/``)
-- Clock offset analysis (``pipeline/clock/offsets.py``)
+- Clock offset analysis (``analysis/clock/offsets.py``)
 - Multi-instrument overview plots (``plotters/``)
 - Mooring description validation (``oceanarray validate``, ``mooring.check``)
 - Several deployments of a site: the Stack cat and the Grid cat (``oceanarray concat``)

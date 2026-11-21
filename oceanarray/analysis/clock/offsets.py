@@ -18,9 +18,9 @@ from scipy.signal import find_peaks
 
 from oceanarray import mooring as _mooring
 from oceanarray import paths
+from oceanarray.analysis.clock import deployment as find_deployment
 from oceanarray.instruments import instrument_entries
 from oceanarray.pipeline import _stage
-from oceanarray.pipeline.clock import deployment as find_deployment
 
 _STAGE2_TAG = paths.stage_suffix(2).removesuffix(".nc")
 

@@ -13,6 +13,14 @@ offset. A file with no offset therefore has no ``clock_offset`` variable: read i
 with ``ds.get("clock_offset", 0)`` (an absent variable means no offset), not
 ``ds["clock_offset"]``. Rerun stage 2 to update existing files.
 
+The clock tools moved to ``analysis``
+-------------------------------------
+
+``oceanarray.pipeline.clock`` (``offsets``, ``deployment``) is now
+``oceanarray.analysis.clock``, unchanged. The old path still imports, with a
+``DeprecationWarning``, until 0.8.0; change ``from oceanarray.pipeline.clock import …``
+to ``from oceanarray.analysis.clock import …``.
+
 No pitch or roll flags
 ----------------------
 

@@ -103,3 +103,30 @@ def test_an_unknown_name_is_an_attribute_error():
     """A typo is an AttributeError, not an import of something else."""
     with pytest.raises(AttributeError):
         oa.no_such_name  # noqa: B018
+
+
+def test_old_clock_package_warns_and_maps_to_the_moved_modules():
+    """The pre-move clock path still imports, warns once, and gives the moved modules."""
+    import subprocess
+    import sys
+
+    code = (
+        "import warnings\n"
+        "warnings.simplefilter('error', DeprecationWarning)\n"
+        "try:\n"
+        "    import oceanarray.pipeline.clock\n"
+        "except DeprecationWarning as w:\n"
+        "    print('warned:', w)\n"
+        "warnings.simplefilter('ignore', DeprecationWarning)\n"
+        "from oceanarray.pipeline.clock import offsets, deployment\n"
+        "from oceanarray.pipeline.clock.offsets import lag_correlation\n"
+        "from oceanarray.analysis import clock\n"
+        "print(offsets is clock.offsets, deployment is clock.deployment,"
+        " lag_correlation is clock.offsets.lag_correlation)\n"
+    )
+    out = subprocess.run(
+        [sys.executable, "-c", code], capture_output=True, text=True, check=True
+    ).stdout
+    assert "warned: oceanarray.pipeline.clock is deprecated" in out
+    assert "oceanarray.analysis.clock" in out
+    assert out.strip().endswith("True True True")

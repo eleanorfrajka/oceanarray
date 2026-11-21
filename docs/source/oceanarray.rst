@@ -356,7 +356,7 @@ clock offsets
 ^^^^^^^^^^^^^
 Clock offsets and lag correlation across a mooring's instruments.
 
-.. automodule:: oceanarray.pipeline.clock.offsets
+.. automodule:: oceanarray.analysis.clock.offsets
    :members:
    :undoc-members:
 
@@ -364,7 +364,7 @@ deployment window
 ^^^^^^^^^^^^^^^^^
 When each instrument entered and left the water, from its temperature record.
 
-.. automodule:: oceanarray.pipeline.clock.deployment
+.. automodule:: oceanarray.analysis.clock.deployment
    :members:
    :undoc-members:
 
