@@ -60,6 +60,9 @@ jobs:
           pytest tests/unit -m "not slow and not local" -q
           ${{ (matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11') && '--cov=oceanarray --cov-report=term-missing --cov-fail-under=58' || '--no-cov' }}
 
+      - name: Run docstring examples (doctest)
+        run: pytest --doctest-modules oceanarray --ignore=oceanarray/legacy -q --no-cov -p no:cacheprovider
+
   integration:
     runs-on: ubuntu-latest
     steps:
@@ -134,11 +137,14 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install ruff
-        run: pip install ruff
+      - name: Install ruff and import-linter
+        run: pip install ruff import-linter
 
       - name: Lint (ruff check)
         run: ruff check .
 
       - name: Format check (ruff format)
         run: ruff format --check .
+
+      - name: Import rules (lint-imports, contracts in pyproject.toml)
+        run: PYTHONPATH=. lint-imports

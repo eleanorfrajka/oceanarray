@@ -6,9 +6,11 @@ returns its global attributes. Handy in notebooks; no plotting involved.
 
 Examples
 --------
+Not run as tests: they need a dataset ``ds`` opened from a stage file.
+
 >>> from oceanarray import inspect
->>> inspect.variables(ds)   # styled variable table
->>> inspect.attributes(ds)  # global-attribute table
+>>> inspect.variables(ds)   # styled variable table  # doctest: +SKIP
+>>> inspect.attributes(ds)  # global-attribute table  # doctest: +SKIP
 
 """
 

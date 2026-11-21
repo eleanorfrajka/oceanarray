@@ -25,8 +25,13 @@ import xarray as xr
 
 from oceanarray import logger
 from oceanarray.config import parameters as params
-from oceanarray.config.unit_tables import TABLES, UNIT_SPELLINGS_KEPT
-from oceanarray.reports._vendored.units import Tables, UnitsError, resolve_units
+from oceanarray.config.unit_tables import (
+    TABLES,
+    UNIT_SPELLINGS_KEPT,
+    Tables,
+    UnitsError,
+    resolve_units,
+)
 
 log = logging.getLogger(__name__)
 

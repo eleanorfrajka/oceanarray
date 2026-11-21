@@ -26,6 +26,7 @@ from oceanarray import location, logger
 from oceanarray import mooring as _mooring
 from oceanarray.exceptions import MooringError
 from oceanarray.instruments import instrument_entries
+from oceanarray.pipeline import masking
 
 from ..config.unit_tables import unit_label
 from ..paths import safe_serial
@@ -315,6 +316,13 @@ def _build_mooring_instruments(
     """Return one status record per instrument of a mooring, for the array tables."""
     mooring_proc = proc_dir / mooring_id
     results = []
+    # The pressure ranges leave out what the figures hide: the mooring's rule. The
+    # array page reads YAMLs unchecked, so a rule it cannot read falls back to the
+    # file's own.
+    try:
+        rule = masking.stack_rule(mcfg)
+    except ValueError:
+        rule = None
     for entry in instrument_entries(mcfg):
         if not isinstance(entry, dict):
             continue
@@ -325,7 +333,9 @@ def _build_mooring_instruments(
         skipped = bool(entry.get("skip"))
         stages = _stage_files(mooring_proc, folder, mooring_id, serial)
         no_file = not skipped and not stages.get("stage1")
-        info = _read_instrument_info(mooring_proc, folder, mooring_id, serial)
+        info = _read_instrument_info(
+            mooring_proc, folder, mooring_id, serial, rule=rule
+        )
         t_end_raw = info.get("t_end_raw") if info and not info.get("error") else None
         stopped_early = False
         if recover_dt and t_end_raw is not None:

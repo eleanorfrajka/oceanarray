@@ -114,7 +114,7 @@ PDF report output (WeasyPrint, which needs native pango/cairo libraries), use
 
 1. Fork the repository and create a feature branch from `main`.
 2. Make your changes, following the conventions below.
-3. Run `ruff check . --fix` and `ruff format .`, then `pytest` — all tests must pass. (`ruff format` owns line wrapping, which is why `E501` is ignored in `pyproject.toml`.)
+3. Run `ruff check . --fix`, `ruff format .` and `lint-imports`, then `pytest` — all tests must pass. (`ruff format` owns line wrapping, which is why `E501` is ignored in `pyproject.toml`.)
 4. Open a pull request against `main`. Prefix the title with a bracket tag: `[FEAT]`, `[FIX]`, `[REFACTOR]`, `[DOC]`, `[TEST]`, `[CI]`, or `[CLEANUP]`. Pull requests are squash-merged, and the squash commit's title is the PR title.
 
 Keep each pull request to one logical change. A rename PR that also fixes a bug is a PR nobody can review — split them. (This matters most once more than one person is working on the code.)

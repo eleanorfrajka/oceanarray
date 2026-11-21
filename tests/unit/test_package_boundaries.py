@@ -1,4 +1,8 @@
-"""Package boundaries: nothing outside ``legacy`` imports it, and plotters never import reports."""
+"""Package boundary: nothing outside ``legacy`` imports it.
+
+The other import rules (layers, plotters and the pages, the units door) are
+``lint-imports`` contracts in ``pyproject.toml``.
+"""
 
 import ast
 import pathlib
@@ -39,16 +43,5 @@ def test_nothing_outside_legacy_imports_legacy():
         str(p.relative_to(_ROOT))
         for p in _owned(exclude="legacy")
         if any(m.startswith("oceanarray.legacy") for m in _imports(p))
-    ]
-    assert bad == []
-
-
-def test_plotters_do_not_import_reports():
-    """Figures do not depend on the pages (the shared design tokens excepted)."""
-    bad = [
-        f"{p.relative_to(_ROOT)}: {m}"
-        for p in (_ROOT / "plotters").rglob("*.py")
-        for m in _imports(p)
-        if m.startswith("oceanarray.reports") and "_vendored" not in m
     ]
     assert bad == []

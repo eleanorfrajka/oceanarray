@@ -28,9 +28,8 @@ import numpy as np
 import xarray as xr
 
 from oceanarray.config import parameters as params
-from oceanarray.config.unit_tables import TABLES
+from oceanarray.config.unit_tables import TABLES, UnitsError, resolve_units
 from oceanarray.paths import safe_serial
-from oceanarray.reports._vendored.units import UnitsError, resolve_units
 
 #: Filename suffix of the per-cast caldip netCDF (strict — excludes CSV exports and variants).
 CALDIP_SUFFIX = "_caldip.nc"
@@ -157,8 +156,10 @@ def read_caldip_cast(path: str | Path) -> xr.Dataset:
 
     Examples
     --------
-    >>> cast = read_caldip_cast("proc_calib/msm142_2026/castM4_caldip.nc")
-    >>> instrument_record(cast, "013840")["cond_diff"].values
+    Not run as tests: they need a caldip cast file on disk.
+
+    >>> cast = read_caldip_cast("proc_calib/msm142_2026/castM4_caldip.nc")  # doctest: +SKIP
+    >>> instrument_record(cast, "013840")["cond_diff"].values  # doctest: +SKIP
 
     """
     path = Path(path)

@@ -15,6 +15,7 @@ from oceanarray import mooring as _mooring
 from oceanarray.analysis.derived import knockdown as build_knockdown
 from oceanarray.instruments import instrument_entries
 from oceanarray.paths import should_skip_regeneration
+from oceanarray.pipeline import masking
 
 from ..config import parameters as params
 from ..paths import safe_serial
@@ -778,6 +779,8 @@ class MooringReport:
         waterdepth = cfg.get("waterdepth")
 
         instrument_list = instrument_entries(cfg)
+        # The pressure ranges leave out what the figures hide: the mooring's rule.
+        rule = masking.stack_rule(cfg)
 
         stack_nc = paths.product_file(proc_dir, mooring_name, "stack")
         grid_nc = paths.product_file(proc_dir, mooring_name, "grid")
@@ -872,7 +875,9 @@ class MooringReport:
                     readable = False
                     readable_note = "no filename in YAML"
 
-            nc_info = _read_instrument_info(proc_dir, instr_type, mooring_name, serial)
+            nc_info = _read_instrument_info(
+                proc_dir, instr_type, mooring_name, serial, rule=rule
+            )
 
             _base_nc = proc_dir / instr_type / f"{mooring_name}_{serial}"
             _stage3_nc = Path(str(_base_nc) + paths.stage_suffix(3))

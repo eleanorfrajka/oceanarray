@@ -361,9 +361,11 @@ def process(
 
     Examples
     --------
+    Not run as tests: they need a mooring folder on disk.
+
     >>> import oceanarray as oa
-    >>> oa.process("proc/dune2_1_2026/dune2_1_2026.mooring.yaml", raw_dir="raw/")
-    >>> oa.process(mooring, stages=3, serials=["2941"], force=True)
+    >>> oa.process("proc/dune2_1_2026/dune2_1_2026.mooring.yaml", raw_dir="raw/")  # doctest: +SKIP
+    >>> oa.process(mooring, stages=3, serials=["2941"], force=True)  # doctest: +SKIP
     """
     if stage is not _UNSET or proc_dir is not None or legacy_kw:
         if keep_going is not None:
@@ -448,7 +450,9 @@ def resolve_mooring(
 
     Examples
     --------
-    >>> cfg, folder = resolve_mooring("proc/dune2_1_2026/dune2_1_2026.mooring.yaml", None)
+    Not run as tests: they need a mooring folder on disk.
+
+    >>> cfg, folder = resolve_mooring("proc/dune2_1_2026/dune2_1_2026.mooring.yaml", None)  # doctest: +SKIP
     """
     from oceanarray import mooring as _mooring
     from oceanarray.exceptions import MooringError

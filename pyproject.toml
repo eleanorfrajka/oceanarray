@@ -86,6 +86,7 @@ docs = [
 dev = [
   "oceanarray[test,docs]",
   "ruff>=0.3",
+  "import-linter>=2.0",
   "jupyterlab>=4.0",
   "nbconvert>=7.8",
 ]
@@ -212,3 +213,98 @@ convention = "numpy"   # handles D203 / D213 itself — do not hand-ignore those
 "oceanarray/reports/_instrument.py" = ["BLE001", "ARG001"]
 "oceanarray/reports/_mooring.py" = ["BLE001"]
 "oceanarray/reports/_stack.py" = ["BLE001", "ARG001", "F841"]
+
+# Which part of the package may import which (docs/source/developer.rst, section 2).
+# Run with ``lint-imports``. Each ignored import marked "To change" is a known
+# exception listed in the developer guide's "To change" table: delete its line in
+# the pull request that removes the import, so the list only shrinks. "Nothing
+# outside legacy imports legacy" stays a test (tests/unit/test_package_boundaries.py),
+# which covers every module, including new ones.
+[tool.importlinter]
+root_package = "oceanarray"
+include_external_packages = false
+
+[[tool.importlinter.contracts]]
+name = "Layers: each part imports only the parts below it"
+type = "layers"
+layers = [
+  "oceanarray.cli",
+  "oceanarray.reports",
+  "oceanarray.plotters",
+  "oceanarray.analysis",
+  "oceanarray.pipeline",
+  "oceanarray.readers : oceanarray.writers",
+  "oceanarray.mooring : oceanarray.catalog : oceanarray.provenance : oceanarray.logger : oceanarray.paths : oceanarray.instruments : oceanarray.location : oceanarray.physics : oceanarray.inspect",
+  "oceanarray.config : oceanarray.exceptions : oceanarray._deprecated",
+]
+ignore_imports = [
+  # The shared report layer is a foundation: every part may use its tokens and units.
+  "oceanarray.** -> oceanarray.reports._vendored.**",
+  # The package version, read from the package root.
+  "oceanarray.provenance -> oceanarray",
+  # To change, and a cycle (mooring imports config.validation back): mooring-YAML
+  # validation belongs above the modules it checks against.
+  "oceanarray.config.validation -> oceanarray.mooring",
+  "oceanarray.config.validation -> oceanarray.paths",
+  "oceanarray.config.validation -> oceanarray.instruments",
+  # To change, and a cycle (pipeline.stack and pipeline.concat import mooring): the
+  # mooring YAML reads pipeline helpers and defaults; those pieces move below mooring.
+  "oceanarray.mooring -> oceanarray.pipeline.attribution",
+  "oceanarray.mooring -> oceanarray.pipeline.masking",
+  "oceanarray.mooring -> oceanarray.pipeline._run",
+  # To change: readers use pipeline helpers (they move below the readers).
+  "oceanarray.readers.rodb -> oceanarray.pipeline.pressure",
+  "oceanarray.readers.oceansites -> oceanarray.pipeline.pressure",
+  "oceanarray.readers.oceansites -> oceanarray.pipeline._stage",
+  "oceanarray.readers.oceansites -> oceanarray.pipeline.qc.originator",
+  # To change: the sensor catalog uses the originator flag table.
+  "oceanarray.catalog -> oceanarray.pipeline.qc.originator",
+  # To change: provenance compares attributes with a writer helper.
+  "oceanarray.provenance -> oceanarray.writers.dtypes",
+  # run ends with the report (section 2).
+  "oceanarray.pipeline._run -> oceanarray.reports",
+]
+
+[[tool.importlinter.contracts]]
+name = "The shared report layer stands alone (it is copied from ctdcast)"
+type = "forbidden"
+source_modules = ["oceanarray.reports._vendored"]
+# Every other part of the package, by name: the package root and reports/ cannot be
+# listed whole, since they hold the source. A new module is added here.
+forbidden_modules = [
+  "oceanarray.analysis", "oceanarray.cli", "oceanarray.config", "oceanarray.pipeline",
+  "oceanarray.plotters", "oceanarray.readers", "oceanarray.writers",
+  "oceanarray.reports._array", "oceanarray.reports._breadcrumb",
+  "oceanarray.reports._captions", "oceanarray.reports._concat",
+  "oceanarray.reports._env", "oceanarray.reports._figdebug", "oceanarray.reports._grid",
+  "oceanarray.reports._gridcat", "oceanarray.reports._html_helpers",
+  "oceanarray.reports._instrument", "oceanarray.reports._instrument_text",
+  "oceanarray.reports._masthead", "oceanarray.reports._mooring",
+  "oceanarray.reports._navs", "oceanarray.reports._pdf", "oceanarray.reports._plots",
+  "oceanarray.reports._qcflags", "oceanarray.reports._read",
+  "oceanarray.reports._recovery_table", "oceanarray.reports._slots",
+  "oceanarray.reports._stack", "oceanarray.reports._summary",
+  "oceanarray.reports._verb", "oceanarray.reports.design",
+  "oceanarray.mooring", "oceanarray.paths", "oceanarray.logger", "oceanarray.catalog",
+  "oceanarray.provenance", "oceanarray.instruments", "oceanarray.location",
+  "oceanarray.physics", "oceanarray.inspect", "oceanarray.exceptions",
+  "oceanarray._deprecated", "oceanarray.legacy",
+]
+
+[[tool.importlinter.contracts]]
+name = "Units have one door: pipeline code gets the unit tables through config.unit_tables"
+type = "forbidden"
+source_modules = ["oceanarray.pipeline"]
+forbidden_modules = ["oceanarray.reports._vendored.units", "oceanarray.reports._vendored.units_tables"]
+# Indirect imports are allowed: config.unit_tables is the door, and it reads the shared units.
+allow_indirect_imports = true
+
+[[tool.importlinter.contracts]]
+name = "Plotters import no page module directly (the shared report layer excepted)"
+type = "forbidden"
+source_modules = ["oceanarray.plotters"]
+forbidden_modules = ["oceanarray.reports"]
+# Direct imports only for now: indirect chains still reach the pages through the
+# mooring <-> pipeline cycle (pipeline._run ends with the report).
+allow_indirect_imports = true
+ignore_imports = ["oceanarray.plotters.** -> oceanarray.reports._vendored.**"]

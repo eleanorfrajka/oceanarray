@@ -91,9 +91,11 @@ def report(
 
     Examples
     --------
+    Not run as tests: they need a mooring folder on disk.
+
     >>> import oceanarray as oa
-    >>> oa.report("proc/dune2_1_2026/dune2_1_2026.mooring.yaml", pdf=True)
-    >>> oa.report("proc/odb2026.array.yaml", kind="array")
+    >>> oa.report("proc/dune2_1_2026/dune2_1_2026.mooring.yaml", pdf=True)  # doctest: +SKIP
+    >>> oa.report("proc/odb2026.array.yaml", kind="array")  # doctest: +SKIP
     """
     crumbs = list(breadcrumb) if breadcrumb is not None else None
     if kind == "array":

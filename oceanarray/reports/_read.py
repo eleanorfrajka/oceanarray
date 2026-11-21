@@ -275,9 +275,19 @@ _PRIMARY_VARS = [
 
 
 def _read_instrument_info(
-    proc_dir: Path, instr_type: str, mooring: str, serial: str
+    proc_dir: Path,
+    instr_type: str,
+    mooring: str,
+    serial: str,
+    *,
+    rule: dict | None = None,
 ) -> dict[str, Any]:
-    """Read record statistics from the best available processed NetCDF file."""
+    """Read record statistics from the best available processed NetCDF file.
+
+    The pressure range leaves out what *rule* hides: the mooring's
+    ``masking.stack_rule``, like the figures; None for the rule the file records,
+    else the default.
+    """
     base = proc_dir / instr_type / f"{mooring}_{serial}"
     nc_path = None
     # Prefer stage 3, fall back to stage 2; raw stage-1 files are never read here.
@@ -321,7 +331,7 @@ def _read_instrument_info(
         p_max: float | None = None
         if "pressure" in ds.data_vars:
             try:
-                pvals = masking.masked(ds, "pressure")
+                pvals = masking.masked(ds, "pressure", rule=rule)
                 # Exclude non-positive values (pre-deployment bench / stuck sensor)
                 pvals = np.where(pvals > 0, pvals, np.nan)
                 _pmin = float(np.nanmin(pvals))

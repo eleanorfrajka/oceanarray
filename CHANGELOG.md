@@ -14,7 +14,12 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Changed
 
-- Every figure and the instrument summary hide flagged values by the `mask_flags` rule (default 4), like the grid: suspect (3) values are now drawn on instrument pages and on stacks without a recorded rule, and the Stack cat page marks them with black dots as the stack page does. Re-run the report to apply.
+- Import rules are checked in CI by `lint-imports` (contracts in `pyproject.toml`), docstring examples run as doctests, and `AGENTS.md` points coding assistants to the developer guide (#).
+- Every figure and the instrument summary hide flagged values by the `mask_flags` rule (default 4), like the grid: suspect (3) values are now drawn on instrument pages and on stacks without a recorded rule, and the Stack cat page marks them with black dots as the stack page does. Re-run the report to apply (#155).
+
+### Fixed
+
+- Deployment and array pages: an instrument's pressure range leaves out what the mooring's `stack: mask_flags` hides, like its figures (it used the default rule, so a mooring hiding suspect values showed suspect pressures in its range) (#).
 
 ### Removed
 

@@ -103,7 +103,10 @@ def export(
 
     Examples
     --------
-    >>> oa.export("proc/dune2_1_2026/dune2_1_2026.mooring.yaml", array="proc/MIXSED2026.array.yaml")
+    Not run as tests: they need a mooring folder on disk.
+
+    >>> import oceanarray as oa
+    >>> oa.export("proc/dune2_1_2026/dune2_1_2026.mooring.yaml", array="proc/MIXSED2026.array.yaml")  # doctest: +SKIP
     """
     from oceanarray.pipeline import resolve_mooring
     from oceanarray.pipeline.oceansites import deployment_code, platform_code

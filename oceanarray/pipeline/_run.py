@@ -98,9 +98,11 @@ def run(
 
     Examples
     --------
+    Not run as tests: they need a mooring folder on disk.
+
     >>> import oceanarray as oa
-    >>> oa.run("proc/dune2_1_2026/dune2_1_2026.mooring.yaml", raw_dir="raw/")
-    >>> oa.run(yaml_path, stages=3, dp=10)  # re-QC, regrid finer
+    >>> oa.run("proc/dune2_1_2026/dune2_1_2026.mooring.yaml", raw_dir="raw/")  # doctest: +SKIP
+    >>> oa.run(yaml_path, stages=3, dp=10)  # re-QC, regrid finer  # doctest: +SKIP
     """
     from oceanarray.exceptions import MooringError
     from oceanarray.pipeline import (
