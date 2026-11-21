@@ -9,12 +9,13 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
+from oceanarray.pipeline.masking import masked
 from oceanarray.plotters.primitives import nice_colorbar_ticks
 from oceanarray.reports._vendored import design_tokens as report_tokens
 
 from ..config import parameters as params
 from .helpers import QC_MARKER as _QC_MARKER
-from .helpers import as_dataset, masked
+from .helpers import as_dataset
 from .primitives import colorbar_norm, plot_title, square_axes_grid, unit_colorbar
 
 if TYPE_CHECKING:
@@ -647,8 +648,8 @@ def draw_stack_ts_diagram(
     ``apparent_oxygen_utilization`` is present in *ds* (written by stage3 for
     instruments with dissolved oxygen data).
 
-    QC masking: on a stack, values its ``mask_flags`` rule hides are left out; on
-    an instrument file, values flagged 3, 4 or 9 (``parameters.QC_BAD_FLAGS``).
+    QC masking: values the ``mask_flags`` rule hides are left out (the rule the
+    stack records, else the default).
 
     Parameters
     ----------

@@ -11,6 +11,7 @@ from typing import Any
 import numpy as np
 
 from oceanarray import paths
+from oceanarray.pipeline import masking
 from oceanarray.pipeline.dataset import time_step_seconds
 
 from ..config import parameters as params
@@ -315,16 +316,12 @@ def _read_instrument_info(
 
         # Min/max pressure over the trimmed record (stage2/stage3).
         # Exclude non-positive values (negative or stuck-at-zero sensors are
-        # non-physical for a deployed mooring) and QC-bad/missing flag values.
+        # non-physical for a deployed mooring) and values the mask_flags rule hides.
         p_min: float | None = None
         p_max: float | None = None
         if "pressure" in ds.data_vars:
             try:
-                pvals = ds["pressure"].values.astype(float)
-                # Mask the bad flags (3, 4, 9) if stage-3 QC is available
-                if "pressure_qc" in ds.data_vars:
-                    qc = ds["pressure_qc"].values
-                    pvals = np.where(np.isin(qc, params.QC_BAD_FLAGS), np.nan, pvals)
+                pvals = masking.masked(ds, "pressure")
                 # Exclude non-positive values (pre-deployment bench / stuck sensor)
                 pvals = np.where(pvals > 0, pvals, np.nan)
                 _pmin = float(np.nanmin(pvals))

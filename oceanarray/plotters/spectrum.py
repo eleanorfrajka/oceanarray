@@ -677,20 +677,9 @@ def draw_grid_rotary_spectrum(
         east_da = east_da.transpose("pressure", "time")
         north_da = north_da.transpose("pressure", "time")
 
+    # A grid holds no flags: the grid's rule was applied when it was made.
     arr_u = east_da.values.copy()  # (pressure, time)
     arr_v = north_da.values.copy()
-
-    # Apply QC flags (QC_BAD_FLAGS -> NaN)
-    for _qc_var, _arr in (
-        ("east_velocity_qc", arr_u),
-        ("north_velocity_qc", arr_v),
-    ):
-        if _qc_var in ds.data_vars:
-            _qc = ds[_qc_var].values
-            if _qc.ndim == arr_u.ndim:
-                if ds[_qc_var].dims[0] != "pressure":
-                    _qc = _qc.T
-                _arr[np.isin(_qc, params.QC_BAD_FLAGS)] = np.nan
 
     press_vals = ds.coords["pressure"].values.astype(float)
     n_lev, n_time = arr_u.shape

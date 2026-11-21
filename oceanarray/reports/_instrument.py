@@ -653,7 +653,7 @@ def generate_instrument_pages(
                 else None
             ),
             "fig_adcp_velocity_b64": (
-                as_panel(lambda bn=src: _make_adcp_velocity_b64(bn))
+                as_panel(lambda bn=src, r=rule: _make_adcp_velocity_b64(bn, rule=r))
                 if best_nc and instr_type.lower() == "adcp"
                 else None
             ),

@@ -336,8 +336,7 @@ def stack_rule_sentence(ds: Any, variables: Sequence[str]) -> str:
     """Return :func:`rule_sentence` for a stack's figure, from its recorded rule.
 
     A stack written before the rule was recorded (no ``stack_mask_flags``) is
-    drawn as such stacks always were: oceanarray's suspect, bad and missing
-    values left out (``parameters.QC_BAD_FLAGS``); the sentence says so.
+    drawn with the default rule (``parameters.MASK_FLAGS``); the sentence says so.
 
     Parameters
     ----------
@@ -354,10 +353,15 @@ def stack_rule_sentence(ds: Any, variables: Sequence[str]) -> str:
     present = [v for v in variables if v in names] or list(variables)
     rule = _rule(ds.attrs, masking.STACK_ATTR)
     if rule is None:
-        old = masking.resolve_mask_flags(list(params.QC_BAD_FLAGS))
-        return rule_sentence(old, present, ours=True, theirs=False).replace(
-            " are left out",
-            " are left out (a stack written before its rule was recorded)",
+        ours = any(f"{v}_qc" in names for v in present)
+        theirs = any(f"{v}{MAPPED_SUFFIX}" in names for v in present)
+        return rule_sentence(
+            masking.resolve_mask_flags(None),
+            present,
+            ours=ours or not theirs,
+            theirs=theirs,
+        ).replace(
+            " are left out", " are left out (the default: the stack records no rule)"
         )
     ours = any(f"{v}_qc" in names for v in present)
     theirs = any(f"{v}{MAPPED_SUFFIX}" in names for v in present)

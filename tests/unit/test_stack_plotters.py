@@ -51,7 +51,7 @@ def _lines(fig) -> dict[str, np.ndarray]:
 
 
 def test_pressure_row_keeps_interpolated_and_drops_bad_values(ds):
-    """Flag-8 pressure is drawn; flags 3, 4 and 9 are not."""
+    """Flag-8 pressure is drawn; values the default rule hides (4) are not."""
     fig = draw_stack_timeseries(
         ds, [("pressure", "p", True, {"adcp"})], color_var="temperature"
     )
@@ -66,11 +66,32 @@ def test_pressure_row_keeps_interpolated_and_drops_bad_values(ds):
         i = serials.index(serial)
         y = lines[serial]
         flags = qc[::step, i]
-        assert np.all(np.isnan(y[np.isin(flags, params.QC_BAD_FLAGS)])), serial
-        kept = ~np.isin(flags, params.QC_BAD_FLAGS) & np.isfinite(
-            ds["pressure"].values[::step, i]
-        )
+        hidden = np.isin(flags, params.MASK_FLAGS)
+        assert np.all(np.isnan(y[hidden])), serial
+        kept = ~hidden & np.isfinite(ds["pressure"].values[::step, i])
         assert np.all(np.isfinite(y[kept])), serial
+
+
+def test_velocity_row_keeps_suspect_and_drops_bad_values(ds):
+    """A stack with no recorded rule is drawn with the default: 3 kept, 4 left out."""
+    fig = draw_stack_timeseries(
+        ds, [("east_velocity", "u", False, None)], color_var="temperature"
+    )
+    lines = _lines(fig)
+    plt.close(fig)
+    serials = [str(s) for s in ds["serial"].values]
+    step = max(1, ds.sizes["time"] // 5000)
+    flags = ds["east_velocity_qc"].values[::step]
+    finite = np.isfinite(ds["east_velocity"].values[::step])
+    n3 = n4 = 0
+    for serial, y in lines.items():
+        i = serials.index(serial)
+        suspect = finite[:, i] & (flags[:, i] == 3)
+        bad = finite[:, i] & (flags[:, i] == 4)
+        assert np.all(np.isfinite(y[suspect])), serial
+        assert np.all(np.isnan(y[bad])), serial
+        n3, n4 = n3 + suspect.sum(), n4 + bad.sum()
+    assert n3 and n4
 
 
 def test_one_legend_entry_per_instrument_drawn(ds):

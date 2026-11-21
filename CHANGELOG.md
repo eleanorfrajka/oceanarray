@@ -12,8 +12,13 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 - Developer guide (`developer`): principles, layers, one idiom per job, vocabulary, naming, branches and pull requests, known deviations; replaces the style guide (#154).
 - Configuration files page (`configuration_files`): the YAML files, which value wins, finding a mooring by name or by path; a sensor catalog page (`sensor_catalog`) with an example (#154).
 
+### Changed
+
+- Every figure and the instrument summary hide flagged values by the `mask_flags` rule (default 4), like the grid: suspect (3) values are now drawn on instrument pages and on stacks without a recorded rule, and the Stack cat page marks them with black dots as the stack page does. Re-run the report to apply.
+
 ### Removed
 
+- `config.parameters.QC_BAD_FLAGS` (figures hide flags by the `mask_flags` rule: `pipeline.masking.masked` / `flagged`) and the unused `percent_good_qc_var` argument of `draw_adcp_progressive_vector`.
 - Unused helpers and constants: `plotters.diagnostic.draw_knockdown_pressure` (not drawn on any page), `plotters.flags.worst_flags`, `paths.product_glob`, `mooring.REQUIRED_KEYS`, `readers.rodb.RODB_EXTENSIONS` and `config.parameters` `INSTRUMENT_COLORS`, `FIGURE_SIZE_TALL`, `SIGMA_CONTOUR_LEVELS`.
 
 ### Breaking changes

@@ -312,6 +312,25 @@ def test_adcp_velocity_axis_ends_at_the_last_bin_with_data(tmp_path):
     assert ylim == pytest.approx((0.0, rng[has_data].max() + half_cell))
 
 
+def test_adcp_velocity_hides_values_its_own_flags_mark_bad(tmp_path):
+    """A velocity flagged 4 by its own flag variable is not drawn, nor scaled on."""
+    import oceanarray as oa
+    from oceanarray.plotters import draw_adcp_velocity
+
+    raw, proc = _mooring(tmp_path, "cf1", CF1, [{**_CF1_ADCP, "orientation": "up"}])
+    oa.run(proc / "cf1" / "cf1.mooring.yaml", stages=[1, 2, 3], raw_dir=raw)
+    s3 = _open(proc, "cf1", "adcp", "CM173", 3)
+    east = s3["east_velocity"]
+    k = int(np.flatnonzero(np.isfinite(east.values).any(axis=0))[0])
+    flags = np.ones(east.shape, dtype="int8")
+    flags[:, k] = 4
+    s3["east_velocity_qc"] = (east.dims, flags)
+    mesh = draw_adcp_velocity(s3).axes[0].collections[0].get_array()
+    mesh = np.ma.filled(mesh, np.nan).reshape(east.shape[1], -1)
+    assert not np.isfinite(mesh[k]).any()
+    assert np.isfinite(mesh).any()
+
+
 IC1 = {
     "waterdepth": 2472,
     "latitude": 59.1,

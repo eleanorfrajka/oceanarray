@@ -773,9 +773,11 @@ def _make_adcp_progressive_vector_b64(ds: xr.Dataset) -> str | None:
     return render_slot(draw_adcp_progressive_vector, ds, slot="half", optional=True)
 
 
-def _make_adcp_velocity_b64(nc_path: Path | xr.Dataset) -> str | None:
+def _make_adcp_velocity_b64(
+    nc_path: Path | xr.Dataset, *, rule: dict | None = None
+) -> str | None:
     """Return base64 PNG: stacked colour panels for ADCP per-instrument report."""
-    return render_b64(draw_adcp_velocity, nc_path, optional=True)
+    return render_b64(draw_adcp_velocity, nc_path, rule=rule, optional=True)
 
 
 def _make_adcp_rose_b64(nc_path: Path | xr.Dataset) -> str | None:

@@ -335,6 +335,28 @@ def test_instrument_rose_draws_suspect_values_in_their_own_rose():
     plt.close(fig)
 
 
+def test_data_histogram_keeps_suspect_values_without_a_rule():
+    """dune2 Aquadopp 9920: its 1,127 suspect velocities are among the values kept."""
+    import matplotlib.pyplot as plt
+
+    from oceanarray.plotters.diagnostic import draw_data_histogram
+
+    path = (
+        Path(__file__).resolve().parents[1]
+        / "fixtures/proc/dune2_1_2026/aquadopp/dune2_1_2026_9920_stage3.nc"
+    )
+    with xr.open_dataset(path) as ds:
+        east = ds["east_velocity"].values
+        flags = ds["east_velocity_qc"].values
+    fig = draw_data_histogram(path)
+    ax = next(a for a in fig.axes if a.get_xlabel().startswith("Eastward velocity"))
+    all_bars, kept = ax.containers  # grey (every value), then the values kept
+    n_kept = sum(bar.get_height() for bar in kept)
+    plt.close(fig)
+    assert int((np.isfinite(east) & (flags == 3)).sum()) == 1127
+    assert n_kept == int((np.isfinite(east) & (flags != 4)).sum())
+
+
 def test_instrument_rose_leaves_out_what_the_rule_hides():
     """A rule hiding every flag the file has leaves nothing to draw."""
     import matplotlib.pyplot as plt

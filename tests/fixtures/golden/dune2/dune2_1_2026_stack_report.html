@@ -505,14 +505,14 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
 
 <h2 id="hydrography">(1) Hydrography</h2>
 
-<p class="caption">Pressure, temperature and salinity from every instrument over the deployment, on a shared time axis. Each instrument keeps one colour and line style in all three panels, from the deepest (blue) to the shallowest (red); the serial at the right end of each line in the pressure panel names it. Values flagged suspect or bad by oceanarray are left out (a stack written before its rule was recorded). Downward spikes in pressure are the mooring being pushed down by strong currents.</p>
+<p class="caption">Pressure, temperature and salinity from every instrument over the deployment, on a shared time axis. Each instrument keeps one colour and line style in all three panels, from the deepest (blue) to the shallowest (red); the serial at the right end of each line in the pressure panel names it. Values flagged bad by oceanarray are left out (the default: the stack records no rule). Downward spikes in pressure are the mooring being pushed down by strong currents.</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig" src="data:image/png;base64,<PNG>" alt="hydro_pts">
 </details><div class="fig-source">source: oceanarray/plotters/timeseries.py:draw_stack_timeseries</div>
 
 <h2 id="velocity">(2) Velocity</h2>
 
-<p class="caption">Eastward, northward and upward velocity from each current meter over the deployment, relative to true north, declination applied. Colours and line styles as in the hydrography figure. Upward velocity is in a shorter panel: its spread is expected to be small. Values flagged suspect or bad by oceanarray are left out (a stack written before its rule was recorded).</p>
+<p class="caption">Eastward, northward and upward velocity from each current meter over the deployment, relative to true north, declination applied. Colours and line styles as in the hydrography figure. Upward velocity is in a shorter panel: its spread is expected to be small. Values flagged bad by oceanarray are left out (the default: the stack records no rule). Black dots: values flagged suspect (882).</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig" src="data:image/png;base64,<PNG>" alt="vel_uvw">
 </details><div class="fig-source">source: oceanarray/plotters/timeseries.py:draw_stack_timeseries</div>
@@ -538,7 +538,7 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
 
 <h2 id="ts_diagram">(5) T-S diagram</h2>
 
-<p class="caption">Potential temperature against salinity (PSU) for all samples. Left: coloured by pressure. Right: number of hourly samples in each bin (log scale), showing where the record spends most of its time. Dashed lines: potential density σθ, every 0.2 kg/m³. Values flagged suspect or bad by oceanarray are left out (a stack written before its rule was recorded).</p>
+<p class="caption">Potential temperature against salinity (PSU) for all samples. Left: coloured by pressure. Right: number of hourly samples in each bin (log scale), showing where the record spends most of its time. Dashed lines: potential density σθ, every 0.2 kg/m³. Values flagged bad by oceanarray are left out (the default: the stack records no rule).</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig" src="data:image/png;base64,<PNG>" alt="ts_diagram">
 </details><div class="fig-source">source: oceanarray/plotters/ts.py:draw_stack_ts_diagram</div>
@@ -549,7 +549,7 @@ button.expand-all:focus-visible { outline:2px solid var(--ocean); outline-offset
 
 <p class="caption">Magnetic declination applied: -13.97°</p>
 
-<p class="caption">Distribution of current direction (the direction the water flows toward, relative to true north, declination applied) and speed for each current meter. Wedge length is the percentage of the record in that direction; colours are speed classes; rings share one scale. Values flagged suspect or bad by oceanarray are left out (a stack written before its rule was recorded).</p>
+<p class="caption">Distribution of current direction (the direction the water flows toward, relative to true north, declination applied) and speed for each current meter. Wedge length is the percentage of the record in that direction; colours are speed classes; rings share one scale. Values flagged bad by oceanarray are left out (the default: the stack records no rule).</p>
 <details open><summary class="collapse-toggle">show / hide</summary>
 <img class="fig" src="data:image/png;base64,<PNG>" alt="roses">
 </details><div class="fig-source">source: oceanarray/plotters/current.py:draw_rose_grid</div>

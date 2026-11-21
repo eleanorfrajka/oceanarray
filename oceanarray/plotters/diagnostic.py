@@ -1073,8 +1073,8 @@ def draw_data_histogram(
         Figure width (inches), the report slot; default the full content width.
     rule : dict or None, optional
         The flag rule (``masking.resolve_mask_flags``): a value is kept unless
-        oceanarray's or the originator's flag is in it. Without one, values
-        flagged 3, 4 or 9 by oceanarray are not kept.
+        oceanarray's or the originator's flag is in it. Without one, the rule the
+        file records, else the default.
 
     Returns
     -------
@@ -1091,6 +1091,7 @@ def draw_data_histogram(
     from ..config import parameters as params
 
     with as_dataset(nc_path) as ds:
+        rule = masking.from_attrs(ds.attrs) if rule is None else rule
         panels = _instrument_panels(ds)
         _HIST_EXCLUDE = {"battery_voltage"}
         plot_panels: list = [
@@ -1136,19 +1137,7 @@ def draw_data_histogram(
 
             qc_var = f"{vname}_qc"
             has_qc = qc_var in ds
-            if rule is not None:
-                kept_mask = (
-                    np.isfinite(data) & ~masking.flagged(ds, vname, rule).ravel()
-                )
-            elif has_qc:
-                flags = (
-                    ds[qc_var].values.astype(int).ravel()
-                    if flatten
-                    else ds[qc_var].values.astype(int)
-                )
-                kept_mask = np.isfinite(data) & ~np.isin(flags, params.QC_BAD_FLAGS)
-            else:
-                kept_mask = np.isfinite(data)
+            kept_mask = np.isfinite(data) & ~masking.flagged(ds, vname, rule).ravel()
             all_mask = np.isfinite(data)
 
             # percent_good has no _qc variable; annotate with ADCP thresholds
@@ -1564,7 +1553,7 @@ def draw_instrument_spacing(
         return None
     # The spacing axis is labelled dbar; it is a difference of pressures.
     warn_if_not_canonical(ds["pressure"], "dbar", quantity="instrument spacing (dbar)")
-    from .helpers import masked
+    from oceanarray.pipeline.masking import masked
 
     pressure = masked(ds, "pressure")  # (time, N_LEVELS); hidden values NaN
     with np.errstate(all="ignore"):

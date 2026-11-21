@@ -156,12 +156,7 @@ QC_MERGE_PRIORITY_LUT = np.array(
 # flag_values as int8 (CF wants it to match the int8 flag variable dtype).
 QC_FLAG_VALUES_I8 = np.array(QC_FLAG_VALUES, dtype="int8")
 
-# Flags whose values a plot leaves out: potentially_correctable_bad (3), bad (4) and
-# missing (9). nominal (7) and interpolated (8) are kept — an interpolated pressure
-# is the instrument's pressure, and dropping it hides a sensorless instrument.
-QC_BAD_FLAGS = (3, 4, 9)
-
-#: Flags whose values the stack and Stack cat pages do not show and the grid leaves
+#: Flags whose values the figures and pages do not show and the grid leaves
 #: out, unless the call, ``--mask-flags`` or the description's ``stack: mask_flags``
 #: says otherwise: bad (4) only. Suspect (3), value_changed (5), not QC'd (0) are
 #: shown and gridded; 9 marks a missing value, so there is nothing to show.

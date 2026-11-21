@@ -31,6 +31,7 @@ if TYPE_CHECKING:
 
     from oceanarray.analysis.derived import DerivedFields
 
+from oceanarray.pipeline.masking import masked
 from oceanarray.plotters.primitives import nice_colorbar_ticks
 from oceanarray.reports._vendored import design_tokens as report_tokens
 
@@ -43,7 +44,6 @@ from .helpers import (
     grid_despine,
     level_line_styles,
     marker_flags,
-    masked,
 )
 from .primitives import (
     SECTION_AXES_IN,
