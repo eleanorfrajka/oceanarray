@@ -1,0 +1,210 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calibration dips &mdash; oceanarray 0.6.0.post1.dev20 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8cc63a81"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Stack: one time axis" href="methods/time_gridding.html" />
+    <link rel="prev" title="Stage 3: Aquadopp velocity to east/north/up" href="methods/nortek_coordinate_transform.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            oceanarray
+              <img src="_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="methods/standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Calibration dips</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-a-stop-is-compared">How a stop is compared</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-it-is-used-for">What it is used for</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="methods/time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Calibration dips</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/calibration_dips.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="calibration-dips">
+<h1>Calibration dips<a class="headerlink" href="#calibration-dips" title="Link to this heading"></a></h1>
+<p>A calibration dip (<em>caldip</em>) checks moored instruments against the ship’s CTD.
+The instruments are strapped to the CTD frame and lowered on a cast, before
+deployment and again after recovery. On the way up the CTD stops at several
+depths for 5–10 minutes, longer than a usual bottle stop, so the instruments
+(sampling every 10 s) and the CTD (24 Hz) settle at the same water.</p>
+<figure class="align-center" id="id1">
+<img alt="Pressure of the CTD and the moored instruments during a calibration-dip cast" src="_images/caldip_cast.png" />
+<figcaption>
+<p><span class="caption-text">A caldip cast (cast M4, MSM142): the CTD’s pressure (black) and every
+instrument’s, down to 2000 dbar and back up with five stops. The vertical lines
+mark each stop (solid) and the stretch compared (dotted).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<section id="how-a-stop-is-compared">
+<h2>How a stop is compared<a class="headerlink" href="#how-a-stop-is-compared" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Find the stop from the bottle file: the CTD pressure stays within 5 dbar of the
+stop’s pressure (the mean of its first minute).</p></li>
+<li><p>Drop the last 30 s and keep the 3 minutes before them.</p></li>
+<li><p>In that window, take each instrument’s difference from the CTD in temperature,
+conductivity and (if it has a sensor) pressure, and the scatter of both. An
+instrument without a pressure sensor uses the CTD’s pressure for its
+conductivity.</p></li>
+</ol>
+<p>The clocks are matched first by the moment the package hits the water, when the
+instruments were already sampling at the start of the cast.</p>
+</section>
+<section id="what-it-is-used-for">
+<h2>What it is used for<a class="headerlink" href="#what-it-is-used-for" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Before deployment</strong> — an instrument that differs from the CTD by more than
+0.005 °C, 0.05 mS cm⁻¹ or 5 dbar is not deployed.</p></li>
+<li><p><strong>Before and after</strong> — the differences at the two dips give each instrument’s
+offset and its drift over the deployment, for example a linear change in
+temperature between them.</p></li>
+</ul>
+<p>The comparison is done by the <a class="reference external" href="https://github.com/ocean-uhh/caldip">caldip</a>
+package (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">git+https://github.com/ocean-uhh/caldip.git</span></code>), which finds
+the water impact and the stops, computes the offsets and draws the figures.
+oceanarray will apply its offsets at the start of stage 3; that step is designed
+but not applied yet (<a class="reference internal" href="methods/calibration.html"><span class="doc">Calibration — applying caldip corrections at the front of Stage 3</span></a>).</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="methods/nortek_coordinate_transform.html" class="btn btn-neutral float-left" title="Stage 3: Aquadopp velocity to east/north/up" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="methods/time_gridding.html" class="btn btn-neutral float-right" title="Stack: one time axis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

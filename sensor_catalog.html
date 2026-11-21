@@ -1,0 +1,248 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The sensor catalog &mdash; oceanarray 0.6.0.post1.dev20 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8cc63a81"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Output files" href="oceanarray_format.html" />
+    <link rel="prev" title="The array YAML file" href="array_configuration.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            oceanarray
+              <img src="_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="configuration_files.html">Configuration files</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="configuration_files.html#finding-a-mooring">Finding a mooring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_files.html#each-mooring-yaml-stands-alone">Each mooring YAML stands alone</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_files.html#subarrays">Subarrays</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="configuration_files.html#which-value-wins">Which value wins</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="yaml_configuration.html">The mooring YAML file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="array_configuration.html">The array YAML file</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">The sensor catalog</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#an-example">An example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#what-stage-1-does-with-it">What stage 1 does with it</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#using-a-catalog">Using a catalog</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="configuration_files.html">Configuration files</a></li>
+      <li class="breadcrumb-item active">The sensor catalog</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/sensor_catalog.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="the-sensor-catalog">
+<span id="sensor-catalog"></span><h1>The sensor catalog<a class="headerlink" href="#the-sensor-catalog" title="Link to this heading"></a></h1>
+<p>A sensor catalog says what each instrument is, by its serial number: the model,
+the maker and their entries in the NERC vocabularies. One catalog can serve every
+mooring of a lab or a project, so an instrument used on several moorings is
+described once. It holds no calibrations; those stay with the calibration dips
+(<a class="reference internal" href="calibration_dips.html"><span class="doc">Calibration dips</span></a>).</p>
+<p>Stage 1 uses it to write the instrument’s sensor record (the <code class="docutils literal notranslate"><span class="pre">SENSOR_&lt;type&gt;_&lt;serial&gt;</span></code>
+variable, following OG1, since OceanSITES does not describe sensors). Without a
+catalog, the record carries only what the instrument file itself states.</p>
+<p>Today the catalog covers SBE 37 MicroCATs.</p>
+<section id="an-example">
+<h2>An example<a class="headerlink" href="#an-example" title="Link to this heading"></a></h2>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">models</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">SBE 37-SMP</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">long_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Sea-Bird SBE 37-SMP MicroCAT</span>
+<span class="w">    </span><span class="nt">sensor_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CTD</span>
+<span class="w">    </span><span class="nt">sensor_type_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://vocab.nerc.ac.uk/collection/L05/current/130/</span>
+<span class="w">    </span><span class="nt">sensor_maker</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Sea-Bird Scientific</span>
+<span class="w">    </span><span class="nt">sensor_maker_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://vocab.nerc.ac.uk/collection/L35/current/MAN0013/</span>
+<span class="w">    </span><span class="nt">with_pressure</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">sensor_model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Sea-Bird SBE 37 MicroCat SMP-CTP (submersible) CTD sensor</span>
+<span class="w">      </span><span class="nt">sensor_model_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://vocab.nerc.ac.uk/collection/L22/current/TOOL1457/</span>
+<span class="w">    </span><span class="nt">without_pressure</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">sensor_model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Sea-Bird SBE 37 MicroCat SMP-CT with optional pressure (submersible) CTD sensor series</span>
+<span class="w">      </span><span class="nt">sensor_model_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://vocab.nerc.ac.uk/collection/L22/current/TOOL0018/</span>
+
+<span class="nt">instruments</span><span class="p">:</span>
+<span class="w">  </span><span class="s">"37-12046"</span><span class="p p-Indicator">:</span>
+<span class="w">    </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SBE 37-SMP</span>
+<span class="w">    </span><span class="nt">pumped</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">sources</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">report</span><span class="p">:</span><span class="w"> </span><span class="nv">2015_64PE400_NIOZ_cruise_report.pdf</span><span class="p p-Indicator">,</span><span class="nt"> pdf_page</span><span class="p">:</span><span class="w"> </span><span class="nv">40</span><span class="p p-Indicator">,</span>
+<span class="nt">         text</span><span class="p">:</span><span class="w"> </span><span class="s">"Instrument</span><span class="nv"> </span><span class="s">-</span><span class="nv"> </span><span class="s">MicroCat</span><span class="nv"> </span><span class="s">SBE</span><span class="nv"> </span><span class="s">37-SMP</span><span class="nv"> </span><span class="s">SN</span><span class="nv"> </span><span class="s">12046</span><span class="nv"> </span><span class="s">88m</span><span class="nv"> </span><span class="s">--&gt;</span><span class="nv"> </span><span class="s">172</span><span class="nv"> </span><span class="s">m"</span><span class="p p-Indicator">}</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">models</span></code></dt><dd><p>One entry per model: <code class="docutils literal notranslate"><span class="pre">long_name</span></code>, <code class="docutils literal notranslate"><span class="pre">sensor_type</span></code> and <code class="docutils literal notranslate"><span class="pre">sensor_maker</span></code> with
+their vocabularies (NERC L05 and L35). The SeaVoX device catalogue (L22) lists a
+model with and without a pressure sensor separately, so each model gives both,
+as <code class="docutils literal notranslate"><span class="pre">with_pressure</span></code> and <code class="docutils literal notranslate"><span class="pre">without_pressure</span></code>. A MicroCAT with an optode is a
+model of its own (<code class="docutils literal notranslate"><span class="pre">SBE</span> <span class="pre">37-SMP-ODO</span></code>).</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">instruments</span></code></dt><dd><p>One entry per instrument, keyed by the maker’s label (<code class="docutils literal notranslate"><span class="pre">&quot;37-12046&quot;</span></code> is SBE 37
+MicroCAT 12046): its <code class="docutils literal notranslate"><span class="pre">model</span></code>, whether it is <code class="docutils literal notranslate"><span class="pre">pumped</span></code>, and <code class="docutils literal notranslate"><span class="pre">sources</span></code>, the
+documents that say so (a report, its page, the words quoted).</p>
+</dd>
+</dl>
+</section>
+<section id="what-stage-1-does-with-it">
+<h2>What stage 1 does with it<a class="headerlink" href="#what-stage-1-does-with-it" title="Link to this heading"></a></h2>
+<p>For each MicroCAT, stage 1 looks the instrument up by the serial in its mooring
+YAML entry, then by the serial its file states. When found, the sensor record gets
+the model’s attributes and the <code class="docutils literal notranslate"><span class="pre">with_pressure</span></code> or <code class="docutils literal notranslate"><span class="pre">without_pressure</span></code> entry,
+depending on whether the instrument measured pressure (values present, and at least
+one flagged good or none quality-controlled). <code class="docutils literal notranslate"><span class="pre">sensor_pumped</span></code> records the pumping,
+and <code class="docutils literal notranslate"><span class="pre">sensor_model_source</span></code> the documents.</p>
+<p>An instrument entry’s own <code class="docutils literal notranslate"><span class="pre">sensor_model</span></code> in the mooring YAML wins over the
+catalog. When the instrument file states a different model, the file’s value is
+kept as <code class="docutils literal notranslate"><span class="pre">originator_sensor_model</span></code> and a warning is logged.</p>
+<p>Stage 1 does not rerun when only the catalog changes; rerun with
+<code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">run</span> <span class="pre">--force</span></code>.</p>
+</section>
+<section id="using-a-catalog">
+<h2>Using a catalog<a class="headerlink" href="#using-a-catalog" title="Link to this heading"></a></h2>
+<p>Name the catalog in the mooring YAML (<code class="docutils literal notranslate"><span class="pre">sensor_catalog:</span></code>, relative to the mooring
+YAML). <em>Planned:</em> the catalog’s location moves to the call and the command line,
+like the other input locations, so the mooring YAML holds no path.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="array_configuration.html" class="btn btn-neutral float-left" title="The array YAML file" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="oceanarray_format.html" class="btn btn-neutral float-right" title="Output files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

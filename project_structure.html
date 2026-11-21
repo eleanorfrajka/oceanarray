@@ -1,0 +1,355 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project structure &mdash; oceanarray 0.6.0.post1.dev20 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8cc63a81"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Calibration — applying caldip corrections at the front of Stage 3" href="methods/calibration.html" />
+    <link rel="prev" title="Developer guide" href="developer.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            oceanarray
+              <img src="_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Project structure</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#package-layout">Package layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#processing-chain">Processing chain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#report-pages">Report pages</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="methods/calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Project structure</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/project_structure.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="project-structure">
+<h1>Project structure<a class="headerlink" href="#project-structure" title="Link to this heading"></a></h1>
+<p>Where each part of oceanarray lives. The <a class="reference internal" href="developer.html"><span class="doc">Developer guide</span></a> says which layer owns
+what and how code in each is written.</p>
+<section id="package-layout">
+<h2>Package layout<a class="headerlink" href="#package-layout" title="Link to this heading"></a></h2>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>oceanarray/
+├── oceanarray/                    # the Python package
+│   ├── __init__.py                # public API: the verbs (read, read_mooring, stage1–stage3,
+│   │                              #   process, stack, grid, run, write, write_mooring, report, export)
+│   ├── _version.py                # package version (written by setuptools-scm)
+│   ├── _deprecated.py             # the one table of deprecated names and their replacements
+│   ├── mooring.py                 # the *.mooring.yaml: load / check / template / save
+│   ├── instruments.py             # instrument entries of a description, inline-serial parsing
+│   ├── location.py                # latitude/longitude parsing and formatting
+│   ├── paths.py                   # file names, suffixes and folder layout
+│   ├── catalog.py                 # the sensor catalog: what each instrument is, by serial
+│   ├── physics.py                 # seawater and current formulas shared by pipeline and pages
+│   ├── provenance.py              # which oceanarray wrote a file (version, commit)
+│   ├── inspect.py                 # quick dataset inspection for interactive use
+│   ├── logger.py                  # logging configuration, status lines
+│   ├── exceptions.py              # package exceptions
+│   ├── cli/                       # command-line interface: one module per subcommand
+│   │
+│   ├── pipeline/                  # the verbs' bodies
+│   │   ├── stage1.py              # stage 1: raw file → CF-NetCDF (*_stage1.nc)
+│   │   ├── stage2.py              # stage 2: clock correction and deployment trim (*_stage2.nc)
+│   │   ├── stage3.py              # stage 3: pressure interpolation, QC, ENU (*_stage3.nc)
+│   │   ├── stack.py               # stack(): instruments → common time axis (*_stack.nc)
+│   │   ├── grid.py                # grid(): stack → pressure levels (*_grid.nc)
+│   │   ├── concat.py              # concat(): a site's stacks end to end (*_stackcat.nc)
+│   │   ├── export.py              # export(): stage-3 files and grid → OceanSITES 1.4 files
+│   │   ├── oceansites.py          # to_oceansites(): the conversion export uses
+│   │   ├── read_mooring.py        # read_mooring(): every instrument of a mooring, by stage
+│   │   ├── write_mooring.py       # write_mooring(): a dict of datasets → stage files
+│   │   ├── _run.py                # the standard chain for one mooring: stages 1–3, stack, grid
+│   │   ├── _stage.py              # the stage marker; append_history
+│   │   ├── raw_files.py           # finding and reading each instrument's raw file
+│   │   ├── stamp.py               # marking pre-0.6 stage files with their stage
+│   │   ├── masking.py             # which flagged values the pages and the grid hide
+│   │   ├── pressure.py            # pressure interpolation for stage 3
+│   │   ├── coordinate.py          # BEAM → XYZ → ENU transforms
+│   │   ├── units.py               # canonical units
+│   │   ├── sensors.py             # sensor records, one per instrument
+│   │   ├── attribution.py         # investigators, contributors, DOIs, licenses of a product
+│   │   ├── summary.py             # one run's warnings, collected
+│   │   ├── dataset.py             # small xarray conveniences the stages share
+│   │   ├── clock/                 # clock offsets between instruments; deployment window
+│   │   ├── calibration/           # calibration dips (caldip) at the front of stage 3
+│   │   ├── qc/                    # QARTOD tests and OceanSITES flags; ADCP QC; originator flags
+│   │   └── gridders/              # vertical gridding methods: rapid_interp, climatology, filters
+│   │
+│   ├── readers/                   # vendor file → canonical dataset, one module per format
+│   ├── writers/                   # the one netCDF writer; storage dtypes
+│   │
+│   ├── analysis/                  # physics on the products, computed once per page
+│   │   ├── derived.py             # quantities a report's figures need
+│   │   ├── hydrography.py         # salinity, isopycnals, dataset differences
+│   │   ├── site.py                # a site's gridded record over the years
+│   │   └── spectral.py            # spectra of time series
+│   │
+│   ├── plotters/                  # draw_* functions returning a matplotlib Figure
+│   │   ├── primitives.py          # data-agnostic plotting primitives, colorbar bounds
+│   │   ├── current.py             # currents and velocity
+│   │   ├── diagnostic.py          # knockdown, clock-offset and QC diagnostics
+│   │   ├── flags.py               # quality-flag strip
+│   │   ├── hydrography.py         # sections and isopycnals
+│   │   ├── timeseries.py          # time series and gridded sections
+│   │   ├── site.py                # a site's record over the years
+│   │   ├── spectrum.py            # spectral diagnostics
+│   │   ├── ts.py                  # T-S diagrams
+│   │   ├── animation.py           # animations
+│   │   ├── helpers.py             # styles, roses, labels (to be split by content)
+│   │   └── _cli_legacy.py         # old CLI plots (removed with the `oceanarray plot` redesign)
+│   │
+│   ├── reports/                   # HTML/PDF report pages
+│   │   ├── _verb.py               # the report verb: a mooring's report, an array index
+│   │   ├── _mooring.py            # mooring summary page
+│   │   ├── _instrument.py         # instrument page
+│   │   ├── _stack.py              # stack page
+│   │   ├── _grid.py               # grid page
+│   │   ├── _concat.py             # Stack cat page (a site's moorings on one time axis)
+│   │   ├── _gridcat.py            # Grid cat page (a site's gridded record)
+│   │   ├── _array.py              # array page (the year page)
+│   │   ├── _captions.py           # generated text of the stack and grid pages
+│   │   ├── _plots.py              # figure adapters for the pages (base64 PNGs)
+│   │   ├── _read.py               # reading stage files and products for the pages
+│   │   ├── _pdf.py                # HTML pages → one A4 PDF (WeasyPrint)
+│   │   ├── design.py              # oceanarray's configuration of the vendored layer
+│   │   ├── templates/             # Jinja templates
+│   │   └── _vendored/             # report layer shared with ctdcast (byte-identical)
+│   │
+│   ├── config/
+│   │   ├── parameters.py          # the variable registry and every default
+│   │   ├── unit_tables.py         # units: oceanarray's additions to the shared tables
+│   │   ├── validation.py          # mooring YAML validation
+│   │   ├── flag_meanings.yaml     # originator flag translation table
+│   │   ├── logging.yaml           # logging configuration
+│   │   └── legacy/                # RAPID/RODB configuration files
+│   │
+│   └── legacy/                    # RODB/RAPID reference code (nothing imports it; not linted)
+│
+├── tests/
+│   ├── unit/                      # unit tests, including the golden page tests
+│   ├── integration/               # golden pipeline tests
+│   ├── fixtures/                  # trimmed real data: dune2_1_2026, M2 (egM2_concat), OSNAP cuts
+│   └── legacy/                    # tests of legacy/ (not run in CI)
+│
+├── notebooks/                     # demo notebooks
+├── docs/source/                   # this documentation (Sphinx)
+├── CHANGELOG.md
+├── CITATION.cff
+├── CONTRIBUTING.md
+├── pyproject.toml
+└── README.md
+</pre></div>
+</div>
+</section>
+<section id="processing-chain">
+<h2>Processing chain<a class="headerlink" href="#processing-chain" title="Link to this heading"></a></h2>
+<p>Each step writes a CF-NetCDF file. <code class="docutils literal notranslate"><span class="pre">oceanarray.process(yaml_path,</span> <span class="pre">stages=…,</span>
+<span class="pre">raw_dir=…)</span></code> runs any of stages 1–3; <code class="docutils literal notranslate"><span class="pre">oceanarray.run</span></code> adds the stack and grid,
+and the report with <code class="docutils literal notranslate"><span class="pre">report=True</span></code>.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>raw files
+   │  stage 1   read, no QC, no trimming                       *_stage1.nc
+   │  stage 2   clock correction, deployment window            *_stage2.nc
+   │  stage 3   pressure, QC flags, ENU velocity, salinity     *_stage3.nc
+   ▼
+stack           every instrument on one time axis              {mooring}_stack.nc
+   ▼
+grid            the stack on pressure levels                   {mooring}_grid.nc
+   ▼
+concat          a site's stacks end to end (Stack cat),        {site}_stackcat.nc
+                and gridded (Grid cat)                         {site}_gridcat.nc
+   ▼
+export          OceanSITES 1.4: one file per instrument,       OS_*.nc
+                and the grid
+</pre></div>
+</div>
+</section>
+<section id="report-pages">
+<h2>Report pages<a class="headerlink" href="#report-pages" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 30.0%" />
+<col style="width: 45.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Page</p></th>
+<th class="head"><p>Module</p></th>
+<th class="head"><p>File</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Mooring summary</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reports/_mooring.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{mooring}_report.html</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Instrument</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reports/_instrument.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">instrument/{mooring}_{serial}_report.html</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Stack</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reports/_stack.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{mooring}_stack_report.html</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Grid</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reports/_grid.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{mooring}_grid_report.html</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Stack cat</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reports/_concat.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{site}_stackcat_report.html</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Grid cat</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reports/_gridcat.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{site}_gridcat_report.html</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Array</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reports/_array.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{array}_array_report.html</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>Figures are drawn by <code class="docutils literal notranslate"><span class="pre">plotters/</span></code> and turned into base64 PNGs by the adapters in
+<code class="docutils literal notranslate"><span class="pre">reports/_plots.py</span></code>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="developer.html" class="btn btn-neutral float-left" title="Developer guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="methods/calibration.html" class="btn btn-neutral float-right" title="Calibration — applying caldip corrections at the front of Stage 3" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

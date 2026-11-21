@@ -1,0 +1,349 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stage 2: trim and clocks &mdash; oceanarray 0.6.0.post1.dev20 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8cc63a81"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Stage 3: QC flags" href="auto_qc.html" />
+    <link rel="prev" title="Stage 1: read the raw files" href="standardisation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Stage 2: trim and clocks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#clock-corrections">Clock corrections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cli-usage">CLI usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#output-format">Output format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#validation">Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#auto-detection-of-the-deployment-window">Auto-detection of the deployment window</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-comes-next">What comes next</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Stage 2: trim and clocks</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/methods/trimming.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="stage-2-trim-and-clocks">
+<h1>Stage 2: trim and clocks<a class="headerlink" href="#stage-2-trim-and-clocks" title="Link to this heading"></a></h1>
+<p>Stage 2 isolates the valid in-water period from a raw time series and applies
+clock corrections.  Input is the Stage 1 output (<code class="docutils literal notranslate"><span class="pre">*_stage1.nc</span></code>); output is
+<code class="docutils literal notranslate"><span class="pre">*_stage2.nc</span></code>.</p>
+<p>This step typically needs to be run at least twice: once to produce an initial
+inspection report, then again after adjusting <code class="docutils literal notranslate"><span class="pre">deployment_time</span></code> and
+<code class="docutils literal notranslate"><span class="pre">recovery_time</span></code> in the YAML.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>Raw mooring records contain data collected before deployment (deck testing, bench
+soaking) and after recovery (handling, rinsing).  Stage 2 removes these segments and
+corrects for any timing error in the instrument clock.</p>
+<p>Operations applied at Stage 2:</p>
+<ul class="simple">
+<li><p>Clock offset and drift correction (linear)</p></li>
+<li><p>Trim to <code class="docutils literal notranslate"><span class="pre">deployment_time</span></code> / <code class="docutils literal notranslate"><span class="pre">recovery_time</span></code> from the YAML</p></li>
+<li><p>Removal of SeaBird CNV elapsed-time columns (<code class="docutils literal notranslate"><span class="pre">timeS</span></code>, <code class="docutils literal notranslate"><span class="pre">timeQ</span></code>), which are
+redundant with the CF time coordinate</p></li>
+<li><p>Metadata enrichment (instrument depth, serial number, type)</p></li>
+</ul>
+</section>
+<section id="clock-corrections">
+<h2>Clock corrections<a class="headerlink" href="#clock-corrections" title="Link to this heading"></a></h2>
+<p>Two types of timing error can be corrected.</p>
+<p><strong>Clock offset</strong> is a fixed error introduced at instrument setup, where the
+instrument clock was set to the wrong time.</p>
+<p><strong>Clock drift</strong> is a slow accumulation of error over the deployment.  Any
+instrument can drift; it is not a sign that the clock was set incorrectly.</p>
+<p>Both are corrected using the same mechanism: you record the computer time and the
+instrument time at the same moment (typically at recovery) and provide both to
+Stage 2.  A linear correction is applied over the record.</p>
+<p>YAML configuration:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">clamp</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">serial</span><span class="p">:</span><span class="w"> </span><span class="s">"26261"</span>
+<span class="w">    </span><span class="nt">instrument</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">microcat</span>
+<span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">26261_recovery.asc</span>
+<span class="w">    </span><span class="nt">file_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sbe-ascii</span>
+<span class="w">    </span><span class="nt">hab</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">450</span>
+<span class="w">    </span><span class="nt">computer_clock_at_recovery</span><span class="p">:</span><span class="w"> </span><span class="s">"2027-04-15T08:00:00"</span>
+<span class="w">    </span><span class="nt">instrument_clock_at_recovery</span><span class="p">:</span><span class="w"> </span><span class="s">"2027-04-15T07:59:48"</span>
+</pre></div>
+</div>
+<p>If neither <code class="docutils literal notranslate"><span class="pre">computer_clock_at_recovery</span></code> nor <code class="docutils literal notranslate"><span class="pre">instrument_clock_at_recovery</span></code> is
+set, no clock correction is applied. The original time is kept as <code class="docutils literal notranslate"><span class="pre">time_orig</span></code>.</p>
+<p>Instead of the two timestamps, the correction can be given directly:</p>
+<p>The sign convention: <strong>positive = instrument was slow (behind UTC), negative = instrument was fast (ahead of UTC)</strong>. The value is <em>added</em> to the raw instrument time. For example, if an instrument was 15 seconds behind UTC, set <code class="docutils literal notranslate"><span class="pre">clock_offset:</span> <span class="pre">15</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">clock_offset</span></code> and <code class="docutils literal notranslate"><span class="pre">clock_drift_seconds</span></code> describe the <strong>total correction</strong> at two points in time:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">clock_offset</span></code> — correction needed at the <strong>start</strong> of the deployment (instrument clock error when deployed).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">clock_drift_seconds</span></code> — correction needed at the <strong>end</strong> of the deployment (instrument clock error at recovery).</p></li>
+</ul>
+<p>Stage 2 applies a linear ramp between these two values, so every timestamp receives the
+appropriate interpolated correction.  All values are <strong>added</strong> to instrument time
+(positive = instrument was slow/behind UTC).</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Fields set</p></th>
+<th class="head"><p>Behaviour</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">clock_offset</span></code> only</p></td>
+<td><p>Uniform constant shift throughout the record.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">clock_drift_seconds</span></code> only</p></td>
+<td><p>Ramps from 0 at deployment to <code class="docutils literal notranslate"><span class="pre">clock_drift_seconds</span></code> at recovery.</p></td>
+</tr>
+<tr class="row-even"><td><p>Both</p></td>
+<td><p>Ramps from <code class="docutils literal notranslate"><span class="pre">clock_offset</span></code> at deployment to <code class="docutils literal notranslate"><span class="pre">clock_drift_seconds</span></code> at recovery.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example: clock was 5 s slow at deployment and 8 s slow at recovery.</span>
+<span class="c1"># Stage 2 applies +5 s at deployment time, +8 s at recovery, linearly in between.</span>
+<span class="nt">clock_offset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="nt">clock_drift_seconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
+
+<span class="c1"># Alternative — two timestamps read off at recovery (preferred; avoids sign errors).</span>
+<span class="c1"># Compact YYYYMMDDTHH:MM:SS, full ISO-8601 datetime, or time-only HH:MM:SS are all accepted.</span>
+<span class="nt">computer_clock_at_recovery</span><span class="p">:</span><span class="w">    </span><span class="s">'20260711T10:23:30'</span><span class="w">   </span><span class="c1"># or '2026-07-11T10:23:30' or '10:23:30'</span>
+<span class="nt">instrument_clock_at_recovery</span><span class="p">:</span><span class="w">  </span><span class="s">'20260711T10:23:22'</span>
+<span class="c1"># computer − instrument = +8 s → used as clock_drift_seconds (total correction at recovery)</span>
+<span class="c1"># clock_offset (if also set) remains the correction at deployment.</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The two-timestamp method measures <code class="docutils literal notranslate"><span class="pre">computer</span> <span class="pre">−</span> <span class="pre">instrument</span></code> at <strong>recovery only</strong>.
+If the clock was also set incorrectly at deployment, set <code class="docutils literal notranslate"><span class="pre">clock_offset</span></code> for that
+initial error and let the two timestamps capture the total at recovery.</p>
+</div>
+<p>To estimate an offset from the data — when each instrument entered the cold deep
+water, and the lag that best lines up neighboring temperature records —
+<code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.clock.offsets</span></code> has the functions, shown in the notebook
+<code class="docutils literal notranslate"><span class="pre">notebooks/legacy/demo_clock_offset.ipynb</span></code>.</p>
+</section>
+<section id="cli-usage">
+<h2>CLI usage<a class="headerlink" href="#cli-usage" title="Link to this heading"></a></h2>
+<p>Run Stage 2 for all instruments:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>oceanarray<span class="w"> </span>process<span class="w"> </span>dsG3_1_2026<span class="w"> </span>--proc-dir<span class="w"> </span>/data/proc<span class="w"> </span>--stage<span class="w"> </span><span class="m">2</span>
+</pre></div>
+</div>
+<p>Rerun after adjusting deployment times (single instrument):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>oceanarray<span class="w"> </span>process<span class="w"> </span>dsG3_1_2026<span class="w"> </span>--proc-dir<span class="w"> </span>/data/proc<span class="w"> </span>--stage<span class="w"> </span><span class="m">2</span><span class="w"> </span>--only<span class="w"> </span><span class="m">26261</span><span class="w"> </span>--force
+</pre></div>
+</div>
+</section>
+<section id="output-format">
+<h2>Output format<a class="headerlink" href="#output-format" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">{mooring}_{serial}_stage2.nc</span></code> in <code class="docutils literal notranslate"><span class="pre">{proc_dir}/{mooring}/{instrument}/</span></code></p>
+<p>The dataset is a trimmed slice of the Stage 1 output.  Key attributes added:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">yaml_deployment_time</span></code>, <code class="docutils literal notranslate"><span class="pre">yaml_recovery_time</span></code> — the trim bounds used</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">suggested_deployment_time_utc</span></code>, <code class="docutils literal notranslate"><span class="pre">suggested_recovery_time_utc</span></code> — the window
+detected from the record (see below)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">history</span></code> — the clock correction and the trim, in words</p></li>
+</ul>
+</section>
+<section id="validation">
+<h2>Validation<a class="headerlink" href="#validation" title="Link to this heading"></a></h2>
+<p>Stage 2 checks for common problems and emits warnings:</p>
+<ul class="simple">
+<li><p>Trimming results in an empty dataset (deployment/recovery times outside the
+raw record)</p></li>
+<li><p>Clock correction exceeds a sanity threshold</p></li>
+<li><p>Deployment time is after recovery time</p></li>
+</ul>
+<p>Processing continues past individual instrument failures; check
+<code class="docutils literal notranslate"><span class="pre">{proc_dir}/{mooring}/processing_logs/</span></code> for details.</p>
+</section>
+<section id="auto-detection-of-the-deployment-window">
+<h2>Auto-detection of the deployment window<a class="headerlink" href="#auto-detection-of-the-deployment-window" title="Link to this heading"></a></h2>
+<p>If <code class="docutils literal notranslate"><span class="pre">deployment_time</span></code> or <code class="docutils literal notranslate"><span class="pre">recovery_time</span></code> is absent from the mooring YAML (or
+left as <code class="docutils literal notranslate"><span class="pre">null</span></code>), Stage 2 attempts to detect the in-water period automatically
+by looking for the pressure transition at deployment (instrument sinks from
+surface to depth) and at recovery (instrument rises back to surface).</p>
+<p>The suggested times are printed as a <strong>WARNING</strong> in the console output and are
+also visible in the mooring summary HTML report under the <em>Deployment timing</em>
+section.  They are stored as global attributes in the Stage 2 NetCDF file:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">suggested_deployment_time_utc</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">suggested_recovery_time_utc</span></code></p></li>
+</ul>
+<p><strong>Stage 2 never silently uses the auto-detected window as the trim boundary.</strong>
+You must copy the suggested times into the mooring YAML and rerun:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Recommended workflow
+--------------------
+1.  Run Stage 1:   oceanarray process MOORING --stage 1
+2.  Run Stage 2:   oceanarray process MOORING --stage 2
+    → Read suggested deployment/recovery times from the console WARNING
+      or from the mooring summary report (Deployment timing section).
+3.  Edit mooring YAML:
+        deployment_time: "2026-05-01T18:23:00"   # ← paste suggested value
+        recovery_time:   "2026-07-10T06:47:00"   # ← paste suggested value
+4.  Rerun Stage 2 (--force to overwrite):
+        oceanarray process MOORING --stage 2 --force
+</pre></div>
+</div>
+<p><strong>Interpreting the 6 h window plots</strong> in the mooring summary report:</p>
+<p>Each instrument shows two panels — the first and last 6 hours of data.
+Two vertical lines are drawn:</p>
+<ul class="simple">
+<li><p><strong>Green</strong> = value set in the YAML (<code class="docutils literal notranslate"><span class="pre">deployment_time</span></code> / <code class="docutils literal notranslate"><span class="pre">recovery_time</span></code>)</p></li>
+<li><p><strong>Orange</strong> = Stage 2 auto-detected suggestion</p></li>
+</ul>
+<p>If the orange line is absent from the end-window panel the suggested recovery
+time falls outside the plotted range, most commonly because the YAML
+<code class="docutils literal notranslate"><span class="pre">recovery_time</span></code> was set earlier than the data transition.  Update
+<code class="docutils literal notranslate"><span class="pre">recovery_time</span></code> to the suggested value and rerun.</p>
+</section>
+<section id="what-comes-next">
+<h2>What comes next<a class="headerlink" href="#what-comes-next" title="Link to this heading"></a></h2>
+<p>Stage 2 output is the normal input to Stage 3 (QC, velocity rotation, salinity
+derivation).  See <a class="reference internal" href="auto_qc.html"><span class="doc">Stage 3: QC flags</span></a> and <a class="reference internal" href="../processing_framework.html"><span class="doc">Processing stages</span></a>.</p>
+<p>RAPID’s trimming script is on <a class="reference internal" href="../rapid_heritage.html"><span class="doc">RAPID heritage</span></a>.</p>
+<p>See also: <a class="reference internal" href="standardisation.html"><span class="doc">Stage 1: read the raw files</span></a>, <a class="reference internal" href="time_gridding.html"><span class="doc">Stack: one time axis</span></a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="standardisation.html" class="btn btn-neutral float-left" title="Stage 1: read the raw files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="auto_qc.html" class="btn btn-neutral float-right" title="Stage 3: QC flags" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

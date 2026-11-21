@@ -1,0 +1,540 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RAPID heritage &mdash; oceanarray 0.6.0.post1.dev20 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8cc63a81"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Legacy Modules" href="legacy.html" />
+    <link rel="prev" title="Older upgrades: 0.4 to 0.5, and the --basedir layout" href="migration.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            oceanarray
+              <img src="_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">RAPID heritage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#downloading-microcats-at-sea">Downloading MicroCATs at sea</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-rodb-format-stage-1">The RODB format (stage 1)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#trimming-stage-2">Trimming (stage 2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#joining-deployments-in-time">Joining deployments in time</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#purpose">Purpose</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#process-overview">Process overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#notes">Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#merging-sites-into-a-boundary-profile">Merging sites into a boundary profile</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#rationale">Rationale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#input">Input</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#steps">Steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Notes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">RAPID heritage</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/rapid_heritage.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="rapid-heritage">
+<span id="id1"></span><h1>RAPID heritage<a class="headerlink" href="#rapid-heritage" title="Link to this heading"></a></h1>
+<p>oceanarray grew out of the processing for the RAPID-MOC array at 26°N, done in
+MATLAB and stored in the RODB text format. This page keeps that background in one
+place: how the instruments are downloaded, the RODB format, the MATLAB scripts the
+stages replace, and how RAPID joined deployments and sites. None of it is needed to
+run oceanarray.</p>
+<section id="downloading-microcats-at-sea">
+<h2>Downloading MicroCATs at sea<a class="headerlink" href="#downloading-microcats-at-sea" title="Link to this heading"></a></h2>
+<p>Sea-Bird SBE37 MicroCATs are downloaded with SeaTerm (older firmware) or SeaTermV2.
+The older SeaTerm misses a line every 220 lines on the 6000-series instruments, so use
+SeaTermV2 for those.</p>
+<p>Legacy Firmware (pre-3.0d)
+~~~~~~~~~~~~~~~~~~~~~~~~^^</p>
+<p>For most instruments with serial numbers below 6000, use <strong>SeaTerm</strong>:</p>
+<ol class="arabic">
+<li><p>Connect the instrument and launch <em>SeaTerm</em>.</p></li>
+<li><p>Under <em>Configure</em>, select <strong>SBE37</strong>.</p></li>
+<li><p>Choose the correct COM port and set baud rate to <strong>9600</strong>.</p></li>
+<li><p>On the <em>Upload Settings</em> tab, check <strong>Upload all data into a single file</strong>.</p></li>
+<li><p>On the <em>Header Information</em> tab, ensure <strong>Prompt for Header Information</strong> is checked.</p></li>
+<li><p>Open a capture file (e.g., <cite>5768_recovery.log</cite>).</p></li>
+<li><p>Press Return or click <em>Connect</em>—you should see:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SBE</span> <span class="mi">37</span><span class="o">-</span><span class="n">M</span>
+<span class="n">S</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>(Press return repeatedly if needed.)</p>
+</li>
+<li><p>Type <cite>Stop</cite> to halt logging. Record the time (UTC).</p></li>
+<li><p>Type <cite>DS</cite> and note the clock drift from UTC.</p></li>
+<li><p>Record the “Sample Number” (number of samples taken).</p></li>
+<li><p>Stop the capture file.</p></li>
+<li><p>Click <em>Upload</em>.</p></li>
+<li><p>When prompted, enter ship, cruise, and mooring details.</p></li>
+<li><p>Add additional comments (e.g., instrument fouling, damage).</p></li>
+<li><p>Save the file (e.g., <cite>5768_data.asc</cite> or <cite>5768_cal_dip_data.asc</cite>).</p></li>
+<li><p>Confirm upload completion and check contents of <cite>.asc</cite> file.</p></li>
+</ol>
+<p>Modern Firmware (3.0d and above)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^</p>
+<p>For instruments with serial numbers &gt;6000 or upgraded units, use <strong>SeaTermV2</strong>:</p>
+<ol class="arabic simple">
+<li><p>Connect instrument and launch <em>SeaTermV2</em> (not regular SeaTerm).</p></li>
+<li><p>Under <em>Configure</em>, choose <strong>SBE37</strong> → <em>SBE 37 RS232</em>.</p></li>
+<li><p>If auto-connect fails, manually configure baud rate (usually 9600 or 38400).</p></li>
+<li><p>Once connected, open a capture file (e.g., <cite>6338_recovery.log</cite>).</p></li>
+<li><p>Send <cite>DS</cite> to check clock drift relative to UTC.</p></li>
+<li><p>Send <cite>Stop</cite> to halt logging and note the UTC timestamp.</p></li>
+<li><p>(Optional) To increase transfer speed, type <cite>baudrate=38400</cite>.</p></li>
+<li><p>Switch baud rate in software and re-send the command to confirm.</p></li>
+<li><p>Turn off the capture file once response is complete.</p></li>
+<li><p>Click <em>Upload</em>, enter filename (e.g., <cite>6338_data.xml</cite>).</p></li>
+<li><p>In the upload dialog:
+- Check <strong>Text Upload</strong>
+- For mooring data, choose <strong>upload as a single file</strong>
+- For cal dips, select <strong>by scan number range</strong></p></li>
+<li><p>Click <em>Start</em> to upload data.</p></li>
+<li><p>After upload, go to <em>Tools</em> → <em>Convert .XML Data File</em>.</p></li>
+<li><p>Select the XML file and confirm output directory.</p></li>
+<li><p>Under <em>Output Optional Variables</em>, check <strong>Date and Time</strong>.</p></li>
+<li><p>Select <strong>Seconds since Jan 1, 2000</strong>.</p></li>
+<li><p>Click OK. This produces a <cite>.CNV</cite> file ready for use in the Stage 1 conversion routines.</p></li>
+</ol>
+<p><strong>Reference:</strong>
+Cunningham, S.A. (2010) RRS Discovery Cruise D344, 21 Oct-18 Nov 2009. RAPID Mooring Cruise Report. Southampton, UK, National Oceanography Centre Southampton, 225pp. (National Oceanography Centre Southampton Cruise Report 51) <a class="reference external" href="https://nora.nerc.ac.uk/id/eprint/263915/1/nocscr051.pdf">https://nora.nerc.ac.uk/id/eprint/263915/1/nocscr051.pdf</a></p>
+</section>
+<section id="the-rodb-format-stage-1">
+<h2>The RODB format (stage 1)<a class="headerlink" href="#the-rodb-format-stage-1" title="Link to this heading"></a></h2>
+<p>This standardisation step evolved from the RAPID programme’s RODB format, which provided a similar function for historical mooring data. An example of the original RODB format structure:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Mooring              = wb2_16_2020
+SerialNumber         = 5768
+WaterDepth           = 3916
+InstrDepth           = 1700
+Start_Date           = 2021/01/05
+Start_Time           = 20:00
+End_Date             = 2023/02/25
+End_Time             = 17:00
+Latitude             = 26 31.000 N
+Longitude            = 076 44.460 W
+Columns              = YY:MM:DD:HH:T:C:P
+2021   01   05   20.00056   3.9239   33.2233  1726.4
+2021   01   05   21.00056   3.9389   33.2389  1725.4
+2021   01   05   22.00056   3.9389   33.2405  1725.3
+</pre></div>
+</div>
+<p>Stage 1 replaces the MATLAB conversion to RODB:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="_static/code/microcat2rodb_3.m">microcat2rodb_3.m</a></p></li>
+</ul>
+<p>This script performed similar functions to the current Python implementation:</p>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">Excerpt from <cite>microcat2rodb_3.m</cite></span><a class="headerlink" href="#id3" title="Link to this code"></a></div>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c">% function microcat2rodb_3('infile','outfile','infofile',fidlog,[graphics],[toffset])</span>
+<span class="linenos"> 2</span><span class="c">%</span>
+<span class="linenos"> 3</span><span class="c">% reads ACSII output from SBE-37 MicroCAT and converts</span>
+<span class="linenos"> 4</span><span class="c">% writes it to RODB file </span>
+<span class="linenos"> 5</span><span class="c">% So far the input format contain (temp,cond,day,month,year,time)  </span>
+<span class="linenos"> 6</span><span class="c">% or .cnv format (temp,cond,press,seconds,data_flag)</span>
+<span class="linenos"> 7</span><span class="c">% where seconds is seconds since Jan 1st 2000.</span>
+<span class="linenos"> 8</span><span class="c">%</span>
+<span class="linenos"> 9</span><span class="c">% input: </span>
+<span class="linenos">10</span><span class="c">%   outfile  : path and name of RODB outputfile</span>
+<span class="linenos">11</span><span class="c">%   infile   : path and name of MicroCAT ASCII input file</span>
+<span class="linenos">12</span><span class="c">%   infofile : path and name of mooring info.dat file  </span>
+<span class="linenos">13</span><span class="c">%   fidlog   : file identifier for log file</span>
+<span class="linenos">14</span><span class="c">%   graphics : 'y' = display some graphics (mooring)</span>
+<span class="linenos">15</span><span class="c">%              'w' = display some graphics with whole range (rosette)</span>
+<span class="linenos">16</span><span class="c">%   toffset  : offset of recorded instrument time rel to GMT (decimal days),</span>
+<span class="linenos">17</span><span class="c">%              if omitted, default toffset = 0 is set </span>
+<span class="linenos">18</span><span class="c">%</span>
+<span class="linenos">19</span><span class="c">%  uses: microcat_month2.m, hms2h.m  (all by T.Kanzow), rodbsave.m</span>
+<span class="linenos">20</span><span class="c">%</span>
+<span class="linenos">21</span><span class="c">% kanzow   26.12.2000 Xmas edition</span>
+<span class="linenos">22</span><span class="c">%          28.03.2001 pressure option added </span>
+<span class="linenos">23</span><span class="c">%          20.04.2005 CSIRO seawater routine for computation of salinity </span>
+<span class="linenos">24</span><span class="c">%          24.04.2005 recorded time checked against mooring deployment time </span>
+<span class="linenos">25</span><span class="c">%          25.04.2005 input variable 'toffset' added</span>
+<span class="linenos">26</span><span class="c">%          27/10/09 - DR added functionality for .cnv format files for</span>
+<span class="linenos">27</span><span class="c">%             microcat firmware 3.0 and above. and created microcat2rodb_3</span>
+<span class="linenos">28</span><span class="c">%             from microcat2rodb_2_002</span>
+<span class="linenos">29</span><span class="c">%          03.04.2010 - ZBS changed the method for setting 'ylim'</span>
+<span class="linenos">30</span><span class="c">%             for graphics=='y' to use prctile.</span>
+<span class="linenos">31</span><span class="c">%</span>
+<span class="linenos">32</span><span class="k">function</span><span class="w"> </span><span class="nf">microcat2rodb_3</span><span class="p">(</span>infile,outfile,infofile,fidlog,graphics,toffset<span class="p">)</span>
+<span class="linenos">33</span>
+<span class="linenos">34</span><span class="k">if</span><span class="w"> </span><span class="nb">nargin</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">4</span>
+<span class="linenos">35</span><span class="w">  </span><span class="nb">disp</span><span class="p">(</span><span class="s">'not enough input arguments'</span><span class="p">)</span>
+<span class="linenos">36</span><span class="k">elseif</span><span class="w"> </span><span class="nb">nargin</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">4</span>
+<span class="linenos">37</span><span class="w">  </span><span class="n">graphics</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">'n'</span>
+<span class="linenos">38</span><span class="w">  </span><span class="nb">disp</span><span class="p">(</span><span class="s">'graphics will not be  displayed'</span><span class="p">)</span>
+<span class="linenos">39</span><span class="k">end</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="trimming-stage-2">
+<h2>Trimming (stage 2)<a class="headerlink" href="#trimming-stage-2" title="Link to this heading"></a></h2>
+<p>Stage 2 replaces the RAPID trimming script:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="_static/code/microcat_raw2use_003.m">microcat_raw2use_003.m</a></p></li>
+</ul>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">Excerpt from <code class="docutils literal notranslate"><span class="pre">microcat_raw2use_003.m</span></code></span><a class="headerlink" href="#id4" title="Link to this code"></a></div>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="nb">clear</span>
+<span class="linenos"> 2</span><span class="c">% basic preprocessing for microcat data</span>
+<span class="linenos"> 3</span><span class="c">%   </span>
+<span class="linenos"> 4</span><span class="c">% features</span>
+<span class="linenos"> 5</span><span class="c">%      1. eliminate lauching and recovery period</span>
+<span class="linenos"> 6</span><span class="c">%      2. save data to rodb file</span>
+<span class="linenos"> 7</span><span class="c">%      3. create data overview sheet</span>
+<span class="linenos"> 8</span><span class="c">%</span>
+<span class="linenos"> 9</span><span class="c">% uses timeaxis.m, auto_filt.m, julian.m </span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="c">% 11.01.01 Kanzow </span>
+<span class="linenos">12</span><span class="c">% 13.08.02 Kanzow : debugged</span>
+<span class="linenos">13</span><span class="c">%</span>
+<span class="linenos">14</span><span class="c">%      </span>
+<span class="linenos">15</span><span class="w">  </span>
+<span class="linenos">16</span><span class="c">% --- get mooring information from infofile </span>
+<span class="linenos">17</span>
+<span class="linenos">18</span>
+<span class="linenos">19</span><span class="n">moor</span><span class="w">          </span><span class="p">=</span><span class="w"> </span><span class="s">'ebm1_2_200736'</span><span class="p">;</span><span class="w">    </span><span class="c">% Mooring name</span>
+<span class="linenos">20</span>
+<span class="linenos">21</span><span class="n">operator</span><span class="w">      </span><span class="p">=</span><span class="w"> </span><span class="s">'wallace'</span><span class="p">;</span>
+<span class="linenos">22</span>
+<span class="linenos">23</span><span class="n">plot_interval</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">2007</span><span class="w"> </span><span class="mi">11</span><span class="w"> </span><span class="mi">07</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">   </span><span class="c">% start time of time axis on plot</span>
+<span class="linenos">24</span><span class="w">		 </span><span class="mi">2008</span><span class="w"> </span><span class="mi">11</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span><span class="w">  </span><span class="c">% end time of time axis on plot</span>
+<span class="linenos">25</span>
+<span class="linenos">26</span><span class="n">mc_id</span><span class="w">    </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">333</span><span class="w"> </span><span class="mi">337</span><span class="p">]</span><span class="w"> </span><span class="p">;</span><span class="w">         </span><span class="c">% microcat id</span>
+<span class="linenos">27</span>
+<span class="linenos">28</span><span class="c">%-- path</span>
+<span class="linenos">29</span>
+<span class="linenos">30</span><span class="c">% -- set path for data input and output</span>
+<span class="linenos">31</span>
+<span class="linenos">32</span><span class="c">% inpath  = ['/data/rapid/cd170/moorings/',moor,'/microcat/'];</span>
+<span class="linenos">33</span><span class="c">% outpath = ['/data/rapid/cd170/moorings/',moor,'/microcat/'];</span>
+<span class="linenos">34</span><span class="c">% infofile =['/data/rapid/cd170/moorings/',moor,'/',moor,'info.dat'];</span>
+<span class="linenos">35</span>
+<span class="linenos">36</span><span class="n">inpath</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">'~/Data/rpdmoc/rapid/data/moor/proc/'</span><span class="p">,</span><span class="n">moor</span><span class="p">,</span><span class="s">'/microcat/'</span><span class="p">];</span><span class="w"> </span><span class="c">% C Wallace changed paths for cruise d334</span>
+<span class="linenos">37</span><span class="n">outpath</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">'~/Data/rpdmoc/rapid/data/moor/proc/'</span><span class="p">,</span><span class="n">moor</span><span class="p">,</span><span class="s">'/microcat/'</span><span class="p">];</span>
+<span class="linenos">38</span><span class="n">infofile</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">'~/Data/rpdmoc/rapid/data/moor/proc/'</span><span class="p">,</span><span class="n">moor</span><span class="p">,</span><span class="s">'/'</span><span class="p">,</span><span class="n">moor</span><span class="p">,</span><span class="s">'info.dat'</span><span class="p">];</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="joining-deployments-in-time">
+<h2>Joining deployments in time<a class="headerlink" href="#joining-deployments-in-time" title="Link to this heading"></a></h2>
+<p>The RAPID MATLAB route gridded each deployment first and then interpolated the
+segments onto one time grid, filling short gaps between deployments. oceanarray
+joins the stacks instead and fills nothing.</p>
+<p>This step combines multiple mooring deployments at the same site (e.g., WB1, WB2)
+into a single continuous time series on a regular time-pressure grid.</p>
+<section id="purpose">
+<h3>Purpose<a class="headerlink" href="#purpose" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Interpolate individual deployment periods onto a common pressure grid (e.g., every 20 dbar from 0–4820 dbar).</p></li>
+<li><p>Construct a consistent time axis (e.g., half-daily <cite>jg</cite> from April 1, 2004 to October 11, 2015).</p></li>
+<li><p>Interpolate all segments onto this unified time grid, filling short gaps between deployments.</p></li>
+<li><p>Output gridded <cite>.mat</cite> files for later use in AMOC transport code.</p></li>
+</ul>
+</section>
+<section id="process-overview">
+<h3>Process overview<a class="headerlink" href="#process-overview" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Define a global pressure grid <cite>PG</cite> for all moorings.</p></li>
+<li><p>Load gridded temperature and salinity profiles from each deployment, e.g.:</p>
+<ul class="simple">
+<li><p><cite>wb1_2_200527_grid.mat</cite></p></li>
+<li><p><cite>wb1_3_200607_grid.mat</cite></p></li>
+<li><p>…</p></li>
+</ul>
+</li>
+<li><p>Interpolate each deployment’s <cite>TGfs</cite> (temperature) and <cite>SGfs</cite> (salinity)
+to the common pressure grid <cite>PG</cite>.</p></li>
+<li><p>Collect and concatenate the corresponding <cite>jd</cite> (Julian day) values for each deployment.</p></li>
+<li><p>Linearly interpolate all values onto the global time grid <cite>jg</cite>.</p></li>
+<li><p>Save the final combined profiles for each mooring site (e.g., <cite>TG_wb1</cite>, <cite>SG_wb1</cite>, etc.)
+along with metadata like location and pressure grid.</p></li>
+</ol>
+</section>
+<section id="notes">
+<h3>Notes<a class="headerlink" href="#notes" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>This process assumes that all individual deployment files have already been vertically interpolated
+(i.e., gridded in pressure).</p></li>
+<li><p>The output is suitable for subsequent merging across mooring sites and dynamic height calculation.</p></li>
+<li><p>Time interpolation smooths over deployment transitions and data gaps.</p></li>
+</ul>
+<p>Original Source
+^^^^^^^^^^^^^^~</p>
+<p>Adapted from MATLAB routines by Kanzow (2005) and later modified.</p>
+<p>The MATLAB script <cite>mooring_interp_wb2_3_5.m</cite> from the RAPID processing workflow interpolates individual deployments together in time using matlab’s <cite>interp1</cite> function. It combines multiple mooring deployments at the same site (e.g., WB2) into a single continuous time series on a regular time-pressure grid.  Note that filenaming within the RAPID project has changed several times without changing the core functionality, but the legacy code provided here may <em>not</em> be consistent with the current RAPID processing.</p>
+<div class="literal-block-wrapper docutils container" id="id5">
+<div class="code-block-caption"><span class="caption-text">Excerpt from <cite>mooring_interp_wb2_3_5.m</cite></span><a class="headerlink" href="#id5" title="Link to this code"></a></div>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c">%%  Code to interpolate the mooring data together prior to loading into the</span>
+<span class="linenos"> 2</span><span class="c">%%  MOC code</span>
+<span class="linenos"> 3</span><span class="c">%</span>
+<span class="linenos"> 4</span><span class="c">%</span>
+<span class="linenos"> 5</span><span class="c">%  Interpolates the temperature and salinity gridded data produced by Julie</span>
+<span class="linenos"> 6</span><span class="c">%  Collins onto a common time and pressure grid at each of the principal</span>
+<span class="linenos"> 7</span><span class="c">%  locations.   The anomaly plots at the end are to check for obvious</span>
+<span class="linenos"> 8</span><span class="c">%  errors in the data processing.</span>
+<span class="linenos"> 9</span><span class="c">%</span>
+<span class="linenos">10</span><span class="c">%  The output file is saved in the amoc/grdat/ directory for use by the MOC</span>
+<span class="linenos">11</span><span class="c">%  code.</span>
+<span class="linenos">12</span><span class="c">%</span>
+<span class="linenos">13</span><span class="c">%  This code WILL need to be edited for every update of the time series and</span>
+<span class="linenos">14</span><span class="c">%  the time stamp, jg, is a key variable, that will be an input to set the</span>
+<span class="linenos">15</span><span class="c">%  length of the time series.</span>
+<span class="linenos">16</span><span class="c">%</span>
+<span class="linenos">17</span><span class="c">%</span>
+<span class="linenos">18</span><span class="c">% adapted from an original code by Kanzow 2005</span>
+<span class="linenos">19</span>
+<span class="linenos">20</span><span class="c">% Code History</span>
+<span class="linenos">21</span><span class="c">% -------------------</span>
+<span class="linenos">22</span><span class="c">% v2 - removed the separate pressure grid for WB2 and standardised to the</span>
+<span class="linenos">23</span><span class="c">% normal grid PG</span>
+<span class="linenos">24</span><span class="c">%</span>
+<span class="linenos">25</span><span class="c">% just mochab, mochae, wb2</span>
+<span class="linenos">26</span>
+<span class="linenos">27</span><span class="nb">clear</span><span class="w"> </span><span class="nb">all</span>
+<span class="linenos">28</span><span class="nb">close</span><span class="w"> </span><span class="nb">all</span>
+<span class="linenos">29</span><span class="nb">clc</span>
+<span class="linenos">30</span>
+<span class="linenos">31</span><span class="nb">warning</span><span class="w"> </span><span class="n">off</span>
+<span class="linenos">32</span>
+<span class="linenos">33</span><span class="n">basedir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">'/noc/mpoc/'</span><span class="p">;</span>
+<span class="linenos">34</span><span class="n">datadir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">basedir</span><span class="w"> </span><span class="s">'/rpdmoc/rapid/data/amoc/grout/OCT_2012/annual/'</span><span class="p">];</span>
+<span class="linenos">35</span><span class="c">% basedir = '/Volumes/';</span>
+<span class="linenos">36</span><span class="n">nowrite</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="linenos">37</span>
+<span class="linenos">38</span><span class="n">jlim</span><span class="w">        </span><span class="p">=</span><span class="w"> </span><span class="n">julian</span><span class="p">([[</span><span class="mi">2004</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];[</span><span class="mi">2012</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">18</span><span class="p">,</span><span class="mi">0</span><span class="p">]]);</span>
+<span class="linenos">39</span><span class="n">jg</span><span class="w">          </span><span class="p">=</span><span class="w"> </span><span class="n">jlim</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span><span class="mf">.5</span><span class="p">:</span><span class="n">jlim</span><span class="p">(</span><span class="k">end</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="merging-sites-into-a-boundary-profile">
+<h2>Merging sites into a boundary profile<a class="headerlink" href="#merging-sites-into-a-boundary-profile" title="Link to this heading"></a></h2>
+<p>Not implemented in oceanarray.</p>
+<p>This step combines data from multiple mooring sites near an ocean boundary (east or west) to generate a unified, gridded profile over time and depth, along the continental slope.
+It is a crucial part of the RAPID-WB assembly process, ensuring that discontinuous deployments and separate instrument records from neighboring locations (e.g., WB2, WB3, WB4) are stitched into a consistent time–depth matrix.</p>
+<section id="rationale">
+<h3>Rationale<a class="headerlink" href="#rationale" title="Link to this heading"></a></h3>
+<p>In mooring arrays like RAPID, instruments are deployed and recovered at multiple sites “crawling” up a sloping sidewall.  To estimate transbasin transport, instruments from different zonal locations are merged together to provide a “boundary” profile of dynamic height for the overturning calculation.</p>
+<p>For example, in RAPID, the waterdepth at the WB2 mooring site is approximately 3800 dbar.  Data from WB2 are combined with WB3 (a mooring 25km to the east) and, when available, the WBH2 mooring between them.</p>
+</section>
+<section id="input">
+<h3>Input<a class="headerlink" href="#input" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Gridded mooring datasets from each site (e.g., <cite>wb1_8_201113_grid.mat</cite>, <cite>wb2_7_200907_grid.mat</cite>).</p></li>
+<li><p>Pressure grid: typically <cite>PG = [0, 20, …, 4820] dbar</cite>.</p></li>
+<li><p>Time axis: regular Julian day array, e.g., <cite>jg = 1-Apr-2004 to 11-Oct-2015</cite> in 0.5-day steps.</p></li>
+</ul>
+</section>
+<section id="steps">
+<h3>Steps<a class="headerlink" href="#steps" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Load gridded site data</strong>:
+Load the filtered instrument data from each mooring location and extract variables:
+- <cite>jd</cite>: time vector
+- <cite>Tfs</cite>, <cite>Sfs</cite>, <cite>Pfs</cite>: filtered temperature, salinity, and pressure records, and rename them for each deployment as e.g. <cite>Tfs1</cite>, <cite>Tfs2</cite>, etc.</p></li>
+<li><p><strong>Interpolate to common time grid</strong>:
+Multiple deployments are stacked together (e.g., <cite>Tfs     = [Tfs1;Tfs2;Tfs3a;Tfs3b;Tfs4;Tfs5;Tfs6a;Tfs6b;Tfs7;Tfs8;Tfs9]</cite>) and then sorted vertically for each time.</p></li>
+</ol>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% all the matrices for the deployments stacked together</span>
+<span class="n">Pfs</span><span class="w">     </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">Pfs1</span><span class="p">;</span><span class="n">Pfs2</span><span class="p">;</span><span class="n">Pfs3a</span><span class="p">;</span><span class="n">Pfs3b</span><span class="p">;</span><span class="n">Pfs4</span><span class="p">;</span><span class="n">Pfs5</span><span class="p">;</span><span class="n">Pfs6a</span><span class="p">;</span><span class="n">Pfs6b</span><span class="p">;</span><span class="n">Pfs7</span><span class="p">;</span><span class="n">Pfs8</span><span class="p">;</span><span class="n">Pfs9</span><span class="p">];</span>
+<span class="n">Sfs</span><span class="w">     </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">Sfs1</span><span class="p">;</span><span class="n">Sfs2</span><span class="p">;</span><span class="n">Sfs3a</span><span class="p">;</span><span class="n">Sfs3b</span><span class="p">;</span><span class="n">Sfs4</span><span class="p">;</span><span class="n">Sfs5</span><span class="p">;</span><span class="n">Sfs6a</span><span class="p">;</span><span class="n">Sfs6b</span><span class="p">;</span><span class="n">Sfs7</span><span class="p">;</span><span class="n">Sfs8</span><span class="p">;</span><span class="n">Sfs9</span><span class="p">];</span>
+<span class="n">Tfs</span><span class="w">     </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">Tfs1</span><span class="p">;</span><span class="n">Tfs2</span><span class="p">;</span><span class="n">Tfs3a</span><span class="p">;</span><span class="n">Tfs3b</span><span class="p">;</span><span class="n">Tfs4</span><span class="p">;</span><span class="n">Tfs5</span><span class="p">;</span><span class="n">Tfs6a</span><span class="p">;</span><span class="n">Tfs6b</span><span class="p">;</span><span class="n">Tfs7</span><span class="p">;</span><span class="n">Tfs8</span><span class="p">;</span><span class="n">Tfs9</span><span class="p">];</span>
+
+<span class="c">% order the matrices at every time step to avoid too many NaNs creeping in</span>
+<span class="c">% 2004 removed....</span>
+<span class="n">P_sort</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">NaN</span><span class="w"> </span><span class="o">.*</span><span class="w"> </span><span class="nb">ones</span><span class="p">(</span><span class="nb">size</span><span class="p">(</span><span class="n">Pfs</span><span class="p">));</span><span class="w"> </span><span class="n">T_sort</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">NaN</span><span class="w"> </span><span class="o">.*</span><span class="w"> </span><span class="nb">ones</span><span class="p">(</span><span class="nb">size</span><span class="p">(</span><span class="n">Tfs</span><span class="p">));</span><span class="w"> </span><span class="n">S_sort</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">NaN</span><span class="w"> </span><span class="o">.*</span><span class="w"> </span><span class="nb">ones</span><span class="p">(</span><span class="nb">size</span><span class="p">(</span><span class="n">Sfs</span><span class="p">));</span>
+<span class="nb">j</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="k">for</span><span class="w"> </span><span class="n">ii</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="nb">length</span><span class="p">(</span><span class="n">JG</span><span class="p">)</span>
+<span class="w">   </span><span class="p">[</span><span class="n">P_variable</span><span class="p">,</span><span class="w"> </span><span class="n">ix</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">sort</span><span class="p">(</span><span class="n">Pfs</span><span class="p">(:,</span><span class="w"> </span><span class="n">ii</span><span class="p">));</span>
+<span class="w">   </span><span class="n">P_sort</span><span class="p">(:,</span><span class="nb">j</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">Pfs</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span><span class="n">ii</span><span class="p">);</span>
+<span class="w">   </span><span class="n">T_sort</span><span class="p">(:,</span><span class="nb">j</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">Tfs</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span><span class="n">ii</span><span class="p">);</span>
+<span class="w">   </span><span class="n">S_sort</span><span class="p">(:,</span><span class="nb">j</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">Sfs</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span><span class="n">ii</span><span class="p">);</span>
+<span class="w">   </span><span class="nb">j</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">j</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="k">end</span>
+<span class="c">% removing unused rows of the sorted matrices</span>
+<span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="nb">j</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="nb">length</span><span class="p">(</span><span class="n">P_sort</span><span class="p">(:,</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">   </span><span class="n">ix</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">find</span><span class="p">(</span><span class="nb">isnan</span><span class="p">(</span><span class="n">P_sort</span><span class="p">(</span><span class="nb">i</span><span class="p">,:)));</span>
+<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="nb">size</span><span class="p">(</span><span class="n">ix</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nb">length</span><span class="p">(</span><span class="n">JG</span><span class="p">)</span>
+<span class="w">      </span><span class="n">Pfss</span><span class="p">(</span><span class="nb">j</span><span class="p">,:)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">P_sort</span><span class="p">(</span><span class="nb">i</span><span class="p">,</span><span class="w"> </span><span class="p">:);</span>
+<span class="w">      </span><span class="n">Tfss</span><span class="p">(</span><span class="nb">j</span><span class="p">,:)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">T_sort</span><span class="p">(</span><span class="nb">i</span><span class="p">,</span><span class="w"> </span><span class="p">:);</span>
+<span class="w">      </span><span class="n">Sfss</span><span class="p">(</span><span class="nb">j</span><span class="p">,:)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">S_sort</span><span class="p">(</span><span class="nb">i</span><span class="p">,</span><span class="w"> </span><span class="p">:);</span>
+<span class="w">      </span><span class="nb">j</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">j</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">   </span><span class="k">end</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<ol class="arabic" start="4">
+<li><p><strong>Regrid vertically</strong>:
+Since we now have moorings ending at different depths and from different moorings, they need to be vertically gridded over possible gaps. This re-applies the method from <a class="reference internal" href="methods/vertical_gridding.html"><span class="doc">Grid: pressure levels</span></a> to concatenate all year-specific fragments into a single time–depth matrix and re-interpolate:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TG_wb2</span> <span class="o">=</span> <span class="n">interp1</span><span class="p">([</span><span class="n">jg_y1</span> <span class="n">jg_y2</span> <span class="o">...</span><span class="p">],</span> <span class="p">[</span><span class="n">TG_y1</span> <span class="n">TG_y2</span> <span class="o">...</span><span class="p">],</span> <span class="n">jg</span><span class="p">);</span>
+<span class="n">SG_wb2</span> <span class="o">=</span> <span class="n">interp1</span><span class="p">([</span><span class="n">jg_y1</span> <span class="n">jg_y2</span> <span class="o">...</span><span class="p">],</span> <span class="p">[</span><span class="n">SG_y1</span> <span class="n">SG_y2</span> <span class="o">...</span><span class="p">],</span> <span class="n">jg</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Note: I’m not sure this is what RAPID still does. This method has the possibility to create statically unstable profiles of temperature and salinity when merging data from two latitude/longitude positions.</p>
+</li>
+<li><p><strong>Save merged output</strong>:
+Store combined profiles in NetCDF or <cite>.mat</cite> format for use in dynamic height or MOC calculation:
+- <cite>TG_wb2</cite>, <cite>SG_wb2</cite>
+- Associated <cite>LATITUDE</cite>, <cite>LONGITUDE</cite>, and <cite>JG</cite></p></li>
+</ol>
+</section>
+<section id="id2">
+<h3>Notes<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Different mooring lines may be merged (e.g., WB1–WB4) to form a composite boundary profile.</p></li>
+<li><p>Some scripts distinguish between upstream/downstream or boundary/interior groups before merging.</p></li>
+<li><p>Care should be taken when combining profiles with differing depth ranges or quality flags.</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="migration.html" class="btn btn-neutral float-left" title="Older upgrades: 0.4 to 0.5, and the --basedir layout" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="legacy.html" class="btn btn-neutral float-right" title="Legacy Modules" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

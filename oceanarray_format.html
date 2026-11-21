@@ -1,0 +1,528 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Output files &mdash; oceanarray 0.6.0.post1.dev20 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8cc63a81"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="OceanSITES Data Format Reference Manual" href="oceanSITES_manual.html" />
+    <link rel="prev" title="The sensor catalog" href="sensor_catalog.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            oceanarray
+              <img src="_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Output files</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dimensions-and-coordinates">Dimensions and coordinates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-variables">Data variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quality-control">Quality control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-mode">Data mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#global-attributes">Global attributes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#where-the-data-came-from">Where the data came from</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sensor-records">Sensor records</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#files-behind-a-product">Files behind a product</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#which-oceanarray-wrote-a-file">Which oceanarray wrote a file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quality-flags">Quality flags</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Output files</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/oceanarray_format.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="output-files">
+<h1>Output files<a class="headerlink" href="#output-files" title="Link to this heading"></a></h1>
+<p>oceanarray’s shareable output is <a class="reference external" href="https://www.ocean-ops.org/oceansites/docs/oceansites_data_format_reference_manual.pdf">OceanSITES 1.4</a>
+(<a class="reference internal" href="oceanSITES_manual.html"><span class="doc">OceanSITES Data Format Reference Manual</span></a>), with no departures from it.  This page lists what the export
+writes; <a class="reference internal" href="methods/oceansites_export.html"><span class="doc">OceanSITES export</span></a> lists the products and file names.  The stage,
+stack and grid files the pipeline works with (<code class="docutils literal notranslate"><span class="pre">*_stage3.nc</span></code>, <code class="docutils literal notranslate"><span class="pre">*_stack.nc</span></code>,
+<code class="docutils literal notranslate"><span class="pre">*_grid.nc</span></code>) are oceanarray’s own working files and are not OceanSITES files.</p>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#dimensions-and-coordinates" id="id1">Dimensions and coordinates</a></p></li>
+<li><p><a class="reference internal" href="#data-variables" id="id2">Data variables</a></p></li>
+<li><p><a class="reference internal" href="#quality-control" id="id3">Quality control</a></p></li>
+<li><p><a class="reference internal" href="#data-mode" id="id4">Data mode</a></p></li>
+<li><p><a class="reference internal" href="#global-attributes" id="id5">Global attributes</a></p></li>
+</ul>
+</nav>
+<section id="dimensions-and-coordinates">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Dimensions and coordinates</a><a class="headerlink" href="#dimensions-and-coordinates" title="Link to this heading"></a></h2>
+<p>Manual §2.3–2.4.  No coordinate holds a fill value.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 15.0%" />
+<col style="width: 25.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Units</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">TIME</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">days</span> <span class="pre">since</span> <span class="pre">1950-01-01T00:00:00Z</span></code></p></td>
+<td><p>UTC; <code class="docutils literal notranslate"><span class="pre">axis</span> <span class="pre">=</span> <span class="pre">&quot;T&quot;</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">DEPTH</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">m</span></code>, <code class="docutils literal notranslate"><span class="pre">positive</span> <span class="pre">=</span> <span class="pre">&quot;down&quot;</span></code></p></td>
+<td><p>Deployment file: the nominal instrument depth (water depth minus height above
+bottom), or for an ADCP the nominal bin depths.  Gridded file: the pressure levels
+converted with <code class="docutils literal notranslate"><span class="pre">gsw.z_from_p</span></code>.  The <code class="docutils literal notranslate"><span class="pre">comment</span></code> says which.  <code class="docutils literal notranslate"><span class="pre">PRES</span></code> carries the
+pressure, so the knock-down is in the data, not in <code class="docutils literal notranslate"><span class="pre">DEPTH</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">LATITUDE</span></code>, <code class="docutils literal notranslate"><span class="pre">LONGITUDE</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">degrees_north</span></code>, <code class="docutils literal notranslate"><span class="pre">degrees_east</span></code></p></td>
+<td><p>WGS84 (<code class="docutils literal notranslate"><span class="pre">EPSG::4326</span></code>), one value, from the mooring description.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="data-variables">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Data variables</a><a class="headerlink" href="#data-variables" title="Link to this heading"></a></h2>
+<p>Manual §2.5 and reference table 6.  Every parameter is on <code class="docutils literal notranslate"><span class="pre">(TIME,</span> <span class="pre">DEPTH)</span></code>, with
+<code class="docutils literal notranslate"><span class="pre">coordinates</span> <span class="pre">=</span> <span class="pre">&quot;TIME</span> <span class="pre">DEPTH</span> <span class="pre">LATITUDE</span> <span class="pre">LONGITUDE&quot;</span></code>, the stage-3 <code class="docutils literal notranslate"><span class="pre">standard_name</span></code>,
+<code class="docutils literal notranslate"><span class="pre">units</span></code> (oceanarray’s canonical spelling), <code class="docutils literal notranslate"><span class="pre">long_name</span></code> and valid range, and
+<code class="docutils literal notranslate"><span class="pre">DM_indicator</span></code>.  Deployment files add <code class="docutils literal notranslate"><span class="pre">ancillary_variables</span></code>, <code class="docutils literal notranslate"><span class="pre">processing_level</span></code> and
+the <code class="docutils literal notranslate"><span class="pre">sensor_*</span></code> attributes (model, serial number, calibration date, mount, orientation,
+data start and end).</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 15.0%" />
+<col style="width: 30.0%" />
+<col style="width: 55.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Code</p></th>
+<th class="head"><p>oceanarray variable</p></th>
+<th class="head"><p>Note</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">TEMP</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">CNDC</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">conductivity</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">PSAL</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">salinity</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PRES</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pressure</span></code> (ADCP: <code class="docutils literal notranslate"><span class="pre">bin_pressure</span></code>)</p></td>
+<td><p>measured, or interpolated from neighbouring instruments (flag 8); an ADCP also
+carries <code class="docutils literal notranslate"><span class="pre">TRANSDUCER_PRES(TIME)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">UCUR</span></code>, <code class="docutils literal notranslate"><span class="pre">VCUR</span></code>, <code class="docutils literal notranslate"><span class="pre">WCUR</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">east_velocity</span></code>, <code class="docutils literal notranslate"><span class="pre">north_velocity</span></code>, <code class="docutils literal notranslate"><span class="pre">up_velocity</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">WCUR</span></code> is not in reference table 6; it is the common name</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">CSPD</span></code>, <code class="docutils literal notranslate"><span class="pre">CDIR</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">current_speed</span></code>, <code class="docutils literal notranslate"><span class="pre">current_direction</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">DOX2</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dissolved_oxygen</span></code></p></td>
+<td><p>per unit mass</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">TURB</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">turbidity</span></code></p></td>
+<td><p>not in reference table 6</p></td>
+</tr>
+</tbody>
+</table>
+<p>Variables without a code (beam velocities, amplitude, tilt, <code class="docutils literal notranslate"><span class="pre">sigma0</span></code>) stay in the stage
+files and are not exported.</p>
+</section>
+<section id="quality-control">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Quality control</a><a class="headerlink" href="#quality-control" title="Link to this heading"></a></h2>
+<p>Manual §2.6 and reference table 2.  oceanarray’s flags already use table 2, so a
+deployment file’s <code class="docutils literal notranslate"><span class="pre">&lt;PARAM&gt;_QC</span></code> holds them unchanged (byte, <code class="docutils literal notranslate"><span class="pre">conventions</span> <span class="pre">=</span> <span class="pre">&quot;OceanSITES</span>
+<span class="pre">QC</span> <span class="pre">Flags&quot;</span></code>), with 9 wherever the value is missing.  An ADCP’s below-seabed flag, kept
+apart in stage 3, is merged into each velocity flag where it failed or was suspect (the
+worse flag is kept).  Gridded
+files carry no <code class="docutils literal notranslate"><span class="pre">_QC</span></code> variables (§4.2.1).</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 80.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Flag</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>unknown</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>good_data</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>probably_good_data</p></td>
+</tr>
+<tr class="row-odd"><td><p>3</p></td>
+<td><p>potentially_correctable_bad_data</p></td>
+</tr>
+<tr class="row-even"><td><p>4</p></td>
+<td><p>bad_data</p></td>
+</tr>
+<tr class="row-odd"><td><p>7</p></td>
+<td><p>nominal_value</p></td>
+</tr>
+<tr class="row-even"><td><p>8</p></td>
+<td><p>interpolated_value</p></td>
+</tr>
+<tr class="row-odd"><td><p>9</p></td>
+<td><p>missing_value</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="data-mode">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Data mode</a><a class="headerlink" href="#data-mode" title="Link to this heading"></a></h2>
+<p>Reference table 4.  <code class="docutils literal notranslate"><span class="pre">P</span></code> (provisional) unless the instrument entry in the mooring
+description records <code class="docutils literal notranslate"><span class="pre">D</span></code> after a manual review, which is accepted only when the stage-3
+file records the calibration-dip correction.  <code class="docutils literal notranslate"><span class="pre">data_mode</span></code> on the instrument entry is
+one letter or a mapping from variable name to letter.  The global <code class="docutils literal notranslate"><span class="pre">data_mode</span></code> is the
+single mode, or <code class="docutils literal notranslate"><span class="pre">M</span></code> when variables differ.  A grid records no per-input modes, so only
+a <code class="docutils literal notranslate"><span class="pre">P</span></code> grid is exported.</p>
+</section>
+<section id="global-attributes">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Global attributes</a><a class="headerlink" href="#global-attributes" title="Link to this heading"></a></h2>
+<p>Manual §2.2.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 35.0%" />
+<col style="width: 65.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Attribute</p></th>
+<th class="head"><p>Source</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">platform_code</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">platform_code</span></code> in the mooring description (required; no <code class="docutils literal notranslate"><span class="pre">_</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">site_code</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">site_code</span></code> in the array description; left out when absent, never invented</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">data_mode</span></code></p></td>
+<td><p>as above</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">id</span></code></p></td>
+<td><p>the file name without <code class="docutils literal notranslate"><span class="pre">.nc</span></code>; <code class="docutils literal notranslate"><span class="pre">naming_authority</span> <span class="pre">=</span> <span class="pre">&quot;OceanSITES&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">format_version</span></code>, <code class="docutils literal notranslate"><span class="pre">Conventions</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;1.4&quot;</span></code>; <code class="docutils literal notranslate"><span class="pre">&quot;CF-1.13,</span> <span class="pre">OceanSITES-1.4,</span> <span class="pre">ACDD-1.3&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">data_type</span></code>, <code class="docutils literal notranslate"><span class="pre">cdm_data_type</span></code>, <code class="docutils literal notranslate"><span class="pre">featureType</span></code>, <code class="docutils literal notranslate"><span class="pre">source</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;OceanSITES</span> <span class="pre">time-series</span> <span class="pre">data&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;Station&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;timeSeries&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;subsurface</span> <span class="pre">mooring&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">geospatial_*</span></code></p></td>
+<td><p>position from the mooring description; vertical range from <code class="docutils literal notranslate"><span class="pre">DEPTH</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">time_coverage_start</span></code>, <code class="docutils literal notranslate"><span class="pre">_end</span></code>, <code class="docutils literal notranslate"><span class="pre">_resolution</span></code></p></td>
+<td><p>from <code class="docutils literal notranslate"><span class="pre">TIME</span></code> (<code class="docutils literal notranslate"><span class="pre">YYYY-MM-DDThh:mm:ssZ</span></code>) and the sampling interval (ISO 8601)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">platform_deployment_*</span></code>, <code class="docutils literal notranslate"><span class="pre">platform_recovery_*</span></code></p></td>
+<td><p>date, ship and cruise from the mooring description</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sea_floor_depth_below_sea_surface</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">waterdepth</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">project</span></code></p></td>
+<td><p>the array description</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">history</span></code></p></td>
+<td><p>the stage-3 or grid file’s history, then a line naming the source file (and,
+for a gridded file, the stage files it was built from)</p></td>
+</tr>
+</tbody>
+</table>
+<p>Stage 1 cleans the people an imported file names (its <code class="docutils literal notranslate"><span class="pre">originator_*</span></code>
+attributes stay as given) and writes them as OceanSITES 1.4 lists:
+<code class="docutils literal notranslate"><span class="pre">principal_investigator</span></code>, <code class="docutils literal notranslate"><span class="pre">_email</span></code>, <code class="docutils literal notranslate"><span class="pre">_url</span></code>, <code class="docutils literal notranslate"><span class="pre">_id</span></code> separated by commas, and
+<code class="docutils literal notranslate"><span class="pre">contributor_name</span></code>, <code class="docutils literal notranslate"><span class="pre">_role</span></code>, <code class="docutils literal notranslate"><span class="pre">_email</span></code> separated by semicolons. Every parallel
+attribute has one entry per person and role (empty entries kept), and a contributor with two
+roles takes two entries. Reading an originator’s lists:</p>
+<ul class="simple">
+<li><p>each field is split on its own separator (<code class="docutils literal notranslate"><span class="pre">;</span></code> when it has one, else <code class="docutils literal notranslate"><span class="pre">,</span></code>);</p></li>
+<li><p>titles before or after a name are dropped (<code class="docutils literal notranslate"><span class="pre">&quot;Dr.</span> <span class="pre">Fiamma</span> <span class="pre">Straneo,</span> <span class="pre">Professor&quot;</span></code>
+is one person, <code class="docutils literal notranslate"><span class="pre">Fiamma</span> <span class="pre">Straneo</span></code>); <code class="docutils literal notranslate"><span class="pre">&quot;Surname,</span> <span class="pre">Given&quot;</span></code> is written <code class="docutils literal notranslate"><span class="pre">&quot;Given</span>
+<span class="pre">Surname&quot;</span></code>;</p></li>
+<li><p>a single role for several names goes to the first name, the others take a
+blank role (a warning; a role is never copied to every name); any other role,
+email, url or id without one entry per name is left out, with a warning (never
+guessed); a role joined by “and” is two roles, each its own entry (<code class="docutils literal notranslate"><span class="pre">&quot;data</span>
+<span class="pre">processing</span> <span class="pre">and</span> <span class="pre">interpretation&quot;</span></code>), and a principal-investigator role reads <code class="docutils literal notranslate"><span class="pre">PI</span></code>;</p></li>
+<li><p>the file’s creator and publisher join the contributors (roles <code class="docutils literal notranslate"><span class="pre">originator</span></code> and
+<code class="docutils literal notranslate"><span class="pre">publisher</span></code>); a file with no <code class="docutils literal notranslate"><span class="pre">principal_investigator</span></code> takes its PIs from the
+contributors whose role says principal investigator or PI;</p></li>
+<li><p>across files, two entries are one person when they share an id, or a name
+(titles, initials, case, dots and spaces aside), so a changed or mistyped email
+does not split a person; the newest email is kept; a blank-role entry merges
+into the same person’s other entry.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">contributor_name</span></code>, <code class="docutils literal notranslate"><span class="pre">_role</span></code> and <code class="docutils literal notranslate"><span class="pre">_email</span></code> are written whenever there is a
+contributor, an empty field as empty entries (<code class="docutils literal notranslate"><span class="pre">&quot;;</span> <span class="pre">;</span> <span class="pre">&quot;</span></code>), so the three always
+show the same count.</p>
+<p>The stack and the concatenated stack join these lists without repeats; they read
+them strictly and never clean them again. A stage file whose stage 1 predates this
+cleaning (no <code class="docutils literal notranslate"><span class="pre">stage1_oceanarray_version</span></code>) gives no people: the stack names it in
+<code class="docutils literal notranslate"><span class="pre">people_not_cleaned</span></code> and asks for a rerun from stage 1, and <code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">concat</span></code>
+refuses such a stack. An empty list from a newer stage 1 means the source named no
+one (the RODB files); the mooring YAML’s <code class="docutils literal notranslate"><span class="pre">people:</span></code> block then gives them, with a
+history line naming its <code class="docutils literal notranslate"><span class="pre">people_source</span></code>.</p>
+<section id="where-the-data-came-from">
+<h3>Where the data came from<a class="headerlink" href="#where-the-data-came-from" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">source_doi</span></code> (bare), <code class="docutils literal notranslate"><span class="pre">source_citation</span></code>, <code class="docutils literal notranslate"><span class="pre">source_license</span></code>,
+<code class="docutils literal notranslate"><span class="pre">source_acknowledgement</span></code>, <code class="docutils literal notranslate"><span class="pre">source_references</span></code> and <code class="docutils literal notranslate"><span class="pre">source_note</span></code> say where the
+data came from: the imported file’s own values, filled field by field from the
+mooring YAML’s <code class="docutils literal notranslate"><span class="pre">source:</span></code> block. Stage 1 writes them and every product carries them.
+The Stack cat keeps one value per deployment (<code class="docutils literal notranslate"><span class="pre">deployment_source_*</span></code> on
+<code class="docutils literal notranslate"><span class="pre">DEPLOYMENT</span></code>) and the joined, de-duplicated values as globals; deployments under
+different licenses are all kept, with a warning. Each stack, Stack cat, grid and Grid
+cat is cited as its sources are: <code class="docutils literal notranslate"><span class="pre">citation</span></code> is each source’s own citation, verbatim
+(followed by its DOI when the text lacks it), <code class="docutils literal notranslate"><span class="pre">license</span></code> lists each source license (a
+user must follow each), and <code class="docutils literal notranslate"><span class="pre">references</span></code> lists the source DOIs (<code class="docutils literal notranslate"><span class="pre">doi:</span></code>) and
+reference URLs, each once. How the product was made — “CF5_2020 stack built with
+oceanarray 0.6.1 from: …” — is a line in its <code class="docutils literal notranslate"><span class="pre">history</span></code>.</p>
+</section>
+<section id="sensor-records">
+<h3>Sensor records<a class="headerlink" href="#sensor-records" title="Link to this heading"></a></h3>
+<p>Each instrument is described by one dimensionless variable,
+<code class="docutils literal notranslate"><span class="pre">SENSOR_&lt;type&gt;_&lt;serial&gt;</span></code> (every MicroCAT <code class="docutils literal notranslate"><span class="pre">SENSOR_CTD_&lt;serial&gt;</span></code>), with the OG1
+attributes <code class="docutils literal notranslate"><span class="pre">sensor_type</span></code> (and <code class="docutils literal notranslate"><span class="pre">sensor_type_vocabulary</span></code>), <code class="docutils literal notranslate"><span class="pre">sensor_maker</span></code>,
+<code class="docutils literal notranslate"><span class="pre">sensor_model</span></code>, <code class="docutils literal notranslate"><span class="pre">sensor_serial_number</span></code> and <code class="docutils literal notranslate"><span class="pre">sensor_calibration_date</span></code>; each
+data variable names its record in <code class="docutils literal notranslate"><span class="pre">sensor</span></code>. A Sea-Bird header’s calibrations are
+kept per sensor: <code class="docutils literal notranslate"><span class="pre">sensor_calibration_date</span></code> is the latest, <code class="docutils literal notranslate"><span class="pre">sensor_calibration_dates</span></code>
+lists each (<code class="docutils literal notranslate"><span class="pre">&quot;temperature:</span> <span class="pre">2023-03-28;</span> <span class="pre">conductivity:</span> <span class="pre">2023-03-28&quot;</span></code>), and
+<code class="docutils literal notranslate"><span class="pre">&lt;sensor&gt;_calibration_coefficients</span></code> holds each sensor’s coefficients. An imported
+file’s own <code class="docutils literal notranslate"><span class="pre">sensor_*</span></code> attributes are kept on the record as <code class="docutils literal notranslate"><span class="pre">originator_sensor_*</span></code>
+(values that differ between its variables joined by <code class="docutils literal notranslate"><span class="pre">&quot;;</span> <span class="pre">&quot;</span></code>). The model comes from
+the mooring YAML’s <code class="docutils literal notranslate"><span class="pre">sensor_model</span></code> (with its <code class="docutils literal notranslate"><span class="pre">sensor_model_source</span></code>), else the file,
+else <code class="docutils literal notranslate"><span class="pre">UNK</span></code>; <code class="docutils literal notranslate"><span class="pre">sensor_metadata_source</span></code> says which. Nothing is inferred from the data.
+The stack keeps the records and names each level’s in <code class="docutils literal notranslate"><span class="pre">sensor(N_LEVELS)</span></code>; the Stack
+cat ends each record’s name with the deployment code (<code class="docutils literal notranslate"><span class="pre">SENSOR_CTD_13220_201806</span></code>),
+so an instrument recalibrated between deployments has a record per deployment.</p>
+</section>
+<section id="files-behind-a-product">
+<h3>Files behind a product<a class="headerlink" href="#files-behind-a-product" title="Link to this heading"></a></h3>
+<p>The stack records each level’s stage file and its SHA-256 (<code class="docutils literal notranslate"><span class="pre">stage_file</span></code>,
+<code class="docutils literal notranslate"><span class="pre">stage_sha256</span></code> on <code class="docutils literal notranslate"><span class="pre">N_LEVELS</span></code>, paths relative to the mooring directory); the grid
+records its stack (<code class="docutils literal notranslate"><span class="pre">stack_file</span></code>, <code class="docutils literal notranslate"><span class="pre">stack_sha256</span></code>); the Stack cat records each
+deployment’s stack (<code class="docutils literal notranslate"><span class="pre">stack_file</span></code>, <code class="docutils literal notranslate"><span class="pre">stack_sha256</span></code> on <code class="docutils literal notranslate"><span class="pre">DEPLOYMENT</span></code>) and the Grid
+cat its Stack cat (<code class="docutils literal notranslate"><span class="pre">stackcat_file</span></code>, <code class="docutils literal notranslate"><span class="pre">stackcat_sha256</span></code>). <code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">run</span></code>
+compares these to keep a stack or grid that is still current. A stack built from a
+mooring YAML with a <code class="docutils literal notranslate"><span class="pre">people:</span></code> or <code class="docutils literal notranslate"><span class="pre">source:</span></code> block also records
+<code class="docutils literal notranslate"><span class="pre">people_source_sha256</span></code>, the SHA-256 of the two blocks, so a later edit is noticed.</p>
+</section>
+<section id="which-oceanarray-wrote-a-file">
+<h3>Which oceanarray wrote a file<a class="headerlink" href="#which-oceanarray-wrote-a-file" title="Link to this heading"></a></h3>
+<p>Every file oceanarray writes (stage files, stack, grid, Stack cat, OceanSITES
+export) carries <code class="docutils literal notranslate"><span class="pre">oceanarray_version</span></code>. When the package runs from a git checkout,
+the version names the commit that ran: <code class="docutils literal notranslate"><span class="pre">0.6.0.post1.dev5+gf52121d</span></code> (<code class="docutils literal notranslate"><span class="pre">.dirty</span></code>
+appended with uncommitted changes); development builds before 0.6.1 wrote it in a
+separate <code class="docutils literal notranslate"><span class="pre">oceanarray_commit</span></code>. Each stage also keeps
+<code class="docutils literal notranslate"><span class="pre">stage&lt;n&gt;_oceanarray_version</span></code>, so a stage-3 file still says which code ran
+stage 1. <code class="docutils literal notranslate"><span class="pre">stage2_source_sha256</span></code> is the full SHA-256 of the stage-2 file.</p>
+<p>Every units change (a new spelling or a conversion) is recorded in the file’s
+<code class="docutils literal notranslate"><span class="pre">units_converted</span></code> attribute, JSON <code class="docutils literal notranslate"><span class="pre">{variable:</span> <span class="pre">{&quot;from&quot;,</span> <span class="pre">&quot;to&quot;,</span> <span class="pre">&quot;factor&quot;}}</span></code>,
+written at stage 1 and carried forward.</p>
+<p>Where a mooring-level value came from, or why it was corrected, is written beside
+it when the mooring YAML says so: <code class="docutils literal notranslate"><span class="pre">waterdepth_source</span></code>, <code class="docutils literal notranslate"><span class="pre">deployment_time_source</span></code>,
+<code class="docutils literal notranslate"><span class="pre">recovery_time_source</span></code>, <code class="docutils literal notranslate"><span class="pre">latitude_source</span></code>, <code class="docutils literal notranslate"><span class="pre">longitude_source</span></code> (stage 1 adds a
+history line, e.g. <code class="docutils literal notranslate"><span class="pre">waterdepth</span> <span class="pre">3125.0</span> <span class="pre">m</span> <span class="pre">from</span> <span class="pre">the</span> <span class="pre">mooring</span> <span class="pre">YAML:</span> <span class="pre">&lt;source&gt;</span></code>). The
+stack carries them, and the Stack cat lists them per deployment beside the record
+variable (<code class="docutils literal notranslate"><span class="pre">deployment_waterdepth_source</span></code>, <code class="docutils literal notranslate"><span class="pre">deployment_time_source</span></code>, …; an
+empty string for a deployment that gives none). The values themselves are the
+YAML’s, as without a source.</p>
+</section>
+<section id="quality-flags">
+<h3>Quality flags<a class="headerlink" href="#quality-flags" title="Link to this heading"></a></h3>
+<p>Our flag table is OceanSITES 1.4 reference table 2 with one extension: <strong>5
+value_changed</strong>, set only where an originator flag says its QC modified the value
+(flag variables that can hold it say so in their <code class="docutils literal notranslate"><span class="pre">comment</span></code>). 6 is unused; 7 and 8
+are set only by oceanarray.</p>
+<ul class="simple">
+<li><p>Stage 1 keeps the originator’s flags as written: <code class="docutils literal notranslate"><span class="pre">&lt;var&gt;_qc_originator</span></code> (from
+<code class="docutils literal notranslate"><span class="pre">&lt;CODE&gt;_QC</span></code>, or a <code class="docutils literal notranslate"><span class="pre">&lt;CODE&gt;_flag</span></code> flag variable whose words we know), with
+<code class="docutils literal notranslate"><span class="pre">originator_flag_variable</span></code>.</p></li>
+<li><p>Stage 3 translates them by meaning into <code class="docutils literal notranslate"><span class="pre">&lt;var&gt;_qc_originator_mapped</span></code> (our table),
+with <code class="docutils literal notranslate"><span class="pre">originator_flag_meanings</span></code> (their words), <code class="docutils literal notranslate"><span class="pre">flag_translation</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;3</span>
+<span class="pre">appears_probably_bad</span> <span class="pre">-&gt;</span> <span class="pre">3;</span> <span class="pre">...&quot;</span></code>) and <code class="docutils literal notranslate"><span class="pre">flag_translation_counts</span></code> (JSON, samples
+per originator number). A file with no originator flags has
+<code class="docutils literal notranslate"><span class="pre">originator_flag_meanings</span> <span class="pre">=</span> <span class="pre">&quot;none&quot;</span></code>. Our <code class="docutils literal notranslate"><span class="pre">&lt;var&gt;_qc</span></code> is separate; neither
+overwrites the other. Each QC’d variable gets <code class="docutils literal notranslate"><span class="pre">processing_level</span></code> (OceanSITES
+reference table 3).</p></li>
+<li><p>The stack keeps every value with both flag sets (int8): a value with no flag
+variable is 0, a step with no value is 9. Each level has <code class="docutils literal notranslate"><span class="pre">&lt;var&gt;_flag_translation</span></code>
+and <code class="docutils literal notranslate"><span class="pre">&lt;var&gt;_flag_translation_counts</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;none&quot;</span></code> without originator flags). The
+rule for what the pages hide and the grid leaves out is <code class="docutils literal notranslate"><span class="pre">stack_mask_flags</span></code> (JSON,
+<code class="docutils literal notranslate"><span class="pre">{&quot;default&quot;:</span> <span class="pre">[4]}</span></code>), with <code class="docutils literal notranslate"><span class="pre">stack_mask_flag_sources</span></code>. The Stack cat carries the
+site’s rule and each deployment’s in <code class="docutils literal notranslate"><span class="pre">deployment_stack_mask_flags</span></code>.</p></li>
+<li><p>Interpolated pressure records the flags of its inputs in <code class="docutils literal notranslate"><span class="pre">pressure_source_flags</span></code>.</p></li>
+</ul>
+<p>Every grid records the QC flags it left out before gridding in <code class="docutils literal notranslate"><span class="pre">grid_mask_flags</span></code>
+(JSON, <code class="docutils literal notranslate"><span class="pre">{&quot;default&quot;:</span> <span class="pre">[4],</span> <span class="pre">&quot;velocity&quot;:</span> <span class="pre">[3,</span> <span class="pre">4]}</span></code>): the stack’s rule and anything
+<code class="docutils literal notranslate"><span class="pre">grid:</span> <span class="pre">mask_flags</span></code> adds. A site grid
+(<code class="docutils literal notranslate"><span class="pre">&lt;site&gt;_gridcat.nc</span></code>) also records its site stack (<code class="docutils literal notranslate"><span class="pre">stackcat_file</span></code>,
+<code class="docutils literal notranslate"><span class="pre">stackcat_sha256</span></code>); the direction its page rotates the velocity to is the
+page’s choice, not the file’s. The rest
+of the attribution (<code class="docutils literal notranslate"><span class="pre">creator_*</span></code>, <code class="docutils literal notranslate"><span class="pre">institution</span></code>, <code class="docutils literal notranslate"><span class="pre">citation</span></code>, <code class="docutils literal notranslate"><span class="pre">license</span></code>,
+<code class="docutils literal notranslate"><span class="pre">references</span></code>) is not written yet; it will come from the array description.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sensor_catalog.html" class="btn btn-neutral float-left" title="The sensor catalog" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="oceanSITES_manual.html" class="btn btn-neutral float-right" title="OceanSITES Data Format Reference Manual" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,351 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.location &mdash; oceanarray 0.6.0.post1.dev20 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8cc63a81"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.location</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.location</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Geographic position of a mooring: parse and format latitude and longitude."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_dms</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Parse 'DD MM.mmm N/S/E/W', signed 'DD MM.mmm' or a float to decimal degrees."""</span>
+    <span class="c1"># The sign applies to the whole magnitude: "-27 48.000" is -(27 + 48/60) = -27.8,</span>
+    <span class="c1"># not -27 + 48/60. A leading minus and a trailing S/W are equivalent markers.</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">hemi</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"N"</span><span class="p">,</span> <span class="s2">"S"</span><span class="p">,</span> <span class="s2">"E"</span><span class="p">,</span> <span class="s2">"W"</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">nums</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">hemi</span> <span class="k">else</span> <span class="n">parts</span>
+    <span class="n">negative</span> <span class="o">=</span> <span class="n">nums</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"-"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">hemi</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"S"</span><span class="p">,</span> <span class="s2">"W"</span><span class="p">)</span>
+    <span class="n">magnitude</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">/</span> <span class="mf">60.0</span><span class="o">**</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nums</span><span class="p">))</span>
+    <span class="k">return</span> <span class="o">-</span><span class="n">magnitude</span> <span class="k">if</span> <span class="n">negative</span> <span class="k">else</span> <span class="n">magnitude</span>
+
+
+<div class="viewcode-block" id="parse_coordinate">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.location.parse_coordinate">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_coordinate</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Parse one latitude or longitude value to signed decimal degrees.</span>
+
+<span class="sd">    Accepts a number, a decimal-degree string (``"-40.2772"``), or degrees and</span>
+<span class="sd">    decimal minutes with an optional hemisphere letter (``"65 43.913 N"``,</span>
+<span class="sd">    ``"-27 48.000"``); a leading minus and a trailing ``S``/``W`` are equivalent.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : Any</span>
+<span class="sd">        The value as given in a description (number or string).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float or None</span>
+<span class="sd">        Decimal degrees, or None when the value is absent (None or empty),</span>
+<span class="sd">        unparseable, or not finite (``nan``, ``inf``).</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">""</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">_parse_dms</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">parsed</span> <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">parsed</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="format_latlon">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.location.format_latlon">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">format_latlon</span><span class="p">(</span><span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">ndp</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return (lat, lon) as hemisphere-suffixed strings from signed decimal degrees.</span>
+
+<span class="sd">    The sign selects the hemisphere and the magnitude is shown unsigned, so a</span>
+<span class="sd">    formatted value can never carry both a minus sign and a hemisphere letter</span>
+<span class="sd">    (e.g. the malformed ``"-27.8 W"``).  Latitude uses ``N``/``S``, longitude</span>
+<span class="sd">    ``E``/``W``; a value of exactly 0 is rendered on the positive hemisphere.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lat, lon : float</span>
+<span class="sd">        Latitude and longitude in signed decimal degrees.</span>
+<span class="sd">    ndp : int, optional</span>
+<span class="sd">        Number of decimal places for the magnitude (default 4 ≈ 11 m).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[str, str]</span>
+<span class="sd">        ``(lat_str, lon_str)``, e.g. ``("65.7319° N", "27.8000° W")``.</span>
+
+<span class="sd">    """</span>
+    <span class="n">lat_hemi</span> <span class="o">=</span> <span class="s2">"N"</span> <span class="k">if</span> <span class="n">lat</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">"S"</span>
+    <span class="n">lon_hemi</span> <span class="o">=</span> <span class="s2">"E"</span> <span class="k">if</span> <span class="n">lon</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">"W"</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">abs</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span><span class="si">:</span><span class="s2">.</span><span class="si">{</span><span class="n">ndp</span><span class="si">}</span><span class="s2">f</span><span class="si">}</span><span class="s2">° </span><span class="si">{</span><span class="n">lat_hemi</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">abs</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span><span class="si">:</span><span class="s2">.</span><span class="si">{</span><span class="n">ndp</span><span class="si">}</span><span class="s2">f</span><span class="si">}</span><span class="s2">° </span><span class="si">{</span><span class="n">lon_hemi</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="format_ddm">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.location.format_ddm">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">format_ddm</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">is_lat</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a position as degrees and decimal minutes with a hemisphere letter.</span>
+
+<span class="sd">    The value is rounded once, to the nearest hundredth of a minute, and only then</span>
+<span class="sd">    split into degrees and minutes, so the minutes never read ``60.00′`` (64.99992</span>
+<span class="sd">    gives ``65° 00.00′ N``, not ``64° 60.00′ N``). A value that rounds to zero takes</span>
+<span class="sd">    the positive hemisphere (``N`` or ``E``), never ``S`` or ``W``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : float</span>
+<span class="sd">        Latitude or longitude in signed decimal degrees.</span>
+<span class="sd">    is_lat : bool</span>
+<span class="sd">        True for a latitude (two-digit degrees, ``N``/``S``); False for a</span>
+<span class="sd">        longitude (three-digit degrees, ``E``/``W``).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        For example ``"65° 43.91′ N"`` or ``"027° 48.00′ W"``.</span>
+
+<span class="sd">    """</span>
+    <span class="n">hundredths</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">*</span> <span class="mi">6000</span><span class="p">)</span>  <span class="c1"># whole hundredths of a minute</span>
+    <span class="n">deg</span><span class="p">,</span> <span class="n">hundredths</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">hundredths</span><span class="p">,</span> <span class="mi">6000</span><span class="p">)</span>
+    <span class="n">pos</span><span class="p">,</span> <span class="n">neg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"N"</span><span class="p">,</span> <span class="s2">"S"</span><span class="p">)</span> <span class="k">if</span> <span class="n">is_lat</span> <span class="k">else</span> <span class="p">(</span><span class="s2">"E"</span><span class="p">,</span> <span class="s2">"W"</span><span class="p">)</span>
+    <span class="n">hemi</span> <span class="o">=</span> <span class="n">neg</span> <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="p">(</span><span class="n">deg</span> <span class="ow">or</span> <span class="n">hundredths</span><span class="p">)</span> <span class="k">else</span> <span class="n">pos</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">deg</span><span class="si">:</span><span class="s2">0</span><span class="si">{</span><span class="mi">2</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">is_lat</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="mi">3</span><span class="si">}</span><span class="s2">d</span><span class="si">}</span><span class="s2">° </span><span class="si">{</span><span class="n">hundredths</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">05.2f</span><span class="si">}</span><span class="s2">′ </span><span class="si">{</span><span class="n">hemi</span><span class="si">}</span><span class="s2">"</span></div>
+
+
+
+<span class="n">LATLON_UNKNOWN_SOURCE</span> <span class="o">=</span> <span class="s2">"unknown (defaulting to 0, 0)"</span>
+
+<span class="c1">#: Position key pairs of a description, in the order they are tried.</span>
+<span class="n">LATLON_KEY_PAIRS</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="s2">"seabed_latitude"</span><span class="p">,</span> <span class="s2">"seabed_longitude"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"deployment_latitude"</span><span class="p">,</span> <span class="s2">"deployment_longitude"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"planned_latitude"</span><span class="p">,</span> <span class="s2">"planned_longitude"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"latitude"</span><span class="p">,</span> <span class="s2">"longitude"</span><span class="p">),</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="parse_latlon">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.location.parse_latlon">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_latlon</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return (lat, lon) in decimal degrees from a mooring config dict.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cfg : dict</span>
+<span class="sd">        Mooring configuration dictionary (from a ``.mooring.yaml`` file).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[float, float]</span>
+<span class="sd">        ``(latitude, longitude)`` in decimal degrees.</span>
+
+<span class="sd">    """</span>
+    <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">parse_latlon_with_source</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span></div>
+
+
+
+<div class="viewcode-block" id="is_unknown_latlon_source">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.location.is_unknown_latlon_source">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_unknown_latlon_source</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return True if *source* is the no-position sentinel from :func:`parse_latlon_with_source`."""</span>
+    <span class="k">return</span> <span class="n">source</span> <span class="o">==</span> <span class="n">LATLON_UNKNOWN_SOURCE</span></div>
+
+
+
+<div class="viewcode-block" id="parse_latlon_with_source">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.location.parse_latlon_with_source">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_latlon_with_source</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return (lat, lon, source_key) from a mooring config dict.</span>
+
+<span class="sd">    source_key is the YAML key pair used, e.g. ``'seabed_latitude/seabed_longitude'``,</span>
+<span class="sd">    or :data:`LATLON_UNKNOWN_SOURCE` if none found.</span>
+
+<span class="sd">    Latitude and longitude always come from the same key pair. Zero values</span>
+<span class="sd">    (lat == 0 and lon == 0) are treated as unfilled placeholders, and a pair with</span>
+<span class="sd">    a value that does not parse or is not finite (``nan``) as unknown; either way</span>
+<span class="sd">    the pair is skipped so that a later pair with a real location is used instead.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cfg : dict</span>
+<span class="sd">        Mooring configuration dictionary (from a ``.mooring.yaml`` file).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[float, float, str]</span>
+<span class="sd">        ``(latitude, longitude, source_key)`` where source_key identifies which</span>
+<span class="sd">        YAML key pair was used.</span>
+
+<span class="sd">    """</span>
+    <span class="k">for</span> <span class="n">lat_key</span><span class="p">,</span> <span class="n">lon_key</span> <span class="ow">in</span> <span class="n">LATLON_KEY_PAIRS</span><span class="p">:</span>
+        <span class="n">lat_v</span> <span class="o">=</span> <span class="n">parse_coordinate</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">lat_key</span><span class="p">))</span>
+        <span class="n">lon_v</span> <span class="o">=</span> <span class="n">parse_coordinate</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">lon_key</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">lat_v</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">lon_v</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>  <span class="c1"># absent, unparseable or non-finite: try the next pair</span>
+        <span class="k">if</span> <span class="n">lat_v</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">lon_v</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">continue</span>  <span class="c1"># treat (0, 0) as an unfilled placeholder</span>
+        <span class="k">return</span> <span class="n">lat_v</span><span class="p">,</span> <span class="n">lon_v</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">lat_key</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">lon_key</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">return</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">LATLON_UNKNOWN_SOURCE</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

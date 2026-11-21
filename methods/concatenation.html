@@ -1,0 +1,295 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Concatenate Deployments &mdash; oceanarray 0.6.0.post1.dev20 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8cc63a81"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="OceanSITES export" href="oceansites_export.html" />
+    <link rel="prev" title="Grid: pressure levels" href="vertical_gridding.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Several deployments of a site</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-it-does">What it does</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#depths">Depths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-report">The report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-site-grid">The site grid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rapid">RAPID</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Concatenate Deployments</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/methods/concatenation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="concatenate-deployments">
+<h1>Concatenate Deployments<a class="headerlink" href="#concatenate-deployments" title="Link to this heading"></a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">concat</span></code> joins the stacks of one site’s deployments (e.g. egM2 2016–2018
+and 2018–2020) end to end on one time axis. Each deployment keeps its own stage files,
+stack, grid and report; the concatenated stack (<code class="docutils literal notranslate"><span class="pre">&lt;site&gt;_stackcat.nc</span></code>) and its page
+(<code class="docutils literal notranslate"><span class="pre">&lt;site&gt;_stackcat_report.html</span></code>) are a layer on top.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>oceanarray<span class="w"> </span>concat<span class="w"> </span>egM2_2016<span class="w"> </span>egM2_2018<span class="w"> </span>--name<span class="w"> </span>egM2<span class="w"> </span>--proc-dir<span class="w"> </span>/data/proc
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">oa</span>
+
+<span class="n">site</span> <span class="o">=</span> <span class="n">oa</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">stack_2016</span><span class="p">,</span> <span class="n">stack_2018</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">"egM2"</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="what-it-does">
+<h2>What it does<a class="headerlink" href="#what-it-does" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Every level of every deployment is kept.</strong> A level is one instrument (or one
+ADCP bin) in one deployment. Serials repeat across deployments, so <code class="docutils literal notranslate"><span class="pre">level_id</span></code>
+(<code class="docutils literal notranslate"><span class="pre">&lt;deployment&gt;/&lt;serial&gt;</span></code>) names each level.</p></li>
+<li><p><strong>Stored by depth.</strong> The time series are on <code class="docutils literal notranslate"><span class="pre">(time,</span> <span class="pre">N_DEPTHS)</span></code>: a <em>depth</em> holds
+the levels at about the same depth across deployments (see Depths), so one
+depth is one column through the years. <code class="docutils literal notranslate"><span class="pre">level_index(time,</span> <span class="pre">N_DEPTHS)</span></code> names the
+level behind each value (−1: none); a depth is empty (NaN, QC flag 9) outside its
+levels’ deployments.</p></li>
+<li><p><strong>Nothing is filled across a turnaround.</strong> The steps between two deployments stay
+empty; <code class="docutils literal notranslate"><span class="pre">deployment_index(time)</span></code> is −1 there.</p></li>
+<li><p><strong>Overlaps lose nothing.</strong> Where two deployments are in the water at once, the
+newer one fills the depth (<code class="docutils literal notranslate"><span class="pre">overlap=&quot;older&quot;</span></code> for the other way round) and the
+other’s values go to the <em>overlap block</em> on <code class="docutils literal notranslate"><span class="pre">N_OVERLAP</span></code>: <code class="docutils literal notranslate"><span class="pre">overlap_time</span></code>,
+<code class="docutils literal notranslate"><span class="pre">overlap_depth_index</span></code>, <code class="docutils literal notranslate"><span class="pre">overlap_level_index</span></code> and <code class="docutils literal notranslate"><span class="pre">overlap_&lt;variable&gt;</span></code>.</p></li>
+<li><p><strong>One time step.</strong> The stacks must share <code class="docutils literal notranslate"><span class="pre">stack:</span> <span class="pre">dt_seconds</span></code> and sit on whole
+steps (any stack made by oceanarray 0.6 or later); otherwise <code class="docutils literal notranslate"><span class="pre">concat</span></code> refuses.</p></li>
+<li><p><strong>A record per deployment</strong> on the <code class="docutils literal notranslate"><span class="pre">DEPLOYMENT</span></code> dimension: name, deployment
+and recovery time, position, water depth, cruises and ships, the source stack’s
+file name and SHA-256, its <code class="docutils literal notranslate"><span class="pre">history</span></code>, the settings that built it
+(<code class="docutils literal notranslate"><span class="pre">deployment_settings</span></code>, YAML) and its people. A stack attribute the
+deployments agree on is kept once; one that differs becomes a
+<code class="docutils literal notranslate"><span class="pre">deployment_&lt;name&gt;</span></code> variable.</p></li>
+<li><p><strong>People.</strong> <code class="docutils literal notranslate"><span class="pre">principal_investigator*</span></code> and <code class="docutils literal notranslate"><span class="pre">contributor_*</span></code> (OceanSITES 1.4:
+commas between PIs, semicolons between contributors, one entry per person and
+role in every parallel attribute) are the union of every deployment’s, without
+repeats; a contributor with two roles has two entries. See <a class="reference internal" href="../oceanarray_format.html"><span class="doc">Output files</span></a>.</p></li>
+<li><p><strong>Memory.</strong> Each variable of each stack is read once and placed by integer
+slicing, so the peak is about the result plus one variable of one stack. The file
+is chunked by about a year along time.</p></li>
+</ul>
+</section>
+<section id="depths">
+<h2>Depths<a class="headerlink" href="#depths" title="Link to this heading"></a></h2>
+<p>A level joins the nearest depth of its family (hydrography: MicroCATs, temperature
+loggers and CTDs; point velocity: Aquadopps and current meters; ADCP bins; ADCP
+heads, which never share a depth with a bin) within the depth tolerance of that
+depth’s center (the mean of its levels so far), at most one level per deployment;
+otherwise it opens a new depth. The tolerance is <code class="docutils literal notranslate"><span class="pre">depth_tolerance_m</span></code> (default
+50 m), or half the bin size for ADCP bins. A level that ends up farther than the
+tolerance from its depth’s final center is named in a warning.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Depth indices are not stable. Adding a deployment or changing the matching rule
+renumbers them, so nothing should read an index as a depth: a depth’s value is
+<code class="docutils literal notranslate"><span class="pre">nominal_depth</span></code> (the mean nominal depth of its levels). The report names each
+depth by its value.</p>
+</div>
+<p>The rule is set in each mooring YAML’s <code class="docutils literal notranslate"><span class="pre">stack:</span></code> block and must agree across the
+deployments:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stack</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">dt_seconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3600</span>
+<span class="w">  </span><span class="nt">depth_match</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">depth</span><span class="w">        </span><span class="c1"># depth (water depth − hab) or hab; default depth</span>
+<span class="w">  </span><span class="nt">depth_tolerance_m</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span><span class="w">     </span><span class="c1"># default 50</span>
+</pre></div>
+</div>
+</section>
+<section id="the-report">
+<h2>The report<a class="headerlink" href="#the-report" title="Link to this heading"></a></h2>
+<p>The concatenated page mirrors the stack page: a Deployments table (each linking to
+its own stack report), the processing history (the concat step, then each
+deployment’s), the instruments by depth (each serial linking to its instrument
+page), hydrography and velocity with the turnarounds shaded, trajectories and
+current speed per depth, T-S diagrams colored by deployment, and current roses with
+one outline per deployment. Tilt, instrument spacing and the clock check stay in each
+deployment’s own report.</p>
+<p>The links look for each deployment’s reports in the <code class="docutils literal notranslate"><span class="pre">report</span></code> folder beside its
+stack, or in <code class="docutils literal notranslate"><span class="pre">&lt;DIR&gt;/&lt;deployment&gt;</span></code> with <code class="docutils literal notranslate"><span class="pre">--report-dir</span> <span class="pre">DIR</span></code> (<code class="docutils literal notranslate"><span class="pre">report_dir=</span></code> in
+Python).</p>
+</section>
+<section id="the-site-grid">
+<h2>The site grid<a class="headerlink" href="#the-site-grid" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">concat</span></code> then grids the Stack cat onto pressure levels with the same
+gridder as a deployment’s grid (<code class="docutils literal notranslate"><span class="pre">oceanarray.grid</span></code>), one mooring per profile: at
+each step only the levels of the deployment <code class="docutils literal notranslate"><span class="pre">deployment_index</span></code> names are
+interpolated, so a profile never mixes two moorings; the overlap block is not
+gridded and turnarounds stay empty. The file, <code class="docutils literal notranslate"><span class="pre">&lt;site&gt;_gridcat.nc</span></code>, keeps the
+stack’s time step, <code class="docutils literal notranslate"><span class="pre">deployment_index</span></code> and the <code class="docutils literal notranslate"><span class="pre">DEPLOYMENT</span></code> record. The
+settings come from the call (<code class="docutils literal notranslate"><span class="pre">--pmin</span></code>, <code class="docutils literal notranslate"><span class="pre">--pmax</span></code>, <code class="docutils literal notranslate"><span class="pre">--dp</span></code>, <code class="docutils literal notranslate"><span class="pre">--mask-flags</span></code>),
+not from the deployments’ YAMLs, and are recorded in the file.</p>
+<p>The site stack takes the deployments’ <code class="docutils literal notranslate"><span class="pre">mask_flags</span></code> rule; when they differ,
+<code class="docutils literal notranslate"><span class="pre">--mask-flags</span></code> must give the site’s (each deployment’s own stays in
+<code class="docutils literal notranslate"><span class="pre">deployment_stack_mask_flags</span></code>). A deployment without the originator’s flags reads 0
+where it has values. Before gridding, values the rule hides are left out (default 4;
+<code class="docutils literal notranslate"><span class="pre">velocity=3,4</span></code> adds suspect velocity). The Grid cat page rotates the velocity to
+<code class="docutils literal notranslate"><span class="pre">--rotate-to</span></code> (not recorded in the file), else to the direction of the record-mean,
+depth-mean velocity, used only when the flow is steady enough to have one (the speed
+of the mean daily velocity over the mean daily speed at least 0.3; otherwise no
+rotated panels, and a warning). The pressure range is <code class="docutils literal notranslate"><span class="pre">--pmin</span></code> / <code class="docutils literal notranslate"><span class="pre">--pmax</span></code>,
+else from the 5th percentile of the shallowest depth’s pressure to the 95th of the
+deepest’s, so an instrument riding above or below its usual depth stays on the grid. Each deployment’s own <code class="docutils literal notranslate"><span class="pre">grid:</span></code> settings are not
+used; a deployment whose settings differ is named in a warning. Current speed and
+direction are computed from the gridded east and north velocity.</p>
+<p>Its page, <code class="docutils literal notranslate"><span class="pre">&lt;site&gt;_gridcat_report.html</span></code> (the “Grid cat” pill beside “Stack cat”),
+shows pressure × time sections of temperature and salinity with σ0 and σ2
+isopycnals, their anomalies from the whole-record median at each level, the median
+profile of each deployment, the velocity sections (east, north, and the rotated
+pair, cropped to the pressures with velocity data at the same dbar per inch
+as the T and S sections) and a T-S diagram of the median profiles. The sections are
+averaged for display (daily for a record under a year, weekly under 3, 2-weekly
+under 20, monthly beyond), in bins that restart at each deployment’s start, so no
+bin spans two deployments and a step between them shows as a sharp edge; the file
+itself is not averaged.</p>
+</section>
+<section id="rapid">
+<h2>RAPID<a class="headerlink" href="#rapid" title="Link to this heading"></a></h2>
+<p>RAPID gridded each deployment first and then interpolated the segments onto one
+time axis, filling short gaps between deployments; oceanarray joins the stacks and
+fills nothing. See <a class="reference internal" href="../rapid_heritage.html"><span class="doc">RAPID heritage</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="vertical_gridding.html" class="btn btn-neutral float-left" title="Grid: pressure levels" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="oceansites_export.html" class="btn btn-neutral float-right" title="OceanSITES export" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,838 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.pipeline.calibration.stops &mdash; oceanarray 0.6.0.post1.dev20 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=8cc63a81"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../pipeline.html">oceanarray.pipeline</a></li>
+          <li class="breadcrumb-item"><a href="../calibration.html">oceanarray.pipeline.calibration</a></li>
+      <li class="breadcrumb-item active">oceanarray.pipeline.calibration.stops</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.pipeline.calibration.stops</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Reduce one dip's bottle stops to the number a correction applies, per variable.</span>
+
+<span class="sd">caldip gives, for each instrument and bottle stop, the instrument and CTD values and their</span>
+<span class="sd">difference (``instrument − CTD``). This module chooses which stops count and reduces them to</span>
+<span class="sd">one offset — or, for conductivity, one Sea-Bird AN31 slope — per dip. Combining the two dips</span>
+<span class="sd">of a deployment and applying the result happen elsewhere.</span>
+
+<span class="sd">Two schemes (the mooring YAML ``caldip.scheme``):</span>
+
+<span class="sd">``standard``</span>
+<span class="sd">    temperature: the offset at the deepest usable stop; conductivity: the AN31 slope through</span>
+<span class="sd">    the origin over the deep, stable stops; pressure: the mean offset at the stops near the</span>
+<span class="sd">    deployment pressure.</span>
+<span class="sd">``rapid``</span>
+<span class="sd">    reproduces the RAPID MicroCAT processing: temperature and conductivity offsets averaged</span>
+<span class="sd">    over a deep pressure interval after interpolating the stop differences onto a 20-dbar</span>
+<span class="sd">    grid; pressure interpolated to the deployment pressure, refused when that is deeper than</span>
+<span class="sd">    the cast.</span>
+
+<span class="sd">Every function works on one instrument's record</span>
+<span class="sd">(:func:`~oceanarray.pipeline.calibration.caldip.instrument_record`) and returns a</span>
+<span class="sd">:class:`Reduction` — with ``value`` NaN and a ``reason`` when the dip cannot give one.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.calibration.caldip</span><span class="w"> </span><span class="kn">import</span> <span class="n">CALDIP_FLAG_OK</span><span class="p">,</span> <span class="n">CALDIP_FLAGS_USABLE</span>
+
+<span class="c1">#: oceanarray's variable name → caldip's short stem.</span>
+<span class="n">STEMS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"temperature"</span><span class="p">:</span> <span class="s2">"temp"</span><span class="p">,</span>
+    <span class="s2">"conductivity"</span><span class="p">:</span> <span class="s2">"cond"</span><span class="p">,</span>
+    <span class="s2">"pressure"</span><span class="p">:</span> <span class="s2">"press"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1">#: Conductivity slope, ``standard``: stops deeper than this count when at least two qualify …</span>
+<span class="n">DEEP_STOP_DBAR</span> <span class="o">=</span> <span class="mf">500.0</span>
+<span class="c1">#: … otherwise stops deeper than this; a stop shallower than this never counts.</span>
+<span class="n">SHALLOWEST_STOP_DBAR</span> <span class="o">=</span> <span class="mf">200.0</span>
+<span class="c1">#: ``standard``: the largest CTD standard deviation at a stop for it to count as stable water,</span>
+<span class="c1">#: per variable (the CTD's ``ctd_&lt;var&gt;_std``; from caldip schema 2). Pressure has none: its</span>
+<span class="c1">#: scatter at a stop is ship heave, not the water.</span>
+<span class="n">STABLE_CTD_STD</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"temperature"</span><span class="p">:</span> <span class="mf">0.002</span><span class="p">,</span> <span class="s2">"conductivity"</span><span class="p">:</span> <span class="mf">0.003</span><span class="p">}</span>
+<span class="c1">#: Pressure, ``standard``: stops within this distance of the deployment pressure are averaged;</span>
+<span class="c1">#: with none, the single nearest stop is used (provisional).</span>
+<span class="n">PRESSURE_WINDOW_DBAR</span> <span class="o">=</span> <span class="mf">200.0</span>
+<span class="c1">#: ``rapid``: the pressure grid the stop differences are interpolated onto.</span>
+<span class="n">RAPID_GRID_DBAR</span> <span class="o">=</span> <span class="mf">20.0</span>
+<span class="c1">#: ``rapid``: RAPID holds the deepest stop's difference constant this far below it.</span>
+<span class="n">RAPID_EXTEND_DBAR</span> <span class="o">=</span> <span class="mf">100.0</span>
+<span class="c1">#: ``rapid``: default width of the deep averaging interval, ending at the deepest stop</span>
+<span class="c1">#: (provisional; RAPID set it by hand, e.g. 3500–5050 dbar at 26°N).</span>
+<span class="n">RAPID_INTERVAL_DBAR</span> <span class="o">=</span> <span class="mf">500.0</span>
+
+
+<div class="viewcode-block" id="Reduction">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.calibration.stops.Reduction">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Reduction</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One dip's correction for one instrument variable.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    variable : str</span>
+<span class="sd">        ``"temperature"``, ``"conductivity"`` or ``"pressure"``.</span>
+<span class="sd">    kind : str</span>
+<span class="sd">        ``"offset"`` (subtract it) or ``"slope"`` (multiply by it).</span>
+<span class="sd">    value : float</span>
+<span class="sd">        The offset (variable units, ``instrument − CTD``) or the slope (dimensionless);</span>
+<span class="sd">        NaN when the dip gives none.</span>
+<span class="sd">    rule : str</span>
+<span class="sd">        The rule that produced it, in words, for the provenance attributes.</span>
+<span class="sd">    stop_pressures : tuple of float</span>
+<span class="sd">        CTD pressure (dbar) of each stop used.</span>
+<span class="sd">    n : int</span>
+<span class="sd">        Number of stops used.</span>
+<span class="sd">    sigma : float</span>
+<span class="sd">        Standard error of a slope (NaN for an offset, or a slope from one stop).</span>
+<span class="sd">    residual : float</span>
+<span class="sd">        RMS of ``β − slope·α`` over the stops used (NaN for an offset).</span>
+<span class="sd">    reason : str</span>
+<span class="sd">        Why ``value`` is NaN; empty when it is not.</span>
+<span class="sd">    source_tracking_id : str</span>
+<span class="sd">        ``tracking_id`` of the caldip cast.</span>
+<span class="sd">    extra : dict</span>
+<span class="sd">        Further facts for the provenance attributes (e.g. the conductivity range of the</span>
+<span class="sd">        stops a slope was fitted over).</span>
+
+<span class="sd">    """</span>
+
+    <span class="n">variable</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">value</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">rule</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">stop_pressures</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"nan"</span><span class="p">)</span>
+    <span class="n">residual</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"nan"</span><span class="p">)</span>
+    <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="n">source_tracking_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="n">extra</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">compare</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">available</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""True when the dip gave a value."""</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="usable_stops">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.calibration.stops.usable_stops">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">usable_stops</span><span class="p">(</span><span class="n">record</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">variable</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a mask of the stops usable for one variable.</span>
+
+<span class="sd">    A stop is usable when its difference and CTD pressure are finite and its caldip flag says</span>
+<span class="sd">    the comparison exists: ``ok`` — and, in a schema-1 cast, also ``flagged``, which there</span>
+<span class="sd">    only means the instrument reads off by more than caldip's acceptance tolerance (what a</span>
+<span class="sd">    correction is for). ``no_data``, ``missing`` and ``unknown`` stops are not used. Whether</span>
+<span class="sd">    the water at a stop was stable enough is decided separately (:func:`stable_stops`).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    record : xarray.Dataset</span>
+<span class="sd">        One instrument's record, indexed over ``stop``.</span>
+<span class="sd">    variable : str</span>
+<span class="sd">        ``"temperature"``, ``"conductivity"`` or ``"pressure"``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray of bool</span>
+<span class="sd">        One entry per stop.</span>
+
+<span class="sd">    """</span>
+    <span class="n">stem</span> <span class="o">=</span> <span class="n">STEMS</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span>
+    <span class="n">flag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">stem</span><span class="si">}</span><span class="s2">_flag"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">stem</span><span class="si">}</span><span class="s2">_diff"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">press</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s2">"ctd_press"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">accepted</span> <span class="o">=</span> <span class="n">CALDIP_FLAGS_USABLE</span> <span class="k">if</span> <span class="n">_schema</span><span class="p">(</span><span class="n">record</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="p">(</span><span class="n">CALDIP_FLAG_OK</span><span class="p">,)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">flag</span><span class="p">,</span> <span class="n">accepted</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">press</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_schema</span><span class="p">(</span><span class="n">record</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the cast's caldip schema version (1 when it cannot be read)."""</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"schema_version"</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+
+<div class="viewcode-block" id="stable_stops">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.calibration.stops.stable_stops">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">stable_stops</span><span class="p">(</span><span class="n">record</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">variable</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the usable stops where the CTD saw stable water, and the rule in words.</span>
+
+<span class="sd">    A stop counts when the CTD's standard deviation there (``ctd_&lt;var&gt;_std``) is at most</span>
+<span class="sd">    :data:`STABLE_CTD_STD` for the variable. Pressure has no stability test. A cast without</span>
+<span class="sd">    ``ctd_&lt;var&gt;_std`` (caldip schema 1) cannot be tested: every usable stop counts, and the</span>
+<span class="sd">    rule says so.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    record : xarray.Dataset</span>
+<span class="sd">        One instrument's record.</span>
+<span class="sd">    variable : str</span>
+<span class="sd">        ``"temperature"``, ``"conductivity"`` or ``"pressure"``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple of (numpy.ndarray of bool, str)</span>
+<span class="sd">        The stop mask and the stability rule applied (empty for pressure).</span>
+
+<span class="sd">    """</span>
+    <span class="n">ok</span> <span class="o">=</span> <span class="n">usable_stops</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">variable</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">variable</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">STABLE_CTD_STD</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ok</span><span class="p">,</span> <span class="s2">""</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"ctd_</span><span class="si">{</span><span class="n">STEMS</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="si">}</span><span class="s2">_std"</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">record</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ok</span><span class="p">,</span> <span class="s2">"stability not checked (no CTD std in the cast)"</span>
+    <span class="n">limit</span> <span class="o">=</span> <span class="n">STABLE_CTD_STD</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span>
+    <span class="n">std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ok</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">std</span> <span class="o">&lt;=</span> <span class="n">limit</span><span class="p">),</span> <span class="sa">f</span><span class="s2">"CTD std ≤ </span><span class="si">{</span><span class="n">limit</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">"</span></div>
+
+
+
+<div class="viewcode-block" id="through_origin_slope">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.calibration.stops.through_origin_slope">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">through_origin_slope</span><span class="p">(</span>
+    <span class="n">alpha</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">beta</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">weights</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the Sea-Bird AN31 slope ``β ≈ s·α``, its standard error and the RMS residual.</span>
+
+<span class="sd">    ``s = Σ w·α·β / Σ w·α²``; with ``r = β − s·α``,</span>
+<span class="sd">    ``σ_s = √(Σ w·r² / (n − 1) / Σ w·α²)`` (NaN for one point).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    alpha : numpy.ndarray</span>
+<span class="sd">        Instrument values (AN31's α).</span>
+<span class="sd">    beta : numpy.ndarray</span>
+<span class="sd">        Reference values (AN31's β).</span>
+<span class="sd">    weights : numpy.ndarray or None, optional</span>
+<span class="sd">        Per-point weights; equal weights when ``None``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple of float</span>
+<span class="sd">        ``(slope, sigma, rms_residual)``.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    The bottle example in Sea-Bird Application Note 31:</span>
+
+<span class="sd">    &gt;&gt;&gt; s, _, _ = through_origin_slope(</span>
+<span class="sd">    ...     np.array([4.63421, 3.25349, 3.16777]), np.array([4.63481, 3.25398, 3.16822])</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; round(s, 6)</span>
+<span class="sd">    1.000138</span>
+
+<span class="sd">    """</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span> <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">saa</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">))</span>
+    <span class="n">slope</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">beta</span><span class="p">))</span> <span class="o">/</span> <span class="n">saa</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">beta</span> <span class="o">-</span> <span class="n">slope</span> <span class="o">*</span> <span class="n">alpha</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">r</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">saa</span><span class="p">))</span> <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"nan"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">slope</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="n">r</span><span class="p">)))</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_unavailable</span><span class="p">(</span>
+    <span class="n">variable</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">rule</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tid</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Reduction</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a Reduction that says why the dip gives no value."""</span>
+    <span class="k">return</span> <span class="n">Reduction</span><span class="p">(</span>
+        <span class="n">variable</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"nan"</span><span class="p">),</span> <span class="n">rule</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="n">reason</span><span class="p">,</span> <span class="n">source_tracking_id</span><span class="o">=</span><span class="n">tid</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_no_deep_reason</span><span class="p">(</span><span class="n">record</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Say why no conductivity stop qualified: none usable, none stable, or none deep enough."""</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">usable_stops</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="s2">"conductivity"</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">return</span> <span class="s2">"no usable stop"</span>
+    <span class="n">stable</span><span class="p">,</span> <span class="n">rule</span> <span class="o">=</span> <span class="n">stable_stops</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="s2">"conductivity"</span><span class="p">)</span>
+    <span class="n">word</span> <span class="o">=</span> <span class="s2">"usable"</span> <span class="k">if</span> <span class="n">rule</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"stability not checked"</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"stable"</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">stable</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"no </span><span class="si">{</span><span class="n">word</span><span class="si">}</span><span class="s2"> stop"</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"no </span><span class="si">{</span><span class="n">word</span><span class="si">}</span><span class="s2"> stop below </span><span class="si">{</span><span class="n">SHALLOWEST_STOP_DBAR</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> dbar"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_tid</span><span class="p">(</span><span class="n">record</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the cast's tracking_id."""</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"tracking_id"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="deepest_offset">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.calibration.stops.deepest_offset">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">deepest_offset</span><span class="p">(</span><span class="n">record</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">variable</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Reduction</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the offset at the deepest stable stop (``standard`` temperature).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    record : xarray.Dataset</span>
+<span class="sd">        One instrument's record.</span>
+<span class="sd">    variable : str</span>
+<span class="sd">        The variable; ``"temperature"`` under ``standard``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Reduction</span>
+<span class="sd">        The offset, or NaN with ``reason``.</span>
+
+<span class="sd">    """</span>
+    <span class="n">ok</span><span class="p">,</span> <span class="n">stability</span> <span class="o">=</span> <span class="n">stable_stops</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">variable</span><span class="p">)</span>
+    <span class="n">rule</span> <span class="o">=</span> <span class="s2">"offset at the deepest stable stop"</span> <span class="o">+</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">" (</span><span class="si">{</span><span class="n">stability</span><span class="si">}</span><span class="s2">)"</span> <span class="k">if</span> <span class="n">stability</span> <span class="k">else</span> <span class="s2">""</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ok</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">reason</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">"no stable stop"</span>
+            <span class="k">if</span> <span class="n">usable_stops</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">variable</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span>
+            <span class="k">else</span> <span class="s2">"no usable stop"</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">_unavailable</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="s2">"offset"</span><span class="p">,</span> <span class="n">rule</span><span class="p">,</span> <span class="n">reason</span><span class="p">,</span> <span class="n">_tid</span><span class="p">(</span><span class="n">record</span><span class="p">))</span>
+    <span class="n">press</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s2">"ctd_press"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="n">press</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)))</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">STEMS</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="si">}</span><span class="s2">_diff"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">Reduction</span><span class="p">(</span>
+        <span class="n">variable</span><span class="p">,</span>
+        <span class="s2">"offset"</span><span class="p">,</span>
+        <span class="n">diff</span><span class="p">,</span>
+        <span class="n">rule</span><span class="p">,</span>
+        <span class="n">stop_pressures</span><span class="o">=</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">press</span><span class="p">[</span><span class="n">i</span><span class="p">]),),</span>
+        <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">source_tracking_id</span><span class="o">=</span><span class="n">_tid</span><span class="p">(</span><span class="n">record</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="conductivity_stops">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.calibration.stops.conductivity_stops">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">conductivity_stops</span><span class="p">(</span><span class="n">record</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the deep, stable conductivity stops (``standard``) and the rule that chose them.</span>
+
+<span class="sd">    Of the stable stops (:func:`stable_stops`): those deeper than :data:`DEEP_STOP_DBAR` when at</span>
+<span class="sd">    least two qualify, otherwise those deeper than :data:`SHALLOWEST_STOP_DBAR`; never</span>
+<span class="sd">    shallower.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    record : xarray.Dataset</span>
+<span class="sd">        One instrument's record.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple of (numpy.ndarray of bool, str)</span>
+<span class="sd">        The stop mask (all False when none qualify) and the rule, in words.</span>
+
+<span class="sd">    """</span>
+    <span class="n">ok</span><span class="p">,</span> <span class="n">stability</span> <span class="o">=</span> <span class="n">stable_stops</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="s2">"conductivity"</span><span class="p">)</span>
+    <span class="n">press</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s2">"ctd_press"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">deep</span> <span class="o">=</span> <span class="n">ok</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">press</span> <span class="o">&gt;</span> <span class="n">DEEP_STOP_DBAR</span><span class="p">)</span>
+    <span class="n">rule</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"stops deeper than </span><span class="si">{</span><span class="n">DEEP_STOP_DBAR</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> dbar"</span>
+    <span class="k">if</span> <span class="n">deep</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">deep</span> <span class="o">=</span> <span class="n">ok</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">press</span> <span class="o">&gt;</span> <span class="n">SHALLOWEST_STOP_DBAR</span><span class="p">)</span>
+        <span class="n">rule</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"stops deeper than </span><span class="si">{</span><span class="n">SHALLOWEST_STOP_DBAR</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> dbar (fewer than two below </span><span class="si">{</span><span class="n">DEEP_STOP_DBAR</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">)"</span>
+    <span class="k">return</span> <span class="n">deep</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">rule</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">stability</span><span class="si">}</span><span class="s2">"</span></div>
+
+
+
+<div class="viewcode-block" id="conductivity_slope">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.calibration.stops.conductivity_slope">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">conductivity_slope</span><span class="p">(</span><span class="n">record</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Reduction</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the AN31 conductivity slope over the deep, stable stops (``standard``).</span>
+
+<span class="sd">    The fit is through the origin, weighted by ``N / cond_std²`` where every stop used has a</span>
+<span class="sd">    positive ``cond_std`` (equal weights otherwise).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    record : xarray.Dataset</span>
+<span class="sd">        One instrument's record.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Reduction</span>
+<span class="sd">        ``kind="slope"``; NaN with ``reason`` when no stop qualifies.</span>
+
+<span class="sd">    """</span>
+    <span class="n">stops</span><span class="p">,</span> <span class="n">rule</span> <span class="o">=</span> <span class="n">conductivity_stops</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+    <span class="n">rule</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"AN31 slope through the origin over </span><span class="si">{</span><span class="n">rule</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">stops</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">_unavailable</span><span class="p">(</span>
+            <span class="s2">"conductivity"</span><span class="p">,</span>
+            <span class="s2">"slope"</span><span class="p">,</span>
+            <span class="n">rule</span><span class="p">,</span>
+            <span class="n">_no_deep_reason</span><span class="p">(</span><span class="n">record</span><span class="p">),</span>
+            <span class="n">_tid</span><span class="p">(</span><span class="n">record</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s2">"inst_cond"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)[</span><span class="n">stops</span><span class="p">]</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s2">"ctd_cond"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)[</span><span class="n">stops</span><span class="p">]</span>
+    <span class="n">std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s2">"cond_std"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)[</span><span class="n">stops</span><span class="p">]</span>
+    <span class="n">n_samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s2">"N"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)[</span><span class="n">stops</span><span class="p">]</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">std</span><span class="p">))</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">std</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">n_samples</span><span class="p">)):</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">/</span> <span class="n">std</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">rule</span> <span class="o">+=</span> <span class="s2">", weighted N/cond_std²"</span>
+    <span class="n">slope</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">residual</span> <span class="o">=</span> <span class="n">through_origin_slope</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+    <span class="n">press</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s2">"ctd_press"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)[</span><span class="n">stops</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">Reduction</span><span class="p">(</span>
+        <span class="s2">"conductivity"</span><span class="p">,</span>
+        <span class="s2">"slope"</span><span class="p">,</span>
+        <span class="n">slope</span><span class="p">,</span>
+        <span class="n">rule</span><span class="p">,</span>
+        <span class="n">stop_pressures</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">press</span><span class="p">),</span>
+        <span class="n">n</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">stops</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
+        <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span>
+        <span class="n">residual</span><span class="o">=</span><span class="n">residual</span><span class="p">,</span>
+        <span class="n">source_tracking_id</span><span class="o">=</span><span class="n">_tid</span><span class="p">(</span><span class="n">record</span><span class="p">),</span>
+        <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">"conductivity_range"</span><span class="p">:</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">alpha</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span> <span class="nb">float</span><span class="p">(</span><span class="n">alpha</span><span class="o">.</span><span class="n">max</span><span class="p">()))},</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="conductivity_offset">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.calibration.stops.conductivity_offset">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">conductivity_offset</span><span class="p">(</span><span class="n">record</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Reduction</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the mean conductivity offset over the deep, stable stops.</span>
+
+<span class="sd">    The offset alternative to :func:`conductivity_slope` (a ``mean`` or ``ramp`` override</span>
+<span class="sd">    under ``standard``), over the same stops.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    record : xarray.Dataset</span>
+<span class="sd">        One instrument's record.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Reduction</span>
+<span class="sd">        The offset, or NaN with ``reason`` when no stop qualifies.</span>
+
+<span class="sd">    """</span>
+    <span class="n">stops</span><span class="p">,</span> <span class="n">rule</span> <span class="o">=</span> <span class="n">conductivity_stops</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+    <span class="n">rule</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"mean offset over </span><span class="si">{</span><span class="n">rule</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">stops</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">_unavailable</span><span class="p">(</span>
+            <span class="s2">"conductivity"</span><span class="p">,</span>
+            <span class="s2">"offset"</span><span class="p">,</span>
+            <span class="n">rule</span><span class="p">,</span>
+            <span class="n">_no_deep_reason</span><span class="p">(</span><span class="n">record</span><span class="p">),</span>
+            <span class="n">_tid</span><span class="p">(</span><span class="n">record</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s2">"cond_diff"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)[</span><span class="n">stops</span><span class="p">]</span>
+    <span class="n">press</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s2">"ctd_press"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)[</span><span class="n">stops</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">Reduction</span><span class="p">(</span>
+        <span class="s2">"conductivity"</span><span class="p">,</span>
+        <span class="s2">"offset"</span><span class="p">,</span>
+        <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">diff</span><span class="p">)),</span>
+        <span class="n">rule</span><span class="p">,</span>
+        <span class="n">stop_pressures</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">press</span><span class="p">),</span>
+        <span class="n">n</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">stops</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
+        <span class="n">source_tracking_id</span><span class="o">=</span><span class="n">_tid</span><span class="p">(</span><span class="n">record</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="pressure_offset">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.calibration.stops.pressure_offset">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pressure_offset</span><span class="p">(</span><span class="n">record</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">deployment_pressure</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Reduction</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the mean pressure offset near the deployment pressure (``standard``).</span>
+
+<span class="sd">    The stops within :data:`PRESSURE_WINDOW_DBAR` of ``deployment_pressure`` are averaged;</span>
+<span class="sd">    with none, the nearest usable stop is used.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    record : xarray.Dataset</span>
+<span class="sd">        One instrument's record.</span>
+<span class="sd">    deployment_pressure : float</span>
+<span class="sd">        The instrument's deployment pressure (dbar).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Reduction</span>
+<span class="sd">        The offset, or NaN with ``reason``.</span>
+
+<span class="sd">    """</span>
+    <span class="n">rule</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"mean offset at the stops within </span><span class="si">{</span><span class="n">PRESSURE_WINDOW_DBAR</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> dbar of </span><span class="si">{</span><span class="n">deployment_pressure</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> dbar"</span>
+    <span class="n">ok</span> <span class="o">=</span> <span class="n">usable_stops</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="s2">"pressure"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ok</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">_unavailable</span><span class="p">(</span><span class="s2">"pressure"</span><span class="p">,</span> <span class="s2">"offset"</span><span class="p">,</span> <span class="n">rule</span><span class="p">,</span> <span class="s2">"no usable stop"</span><span class="p">,</span> <span class="n">_tid</span><span class="p">(</span><span class="n">record</span><span class="p">))</span>
+    <span class="n">press</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s2">"ctd_press"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s2">"press_diff"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">near</span> <span class="o">=</span> <span class="n">ok</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">press</span> <span class="o">-</span> <span class="n">deployment_pressure</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">PRESSURE_WINDOW_DBAR</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">near</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">press</span> <span class="o">-</span> <span class="n">deployment_pressure</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)))</span>
+        <span class="n">near</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ok</span><span class="p">)</span>
+        <span class="n">near</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">rule</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"offset at the stop nearest </span><span class="si">{</span><span class="n">deployment_pressure</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> dbar (none within </span><span class="si">{</span><span class="n">PRESSURE_WINDOW_DBAR</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">)"</span>
+    <span class="k">return</span> <span class="n">Reduction</span><span class="p">(</span>
+        <span class="s2">"pressure"</span><span class="p">,</span>
+        <span class="s2">"offset"</span><span class="p">,</span>
+        <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">diff</span><span class="p">[</span><span class="n">near</span><span class="p">])),</span>
+        <span class="n">rule</span><span class="p">,</span>
+        <span class="n">stop_pressures</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">press</span><span class="p">[</span><span class="n">near</span><span class="p">]),</span>
+        <span class="n">n</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">near</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
+        <span class="n">source_tracking_id</span><span class="o">=</span><span class="n">_tid</span><span class="p">(</span><span class="n">record</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="rapid_depth_average">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.calibration.stops.rapid_depth_average">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">rapid_depth_average</span><span class="p">(</span>
+    <span class="n">record</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">variable</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">interval</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Reduction</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the offset averaged over a deep pressure interval (``rapid`` T and C).</span>
+
+<span class="sd">    As RAPID's ``microcat_insitu_cal.m``: the stop differences are interpolated linearly in</span>
+<span class="sd">    CTD pressure onto a :data:`RAPID_GRID_DBAR` grid spanning ``interval``, the deepest</span>
+<span class="sd">    stop's difference held for :data:`RAPID_EXTEND_DBAR` below it, and averaged over the grid</span>
+<span class="sd">    points the stops cover.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    record : xarray.Dataset</span>
+<span class="sd">        One instrument's record.</span>
+<span class="sd">    variable : str</span>
+<span class="sd">        ``"temperature"`` or ``"conductivity"``.</span>
+<span class="sd">    interval : tuple of float or None, optional</span>
+<span class="sd">        ``(p_lo, p_hi)`` in dbar; default the deepest :data:`RAPID_INTERVAL_DBAR` of the</span>
+<span class="sd">        cast's usable stops.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Reduction</span>
+<span class="sd">        The offset, or NaN with ``reason``.</span>
+
+<span class="sd">    """</span>
+    <span class="n">ok</span> <span class="o">=</span> <span class="n">usable_stops</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">variable</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ok</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">_unavailable</span><span class="p">(</span>
+            <span class="n">variable</span><span class="p">,</span>
+            <span class="s2">"offset"</span><span class="p">,</span>
+            <span class="s2">"RAPID deep-interval average"</span><span class="p">,</span>
+            <span class="s2">"no usable stop"</span><span class="p">,</span>
+            <span class="n">_tid</span><span class="p">(</span><span class="n">record</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="n">press</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s2">"ctd_press"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)[</span><span class="n">ok</span><span class="p">]</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">STEMS</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="si">}</span><span class="s2">_diff"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)[</span><span class="n">ok</span><span class="p">]</span>
+    <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">press</span><span class="p">)</span>
+    <span class="n">press</span><span class="p">,</span> <span class="n">diff</span> <span class="o">=</span> <span class="n">press</span><span class="p">[</span><span class="n">order</span><span class="p">],</span> <span class="n">diff</span><span class="p">[</span><span class="n">order</span><span class="p">]</span>
+    <span class="n">deepest</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">press</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">interval</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">interval</span> <span class="o">=</span> <span class="p">(</span><span class="n">deepest</span> <span class="o">-</span> <span class="n">RAPID_INTERVAL_DBAR</span><span class="p">,</span> <span class="n">deepest</span><span class="p">)</span>
+    <span class="n">p_lo</span><span class="p">,</span> <span class="n">p_hi</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">interval</span><span class="p">)</span>
+    <span class="n">xp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">press</span><span class="p">,</span> <span class="n">deepest</span> <span class="o">+</span> <span class="n">RAPID_EXTEND_DBAR</span><span class="p">)</span>
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="n">diff</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">p_lo</span><span class="p">,</span> <span class="n">p_hi</span> <span class="o">+</span> <span class="n">RAPID_GRID_DBAR</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">RAPID_GRID_DBAR</span><span class="p">)</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[(</span><span class="n">grid</span> <span class="o">&gt;=</span> <span class="n">xp</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">grid</span> <span class="o">&lt;=</span> <span class="n">xp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])]</span>
+    <span class="k">if</span> <span class="n">grid</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_unavailable</span><span class="p">(</span>
+            <span class="n">variable</span><span class="p">,</span>
+            <span class="s2">"offset"</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"RAPID average over </span><span class="si">{</span><span class="n">p_lo</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">–</span><span class="si">{</span><span class="n">p_hi</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> dbar on a </span><span class="si">{</span><span class="n">RAPID_GRID_DBAR</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">-dbar grid"</span><span class="p">,</span>
+            <span class="s2">"the stops do not reach the interval"</span><span class="p">,</span>
+            <span class="n">_tid</span><span class="p">(</span><span class="n">record</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="c1"># The stops the interpolation draws from: the ones bracketing the grid span, i.e. from the</span>
+    <span class="c1"># stop at or below grid[0] through the stop at or above grid[-1] (held deepest aside).</span>
+    <span class="n">lo</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">press</span><span class="p">,</span> <span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">side</span><span class="o">=</span><span class="s2">"right"</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">hi</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">press</span><span class="p">,</span> <span class="n">grid</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">side</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)),</span> <span class="n">press</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">used</span> <span class="o">=</span> <span class="n">press</span><span class="p">[</span><span class="n">lo</span> <span class="p">:</span> <span class="n">hi</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">used</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">rule</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"RAPID average over </span><span class="si">{</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">–</span><span class="si">{</span><span class="n">grid</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> dbar on a "</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">RAPID_GRID_DBAR</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">-dbar grid (</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2"> stop</span><span class="si">{</span><span class="s1">'s'</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">''</span><span class="si">}</span><span class="s2">)"</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">Reduction</span><span class="p">(</span>
+        <span class="n">variable</span><span class="p">,</span>
+        <span class="s2">"offset"</span><span class="p">,</span>
+        <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">xp</span><span class="p">,</span> <span class="n">fp</span><span class="p">))),</span>
+        <span class="n">rule</span><span class="p">,</span>
+        <span class="n">stop_pressures</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">used</span><span class="p">),</span>
+        <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span>
+        <span class="n">source_tracking_id</span><span class="o">=</span><span class="n">_tid</span><span class="p">(</span><span class="n">record</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="rapid_pressure_at_depth">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.calibration.stops.rapid_pressure_at_depth">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">rapid_pressure_at_depth</span><span class="p">(</span>
+    <span class="n">record</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">deployment_pressure</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Reduction</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the pressure offset interpolated to the deployment pressure (``rapid``).</span>
+
+<span class="sd">    As RAPID's ``microcat_insitu_cal.m``: linear in CTD pressure between stops, the deepest</span>
+<span class="sd">    stop's offset held :data:`RAPID_EXTEND_DBAR` below it. A deployment pressure deeper than</span>
+<span class="sd">    that is refused — a cubic fit through the stops swings too far below the cast — with the</span>
+<span class="sd">    value it would have given recorded in the ``reason``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    record : xarray.Dataset</span>
+<span class="sd">        One instrument's record.</span>
+<span class="sd">    deployment_pressure : float</span>
+<span class="sd">        The instrument's deployment pressure (dbar).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Reduction</span>
+<span class="sd">        The offset, or NaN with ``reason``.</span>
+
+<span class="sd">    """</span>
+    <span class="n">rule</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"RAPID: offset interpolated to </span><span class="si">{</span><span class="n">deployment_pressure</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> dbar"</span>
+    <span class="n">ok</span> <span class="o">=</span> <span class="n">usable_stops</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="s2">"pressure"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ok</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">_unavailable</span><span class="p">(</span><span class="s2">"pressure"</span><span class="p">,</span> <span class="s2">"offset"</span><span class="p">,</span> <span class="n">rule</span><span class="p">,</span> <span class="s2">"no usable stop"</span><span class="p">,</span> <span class="n">_tid</span><span class="p">(</span><span class="n">record</span><span class="p">))</span>
+    <span class="n">press</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s2">"ctd_press"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)[</span><span class="n">ok</span><span class="p">]</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s2">"press_diff"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)[</span><span class="n">ok</span><span class="p">]</span>
+    <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">press</span><span class="p">)</span>
+    <span class="n">press</span><span class="p">,</span> <span class="n">diff</span> <span class="o">=</span> <span class="n">press</span><span class="p">[</span><span class="n">order</span><span class="p">],</span> <span class="n">diff</span><span class="p">[</span><span class="n">order</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">deployment_pressure</span> <span class="o">&lt;</span> <span class="n">press</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">_unavailable</span><span class="p">(</span>
+            <span class="s2">"pressure"</span><span class="p">,</span>
+            <span class="s2">"offset"</span><span class="p">,</span>
+            <span class="n">rule</span><span class="p">,</span>
+            <span class="s2">"the deployment pressure is shallower than every stop"</span><span class="p">,</span>
+            <span class="n">_tid</span><span class="p">(</span><span class="n">record</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="n">limit</span> <span class="o">=</span> <span class="n">press</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">RAPID_EXTEND_DBAR</span>
+    <span class="k">if</span> <span class="n">deployment_pressure</span> <span class="o">&gt;</span> <span class="n">limit</span><span class="p">:</span>
+        <span class="n">degree</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">press</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">would</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">polyval</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">press</span><span class="p">,</span> <span class="n">diff</span><span class="p">,</span> <span class="n">degree</span><span class="p">),</span> <span class="n">deployment_pressure</span><span class="p">))</span>
+        <span class="n">reason</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"deeper than the cast; a degree-</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s2"> fit would give </span><span class="si">{</span><span class="n">would</span><span class="si">:</span><span class="s2">+.1f</span><span class="si">}</span><span class="s2"> dbar"</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">_unavailable</span><span class="p">(</span><span class="s2">"pressure"</span><span class="p">,</span> <span class="s2">"offset"</span><span class="p">,</span> <span class="n">rule</span><span class="p">,</span> <span class="n">reason</span><span class="p">,</span> <span class="n">_tid</span><span class="p">(</span><span class="n">record</span><span class="p">))</span>
+    <span class="n">xp</span><span class="p">,</span> <span class="n">fp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">press</span><span class="p">,</span> <span class="n">limit</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="n">diff</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">deployment_pressure</span><span class="p">,</span> <span class="n">xp</span><span class="p">,</span> <span class="n">fp</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">Reduction</span><span class="p">(</span>
+        <span class="s2">"pressure"</span><span class="p">,</span>
+        <span class="s2">"offset"</span><span class="p">,</span>
+        <span class="n">value</span><span class="p">,</span>
+        <span class="n">rule</span><span class="p">,</span>
+        <span class="n">stop_pressures</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">press</span><span class="p">),</span>
+        <span class="n">n</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">press</span><span class="o">.</span><span class="n">size</span><span class="p">),</span>
+        <span class="n">source_tracking_id</span><span class="o">=</span><span class="n">_tid</span><span class="p">(</span><span class="n">record</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="reduce_dip">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.calibration.stops.reduce_dip">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">reduce_dip</span><span class="p">(</span>
+    <span class="n">record</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">variable</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">scheme</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"standard"</span><span class="p">,</span>
+    <span class="n">deployment_pressure</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">slope</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Reduction</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return one dip's correction for one variable under a scheme.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    record : xarray.Dataset</span>
+<span class="sd">        One instrument's record.</span>
+<span class="sd">    variable : str</span>
+<span class="sd">        ``"temperature"``, ``"conductivity"`` or ``"pressure"``.</span>
+<span class="sd">    scheme : str, optional</span>
+<span class="sd">        ``"standard"`` (default) or ``"rapid"``.</span>
+<span class="sd">    deployment_pressure : float or None, optional</span>
+<span class="sd">        The instrument's deployment pressure (dbar); needed for pressure.</span>
+<span class="sd">    slope : bool, optional</span>
+<span class="sd">        Conductivity under ``standard`` only: the AN31 slope (default) or, when ``False``,</span>
+<span class="sd">        the mean offset over the same stops (a ``mean`` / ``ramp`` override).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Reduction</span>
+<span class="sd">        See the module docstring for the rule each scheme uses.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the variable or scheme is unknown, or pressure is asked for without a</span>
+<span class="sd">        deployment pressure.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">variable</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">STEMS</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"unknown caldip variable </span><span class="si">{</span><span class="n">variable</span><span class="si">!r}</span><span class="s2">"</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">scheme</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"standard"</span><span class="p">,</span> <span class="s2">"rapid"</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"unknown caldip scheme </span><span class="si">{</span><span class="n">scheme</span><span class="si">!r}</span><span class="s2">"</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">variable</span> <span class="o">==</span> <span class="s2">"pressure"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">deployment_pressure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">"a pressure correction needs the deployment pressure"</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">scheme</span> <span class="o">==</span> <span class="s2">"rapid"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">rapid_pressure_at_depth</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">deployment_pressure</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pressure_offset</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">deployment_pressure</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">scheme</span> <span class="o">==</span> <span class="s2">"rapid"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">rapid_depth_average</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">variable</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">variable</span> <span class="o">==</span> <span class="s2">"conductivity"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">conductivity_slope</span><span class="p">(</span><span class="n">record</span><span class="p">)</span> <span class="k">if</span> <span class="n">slope</span> <span class="k">else</span> <span class="n">conductivity_offset</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">deepest_offset</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">variable</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

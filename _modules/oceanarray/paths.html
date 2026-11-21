@@ -1,0 +1,605 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.paths &mdash; oceanarray 0.6.0.post1.dev20 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8cc63a81"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.paths</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.paths</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Filesystem path and filename conventions for the oceanarray pipeline.</span>
+
+<span class="sd">Single source of truth for folder resolution, the stage output-filename</span>
+<span class="sd">pattern, and turning instrument serial numbers into filename-safe tokens.</span>
+<span class="sd">Every processing stage derives its read/write locations from here so the</span>
+<span class="sd">logic is defined once rather than copied per stage.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="n">_PathLike</span> <span class="o">=</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span>
+
+<span class="c1">#: Base URL of the hosted documentation, used in user-facing upgrade messages.</span>
+<span class="n">DOCS_URL</span> <span class="o">=</span> <span class="s2">"https://ocean-uhh.github.io/oceanarray/"</span>
+
+
+<div class="viewcode-block" id="LegacyLayoutError">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.paths.LegacyLayoutError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LegacyLayoutError</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Raised when a directory uses the removed ``moor/proc`` (``basedir``) layout."""</span></div>
+
+
+
+<div class="viewcode-block" id="mooring_proc_dir">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.paths.mooring_proc_dir">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mooring_proc_dir</span><span class="p">(</span><span class="n">proc_root</span><span class="p">:</span> <span class="n">_PathLike</span><span class="p">,</span> <span class="n">mooring</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the mooring's processed-data directory, ``proc_root/&lt;mooring&gt;``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    proc_root : str or Path</span>
+<span class="sd">        Cruise-level processed-data root (``--proc-dir``).</span>
+<span class="sd">    mooring : str</span>
+<span class="sd">        Mooring name.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">proc_root</span><span class="p">)</span> <span class="o">/</span> <span class="n">mooring</span></div>
+
+
+
+<div class="viewcode-block" id="resolve_report_dir">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.paths.resolve_report_dir">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_report_dir</span><span class="p">(</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">outdir</span><span class="p">:</span> <span class="n">_PathLike</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">report_dir</span><span class="p">:</span> <span class="n">_PathLike</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">proc_root</span><span class="p">:</span> <span class="n">_PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">mooring_dir</span><span class="p">:</span> <span class="n">_PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the directory a mooring's report pages are written to (shared by the pages and the PDF).</span>
+
+<span class="sd">    *outdir* wins; else ``report_dir/&lt;mooring&gt;``; else ``&lt;mooring_dir&gt;/report``</span>
+<span class="sd">    (``proc_root/&lt;mooring&gt;/report`` without *mooring_dir*).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring : str</span>
+<span class="sd">        Mooring name.</span>
+<span class="sd">    outdir : str or Path, optional</span>
+<span class="sd">        Explicit output directory (``--output-dir``).</span>
+<span class="sd">    report_dir : str or Path, optional</span>
+<span class="sd">        Central report root (``--report-dir``).</span>
+<span class="sd">    proc_root : str or Path, optional</span>
+<span class="sd">        Processed-data root, for the default without *mooring_dir*.</span>
+<span class="sd">    mooring_dir : str or Path, optional</span>
+<span class="sd">        The mooring's own folder.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">outdir</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">outdir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">report_dir</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">report_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">mooring</span>
+    <span class="k">if</span> <span class="n">mooring_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">mooring_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"report"</span>
+    <span class="k">return</span> <span class="n">mooring_proc_dir</span><span class="p">(</span><span class="n">proc_root</span><span class="p">,</span> <span class="n">mooring</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"report"</span></div>
+
+
+
+<div class="viewcode-block" id="resolve_pdf_path">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.paths.resolve_pdf_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_pdf_path</span><span class="p">(</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">pdf_dir</span><span class="p">:</span> <span class="n">_PathLike</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">report_html_dir</span><span class="p">:</span> <span class="n">_PathLike</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the path of a mooring's combined report PDF; creates nothing.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring : str</span>
+<span class="sd">        Mooring name (the filename stem).</span>
+<span class="sd">    pdf_dir : str or Path, optional</span>
+<span class="sd">        Central PDF directory (``--pdf-dir``); default beside the pages.</span>
+<span class="sd">    report_html_dir : str or Path</span>
+<span class="sd">        The mooring's report directory (:func:`resolve_report_dir`).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">        ``&lt;pdf_dir or report_html_dir&gt;/&lt;mooring&gt;_report.pdf``.</span>
+<span class="sd">    """</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mooring</span><span class="si">}</span><span class="s2">_report.pdf"</span>
+    <span class="k">if</span> <span class="n">pdf_dir</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">pdf_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">filename</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">report_html_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">filename</span></div>
+
+
+
+<div class="viewcode-block" id="raw_mooring_dir">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.paths.raw_mooring_dir">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">raw_mooring_dir</span><span class="p">(</span><span class="n">raw_root</span><span class="p">:</span> <span class="n">_PathLike</span><span class="p">,</span> <span class="n">mooring</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the mooring's raw-data directory, ``raw_root/&lt;mooring&gt;``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    raw_root : str or Path</span>
+<span class="sd">        Cruise-level raw-data root (``--raw-dir``).</span>
+<span class="sd">    mooring : str</span>
+<span class="sd">        Mooring name.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">raw_root</span><span class="p">)</span> <span class="o">/</span> <span class="n">mooring</span></div>
+
+
+
+<div class="viewcode-block" id="stage_suffix">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.paths.stage_suffix">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">stage_suffix</span><span class="p">(</span><span class="n">stage</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the filename ending of a stage file, ``"_stage&lt;N&gt;.nc"``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    stage : int</span>
+<span class="sd">        Processing stage number (1, 2, or 3).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The ending, e.g. ``"_stage2.nc"``.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"_stage</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span><span class="si">}</span><span class="s2">.nc"</span></div>
+
+
+
+<div class="viewcode-block" id="stage_glob">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.paths.stage_glob">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">stage_glob</span><span class="p">(</span><span class="n">stage</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the glob pattern matching every stage-*N* file, ``"*_stage&lt;N&gt;.nc"``.</span>
+
+<span class="sd">    For discovery in a directory tree where no mooring description is at hand.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    stage : int</span>
+<span class="sd">        Processing stage number (1, 2, or 3).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The pattern, e.g. ``"*_stage3.nc"``.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"*</span><span class="si">{</span><span class="n">stage_suffix</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span></div>
+
+
+
+<div class="viewcode-block" id="stage_output_name">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.paths.stage_output_name">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">stage_output_name</span><span class="p">(</span><span class="n">mooring</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">serial</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">stage</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">tag</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return an instrument's stage filename, ``{mooring}_{serial}{tag}_stage{N}.nc``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring : str</span>
+<span class="sd">        Mooring name.</span>
+<span class="sd">    serial : Any</span>
+<span class="sd">        Instrument serial as in the YAML (cleaned by :func:`safe_serial`).</span>
+<span class="sd">    stage : int</span>
+<span class="sd">        Stage (1, 2 or 3).</span>
+<span class="sd">    tag : str, optional</span>
+<span class="sd">        Extra tag before ``_stage`` (``adcp-matlab`` file index).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mooring</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">safe_serial</span><span class="p">(</span><span class="n">serial</span><span class="p">)</span><span class="si">}{</span><span class="n">tag</span><span class="si">}{</span><span class="n">stage_suffix</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span></div>
+
+
+
+<span class="c1">#: The multi-instrument products, each named ``{name}_{product}.nc``: a mooring's</span>
+<span class="c1">#: stack and grid in its directory, a site's stack and grid (``stackcat``,</span>
+<span class="c1">#: ``gridcat``) in the site's.</span>
+<span class="n">PRODUCTS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">"stack"</span><span class="p">,</span> <span class="s2">"grid"</span><span class="p">,</span> <span class="s2">"stackcat"</span><span class="p">,</span> <span class="s2">"gridcat"</span><span class="p">})</span>
+
+
+<div class="viewcode-block" id="stage_file">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.paths.stage_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">stage_file</span><span class="p">(</span>
+    <span class="n">mooring_dir</span><span class="p">:</span> <span class="n">_PathLike</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">instrument</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">serial</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">stage</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">tag</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return an instrument's stage file, ``&lt;mooring_dir&gt;/&lt;instrument&gt;/&lt;name&gt;_&lt;serial&gt;{tag}_stage&lt;N&gt;.nc``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring_dir : str or pathlib.Path</span>
+<span class="sd">        The mooring's directory.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The mooring's ``name``.</span>
+<span class="sd">    instrument : str</span>
+<span class="sd">        Instrument type (the subdirectory, e.g. ``"microcat"``).</span>
+<span class="sd">    serial : Any</span>
+<span class="sd">        Instrument serial as in the YAML.</span>
+<span class="sd">    stage : int</span>
+<span class="sd">        Stage (1, 2 or 3).</span>
+<span class="sd">    tag : str, optional</span>
+<span class="sd">        Extra tag before ``_stage`` (``adcp-matlab`` file index ``_000``, ...).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pathlib.Path</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">mooring_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">instrument</span> <span class="o">/</span> <span class="n">stage_output_name</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">serial</span><span class="p">,</span> <span class="n">stage</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="stale_file">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.paths.stale_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">stale_file</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">_PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return where a product that no longer matches its stage files is kept.</span>
+
+<span class="sd">    ``&lt;name&gt;_stack.nc`` becomes ``&lt;name&gt;_stack.stale.nc``; the stack and grid</span>
+<span class="sd">    search patterns (``*_stack.nc``, ``*_grid.nc``) do not match it.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : str or Path</span>
+<span class="sd">        A product file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">        The stale copy's path, beside the product.</span>
+<span class="sd">    """</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">".stale"</span> <span class="o">+</span> <span class="n">path</span><span class="o">.</span><span class="n">suffix</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="product_file">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.paths.product_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">product_file</span><span class="p">(</span><span class="n">mooring_dir</span><span class="p">:</span> <span class="n">_PathLike</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">product</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a mooring product's path, ``&lt;mooring_dir&gt;/&lt;name&gt;_&lt;product&gt;.nc``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring_dir : str or pathlib.Path</span>
+<span class="sd">        The mooring's directory.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The mooring's ``name``.</span>
+<span class="sd">    product : str</span>
+<span class="sd">        One of :data:`PRODUCTS`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pathlib.Path</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        *product* is not in :data:`PRODUCTS`.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">product</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">PRODUCTS</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"unknown product </span><span class="si">{</span><span class="n">product</span><span class="si">!r}</span><span class="s2">; expected one of </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">PRODUCTS</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">mooring_dir</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">product</span><span class="si">}</span><span class="s2">.nc"</span></div>
+
+
+
+<div class="viewcode-block" id="require_current_layout">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.paths.require_current_layout">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">require_current_layout</span><span class="p">(</span><span class="n">proc_root</span><span class="p">:</span> <span class="n">_PathLike</span><span class="p">,</span> <span class="n">mooring</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Raise when only the removed ``basedir`` layout holds the mooring, naming the folder to use.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    proc_root : str or Path</span>
+<span class="sd">        Cruise-level processed-data root (``--proc-dir``).</span>
+<span class="sd">    mooring : str</span>
+<span class="sd">        Mooring name.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    LegacyLayoutError</span>
+<span class="sd">        ``&lt;proc_root&gt;/moor/proc/&lt;mooring&gt;`` or ``&lt;proc_root&gt;/proc/&lt;mooring&gt;`` exists but</span>
+<span class="sd">        ``&lt;proc_root&gt;/&lt;mooring&gt;`` does not.</span>
+<span class="sd">    """</span>
+    <span class="n">proc_root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">proc_root</span><span class="p">)</span>
+    <span class="n">legacy_roots</span> <span class="o">=</span> <span class="p">(</span><span class="n">proc_root</span> <span class="o">/</span> <span class="s2">"moor"</span> <span class="o">/</span> <span class="s2">"proc"</span><span class="p">,</span> <span class="n">proc_root</span> <span class="o">/</span> <span class="s2">"proc"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">proc_root</span> <span class="o">/</span> <span class="n">mooring</span><span class="p">)</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="c1"># Current layout is present.  Warn (do not fail) if a stale legacy copy</span>
+        <span class="c1"># also exists — a half-finished migration leaves two competing trees and</span>
+        <span class="c1"># the legacy one is silently ignored.</span>
+        <span class="k">for</span> <span class="n">legacy_root</span> <span class="ow">in</span> <span class="n">legacy_roots</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">legacy_root</span> <span class="o">/</span> <span class="n">mooring</span><span class="p">)</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"WARNING: both the current '</span><span class="si">{</span><span class="n">proc_root</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">mooring</span><span class="si">}</span><span class="s2">' and a "</span>
+                    <span class="sa">f</span><span class="s2">"legacy '</span><span class="si">{</span><span class="n">legacy_root</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">mooring</span><span class="si">}</span><span class="s2">' directory exist; the legacy "</span>
+                    <span class="sa">f</span><span class="s2">"copy is ignored. Remove it to avoid confusion."</span><span class="p">,</span>
+                    <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">break</span>
+        <span class="k">return</span>
+    <span class="k">for</span> <span class="n">legacy_root</span> <span class="ow">in</span> <span class="n">legacy_roots</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">legacy_root</span> <span class="o">/</span> <span class="n">mooring</span><span class="p">)</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">LegacyLayoutError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"--proc-dir points at an old-layout directory (found "</span>
+                <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">legacy_root</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">mooring</span><span class="si">}</span><span class="s2">'). Use --proc-dir </span><span class="si">{</span><span class="n">legacy_root</span><span class="si">}</span><span class="s2"> "</span>
+                <span class="s2">"instead (see the migration guide: docs/source/migration.rst "</span>
+                <span class="sa">f</span><span class="s2">"or </span><span class="si">{</span><span class="n">DOCS_URL</span><span class="si">}</span><span class="s2">migration.html)."</span>
+            <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="is_path_component">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.paths.is_path_component">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_path_component</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return whether *name* is one folder or file name that cannot leave its parent.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : Any</span>
+<span class="sd">        A name from a description (a cruise, a cast).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        False for empty, absolute, ``.``, ``..``, or a name with a separator or drive colon.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; is_path_component("msm142_2026"), is_path_component("../other")</span>
+<span class="sd">    (True, False)</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"."</span><span class="p">,</span> <span class="s2">".."</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">sep</span> <span class="ow">in</span> <span class="n">name</span> <span class="k">for</span> <span class="n">sep</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="s2">"</span><span class="se">\\</span><span class="s2">"</span><span class="p">,</span> <span class="s2">":"</span><span class="p">))</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="safe_serial">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.paths.safe_serial">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">safe_serial</span><span class="p">(</span><span class="n">serial</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a filename-safe serial: the first comma-separated token, word characters and hyphens only.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    serial : Any</span>
+<span class="sd">        Serial as in the YAML (``"16430, R01-024"`` gives ``"16430"``).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">    """</span>
+    <span class="n">primary</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">serial</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[^\w\-]"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">primary</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="adcp_parent_serial">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.paths.adcp_parent_serial">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">adcp_parent_serial</span><span class="p">(</span><span class="n">serial</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the ADCP serial a stack level came from, without its ``_hd`` / ``_bNN`` suffix.</span>
+
+<span class="sd">    A stack splits an ADCP into a head level (``&lt;serial&gt;_hd``) and one level per</span>
+<span class="sd">    bin (``&lt;serial&gt;_b00``, ``_b01``, ...); any other serial is returned unchanged.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    serial : Any</span>
+<span class="sd">        A stack level's serial.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The instrument's own serial.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"_(hd|b\d+)$"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">serial</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="should_skip_regeneration">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.paths.should_skip_regeneration">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">should_skip_regeneration</span><span class="p">(</span>
+    <span class="n">output</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">skip_existing</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">sources</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return whether rebuilding *output* can be skipped.</span>
+
+<span class="sd">    Never with *force*; whenever *output* exists with *skip_existing*; otherwise when it</span>
+<span class="sd">    exists and is newer than every existing source.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    output : Path</span>
+<span class="sd">        The file that would be rebuilt.</span>
+<span class="sd">    force : bool</span>
+<span class="sd">        Never skip.</span>
+<span class="sd">    skip_existing : bool</span>
+<span class="sd">        Skip whenever *output* exists.</span>
+<span class="sd">    *sources : Path</span>
+<span class="sd">        Files *output* is made from; missing ones are ignored.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">force</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">output</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">skip_existing</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="n">out_mtime</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_mtime</span>
+    <span class="k">return</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">s</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_mtime</span> <span class="o">&gt;</span> <span class="n">out_mtime</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
