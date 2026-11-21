@@ -335,6 +335,7 @@ MOORING_PANELS: dict[str, Panel] = {
             "_mooring_clock_table.html",
             instruments=c["instruments"],
             any_clock_correction=c["any_clock_correction"],
+            any_correction_applied=c["any_correction_applied"],
             timing_mode=c["timing_mode"],
         ),
         kind="html",
@@ -1049,7 +1050,10 @@ class MooringReport:
             rec_recover != _yaml_recover_min
         )
 
-        any_clock = any(i["clock"]["has_correction"] for i in instruments)
+        any_clock = any(
+            i["clock"]["has_correction"] or i["clock"]["not_read"] for i in instruments
+        )
+        any_correction_applied = any(i["clock"]["has_correction"] for i in instruments)
 
         # Build {serial: nc_path} for the clock-offset comparison figure.
         # Use stage1 (raw, UNtrimmed): stage2/3 are trimmed to the deployment
@@ -1136,6 +1140,7 @@ class MooringReport:
             "stack_exists": stack_exists,
             "grid_exists": grid_exists,
             "any_clock_correction": any_clock,
+            "any_correction_applied": any_correction_applied,
             "fig_clock_check_b64": fig_clock_check_b64,
             "fig_knockdown_hab_b64": fig_knockdown_hab_b64,
             "fig_knockdown_anomaly_b64": fig_knockdown_anomaly_b64,

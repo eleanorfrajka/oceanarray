@@ -4,6 +4,15 @@
 Upgrading from 0.6.1 to 0.7.0
 =============================
 
+Stage files carry ``clock_offset`` only when applied
+----------------------------------------------------
+
+Stage 1 no longer writes a ``clock_offset`` of 0 (it applies no clock correction),
+and stage 2 writes the ``clock_offset`` variable only when it applies a non-zero
+offset. A file with no offset therefore has no ``clock_offset`` variable: read it
+with ``ds.get("clock_offset", 0)`` (an absent variable means no offset), not
+``ds["clock_offset"]``. Rerun stage 2 to update existing files.
+
 No pitch or roll flags
 ----------------------
 

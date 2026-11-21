@@ -165,7 +165,7 @@ def _history_stamp() -> str:
 #: What each stage did, as its ``history`` entry says it.
 STAGE_WORDS: dict[int, str] = {
     1: "read into oceanarray's variable names and units",
-    2: "clock corrected and trimmed to the deployment window",
+    2: "trimmed to the deployment window",
     3: "checked (automatic tests, originator flags translated) and derived variables added",
 }
 

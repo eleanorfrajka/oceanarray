@@ -181,7 +181,7 @@ def _build_rows(
             )
 
         clock = _resolve_clock(entry)
-        # Prefer the computed drift (Option B) over the simple offset
+        # The correction at recovery (computer − instrument), else the constant offset.
         drift_s = clock.get("drift_s")
         if drift_s is None:
             drift_s = clock.get("offset_s")

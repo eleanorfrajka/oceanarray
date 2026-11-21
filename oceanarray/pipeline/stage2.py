@@ -1,15 +1,22 @@
 """Stage 2: correct instrument clocks and trim each record to the deployment.
 
-The correction, seconds **added** to instrument time (positive: the clock was slow),
-ramps linearly from ``clock_offset`` at deployment to ``clock_drift_seconds`` at
-recovery (both default 0). ``computer_clock_at_recovery`` /
-``instrument_clock_at_recovery`` give the drift as computer − instrument and take
-priority over ``clock_drift_seconds``. A corrected file keeps ``time_orig``. The record
-is then trimmed to ``deployment_time`` … ``recovery_time``.
+The correction is seconds **added** to instrument time (positive: the clock was slow).
+Three cases, from the mooring entry:
+
+- ``clock_offset`` only — a uniform constant shift throughout the record.
+- a recovery correction only — a linear ramp from 0 at deployment to that correction
+  at recovery, from ``computer_clock_at_recovery`` / ``instrument_clock_at_recovery``
+  (computer − instrument), or from ``clock_drift_seconds``.
+- both — the ramp runs from ``clock_offset`` at deployment to the recovery correction.
+
+A pair read as ``unknown`` (or empty) gives no drift. The recovery correction is
+resolved by :func:`oceanarray.instruments.resolve_clock_correction`. A corrected file
+keeps ``time_orig`` and its history says what was applied; a file with no correction
+says why (no offset or reading, readings that agree, or time as delivered by the
+originator). The record is then trimmed to ``deployment_time`` … ``recovery_time``.
 """
 
 import logging
-import re
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -22,7 +29,11 @@ from oceanarray import mooring as _mooring
 from oceanarray import paths
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
-from oceanarray.instruments import instrument_entries
+from oceanarray.instruments import (
+    clock_seconds,
+    instrument_entries,
+    resolve_clock_correction,
+)
 from oceanarray.logger import format_time, with_stage_handlers
 from oceanarray.pipeline import _stage
 from oceanarray.pipeline.dataset import drop_all_zero_vars
@@ -37,23 +48,6 @@ log = logging.getLogger(__name__)
 #: planned deployment window is a short record (WARNING): usually an instrument
 #: that failed before recovery, not a processing error.
 _SHORT_RECORD_FRACTION = 0.05
-
-
-def _parse_clock_str(s: str) -> pd.Timestamp | None:
-    """Parse a clock timestamp in multiple formats; return None if unparseable."""
-    # Accepts HH:MM:SS, YYYYMMDDTHH:MM:SS and ISO; "unknown" or anything unparseable
-    # gives None, so no correction is applied.
-    s = s.strip()
-    if re.match(r"^\d{2}:\d{2}:\d{2}", s) and "T" not in s:
-        # Time-only: anchor to an arbitrary date (only the difference is used)
-        s = f"2000-01-01T{s}"
-    elif re.match(r"^\d{8}T", s):
-        # Compact YYYYMMDDTHH:MM:SS — s[8] is 'T', s[9:] is the time part
-        s = f"{s[:4]}-{s[4:6]}-{s[6:8]}T{s[9:]}"
-    try:
-        return pd.Timestamp(s)
-    except Exception:  # noqa: BLE001  — returns None for any unparseable timestamp string
-        return None
 
 
 def detect_deployment_window(
@@ -223,34 +217,10 @@ def _apply_clock_offset(dataset: xr.Dataset, clock_offset: float) -> xr.Dataset:
         time=result["time"].values + np.timedelta64(int(clock_offset * 1e9), "ns")
     )
     sign = "+" if clock_offset >= 0 else ""
-    _stage.append_history(result, f"clock_offset={sign}{clock_offset:.1f}s applied")
+    _stage.append_history(
+        result, f"clock corrected: clock_offset={sign}{clock_offset:.1f}s applied"
+    )
     return result
-
-
-def _resolve_clock_drift(instrument_config: dict[str, Any]) -> tuple:
-    """Return (drift_seconds, history_note) from the YAML config."""
-    # Drift is ADDED to instrument time at recovery to get corrected time (positive =
-    # instrument was slow). The two recovery timestamps take priority over
-    # clock_drift_seconds.
-    comp_str = instrument_config.get("computer_clock_at_recovery")
-    inst_str = instrument_config.get("instrument_clock_at_recovery")
-    if comp_str and inst_str:
-        comp_t = _parse_clock_str(str(comp_str))
-        inst_t = _parse_clock_str(str(inst_str))
-        if comp_t is None or inst_t is None:
-            drift_s = float(instrument_config.get("clock_drift_seconds", 0))
-            note = f"clock_drift={drift_s:+.1f}s over deployment"
-            return drift_s, note
-        drift_s = (comp_t - inst_t).total_seconds()  # +ve when instrument was slow
-        note = (
-            f"clock_drift={drift_s:+.1f}s over deployment "
-            f"(computer={comp_str}, instrument={inst_str})"
-        )
-        return drift_s, note
-
-    drift_s = float(instrument_config.get("clock_drift_seconds", 0))
-    note = f"clock_drift={drift_s:+.1f}s over deployment"
-    return drift_s, note
 
 
 def _apply_clock_drift(
@@ -543,9 +513,23 @@ def _stage2_instrument(
     _stage1_t0 = dataset["time"].values[0]
     _stage1_t1 = dataset["time"].values[-1]
 
-    clock_offset = entry.get("clock_offset", 0)
-    drift_s, drift_note = _resolve_clock_drift(entry)
-    drift_ramp = (drift_s - clock_offset) if drift_s != 0 else 0
+    clock_offset = clock_seconds(entry, "clock_offset")
+    clock_seconds(entry, "clock_drift_seconds")  # fail loudly on a non-finite value
+    correction = resolve_clock_correction(entry)
+    if correction.source == "unparseable":
+        serial = paths.safe_serial(entry.get("serial", "unknown"))
+        raise MooringError(
+            f"{entry.get('instrument', 'instrument')} s/n {serial}: {correction.reason}"
+        )
+    # Offset is a constant shift; when a recovery correction was determined (readings or
+    # clock_drift_seconds) the ramp carries the record from offset at deployment to that
+    # correction at recovery, so its height is correction − offset — even when the
+    # correction is 0 (agreeing readings), which ramps the offset back to 0.
+    drift_ramp = (
+        correction.seconds - clock_offset
+        if correction.source in ("recovery readings", "clock_drift_seconds")
+        else 0
+    )
 
     sug_start, sug_end, sug_source = detect_deployment_window(dataset)
     _nonnull_start, _nonnull_end = _nonnull_time_bounds(dataset)
@@ -569,10 +553,18 @@ def _stage2_instrument(
 
     if clock_offset != 0 or drift_ramp != 0:
         dataset = _preserve_time_orig(dataset)
+    elif "clock_offset" in dataset.variables:
+        # A zero offset written by an earlier stage 1 claims a correction not made.
+        dataset = dataset.drop_vars("clock_offset")
     dataset = _apply_clock_offset(dataset, clock_offset)
     dataset = _apply_clock_drift(
-        dataset, drift_ramp, deploy_time, recover_time, history_note=drift_note
+        dataset, drift_ramp, deploy_time, recover_time, history_note=correction.reason
     )
+    if clock_offset == 0 and drift_ramp == 0:
+        note = correction.reason
+        if correction.source == "none" and dataset.attrs.get("originator_file"):
+            note = "clock: time as delivered by the originator"
+        _stage.append_history(dataset, note)
     dataset = _trim_to_deployment_window(dataset, deploy_time, recover_time)
 
     if len(dataset.time) == 0:
@@ -600,7 +592,7 @@ def _stage2_instrument(
         dataset.attrs["suggested_window_clock"] = "raw_instrument_clock"
         _sugg_start_utc = pd.Timestamp(sug_start) + pd.Timedelta(seconds=clock_offset)
         dataset.attrs["suggested_deployment_time_utc"] = _sugg_start_utc.isoformat()
-        _end_correction = drift_s if drift_s else clock_offset
+        _end_correction = correction.seconds if correction.seconds else clock_offset
         _sugg_end_utc = pd.Timestamp(sug_end) + pd.Timedelta(seconds=_end_correction)
         dataset.attrs["suggested_recovery_time_utc"] = _sugg_end_utc.isoformat()
     dataset.attrs["stage1_first_nonnull"] = pd.Timestamp(_nonnull_start).isoformat()

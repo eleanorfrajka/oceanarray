@@ -1023,9 +1023,10 @@ recovery_time:   '2026-07-25T11:43'</textarea>
 
 
 <p class="caption">
-  Clock offset at deployment and drift at recovery, as applied in processing. A
-  positive value means the instrument clock ran slow (behind UTC), so its times were
-  shifted later. Only instruments with a correction are listed. HAB: height above bottom.
+  Clock correction at deployment (offset) and at recovery (computer − instrument), as
+  applied in processing; it ramps linearly in between. A positive value means the
+  instrument clock ran slow (behind UTC), so its times were shifted later. Listed: the instruments with a correction, and those whose clock
+  was not read at recovery (not corrected). HAB: height above bottom.
 </p>
 <table>
   <thead>
@@ -1036,7 +1037,7 @@ recovery_time:   '2026-07-25T11:43'</textarea>
       <th class="num">Offset<span class="th-unit">s</span></th>
       <th>Computer time at recovery</th>
       <th>Instrument time at recovery</th>
-      <th class="num">Drift<span class="th-unit">s</span></th>
+      <th class="num">At recovery<span class="th-unit">s</span></th>
       <th>Source</th>
     </tr>
   </thead>
@@ -1056,12 +1057,12 @@ recovery_time:   '2026-07-25T11:43'</textarea>
       <td>2026-07-25 13:14</td>
       <td class="num">
         
-          <span class="pos">+55.0</span>
+          <span class="neg">-55.0</span>
         
       </td>
       <td>
         
-          Option B
+          recovery readings
         
       </td>
     </tr>

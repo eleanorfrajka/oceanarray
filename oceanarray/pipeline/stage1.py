@@ -288,13 +288,12 @@ def _add_instrument_metadata(
     instrument_config: dict[str, Any],
     yaml_data: dict[str, Any],
 ) -> xr.Dataset:
-    """Add the instrument's identity, clock offset and record window scalars."""
+    """Add the instrument's identity and record window scalars."""
+    # No clock_offset here: stage 2 applies it and writes it, only when nonzero.
     dataset = dataset.assign(
         _stage.identity_variables(instrument_config, yaml_data.get("waterdepth"))
     )
     dataset["instrument"] = instrument_config.get("instrument", "Unknown")
-    dataset["clock_offset"] = instrument_config.get("clock_offset", 0)
-    dataset["clock_offset"].attrs["units"] = "s"
     dataset["start_time"] = instrument_config.get(
         "start_time", dataset.attrs["deployment_time"]
     )

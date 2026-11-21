@@ -224,8 +224,9 @@ class TestHtmlHelpers:
                 "instrument_clock_at_recovery": "14:01:30",
             }
         )
-        assert result["method"] == "Option B"
-        assert result["drift_s"] == pytest.approx(90.0)
+        assert result["method"] == "recovery readings"
+        # Instrument 90 s ahead of the computer: stage 2 subtracts 90 s.
+        assert result["drift_s"] == pytest.approx(-90.0)
         assert result["has_correction"] is True
 
     def test_resolve_clock_no_correction(self):

@@ -721,8 +721,13 @@ start) but have no recovery comparison, supply ``clock_offset`` in seconds:
 
 If neither ``clock_offset`` nor the two-timestamp pair is present in the
 YAML, no clock correction is applied.  If either clock timestamp is the
-string ``unknown``, the drift correction is also skipped and a warning is
-logged.
+string ``unknown`` (or empty), the drift correction is skipped and the
+mooring check warns; the stage-2 history says the clock was not read at
+recovery.  A correction at recovery more than 120 s
+(``parameters.CLOCK_DRIFT_OUTLIER_SECONDS``) from the median of the other
+instruments on the mooring is also a warning: check the recovery logsheet.
+The deployment page's clock table shows the correction as applied
+(computer − instrument), and lists the instruments not read at recovery.
 
 ----
 

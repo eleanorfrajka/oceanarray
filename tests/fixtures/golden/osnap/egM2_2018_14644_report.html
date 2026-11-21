@@ -665,7 +665,8 @@ flagged suspect, outside the fail range bad.</p>
     <tr><td class="nowrap"><WHEN></td><td>people: cleaned per OceanSITES 1.4 from originator_* (2 PI, 5 contributor entries, 0 warnings)</td><td></td></tr>
     <tr><td class="nowrap"><WHEN></td><td>source: citation, license, acknowledgement, references from the file</td><td></td></tr>
     <tr><td class="nowrap"><WHEN></td><td>stage 1: read into oceanarray&#39;s variable names and units (processing_stage 1)</td><td>file type: oceansites, file: M2_MC_2018_2020_SN14644_2190m_cut.nc, unit spellings standardized</td></tr>
-    <tr><td class="nowrap"><WHEN></td><td>stage 2: clock corrected and trimmed to the deployment window (processing_stage 2)</td><td>window 2019-01-04 05:00 to 2019-01-06 05:00</td></tr>
+    <tr><td class="nowrap"><WHEN></td><td>clock: time as delivered by the originator</td><td></td></tr>
+    <tr><td class="nowrap"><WHEN></td><td>stage 2: trimmed to the deployment window (processing_stage 2)</td><td>window 2019-01-04 05:00 to 2019-01-06 05:00</td></tr>
     <tr><td class="nowrap"><WHEN></td><td>salinity recomputed from C, T, P, the originator&#39;s kept as salinity_originator (ours - theirs: median +0.0000, largest +0.0000)<br>originator flags translated by meaning, originator-&gt;ours (samples): temperature: 1-&gt;1 (190)<br>salinity: 1-&gt;1 (172), 4-&gt;4 (2), 5-&gt;5 (12), 9-&gt;9 (4)<br>conductivity: 1-&gt;1 (174), 5-&gt;5 (12), 9-&gt;9 (4)<br>pressure: 1-&gt;1 (190)<br>QARTOD gross-range+spike: conductivity_qc=[good=186, missing=4]<br>pressure_qc=[good=190]<br>salinity_qc=[good=186, missing=4]<br>temperature_qc=[good=190]</td><td>tests: flat line, gross range, spike, stack and grid leave out bad</td></tr>
     <tr><td class="nowrap"><WHEN></td><td>stage 3: checked (automatic tests, originator flags translated) and derived variables added (processing_stage 3)</td><td></td></tr>
   </tbody>
@@ -733,17 +734,18 @@ flagged suspect, outside the fail range bad.</p>
   <tr><td>1</td><td><WHEN></td><td>people: cleaned per OceanSITES 1.4 from originator_* (2 PI, 5 contributor entries, 0 warnings)</td></tr>
   <tr><td>2</td><td><WHEN></td><td>source: citation, license, acknowledgement, references from the file</td></tr>
   <tr><td>3</td><td><WHEN></td><td>stage 1: read into oceanarray&#39;s variable names and units (processing_stage 1)</td></tr>
-  <tr><td>4</td><td><WHEN></td><td>stage 2: clock corrected and trimmed to the deployment window (processing_stage 2)</td></tr>
-  <tr><td>5</td><td><WHEN></td><td>salinity recomputed from C, T, P, the originator&#39;s kept as salinity_originator (ours - theirs: median +0.0000, largest +0.0000)</td></tr>
-  <tr><td>6</td><td><WHEN></td><td>originator flags translated by meaning, originator-&gt;ours (samples): temperature: 1-&gt;1 (190)</td></tr>
-  <tr><td>7</td><td><WHEN></td><td>salinity: 1-&gt;1 (172), 4-&gt;4 (2), 5-&gt;5 (12), 9-&gt;9 (4)</td></tr>
-  <tr><td>8</td><td><WHEN></td><td>conductivity: 1-&gt;1 (174), 5-&gt;5 (12), 9-&gt;9 (4)</td></tr>
-  <tr><td>9</td><td><WHEN></td><td>pressure: 1-&gt;1 (190)</td></tr>
-  <tr><td>10</td><td><WHEN></td><td>QARTOD gross-range+spike: conductivity_qc=[good=186, missing=4]</td></tr>
-  <tr><td>11</td><td><WHEN></td><td>pressure_qc=[good=190]</td></tr>
-  <tr><td>12</td><td><WHEN></td><td>salinity_qc=[good=186, missing=4]</td></tr>
-  <tr><td>13</td><td><WHEN></td><td>temperature_qc=[good=190]</td></tr>
-  <tr><td>14</td><td><WHEN></td><td>stage 3: checked (automatic tests, originator flags translated) and derived variables added (processing_stage 3)</td></tr>
+  <tr><td>4</td><td><WHEN></td><td>clock: time as delivered by the originator</td></tr>
+  <tr><td>5</td><td><WHEN></td><td>stage 2: trimmed to the deployment window (processing_stage 2)</td></tr>
+  <tr><td>6</td><td><WHEN></td><td>salinity recomputed from C, T, P, the originator&#39;s kept as salinity_originator (ours - theirs: median +0.0000, largest +0.0000)</td></tr>
+  <tr><td>7</td><td><WHEN></td><td>originator flags translated by meaning, originator-&gt;ours (samples): temperature: 1-&gt;1 (190)</td></tr>
+  <tr><td>8</td><td><WHEN></td><td>salinity: 1-&gt;1 (172), 4-&gt;4 (2), 5-&gt;5 (12), 9-&gt;9 (4)</td></tr>
+  <tr><td>9</td><td><WHEN></td><td>conductivity: 1-&gt;1 (174), 5-&gt;5 (12), 9-&gt;9 (4)</td></tr>
+  <tr><td>10</td><td><WHEN></td><td>pressure: 1-&gt;1 (190)</td></tr>
+  <tr><td>11</td><td><WHEN></td><td>QARTOD gross-range+spike: conductivity_qc=[good=186, missing=4]</td></tr>
+  <tr><td>12</td><td><WHEN></td><td>pressure_qc=[good=190]</td></tr>
+  <tr><td>13</td><td><WHEN></td><td>salinity_qc=[good=186, missing=4]</td></tr>
+  <tr><td>14</td><td><WHEN></td><td>temperature_qc=[good=190]</td></tr>
+  <tr><td>15</td><td><WHEN></td><td>stage 3: checked (automatic tests, originator flags translated) and derived variables added (processing_stage 3)</td></tr>
 </tbody>
 </table><div class="fig-source">source: oceanarray/reports/_html_helpers.py:_build_history_tables</div>
 <p class="caption">Processing level of each variable (OceanSITES reference table 3), as the file records it.</p>
@@ -923,9 +925,6 @@ flagged suspect, outside the fail range bad.</p>
 <td class="cell-wrap">s/n 14644</td><td class="cell-wrap">0</td><td data-nosort><details class="attr-disclosure"><summary>16 attrs</summary>
 <table data-nosort><tbody><tr><th>sensor_type</th><td>CTD</td></tr><tr><th>sensor_type_vocabulary</th><td>https://vocab.nerc.ac.uk/collection/L05/current/</td></tr><tr><th>sensor_serial_number</th><td>14644</td></tr><tr><th>originator_temperature_data_min</th><td>1.603</td></tr><tr><th>originator_temperature_data_max</th><td>2.968</td></tr><tr><th>originator_temperature_units</th><td>degree_Celsius</td></tr><tr><th>originator_conductivity_data_min</th><td>31.29</td></tr><tr><th>originator_conductivity_data_max</th><td>32.56</td></tr><tr><th>originator_conductivity_units</th><td>mS/cm</td></tr><tr><th>originator_pressure_data_min</th><td>2240</td></tr><tr><th>originator_pressure_data_max</th><td>2281</td></tr><tr><th>originator_pressure_units</th><td>decibar</td></tr><tr><th>sensor_model</th><td>UNK</td></tr><tr><th>sensor_metadata_source</th><td>none</td></tr><tr><th>cf_role</th><td>sensor_id</td></tr><tr><th>coverage_content_type</th><td>auxiliaryInformation</td></tr>
 </tbody></table></details></td></tr>
-<tr>
-<td data-sort="clock_offset">clock_offset</td><td><code>int32</code></td><td>s</td>
-<td class="cell-wrap">—</td><td class="cell-wrap">0</td><td data-nosort>—</td></tr>
 <tr>
 <td data-sort="end_time">end_time</td><td><code>string</code></td><td>—</td>
 <td class="cell-wrap">—</td><td class="cell-wrap">2019-01-06T05:00:00Z</td><td data-nosort>—</td></tr>

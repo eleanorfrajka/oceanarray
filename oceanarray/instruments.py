@@ -2,7 +2,224 @@
 
 from __future__ import annotations
 
-from typing import Any
+import math
+import re
+from typing import Any, NamedTuple
+
+import pandas as pd
+
+#: How a logsheet says a clock was not read at recovery.
+_NO_CLOCK_READING: frozenset[str] = frozenset(
+    {"", "unknown", "n/a", "na", "none", "not read", "-", "?"}
+)
+
+
+def is_missing_clock_reading(value: object) -> bool:
+    """Return whether a recovery clock reading is absent: null, or a word such as ``unknown``.
+
+    Parameters
+    ----------
+    value : object
+        A ``computer_clock_at_recovery`` or ``instrument_clock_at_recovery`` value.
+
+    Returns
+    -------
+    bool
+
+    Examples
+    --------
+    >>> is_missing_clock_reading("unknown"), is_missing_clock_reading("20260725T13:13:20")
+    (True, False)
+    """
+    return value is None or str(value).strip().lower() in _NO_CLOCK_READING
+
+
+def parse_clock_reading(value: object) -> pd.Timestamp | None:
+    """Parse a recovery clock reading; return ``None`` if it is absent or unparseable.
+
+    The one parser for recovery clock strings, used by stage 2, the mooring check and
+    the report so they agree. Accepts ISO-8601, compact ``YYYYMMDDTHH:MM:SS`` and
+    time-only ``HH:MM:SS`` (anchored to an arbitrary date, since only the
+    computer − instrument difference is used).
+
+    Parameters
+    ----------
+    value : object
+        A recovery clock reading from a mooring entry.
+
+    Returns
+    -------
+    pandas.Timestamp or None
+    """
+    if value is None:
+        return None
+    s = str(value).strip()
+    if not s:
+        return None
+    if re.match(r"^\d{2}:\d{2}:\d{2}", s) and "T" not in s:
+        s = f"2000-01-01T{s}"
+    elif re.match(r"^\d{8}T", s):
+        s = f"{s[:4]}-{s[4:6]}-{s[6:8]}T{s[9:]}"
+    try:
+        return pd.Timestamp(s)
+    except (TypeError, ValueError):
+        return None
+
+
+def _is_time_only(value: object) -> bool:
+    """Return whether a reading is a bare ``HH:MM:SS`` time of day (no date)."""
+    s = str(value).strip()
+    return bool(re.match(r"^\d{2}:\d{2}:\d{2}", s)) and "T" not in s
+
+
+class ClockCorrection(NamedTuple):
+    """One instrument's recovery clock correction, resolved from its YAML entry.
+
+    ``seconds`` is the correction at recovery (seconds added to instrument time,
+    positive when the instrument clock was slow). ``applied`` is whether a non-zero
+    drift correction is made. ``reason`` is the history note. ``source`` is one of
+    ``"recovery readings"``, ``"clock_drift_seconds"``, ``"not read"``, ``"unparseable"``
+    or ``"none"``.
+    """
+
+    seconds: float
+    applied: bool
+    reason: str
+    source: str
+
+
+def _stated_clock_drift(entry: dict[str, Any]) -> float:
+    """Return ``clock_drift_seconds`` as a float (0 if absent, empty or non-numeric).
+
+    The loud error on a non-numeric value is raised by :func:`clock_seconds` (stage 2
+    and the mooring check); this read is tolerant so the report and the outlier check
+    never crash.
+    """
+    try:
+        return float(entry.get("clock_drift_seconds") or 0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def clock_seconds(entry: dict[str, Any], field: str) -> float:
+    """Return a clock field (``clock_offset`` or ``clock_drift_seconds``) in seconds.
+
+    ``None`` or ``""`` is 0.0. A non-numeric value (e.g. ``"unknown"``) or a non-finite
+    one (``nan``, ``inf``) raises :class:`~oceanarray.exceptions.MooringError` naming the
+    field and serial, so a hand-edited mistake fails loudly at stage 2 and is caught as an
+    ERROR by the mooring check (:class:`MooringError` is a :class:`ValueError`).
+
+    Parameters
+    ----------
+    entry : dict
+        One instrument entry of a mooring YAML.
+    field : str
+        ``"clock_offset"`` or ``"clock_drift_seconds"``.
+
+    Returns
+    -------
+    float
+    """
+    # Local import: ``oceanarray.exceptions`` imports from ``config.validation``, which
+    # imports this module — a module-level import would close that cycle.
+    from oceanarray.exceptions import MooringError
+
+    value = entry.get(field, 0)
+    if value is None or value == "":
+        return 0.0
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        number = None
+    if number is None or not math.isfinite(number):
+        serial = str(entry.get("serial", "unknown")).rstrip("* ")
+        raise MooringError(
+            f"{entry.get('instrument', 'instrument')} s/n {serial}: "
+            f"{field}={value!r} is not a finite number of seconds"
+        )
+    return number
+
+
+def resolve_clock_correction(entry: dict[str, Any]) -> ClockCorrection:
+    """Return the recovery clock correction for a mooring YAML instrument entry.
+
+    The ``computer_clock_at_recovery`` / ``instrument_clock_at_recovery`` pair
+    (computer − instrument) takes priority over ``clock_drift_seconds``; a pair read
+    as ``unknown`` (see :func:`is_missing_clock_reading`) falls back to
+    ``clock_drift_seconds``, else there is no drift. Two time-only readings are
+    compared modulo 24 h. The constant ``clock_offset`` at deployment is separate.
+
+    Parameters
+    ----------
+    entry : dict
+        One instrument entry of a mooring YAML.
+
+    Returns
+    -------
+    ClockCorrection
+        ``seconds``, whether it is ``applied``, the history ``reason`` and the
+        ``source`` (``"recovery readings"``, ``"clock_drift_seconds"``, ``"not read"``,
+        ``"unparseable"`` or ``"none"``).
+    """
+    comp = entry.get("computer_clock_at_recovery")
+    inst = entry.get("instrument_clock_at_recovery")
+    stated = _stated_clock_drift(entry)
+
+    if comp is not None or inst is not None:
+        if is_missing_clock_reading(comp) or is_missing_clock_reading(inst):
+            if stated:
+                return ClockCorrection(
+                    stated,
+                    True,
+                    f"clock corrected: clock_drift={stated:+.1f}s over deployment "
+                    "(clock_drift_seconds; no clock reading at recovery)",
+                    "clock_drift_seconds",
+                )
+            return ClockCorrection(
+                0.0, False, "clock: no reading at recovery, not corrected", "not read"
+            )
+        comp_t = parse_clock_reading(comp)
+        inst_t = parse_clock_reading(inst)
+        if comp_t is not None and inst_t is not None:
+            drift = (comp_t - inst_t).total_seconds()
+            if _is_time_only(comp) and _is_time_only(inst):
+                # Both are times of day: wrap the difference into ±12 h so a pair
+                # straddling midnight (23:59:50 vs 00:00:10) reads as −20 s, not +86 380 s.
+                drift = ((drift + 43200) % 86400) - 43200
+            if drift:
+                return ClockCorrection(
+                    drift,
+                    True,
+                    f"clock corrected: clock_drift={drift:+.1f}s over deployment "
+                    f"(computer={comp}, instrument={inst})",
+                    "recovery readings",
+                )
+            return ClockCorrection(
+                0.0,
+                False,
+                "clock: not corrected, the recovery readings agree "
+                f"(computer={comp}, instrument={inst})",
+                "recovery readings",
+            )
+        # Present but neither a "missing" word nor a valid timestamp.
+        return ClockCorrection(
+            0.0,
+            False,
+            f"clock: recovery reading is not a valid timestamp "
+            f"(computer={comp!r}, instrument={inst!r})",
+            "unparseable",
+        )
+
+    if stated:
+        return ClockCorrection(
+            stated,
+            True,
+            f"clock corrected: clock_drift={stated:+.1f}s over deployment",
+            "clock_drift_seconds",
+        )
+    return ClockCorrection(
+        0.0, False, "clock: no correction (no offset or recovery reading)", "none"
+    )
 
 
 def hab_for(entry: dict[str, Any]) -> Any:

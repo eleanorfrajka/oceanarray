@@ -5,20 +5,72 @@ The ``instrument`` field names the subfolder of the raw and processed files
 ``rbrduet``, ``aquadopp``, ``currentmeter``, ``adcp`` or ``tr1050`` (not model names
 such as ``sbe37`` or ``nortek``).
 
-Clock corrections (stage 2, in this order, before trimming to the deployment) are
-seconds **added** to instrument time, positive when the instrument clock was slow:
-``clock_offset`` (constant), then a drift growing linearly from 0 at deployment, from
+Clock corrections (stage 2, before trimming to the deployment) are seconds **added**
+to instrument time, positive when the instrument clock was slow: ``clock_offset`` at
+deployment, ramping linearly to the correction at recovery, from
 ``clock_drift_seconds`` or, preferred, the pair ``computer_clock_at_recovery`` /
-``instrument_clock_at_recovery`` (drift = computer − instrument). The uncorrected time
-is kept as ``time_orig``. See :doc:`/yaml_configuration`.
+``instrument_clock_at_recovery`` (computer − instrument). A pair read as ``unknown``
+(or left empty) is a warning: that instrument's drift is not corrected. A recovery
+correction far from those of the other instruments on the mooring is a warning too
+(``parameters.CLOCK_DRIFT_OUTLIER_SECONDS``). The uncorrected time is kept as
+``time_orig``. See :doc:`/yaml_configuration`.
 """
 
 import re
 from typing import NamedTuple
 
+import numpy as np
+
 from oceanarray import paths
 from oceanarray.config import parameters as params
-from oceanarray.instruments import hab_for
+from oceanarray.instruments import (
+    clock_seconds,
+    hab_for,
+    is_missing_clock_reading,
+    parse_clock_reading,
+    resolve_clock_correction,
+)
+
+# ``is_missing_clock_reading`` is re-exported here (imported above): the clock
+# vocabulary lives in ``oceanarray.instruments`` with the resolver, but callers still
+# import it from validation.
+
+
+def _recovery_correction(entry: dict) -> float | None:
+    """Return the clock correction applied at recovery (s), or None if there is none.
+
+    The same :func:`~oceanarray.instruments.resolve_clock_correction` stage 2 applies,
+    so the outlier check compares the values the pipeline actually uses.
+    """
+    correction = resolve_clock_correction(entry)
+    if correction.source in ("recovery readings", "clock_drift_seconds"):
+        return correction.seconds
+    return None
+
+
+def _drift_outliers(entries: list) -> list["ValidationIssue"]:
+    """Return a WARNING per instrument whose recovery correction is far from the others'."""
+    found = [
+        (e.get("serial", "?"), c)
+        for e in entries
+        if isinstance(e, dict) and (c := _recovery_correction(e)) is not None
+    ]
+    if len(found) < 3:
+        return []
+    out = []
+    for k, (serial, value) in enumerate(found):
+        others = float(np.median([c for j, (_, c) in enumerate(found) if j != k]))
+        if abs(value - others) > params.CLOCK_DRIFT_OUTLIER_SECONDS:
+            out.append(
+                ValidationIssue(
+                    "WARNING",
+                    f"[serial {serial}] clock correction at recovery {value:+.0f} s is "
+                    f"{abs(value - others):.0f} s from the median of the other "
+                    f"instruments ({others:+.0f} s); check the recovery logsheet",
+                )
+            )
+    return out
+
 
 # Instrument-type validity is single-sourced from ``parameters.KNOWN_INSTRUMENT_TYPES``
 # (derived from ``INSTRUMENT_FILE_TYPES``).  This keeps ``oceanarray list`` and
@@ -483,30 +535,62 @@ def validate_mooring(
                     f"must both be present or both absent",
                 )
             )
+        elif (
+            has_comp
+            and has_inst
+            and any(
+                is_missing_clock_reading(entry[k])
+                for k in ("computer_clock_at_recovery", "instrument_clock_at_recovery")
+            )
+        ):
+            fallback = (
+                "; clock_drift_seconds is used instead"
+                if entry.get("clock_drift_seconds") not in (None, "")
+                else ": drift not corrected"
+            )
+            issues.append(
+                ValidationIssue(
+                    "WARNING",
+                    f"{prefix} no clock reading at recovery "
+                    f"(computer {entry['computer_clock_at_recovery']!r}, instrument "
+                    f"{entry['instrument_clock_at_recovery']!r}){fallback}",
+                )
+            )
         elif has_comp and has_inst:
-            for ts_key in (
-                "computer_clock_at_recovery",
-                "instrument_clock_at_recovery",
+            comp_t = parse_clock_reading(entry["computer_clock_at_recovery"])
+            inst_t = parse_clock_reading(entry["instrument_clock_at_recovery"])
+            for ts_key, parsed in (
+                ("computer_clock_at_recovery", comp_t),
+                ("instrument_clock_at_recovery", inst_t),
             ):
-                try:
-                    import pandas as _pd
-
-                    _pd.Timestamp(entry[ts_key])
-                except Exception:  # noqa: BLE001  — report issue and continue; Timestamp parse errors vary
+                if parsed is None:
                     issues.append(
                         ValidationIssue(
                             "ERROR",
                             f"{prefix} {ts_key}='{entry[ts_key]}' is not a valid timestamp",
                         )
                     )
-            if "clock_drift_seconds" in entry:
+            if (
+                "clock_drift_seconds" in entry
+                and comp_t is not None
+                and inst_t is not None
+            ):
                 try:
-                    import pandas as _pd
-
-                    comp_t = _pd.Timestamp(entry["computer_clock_at_recovery"])
-                    inst_t = _pd.Timestamp(entry["instrument_clock_at_recovery"])
-                    computed_drift = (comp_t - inst_t).total_seconds()
                     stated_drift = float(entry["clock_drift_seconds"])
+                except (TypeError, ValueError):
+                    stated_drift = None
+                if stated_drift is not None:
+                    # The same correction stage 2 applies (time-only readings normalised
+                    # modulo 24 h), so a pair straddling midnight is not a false conflict.
+                    computed_drift = resolve_clock_correction(
+                        {
+                            k: entry[k]
+                            for k in (
+                                "computer_clock_at_recovery",
+                                "instrument_clock_at_recovery",
+                            )
+                        }
+                    ).seconds
                     if abs(computed_drift - stated_drift) > 1.0:
                         issues.append(
                             ValidationIssue(
@@ -524,8 +608,16 @@ def validate_mooring(
                                 f"timestamp pair will be used (they agree to <1 s)",
                             )
                         )
-                except (ValueError, TypeError):  # parse errors already reported above
-                    pass
 
+        # clock_offset and clock_drift_seconds must be a finite number of seconds.
+        # clock_seconds raises MooringError (a ValueError) naming the key and serial;
+        # config cannot import exceptions (same layer), so catch it as ValueError.
+        for num_key in ("clock_offset", "clock_drift_seconds"):
+            try:
+                clock_seconds(entry, num_key)
+            except ValueError as exc:
+                issues.append(ValidationIssue("ERROR", str(exc)))
+
+    issues.extend(_drift_outliers(combined_list))
     issues.extend(check_serials(combined_list))
     return issues

@@ -53,7 +53,20 @@ YAML configuration:
        instrument_clock_at_recovery: "2027-04-15T07:59:48"
 
 If neither ``computer_clock_at_recovery`` nor ``instrument_clock_at_recovery`` is
-set, no clock correction is applied. The original time is kept as ``time_orig``.
+set, no clock correction is applied. A reading written as ``unknown`` (or left
+empty) means the clock was not read at recovery: the mooring check warns, and that
+instrument's drift is not corrected (``clock_drift_seconds`` is used if given).
+
+What stage 2 did is in the file: a corrected record keeps the uncorrected time as
+``time_orig`` and carries ``clock_offset`` and ``clock_drift_seconds`` with the values
+applied, and its ``history`` names them ("clock corrected: …", with both readings). A
+record that was not corrected has neither variable, and its ``history`` says why:
+no offset or reading, readings that agree, no reading at recovery, or time as
+delivered by the originator (OceanSITES and RODB files).
+
+The mooring check also warns when an instrument's correction at recovery is more
+than ``parameters.CLOCK_DRIFT_OUTLIER_SECONDS`` (120 s) from the median of the other
+instruments on the mooring: a mistyped minute on the logsheet is the usual cause.
 
 Instead of the two timestamps, the correction can be given directly:
 

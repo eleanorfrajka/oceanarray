@@ -6,9 +6,11 @@
 <p class="one-line">No clock corrections applied here.{% if timing_mode == "imported" %} For originator data, any clock correction was made by the originator before publication.{% endif %}</p>
 {% else %}
 <p class="caption">
-  Clock offset at deployment and drift at recovery, as applied in processing. A
-  positive value means the instrument clock ran slow (behind UTC), so its times were
-  shifted later. Only instruments with a correction are listed. HAB: height above bottom.
+  Clock correction at deployment (offset) and at recovery (computer − instrument){% if any_correction_applied %}, as
+  applied in processing; it ramps linearly in between. A positive value means the
+  instrument clock ran slow (behind UTC), so its times were shifted later{% else %}. No clock
+  correction was applied on this mooring{% endif %}. Listed: the instruments with a correction, and those whose clock
+  was not read at recovery (not corrected). HAB: height above bottom.
 </p>
 <table>
   <thead>
@@ -19,12 +21,12 @@
       {{ cols.th("Offset", "s", true) }}
       <th>Computer time at recovery</th>
       <th>Instrument time at recovery</th>
-      {{ cols.th("Drift", "s", true) }}
+      {{ cols.th("At recovery", "s", true) }}
       <th>Source</th>
     </tr>
   </thead>
   <tbody>
-    {% for instr in instruments if instr.clock.has_correction %}
+    {% for instr in instruments if instr.clock.has_correction or instr.clock.not_read %}
     <tr>
       {{ cols.depth_cells(instr) }}
       <td>{{ instr.type_label }}</td>
@@ -41,7 +43,9 @@
       <td>{% if instr.clock.computer_time %}{{ instr.clock.computer_time }}{% else %}<span class="none-note">—</span>{% endif %}</td>
       <td>{% if instr.clock.instrument_time %}{{ instr.clock.instrument_time }}{% else %}<span class="none-note">—</span>{% endif %}</td>
       <td class="num">
-        {% if instr.clock.drift_s is none or instr.clock.drift_s == 0 %}
+        {% if instr.clock.not_read %}
+          <span class="none-note">not read</span>
+        {% elif instr.clock.drift_s is none or instr.clock.drift_s == 0 %}
           <span class="none-note">—</span>
         {% elif instr.clock.drift_s > 0 %}
           <span class="pos">+{{ "%.1f"|format(instr.clock.drift_s) }}</span>

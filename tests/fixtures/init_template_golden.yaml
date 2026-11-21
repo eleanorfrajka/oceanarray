@@ -19,8 +19,8 @@ clamp:
   filename:
   file_type: nortek-raw
   header:  # .hdr file for T-matrix (same base name if null)
-  clock_offset: 0 # seconds; computer time minus instrument time at recovery
-  computer_clock_at_recovery:
+  clock_offset: 0 # seconds added to instrument time (positive: clock slow)
+  computer_clock_at_recovery: # UTC when the clock was read; correction = computer - instrument
   instrument_clock_at_recovery:
 - instrument: microcat
   serial:

@@ -63,6 +63,11 @@ COLORBAR_PHIGH = 95  # upper percentile for vmax
 # --dt-seconds) nor the mooring YAML's ``stack: dt_seconds`` gives one.
 STACK_DT_SECONDS: int = 3600
 
+#: A recovery clock drift further than this (seconds) from the median of the other
+#: instruments on the same mooring is reported by the mooring check: a mistyped reading
+#: (a wrong minute is 60 s) is likelier than one clock drifting that far from the rest.
+CLOCK_DRIFT_OUTLIER_SECONDS: float = 120.0
+
 # ---------------------------------------------------------------------------
 # Density reference pressure (dbar) for potential density anomaly at stack step.
 # 0 → sigma-0 (suitable for shallow moorings < ~1000 m)

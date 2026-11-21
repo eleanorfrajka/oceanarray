@@ -1067,7 +1067,10 @@ _INSTRUMENT_COMMENTS: dict[str, str] = {
     ),
     "hab": "height above bottom (m) of transducer",
     "header": ".hdr file for T-matrix (same base name if null)",
-    "clock_offset": "seconds; computer time minus instrument time at recovery",
+    "clock_offset": "seconds added to instrument time (positive: clock slow)",
+    "computer_clock_at_recovery": (
+        "UTC when the clock was read; correction = computer - instrument"
+    ),
     "hab_bottom": "HAB of transducer face (downward-looking)",
     "hab_top": "HAB of top of housing",
     "orientation": "down or up",

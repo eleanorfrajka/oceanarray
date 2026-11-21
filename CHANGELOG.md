@@ -14,12 +14,19 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Changed
 
-- Import rules are checked in CI by `lint-imports` (contracts in `pyproject.toml`), docstring examples run as doctests, and `AGENTS.md` points coding assistants to the developer guide (#).
+- Import rules are checked in CI by `lint-imports` (contracts in `pyproject.toml`), docstring examples run as doctests, and `AGENTS.md` points coding assistants to the developer guide (#156).
 - Every figure and the instrument summary hide flagged values by the `mask_flags` rule (default 4), like the grid: suspect (3) values are now drawn on instrument pages and on stacks without a recorded rule, and the Stack cat page marks them with black dots as the stack page does. Re-run the report to apply (#155).
+- Mooring check: warns when a recovery clock correction is over 120 s from the mooring median (`CLOCK_DRIFT_OUTLIER_SECONDS`), and errors on a non-numeric `clock_offset`/`clock_drift_seconds` (#157).
 
 ### Fixed
 
-- Deployment and array pages: an instrument's pressure range leaves out what the mooring's `stack: mask_flags` hides, like its figures (it used the default rule, so a mooring hiding suspect values showed suspect pressures in its range) (#).
+- Deployment and array pages: an instrument's pressure range leaves out what the mooring's `stack: mask_flags` hides, like its figures (it used the default rule, so a mooring hiding suspect values showed suspect pressures in its range) (#156).
+- Clock: a recovery reading of `unknown` (or empty) is a warning, not an error; the instrument's drift is not corrected and its stage-2 history says so (#157).
+- Deployment page clock table: the recovery correction shows the sign stage 2 applies (computer − instrument); it showed the opposite. Not-read instruments are listed (#157).
+- Deployment page clock table: the caption says a correction was applied only when at least one was (#157).
+- Stage-2 history records "clock corrected" only when a correction was made, and otherwise why not (readings agree, not read, or originator time) (#157).
+- Stage files carry a `clock_offset` variable only when a non-zero offset was applied; stage 1 no longer writes a zero. Rerun stage 2 to update existing files (#157).
+- Mooring YAML template: the `clock_offset` comment described the drift (#157).
 
 ### Removed
 

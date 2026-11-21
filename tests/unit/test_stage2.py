@@ -14,14 +14,13 @@ import xarray as xr
 
 pytest.importorskip("seasenselib", reason="seasenselib not installed")
 
+from oceanarray.instruments import parse_clock_reading, resolve_clock_correction
 from oceanarray.pipeline.stage2 import (
     Stage2Processor,
     _add_missing_metadata,
     _apply_clock_offset,
     _drop_redundant_sbe_vars,
-    _parse_clock_str,
     _parse_yaml_time,
-    _resolve_clock_drift,
     _trim_to_deployment_window,
     _warn_short_record,
     detect_deployment_window,
@@ -357,17 +356,17 @@ class TestErrorHandling:
         assert result is False
 
 
-class TestParseClockStr:
-    """Tests for _parse_clock_str — the clock timestamp parser."""
+class TestParseClockReading:
+    """Tests for instruments.parse_clock_reading — the one clock timestamp parser."""
 
     def test_time_only_hh_mm_ss(self):
-        t = _parse_clock_str("18:43:30")
+        t = parse_clock_reading("18:43:30")
         assert t.hour == 18
         assert t.minute == 43
         assert t.second == 30
 
     def test_compact_yyyymmdd(self):
-        t = _parse_clock_str("20260710T18:43:30")
+        t = parse_clock_reading("20260710T18:43:30")
         assert t.year == 2026
         assert t.month == 7
         assert t.day == 10
@@ -376,7 +375,7 @@ class TestParseClockStr:
         assert t.second == 30
 
     def test_standard_iso(self):
-        t = _parse_clock_str("2026-07-10T18:43:30")
+        t = parse_clock_reading("2026-07-10T18:43:30")
         assert t.year == 2026
         assert t.month == 7
         assert t.day == 10
@@ -385,98 +384,89 @@ class TestParseClockStr:
         assert t.second == 30
 
     def test_compact_and_standard_agree(self):
-        assert _parse_clock_str("20260710T18:43:30") == _parse_clock_str(
+        assert parse_clock_reading("20260710T18:43:30") == parse_clock_reading(
             "2026-07-10T18:43:30"
         )
 
+    def test_unparseable_is_none(self):
+        assert parse_clock_reading("not a time") is None
+        assert parse_clock_reading("") is None
+        assert parse_clock_reading(None) is None
+
     def test_drift_time_only_instrument_slow(self):
         """Instrument 33 s behind computer → drift = +33 s."""
-        comp = _parse_clock_str("18:44:03")
-        inst = _parse_clock_str("18:43:30")
+        comp = parse_clock_reading("18:44:03")
+        inst = parse_clock_reading("18:43:30")
         assert (comp - inst).total_seconds() == 33.0
-
-    def test_drift_time_only_instrument_fast(self):
-        """Instrument 7 s ahead of computer → drift = −7 s."""
-        comp = _parse_clock_str("21:03:00")
-        inst = _parse_clock_str("21:03:07")
-        assert (comp - inst).total_seconds() == -7.0
 
     def test_drift_compact_matches_time_only(self):
         """All formats give identical drift."""
         drift_compact = (
-            _parse_clock_str("20260710T19:12:30")
-            - _parse_clock_str("20260710T19:12:39")
+            parse_clock_reading("20260710T19:12:30")
+            - parse_clock_reading("20260710T19:12:39")
         ).total_seconds()
         drift_time = (
-            _parse_clock_str("19:12:30") - _parse_clock_str("19:12:39")
+            parse_clock_reading("19:12:30") - parse_clock_reading("19:12:39")
         ).total_seconds()
         assert drift_compact == drift_time == -9.0
 
 
-class TestResolveClockDrift:
-    """Tests for Stage2Processor._resolve_clock_drift with real YAML field names."""
+class TestResolveClockCorrection:
+    """Tests for instruments.resolve_clock_correction with real YAML field names."""
 
     def test_option_b_standard_iso_instrument_slow(self):
-        cfg = {
-            "computer_clock_at_recovery": "2026-07-10T19:12:39",
-            "instrument_clock_at_recovery": "2026-07-10T19:12:30",
-        }
-        drift_s, note = _resolve_clock_drift(cfg)
-        assert drift_s == 9.0
-        assert "clock_drift=+9.0s" in note
-
-    def test_option_b_standard_iso_instrument_fast(self):
-        cfg = {
-            "computer_clock_at_recovery": "2026-07-10T21:03:00",
-            "instrument_clock_at_recovery": "2026-07-10T21:03:07",
-        }
-        drift_s, note = _resolve_clock_drift(cfg)
-        assert drift_s == -7.0
-        assert "clock_drift=-7.0s" in note
+        corr = resolve_clock_correction(
+            {
+                "computer_clock_at_recovery": "2026-07-10T19:12:39",
+                "instrument_clock_at_recovery": "2026-07-10T19:12:30",
+            }
+        )
+        assert corr.seconds == 9.0
+        assert corr.applied is True
+        assert corr.source == "recovery readings"
+        assert "clock_drift=+9.0s" in corr.reason
 
     def test_option_b_time_only(self):
-        cfg = {
-            "computer_clock_at_recovery": "19:12:39",
-            "instrument_clock_at_recovery": "19:12:30",
-        }
-        drift_s, note = _resolve_clock_drift(cfg)
-        assert drift_s == 9.0
-
-    def test_option_b_compact_datetime(self):
-        cfg = {
-            "computer_clock_at_recovery": "20260710T19:12:39",
-            "instrument_clock_at_recovery": "20260710T19:12:30",
-        }
-        drift_s, note = _resolve_clock_drift(cfg)
-        assert drift_s == 9.0
+        corr = resolve_clock_correction(
+            {
+                "computer_clock_at_recovery": "19:12:39",
+                "instrument_clock_at_recovery": "19:12:30",
+            }
+        )
+        assert corr.seconds == 9.0
 
     def test_option_b_takes_priority_over_option_a(self):
-        cfg = {
-            "clock_drift_seconds": 999,
-            "computer_clock_at_recovery": "2026-07-10T19:12:39",
-            "instrument_clock_at_recovery": "2026-07-10T19:12:30",
-        }
-        drift_s, _ = _resolve_clock_drift(cfg)
-        assert drift_s == 9.0  # Option B wins
+        corr = resolve_clock_correction(
+            {
+                "clock_drift_seconds": 999,
+                "computer_clock_at_recovery": "2026-07-10T19:12:39",
+                "instrument_clock_at_recovery": "2026-07-10T19:12:30",
+            }
+        )
+        assert corr.seconds == 9.0  # the readings win
 
     def test_option_a_drift_seconds(self):
-        cfg = {"clock_drift_seconds": 33}
-        drift_s, note = _resolve_clock_drift(cfg)
-        assert drift_s == 33.0
-        assert "33.0s" in note
+        corr = resolve_clock_correction({"clock_drift_seconds": 33})
+        assert corr.seconds == 33.0
+        assert corr.source == "clock_drift_seconds"
+        assert "33.0s" in corr.reason
 
-    def test_no_clock_info_returns_zero(self):
-        drift_s, _ = _resolve_clock_drift({})
-        assert drift_s == 0.0
+    def test_no_clock_info_is_no_correction(self):
+        corr = resolve_clock_correction({})
+        assert corr.seconds == 0.0
+        assert corr.applied is False
+        assert corr.source == "none"
 
-    def test_unknown_string_ignored(self):
-        """'unknown' in YAML should be treated as no correction."""
-        cfg = {
-            "computer_clock_at_recovery": "unknown",
-            "instrument_clock_at_recovery": "unknown",
-        }
-        drift_s, _ = _resolve_clock_drift(cfg)
-        assert drift_s == 0.0
+    def test_unknown_readings_are_not_read(self):
+        """'unknown' in YAML is treated as no reading, not a correction."""
+        corr = resolve_clock_correction(
+            {
+                "computer_clock_at_recovery": "unknown",
+                "instrument_clock_at_recovery": "unknown",
+            }
+        )
+        assert corr.seconds == 0.0
+        assert corr.source == "not read"
 
 
 class TestShortRecordWarning:
