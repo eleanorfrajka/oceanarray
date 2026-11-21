@@ -7,6 +7,10 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ## [Unreleased]
 
+---
+
+## [0.6.2] — 2026-11-21
+
 ### Changed
 
 - Tests: the `needs_seasenselib` and `integration` markers are removed (seasenselib is a core dependency); CI installs the built wheel and opens its data files.

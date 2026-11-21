@@ -7,8 +7,8 @@ authors:
   affiliation: University of Hamburg, Bundesstraße 57, 20146 Hamburg, Germany
 title: oceanarray
 doi: 10.5281/zenodo.21890564
-version: 0.6.1
-date-released: 2026-11-20
+version: 0.6.2
+date-released: 2026-11-21
 url: https://github.com/ocean-uhh/oceanarray
 repository-code: https://github.com/ocean-uhh/oceanarray
 license: MIT
