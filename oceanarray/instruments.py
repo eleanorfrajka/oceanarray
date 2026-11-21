@@ -46,35 +46,21 @@ def nominal_depth(entry: dict[str, Any], waterdepth: Any) -> float | None:
 def extract_inline_instruments(
     inline_list: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
-    """Extract processable instrument entries from the mooring YAML ``inline`` list.
+    """Return the instrument entries of the YAML ``inline`` list, marked ``source: "inline"``.
 
-    Most ``inline`` entries describe passive hardware (ropes, shackles, floats).
-    This function filters for entries that have an ``instrument`` field and either
-    a ``filename`` (to be processed) or ``skip: true`` (to be reported as skipped).
+    Entries with an ``instrument`` and either a ``filename`` or ``skip: true``. ``serial`` is
+    split on the first comma: the first token is the serial (filenames, outputs), the rest
+    ``beacon_id``; the validator warns on any comma so the order can be confirmed. ``hab`` is
+    filled later (:func:`instrument_entries`).
 
-    Normalisation applied to each matching entry (``hab`` is filled later, for clamp
-    and inline alike, by :func:`instrument_entries` via :func:`hab_for`):
-
-    - ``serial`` is split on the first comma and the first token is used as the
-      primary serial number.  Any remaining tokens are joined and stored under
-      ``beacon_id`` in the returned dict.
-    - ``source: "inline"`` is added to distinguish these entries from ``clamp``
-      entries in downstream logging.
-
-    **Serial parsing is fragile**: the convention ``serial: 16430, R01-024``
-    assumes the *first* comma-separated token is the instrument serial and the
-    rest is a transponder/beacon ID.  If a YAML author places the beacon serial
-    first, the wrong value will be used as the output filename stem.  The
-    validator emits a WARNING for any inline entry whose serial contains a comma
-    so operators can confirm the ordering is correct.
-
-    Args:
-        inline_list: The raw list parsed from the ``inline`` YAML key.
+    Parameters
+    ----------
+    inline_list : list of dict
+        The ``inline`` list as parsed.
 
     Returns
     -------
-        List of normalised instrument-config dicts ready for stage processing.
-
+    list of dict
     """
     result: list[dict[str, Any]] = []
     for entry in inline_list:

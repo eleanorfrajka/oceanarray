@@ -43,90 +43,64 @@ def run(
 ) -> list[Path]:
     """Run stages 1–3 for one mooring, then stack and grid it (and build its report).
 
-    :func:`oceanarray.process` writes the stage files; the stack is built from
-    every instrument's stage-3 file and written as ``<name>_stack.nc``, then
-    gridded onto pressure levels as ``<name>_grid.nc``. An existing stack is kept
-    when it is still current: the same stage files (by SHA-256), the same settings
-    for the stack, the same mooring-level fields and the same oceanarray release
-    built it; an existing grid is kept when it was built from that stack with the
-    same levels and ``mask_flags``. Otherwise each is rebuilt, and its history says
-    why. ``force=True`` rebuilds both; use it after updating oceanarray from a git
-    checkout without a new version, which the comparison does not see.
-
     Parameters
     ----------
     mooring : str or os.PathLike or Mapping
-        A ``*.mooring.yaml`` path, a directory holding exactly one, or a loaded
-        description (then *mooring_dir* is required).
+        A ``*.mooring.yaml``, a directory holding exactly one, or a loaded description
+        (then *mooring_dir* is required).
     stages : int or "all" or iterable of int or None, optional
-        The stages to run before the stack. The stack is built from the stage-3
-        files (stage 2 with ``stack_stage=2``), so the stages must run from the
-        first one given through that stage: ``(2, 3)`` re-runs stages 2 and 3 from
-        the stage-1 files without needing *raw_dir*; ``3`` re-runs stage 3 only;
-        ``2`` alone is refused (the stack would take stage-3 files older than the
-        stage-2 files just written). To run one stage on its own, use
-        :func:`oceanarray.process`. Default: all.
+        Stages to run before the stack, from the first given through the stage the stack
+        reads: ``(2, 3)`` needs no *raw_dir*; ``2`` alone is refused. Default: all.
     from_stage : int or None, optional
-        The stage to start from instead of listing *stages*: ``from_stage=2`` is
-        ``stages=(2, 3)``.
+        Start here instead of listing *stages*: ``from_stage=2`` is ``stages=(2, 3)``.
     serials : iterable of str or None, optional
-        Run stages 1–3 for these instruments only; the stack still takes every
-        instrument's stage-3 file.
+        Run stages 1–3 for these instruments only; the stack still takes every one.
     force : bool, optional
-        Rewrite stage files that already exist (see :func:`oceanarray.process`), and
-        rebuild the stack and grid even when they are current.
+        Rewrite existing stage files and rebuild a current stack and grid (needed after
+        updating oceanarray from git without a new version).
     keep_going : bool, optional
-        Default True: stages 1–3 carry on past failures, and the stack takes each
-        instrument's stage-3 file, else its stage-2 file (recorded per level in
-        ``source_stage`` and in ``stage2_instruments``), leaving out and naming in
-        ``instruments_omitted`` any with neither or that failed in this run; what
-        failed is recorded in ``keep_going_failures``. Every product is
-        ``data_mode = "P"``. False (strict): any failure raises, and no grid is
-        made from a stack that left an instrument out.
+        True: carry on past failures; the stack takes stage 3, else stage 2 (``source_stage``,
+        ``stage2_instruments``), names what it left out (``instruments_omitted``,
+        ``keep_going_failures``) and products are ``data_mode = "P"``. False: any failure
+        raises.
     mooring_dir, raw_dir, caldip_dir : os.PathLike or None, optional
         As for :func:`oceanarray.process`.
     dt_seconds : int or None, optional
-        Spacing of the stack's time axis, in seconds. ``None`` takes
-        ``stack: dt_seconds`` from the description, else
-        ``parameters.STACK_DT_SECONDS`` (3600).
+        Stack time step (s); default ``stack: dt_seconds``, else 3600.
     pmin, pmax, dp : float or None, optional
-        The grid's pressure levels, in dbar. ``None`` takes the description's
-        ``grid:`` block, else 200, 1000 and 20.
+        Grid pressure levels (dbar); default the ``grid:`` block, else 200, 1000, 20.
     mask_flags : iterable of int, or Mapping of str to iterable of int, optional
-        The flags the stack's pages hide and the grid leaves out (see
-        :func:`oceanarray.pipeline.masking.resolve_mask_flags`), recorded in the
-        stack as ``stack_mask_flags``. ``None`` takes the description's
-        ``stack: mask_flags``, else 4. The description's ``grid: mask_flags`` may
-        add flags for the grid.
+        Flags the stack pages hide and the grid leaves out (``stack_mask_flags``; see
+        :func:`~oceanarray.pipeline.masking.resolve_mask_flags`); default
+        ``stack: mask_flags``, else 4.
     stack_stage : {3, 2}, optional
-        Which stage files the stack is built from. 2 builds a quick look at sea
-        from the stage-2 files without running stage 3: no QC flags, no
-        interpolated pressure, no magnetic declination (recorded per level in
-        ``source_stage`` and in ``stage2_instruments``; the report says so).
+        Stage files the stack reads; 2 is a quick look without QC, interpolated pressure
+        or declination.
     report : bool, optional
-        Then build the mooring's report pages with :func:`oceanarray.report`
-        (summary, per-instrument, stack and grid; no PDF), in the default place.
+        Also build the report pages (no PDF) with :func:`oceanarray.report`.
 
     Returns
     -------
     list of pathlib.Path
-        The stage files (as :func:`oceanarray.process` returns them), then the
-        stack and grid files, then (with *report*) the report's summary page.
+        The stage files, the stack and grid, then (with *report*) the summary page.
 
     Raises
     ------
     oceanarray.exceptions.MooringError
-        When nothing at all can be stacked, or a setting is invalid; with
-        ``keep_going=False`` also on any failure in stages 1–3, an instrument with
-        no stage-3 file, or a stack that left an instrument out.
+        Nothing can be stacked or a setting is invalid; with ``keep_going=False`` also any
+        failure.
+
+    Notes
+    -----
+    A stack is kept when the same stage files (SHA-256), settings, mooring fields and
+    oceanarray release built it; a grid when built from that stack with the same levels
+    and ``mask_flags``. Otherwise each is rebuilt, and its history says why.
 
     Examples
     --------
     >>> import oceanarray as oa
     >>> oa.run("proc/dune2_1_2026/dune2_1_2026.mooring.yaml", raw_dir="raw/")
-    >>> oa.run(yaml_path, raw_dir="raw/", keep_going=False)  # stop on any failure
-    >>> oa.run(yaml_path, stages=3, dp=10)                    # re-QC, regrid finer
-    >>> oa.run(yaml_path, from_stage=2)                        # stages 2 and 3
+    >>> oa.run(yaml_path, stages=3, dp=10)  # re-QC, regrid finer
     """
     from oceanarray.exceptions import MooringError
     from oceanarray.pipeline import (

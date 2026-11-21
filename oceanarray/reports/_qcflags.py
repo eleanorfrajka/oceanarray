@@ -27,18 +27,6 @@ from oceanarray.plotters.helpers import QC_COLORS
 log = logging.getLogger(__name__)
 
 
-def rule_text(ds: xr.Dataset) -> str:
-    """Return the file's rule in words: ``"4"``, or ``"4; salinity 3, 4"``."""
-    rule = masking.from_attrs(ds.attrs)
-    parts = [", ".join(map(str, rule["default"])) or "none"]
-    parts += [
-        f"{key} {', '.join(map(str, flags)) or 'none'}"
-        for key, flags in rule.items()
-        if key != "default"
-    ]
-    return "; ".join(parts)
-
-
 #: Flags counted as flagged when comparing ours with the originator's: suspect and
 #: bad. 5 (value changed) and 8 (interpolated) are shown, but are not a judgment.
 _QUALITY = (3, 4)

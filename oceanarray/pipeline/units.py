@@ -79,29 +79,36 @@ def to_canonical_units(
     log_fn: Callable[[str], None] | None = None,
     stage: int | str | None = None,
 ) -> xr.Dataset:
-    """Rewrite each registered variable's units to its canonical spelling (public entry).
+    """Rewrite each registered variable's units to its canonical spelling, in place; idempotent.
 
-    This logs through the ``oceanarray.pipeline.units`` logger; see
-    :func:`_canonicalise_units` for the full behaviour. The ``log_fn`` callback is
-    deprecated (removed in 0.7.0) — if given, each message is still passed to it and a
-    :class:`DeprecationWarning` is raised; configure logging instead.
+    The canonical comes from :data:`parameters.VARIABLES` (by name, or by
+    ``standard_name``); *tables* says which other spellings are accepted (aliases, and
+    spellings scoped to a quantity, e.g. ``PSU`` for salinity). Values are scaled by the
+    factor; a true conversion adds ``units_converted_from`` / ``units_conversion_factor``,
+    and every change is recorded in ``units_converted`` (JSON, kept across stages).
+    Temperatures get ``units_metadata = "temperature: on_scale"``. Spellings in
+    :data:`~oceanarray.config.unit_tables.UNIT_SPELLINGS_KEPT` and unregistered variables
+    are left as they are.
 
     Parameters
     ----------
     ds : xarray.Dataset
-        Dataset to canonicalise in place (also returned).
+        Dataset to canonicalise (also returned).
     tables : Tables, optional
-        The accepted spellings to resolve against; defaults to
-        :data:`oceanarray.config.unit_tables.TABLES`.
+        Accepted spellings; default :data:`oceanarray.config.unit_tables.TABLES`.
     log_fn : callable, optional
-        Deprecated legacy callback; see above.
+        Deprecated (removed in 0.7.0): configure logging instead.
     stage : int or str, optional
-        Processing stage, used only to annotate the log and error messages.
+        Stage or label (``"stack"``), for the messages.
 
     Returns
     -------
     xarray.Dataset
-        The same dataset, with canonical units on every registered variable.
+
+    Raises
+    ------
+    UnitsError
+        A registered variable has no units or an unrecognised spelling.
     """
     with logger.deprecated_log_fn(log_fn):
         return _canonicalise_units(ds, tables=tables, stage=stage)
@@ -113,54 +120,7 @@ def _canonicalise_units(
     tables: Tables = TABLES,
     stage: int | str | None = None,
 ) -> xr.Dataset:
-    """Rewrite each registered variable's units to its canonical spelling.
-
-    The canonical spelling comes from the registry, :data:`parameters.VARIABLES` — by
-    variable name, or by ``standard_name`` for an unregistered variable whose
-    ``standard_name`` a registry entry carries.  *tables* decides only which other
-    spellings are accepted for that canonical: the alias spellings, and the spellings
-    scoped to the quantity (``PSU`` is salinity-only; the quantity is the registry's
-    ``standard_name`` for a registered variable).  The value is multiplied by the factor
-    and the attribute rewritten to the canonical string.  A genuine conversion (factor ≠
-    1) stamps ``units_converted_from`` and ``units_conversion_factor`` for provenance; a
-    pure spelling rewrite does not (the value is unchanged).  Every change, spelling
-    or conversion, is also recorded in the dataset's ``units_converted`` attribute,
-    JSON ``{variable: {"from", "to", "factor"}}``, kept from earlier stages.  Temperature variables
-    additionally get the CF-1.11 ``units_metadata = "temperature: on_scale"`` attribute.
-
-    The pass is idempotent — a variable already carrying the canonical string is left
-    unchanged — so it can be run on the way out of every stage without
-    double-converting.  One deliberate exception to one spelling per quantity: a
-    spelling listed in :data:`oceanarray.config.unit_tables.UNIT_SPELLINGS_KEPT` is left
-    as the file has it, so N² is written as ``s-2`` or ``rad2 s-2``, whichever arrived.
-    Unregistered engineering variables (no :data:`parameters.VARIABLES` entry and no
-    matching ``standard_name``) are left untouched.
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        Dataset to canonicalise in place (also returned).
-    tables : Tables, optional
-        The accepted spellings (aliases and scoped spellings) to resolve against;
-        defaults to :data:`oceanarray.config.unit_tables.TABLES`.  The canonical itself
-        always comes from the registry.
-    stage : int or str, optional
-        Processing stage, used only to annotate the log and error messages — an int
-        (1, 2, 3) or a label (``"stack"``, ``"grid"``).
-
-    Returns
-    -------
-    xarray.Dataset
-        The same dataset, with canonical units on every registered variable.
-
-    Raises
-    ------
-    UnitsError
-        If a registered variable carries a units string that is not a recognised
-        spelling of its canonical, or no units attribute at all.  The pass never
-        guesses or silently passes an unknown unit through.
-
-    """
+    """Implement :func:`to_canonical_units` (without ``log_fn``)."""
     sn_map = _canonical_by_standard_name()  # built once per call, not per variable
     changed: dict[str, dict[str, object]] = {}
     for var in list(ds.variables):

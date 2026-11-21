@@ -333,7 +333,7 @@ def _read_instrument_info(
                     p_min = _pmin
                 if np.isfinite(_pmax):
                     p_max = _pmax
-            except Exception:
+            except (ValueError, TypeError):
                 pass
 
         ds.close()
@@ -401,7 +401,7 @@ def _read_timing_info(
                     ).total_seconds()
                 )
                 sugg_start_differs = diff_s > 2 * dt_s
-            except Exception:
+            except (ValueError, TypeError):
                 pass
         if sugg_end_utc and stage2_end and np.isfinite(dt_s) and dt_s > 0:
             try:
@@ -412,7 +412,7 @@ def _read_timing_info(
                     ).total_seconds()
                 )
                 sugg_end_differs = diff_s > 2 * dt_s
-            except Exception:
+            except (ValueError, TypeError):
                 pass
 
         # Orange-amber: stage1 last record ends more than 2 sample intervals before
@@ -425,7 +425,7 @@ def _read_timing_info(
                     - datetime.fromisoformat(stage1_end[:16])
                 ).total_seconds()
                 stage1_end_early = diff_s > 2 * dt_s
-            except Exception:
+            except (ValueError, TypeError):
                 pass
 
         def _fmt(s: str | None) -> str | None:

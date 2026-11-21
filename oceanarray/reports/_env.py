@@ -145,6 +145,19 @@ def render_nc_variables(nc_meta: Any) -> str:
     )
 
 
+def _render_nc_rows(nc_meta: Any, heading: str, macro: str, key: str) -> str:
+    """Render one row table of the netCDF panel: ``<key>_rows`` via vendored *macro*."""
+    if nc_meta.get("error") or f"{key}_rows" not in nc_meta:
+        return ""
+    return f"<h3>{heading}</h3>" + str(
+        getattr(_NC, macro)(
+            nc_meta[f"{key}_rows"],
+            optional=("units", "minmax", "stdname", "attrs"),
+            source=nc_meta.get(f"{key}_src"),
+        )
+    )
+
+
 def render_nc_coords(nc_meta: Any) -> str:
     """Render the netCDF coordinates table (``nc_coords`` panel payload).
 
@@ -152,15 +165,7 @@ def render_nc_coords(nc_meta: Any) -> str:
     (:func:`~oceanarray.reports._vendored.nc_tables.coords_rows`), drawn by the
     vendored ``coords_table`` macro.
     """
-    if nc_meta.get("error") or "coords_rows" not in nc_meta:
-        return ""
-    return "<h3>Coordinates</h3>" + str(
-        _NC.coords_table(
-            nc_meta["coords_rows"],
-            optional=("units", "minmax", "stdname", "attrs"),
-            source=nc_meta.get("coords_src"),
-        )
-    )
+    return _render_nc_rows(nc_meta, "Coordinates", "coords_table", "coords")
 
 
 def render_nc_scalars(nc_meta: Any) -> str:
@@ -170,15 +175,7 @@ def render_nc_scalars(nc_meta: Any) -> str:
     drawn by the vendored ``scalars_table`` macro; ``SENSOR_*`` variables are
     included here.
     """
-    if nc_meta.get("error") or "scalar_rows" not in nc_meta:
-        return ""
-    return "<h3>Scalar variables</h3>" + str(
-        _NC.scalars_table(
-            nc_meta["scalar_rows"],
-            optional=("units", "minmax", "stdname", "attrs"),
-            source=nc_meta.get("scalar_src"),
-        )
-    )
+    return _render_nc_rows(nc_meta, "Scalar variables", "scalars_table", "scalar")
 
 
 def render_nc_globals(nc_meta: Any) -> str:

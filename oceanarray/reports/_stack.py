@@ -785,7 +785,11 @@ def generate_stack_page(
             if qc_ruled
             else None
         )
-        qc_rule = _qcflags.rule_text(ds) if qc_ruled else ""
+        qc_rule = (
+            masking.rule_words(masking.from_attrs(ds.attrs), table=True)
+            if qc_ruled
+            else ""
+        )
         steps = _captions.stack_history_rows(ds)
         rose_caption = _captions.stack_rose_caption(ds)
         captions = _captions.stack_captions(ds, records)

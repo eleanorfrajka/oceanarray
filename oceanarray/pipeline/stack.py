@@ -48,8 +48,6 @@ STACK_VARS = [
     "east_velocity_qc",
     "north_velocity_qc",
     "up_velocity_qc",
-    "pitch_qc",
-    "roll_qc",
     "velocity_beam1",
     "velocity_beam2",
     "velocity_beam3",

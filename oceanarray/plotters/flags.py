@@ -23,44 +23,6 @@ def level_dim(ds: xr.Dataset) -> str:
     return "N_DEPTHS" if "N_DEPTHS" in ds.dims else "N_LEVELS"
 
 
-def worst_flags(ds: xr.Dataset, suffix: str) -> np.ndarray | None:
-    """Return the worst flag per (level, time) over the flagged variables.
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        A stack or Stack cat.
-    suffix : str
-        ``"_qc"`` (ours) or ``"_qc_originator_mapped"`` (the originator's).
-
-    Returns
-    -------
-    numpy.ndarray or None
-        int8 ``(level, time)``; 9 where no variable has a value; None when no
-        variable has this flag set.
-    """
-    from oceanarray.pipeline.qc import _worst_flag
-
-    dim = level_dim(ds)
-    out = None
-    present = None
-    for var in FLAGGED_VARIABLES:
-        name = f"{var}{suffix}"
-        if name not in ds.data_vars or var not in ds.data_vars:
-            continue
-        here = np.isfinite(ds[var].transpose(dim, "time").values)
-        # A variable a level does not have (its 9s) says nothing about the others.
-        flags = np.where(
-            here, ds[name].transpose(dim, "time").values, params.QC_NOT_EVALUATED
-        )
-        out = flags.astype(np.int8) if out is None else _worst_flag(out, flags)
-        present = here if present is None else present | here
-    if out is None:
-        return None
-    out[~present] = params.QC_MISSING
-    return out
-
-
 def level_labels(ds: xr.Dataset) -> list[str]:
     """Return one label per level: instrument and serial, or a site depth.
 
@@ -165,9 +127,7 @@ def flagged_rows(
     -------
     dict of int to list of (str, numpy.ndarray or None, numpy.ndarray or None)
         Level index → ``(variable, originator, ours)`` for each variable flagged
-        by either. A flag set the file lacks is None (no row is drawn for it: it
-        was not checked, which is not the same as missing); in a set the file
-        has, a step with no value is 9 and a value with no flag 0.
+        by either, as in :func:`_flag_sets`.
     """
     out: dict[int, list] = {}
     for var, (theirs, ours) in _flag_sets(ds).items():

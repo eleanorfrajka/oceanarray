@@ -30,31 +30,23 @@ def render(
     optional: bool = False,
     **kwargs: Any,
 ) -> str | None:
-    """Render *draw* at the inch-width of *slot* and return the base64 PNG.
-
-    Resolves ``report_tokens.SLOTS[slot]`` to an inch width and forwards it to
-    *draw* as the ``width_in`` keyword.  The display slot travels with the figure
-    through the section manifest (``Panel.slot``), so the caller records the slot
-    there rather than in a side table.
+    """Render *draw* at the width of *slot* (``width_in``) and return the base64 PNG.
 
     Parameters
     ----------
     draw : callable
-        A ``draw_*`` function (or ``_make_*`` closure) that accepts ``width_in``
-        and returns a Figure or ``None``.
+        A ``draw_*`` function accepting ``width_in`` and returning a Figure or None.
     *args, **kwargs
         Forwarded to *draw*.
-    slot : str
-        A key of :data:`report_tokens.SLOTS` (default ``"full"``).
-    optional : bool
-        Passed through to the encoder (see
-        ``reports._encode.render_b64``).
+    slot : str, optional
+        A key of :data:`report_tokens.SLOTS`.
+    optional : bool, optional
+        Passed to the encoder.
 
     Returns
     -------
     str or None
-        Base64-encoded PNG, or ``None`` when *draw* returned ``None`` or raised.
-
+        None when *draw* returned None or raised.
     """
     width_in = report_tokens.SLOTS[slot][1]
     return _figdebug.render_b64(

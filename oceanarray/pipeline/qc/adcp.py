@@ -20,48 +20,26 @@ def apply_adcp_seabed_qc(
     fail_margin_m: float = 20.0,
     log_fn: Any = None,
 ) -> xr.Dataset:
-    """Flag ADCP bins that are at or below the seabed.
-
-    Bins whose ``bin_pressure`` exceeds the estimated seabed pressure are flagged
-    suspect (3); bins more than *fail_margin_m* metres below the seabed are flagged
-    bad (4).  The flag is stored as the standalone variable ``seabed_qc(time, N_BINS)``.
-
-    **Flag scale** (OceanSITES / QARTOD convention):
-    1 = good, 3 = suspect, 4 = bad, 9 = missing.
-
-    **Standalone flag**: ``seabed_qc`` is *not* merged into ``east_velocity_qc``,
-    ``north_velocity_qc``, or ``up_velocity_qc``.  Downstream code that needs clean
-    velocity data must explicitly include all relevant flags, for example::
-
-        clean = (ds.east_velocity_qc == 1) & (ds.seabed_qc == 1)
-
-    The seabed pressure threshold is ``pipeline.pressure.pressure_from_depth(water_depth_m, lat)``,
-    consistent with ``compute_adcp_bin_pressure``.
+    """Add ``seabed_qc(time, N_BINS)``: 3 for bins below the seabed, 4 beyond *fail_margin_m*.
 
     Parameters
     ----------
-    ds : xr.Dataset
-        Stage 3 ADCP dataset containing ``bin_pressure(time, N_BINS)`` in dbar.
+    ds : xarray.Dataset
+        Stage-3 ADCP dataset with ``bin_pressure(time, N_BINS)`` (dbar).
     water_depth_m : float
-        Water depth at the mooring site in metres (from YAML ``waterdepth`` key).
-        If ≤ 0 the function is a no-op.
+        Water depth (m, the YAML ``waterdepth``); no-op if ≤ 0.
     lat : float
-        Mooring latitude in decimal degrees, for the depth-to-pressure conversion.
-    fail_margin_m : float
-        Margin below the seabed (in metres) that separates suspect (3) from bad (4).
-        Default 20 m.  Bins between 0 and *fail_margin_m* below the seabed receive
-        flag 3; bins more than *fail_margin_m* below receive flag 4.
+        Latitude (decimal degrees), for :func:`~oceanarray.pipeline.pressure.pressure_from_depth`.
+    fail_margin_m : float, optional
+        Metres below the seabed beyond which a bin is bad (4) rather than suspect (3).
     log_fn : callable, optional
-        Deprecated legacy callback (removed in 0.7.0); messages now log through the
-        ``oceanarray.pipeline.qc.adcp`` logger. A passed callback still receives each
-        message for one release and raises a :class:`DeprecationWarning`.
+        Deprecated (removed in 0.7.0): configure logging instead.
 
     Returns
     -------
-    xr.Dataset
-        Input dataset with ``seabed_qc(time, N_BINS)`` added.
-        Returns *ds* unchanged if ``water_depth_m <= 0`` or ``bin_pressure`` is absent.
-
+    xarray.Dataset
+        *ds* with ``seabed_qc`` (not merged into the velocity flags); unchanged without
+        ``bin_pressure``.
     """
     with logger.deprecated_log_fn(log_fn):
         return _apply_adcp_seabed_qc(ds, water_depth_m, lat, fail_margin_m)
@@ -126,46 +104,24 @@ def apply_adcp_surface_qc(
     suspect_margin_m: float = 20.0,
     log_fn: Any = None,
 ) -> xr.Dataset:
-    """Flag ADCP bins that are at or above the sea surface.
-
-    Bins whose ``bin_pressure`` is ≤ 0 dbar are flagged bad (4); bins within
-    *suspect_margin_m* metres of the surface (0 < bin_pressure < p_suspect) are
-    flagged suspect (3).  The result is stored as the standalone variable
-    ``surface_qc(time, N_BINS)``.
-
-    This catches upward-looking ADCP bins that extend above the water surface
-    when the instrument range exceeds the distance to the surface.  Symmetric
-    counterpart to ``apply_adcp_seabed_qc``.
-
-    **Flag scale** (OceanSITES / QARTOD convention):
-    1 = good, 3 = suspect, 4 = bad.
-
-    **Standalone flag**: ``surface_qc`` is *not* merged into the velocity QC
-    variables.  Downstream consumers must combine flags explicitly::
-
-        clean = (ds.east_velocity_qc == 1) & (ds.surface_qc == 1) & (ds.seabed_qc == 1)
+    """Add ``surface_qc(time, N_BINS)``: 4 at or above the surface, 3 within *suspect_margin_m* of it.
 
     Parameters
     ----------
-    ds : xr.Dataset
-        Stage 3 ADCP dataset containing ``bin_pressure(time, N_BINS)`` in dbar.
+    ds : xarray.Dataset
+        Stage-3 ADCP dataset with ``bin_pressure(time, N_BINS)`` (dbar).
     lat : float
-        Mooring latitude in decimal degrees, for the depth-to-pressure conversion.
-    suspect_margin_m : float
-        Depth (m) below the surface that defines the suspect zone.  Bins with
-        0 < bin_pressure < p_from_z(-suspect_margin_m) receive flag 3; bins
-        with bin_pressure ≤ 0 receive flag 4.  Default 20 m.
+        Latitude (decimal degrees), for the depth-to-pressure conversion.
+    suspect_margin_m : float, optional
+        Depth (m) of the suspect zone below the surface.
     log_fn : callable, optional
-        Deprecated legacy callback (removed in 0.7.0); messages now log through the
-        ``oceanarray.pipeline.qc.adcp`` logger. A passed callback still receives each
-        message for one release and raises a :class:`DeprecationWarning`.
+        Deprecated (removed in 0.7.0): configure logging instead.
 
     Returns
     -------
-    xr.Dataset
-        Input dataset with ``surface_qc(time, N_BINS)`` added.
-        Returns *ds* unchanged if ``bin_pressure`` is absent.
-
+    xarray.Dataset
+        *ds* with ``surface_qc`` (not merged into the velocity flags); unchanged without
+        ``bin_pressure``.
     """
     with logger.deprecated_log_fn(log_fn):
         return _apply_adcp_surface_qc(ds, lat, suspect_margin_m)
@@ -223,89 +179,36 @@ def apply_adcp_velocity_qc(
     error_vel_threshold: float,
     log_fn: Any = None,
 ) -> xr.Dataset:
-    """Apply QC to ADCP 2D velocity variables (time × N_BINS).
+    """Add the standalone ADCP flags on ``(time, N_BINS)``; none is merged into another.
 
-    Each QC criterion produces its **own standalone variable**; flags are
-    **not** merged across variables.  Downstream users combine them to mask
-    data, e.g.::
-
-        good = (
-            (ds.east_velocity_qc == 1)
-            & (ds.percent_good_qc == 1)
-            & (ds.error_velocity_qc == 1)
-            & (ds.seabed_qc == 1)
-            & (ds.surface_qc == 1)
-        )
-
-    QC variables produced
-    ---------------------
-    ``east/north/up_velocity_qc``
-        Gross-range flag on the velocity component value itself (same
-        fail_span / suspect_span thresholds as point instruments).  Flag 1
-        means the velocity value is within the accepted range; it says nothing
-        about acoustic quality.
-
-    ``percent_good_qc(time, N_BINS)``
-        RDI ADCPs write four percent-good columns per ensemble per bin:
-
-        =========  =============================================================
-        Col 0      % pings accepted as 3-beam solutions (one beam rejected)
-        Col 1      % pings rejected by the error-velocity threshold
-        Col 2      % pings rejected by low correlation or low amplitude
-        **Col 3**  **% pings accepted as 4-beam solutions ← quality metric**
-        =========  =============================================================
-
-        Column 3 (4-beam solutions) is the relevant quality indicator.
-        Averaging all four columns is wrong: when data is perfect, col 3 ≈
-        100 % and cols 0–2 ≈ 0 %, giving a mean of ~25 %, which falls below
-        any reasonable suspect threshold and flags everything.  This function
-        therefore uses column 3 alone (falling back to the column mean for
-        non-4-beam ADCPs that store fewer than 4 columns).  A ``percent_good``
-        on ``(time, N_BINS)`` (one value per bin) is used as it is.
-
-        Flags: col3 < *prcnt_gd_bad* → bad (4);
-        col3 < *prcnt_gd_suspect* → suspect (3); otherwise good (1).
-
-    ``error_velocity_qc(time, N_BINS)``
-        For a 4-beam ADCP the error velocity is the difference between two
-        independent estimates of vertical velocity from opposite beam pairs.
-        It is zero for a perfect measurement; large values indicate beam
-        decorrelation (e.g. fish, bubbles, mooring motion).
-        ``|error_velocity|`` > *error_vel_threshold* → bad (4).
+    ``east/north/up_velocity_qc`` are gross range on the value; ``percent_good_qc`` is 4
+    below *prcnt_gd_bad* and 3 below *prcnt_gd_suspect*; ``error_velocity_qc`` is 4 where
+    ``|error_velocity|`` exceeds *error_vel_threshold*.
 
     Parameters
     ----------
-    ds : xr.Dataset
-        Stage 2 dataset with 2-D ADCP velocity variables.
+    ds : xarray.Dataset
+        Stage-2 dataset with 2-D ADCP velocities.
     gr_cfg : dict
-        Gross-range config (same format as ``load_qc_config`` returns).
+        Gross-range thresholds, as :func:`~oceanarray.pipeline.qc.load_qc_config` returns.
     prcnt_gd_bad : float
-        4-beam percent good below this → flag 4 (bad). Percent.
+        Percent good (%) below which a bin is bad.
     prcnt_gd_suspect : float
-        4-beam percent good below this (but above prcnt_gd_bad) → flag 3
-        (suspect). Percent.
+        Percent good (%) below which a bin is suspect.
     error_vel_threshold : float
-        ``|error_velocity|`` above this → flag 4 (bad). m s⁻¹.
+        Error-velocity magnitude (m s-1) above which a bin is bad.
     log_fn : callable, optional
-        Deprecated legacy callback (removed in 0.7.0); messages now log through the
-        ``oceanarray.pipeline.qc.adcp`` logger. A passed callback still receives each
-        message for one release and raises a :class:`DeprecationWarning`.
+        Deprecated (removed in 0.7.0): configure logging instead.
 
     Returns
     -------
-    xr.Dataset
-        Input dataset with the following standalone QC variables added (where their
-        parent data variables are present):
+    xarray.Dataset
 
-        - ``east_velocity_qc(time, N_BINS)`` — gross-range flag on east velocity
-        - ``north_velocity_qc(time, N_BINS)`` — gross-range flag on north velocity
-        - ``up_velocity_qc(time, N_BINS)`` — gross-range flag on up velocity
-        - ``percent_good_qc(time, N_BINS)`` — 4-beam percent-good flag
-        - ``error_velocity_qc(time, N_BINS)`` — error velocity magnitude flag
-
-        All flags use the OceanSITES scale: 1 = good, 3 = suspect, 4 = bad, 9 = missing.
-        Variables are standalone; no merging across criteria is performed.
-
+    Notes
+    -----
+    RDI percent good has four columns; only column 3 (4-beam solutions) measures quality
+    (the mean of all four is ~25 % for perfect data). Fewer columns: their mean is used; a
+    ``percent_good`` on ``(time, N_BINS)`` is used as it is.
     """
     with logger.deprecated_log_fn(log_fn):
         return _apply_adcp_velocity_qc(

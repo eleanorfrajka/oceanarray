@@ -1128,9 +1128,7 @@ def adcp_bins(ds: xr.Dataset) -> dict[tuple[int, str], list[int]]:
 
 
 def shown_depths(ds: xr.Dataset, *, bins: str = "all") -> np.ndarray:
-    """Return which depths of a site stack a figure draws.
-
-    An ADCP bin at or above the surface (nominal depth ≤ 0 m) is never drawn.
+    """Return which depths of a site stack a figure draws (no ADCP bin at or above 0 m).
 
     Parameters
     ----------
@@ -1142,7 +1140,6 @@ def shown_depths(ds: xr.Dataset, *, bins: str = "all") -> np.ndarray:
     Returns
     -------
     numpy.ndarray of bool
-        One per ``N_DEPTHS``.
     """
     family = ds["depth_family"].values.astype(str)
     is_bin = family == "adcp"

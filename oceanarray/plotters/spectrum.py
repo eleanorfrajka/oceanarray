@@ -1,18 +1,6 @@
-"""Tier-2 domain wrappers for spectral diagnostics.
+"""Tier-2 spectral figures: Welch spectra, wavelet scalograms and rotary spectra of a grid.
 
-spectrum.py contains:
-  - ``wavelet_panel``: Tier-1 primitive for rendering a single wavelet scalogram.
-  - ``draw_spectrum``: Two-panel Welch PSD of gridded temperature (migrated from
-    ``report/_plots.py``).
-  - ``draw_wavelet``: Continuous wavelet transform scalogram for gridded temperature
-    (migrated from ``report/_plots.py``).
-  - ``draw_grid_rotary_spectrum``: Two-panel rotary velocity spectrum (migrated from
-    ``report/_plots.py``).
-
-Pairs with :mod:`oceanarray.analysis.spectral` for spectral computations.
-
-Post-OdB remaining migrations from report/_plots.py:
-  plot_grid_fig (was _make_grid_fig_b64), plot_grid_n2 (was _make_grid_n2_b64).
+Computations are in :mod:`oceanarray.analysis.spectral`.
 """
 
 from __future__ import annotations
@@ -506,8 +494,7 @@ def draw_wavelet(
     wavelet:
         ``"morlet"`` (default, Morlet omega_0=6) or ``"mexican_hat"``.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
     levels : sequence of int, optional
         Pressure-level indices to draw (at most three are used).
 
@@ -662,8 +649,7 @@ def draw_grid_rotary_spectrum(
     lat : float
         Mooring latitude (degrees, positive north) used for the inertial period marker.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
     levels : sequence of int, optional
         Pressure-level indices to draw (the page's choice).
     markers : sequence of (str, float), optional

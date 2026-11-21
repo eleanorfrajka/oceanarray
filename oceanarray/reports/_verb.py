@@ -40,65 +40,54 @@ def report(
     Parameters
     ----------
     mooring : str or os.PathLike or Mapping
-        For ``kind="mooring"`` and ``"recovery"``: a ``*.mooring.yaml`` path, a
-        directory holding exactly one, or a loaded description (then
-        *mooring_dir* is required). For ``kind="array"``: an ``*.array.yaml``
-        path.
+        ``"mooring"`` / ``"recovery"``: a ``*.mooring.yaml``, a directory holding one, or a
+        loaded description (then *mooring_dir* is required); ``"array"``: an
+        ``*.array.yaml``.
     kind : {"mooring", "array", "recovery"}, optional
-        ``"mooring"`` (default) builds the mooring's summary page and, unless
-        switched off, its per-instrument, stack and grid pages; ``"array"`` builds
-        the array index linking each mooring's report; ``"recovery"`` builds the
-        cruise-report recovery table.
+        The mooring's summary page (and its instrument, stack and grid pages), the array
+        index, or the cruise-report recovery table.
     mooring_dir : os.PathLike or None, optional
-        The mooring's own directory, when *mooring* is a loaded description.
+        The mooring's directory, for a loaded description.
     proc_dir : os.PathLike or None, optional
-        ``kind="array"`` only: the processed-data root holding the moorings;
-        defaults to the array description's directory.
+        ``"array"``: the processed-data root; default the array description's directory.
     raw_dir : os.PathLike or None, optional
-        The cruise-level raw-data root, for the raw-file details on the
-        instrument pages.
+        Raw-data root, for the raw-file details on the instrument pages.
     out_dir : os.PathLike or None, optional
-        Where this mooring's pages go; overrides *report_dir*.
+        Where the pages go; overrides *report_dir*.
     report_dir : os.PathLike or None, optional
-        A central report root: each mooring's pages go to ``report_dir/<mooring>``
-        (and the array index to *report_dir*). Default: ``<mooring_dir>/report``.
+        Central report root (``report_dir/<mooring>``); default ``<mooring_dir>/report``.
     breadcrumb : iterable of (str, str or None), optional
-        An optional trail of ancestor crumbs shown above each page's title, as
-        ``[(text, href), …]`` with each ``href`` relative to the page's own report
-        directory. Each page always shows its own position and the ancestors sit in
-        front (e.g. ``Index › Site egM1 › egM1_2014 › Stack``). ``None`` shows just
-        each page's own position.
+        Ancestor crumbs ``[(text, href), ...]`` (hrefs relative to the report directory)
+        shown before each page's own position.
     instruments, stack, grid : bool, optional
-        ``kind="mooring"``: also build these pages (default all three).
+        ``"mooring"``: also build these pages.
     serials : iterable of str or None, optional
-        Build instrument pages for these serials only.
+        Instrument pages for these serials only.
     sig_level : iterable of float or None, optional
-        σ₀ targets for the grid page's isopycnal panels (default
+        σ₀ targets of the grid page's isopycnal panels (default
         :data:`~oceanarray.config.parameters.SIGMA_GRID`).
     pdf : bool, optional
-        ``kind="mooring"``: also combine the pages into one A4 PDF.
+        ``"mooring"``: also combine the pages into one A4 PDF.
     pdf_dir : os.PathLike or None, optional
-        Where the PDF goes; default beside the HTML.
+        Where the PDF goes; default beside the pages.
     force : bool, optional
-        Rebuild pages that are newer than their inputs.
+        Rebuild pages newer than their inputs.
     skip_existing : bool, optional
-        Keep any page that exists, however old.
+        Keep any existing page, however old.
     bathymetry : os.PathLike or None, optional
-        ``kind="array"`` only: a bathymetry file (GEBCO or ETOPO) for the depth
-        contours on the year page's map.
+        ``"array"``: a GEBCO or ETOPO file for the map's depth contours.
 
     Returns
     -------
     pathlib.Path
-        The mooring summary page, the array index or the recovery table.
 
     Raises
     ------
     oceanarray.exceptions.MooringError
-        If the description is invalid or missing, a page cannot be built, or a
-        requested PDF cannot be made (e.g. the ``pdf`` extra is not installed).
+        Invalid or missing description, a page that cannot be built, or a PDF that cannot
+        be made (``pdf`` extra not installed).
     ValueError
-        If *kind* is not one of the three.
+        Unknown *kind*.
 
     Examples
     --------

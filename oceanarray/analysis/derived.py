@@ -1,27 +1,7 @@
-"""Quantities derived from a product for its report figures, computed once per page.
+"""Quantities a report page derives once from its product and hands to its figures.
 
-Physics lives here and drawing in :mod:`oceanarray.plotters`: a report page builds
-these quantities once from the product it shows and hands them to every figure that
-needs them.  Nothing here is written back to a product file.
-
-Functions
----------
-mooring_position : the mooring's latitude and longitude from a product's attributes.
-speed_direction : current speed and the direction the water flows toward
-    (from :mod:`oceanarray.physics`, shared with the pipeline).
-level_of_max_speed : the level with the highest time-mean speed.
-potential_temperature_of : potential temperature θ of a product's records.
-potential_density_grid : σθ (or σ2) on a salinity × θ grid, for T-S contours.
-potential_density_fields : σ0 and σ2 from θ and practical salinity.
-potential_density : σ0 and σ2 of a product, for the grid page's sections.
-n_squared : buoyancy frequency squared on a pressure grid.
-seabed_pressure : the sea pressure at the seabed, from the water depth.
-instrument_levels : each instrument of a stack with its median pressure.
-velocity_coverage : the share of the record each level has velocity for.
-velocity_levels : the grid levels the current roses and hodographs are drawn at.
-sparse_velocity_levels : the levels left out of the roses for low coverage.
-knockdown : per-instrument pressure records and design pressures of a stack.
-derived_fields : the per-page bundle (position, θ, speed, direction).
+Physics here, drawing in :mod:`oceanarray.plotters`; nothing is written back to a
+product. :func:`derived_fields` bundles position, θ, speed and direction.
 """
 
 from __future__ import annotations

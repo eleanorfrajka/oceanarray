@@ -379,53 +379,42 @@ def status(kind: str, msg: str, *, char: str = "=") -> None:
 
 
 def format_rel_path(path: Path, root: Path) -> str:
-    """Return *path* relative to *root* for display, or its bare name if unrelated.
-
-    Report output written to a custom ``--output-dir`` is not under *root*; the
-    ``ValueError`` from ``Path.relative_to`` must never abort a run from a logging call.
+    """Return *path* relative to *root* (forward slashes) for display, or its name if not under *root*.
 
     Parameters
     ----------
     path : pathlib.Path
         The path to show.
     root : pathlib.Path
-        The folder it is shown relative to (usually the mooring's processed folder).
+        The folder it is shown relative to.
 
     Returns
     -------
     str
-        ``path`` relative to ``root``, or ``path.name`` when it is not under ``root``.
 
     Examples
     --------
     >>> from pathlib import Path
     >>> format_rel_path(Path("/proc/m1/report/m1.html"), Path("/proc/m1"))
     'report/m1.html'
-    >>> format_rel_path(Path("/elsewhere/m1.html"), Path("/proc/m1"))
-    'm1.html'
     """
     try:
-        return str(path.relative_to(root))
+        return path.relative_to(root).as_posix()
     except ValueError:
         return path.name
 
 
 def format_time(value: Any) -> str:
-    """Return *value* as an ISO-8601 timestamp to whole seconds, for log messages.
-
-    Instrument clocks carry sub-second float noise (``…:59.999996672``); the log
-    rounds to the nearest second. Display only — stored times are unchanged.
+    """Return *value* as ISO-8601 rounded to whole seconds, for log messages (``"NaT"`` if missing).
 
     Parameters
     ----------
     value : Any
-        A timestamp (``numpy.datetime64``, :class:`pandas.Timestamp`, a string,
-        ...), as accepted by :class:`pandas.Timestamp`.
+        A timestamp :class:`pandas.Timestamp` accepts.
 
     Returns
     -------
     str
-        ISO-8601 to seconds, or ``"NaT"`` for a missing time.
 
     Examples
     --------

@@ -123,10 +123,8 @@ def test_merge_priority_single_source():
     Guards against the two merge paths drifting: both derive from
     parameters.QC_MERGE_PRIORITY, so they must agree on every combination.
     """
-    from oceanarray.config import parameters as params
-    from oceanarray.pipeline.qc import _QC_PRIORITY, _worst_flag
+    from oceanarray.pipeline.qc import _worst_flag
 
-    assert _QC_PRIORITY is params.QC_MERGE_PRIORITY
     a = np.array([1, 8, 0, 3], dtype=np.int8)
     b = np.array([8, 4, 1, 8], dtype=np.int8)
     # _worst_flag must match _merge_flags element-wise for the same inputs.

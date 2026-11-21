@@ -66,39 +66,19 @@ def _format_drift(offset_s: float | None) -> str:
     return f"{sign}{h:02d}:{m:02d}:{s:02d}"
 
 
-def _read_stage1_times(
-    proc_dir: Path, instr_type: str, mooring: str, serial: str
+def _read_stage_times(
+    stage: int, proc_dir: Path, instr_type: str, mooring: str, serial: str
 ) -> tuple:
-    """Return (t_start_str, t_end_str) from the stage-1 NC, or ('—', '—')."""
-    stage1_path = proc_dir / instr_type / f"{mooring}_{serial}{paths.stage_suffix(1)}"
-    if not stage1_path.exists():
+    """Return (t_start_str, t_end_str) from the stage-*stage* NC, or ('—', '—')."""
+    stage_path = (
+        proc_dir / instr_type / f"{mooring}_{serial}{paths.stage_suffix(stage)}"
+    )
+    if not stage_path.exists():
         return "—", "—"
     try:
         import xarray as xr
 
-        with xr.open_dataset(stage1_path, decode_timedelta=False) as ds:
-            time = ds["time"].values
-        if len(time) == 0:
-            return "—", "—"
-        t0 = str(time[0])[:16].replace("T", " ")
-        t1 = str(time[-1])[:16].replace("T", " ")
-    except Exception:  # noqa: BLE001
-        return "—", "—"
-    else:
-        return t0, t1
-
-
-def _read_stage2_times(
-    proc_dir: Path, instr_type: str, mooring: str, serial: str
-) -> tuple:
-    """Return (t_start_str, t_end_str) from the stage-2 NC, or ('—', '—')."""
-    stage2_path = proc_dir / instr_type / f"{mooring}_{serial}{paths.stage_suffix(2)}"
-    if not stage2_path.exists():
-        return "—", "—"
-    try:
-        import xarray as xr
-
-        with xr.open_dataset(stage2_path, decode_timedelta=False) as ds:
+        with xr.open_dataset(stage_path, decode_timedelta=False) as ds:
             time = ds["time"].values
         if len(time) == 0:
             return "—", "—"
@@ -193,11 +173,11 @@ def _build_rows(
             s1_start, s1_end = "—", "—"
             s2_start, s2_end = "—", "—"
         else:
-            s1_start, s1_end = _read_stage1_times(
-                proc_dir, instr_type, mooring_name, serial
+            s1_start, s1_end = _read_stage_times(
+                1, proc_dir, instr_type, mooring_name, serial
             )
-            s2_start, s2_end = _read_stage2_times(
-                proc_dir, instr_type, mooring_name, serial
+            s2_start, s2_end = _read_stage_times(
+                2, proc_dir, instr_type, mooring_name, serial
             )
 
         clock = _resolve_clock(entry)

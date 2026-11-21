@@ -1,31 +1,9 @@
-"""Tier-2 domain wrappers for time-series and gridded-section plots.
+"""Tier-2 time-series and gridded-section figures for the report pages.
 
-This module provides the ``draw_*`` functions used by the HTML report pipeline
-to render instrument time-series panels and mooring-grid section plots.
-
-Pairs with :mod:`oceanarray.pipeline.clock` for clock and lag analysis.
-
-**Grid section panels** (data on a pressure × time grid):
-
-- ``draw_grid`` — deprecated (removed in 0.7.0): use ``DataArray.plot.pcolormesh`` on the grid variable.
-- :func:`draw_grid_hydro` — stacked temperature / salinity (and optionally oxygen) panels.
-- :func:`draw_grid_velocity_stacked` — stacked east / north / up velocity panels.
-- :func:`draw_grid_sigma` — potential density (sigma) panels.
-- :func:`draw_grid_n2` — buoyancy frequency squared N² computed via ``gsw``.
-- :func:`draw_grid_timeseries` — velocity time series at the depth of maximum mean speed.
-
-**Stack panels** (one line per instrument level on a common time axis):
-
-- :func:`draw_stack_timeseries` — one or more variables, one row each, sharing the
-  time axis and one instrument legend.
-
-**Instrument time-series panels**:
-
-- :func:`draw_analog_timeseries` — full-record time series for analog channel variables.
-
-Still to move here: ``draw_microcat_raw``, ``draw_aquadopp_raw`` and
-``draw_mooring_timeseries`` from :mod:`oceanarray.plotters._cli_legacy`, and the instrument
-panel figures drawn in ``reports/_plots.py``.
+Grid sections (pressure × time): :func:`draw_grid_hydro`,
+:func:`draw_grid_velocity_stacked`, :func:`draw_grid_sigma`, :func:`draw_grid_n2`,
+:func:`draw_grid_timeseries` (``draw_grid`` is deprecated, removed in 0.7.0). Stack:
+:func:`draw_stack_timeseries`. Instrument: :func:`draw_analog_timeseries`.
 """
 
 from __future__ import annotations
@@ -120,8 +98,7 @@ def _draw_grid(
         Override the automatic percentile-based color limits.
 
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
 
     Returns
     -------
@@ -724,8 +701,7 @@ def draw_grid_timeseries(
         minimum ``east_velocity`` and ``north_velocity`` in m s⁻¹.
 
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
     derived : DerivedFields or None, optional
         The page's derived quantities; its ``speed`` is used instead of being
         computed again.
@@ -810,8 +786,7 @@ def draw_analog_timeseries(
         Variable names to plot (caller must ensure the list is non-empty).
 
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
 
     Returns
     -------
@@ -938,8 +913,7 @@ def draw_stack_timeseries(
         List the levels shallowest first in the legend (the colors keep the
         deep-first order of *ds*).
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
     label_lines : bool, optional
         Name each line by its serial at its right end in the first row (spread
         apart so they do not overlap) instead of a legend; instruments with no

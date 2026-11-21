@@ -107,6 +107,7 @@ and attributes in the files can still change between releases; the `changelog
    :hidden:
    :caption: Upgrading
 
+   From 0.6.1 to 0.7.0 <migrating_0_7_0>
    From 0.6.0 to 0.6.1 <migrating_0_6_1>
    From 0.5 to 0.6 <migrating_0_6_0>
    Older versions <migration>

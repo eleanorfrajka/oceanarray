@@ -69,46 +69,32 @@ def apply_beam_to_enu(
     latlon_source: str = "unknown",
     log_fn: Any = None,
 ) -> xr.Dataset:
-    """Transform BEAM or XYZ Nortek velocities to ENU geographic coordinates (public entry).
+    """Rotate BEAM or XYZ Nortek velocities to geographic ENU, in place, with magnetic declination.
 
-    Adds east_velocity, north_velocity, up_velocity, current_speed,
-    current_direction.  Updates coordinate_system attr to 'ENU'.
-    A quiet no-op for instruments already in ENU.  For an unknown ('UNK')
-    coordinate system it refuses loudly and does not rotate — the velocities
-    are in an undetermined frame and must not be treated as geographic.
-    Requires normalized variable names (heading, pitch, roll) — re-run stage1
-    if these are absent.
-
-    This rotates the velocity *vectors* only (and applies magnetic declination).
-    It does not re-select range cells per beam (bin mapping) and does not change
-    bin depths, so a knocked-down profiler's bins stay at their nominal range here;
-    the per-bin *depth* tilt correction is applied separately by
-    :func:`oceanarray.pipeline.pressure.compute_adcp_bin_pressure`.
-
-    This logs through the ``oceanarray.pipeline.coordinate`` logger; see
-    :func:`_beam_to_enu` for the full behaviour.  The ``log_fn`` callback is
-    deprecated (removed in 0.7.0) — if given, each message is still passed to it and a
-    :class:`DeprecationWarning` is raised; configure logging instead.
+    Adds ``east/north/up_velocity``, ``current_speed`` and ``current_direction`` and sets
+    ``coordinate_system = "ENU"``; no-op for ENU input; refuses (no rotation) for ``"UNK"``.
+    Needs ``heading``, ``pitch``, ``roll``. Rotates vectors only: bins keep their nominal
+    range (the depth tilt correction is
+    :func:`oceanarray.pipeline.pressure.compute_adcp_bin_pressure`).
 
     Parameters
     ----------
     ds : xarray.Dataset
-        Dataset to transform in place (also returned).
+        Dataset to rotate (also returned).
     entry : dict
-        The instrument's mooring-YAML entry; its ``serial`` annotates messages.
+        The instrument's YAML entry (its ``serial`` names the messages).
     lat : float
         Deployment latitude, for the magnetic declination.
     lon : float
         Deployment longitude, for the magnetic declination.
     latlon_source : str, optional
-        Where lat/lon came from, used to detect an unknown position and annotate attrs.
+        Where lat/lon came from (an unknown position is detected and recorded).
     log_fn : callable, optional
-        Deprecated legacy callback; see above.
+        Deprecated (removed in 0.7.0): configure logging instead.
 
     Returns
     -------
     xarray.Dataset
-        The same dataset, with ENU velocities when a rotation was applied.
     """
     with logger.deprecated_log_fn(log_fn):
         return _beam_to_enu(ds, entry, lat, lon, latlon_source)
@@ -121,40 +107,7 @@ def _beam_to_enu(
     lon: float,
     latlon_source: str = "unknown",
 ) -> xr.Dataset:
-    """Transform BEAM or XYZ Nortek velocities to ENU geographic coordinates.
-
-    Adds east_velocity, north_velocity, up_velocity, current_speed,
-    current_direction.  Updates coordinate_system attr to 'ENU'.
-    A quiet no-op for instruments already in ENU.  For an unknown ('UNK')
-    coordinate system it refuses loudly and does not rotate — the velocities
-    are in an undetermined frame and must not be treated as geographic.
-    Requires normalized variable names (heading, pitch, roll) — re-run stage1
-    if these are absent.
-
-    This rotates the velocity *vectors* only (and applies magnetic declination).
-    It does not re-select range cells per beam (bin mapping) and does not change
-    bin depths, so a knocked-down profiler's bins stay at their nominal range here;
-    the per-bin *depth* tilt correction is applied separately by
-    :func:`oceanarray.pipeline.pressure.compute_adcp_bin_pressure`.
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        Dataset to transform in place (also returned).
-    entry : dict
-        The instrument's mooring-YAML entry; its ``serial`` annotates messages.
-    lat : float
-        Deployment latitude, for the magnetic declination.
-    lon : float
-        Deployment longitude, for the magnetic declination.
-    latlon_source : str, optional
-        Where lat/lon came from, used to detect an unknown position and annotate attrs.
-
-    Returns
-    -------
-    xarray.Dataset
-        The same dataset, with ENU velocities when a rotation was applied.
-    """
+    """Implement :func:`apply_beam_to_enu` (without ``log_fn``)."""
     coord_sys = ds.attrs.get("coordinate_system", "ENU")
     if coord_sys == "UNK":
         log.warning(
@@ -317,44 +270,28 @@ def apply_declination_to_enu(
     latlon_source: str = "unknown",
     log_fn: Any = None,
 ) -> xr.Dataset:
-    """Apply magnetic declination rotation to velocities already in ENU frame (public entry).
+    """Rotate ENU velocities from magnetic to true north, in place.
 
-    When a Nortek instrument is configured to output ENU coordinates internally,
-    the heading reference used is magnetic north.  This function rotates
-    east_velocity and north_velocity by the declination angle so that north
-    aligns with true (geographic) north.
-
-    Rotation (D = declination, positive = east):
-        u_true = u_mag * cos(D) + v_mag * sin(D)
-        v_true = -u_mag * sin(D) + v_mag * cos(D)
-
-    No-ops if east_velocity or north_velocity are absent, or if magnetic
-    declination has already been applied — by oceanarray (``magnetic_declination``
-    attr present) or by the originator of an imported file
-    (``originator_magnetic_declination`` attr present).
-
-    This logs through the ``oceanarray.pipeline.coordinate`` logger; see
-    :func:`_declination_to_enu` for the full behaviour.  The ``log_fn`` callback is
-    deprecated (removed in 0.7.0) — if given, each message is still passed to it and a
-    :class:`DeprecationWarning` is raised; configure logging instead.
+    ``u_true = u cos D + v sin D``, ``v_true = -u sin D + v cos D`` (D positive east). No-op
+    without east/north velocity, or when ``magnetic_declination`` or
+    ``originator_magnetic_declination`` shows it was applied.
 
     Parameters
     ----------
     ds : xarray.Dataset
-        Dataset to rotate in place (also returned).
+        Dataset to rotate (also returned).
     lat : float
         Deployment latitude, for the magnetic declination.
     lon : float
         Deployment longitude, for the magnetic declination.
     latlon_source : str, optional
-        Where lat/lon came from, used to detect an unknown position and annotate attrs.
+        Where lat/lon came from (an unknown position is detected and recorded).
     log_fn : callable, optional
-        Deprecated legacy callback; see above.
+        Deprecated (removed in 0.7.0): configure logging instead.
 
     Returns
     -------
     xarray.Dataset
-        The same dataset, declination-corrected when a rotation was applied.
     """
     with logger.deprecated_log_fn(log_fn):
         return _declination_to_enu(ds, lat, lon, latlon_source)
@@ -366,38 +303,7 @@ def _declination_to_enu(
     lon: float,
     latlon_source: str = "unknown",
 ) -> xr.Dataset:
-    """Apply magnetic declination rotation to velocities already in ENU frame.
-
-    When a Nortek instrument is configured to output ENU coordinates internally,
-    the heading reference used is magnetic north.  This function rotates
-    east_velocity and north_velocity by the declination angle so that north
-    aligns with true (geographic) north.
-
-    Rotation (D = declination, positive = east):
-        u_true = u_mag * cos(D) + v_mag * sin(D)
-        v_true = -u_mag * sin(D) + v_mag * cos(D)
-
-    No-ops if east_velocity or north_velocity are absent, or if magnetic
-    declination has already been applied — by oceanarray (``magnetic_declination``
-    attr present) or by the originator of an imported file
-    (``originator_magnetic_declination`` attr present).
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        Dataset to rotate in place (also returned).
-    lat : float
-        Deployment latitude, for the magnetic declination.
-    lon : float
-        Deployment longitude, for the magnetic declination.
-    latlon_source : str, optional
-        Where lat/lon came from, used to detect an unknown position and annotate attrs.
-
-    Returns
-    -------
-    xarray.Dataset
-        The same dataset, declination-corrected when a rotation was applied.
-    """
+    """Implement :func:`apply_declination_to_enu` (without ``log_fn``)."""
     if "magnetic_declination" in ds.attrs:
         return ds  # already applied
     if "originator_magnetic_declination" in ds.attrs:

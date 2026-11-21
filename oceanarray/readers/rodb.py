@@ -49,10 +49,6 @@ _HEAD_VARS = ("temperature", "heading", "pitch", "roll")
 #: velocity or roll in an ``.edt`` file and must not be blanked.
 RODB_FILL_VALUES: tuple[float, ...] = (-9999.0, 1e32, RDI_BAD_VALUE_CM_S)
 
-#: RODB file extensions: ``.microcat`` (calibrated), ``.edt`` (magnetic deviation
-#: and sound speed corrected, despiked), ``.lowedt`` (``.edt`` low-passed).
-RODB_EXTENSIONS: frozenset[str] = frozenset({".microcat", ".edt", ".lowedt"})
-
 
 def _rodb_position(text: str) -> float:
     """Return decimal degrees from a RODB ``"57 28.240 N"`` position string."""
@@ -199,6 +195,7 @@ def read_rodb_bins(paths: list[str | Path]) -> xr.Dataset:
     from oceanarray.pipeline.pressure import (
         ORIGINATOR_BIN_PRESSURE_ATTRS,
         originator_bin_geometry,
+        originator_range,
         pressure_from_depth,
     )
 
@@ -272,16 +269,7 @@ def read_rodb_bins(paths: list[str | Path]) -> xr.Dataset:
         head, source = float(first.attrs["originator_InstrDepth"]), "header InstrDepth"
     orientation, rng = originator_bin_geometry(z - head)
     out = out.assign_coords(
-        range=(
-            ADCP_BIN_DIM,
-            rng,
-            {
-                "units": "m",
-                "long_name": "distance from the transducer to the bin centre",
-                "comment": f"nominal, median Z with the head {source}; places the "
-                "stack row only, not bin_pressure",
-            },
-        ),
+        range=originator_range(rng, f"median Z with the head {source}"),
         bin_number=(ADCP_BIN_DIM, np.array(numbers, dtype="int16")),
     )
     out.attrs = dict(first.attrs)

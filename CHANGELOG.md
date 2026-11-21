@@ -7,6 +7,16 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ## [Unreleased]
 
+### Removed
+
+- Unused helpers and constants: `plotters.diagnostic.draw_knockdown_pressure` (not drawn on any page), `plotters.flags.worst_flags`, `paths.product_glob`, `mooring.REQUIRED_KEYS`, `readers.rodb.RODB_EXTENSIONS` and `config.parameters` `INSTRUMENT_COLORS`, `FIGURE_SIZE_TALL`, `SIGMA_CONTOUR_LEVELS`.
+
+### Breaking changes
+
+What to do for each: *Upgrading from 0.6.1 to 0.7.0* (`migrating_0_7_0`).
+
+- `qc_ranges: pitch` / `roll` are no longer applied and `pitch_qc` / `roll_qc` are no longer written or stacked: tilt QC is geometric only (`tilt_qc`); the mooring check warns if they are set.
+
 ---
 
 ## [0.6.2] — 2026-11-21

@@ -183,33 +183,19 @@ def _capture_scope() -> Iterator[dict[str, str]]:
 
 
 def as_panel(make: Callable[[], str | None]) -> str | Stub | None:
-    """Run a single-figure builder, naming *why* a swallowed draw failed.
+    """Run a single-figure builder; return ``Stub("<ExcType>: <message>")`` if its draw raised and was swallowed.
 
-    Wraps a ``_make_*_b64(...)`` call (passed as a zero-argument *make* thunk) in a
-    capture scope that :func:`render_b64` consults.  If the draw raised — and
-    ``RAISE_ON_PLOT_ERROR`` is unset, so the encoder swallowed it to ``None`` — returns
-    ``Stub("<ExcType>: <message>")`` so the resolver renders a stub that says why; a draw
-    that merely returns ``None`` (an absent variable) stays ``None``.  oceanarray calls it
-    where a single figure is built — eagerly into the page context (instrument, stack,
-    mooring) or inside a ``Panel.render`` lambda (grid).  A builder that returns a list of
-    figures, or one that bypasses this wrapper, keeps its own result unchanged.
-
-    The capture sink is per scope, not per encode: *make* must issue at most one
-    :func:`render_b64`, and the scope must not nest (no wrapped draw may itself call
-    :func:`as_panel`), or the inner scope's reset would clobber the outer and misattribute
-    the reason.
+    A draw that returns None (an absent variable) stays None. *make* must make at most one
+    :func:`render_b64` call, and scopes must not nest, or the reason is misattributed.
 
     Parameters
     ----------
     make : callable
-        Zero-argument thunk that performs the panel's single ``render_b64`` call and
-        returns its ``str | None`` result (typically ``lambda: _make_x_b64(...)``).
+        Zero-argument thunk, typically ``lambda: _make_x_b64(...)``.
 
     Returns
     -------
     str or Stub or None
-        The base64 PNG on success, ``Stub(reason)`` when the draw raised and was
-        swallowed, or ``None`` when the draw produced nothing without raising.
     """
     with _capture_scope() as sink:
         result = make()

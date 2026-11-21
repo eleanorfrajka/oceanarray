@@ -171,8 +171,6 @@ STAGE_WORDS: dict[int, str] = {
 
 #: Separates the entries of ``history``; a note never contains it.
 HISTORY_SEPARATOR = "; "
-#: Separates the events of one entry (read back as rows sharing one time).
-HISTORY_EVENT_SEPARATOR = " | "
 
 
 def clean_history_note(note: str) -> str:

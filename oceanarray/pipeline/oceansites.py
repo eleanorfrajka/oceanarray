@@ -30,7 +30,6 @@ from oceanarray.paths import safe_serial
 from oceanarray.pipeline import _stage, attribution, dataset, sensors
 from oceanarray.pipeline.calibration import CALDIP_STUB_APPLIED
 from oceanarray.pipeline.qc.originator import MAPPED_SUFFIX
-from oceanarray.pipeline.stage1 import ADCP_BIN_DIM
 from oceanarray.readers.oceansites import OCEANSITES_VARIABLES
 
 logger = logging.getLogger(__name__)
@@ -104,7 +103,7 @@ def type_code(ds: xr.Dataset) -> str:
         For a set of variables none of the codes describes.
     """
     names = set(ds.data_vars)
-    if ADCP_BIN_DIM in ds.dims:
+    if params.ADCP_BIN_DIM in ds.dims:
         return "ADCP"
     if {"east_velocity", "north_velocity"} <= names:
         return "CM"
@@ -569,7 +568,7 @@ def _deployment_file(
     profiler = kind == "ADCP"
     if profiler:
         levels = _bin_depths(ds, depth)
-        level_dims = ("time", ADCP_BIN_DIM)
+        level_dims = ("time", params.ADCP_BIN_DIM)
         level_comment = (
             "nominal bin depth: nominal transducer depth (water depth minus height above "
             f"bottom, from the mooring description) {'plus' if levels[-1] > depth else 'minus'} "

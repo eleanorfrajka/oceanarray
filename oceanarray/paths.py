@@ -22,22 +22,18 @@ class LegacyLayoutError(RuntimeError):
 
 
 def mooring_proc_dir(proc_root: _PathLike, mooring: str) -> Path:
-    """Return the mooring-level processed-data directory.
-
-    Under the current layout this is ``proc_root/<mooring>``.
+    """Return the mooring's processed-data directory, ``proc_root/<mooring>``.
 
     Parameters
     ----------
     proc_root : str or Path
-        Cruise-level processed-data root (the ``--proc-dir`` value).
+        Cruise-level processed-data root (``--proc-dir``).
     mooring : str
         Mooring name.
 
     Returns
     -------
     Path
-        ``proc_root/<mooring>``.
-
     """
     return Path(proc_root) / mooring
 
@@ -50,35 +46,27 @@ def resolve_report_dir(
     *,
     mooring_dir: _PathLike | None = None,
 ) -> Path:
-    """Return the directory a mooring's HTML report pages are written to.
+    """Return the directory a mooring's report pages are written to (shared by the pages and the PDF).
 
-    Single source of truth for report output-dir resolution, mirrored by both
-    :meth:`oceanarray.reports.MooringReport.generate` and the PDF combiner so the
-    two never drift.  Priority: explicit *outdir* wins; otherwise a central
-    *report_dir* nests each mooring under ``report_dir/<mooring>``; otherwise the
-    default ``<mooring_dir>/report`` (``proc_root/<mooring>/report`` when
-    *mooring_dir* is not given).
+    *outdir* wins; else ``report_dir/<mooring>``; else ``<mooring_dir>/report``
+    (``proc_root/<mooring>/report`` without *mooring_dir*).
 
     Parameters
     ----------
     mooring : str
         Mooring name.
     outdir : str or Path, optional
-        Explicit output directory (``--output-dir``); takes precedence when set.
+        Explicit output directory (``--output-dir``).
     report_dir : str or Path, optional
-        Central report root (``--report-dir``); each mooring nests below it.
+        Central report root (``--report-dir``).
     proc_root : str or Path, optional
-        Cruise-level processed-data root, used for the default location when
-        *mooring_dir* is not given.
+        Processed-data root, for the default without *mooring_dir*.
     mooring_dir : str or Path, optional
-        The mooring's own folder (wherever its description is); the default
-        location is its ``report`` subfolder, whatever the folder is called.
+        The mooring's own folder.
 
     Returns
     -------
     Path
-        The resolved report directory.
-
     """
     if outdir:
         return Path(outdir)
@@ -94,36 +82,21 @@ def resolve_pdf_path(
     pdf_dir: _PathLike | None,
     report_html_dir: _PathLike,
 ) -> Path:
-    """Return the path a mooring's combined report PDF is written to.
-
-    Single source of truth for PDF output-path resolution, mirrored by both
-    ``cmd_report``'s dry-run preview and its real PDF branch so the two never
-    drift.  When *pdf_dir* is set, every mooring's PDF collects in that one
-    shareable directory as ``pdf_dir/<mooring>_report.pdf``; when it is ``None``
-    the PDF stays beside the HTML pages at
-    ``report_html_dir/<mooring>_report.pdf``.
-
-    This function is pure: it does not create any directory (so the dry-run
-    preview stays side-effect-free).  The caller creates the parent before
-    writing.
+    """Return the path of a mooring's combined report PDF; creates nothing.
 
     Parameters
     ----------
     mooring : str
-        Mooring name, used as the filename stem.
+        Mooring name (the filename stem).
     pdf_dir : str or Path, optional
-        Central directory collecting every mooring's PDF (``--pdf-dir``); when
-        set it takes precedence over the beside-the-HTML default.
+        Central PDF directory (``--pdf-dir``); default beside the pages.
     report_html_dir : str or Path
-        The mooring's resolved HTML report directory (from
-        :func:`resolve_report_dir`); the default PDF location when *pdf_dir* is
-        unset.
+        The mooring's report directory (:func:`resolve_report_dir`).
 
     Returns
     -------
     Path
-        The resolved ``<mooring>_report.pdf`` path.
-
+        ``<pdf_dir or report_html_dir>/<mooring>_report.pdf``.
     """
     filename = f"{mooring}_report.pdf"
     if pdf_dir:
@@ -132,22 +105,18 @@ def resolve_pdf_path(
 
 
 def raw_mooring_dir(raw_root: _PathLike, mooring: str) -> Path:
-    """Return the mooring-level raw-data directory.
-
-    Under the current layout this is ``raw_root/<mooring>``.
+    """Return the mooring's raw-data directory, ``raw_root/<mooring>``.
 
     Parameters
     ----------
     raw_root : str or Path
-        Cruise-level raw-data root (the ``--raw-dir`` value).
+        Cruise-level raw-data root (``--raw-dir``).
     mooring : str
         Mooring name.
 
     Returns
     -------
     Path
-        ``raw_root/<mooring>``.
-
     """
     return Path(raw_root) / mooring
 
@@ -187,28 +156,22 @@ def stage_glob(stage: int) -> str:
 
 
 def stage_output_name(mooring: str, serial: Any, stage: int, tag: str = "") -> str:
-    """Return the stage output filename for one instrument.
-
-    The pattern is ``{mooring}_{serial}{tag}_stage{N}.nc``.  The serial is
-    cleaned with :func:`safe_serial`, so the raw YAML value may be passed
-    directly.
+    """Return an instrument's stage filename, ``{mooring}_{serial}{tag}_stage{N}.nc``.
 
     Parameters
     ----------
     mooring : str
         Mooring name.
     serial : Any
-        Raw instrument serial (cleaned internally via :func:`safe_serial`).
+        Instrument serial as in the YAML (cleaned by :func:`safe_serial`).
     stage : int
-        Processing stage number (1, 2, or 3).
+        Stage (1, 2 or 3).
     tag : str, optional
-        Extra filename tag (e.g. the ADCP-matlab file tag). Default ``""``.
+        Extra tag before ``_stage`` (``adcp-matlab`` file index).
 
     Returns
     -------
     str
-        The output filename, e.g. ``"dsG3_16430_stage1.nc"``.
-
     """
     return f"{mooring}_{safe_serial(serial)}{tag}{stage_suffix(stage)}"
 
@@ -228,63 +191,35 @@ def stage_file(
     *,
     tag: str = "",
 ) -> Path:
-    """Return the full path of one instrument's stage file.
-
-    ``<mooring_dir>/<instrument>/<name>_<serial>{tag}_stage<N>.nc`` — the mooring's
-    identity is *name* (every file is named from it), its location is *mooring_dir*,
-    and the instrument type is the subdirectory. Thin wrapper over
-    :func:`stage_output_name`.
+    """Return an instrument's stage file, ``<mooring_dir>/<instrument>/<name>_<serial>{tag}_stage<N>.nc``.
 
     Parameters
     ----------
     mooring_dir : str or pathlib.Path
-        The mooring's own directory, holding the per-instrument subdirectories.
+        The mooring's directory.
     name : str
-        The mooring's ``name`` (its identity).
+        The mooring's ``name``.
     instrument : str
-        The instrument type (the subdirectory name, e.g. ``"microcat"``).
+        Instrument type (the subdirectory, e.g. ``"microcat"``).
     serial : Any
-        Raw instrument serial (cleaned internally via :func:`safe_serial`).
+        Instrument serial as in the YAML.
     stage : int
-        Processing stage number (1, 2, or 3).
+        Stage (1, 2 or 3).
     tag : str, optional
-        Extra filename tag before ``_stage``. Used only for ``adcp-matlab`` files,
-        where it carries the per-file index (``_000``, ``_001``, …) from
-        ``stage1._find_file_tag``; ``""`` for every other instrument.
+        Extra tag before ``_stage`` (``adcp-matlab`` file index ``_000``, ...).
 
     Returns
     -------
     pathlib.Path
-        The stage file path.
     """
     return Path(mooring_dir) / instrument / stage_output_name(name, serial, stage, tag)
-
-
-def product_glob(product: str) -> str:
-    """Return the glob pattern matching every *product* file, ``"*_<product>.nc"``.
-
-    Parameters
-    ----------
-    product : str
-        The product, one of :data:`PRODUCTS`.
-
-    Returns
-    -------
-    str
-        The pattern, e.g. ``"*_grid.nc"``.
-    """
-    if product not in PRODUCTS:
-        raise ValueError(
-            f"unknown product {product!r}; expected one of {sorted(PRODUCTS)}."
-        )
-    return f"*_{product}.nc"
 
 
 def stale_file(path: _PathLike) -> Path:
     """Return where a product that no longer matches its stage files is kept.
 
     ``<name>_stack.nc`` becomes ``<name>_stack.stale.nc``; the stack and grid
-    search patterns (:func:`product_glob`) do not match it.
+    search patterns (``*_stack.nc``, ``*_grid.nc``) do not match it.
 
     Parameters
     ----------
@@ -301,29 +236,25 @@ def stale_file(path: _PathLike) -> Path:
 
 
 def product_file(mooring_dir: _PathLike, name: str, product: str) -> Path:
-    """Return the full path of a mooring-level product file.
-
-    ``<mooring_dir>/<name>_<product>.nc`` for *product* in :data:`PRODUCTS`
-    (``"stack"``, ``"grid"``, ``"stackcat"`` or ``"gridcat"``).
+    """Return a mooring product's path, ``<mooring_dir>/<name>_<product>.nc``.
 
     Parameters
     ----------
     mooring_dir : str or pathlib.Path
-        The mooring's own directory.
+        The mooring's directory.
     name : str
-        The mooring's ``name`` (its identity).
+        The mooring's ``name``.
     product : str
-        The product, one of :data:`PRODUCTS`.
+        One of :data:`PRODUCTS`.
 
     Returns
     -------
     pathlib.Path
-        The product file path.
 
     Raises
     ------
     ValueError
-        If *product* is not in :data:`PRODUCTS`.
+        *product* is not in :data:`PRODUCTS`.
     """
     if product not in PRODUCTS:
         raise ValueError(
@@ -333,31 +264,20 @@ def product_file(mooring_dir: _PathLike, name: str, product: str) -> Path:
 
 
 def require_current_layout(proc_root: _PathLike, mooring: str) -> None:
-    """Raise if *proc_root* points at a removed legacy layout, naming the fix.
-
-    Under the current layout the mooring directory is ``proc_root/<mooring>``.
-    The removed ``basedir`` mode nested it one level down — under either
-    ``proc_root/moor/proc/<mooring>`` or ``proc_root/proc/<mooring>`` (both
-    shapes the old ``cli._get_proc_root`` accepted).  When the current-layout
-    directory is absent but a legacy one is present, raise an error that names
-    the directory to use instead, rather than letting processing fail later with
-    "no files found".  If neither exists this returns normally — a genuinely
-    empty run is not this function's concern.
+    """Raise when only the removed ``basedir`` layout holds the mooring, naming the folder to use.
 
     Parameters
     ----------
     proc_root : str or Path
-        Cruise-level processed-data root (the ``--proc-dir`` value).
+        Cruise-level processed-data root (``--proc-dir``).
     mooring : str
         Mooring name.
 
     Raises
     ------
     LegacyLayoutError
-        If a legacy ``<proc_root>/moor/proc/<mooring>`` or
-        ``<proc_root>/proc/<mooring>`` directory exists but the current
-        ``<proc_root>/<mooring>`` directory does not.
-
+        ``<proc_root>/moor/proc/<mooring>`` or ``<proc_root>/proc/<mooring>`` exists but
+        ``<proc_root>/<mooring>`` does not.
     """
     proc_root = Path(proc_root)
     legacy_roots = (proc_root / "moor" / "proc", proc_root / "proc")
@@ -386,27 +306,22 @@ def require_current_layout(proc_root: _PathLike, mooring: str) -> None:
 
 
 def is_path_component(name: Any) -> bool:
-    """Return whether a name is one folder or file name, with no way out of its parent.
-
-    Names taken from a description (a cruise, a cast) are joined onto a root; a name that is
-    absolute, empty, ``.`` or ``..``, or that holds a path separator or a Windows drive colon,
-    would point somewhere else.
+    """Return whether *name* is one folder or file name that cannot leave its parent.
 
     Parameters
     ----------
     name : Any
-        The name to check.
+        A name from a description (a cruise, a cast).
 
     Returns
     -------
     bool
-        ``True`` when ``name`` is non-empty text naming one entry beneath a folder.
+        False for empty, absolute, ``.``, ``..``, or a name with a separator or drive colon.
 
     Examples
     --------
     >>> is_path_component("msm142_2026"), is_path_component("../other")
     (True, False)
-
     """
     return (
         isinstance(name, str)
@@ -416,24 +331,16 @@ def is_path_component(name: Any) -> bool:
 
 
 def safe_serial(serial: Any) -> str:
-    """Return a filename-safe token for an instrument serial number.
-
-    If the raw value contains a comma (e.g. ``"16430, R01-024"``), only the
-    first comma-separated token is the primary serial used in filenames and
-    output; the remainder is a beacon id or annotation and is dropped.  Any
-    remaining characters that are illegal in filenames (e.g. ``*`` used as a
-    YAML marker) are stripped.
+    """Return a filename-safe serial: the first comma-separated token, word characters and hyphens only.
 
     Parameters
     ----------
     serial : Any
-        Raw serial value from the mooring YAML (``str``, ``int``, or other).
+        Serial as in the YAML (``"16430, R01-024"`` gives ``"16430"``).
 
     Returns
     -------
     str
-        Sanitised serial token containing only word characters and hyphens.
-
     """
     primary = str(serial).split(",")[0]
     return re.sub(r"[^\w\-]", "", primary)
@@ -464,34 +371,25 @@ def should_skip_regeneration(
     skip_existing: bool,
     *sources: Path,
 ) -> bool:
-    """Decide whether regenerating *output* can be skipped.
+    """Return whether rebuilding *output* can be skipped.
 
-    Three-mode logic (matching the report layer / ctd_report CLI design):
-
-    - ``force=True``         → never skip (always regenerate).
-    - ``skip_existing=True`` → skip whenever *output* exists, regardless of
-      source modification times (the fast, mtime-agnostic behaviour).
-    - default                → skip only if *output* exists and is newer than
-      every path in *sources* (mtime-based staleness).  A source newer than
-      *output* — for example an edited mooring YAML — forces regeneration.
+    Never with *force*; whenever *output* exists with *skip_existing*; otherwise when it
+    exists and is newer than every existing source.
 
     Parameters
     ----------
     output : Path
-        The file that would be (re)generated.
+        The file that would be rebuilt.
     force : bool
-        If True, never skip.
+        Never skip.
     skip_existing : bool
-        If True, skip whenever *output* exists regardless of source mtimes.
+        Skip whenever *output* exists.
     *sources : Path
-        Input files *output* is derived from (raw data, previous-stage NetCDF,
-        the mooring YAML).  Non-existent sources are ignored.
+        Files *output* is made from; missing ones are ignored.
 
     Returns
     -------
     bool
-        True if regeneration can be skipped; False if *output* must be rebuilt.
-
     """
     if force:
         return False

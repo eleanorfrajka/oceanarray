@@ -1,40 +1,11 @@
-"""Stage 2 processing for mooring data: apply clock corrections and trim to deployment.
+"""Stage 2: correct instrument clocks and trim each record to the deployment.
 
-Processing order per instrument
---------------------------------
-1. Load Stage 1 ``_stage1.nc`` file.
-2. Resolve clock offset and drift from YAML.
-3. If either is non-zero, save ``time_orig`` (original instrument time) before correcting.
-4. Apply a linear correction that ramps from ``clock_offset`` at deployment to
-   ``clock_drift_seconds`` at recovery.  Both default to 0, so:
-   - Only ``clock_offset`` set: uniform constant shift (same correction throughout).
-   - Only ``clock_drift_seconds`` set: ramps from 0 at deployment to drift at recovery.
-   - Both set: ramps from ``clock_offset`` at deployment to ``clock_drift_seconds`` at recovery.
-5. Trim record to ``deployment_time`` … ``recovery_time`` from the mooring YAML.
-6. Write ``_stage2.nc``.  ``time_orig`` is only present when a correction was applied.
-
-Clock correction YAML keys (per instrument)
---------------------------------------------
-``clock_offset`` : float, seconds
-    Total correction to apply at the start of the deployment (instrument clock error
-    at deployment time).  Positive = instrument was slow (behind UTC).
-
-``clock_drift_seconds`` : float, seconds  [Option A]
-    Total correction to apply at the end of the deployment (instrument clock error
-    at recovery time).  Positive = instrument was slow (behind UTC) at recovery.
-    The correction ramps linearly from ``clock_offset`` at deployment to this value at recovery.
-
-``computer_clock_at_recovery`` / ``instrument_clock_at_recovery`` : ISO-8601 str  [Option B]
-    Two timestamps read off at recovery.  drift = computer − instrument = total correction
-    at recovery.  Equivalent to setting ``clock_drift_seconds``.
-    Option B takes priority over Option A if both are present.
-
-Sign convention
----------------
-All clock values are the amounts **added** to instrument time to obtain corrected time.
-
-  - Positive value → instrument was *slow* (behind real time); times shifted later.
-  - Negative value → instrument was *fast* (ahead of real time); times shifted earlier.
+The correction, seconds **added** to instrument time (positive: the clock was slow),
+ramps linearly from ``clock_offset`` at deployment to ``clock_drift_seconds`` at
+recovery (both default 0). ``computer_clock_at_recovery`` /
+``instrument_clock_at_recovery`` give the drift as computer − instrument and take
+priority over ``clock_drift_seconds``. A corrected file keeps ``time_orig``. The record
+is then trimmed to ``deployment_time`` … ``recovery_time``.
 """
 
 import logging
@@ -85,82 +56,30 @@ def _parse_clock_str(s: str) -> pd.Timestamp | None:
         return None
 
 
-def _append_history(dataset: xr.Dataset, note: str) -> None:
-    """Append a timestamped note to dataset.attrs['history'] in place."""
-    # Delegates so the history timestamp format (non-deprecated UTC clock) lives in
-    # one place.
-    from oceanarray.pipeline._stage import append_history
-
-    append_history(dataset, note)
-
-
 def detect_deployment_window(
     ds: xr.Dataset,
 ) -> tuple[np.datetime64 | None, np.datetime64 | None, str]:
-    """Estimate the deployed in-water window from a stage1 pressure record.
-
-    .. important:: **Returns ``(None, None, ...)`` when no pressure data are
-       available.**  The caller must check for ``None`` before using the result.
-       Suggested times are **not** written to the output file when pressure is
-       absent — instruments without pressure receive no ``suggested_*`` attrs.
-
-    .. important:: **All non-None timestamps are in the raw instrument clock.**
-
-       The input *ds* is a stage 1 dataset whose ``"time"`` coordinate carries
-       the uncorrected instrument clock.  Add the YAML ``clock_offset`` to
-       convert to UTC for copy-pasting into the YAML.
-
-    **Pressure-based algorithm** (middle-50 % pmin + 10 dbar):
-
-    1. **Middle-50 % reference window**: skip the first and last 25 % of the
-       record by time.  This excludes any bench / surface period at either end
-       regardless of its length, while avoiding a ``pmax``-based threshold that
-       would be biased by knockdown events (which push instruments *deeper* than
-       the nominal deployment depth).
-    2. ``pmin_deployed`` = 1st-percentile of pressure within that middle window
-       (robust to brief sensor-zero artefacts that would drag the absolute
-       minimum to ~0 dbar and make the threshold negative).
-    3. ``threshold`` = ``pmin_deployed − 10`` dbar.
-    4. **Opening search window**: the first 25 % of the record by time (mirrors
-       the middle window, long enough to cover multi-day bench periods).
-    5. **Closing search window**: the last 25 % of the record by time.
-    6. **Start**: last sample at or below the threshold in the opening window
-       → the *next* sample is the suggested deployment start.
-    7. **End**: first sample at or below the threshold in the closing window
-       → the *preceding* sample is the suggested recovery end.
-
-    This approach avoids two known failure modes of the original "skip
-    first/last 12 h" middle window:
-
-    * **Bench data in the middle window**: if an instrument recorded for days on
-      deck before deployment, the 12 h skip was too short and ``pmin`` would
-      equal the bench pressure (≈ 0 dbar), driving ``threshold`` negative so
-      that nothing ever satisfied it.
-    * **``pmax``-based threshold biased by knockdown**: using ``0.5 × pmax``
-      as a conservative-window threshold is biased because knockdowns push
-      instruments *deeper* than their nominal position, inflating ``pmax``
-      above the nominal deployment pressure.  ``0.5 × pmax`` therefore sits
-      *deeper* than intended, delaying the start of the conservative window.
-      The middle-50 % approach uses the typical deployed pressure (median
-      region of the time series), not the occasional extreme.
-
-    Returns ``(None, None, "no_pressure")`` when the dataset has no
-    ``"pressure"`` variable, fewer than 10 records, all-NaN pressure, the
-    middle window is empty, or the algorithm cannot produce a valid window.
+    """Estimate the in-water window from a stage-1 pressure record, in the raw instrument clock.
 
     Parameters
     ----------
-    ds : xr.Dataset
-        Stage 1 dataset.  Must contain a ``"time"`` coordinate in the raw
-        instrument clock.  The ``"pressure"`` variable (dbar) is required.
+    ds : xarray.Dataset
+        Stage-1 dataset with ``time`` (instrument clock) and ``pressure`` (dbar).
 
     Returns
     -------
-    tuple[Optional[np.datetime64], Optional[np.datetime64], str]
-        ``(sug_start, sug_end, source)`` where *source* is
-        ``"pressure_pmin10dbar"`` on success or ``"no_pressure"`` when no
-        valid pressure data are available.
+    tuple of (numpy.datetime64 or None, numpy.datetime64 or None, str)
+        ``(start, end, "pressure_pmin10dbar")``, or ``(None, None, "no_pressure")``
+        without pressure, with under 10 records, or with no valid window. Add the YAML
+        ``clock_offset`` for UTC.
 
+    Notes
+    -----
+    Threshold = 1st percentile of pressure in the middle 50 % of the records, minus
+    10 dbar: the middle excludes bench periods at either end, and a low percentile is not
+    biased by knockdown (which inflates ``pmax``). The start is the sample after the last
+    one shallower than the threshold in the first 25 %; the end is the sample before the
+    first one shallower in the last 25 % (else the last sample).
     """
     time = ds["time"].values
     n = len(time)
@@ -304,7 +223,7 @@ def _apply_clock_offset(dataset: xr.Dataset, clock_offset: float) -> xr.Dataset:
         time=result["time"].values + np.timedelta64(int(clock_offset * 1e9), "ns")
     )
     sign = "+" if clock_offset >= 0 else ""
-    _append_history(result, f"clock_offset={sign}{clock_offset:.1f}s applied")
+    _stage.append_history(result, f"clock_offset={sign}{clock_offset:.1f}s applied")
     return result
 
 
@@ -368,7 +287,7 @@ def _apply_clock_drift(
     }
     corrected_times = dataset["time"].values + correction_ns.astype("timedelta64[ns]")
     result = result.assign_coords(time=corrected_times)
-    _append_history(
+    _stage.append_history(
         result, history_note or f"clock_drift={clock_drift_seconds:+.1f}s applied"
     )
     return result
@@ -584,7 +503,7 @@ def _drop_redundant_sbe_vars(dataset: xr.Dataset) -> xr.Dataset:
                 "Removing 'flag': all values are zero (no SeaBird scan flags set)"
             )
             dataset = dataset.drop_vars("flag")
-            _append_history(
+            _stage.append_history(
                 dataset, "dropped SeaBird 'flag' column: all values were 0 (good data)"
             )
         else:

@@ -317,63 +317,47 @@ def process(
     proc_dir: PathLike | None = None,
     **legacy_kw: Any,
 ) -> Any:
-    """Run stages 1–3 for one mooring and write each stage's files.
-
-    Each stage reads the previous stage's files, applies the pure stage function
-    (:func:`~oceanarray.pipeline.stage1.stage1`, :func:`~oceanarray.pipeline.stage2.stage2`,
-    :func:`~oceanarray.pipeline.stage3.stage3`) and writes its own files beside
-    them, with a log per stage. Stacking and gridding are :func:`oceanarray.run`.
+    """Run stages 1–3 for one mooring and write each stage's files (stack and grid: :func:`oceanarray.run`).
 
     Parameters
     ----------
     mooring : str or os.PathLike or Mapping
-        A ``*.mooring.yaml`` path, a directory holding exactly one, or a loaded
-        description (then *mooring_dir* is required).
+        A ``*.mooring.yaml``, a directory holding one, or a loaded description (then
+        *mooring_dir* is required).
     stages : int or "all" or iterable of int, optional
-        The stages to run, from ``1``, ``2`` and ``3``; always run in that order.
-        Default ``(1, 2, 3)``.
+        Stages to run, always in order 1, 2, 3.
     serials : iterable of str or None, optional
         Process only these instruments.
     force : bool, optional
-        Rewrite stage files that already exist (stage 1: that are newer than
-        their raw file). Default False keeps them.
+        Rewrite existing stage files (stage 1: those newer than their raw file).
     keep_going : bool or None, optional
-        ``None`` (the default) means True: carry on past failures — a failed instrument is logged and
-        left out, the next stage runs on the instruments that have files, and a
-        stage-3 failure is logged instead of raised. Every stage-3 file is
-        ``data_mode = "P"`` either way. False (strict) raises once a stage has
-        written what worked, and runs nothing after it.
+        None or True: a failed instrument is logged and left out, later stages run on the
+        rest, and every stage-3 file is ``data_mode = "P"``. False: raise once a stage has
+        written what worked, and stop.
     mooring_dir : os.PathLike or None, optional
-        The mooring's own directory; taken from *mooring* when it is a path.
+        The mooring's directory; taken from *mooring* when it is a path.
     raw_dir : os.PathLike or None, optional
-        The cruise-level raw-data root, holding the mooring's folder (named as
-        *mooring_dir* is). Required for stage 1 unless the description gives an
-        absolute ``directory:``.
+        Raw-data root holding the mooring's folder; needed for stage 1 unless the
+        description gives an absolute ``directory:``.
     caldip_dir : os.PathLike or None, optional
-        Calibration-dip results for stage 3 (not yet applied: the stub records
-        ``caldip_applied``); its presence rewrites existing stage-3 files.
+        Calibration-dip results for stage 3 (recorded as ``caldip_applied``, not yet
+        applied); rewrites existing stage-3 files.
     stage, proc_dir, **legacy_kw
-        The form before 0.6.0, ``process(name, stage, proc_dir=…)``, which also
-        runs stack and grid and returns a bool. Deprecated (a ``DeprecationWarning``)
-        and removed in 0.7.0; use :func:`oceanarray.run` for stages 1–3, stack and
-        grid.
+        The pre-0.6.0 form ``process(name, stage, proc_dir=...)``: deprecated, removed in
+        0.7.0; use :func:`oceanarray.run`.
 
     Returns
     -------
     list of pathlib.Path
-        Every stage file of the stages run, in stage order: those written and
-        those kept because they were already there (each stage's log says which).
-        A failed or ``skip`` instrument has none.
+        Every stage file of the stages run (written or kept), in stage order.
 
     Raises
     ------
     oceanarray.exceptions.MooringError
-        If the description is invalid, a directory is missing or no instrument
-        matched; with ``keep_going=False`` also if any instrument failed (a stage
-        writes the instruments that succeeded before raising, and the later stages
-        do not run).
+        Invalid description, missing directory, no instrument matched, or (with
+        ``keep_going=False``) any failed instrument.
     ValueError
-        If *stages* names anything but 1, 2 and 3.
+        *stages* names anything but 1, 2 and 3.
 
     Examples
     --------

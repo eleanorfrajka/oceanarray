@@ -1,24 +1,11 @@
-"""Calibration-dip corrections at the front of Stage 3 (interface stub).
+"""Calibration-dip corrections at the front of stage 3 (reading and reduction only, so far).
 
-caldip is a separate package that compares mooring instruments against a shipboard CTD at
-bottle stops and writes one netCDF per cast (``{cast}_caldip.nc``); the statistics CSV is a
-derived export that oceanarray does not read. oceanarray reads that netCDF, matches instruments
-by serial, and corrects temperature, conductivity and pressure at the front of Stage 3, before
-pressure interpolation. A correction changes the values, as the Stage 2 clock-drift
-correction does; it is not quality control.
-
-**Status: reading, finding and reducing the dips are implemented; combining and applying are not.**
-:mod:`.caldip` reads and checks a cast (:func:`read_caldip_cast`, :func:`instrument_record`);
-:mod:`.dips` finds the file for each end the mooring YAML names (:func:`caldip_ends`) and
-which end a cast is (:func:`assign_dip_role`); :mod:`.stops` reduces one dip's bottle stops to
-an offset or a slope per variable (:func:`reduce_dip`). :func:`apply_caldip` is the interface
-combining the two dips and applying the correction is built to; it still raises
-:class:`NotImplementedError`.
-
-The carrier, the field contract, the correction model and the stop-selection rules are
-documented in ``docs/source/methods/calibration.rst``. Sign convention: every ``*_diff``
-variable is ``instrument − CTD``, so an instrument is corrected toward the reference by
-subtracting the offset (``corrected = measured − diff``).
+caldip writes one ``{cast}_caldip.nc`` per cast, comparing instruments with a CTD at
+bottle stops. :mod:`.caldip` reads a cast, :mod:`.dips` finds each end's file,
+:mod:`.stops` reduces a dip to an offset or slope per variable; :func:`apply_caldip`
+(combining and applying) still raises :class:`NotImplementedError`. ``*_diff`` is
+``instrument − CTD``, so ``corrected = measured − diff``. See
+``docs/source/methods/calibration.rst``.
 """
 
 from __future__ import annotations
@@ -116,33 +103,28 @@ CALDIP_STUB_APPLIED = (
 def apply_caldip(
     ds: xr.Dataset, pre: Reduction | None, post: Reduction | None = None
 ) -> xr.Dataset:
-    """Apply a variable's caldip offset(s) to a Stage 3 dataset (stub).
+    """Subtract a variable's caldip offset from a stage-3 dataset (not implemented yet).
 
-    Subtracts the offset (``corrected = measured − diff``). With both a pre- and a
-    post-deployment offset the correction is a linear-in-time interpolation across the
-    deployment (``docs/source/methods/calibration.rst``, pre/post combination); with one it is
-    constant. The implementation records :data:`PROVENANCE_PASSTHROUGH_GLOBALS`, the applied
-    value, and the method in the output attributes.
+    Pre and post offsets are to be interpolated linearly in time, one is constant
+    (``docs/source/methods/calibration.rst``).
 
     Parameters
     ----------
     ds : xarray.Dataset
-        The Stage 3 dataset to correct.
+        Stage-3 dataset.
     pre : Reduction or None
-        The pre-deployment dip's correction.
+        Pre-deployment correction.
     post : Reduction or None, optional
-        The post-deployment dip's correction.
+        Post-deployment correction.
 
     Returns
     -------
     xarray.Dataset
-        The corrected dataset.
 
     Raises
     ------
     NotImplementedError
-        Always — see ``docs/source/methods/calibration.rst``.
-
+        Always.
     """
     del ds, pre, post
     msg = "apply_caldip is not implemented; see docs/source/methods/calibration.rst"

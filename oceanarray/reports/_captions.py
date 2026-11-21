@@ -211,17 +211,6 @@ def _rule(attrs: Mapping, key: str) -> dict | None:
         return None
 
 
-def rule_text(rule: Mapping) -> str:
-    """Return a rule as the settings column shows it: ``"4"`` or ``"4; velocity 3, 4"``."""
-    parts = [", ".join(map(str, rule["default"])) or "none"]
-    parts += [
-        f"{key} {', '.join(map(str, flags)) or 'none'}"
-        for key, flags in rule.items()
-        if key != "default"
-    ]
-    return "; ".join(parts)
-
-
 def _rule_sources(attrs: Mapping) -> str:
     """Return which flag sets the rule was applied to, in words, or ``""``."""
     sources = str(attrs.get("stack_mask_flag_sources", ""))
@@ -447,7 +436,8 @@ def _flags_step(attrs: Mapping, key: str, action: str) -> Step:
     return Step(
         "Flags",
         what,
-        f"rule: {rule_text(rule)}" + (f" ({source})" if source else ""),
+        f"rule: {masking.rule_words(rule, table=True)}"
+        + (f" ({source})" if source else ""),
     )
 
 
@@ -606,7 +596,9 @@ def stack_history_rows(ds: Any) -> list[HistoryRow]:
         if rule is None:
             return ""
         source = _rule_sources(attrs) if key == masking.STACK_ATTR else ""
-        return f"rule: {rule_text(rule)}" + (f" ({source})" if source else "")
+        return f"rule: {masking.rule_words(rule, table=True)}" + (
+            f" ({source})" if source else ""
+        )
 
     def depths() -> str:
         tolerance = attrs.get("depth_tolerance_m")

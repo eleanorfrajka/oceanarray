@@ -1,23 +1,10 @@
-"""Package-level defaults for oceanarray.
+"""Package-level defaults for oceanarray: what the mplstyle cannot express.
 
-Matplotlib appearance (font sizes, figure size, DPI, grid style) belongs in
-the vendored ``reports/_vendored/report.mplstyle`` — that is the right place for
-anything that maps to a matplotlib rcParam.  There is a single style file: it is
-applied both by the report encoder and by plotters that set their own style
-context (via :data:`MPLSTYLE` below), so the two can never diverge.
-
-This file holds the things the mplstyle *cannot* express: instrument
-abbreviations, colorbar percentile clipping, downsample interval, and
-figure sizes that differ from the per-plot mplstyle default.
-
-Import and reassign any value here to override it globally, e.g.::
+Matplotlib appearance lives in the vendored ``report.mplstyle`` (:data:`MPLSTYLE`).
+Values are read at call time, so reassigning one overrides it globally::
 
     from oceanarray.config import parameters as params
     params.DOWNSAMPLE_SECONDS = 60
-    params.DEFAULT_COLORMAP = "viridis"
-
-These values are read at call time, so assignment before calling a function
-is sufficient.
 """
 
 from pathlib import Path
@@ -54,7 +41,6 @@ MPLSTYLE = Path(__file__).parent.parent / "reports" / "_vendored" / "report.mpls
 # Figure sizes for plot types that differ from the mplstyle default (8×4)
 # ---------------------------------------------------------------------------
 FIGURE_SIZE_WIDE = (14, 6)  # multi-instrument overview (scatter / line)
-FIGURE_SIZE_TALL = (12, 8)  # stacked single-instrument panels
 
 # Report figure slot widths (W_FULL / W_TWOTHIRDS / W_HALF / W_THIRD, inches) now
 # live in ``oceanarray.config.report_tokens`` as the single source of truth
@@ -85,9 +71,6 @@ STACK_DT_SECONDS: int = 3600
 # ---------------------------------------------------------------------------
 DENSITY_REFERENCE = 0
 DENSITY_COLORMAP = "BuPu"  # ColorBrewer sequential: light-cyan → dark-purple
-# Iso-density contour lines overlaid on sigma pcolormesh plots.
-# Set to [] to suppress.  Values are in kg m-3 (above 1000).
-SIGMA_CONTOUR_LEVELS = [27.7, 27.8]
 # Isopycnal tracking: default σ₀ target values for the grid report
 # height-above-seabed time series.  Override via --sig-level on the CLI.
 # Values are σ₀ (potential density anomaly referenced to 0 dbar, kg m⁻³).
@@ -95,16 +78,6 @@ SIGMA_CONTOUR_LEVELS = [27.7, 27.8]
 # the corresponding density values here.  (Future: --sig-ref flag.)
 SIGMA_GRID: np.ndarray = np.array([27.7])
 
-# Colors for instrument types in stack-level time series plots.
-# Keys match the 'instrument' field in the mooring YAML.
-INSTRUMENT_COLORS = {
-    "microcat": "#1f77b4",  # blue
-    "aquadopp": "#d62728",  # red
-    "rbr": "#2ca02c",  # green
-    "rbr-solo": "#2ca02c",
-    "rbr-duet": "#17becf",  # teal
-    "default": "#7f7f7f",  # gray for unknown types
-}
 
 # ---------------------------------------------------------------------------
 # Instrument abbreviations  (instrument directory name → short label prefix)
@@ -915,29 +888,21 @@ def var_color(var: str) -> str:
 
 
 def vlabel(var: str, prefix: str = "") -> str:
-    """Return a matplotlib axis label for *var* from the :data:`VARIABLES` registry.
+    """Return the axis label ``"{prefix}Label (units)"`` for *var* from :data:`VARIABLES`.
 
-    Format is ``"{prefix}Label (units)"``, the units coming from :func:`vunit` (the
-    registry's canonical CF units formatted through the display pipeline), or
-    ``"{prefix}Label (1)"`` for a dimensionless quantity without a scale label — ``1``
-    is the CF / UDUNITS unit string for dimensionless, so the label matches the stored
-    metadata rather than leaving the reader to wonder whether a unit was forgotten.  The
-    ``prefix`` is prepended to the label component only, not the units, so
-    ``vlabel("temperature", prefix="Δ")`` produces ``"ΔTemperature (°C)"``.
+    Units come from :func:`vunit`; a dimensionless quantity without a scale label reads
+    ``(1)``, the CF unit. Unregistered: ``"{prefix}{var}"``.
 
     Parameters
     ----------
     var : str
-        Variable name (key in :data:`VARIABLES`).
+        Variable name (key of :data:`VARIABLES`).
     prefix : str, optional
-        Text prepended to the label component — e.g. ``"Gridded "`` or ``"Δ"``.
+        Prepended to the label, not the units (``"Δ"`` gives ``"ΔTemperature (°C)"``).
 
     Returns
     -------
     str
-        Ready-to-use axis label.  Falls back to ``"{prefix}{var}"`` when *var*
-        is not in the registry so callers always get something useful.
-
     """
     entry = VARIABLES.get(var)
     if entry is None:
@@ -951,27 +916,19 @@ def vlabel(var: str, prefix: str = "") -> str:
 
 
 def vunit(var: str) -> str:
-    """Return the display units for *var*, formatted through the units pipeline.
+    """Return the display units of *var*: its registry units through :func:`~oceanarray.config.unit_tables.unit_label`.
 
-    The registry's canonical CF ``units`` for *var* is formatted by
-    :func:`oceanarray.config.unit_tables.unit_label` (oceanarray's view of the family
-    tables), so a colorbar/axis unit is produced by the same rule as every other label
-    — ``degree_Celsius`` → ``°C``, ``dbar`` → ``dbar``, ``1`` with the salinity standard
-    name → ``PSU``.  Reading from the registry (not from a dataset) means the storage
-    pass is the single guarantee of unit correctness; a non-canonical stored unit is
-    refused on write, not silently relabelled here.  Returns an empty string for a
-    dimensionless-without-label or unknown variable.
+    ``degree_Celsius`` gives ``°C``; ``1`` with the salinity standard name gives ``PSU``.
 
     Parameters
     ----------
     var : str
-        Variable name (key in :data:`VARIABLES`).
+        Variable name (key of :data:`VARIABLES`).
 
     Returns
     -------
     str
-        The display unit string, or ``""`` when none is registered.
-
+        ``""`` for a dimensionless-without-label or unknown variable.
     """
     entry = VARIABLES.get(var)
     if entry is None:

@@ -5,7 +5,7 @@ assert structural properties of the output.  We do not compare against
 committed stage3 fixtures because those were generated from an earlier stage2
 run; any code change that alters processing will cause fixture drift, making a
 golden comparison brittle.  Structural tests are the right tool here: the
-fixture is the reference for stage2 output (tested in test_stage2.py); stage3
+fixture is the reference for stage2 output (tested in test_stage2_pure.py); stage3
 output is validated by checking that QC variables exist, flag values are valid,
 and ENU rotation produced the expected variables.
 
@@ -13,12 +13,6 @@ Stack and grid tests assert structural properties for the same reason: the
 committed stack/grid NC files were generated from the full mooring (~20
 instruments); the two-instrument fixture YAML produces a different but valid
 output.
-
-The instrument report test runs ``MooringReport.generate()`` with
-``instruments=True`` on the two-instrument stage3 output and checks that both
-HTML pages are written and are non-empty.  This is a smoke test: it catches
-import errors, template rendering crashes, and missing variable guards that
-only surface when a real NetCDF is fed to the report renderer.
 """
 
 from pathlib import Path
@@ -202,64 +196,3 @@ class TestGridStructural:
 
     def test_temperature_variable_present(self):
         assert "temperature" in self._ds.data_vars
-
-
-class TestInstrumentReport:
-    """Instrument HTML report renders without error for both fixture instruments."""
-
-    @pytest.fixture(autouse=True)
-    def run(self, proc_root_stage3_fresh):
-        from oceanarray.reports import MooringReport
-
-        reporter = MooringReport(proc_dir=str(proc_root_stage3_fresh))
-        result = reporter.generate(
-            MOORING,
-            force=True,
-            instruments=True,
-            grid=False,
-            stack=False,
-        )
-        assert result, "MooringReport.generate returned False"
-        self._proc_root = proc_root_stage3_fresh
-
-    def test_microcat_report_written(self):
-        p = (
-            self._proc_root
-            / MOORING
-            / "report"
-            / "instrument"
-            / f"{MOORING}_2941_report.html"
-        )
-        assert p.exists(), f"instrument report not written: {p}"
-        assert p.stat().st_size > 0, "instrument report is empty"
-
-    def test_aquadopp_report_written(self):
-        p = (
-            self._proc_root
-            / MOORING
-            / "report"
-            / "instrument"
-            / f"{MOORING}_9920_report.html"
-        )
-        assert p.exists(), f"instrument report not written: {p}"
-        assert p.stat().st_size > 0, "instrument report is empty"
-
-    def test_microcat_report_contains_html(self):
-        p = (
-            self._proc_root
-            / MOORING
-            / "report"
-            / "instrument"
-            / f"{MOORING}_2941_report.html"
-        )
-        assert "<html" in p.read_text(encoding="utf-8").lower()
-
-    def test_aquadopp_report_contains_html(self):
-        p = (
-            self._proc_root
-            / MOORING
-            / "report"
-            / "instrument"
-            / f"{MOORING}_9920_report.html"
-        )
-        assert "<html" in p.read_text(encoding="utf-8").lower()

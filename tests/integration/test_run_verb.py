@@ -356,7 +356,7 @@ def test_a_stale_product_keeps_one_copy(tmp_path, caplog):
     assert sorted(p.name for p in tmp_path.iterdir()) == [f"{_NAME}_grid.stale.nc"]
     assert paths.stale_file(grid).read_text() == "second"
     assert f"to {_NAME}_grid.stale.nc" in caplog.text
-    assert not list(tmp_path.glob(paths.product_glob("grid")))
+    assert not list(tmp_path.glob("*_grid.nc"))
 
 
 @pytest.mark.parametrize(

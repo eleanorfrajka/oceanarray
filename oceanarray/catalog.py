@@ -1,13 +1,11 @@
 """The sensor catalog: what each instrument is, by serial, for its sensor record.
 
-A mooring description may name one catalog file (``sensor_catalog: <path>``,
-relative to the description). ``models:`` gives, once per model, the attributes
-of the sensor record (OG1's ``SENSOR_<type>_<serial>``: OceanSITES does not
-describe sensors, so this goes beyond it) with their NERC vocabularies — one ``sensor_model`` for
-the instrument with a pressure sensor and one without, since the SeaVoX device
-catalogue (L22) lists them apart. ``instruments:`` maps the maker's label for an
-instrument (``"37-12046"`` is SBE 37 MicroCAT 12046) to its model and to what
-reports say of it::
+A description names one catalog (``sensor_catalog: <path>``, relative to it).
+``models:`` gives per model the attributes of the OG1 sensor record
+(``SENSOR_<type>_<serial>``) and their NERC vocabularies, with one ``sensor_model`` for
+the instrument with a pressure sensor and one without (L22 lists them apart);
+``instruments:`` maps the maker's label (``"37-12046"``) to a model and its report
+sources::
 
     models:
       SBE 37-SMP:
@@ -29,11 +27,9 @@ reports say of it::
           - {report: 2015_64PE400_NIOZ_cruise_report.pdf, pdf_page: 40,
              text: "Instrument - MicroCat SBE 37-SMP SN 12046 88m --> 172 m"}
 
-A MicroCAT with an optode is its own model (``SBE 37-SMP-ODO``: L22 ``TOOL1459``
-with pressure, ``TOOL0869`` without). No calibration is kept here: calibrations
-come from the instrument's own files.
-Stage 1 fills the sensor record from the catalog when the instrument's own entry
-names no ``sensor_model`` (see :func:`oceanarray.pipeline.sensors.build_record`).
+No calibrations are kept here (they come from the instrument's files). Stage 1 uses
+the catalog when the instrument's entry names no ``sensor_model``
+(:func:`oceanarray.pipeline.sensors.build_record`).
 """
 
 from __future__ import annotations

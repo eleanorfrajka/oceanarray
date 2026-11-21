@@ -174,4 +174,4 @@ def test_page_extra_keys_match_the_keys_masthead_facts_reads(tmp_path, monkeypat
     )
     assert set(passed) == {"mooring", "stack", "grid"}
     for page, keys in passed.items():
-        assert keys == _masthead.page_fact_keys(page), page
+        assert keys == {key for key, _, _ in _masthead._PAGE_FACTS[page]}, page

@@ -49,8 +49,7 @@ def draw_isopycnal_ts(
         ``isopycnal_height`` ``(sigma0_level, time)`` and the ``sigma0_level``
         coordinate.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
 
     Returns
     -------
@@ -146,8 +145,7 @@ def draw_isopycnal_coverage(
         Gridded mooring xr.Dataset containing a variable whose name starts with
         ``"sigma"`` and has ``pressure`` and ``time`` dimensions.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
 
     Returns
     -------
@@ -381,8 +379,7 @@ def draw_overflow_temperature(
         latitude global attributes and a ``temperature`` variable with
         ``pressure`` and ``time`` dimensions.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
 
     Returns
     -------

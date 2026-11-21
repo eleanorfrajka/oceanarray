@@ -228,7 +228,6 @@ def test_qc_overrides_as_documented_pass() -> None:
                     "fail_span": [-2.0, 35.0],
                     "suspect_span": [-1.5, 30.0],
                 },
-                "pitch": {"fail_span": [-30.0, 30.0], "suspect_span": [-20.0, 20.0]},
                 "tilt": {"suspect_span": [-20, 20], "fail_span": [-30, 30]},
             },
             qc_spike={"pressure": {"suspect_threshold": 10.0, "fail_threshold": 50.0}},
@@ -272,6 +271,13 @@ def test_qc_override_unknown_variable_only_warns() -> None:
     """A variable outside the registry is a WARNING (likely a typo, but allowed)."""
     issues = _qc_issues(qc_spike={"temprature": {"fail_threshold": 5.0}})
     assert [level for level, _ in issues] == ["WARNING"]
+
+
+def test_pitch_and_roll_qc_ranges_warn_they_are_ignored() -> None:
+    """Tilt QC is geometric only, so a pitch or roll span is a WARNING, not applied."""
+    issues = _qc_issues(qc_ranges={"pitch": {"fail_span": [-50, 50]}})
+    assert [level for level, _ in issues] == ["WARNING"]
+    assert "ignored" in issues[0][1] and "tilt_qc" in issues[0][1]
 
 
 def test_instrument_level_qc_overrides_are_checked() -> None:

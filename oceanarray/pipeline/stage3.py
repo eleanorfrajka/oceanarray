@@ -1,49 +1,12 @@
-"""Stage 3: pressure interpolation + QARTOD QC (gross-range and spike tests).
+"""Stage 3: pressure interpolation and QARTOD QC; writes ``_stage3.nc`` for every instrument.
 
-Processing order per instrument
----------------------------------
-1. Load ``_stage2.nc``.
-2. **Pressure interpolation** (targets only — instruments lacking pressure or
-   whose pressure is flagged bad in the YAML):
-   a. Near-neighbour if any source has ``|Δhab|`` ≤ ``HAB_THRESHOLD``.
-   b. Weighted bracketing from the closest source above and below.
-   c. Extrapolation (with WARNING) when target is outside all source habs.
-   Interpolated pressure gets ``pressure_qc = 8`` (interpolated_value).
-3. **QARTOD gross-range test** on temperature, conductivity, pressure, and
-   velocity components.  Flags 4 (bad) or 3 (suspect) based on thresholds in
-   ``parameters.QC_GROSS_RANGE`` (overrideable per mooring / per instrument in
-   YAML via a ``qc_ranges`` key).
-4. **QARTOD spike test** on the same variables.  Flags from
-   ``parameters.QC_SPIKE`` (overrideable via ``qc_spike`` in YAML).
-5. Merge all QC flags using priority order: 9 > 4 > 3 > 8 > 2 > 1.
-6. Write ``_stage3.nc`` for **all** instruments (not only pressure targets).
-
-Flag combination priority
---------------------------
-Missing (9) > Bad (4) > Suspect (3) > Interpolated (8) > Prob-good (2) > Good (1)
-
-This means that if interpolated pressure also fails the range test it is
-flagged 4 (bad), not 8 (interpolated).
-
-YAML configuration keys
-------------------------
-Top-level (mooring-wide):
-
-``qc_ranges``
-    mapping of variable → {fail_span, suspect_span}
-``qc_spike``
-    mapping of variable → {suspect_threshold, fail_threshold}
-
-Per-instrument (in a clamp entry):
-
-``qc_ranges``
-    same structure; overrides the mooring-level setting for the variables
-    listed (others fall back to mooring/global defaults)
-``qc_spike``
-    same structure
-``pressure_qc``
-    int — mark this instrument's own pressure as bad (≥3) so stage3 replaces
-    it with an interpolated value.
+Pressure is interpolated for instruments without it, or whose pressure the YAML marks
+bad (``pressure_qc: 3`` or more): from the nearest source within ``HAB_THRESHOLD``,
+else bracketing sources above and below, else extrapolated (with a warning); flagged 8.
+Gross-range (``parameters.QC_GROSS_RANGE``, YAML ``qc_ranges``) and spike
+(``parameters.QC_SPIKE``, ``qc_spike``) tests follow, mooring-level YAML overridden by
+the instrument's entry. Flags merge as 9 > 4 > 3 > 8 > 2 > 1, so interpolated pressure
+that fails a range test is 4.
 """
 
 from __future__ import annotations

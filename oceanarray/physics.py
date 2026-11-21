@@ -1,18 +1,7 @@
-"""Seawater and current formulas shared by the pipeline writers and the report pages.
+"""Seawater and current formulas shared by the pipeline and the report pages.
 
-A low-level module: it imports nothing from oceanarray, so both
-:mod:`oceanarray.pipeline` (which writes these quantities into the products) and
-:mod:`oceanarray.analysis` (which derives them for the figures) call the same
-code, and neither has to import the other.
-
-Functions
----------
-flow_direction : direction the water flows toward, degrees clockwise from north.
-speed_direction : current speed and flow direction.
-tilt : angle of an instrument's axis from vertical, from its pitch and roll.
-instrument_tilt : that angle for a dataset, with the RDI pitch conversion where it applies.
-sigma_function : the TEOS-10 potential-density function for a reference pressure.
-potential_density_anomaly : σ at a reference pressure from Absolute Salinity and Conservative Temperature.
+Imports nothing from oceanarray, so :mod:`oceanarray.pipeline` (writing the products)
+and :mod:`oceanarray.analysis` (the figures) share one implementation.
 """
 
 from __future__ import annotations

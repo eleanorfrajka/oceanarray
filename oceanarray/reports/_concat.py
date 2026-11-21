@@ -1267,7 +1267,9 @@ def generate_concat_page(
         context = ConcatContext(
             figs=figs,
             qc_rows=qc_rows,
-            qc_rule=_qcflags.rule_text(ds) if qc_ruled else "",
+            qc_rule=masking.rule_words(masking.from_attrs(ds.attrs), table=True)
+            if qc_ruled
+            else "",
             qc_tables=_qcflags.translation_tables(ds) if qc_ruled else [],
             qc_unflagged=qc_unflagged,
             qc_quiet=qc_quiet,

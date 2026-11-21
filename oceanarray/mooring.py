@@ -1,26 +1,9 @@
-"""Load, validate and describe one mooring deployment from its YAML file.
+"""Load, check, template and save one mooring deployment's ``*.mooring.yaml``.
 
-A *mooring* here means one deployed instance — ``dune2_1_2026``, from
-deployment to recovery — described by a ``*.mooring.yaml`` file (or the plain
-dict parsed from one). This module is the single seam for reading that
-description; every stage and report receives the loaded dict rather than
-re-reading the file.
-
-Inside the package the module is imported under an alias so a function whose
-parameter is ``mooring`` can still call the module's functions::
-
-    from oceanarray import mooring as _mooring
-    ...
-    cfg = _mooring.load(path)
-
-Users write ``oceanarray.mooring.load(...)``. This module handles the description
-*file* — ``load``, ``check``, ``template``, ``save``; interpreting the loaded dict
-(which entries to process, the position) is the caller's job, through
-:func:`oceanarray.instruments.instrument_entries` and
-:func:`oceanarray.location.parse_latlon_with_source`.
-
-The file shape is a cross-package contract (moordiag reads the same file), so
-``load`` keeps every key exactly as written and never rewrites a value.
+The one seam for reading a description: every stage and report receives the loaded
+dict. Imported in the package as ``from oceanarray import mooring as _mooring`` so a
+``mooring`` parameter does not shadow it. The file is a cross-package contract
+(moordiag reads it), so :func:`load` keeps every key and value as written.
 """
 
 import logging
@@ -143,7 +126,6 @@ _SETTINGS_KEYS: dict[str, dict[str, bool | tuple[str, ...] | None]] = {
     "grid": {"pmin": False, "pmax": False, "dp": False, "mask_flags": None},
 }
 
-REQUIRED_KEYS: list[str] = validation.REQUIRED_MOORING_KEYS
 
 #: The description's settings (as opposed to its facts): what a stack records as
 #: its ``deployment_settings``.
@@ -533,6 +515,15 @@ def _check_qc_block(
             if not isinstance(entry, Mapping):
                 issues.append(
                     ValidationIssue("ERROR", f"{label} must be a mapping of {allowed}")
+                )
+                continue
+            if block == "qc_ranges" and var in ("pitch", "roll"):
+                issues.append(
+                    ValidationIssue(
+                        "WARNING",
+                        f"{label} is ignored: tilt QC uses the geometric tilt; "
+                        "set tilt_qc instead",
+                    )
                 )
                 continue
             if var not in params.VARIABLES and var != "tilt":

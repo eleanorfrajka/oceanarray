@@ -792,12 +792,6 @@ name to span pair:
      pressure:
        fail_span: [-5.0, 1050.0]
        suspect_span: [-0.5, 1020.0]
-     pitch:
-       fail_span: [-30.0, 30.0]
-       suspect_span: [-20.0, 20.0]
-     roll:
-       fail_span: [-30.0, 30.0]
-       suspect_span: [-20.0, 20.0]
      up_velocity:
        fail_span: [-0.5, 0.5]
        suspect_span: [-0.3, 0.3]
@@ -826,9 +820,6 @@ Commonly useful variables to configure:
      - Upper bound near 36.5 for Atlantic; lower in Baltic or Arctic
    * - ``pressure``
      - Upper bound should exceed instrument nominal depth by ~10 %
-   * - ``pitch``, ``roll``
-     - Controls Aquadopp tilt QC.  Symmetric spans are normal;
-       ``fail_span: [-30, 30]`` flags bad when ``|tilt| > 30°``
    * - ``up_velocity``
      - Aquadopp/ADCP vertical velocity; useful for detecting stuck instruments
    * - ``error_velocity``

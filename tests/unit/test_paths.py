@@ -233,6 +233,3 @@ def test_stage_and_product_patterns_share_one_spelling():
     assert stage_path.match(paths.stage_glob(3))
     grid_path = paths.product_file("/m", "dune2_1_2026", "grid")
     assert grid_path.name == "dune2_1_2026_grid.nc"
-    assert grid_path.match(paths.product_glob("grid"))
-    with pytest.raises(ValueError, match="unknown product"):
-        paths.product_glob("raw")

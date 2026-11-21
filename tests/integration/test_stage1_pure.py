@@ -83,6 +83,14 @@ def test_stage1_reproduces_committed_fixtures(tmp_path):
     """stage1(read_mooring(raw)) equals the committed stage-1 fixtures, marked stage 1."""
     results = _stage1_from(_RAW, _mooring.load(_YAML))
     assert all(ds.attrs[STAGE_ATTR] == 1 for ds in results.values())
+    assert all(ds.attrs["processing_level"] == "L1" for ds in results.values())
+    microcat, aquadopp = results["2941"], results["9920"]
+    assert microcat["instrument_serial"].dims == ()
+    assert microcat["instrument_serial"].dtype.kind in "OU"
+    assert microcat["temperature"].attrs["sensor"] == "SENSOR_CTD_2941"
+    dates = microcat["SENSOR_CTD_2941"].attrs["sensor_calibration_dates"]
+    assert dates.startswith("temperature: ")
+    assert aquadopp.attrs["coordinate_system"] in ("BEAM", "XYZ")
     _assert_matches_fixtures(results, tmp_path)
 
 
@@ -274,3 +282,44 @@ def test_stage1_warns_once_on_an_unread_depth_key(caplog):
         stage1(datasets, cfg)
     msgs = [r.message for r in caplog.records if "depth is not read" in r.message]
     assert len(msgs) == 1 and "2941" in msgs[0]
+
+
+@pytest.mark.filterwarnings("ignore")
+def test_processor_skips_an_instrument_with_bad_units(tmp_path, monkeypatch):
+    """A UnitsError on one instrument is logged and skipped; the rest still write."""
+    from oceanarray.pipeline import units as pu
+    from oceanarray.pipeline.stage1 import MooringProcessor
+
+    _, proc = _class_tree(tmp_path)
+    real = pu.to_canonical_units
+
+    def _raise_on_microcat(ds, log_fn=None, stage=None):
+        if "conductivity" in ds.data_vars:  # the microcat, not the aquadopp
+            raise pu.UnitsError("bad units")
+        return real(ds, log_fn=log_fn, stage=stage)
+
+    monkeypatch.setattr(
+        "oceanarray.pipeline.stage1.to_canonical_units", _raise_on_microcat
+    )
+    assert MooringProcessor(
+        raw_dir=str(tmp_path / "raw"), proc_dir=str(tmp_path / "proc")
+    ).process_mooring("dune2_1_2026", force=True)
+    assert (proc / "aquadopp" / "dune2_1_2026_9920_stage1.nc").exists()
+    assert not (proc / "microcat" / "dune2_1_2026_2941_stage1.nc").exists()
+
+
+@pytest.mark.filterwarnings("ignore")
+def test_processor_aborts_on_a_registry_inconsistency(tmp_path, monkeypatch):
+    """A RuntimeError from the units pass is a package bug: the run aborts."""
+    from oceanarray.pipeline.stage1 import MooringProcessor
+
+    _class_tree(tmp_path)
+
+    def _raise_runtime(_ds, **_kwargs):
+        raise RuntimeError("registry inconsistency")
+
+    monkeypatch.setattr("oceanarray.pipeline.stage1.to_canonical_units", _raise_runtime)
+    with pytest.raises(RuntimeError, match="registry inconsistency"):
+        MooringProcessor(
+            raw_dir=str(tmp_path / "raw"), proc_dir=str(tmp_path / "proc")
+        ).process_mooring("dune2_1_2026", force=True)

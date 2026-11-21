@@ -1,82 +1,16 @@
-"""Validation utilities for oceanarray mooring YAML configuration files.
+"""Validation of mooring YAML descriptions.
 
-The ``instrument`` field in each clamp/instruments entry is used as a
-subdirectory name when reading raw files and writing processed output::
+The ``instrument`` field names the subfolder of the raw and processed files
+(``<dir>/<mooring>/<instrument>/``): ``microcat``, ``sbe56``, ``sbe16``, ``rbrsolo``,
+``rbrduet``, ``aquadopp``, ``currentmeter``, ``adcp`` or ``tr1050`` (not model names
+such as ``sbe37`` or ``nortek``).
 
-    <raw-dir>/<mooring_name>/<instrument>/<filename>
-    <proc-dir>/<mooring_name>/<instrument>/<output>.nc
-
-Valid instrument names and their typical file types
-----------------------------------------------------
-
-+--------------+-------------------------------+--------------------------------------+
-| instrument   | Description                   | Typical file_type                    |
-+==============+===============================+======================================+
-| microcat     | SeaBird SBE37 CTD             | sbe-cnv, sbe-ascii, oceansites, rodb |
-+--------------+-------------------------------+--------------------------------------+
-| sbe56        | SeaBird SBE56 temperature     | sbe-cnv                              |
-+--------------+-------------------------------+--------------------------------------+
-| sbe16        | SeaBird SBE16 CTD             | sbe-cnv, sbe-hex                     |
-+--------------+-------------------------------+--------------------------------------+
-| rbrsolo      | RBR Solo temperature          | rbr-rsk, rbr-dat                     |
-+--------------+-------------------------------+--------------------------------------+
-| rbrduet      | RBR Duet CT                   | rbr-rsk, rbr-dat                     |
-+--------------+-------------------------------+--------------------------------------+
-| aquadopp     | Nortek Aquadopp current meter | nortek-raw, nortek-ascii, nortek-csv |
-+--------------+-------------------------------+--------------------------------------+
-| currentmeter | Processed point current meter | oceansites, rodb                     |
-+--------------+-------------------------------+--------------------------------------+
-| adcp         | Acoustic Doppler Current Prof | adcp-matlab                          |
-+--------------+-------------------------------+--------------------------------------+
-| tr1050       | Turner TR-1050 (via RBR)      | rbr-matlab                           |
-+--------------+-------------------------------+--------------------------------------+
-
-Do NOT use hardware/model names as the instrument value:
-  - ``sbe37``  → use ``microcat``
-  - ``nortek`` → use ``aquadopp``
-
-Clock correction YAML fields (per-instrument, applied in Stage 2)
------------------------------------------------------------------
-
-Stage 2 applies corrections in this order:
-
-  1. **Constant offset** — applied uniformly across the entire record::
-
-       clock_offset: 15        # seconds; positive = instrument was slow (behind)
-
-  2. **Linear drift** — grows linearly from 0 at deployment to the full drift
-     at recovery.  Two equivalent ways to specify it:
-
-     **Option A** — direct::
-
-       clock_drift_seconds: 8   # positive = instrument was slow (behind at recovery)
-
-     **Option B** — two timestamps read off at recovery (preferred; no sign errors)::
-
-       clock_computer_at_recovery:    '2026-07-11T10:23:30'
-       clock_instrument_at_recovery:  '2026-07-11T10:23:22'
-       # drift = computer − instrument = +8 s  (instrument was 8 s behind)
-
-     If both Option A and Option B are present, Option B takes priority.
-
-  3. **Trimming** — data outside deployment_time … recovery_time is discarded
-     *after* all clock corrections, so corrections are applied to the full raw record.
-
-Sign convention — both values are amounts **added** to instrument time:
-
-  +--------------------------------+------------------+--------------------+
-  | Situation                      | clock_offset     | clock_drift_seconds|
-  +================================+==================+====================+
-  | Instrument clock was slow      | positive (+)     | positive (+)       |
-  | (behind real time)             |                  |                    |
-  +--------------------------------+------------------+--------------------+
-  | Instrument clock was fast      | negative (-)     | negative (-)       |
-  | (ahead of real time)           |                  |                    |
-  +--------------------------------+------------------+--------------------+
-
-The original, uncorrected time is always saved as ``time_orig`` in the output
-NetCDF alongside the corrected ``time`` coordinate.  The ``history`` attribute
-records what was applied and when.
+Clock corrections (stage 2, in this order, before trimming to the deployment) are
+seconds **added** to instrument time, positive when the instrument clock was slow:
+``clock_offset`` (constant), then a drift growing linearly from 0 at deployment, from
+``clock_drift_seconds`` or, preferred, the pair ``computer_clock_at_recovery`` /
+``instrument_clock_at_recovery`` (drift = computer − instrument). The uncorrected time
+is kept as ``time_orig``. See :doc:`/yaml_configuration`.
 """
 
 import re
@@ -590,7 +524,7 @@ def validate_mooring(
                                 f"timestamp pair will be used (they agree to <1 s)",
                             )
                         )
-                except Exception:  # noqa: BLE001  — parse errors already reported above; skip silently
+                except (ValueError, TypeError):  # parse errors already reported above
                     pass
 
     issues.extend(check_serials(combined_list))

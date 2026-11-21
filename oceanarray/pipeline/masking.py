@@ -167,25 +167,34 @@ def to_json(rule: Mapping[str, tuple[int, ...]]) -> str:
     return json.dumps({k: list(v) for k, v in rule.items()})
 
 
-def rule_words(rule: Mapping[str, tuple[int, ...]]) -> str:
-    """Return a flag rule for the history: ``"4"``, ``"4 (velocity 3, 4)"``.
+def rule_words(rule: Mapping[str, tuple[int, ...]], *, table: bool = False) -> str:
+    """Return a flag rule in words.
 
     Parameters
     ----------
     rule : Mapping
         From :func:`resolve_mask_flags`.
+    table : bool, optional
+        The report's settings form, ``"4; velocity 3, 4"``, instead of the
+        history's ``"4 (velocity 3, 4)"`` (which also spells keys with spaces).
 
     Returns
     -------
     str
     """
-    text = ", ".join(map(str, rule["default"])) or "none"
+
+    def flags_text(flags: tuple[int, ...]) -> str:
+        return ", ".join(map(str, flags)) or "none"
+
+    default = flags_text(rule["default"])
     others = [
-        f"{key.replace('_', ' ')} {', '.join(map(str, flags)) or 'none'}"
+        f"{key if table else key.replace('_', ' ')} {flags_text(flags)}"
         for key, flags in rule.items()
         if key != "default"
     ]
-    return f"{text} ({', '.join(others)})" if others else text
+    if table:
+        return "; ".join([default, *others])
+    return f"{default} ({', '.join(others)})" if others else default
 
 
 def from_attrs(attrs: Mapping[str, object], key: str = STACK_ATTR) -> Rule:

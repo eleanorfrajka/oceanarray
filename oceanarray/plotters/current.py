@@ -1,22 +1,9 @@
-"""Tier-2 domain wrappers for current/velocity instrument plots.
+"""Tier-2 current and velocity figures: datasets in, Figures out (rendering in the Tier-1 primitives).
 
-These functions accept xarray Datasets and delegate rendering to Tier-1
-primitives in _primitives.py.  They understand oceanarray variable naming
-conventions but do not serialise to base64 (that happens in report/_plots.py).
-
-Coordinate transformations come from :mod:`oceanarray.pipeline.coordinate`.
-
-Public draw_* functions (migrated from report/_plots.py):
-- draw_instrument_rose: rose diagram grid for a single Aquadopp instrument.
-- draw_rose_grid: grid of current roses for instruments in a stack dataset.
-- draw_grid_rose: grid of current roses by pressure level for the grid report.
-- draw_grid_progressive_vector: progressive vector diagram by pressure level for the grid
-  report (``draw_grid_trajectory`` is its former name).
-- draw_adcp_velocity: stacked colour panels for the ADCP per-instrument HTML page.
-- draw_adcp_rose: current rose panels for an ADCP per-instrument report.
-- draw_adcp_hodograph: two-depth hodograph for an ADCP per-instrument report.
-- draw_grid_hodograph: two-depth hodograph for the grid report.
-- draw_aquadopp_tilt_panels: absolute pitch, roll and pressure tilt per Aquadopp for the stack report.
+Roses (:func:`draw_instrument_rose`, :func:`draw_rose_grid`, :func:`draw_grid_rose`,
+:func:`draw_adcp_rose`), progressive vectors (:func:`draw_grid_progressive_vector`),
+hodographs (:func:`draw_adcp_hodograph`, :func:`draw_grid_hodograph`), ADCP sections
+(:func:`draw_adcp_velocity`) and Aquadopp tilt (:func:`draw_aquadopp_tilt_panels`).
 """
 
 from __future__ import annotations
@@ -212,8 +199,7 @@ def draw_speed_boxplot(
     speed_var : str
         Name of the current speed variable.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
 
     Returns
     -------
@@ -258,6 +244,19 @@ def draw_speed_boxplot(
     return fig
 
 
+def _finish_progressive_vector(ax: Any, all_x: Any, all_y: Any) -> None:
+    """Square the limits to all trajectories, label the axes, mark the origin lines."""
+    xlim, ylim = square_limits(all_x, all_y)
+    ax.set_xlim(*xlim)
+    ax.set_ylim(*ylim)
+    ax.set_xlabel("East displacement (km)")
+    ax.set_ylabel("North displacement (km)")
+    ax.axhline(0, color="k", linewidth=0.5, linestyle="--", alpha=0.4)
+    ax.axvline(0, color="k", linewidth=0.5, linestyle="--", alpha=0.4)
+    ax.set_aspect("equal", adjustable="datalim")
+    grid_despine(ax)
+
+
 def draw_multi_aquadopp_progressive_vector(
     ds: xr.Dataset,
     u_var: str = "east_velocity",
@@ -291,8 +290,7 @@ def draw_multi_aquadopp_progressive_vector(
     title : str
         Optional figure title; falls back to the dataset ``id`` attribute.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
 
     Returns
     -------
@@ -427,15 +425,7 @@ def draw_multi_aquadopp_progressive_vector(
 
     # Square the axes to the union of all trajectories so equal aspect fills the
     # panel and the shared colorbar height stays matched.
-    xlim, ylim = square_limits(_all_x, _all_y)
-    ax.set_xlim(*xlim)
-    ax.set_ylim(*ylim)
-    ax.set_xlabel("East displacement (km)")
-    ax.set_ylabel("North displacement (km)")
-    ax.axhline(0, color="k", linewidth=0.5, linestyle="--", alpha=0.4)
-    ax.axvline(0, color="k", linewidth=0.5, linestyle="--", alpha=0.4)
-    ax.set_aspect("equal", adjustable="datalim")
-    grid_despine(ax)
+    _finish_progressive_vector(ax, _all_x, _all_y)
     if not title:
         title = ds.attrs.get("id", "")
     if title:
@@ -479,8 +469,7 @@ def draw_hodograph(
     smooth_hours : float
         Tukey smoothing window in hours applied to both panels.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
 
     Returns
     -------
@@ -609,8 +598,7 @@ def draw_aquadopp_speed_profile(
     instr_type_var, serial_var, hab_var : str
         Dimension-coordinate variable names.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
 
     Returns
     -------
@@ -729,8 +717,7 @@ def draw_adcp_progressive_vector(
     percent_good_qc_var : str
         Ping-quality QC; timesteps with a bad flag (``QC_BAD_FLAGS``) are zeroed before integration.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
 
     Returns
     -------
@@ -831,15 +818,7 @@ def draw_adcp_progressive_vector(
 
     ax.plot(0, 0, "o", color="black", markersize=7, zorder=6, label="Start")
     ax.legend(loc="upper left")
-    xlim, ylim = square_limits(_all_x, _all_y)
-    ax.set_xlim(*xlim)
-    ax.set_ylim(*ylim)
-    ax.set_xlabel("East displacement (km)")
-    ax.set_ylabel("North displacement (km)")
-    ax.axhline(0, color="k", linewidth=0.5, linestyle="--", alpha=0.4)
-    ax.axvline(0, color="k", linewidth=0.5, linestyle="--", alpha=0.4)
-    ax.set_aspect("equal", adjustable="datalim")
-    grid_despine(ax)
+    _finish_progressive_vector(ax, _all_x, _all_y)
     plot_title(ax, "ADCP bins coloured by HAB")
     return fig
 
@@ -970,8 +949,7 @@ def draw_rose_grid(
     serial_list : list
         Serial numbers corresponding to the instrument axis of the velocity arrays.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
 
     Returns
     -------
@@ -1132,8 +1110,7 @@ def draw_grid_progressive_vector(
         Gridded dataset with dimensions ``(time, pressure)``, containing
         ``east_velocity`` and ``north_velocity`` in m s⁻¹.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
 
     Returns
     -------
@@ -1190,15 +1167,7 @@ def draw_grid_progressive_vector(
 
     ax.plot(0, 0, "o", color="black", markersize=6, zorder=6, label="Start")
     ax.legend(loc="upper left")
-    xlim, ylim = square_limits(_all_x, _all_y)
-    ax.set_xlim(*xlim)
-    ax.set_ylim(*ylim)
-    ax.set_xlabel("East displacement (km)")
-    ax.set_ylabel("North displacement (km)")
-    ax.axhline(0, color="k", linewidth=0.5, linestyle="--", alpha=0.4)
-    ax.axvline(0, color="k", linewidth=0.5, linestyle="--", alpha=0.4)
-    ax.set_aspect("equal", adjustable="datalim")
-    grid_despine(ax)
+    _finish_progressive_vector(ax, _all_x, _all_y)
     return fig
 
 
@@ -1215,55 +1184,26 @@ def draw_adcp_velocity(
     *,
     width_in: float = report_tokens.W_FULL,
 ) -> plt.Figure | None:
-    """Stacked colour panels for the ADCP per-instrument HTML report page; return a Figure.
+    """Draw an ADCP's stage-3 velocities as stacked time × range panels, for its instrument page.
 
-    Reads the stage-3 NetCDF file at *nc_path* and produces a multi-panel
-    time × range pcolormesh figure.
-
-    **Coordinate convention**: velocities are in geographic ENU (East–North–Up), after
-    magnetic declination correction applied in stage 3.  Positive east = rightward facing
-    north; positive north = toward True North.
-
-    **Direction convention** (``current_direction`` panel): direction *toward which* the
-    water flows, clockwise from True North (0° = northward, 90° = eastward).  This is
-    the oceanographic convention, opposite to meteorological "direction from".
-    Computed as ``atan2(east, north) mod 360``.
-
-    Panels rendered for each variable present in the file:
-
-    ====================  ================================  =====================
-    Variable              Label                             Colormap
-    ====================  ================================  =====================
-    east_velocity         East velocity (m s⁻¹)             Spectral_r (div)
-    north_velocity        North velocity (m s⁻¹)            Spectral_r (div)
-    up_velocity           Up velocity (m s⁻¹)               Spectral_r (div)
-    error_velocity        Error velocity (m s⁻¹)            Spectral_r (div)
-    current_speed         Current speed (m s⁻¹)             plasma (seq, 0→98th)
-    current_direction     Current direction (°T)            hsv (cyclic, 0–360°)
-    bin_pressure          Bin pressure (dbar)               viridis (seq)
-    ====================  ================================  =====================
-
-    Diverging panels (east/north/up/error) share symmetric colormap bounds set to
-    ±max(``|2nd pctile|``, ``|98th pctile|``) of all finite ENU velocity values.
-
-    Bins flagged at or below the seabed (``seabed_qc`` in ``QC_BAD_FLAGS``) are masked to NaN.
-    Y-axis (range coordinate) is inverted for downward-looking instruments (pressure
-    increases into the page); non-inverted for upward-looking.  It runs from 0 to the
-    far edge of the last bin with velocity data.
+    One panel per variable present: east, north, up and error velocity (``Spectral_r``,
+    symmetric at ``±max(|p2|, |p98|)`` of the ENU velocities), ``current_speed`` (``plasma``,
+    0 to p98), ``current_direction`` (``hsv``, degrees toward which the water flows,
+    clockwise from true north) and ``bin_pressure`` (``viridis``). Bins with ``seabed_qc``
+    in ``QC_BAD_FLAGS`` are masked. Range runs from 0 to the far edge of the last bin with
+    data, inverted for a downward-looking ADCP.
 
     Parameters
     ----------
     nc_path : str
-        Path to a stage-3 NetCDF file for a single ADCP instrument.
+        The ADCP's stage-3 file.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
 
     Returns
     -------
-    plt.Figure or None
-        Figure, or None if no velocity data are present or range coordinate is absent.
-
+    matplotlib.figure.Figure or None
+        None without velocity or ``range``.
     """
     import matplotlib.pyplot as plt
 
@@ -1442,8 +1382,7 @@ def draw_adcp_rose(
     nc_path : str
         Path to a stage-3 ADCP NetCDF file.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
 
     Returns
     -------
@@ -1639,8 +1578,7 @@ def draw_adcp_hodograph(
     smooth_hours : float
         Tukey smoothing window in hours for the raw panel.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
 
     Returns
     -------
@@ -1846,8 +1784,7 @@ def draw_aquadopp_tilt_panels(
     step : int, optional
         Plot every *step*-th time sample.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
 
     Returns
     -------

@@ -33,56 +33,44 @@ from .helpers import grid_despine
 
 
 def plot_title(ax: Any, text: str, *, loc: str = "left", **kwargs: Any) -> Any:
-    """Set an axes (panel) title, left-aligned by default.
+    """Set a panel title, left-aligned by default: the one switch for panel-title alignment.
 
-    The single place panel-title alignment is decided for report figures, so the
-    left-vs-centre choice for every panel title can be switched here in one line.
-    Figure-level titles that span several panels use :func:`figure_title`
-    (centred) instead — do not route those through this helper.  Colorbar unit
-    labels (``cb.ax.set_title``) are not panel titles and must not use this
-    helper either.
+    Figure titles over several panels use :func:`figure_title`; colorbar unit labels are
+    not panel titles.
 
     Parameters
     ----------
     ax : matplotlib.axes.Axes
-        Axes whose title is set.
+        Axes to title.
     text : str
         Title text.
     loc : str, optional
-        Horizontal alignment passed to ``set_title`` (default ``"left"``).
+        Alignment passed to ``set_title``.
     **kwargs : Any
-        Forwarded to ``matplotlib.axes.Axes.set_title`` (e.g. ``fontsize``).
+        Forwarded to ``Axes.set_title``.
 
     Returns
     -------
     matplotlib.text.Text
-        The created title artist.
-
     """
     return ax.set_title(text, loc=loc, **kwargs)
 
 
 def figure_title(fig: Any, text: str, **kwargs: Any) -> Any:
-    """Set a figure-level title (``suptitle``), centred over all panels.
-
-    Use for a title that spans a multi-panel figure; per-panel titles use
-    :func:`plot_title` (left-aligned).  Keeping both in one module makes the
-    left-vs-centre policy a single switch point.
+    """Set a figure title (``suptitle``), centred over all panels.
 
     Parameters
     ----------
     fig : matplotlib.figure.Figure
-        Figure whose suptitle is set.
+        Figure to title.
     text : str
         Title text.
     **kwargs : Any
-        Forwarded to ``matplotlib.figure.Figure.suptitle`` (e.g. ``y``, ``fontsize``).
+        Forwarded to ``Figure.suptitle``.
 
     Returns
     -------
     matplotlib.text.Text
-        The created suptitle artist.
-
     """
     return fig.suptitle(text, **kwargs)
 
@@ -107,60 +95,48 @@ def pcolormesh_panel(
     cax: Any = None,
     extend: str = "neither",
 ) -> Any:
-    """Draw one (pressure × time) field as a discrete-colorbar panel on *ax*.
-
-    A generic time–depth panel primitive.  Computes percentile colour limits
-    from *data* unless *vmin* / *vmax* are supplied.  Applies a discrete
-    ``BoundaryNorm`` colorbar, an inverted pressure axis, and (optionally) a
-    concise date axis.
+    """Draw one (pressure × time) field on *ax* with a discrete colorbar and inverted pressure axis.
 
     Parameters
     ----------
-    fig, ax : matplotlib Figure and Axes
-        Target figure and axes to draw on.
+    fig, ax : matplotlib.figure.Figure, matplotlib.axes.Axes
+        Target figure and axes.
     data : numpy.ndarray
-        2-D field shaped ``(pressure, time)``.
+        Field on ``(pressure, time)``.
     time : numpy.ndarray
-        Time coordinate (length matching ``data``'s second axis).
+        Time coordinate.
     pressure : numpy.ndarray
-        Pressure coordinate (length matching ``data``'s first axis).
+        Pressure coordinate (dbar).
     title : str
         Panel title.
     units : str, optional
-        Units string appended to *cb_label* when *cb_label* is ``None``.
+        Appended to the default colorbar label.
     cmap : str, optional
-        Colormap name.  Default ``"RdYlBu_r"``.
-    style : str, optional
-        ``"pcolormesh"`` (default) or ``"contourf"``.
+        Colormap name.
+    style : {"pcolormesh", "contourf"}, optional
+        Drawing style.
     vmin, vmax : float, optional
-        Explicit colour limits.  Computed from data percentiles when omitted.
+        Colour limits; default percentiles of *data*.
     n : int, optional
-        Target number of colorbar levels.  Default 20.
+        Target number of colorbar levels.
     cb_label : str, optional
-        Colorbar label.  Defaults to ``"{title} ({units})"`` or ``"{title}"``.
+        Colorbar label; default ``"{title} ({units})"``.
     title_loc : str, optional
-        Horizontal alignment of the axes title.  Default ``"left"`` (the report
-        panel-title convention; pass ``"center"`` for a centred title).
+        Title alignment.
     date_fmt : bool, optional
-        When ``True`` (default), apply :func:`date_axis` to *ax*.  Pass
-        ``False`` for stacked panels where only the last axis needs the
-        formatter.
+        Apply :func:`date_axis` (False for all but the last stacked panel).
     edges : tuple of numpy.ndarray, optional
-        ``(time edges, pressure edges)``, each one longer than *time* and
-        *pressure*: draw each cell between its edges (pcolormesh only) rather than
-        centered on its coordinate, so cells of unequal length keep their extent.
-    cax : matplotlib Axes, optional
-        A pre-placed colorbar axes (from :func:`section_layout`); default: the
-        colorbar takes room from *ax*.
+        ``(time edges, pressure edges)``, one longer than the coordinates, for cells of
+        unequal size (pcolormesh only).
+    cax : matplotlib.axes.Axes, optional
+        Pre-placed colorbar axes (:func:`section_layout`); default taken from *ax*.
     extend : {"neither", "both", "min", "max"}, optional
-        Colour values beyond the limits in the end colours and draw the colorbar
-        with arrows on those ends (default ``"neither"``).
+        Colorbar ends for values beyond the limits.
 
     Returns
     -------
-    matplotlib collection
-        The pcolormesh/contourf artist (useful for a shared colorbar).
-
+    matplotlib.collections.Collection
+        The pcolormesh / contourf artist.
     """
     bounds, norm = colorbar_norm(data, vmin=vmin, vmax=vmax, n=n)
     if extend != "neither":
@@ -233,26 +209,20 @@ _SQ_PER_CHAR_IN: float = 0.10
 
 
 def ytick_reserve_in(y: np.ndarray | float) -> float:
-    """Left-margin inches to fit the widest y-tick label plus rotated y-axis label.
+    """Return the left margin (inches) for the widest y-tick label plus the y-axis label.
 
-    Sizes the ``left_in`` reserve for :func:`square_axes_grid` from the y-data
-    range instead of a fixed shrink: the base reserve (``_SQ_LABEL_IN``) already
-    fits up to ~4-character tick labels, and each additional character (a larger
-    magnitude, or a leading minus) adds ``_SQ_PER_CHAR_IN``.  Returns the base
-    reserve unchanged for <=4-character labels, so a small-displacement
-    trajectory keeps the full square (no 9% shrink) while a thousands-of-km one
-    reserves just enough.
+    The base reserve fits labels of up to 4 characters; each extra character adds
+    ``_SQ_PER_CHAR_IN``. For ``left_in`` of :func:`square_axes_grid`.
 
     Parameters
     ----------
     y : numpy.ndarray or float
-        The y values (or the maximum absolute y-limit) about to be plotted.
+        The y values, or the largest absolute y-limit.
 
     Returns
     -------
     float
-        Left-margin reserve in inches, always >= ``_SQ_LABEL_IN``.
-
+        At least ``_SQ_LABEL_IN``.
     """
     arr = np.asarray(y, dtype=float).ravel()
     finite = arr[np.isfinite(arr)]
@@ -276,68 +246,39 @@ def square_axes_grid(
     cbar_txt_in: float | None = None,
     left_in: float | None = None,
 ) -> tuple[plt.Figure, np.ndarray, Any]:
-    """Lay out an ``nrows × ncols`` grid of square axes deterministically in inches.
+    """Lay out an ``nrows × ncols`` grid of square axes, placed in inches.
 
-    Every panel is an exact square whose side is computed from the usable width,
-    so an equal-aspect plot fills the panel without ``set_aspect`` having to
-    shrink the axes box — and a colorbar placed here shares each panel's exact
-    pixel height rather than the taller subplot cell.  A single shared colorbar
-    axes (spanning the full height of the panel stack) is reserved on the right
-    when *colorbar* is true.  ``fig._manual_layout`` is set so the base64 encoder
-    skips ``tight_layout`` (which would re-flow these hand-placed axes).
-
-    Callers must NOT call ``set_aspect('equal', adjustable='box')`` on the
-    returned axes: the box is already square and authoritative, so use symmetric
-    limits (or ``adjustable='datalim'``) instead, or the box would resize and
-    strand the shared colorbar again.
+    Each panel is an exact square, so an equal-aspect plot fills it and a colorbar matches
+    its height. Sets ``fig._manual_layout`` so the encoder skips ``tight_layout``. Do not
+    call ``set_aspect("equal", adjustable="box")`` on the axes: use symmetric limits or
+    ``adjustable="datalim"``.
 
     Parameters
     ----------
     fig_w : float
-        Figure width in inches — must equal the display slot so the PNG is not
-        rescaled by the browser.
+        Figure width (inches), equal to the display slot.
     nrows, ncols : int
-        Grid shape (both >= 1).
-    colorbar : bool
-        Reserve and return a single shared colorbar axes on the right.  Default
-        True.  Ignored when *per_panel_colorbar* is set.
-    per_panel_colorbar : bool
-        Give **each** panel its own height-matched colorbar axes to its right
-        (for figures where every panel encodes a different field, e.g. a T-S dot
-        plot + count heatmap + O₂ panel).  The third return value is then an
-        ``(nrows, ncols)`` object array of colorbar axes instead of a single one.
-    top_pad_in : float
-        Extra inches reserved above the panel-title strip, e.g. for a figure
-        ``suptitle``.  Default 0.
-    bottom_pad_in : float
-        Extra inches reserved below the x-tick strip, e.g. for rotated tick
-        labels or a second x-axis label line.  Default 0.
+        Grid shape (≥ 1).
+    colorbar : bool, optional
+        Reserve one shared colorbar axes on the right (ignored with *per_panel_colorbar*).
+    per_panel_colorbar : bool, optional
+        One height-matched colorbar axes right of each panel.
+    top_pad_in : float, optional
+        Extra inches above the title strip (e.g. for a suptitle).
+    bottom_pad_in : float, optional
+        Extra inches below the x-tick strip.
     wgap_in : float, optional
-        Override the inter-column gap (inches).  Default (``None``) uses the
-        standard gap, which reserves room for each column's y-labels; a caller
-        whose panels share a y-axis (right panel hides its y-labels) can pass a
-        smaller value to close the gap.
+        Column gap (inches); smaller for panels sharing a y-axis.
     cbar_txt_in : float, optional
-        Override the reserved width (inches) for the colorbar's tick labels and
-        axis label (each panel's, with *per_panel_colorbar*).  Default (``None``)
-        uses the standard reserve; pass a larger value for a long colorbar label
-        so it stays on-canvas.
+        Width (inches) reserved for colorbar labels.
     left_in : float, optional
-        Override the reserved left-margin width (inches) for the y-tick labels
-        plus rotated y-axis label.  Default (``None``) uses the standard reserve
-        (``_SQ_LABEL_IN``), which fits up to ~4-character tick labels; pass a
-        larger value when the y-tick labels are wide (e.g. thousands-of-km
-        trajectory displacements) so the axis label stays on-canvas.  Applies to
-        the standard (non ``per_panel_colorbar``) layout.  Use
-        :func:`ytick_reserve_in` to size it from the data range.
+        Left margin (inches) for y labels; see :func:`ytick_reserve_in`.
 
     Returns
     -------
     tuple of (matplotlib.figure.Figure, numpy.ndarray, object)
-        The figure; an ``(nrows, ncols)`` object array of panel axes; and the
-        colorbar axes — a single shared ``Axes`` (or None) normally, or an
-        ``(nrows, ncols)`` object array when *per_panel_colorbar* is set.
-
+        The figure, an ``(nrows, ncols)`` array of axes, and the colorbar axes (one, None,
+        or an ``(nrows, ncols)`` array with *per_panel_colorbar*).
     """
     # Optional overrides: a caller with a shared y-axis (right panel hides its
     # y-labels) can pass a smaller *wgap_in*; a long shared-colorbar label needs a
@@ -408,26 +349,20 @@ def square_limits(
     *,
     pad_frac: float = 0.05,
 ) -> tuple[tuple[float, float], tuple[float, float]]:
-    """Return ``(xlim, ylim)`` framing *x*, *y* as an equal-extent square.
+    """Return ``(xlim, ylim)`` of equal extent framing *x*, *y*, each centred on its data.
 
-    The larger of the x and y data ranges is applied to both axes (each centred
-    on its own data midpoint), so an equal-aspect plot of the data is square and
-    neither axis is a thin strip.  Non-finite values are ignored; a degenerate
-    (zero-extent) input falls back to a unit square.  Choose the limits with this
-    helper *before* placing a square axes so the colorbar sizing stays exact.
+    Non-finite values are ignored; zero extent gives a unit square.
 
     Parameters
     ----------
     x, y : numpy.ndarray
-        Data coordinates (any shape; flattened, non-finite dropped).
-    pad_frac : float
-        Fractional padding added to the half-extent on all sides.  Default 0.05.
+        Data coordinates (any shape).
+    pad_frac : float, optional
+        Padding as a fraction of the half-extent.
 
     Returns
     -------
     tuple of (tuple of float, tuple of float)
-        ``((x0, x1), (y0, y1))``.
-
     """
     xf = np.asarray(x)[np.isfinite(x)]
     yf = np.asarray(y)[np.isfinite(y)]
@@ -450,33 +385,24 @@ def unit_colorbar(
     ticks: np.ndarray | None = None,
     ticklabels: list[str] | None = None,
 ) -> Any:
-    """Draw *mappable*'s colorbar into the pre-placed *cax* with the unit on top.
-
-    The unit is rendered as a title above the bar (``cax.set_title``) rather than
-    a rotated side label, which saves horizontal width and reads cleanly — the
-    same convention as the cruise-map depth colorbar.  *cax* is expected to come
-    from :func:`square_axes_grid` so its height already matches the plotted
-    square.
+    """Draw *mappable*'s colorbar in *cax* with the unit as a title above the bar.
 
     Parameters
     ----------
-    cax : matplotlib Axes
-        Pre-placed colorbar axes.
-    mappable : matplotlib ScalarMappable
-        The artist (LineCollection, pcolormesh, ScalarMappable, ...) to map.
-    unit : str
-        Unit string placed above the bar (e.g. ``"m s⁻¹"``).  Empty renders no
-        title.
+    cax : matplotlib.axes.Axes
+        Pre-placed colorbar axes (from :func:`square_axes_grid`).
+    mappable : matplotlib.cm.ScalarMappable
+        The artist to map.
+    unit : str, optional
+        Unit above the bar; empty for none.
     ticks : numpy.ndarray, optional
-        Explicit colorbar tick positions.
+        Tick positions.
     ticklabels : list of str, optional
-        Explicit tick labels (same length as *ticks*), e.g.
-        ``["start", "end"]`` for a fractional-time bar.
+        Tick labels, one per tick.
 
     Returns
     -------
     matplotlib.colorbar.Colorbar
-
     """
     cb = cax.figure.colorbar(mappable, cax=cax, ticks=ticks)
     if ticklabels is not None:
@@ -530,8 +456,7 @@ def draw_trajectory(
     title : str
         Figure title.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
 
     Returns
     -------
@@ -704,37 +629,28 @@ def colorbar_norm(
     n: int = 20,
     symmetric: bool = False,
 ) -> tuple[np.ndarray, mcolors.BoundaryNorm]:
-    """Return ``(bounds, norm)`` for a discrete pcolormesh colorbar.
-
-    Computes percentile limits from *data* when *vmin* / *vmax* are not given.
-    Explicit *vmin* / *vmax* override the percentile calculation.  Pass
-    ``symmetric=True`` to force the range symmetric about zero.
+    """Return ``(bounds, norm)`` for a discrete colorbar, from *vmin*/*vmax* or percentiles of *data*.
 
     Parameters
     ----------
-    data : np.ndarray, optional
-        Source array used for percentile-based limit computation.  Ignored when
-        both *vmin* and *vmax* are given.
+    data : numpy.ndarray, optional
+        Values for the percentile limits not given.
     vmin, vmax : float, optional
-        Explicit color limits.  Either one or both may be supplied; the other
-        falls back to the percentile of *data*.
-    n : int
-        Target number of colorbar levels (default 20).
-    symmetric : bool
-        If ``True``, expand [vmin, vmax] to [-max, +max] before computing
-        bounds.
+        Explicit limits.
+    n : int, optional
+        Target number of levels.
+    symmetric : bool, optional
+        Make the range symmetric about zero.
 
     Returns
     -------
-    bounds : np.ndarray
-        Boundary array for ``BoundaryNorm`` and colorbar ticks.
+    bounds : numpy.ndarray
     norm : matplotlib.colors.BoundaryNorm
 
     Raises
     ------
     ValueError
-        If neither *data* nor both *vmin* and *vmax* are provided.
-
+        Neither *data* nor both limits given.
     """
     if vmin is None or vmax is None:
         if data is None:
@@ -757,22 +673,20 @@ def colorbar_norm(
 
 
 def nice_colorbar_bounds(vmin: float, vmax: float, n: int = 20) -> np.ndarray:
-    """Return the boundaries of a discrete colorbar with about *n* levels.
-
-    Use with :class:`matplotlib.colors.BoundaryNorm`.
+    """Return the boundaries of a discrete colorbar with about *n* levels (for ``BoundaryNorm``).
 
     Parameters
     ----------
     vmin, vmax : float
         Data range to cover.
     n : int, optional
-        Target number of color levels.
+        Target number of levels.
 
     Returns
     -------
     numpy.ndarray
-        Evenly spaced boundaries from a step at or below ``vmin`` to one at or above
-        ``vmax``; ``vmin ± 1`` in ``n`` steps when the range is empty.
+        Even steps from at or below *vmin* to at or above *vmax*; ``vmin ± 1`` for an
+        empty range.
 
     Examples
     --------
@@ -799,26 +713,18 @@ def nice_colorbar_bounds(vmin: float, vmax: float, n: int = 20) -> np.ndarray:
 
 
 def nice_colorbar_ticks(vmin: float, vmax: float, *, max_ticks: int = 6) -> np.ndarray:
-    """Return at most *max_ticks* nicely-rounded tick positions in ``[vmin, vmax]``.
-
-    Decoupled from the colorbar's colour discretisation: a 20-level
-    ``BoundaryNorm`` bar can still show ~6 round labels (e.g. 34.8, 34.9, … 35.2)
-    instead of one label per boundary.  Uses :class:`matplotlib.ticker.MaxNLocator`
-    with round step multiples so labels land on clean values.
+    """Return at most *max_ticks* round tick positions in ``[vmin, vmax]``, apart from the colour levels.
 
     Parameters
     ----------
     vmin, vmax : float
-        Data range of the colorbar.
-    max_ticks : int
-        Maximum number of ticks (approximate; the locator may return a few
-        fewer).  Default 6.
+        Colorbar range.
+    max_ticks : int, optional
+        Most ticks.
 
     Returns
     -------
     numpy.ndarray
-        Tick positions, clipped to ``[vmin, vmax]``.
-
     """
     import matplotlib.ticker as mticker
 

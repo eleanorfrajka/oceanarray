@@ -1,25 +1,13 @@
 """The people and sources behind a product: investigators, contributors, DOIs, licenses.
 
-OceanSITES 1.4 lists principal investigators (``principal_investigator``,
-``_email``, ``_url``, ``_id``) separated by commas, and contributors
-(``contributor_name``, ``_role``, ``_email``) separated by semicolons; the
-parallel attributes of one list hold one entry per person and role, so the *n*-th entries
-describe one person.
-
-Reading another file's lists is lenient (originators use either separator, add
-titles, spell a name or an email two ways); writing is strict (the manual's
-separators, no separator inside a value, every parallel attribute the same
-length). A contributor with two roles takes two entries. Stage 1 cleans an
-imported file's own lists (its ``originator_*`` attributes) with the lenient
-reader, once; every later step reads oceanarray's own lists with the strict
-reader (:func:`read_own`) and only joins them.
-
-A file that names nobody (RODB headers carry no people) can take its people from
-the mooring description's ``people:`` block (:func:`people_from_block`). Where
-the data came from (DOI, citation, license, acknowledgement, references) is kept
-as ``source_*`` attributes, the file's own values first and the description's
-``source:`` block filling the rest (:func:`source_attrs`); a product built from
-several sources cites them all (:func:`product_citation`).
+OceanSITES 1.4 people lists: ``principal_investigator*`` comma-separated,
+``contributor_*`` semicolon-separated, the *n*-th entries of the parallel attributes
+describing one person and role. Reading another file's lists is lenient (stage 1 cleans
+the ``originator_*`` lists once); writing and reading oceanarray's own lists is strict
+(:func:`read_own`). A description's ``people:`` block fills in a file that names nobody
+(:func:`people_from_block`). ``source_*`` attributes keep where the data came from, the
+file's values first, then the ``source:`` block (:func:`source_attrs`); a product cites
+all its sources (:func:`product_citation`).
 """
 
 from __future__ import annotations
@@ -105,28 +93,23 @@ def _split(value: object) -> list[str]:
 
 
 def split_names(value: object, n_paired: int | None = None) -> list[str]:
-    """Split a list of names into people.
+    """Split a names attribute into ``"Given Surname"`` names, one per person, titles removed.
 
-    Titles are stripped (a part that is only a title, as in ``"Dr. Fiamma
-    Straneo, Professor"``, goes). A list with a ``;`` is split on it, and a comma
-    left inside a part reads as ``"Surname, Given"`` (``"de Jong, Femke"`` →
-    ``"Femke de Jong"``). A comma-only list is read as surname-given pairs only
-    when both say so: the paired emails or ids list half as many entries as it
-    has parts, and every second part is a given name or initials (one word, or
-    ``"A. B."``). Otherwise each part is a person.
+    A ``;`` list splits on ``;`` and reads a comma inside a part as ``"Surname, Given"``. A
+    comma-only list is read as surname-given pairs only when the paired list has half as
+    many entries and every second part is a given name or initials; otherwise each part is
+    a person.
 
     Parameters
     ----------
     value : object
-        The names attribute (``principal_investigator``, ``contributor_name``...).
+        The names attribute (``principal_investigator``, ``contributor_name``, ...).
     n_paired : int, optional
-        How many entries the paired emails or ids list (roles are left out: one
-        role is often shared by several names).
+        Entries in the paired emails or ids (not roles, often shared).
 
     Returns
     -------
     list of str
-        One name per person, ``"Given Surname"``, no title, no separator inside.
     """
     text = "" if value is None else str(value)
     if ";" in text:
@@ -862,24 +845,19 @@ def _derived(sources: Sequence[Mapping[str, object]]) -> tuple[list[str], list[s
 
 
 def product_citation(sources: Sequence[Mapping[str, object]]) -> dict[str, str]:
-    """Return how to cite a product built from *sources*, and its license terms.
-
-    The product is cited as its sources are: ``citation`` is each distinct
-    source's own citation, unchanged. How the product was made is processing
-    history, not a citation: see :func:`derivation`.
+    """Return how to cite a product built from *sources*: their own citations, licenses and references.
 
     Parameters
     ----------
     sources : sequence of Mapping
-        The ``source_*`` attributes of each input (one per deployment or mooring).
+        The ``source_*`` attributes of each input.
 
     Returns
     -------
     dict of str to str
-        ``citation`` (each source's own citation, followed by its DOI when the
-        text does not hold it, else the DOI; joined with ``"; "``), ``license`` (each
-        distinct source license: a user must follow each) and ``references`` (each
-        distinct DOI and reference, once). A key is left out when it has no value.
+        ``citation`` (each distinct source citation, with its DOI if the text lacks it),
+        ``license`` (each distinct license) and ``references`` (each DOI and reference
+        once), joined with ``"; "``; empty keys left out.
     """
     derived, refs = _derived(sources)
     licenses: list[str] = []
@@ -1064,22 +1042,17 @@ def join_sources(
     Parameters
     ----------
     attrs_seq : Sequence of Mapping
-        The global attributes of each file (stage files of a mooring, stacks of a
-        site), in order.
+        The global attributes of each file, in order.
     what : str
-        What the files are, for the warning (``"the stage files"``,
-        ``"egM4: the deployments"``).
+        What the files are, for the warning (``"the stage files"``).
     warn : Sequence of str, optional
-        The attributes for which a second value draws a warning. A mooring comes
-        from one data package, so the stack warns on every field; the deployments of
-        a site may come from different packages, so concat warns only on the
-        license, which a user must follow for each.
+        Attributes for which a second value warns: every field for a mooring (one data
+        package), the license only for a site's deployments.
 
     Returns
     -------
     dict of str to str
-        ``{source_<field>: joined value}`` for every field any file gives
-        (:func:`join_values`; ``source_references`` is a list).
+        As :func:`join_values` (``source_references`` is a list).
     """
     return join_values(
         attrs_seq, SOURCE_ATTRS, what=what, warn=warn, lists=("source_references",)

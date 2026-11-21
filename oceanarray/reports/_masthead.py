@@ -55,23 +55,6 @@ _PAGE_FACTS: dict[str, tuple[tuple[str, str, str], ...]] = {
 }
 
 
-def page_fact_keys(page: str) -> frozenset[str]:
-    """Return the ``extra`` keys a page's masthead reads.
-
-    Parameters
-    ----------
-    page : {"mooring", "stack", "grid"}
-        The report page.
-
-    Returns
-    -------
-    frozenset of str
-        The keys of the page's own facts (empty for the mooring page).
-
-    """
-    return frozenset(key for key, _, _ in _PAGE_FACTS[page])
-
-
 def _first(cfg: Mapping[str, Any], *keys: str) -> Any:
     """Return the first non-empty value among *keys* in *cfg*, else None."""
     for key in keys:
@@ -243,7 +226,7 @@ def masthead_facts(
         The facts from :func:`common_facts`.
     extra : Mapping, optional
         The page's own values, keyed by this module's key constants
-        (:data:`N_TIME`, :data:`NC_FILE`, ...; see :func:`page_fact_keys`); a key
+        (:data:`N_TIME`, :data:`NC_FILE`, ...); a key
         absent here reads ``—``.
 
     Returns

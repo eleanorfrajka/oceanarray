@@ -67,11 +67,9 @@ def _normalise(html: str) -> str:
 
 
 def test_safe_rel(tmp_path: pathlib.Path) -> None:
-    """`logger.format_rel_path` returns a path under *root* relatively, else the bare name."""
+    """`logger.format_rel_path` returns a path under *root* relatively, with forward slashes on every OS, else the bare name."""
     under = tmp_path / "sub" / "file.html"
-    assert logger.format_rel_path(under, tmp_path) == str(
-        pathlib.Path("sub") / "file.html"
-    )
+    assert logger.format_rel_path(under, tmp_path) == "sub/file.html"
     outside = tmp_path.parent / "elsewhere.html"
     assert logger.format_rel_path(outside, tmp_path) == "elsewhere.html"
 

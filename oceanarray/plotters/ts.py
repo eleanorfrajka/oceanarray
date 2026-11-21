@@ -426,8 +426,7 @@ def draw_ts_diagram(
     nc_path : Path
         Path to a stage-3 NetCDF file.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
     derived : DerivedFields or None, optional
         The page's derived quantities (position, θ); read from the file when not
         given.
@@ -656,8 +655,7 @@ def draw_stack_ts_diagram(
     ds : xr.Dataset
         Stacked mooring dataset containing ``temperature`` and ``salinity``.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
     derived : DerivedFields or None, optional
         The page's derived quantities (position, θ), computed once by the report;
         read from *ds* when not given.
@@ -853,8 +851,7 @@ def draw_grid_ts_diagram(
     n_bins : int
         Number of bins per axis for the 2-D histogram.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
     derived : DerivedFields or None, optional
         The page's derived quantities (position, θ), computed once by the report;
         read from *ds* when not given.

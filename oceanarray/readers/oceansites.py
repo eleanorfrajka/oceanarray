@@ -257,6 +257,7 @@ def _add_bin_geometry(
         ORIGINATOR_BIN_PRESSURE_ATTRS,
         depth_from_pressure,
         originator_bin_geometry,
+        originator_range,
         pressure_from_depth,
     )
 
@@ -323,16 +324,7 @@ def _add_bin_geometry(
         else "file: bin depths relative to the instrument"
     )
     out = out.assign_coords(
-        range=(
-            ADCP_BIN_DIM,
-            rng,
-            {
-                "units": "m",
-                "long_name": "distance from the transducer to the bin centre",
-                "comment": "nominal, from the originator's bin depths; places the "
-                "stack row only, not bin_pressure",
-            },
-        )
+        range=originator_range(rng, "from the originator's bin depths")
     )
     # Bins never given a depth cannot be placed; the rest go in order of distance
     # from the head, as an instrument's own bins do.
@@ -344,26 +336,15 @@ def _add_bin_geometry(
 
 
 def read_oceansites(path: str | Path) -> xr.Dataset:
-    """Read a single-instrument OceanSITES-style netCDF time series.
+    """Read a single-instrument OceanSITES netCDF time series onto a ``time`` dimension.
 
-    Accepts the OceanSITES 1.3 layout (variables on ``(TIME, DEPTH)`` with
-    ``LATITUDE`` / ``LONGITUDE`` dimensions) and the OSNAP variant with variables
-    on ``(TIME,)`` and position on ``DEPTH``.  Known parameter codes
-    (:data:`OCEANSITES_VARIABLES`) are renamed to oceanarray names on a ``time``
-    dimension, keeping the file's ``units`` string for the units pass to resolve.
-    ``<CODE>_QC`` variables become ``<name>_qc_originator`` (or, with no
-    ``<CODE>_QC``, a ``<CODE>_flag`` that is a flag variable whose words are in the
-    meaning vocabulary; the source name is kept as ``originator_flag_variable``); each
-    variable's
-    own attributes (``comment``, ``uncertainty``, ``accuracy``, ``sensor_*`` ...) are
-    kept as ``originator_<attribute>``.  The originator's
-    global attributes are kept with an ``originator_`` prefix, and because CF
-    ``eastward``/``northward_sea_water_velocity`` are geographic, a file with
-    velocities is marked ``coordinate_system = "ENU"`` with
-    ``originator_magnetic_declination`` recorded so the declination is not applied
-    again.  Records whose ``TIME`` is ``NaT`` (originator padding of a record that
-    ended early) are kept here; :func:`oceanarray.readers.read` and stage 1 drop
-    them, with the count, for every format.
+    Takes the OceanSITES 1.3 layout (``(TIME, DEPTH)``) and the OSNAP one (``(TIME,)``,
+    position on ``DEPTH``). Known codes (:data:`OCEANSITES_VARIABLES`) are renamed, keeping
+    their ``units`` for the units pass; ``<CODE>_QC`` (else a flag-variable ``<CODE>_flag``,
+    named in ``originator_flag_variable``) becomes ``<name>_qc_originator``. Variable and
+    global attributes are kept as ``originator_*``. CF east/north velocities are geographic,
+    so the file is ``coordinate_system = "ENU"`` with ``originator_magnetic_declination``.
+    ``NaT`` records are kept here (dropped by :func:`oceanarray.readers.read` and stage 1).
 
     Parameters
     ----------
@@ -373,13 +354,11 @@ def read_oceansites(path: str | Path) -> xr.Dataset:
     Returns
     -------
     xarray.Dataset
-        One ``time`` dimension; renamed variables, originator flags and
-        ``originator_*`` attributes.
 
     Raises
     ------
     ValueError
-        If the file holds none of the known parameter codes.
+        No known parameter code.
     """
     path = Path(path)
     src, n_missing, n_kept = _outside_valid_range(

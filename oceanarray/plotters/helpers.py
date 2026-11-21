@@ -64,12 +64,10 @@ def ruled(ds: xr.Dataset) -> bool:
 
 
 def masked(ds: xr.Dataset, var: str) -> np.ndarray:
-    """Return a float copy of ``ds[var]`` with the values a page does not show as NaN.
+    """Return a float copy of ``ds[var]``, NaN where the page hides the value.
 
-    A stack or Stack cat hides what its rule says (``stack_mask_flags``: ours or
-    the originator's flag in the rule; see
-    :func:`oceanarray.pipeline.masking.masked`); any other file (an instrument
-    file, a grid) hides values whose ``<var>_qc`` is in
+    A stack or Stack cat hides what ``stack_mask_flags`` says
+    (:func:`oceanarray.pipeline.masking.masked`); any other file hides ``<var>_qc`` in
     ``parameters.QC_BAD_FLAGS``.
 
     Parameters
@@ -82,7 +80,6 @@ def masked(ds: xr.Dataset, var: str) -> np.ndarray:
     Returns
     -------
     numpy.ndarray
-        The values, NaN where hidden.
     """
     if ruled(ds):
         from oceanarray.pipeline import masking
@@ -188,25 +185,22 @@ def _pair_style(k: int, n: int | None = None) -> int:
 
 
 def deployment_color(k: int, n: int | None = None) -> str:
-    """Return deployment *k*'s color, from early (red) to late (purple).
+    """Return deployment *k*'s hex color, from early (red) to late (purple).
 
-    Up to seven deployments (*n* ≤ 7) each get their own color, spread evenly
-    along :data:`DEPLOYMENT_COLORS`. With more, or when *n* is not given, two
-    consecutive deployments share a color, so the colors still change evenly from
-    early to late; the two are told apart by :func:`deployment_line`,
-    :func:`deployment_marker` or :func:`deployment_hatch`.
+    Up to seven deployments get one color each; with more, or *n* not given, consecutive
+    pairs share a color, told apart by :func:`deployment_line`, :func:`deployment_marker`
+    or :func:`deployment_hatch`.
 
     Parameters
     ----------
     k : int
-        The deployment's index, in time order.
+        Deployment index, in time order.
     n : int, optional
-        The number of deployments on the figure.
+        Deployments on the figure.
 
     Returns
     -------
     str
-        A hex color.
     """
     m = len(DEPLOYMENT_COLORS)
     if not _paired(n):
@@ -251,25 +245,21 @@ def deployment_hatch(k: int, n: int | None = None) -> str:
 
 
 def deployment_line(k: int, n: int | None = None) -> dict:
-    """Return deployment *k*'s line color and style.
+    """Return deployment *k*'s ``{"color", "ls"}`` for ``Axes.plot``.
 
-    Up to seven deployments (*n* ≤ 7): one color each, solid. With more, or *n*
-    not given: each color twice, solid then dashed, stepping slowly through
-    :data:`DEPLOYMENT_COLORS` (red, red dashed, orange, orange dashed, ...), so
-    the colors change evenly with time; past fourteen deployments the pairs
-    repeat dotted, then dash-dot.
+    Up to seven deployments: one color each, solid. Otherwise each color twice, solid
+    then dashed; past fourteen the pairs repeat dotted, then dash-dot.
 
     Parameters
     ----------
     k : int
-        The deployment's index, in time order.
+        Deployment index, in time order.
     n : int, optional
-        The number of deployments on the figure.
+        Deployments on the figure.
 
     Returns
     -------
     dict
-        ``{"color": ..., "ls": ...}`` for ``Axes.plot``.
     """
     return {
         "color": deployment_color(k, n),
@@ -278,27 +268,19 @@ def deployment_line(k: int, n: int | None = None) -> dict:
 
 
 def distinct_line_styles(n: int) -> list[tuple[str, str, float]]:
-    """Return *n* colourblind-safe ``(color, linestyle, linewidth)`` line styles.
+    """Return *n* colourblind-safe ``(color, linestyle, linewidth)`` styles.
 
-    Cycles the 8-colour :data:`OKABE_ITO` palette and advances the linestyle
-    every 8 lines (solid → dashed → dash-dot → dotted), so up to 32 lines each
-    get a unique ``(color, linestyle)`` pair — enough to tell apart a mooring's
-    worth of instruments where colour alone (max 8–20 hues) collides.  Linewidth
-    increases with the linestyle group so the sparser styles (dash-dot, dotted)
-    stay as visible as the solid ones: solid thinnest, dashed thin, dash-dot and
-    dotted thicker.  Beyond 32 lines the linestyle group is clamped (styles
-    repeat) rather than raising.
+    Cycles the 8 :data:`OKABE_ITO` colours, changing linestyle every 8 lines (solid,
+    dashed, dash-dot, dotted; thicker for the sparser ones); styles repeat past 32.
 
     Parameters
     ----------
     n : int
-        Number of line styles to return (>= 0).
+        Number of styles (≥ 0).
 
     Returns
     -------
     list of (str, str, float)
-        ``(hex_color, linestyle, linewidth)`` per line, in order.
-
     """
     linestyles = ["-", "--", "-.", ":"]
     linewidths = [0.8, 1.1, 1.5, 1.5]  # solid thinnest; dash-dot/dotted thicker
@@ -310,23 +292,14 @@ def distinct_line_styles(n: int) -> list[tuple[str, str, float]]:
 
 
 def grid_despine(ax: plt.Axes, *, axis: str = "both") -> None:
-    """Turn the grid on and hide the top and right spines (report convention).
-
-    The report style keeps ``axes.grid`` off by default and figures opt in; when
-    they do, the top and right spines are redundant clutter.  Call this instead of
-    ``ax.grid(True)`` so the two always travel together.  Grid appearance (dotted,
-    faint) comes from the active mplstyle, not hard-coded here, so a single style
-    change restyles every grid.
+    """Turn the grid on and hide the top and right spines (grid look from the mplstyle).
 
     Parameters
     ----------
     ax : matplotlib.axes.Axes
         Axes to style.
     axis : {"both", "x", "y"}, optional
-        Which gridlines to draw (default ``"both"``).  Bar/profile plots that
-        want one-directional gridlines pass ``"x"`` or ``"y"`` and still get the
-        top/right spines hidden.
-
+        Which gridlines to draw.
     """
     ax.grid(True, axis=axis)
     ax.spines["top"].set_visible(False)
@@ -336,29 +309,22 @@ def grid_despine(ax: plt.Axes, *, axis: str = "both") -> None:
 def level_line_styles(
     serials: list[str], varname: str
 ) -> tuple[dict[str, Any], dict[str, str]]:
-    """Return per-serial ``(colours, linestyles)`` for one variable's level lines.
+    """Return ``({serial: colour}, {serial: linestyle})`` for one variable's level lines.
 
-    *serials* are in the order to colour them (deep-first on a stack). They are
-    mapped onto the variable's **line** colormap
-    (:data:`parameters.LINE_CMAPS_BY_VARIABLE`, falling back to the field map then
-    viridis), so temperature runs from the cold/deep (blue) end to the
-    warm/shallow (red) end and pressure from dark to lighter blue. Each colour is
-    shared by a consecutive **pair** of serials told apart by linestyle (solid,
-    then dashed), which halves the number of distinct colours so the ramp stays
-    legible for many instruments. Washed-out colours are skipped by luminance
-    (:func:`ordered_line_colors`).
+    Serials, in colouring order (deep first on a stack), run along the variable's line
+    colormap (:data:`parameters.LINE_CMAPS_BY_VARIABLE`); each colour serves a pair,
+    solid then dashed; pale colours are skipped (:func:`ordered_line_colors`).
 
     Parameters
     ----------
     serials : list of str
-        Instrument serials, in colouring order.
+        Serials in colouring order.
     varname : str
-        The variable whose line colormap is used.
+        The variable whose colormap is used.
 
     Returns
     -------
     tuple of dict
-        ``{serial: colour}`` and ``{serial: linestyle}``.
     """
     from ..config import parameters as params
 
@@ -375,32 +341,22 @@ def level_line_styles(
 
 
 def ordered_line_colors(cmap_name: str, n: int, *, max_luminance: float = 0.72) -> list:
-    """Return *n* colours from *cmap_name*, in colormap order, skipping pale ones.
-
-    Samples the colormap on a fine grid, keeps only positions whose relative
-    luminance is ``<= max_luminance`` (so no line washes out against white), then
-    returns *n* colours evenly spaced across the usable positions.  For a
-    diverging colormap this drops the pale midpoint, leaving two saturated arcs;
-    for a sequential one it drops the pale end.  Callers assign the colours in a
-    fixed order (e.g. deep-first) so the darkest end maps to the intended extreme.
+    """Return *n* colours from *cmap_name* in colormap order, skipping pale ones.
 
     Parameters
     ----------
     cmap_name : str
         Matplotlib colormap name.
     n : int
-        Number of colours to return (>= 1).
-    max_luminance : float
-        Rec. 709 relative-luminance ceiling in ``[0, 1]``; positions lighter than
-        this are excluded.  Default 0.72 — low enough that the least-saturated
-        remaining colour on a diverging map (the arc boundary either side of the
-        excluded pale centre) is still legible on white.
+        Number of colours (≥ 1).
+    max_luminance : float, optional
+        Rec. 709 relative-luminance ceiling in ``[0, 1]`` (drops a diverging map's pale
+        centre, a sequential map's pale end).
 
     Returns
     -------
-    list of RGBA tuples
-        *n* colours (length exactly ``max(n, 1)``).
-
+    list of tuple
+        ``max(n, 1)`` RGBA colours.
     """
     import matplotlib.pyplot as plt
 
@@ -505,7 +461,7 @@ def as_dataset(src: Path | str | xr.Dataset) -> xr.Dataset:
 def marker_flags(
     ds: Any, var: str, sources: Sequence[str] = FLAG_SOURCES
 ) -> np.ndarray | None:
-    """Return the flag each value of *var* is marked with: the worse of the sets.
+    """Return the flag each value of *var* is marked with: the worse of the flag sets.
 
     Parameters
     ----------
@@ -514,15 +470,13 @@ def marker_flags(
     var : str
         The data variable.
     sources : sequence of str, optional
-        The flag-variable suffixes read (``"_qc"`` oceanarray's,
-        ``"_qc_originator_mapped"`` the originator's).
+        Flag-variable suffixes read (``"_qc"``, ``"_qc_originator_mapped"``).
 
     Returns
     -------
     numpy.ndarray or None
-        int8, the shape of ``ds[var]``: 4 where any set says bad, else 3 where any
-        says suspect, else 8 where ours says interpolated, else 1; None when the
-        file has none of these flag sets for *var*.
+        int8 like ``ds[var]``: 4 if any set says bad, else 3 if any says suspect, else 8
+        where ours says interpolated, else 1; None without any of these sets.
     """
     sets = [
         np.asarray(ds[f"{var}{s}"].values)
@@ -539,27 +493,19 @@ def marker_flags(
 
 
 def tukey_smooth(arr: np.ndarray, window_n: int) -> np.ndarray:
-    """Zero-phase Tukey (cosine-tapered) smooth, NaN-gap aware.
-
-    Uses a convolution-based approach so NaN gaps do not propagate: output
-    points near gaps are weighted only by the finite neighbours that fall
-    within the window.  Output is set to NaN where fewer than 10 % of the
-    window weights are finite (edges of large data gaps).
-
-    Requires ``scipy``.
+    """Zero-phase Tukey (cosine-tapered) smooth that weights only finite neighbours (needs scipy).
 
     Parameters
     ----------
-    arr : np.ndarray
-        1-D array, possibly containing NaNs.
+    arr : numpy.ndarray
+        1-D array, possibly with NaNs.
     window_n : int
-        Window length in samples.
+        Window length (samples).
 
     Returns
     -------
-    np.ndarray
-        Smoothed array, same shape as *arr*.
-
+    numpy.ndarray
+        Same shape; NaN where under 10 % of the window weight is finite.
     """
     from scipy.signal import windows as scipy_windows
 
@@ -857,7 +803,7 @@ def serial_text(ds: xr.Dataset) -> str:
 
 
 def tilt_limits(ds: xr.Dataset) -> tuple[float, float]:
-    """Return the tilt QC suspect and fail limits (degrees) stored with the flags.
+    """Return ``(suspect, fail)`` tilt limits (°) from the attributes, else ``QC_TILT``.
 
     Parameters
     ----------
@@ -867,8 +813,6 @@ def tilt_limits(ds: xr.Dataset) -> tuple[float, float]:
     Returns
     -------
     tuple of float
-        ``tilt_suspect_threshold`` and ``tilt_fail_threshold`` from the attributes,
-        else ``parameters.QC_TILT``.
     """
     from oceanarray.config import parameters as params
 

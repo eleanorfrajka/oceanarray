@@ -56,10 +56,13 @@ def test_stage2_reproduces_committed_fixtures():
 
 
 def test_stage2_stamps_the_stage_marker():
-    """Every stage-2 dataset carries processing_stage = 2."""
+    """Every stage-2 dataset carries processing_stage = 2, level L1 and the stage-1 span."""
     cfg = _mooring.load(_YAML)
     results = stage2(read_mooring(cfg, stage=1, mooring_dir=_FIX), cfg)
-    assert all(ds.attrs["processing_stage"] == 2 for ds in results.values())
+    for ds in results.values():
+        assert ds.attrs["processing_stage"] == 2
+        assert ds.attrs["processing_level"] == "L1"
+        assert {"stage1_time_start", "stage1_time_end"} <= set(ds.attrs)
 
 
 def test_stage2_input_wrong_stage_would_not_be_stage1():

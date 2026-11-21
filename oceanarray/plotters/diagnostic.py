@@ -1,35 +1,9 @@
-"""Tier-2 domain wrappers for diagnostic plots (T-S, histograms, spectra, QC).
+"""Tier-2 diagnostic figures: knockdown, clock-alignment check, deployment windows, histograms.
 
-Knockdown plots
----------------
-- :func:`draw_knockdown_pressure` — IQR of measured pressure vs. nominal design
-  depth, equal aspect ratio with 1:1 reference line.
-- :func:`draw_knockdown_hab` — IQR of measured pressure vs. nominal HAB, equal
-  aspect ratio with expected-pressure reference line.
-- :func:`draw_knockdown_anomaly` — IQR of pressure anomaly (measured minus nominal)
-  per instrument, colour-coded by knockdown severity.
-- :func:`draw_knockdown_displacement` — scatter and 2-D heatmap of estimated
-  horizontal displacement vs. measured pressure.
-
-Clock-alignment check
----------------------
-- :func:`draw_clock_offset_check` — overlaid temperature time series zoomed to
-  deployment start and end.
-
-Deployment window figures (moved from report._plots)
------------------------------------------------------
-- :func:`draw_windows` — combined start+end window figure for a single instrument.
-- :func:`draw_data_histogram` — histogram of data values with QC thresholds.
-- :func:`draw_velocity_iqr_profile` — percentile-profile figure for gridded ADCP
-  velocity data.
-
-Post-OdB: migrate the following from report/_plots.py:
-  plot_ts_diagram (was _make_ts_diagram), plot_stack_ts_diagram,
-  plot_grid_ts_diagram, plot_data_histogram (was _make_data_histogram),
-  plot_spectrum (was _make_spectrum_fig_b64).
-
-Tier-1 primitives: plot_vector_heatmap (for T-S, U-V, any pair),
-plot_spectrum (any 1D time series), plot_polar_histogram (current rose).
+Knockdown: :func:`draw_knockdown_hab`, :func:`draw_knockdown_anomaly`,
+:func:`draw_knockdown_displacement`. Clock check: :func:`draw_clock_offset_check`.
+Deployment windows and distributions: :func:`draw_windows`,
+:func:`draw_data_histogram`, :func:`draw_velocity_iqr_profile`.
 """
 
 from __future__ import annotations
@@ -189,114 +163,7 @@ def _knockdown_input(ds: xr.Dataset, knockdown: Knockdown | None) -> Knockdown |
 
 
 # ---------------------------------------------------------------------------
-# Knockdown figure 1: measured pressure vs. nominal (equal aspect, 1:1 line)
-# ---------------------------------------------------------------------------
-
-
-def draw_knockdown_pressure(
-    ds: xr.Dataset,
-    *,
-    knockdown: Knockdown | None = None,
-) -> matplotlib.figure.Figure | None:
-    """IQR of measured pressure vs. nominal design depth, equal aspect ratio.
-
-    Each non-ADCP instrument is shown as a vertical box-and-whisker positioned
-    at its nominal pressure on the x-axis; the box spans the IQR of the actual
-    measured pressure distribution on the y-axis (increasing downward).
-
-    The axes have equal aspect (``ax.set_aspect("equal")``) and both run from
-    0 to the maximum value, so the 1:1 reference line appears at 45°.
-    Instruments on the diagonal are at their design depth; boxes that drop
-    below the diagonal experienced knockdown (measured deeper than nominal).
-
-    Boxes are coloured blue; interpolated pressure (QC flag 8) is excluded.
-    Rendered at half-width in the stack report.
-
-    Parameters
-    ----------
-    ds : xr.Dataset
-        Stack dataset with dimensions ``(time, N_LEVELS)`` containing
-        ``pressure``, ``hab``, ``serial``, ``instrument_type``, and
-        optionally ``pressure_qc``.  The ``waterdepth`` global attribute
-        must be present and non-zero.
-
-    knockdown : oceanarray.analysis.derived.Knockdown or None, optional
-        The stack's knockdown inputs, built once per report and shared by the
-        knockdown figures; built from *ds* when not given.
-
-    Returns
-    -------
-    matplotlib.figure.Figure or None
-
-    """
-    kd = _knockdown_input(ds, knockdown)
-    if kd is None or not kd.records:
-        return None
-
-    import matplotlib.pyplot as plt
-
-    from oceanarray.config import parameters as params
-
-    records = kd.records
-    # A design pressure needs the latitude and a finite HAB.
-    records = [r for r in records if np.isfinite(r.p_nom)]
-    if not records:
-        return None
-
-    p_nom_vals = [r.p_nom for r in records]
-    p_range = max(p_nom_vals) - min(p_nom_vals) if len(p_nom_vals) > 1 else 50.0
-    box_width = max(5.0, p_range / (len(p_nom_vals) * 2))
-
-    with plt.style.context(str(params.MPLSTYLE)):
-        fig, ax = plt.subplots(figsize=(5, 5))
-
-        p_max_all = 0.0
-        for p_nom, _serial, actual_p, _hab in records:
-            bp = ax.boxplot(
-                actual_p,
-                vert=True,
-                positions=[p_nom],
-                widths=box_width,
-                patch_artist=True,
-                flierprops={
-                    "marker": ".",
-                    "markersize": 2,
-                    "alpha": 0.25,
-                    "color": "grey",
-                },
-                medianprops={"color": "black", "linewidth": 1.5},
-                manage_ticks=False,
-            )
-            bp["boxes"][0].set_facecolor("steelblue")
-            bp["boxes"][0].set_alpha(0.6)
-            p_max_all = max(p_max_all, float(np.nanmax(actual_p)))
-
-        ax_max = max(p_max_all, max(p_nom_vals)) * 1.05
-        ax.set_xlim(ax_max, 0)  # deeper nominal pressure on the left
-        ax.set_ylim(0, ax_max)
-        ax.set_aspect("equal")
-        ax.invert_yaxis()  # deeper measured pressure at bottom
-
-        ax.plot(
-            [0, ax_max],
-            [0, ax_max],
-            color="dimgrey",
-            lw=0.8,
-            ls="--",
-            zorder=0,
-            label="actual = nominal",
-        )
-        ax.legend(loc="upper left")
-        ax.set_xlabel("Nominal pressure (dbar)")
-        ax.set_ylabel("Measured pressure (dbar)")
-        grid_despine(ax)
-
-        plt.tight_layout()
-        return fig
-
-
-# ---------------------------------------------------------------------------
-# Knockdown figure 1b: measured HAB vs. nominal HAB (horizontal displacement)
+# Knockdown figure 1: measured HAB vs. nominal HAB (horizontal displacement)
 # ---------------------------------------------------------------------------
 
 
@@ -308,9 +175,7 @@ def draw_knockdown_hab(
 ) -> matplotlib.figure.Figure | None:
     """IQR of measured pressure vs. nominal HAB, equal aspect ratio.
 
-    Companion to :func:`draw_knockdown_pressure`.  The y-axis is identical
-    (measured pressure, dbar, increasing downward); only the x-axis changes
-    from nominal pressure to nominal height-above-bottom (m).
+    The y-axis is measured pressure (dbar, increasing downward).
 
     Each non-ADCP instrument is shown as a vertical box-and-whisker positioned
     at its nominal HAB on the x-axis; the box spans the IQR of the measured
@@ -329,9 +194,7 @@ def draw_knockdown_hab(
         optionally ``pressure_qc``.  The ``waterdepth`` global attribute
         must be present and non-zero.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
-
+        Figure width (inches), the report slot; default the full content width.
     knockdown : oceanarray.analysis.derived.Knockdown or None, optional
         The stack's knockdown inputs, built once per report and shared by the
         knockdown figures; built from *ds* when not given.
@@ -463,11 +326,9 @@ def draw_knockdown_anomaly(
     Parameters
     ----------
     ds : xr.Dataset
-        Stack dataset; same requirements as :func:`draw_knockdown_pressure`.
+        Stack dataset; same requirements as :func:`draw_knockdown_hab`.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
-
+        Figure width (inches), the report slot; default the full content width.
     knockdown : oceanarray.analysis.derived.Knockdown or None, optional
         The stack's knockdown inputs, built once per report and shared by the
         knockdown figures; built from *ds* when not given.
@@ -568,11 +429,9 @@ def draw_knockdown_displacement(
     Parameters
     ----------
     ds : xr.Dataset
-        Stack dataset; same requirements as :func:`draw_knockdown_pressure`.
+        Stack dataset; same requirements as :func:`draw_knockdown_hab`.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
-
+        Figure width (inches), the report slot; default the full content width.
     knockdown : oceanarray.analysis.derived.Knockdown or None, optional
         The stack's knockdown inputs, built once per report and shared by the
         knockdown figures; built from *ds* when not given.
@@ -722,50 +581,28 @@ def draw_clock_offset_check(
     *,
     width_in: float = report_tokens.W_FULL,
 ) -> matplotlib.figure.Figure | None:
-    """Overlaid, per-instrument normalised temperature around deploy and recover.
+    """Overlay each instrument's standardised temperature within ±*window_minutes* of deployment and recovery.
 
-    Plots a ``±window_minutes`` window centred on deployment and on recovery for
-    every instrument with a temperature variable, so clock alignment between
-    instruments can be assessed visually.  If an instrument's clock is offset the
-    temperature signal appears shifted in time relative to the others.
-
-    Each instrument's trace is **standardised over the plotted window**
-    (subtract the window mean, divide by the window standard deviation) so
-    instruments with different absolute temperatures and amplitudes overlay on a
-    common ``std`` y-axis and their *timing* can be compared directly.
-
-    Two sub-panels are produced side by side:
-
-    - **Left**: ``deploy_dt ± window_minutes``
-    - **Right**: ``recover_dt ± window_minutes``
-
-    When ``deploy_dt`` or ``recover_dt`` is ``None``, only the available
-    window is produced.  A shared legend below both panels lists all
-    instruments.  An instrument with zero variance in a window (flat/constant)
-    is skipped for that window (no timing information, and normalisation is
-    undefined).
+    Standardised over each window (mean removed, divided by std), so a clock offset shows
+    as a time shift; a flat trace is skipped for that window; a missing time drops its panel.
 
     Parameters
     ----------
-    nc_paths : dict of {serial: Path}
-        Paths to stage-2 or stage-3 NetCDF files keyed by serial number.
-        Only instruments with temperature data are included in the plot.
+    nc_paths : dict of str to Path
+        Stage-2 or stage-3 files by serial (those with temperature are drawn).
     deploy_dt : datetime or None
         Deployment time (UTC).
     recover_dt : datetime or None
         Recovery time (UTC).
-    window_minutes : int
-        Duration of each zoom window in minutes.
+    window_minutes : int, optional
+        Half-width of each window (minutes).
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
 
     Returns
     -------
     matplotlib.figure.Figure or None
-        None when fewer than two instruments have temperature data, or if
-        any other error prevents plotting.
-
+        None with fewer than two temperature records or on any plotting error.
     """
     if not nc_paths:
         return None
@@ -950,8 +787,7 @@ def draw_windows(
         rows are rendered (used to paginate a tall window figure across several
         images); otherwise every panel for the instrument is drawn on one figure.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
     title : str or None, optional
         The figure title (the page's ``"{Type} {serial} · {depth} m"``).
 
@@ -1091,7 +927,7 @@ def draw_windows(
                 if _ts.tzinfo is not None:
                     _ts = _ts.tz_convert("UTC").tz_localize(None)
                 _vlines_ns.append((_ts.to_datetime64(), _vc, _vl))
-            except Exception:  # noqa: BLE001
+            except (ValueError, TypeError):
                 pass
 
         def _draw_vlines(
@@ -1234,8 +1070,7 @@ def draw_data_histogram(
     nc_path : Path
         Path to a stage-3 NetCDF file.
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
     rule : dict or None, optional
         The flag rule (``masking.resolve_mask_flags``): a value is kept unless
         oceanarray's or the originator's flag is in it. Without one, values
@@ -1458,51 +1293,27 @@ def draw_velocity_iqr_profile(
     width_in: float = report_tokens.W_FULL,
     scale: Any = None,
 ) -> plt.Figure | None:
-    """Percentile-profile figure for gridded ADCP velocity data; return a Figure.
+    """Draw gridded velocity percentile profiles against pressure: speed, east/north, and count.
 
-    Three side-by-side panels, all with pressure (dbar) on the Y-axis (inverted,
-    surface at top).  All velocity units are m s⁻¹.
-
-    **Left — current speed** (always ≥ 0):
-        Shaded percentile profile: outer band p2.5–p97.5 (95% range of the
-        distribution); inner band IQR p25–p75; median p50.  Wide IQR at a given
-        depth indicates high velocity variability (e.g. an eddy-active layer or a
-        strong tidal signal); narrow IQR with a large median indicates a persistent
-        mean flow.  ``current_speed`` is computed from ``sqrt(east² + north²)`` if
-        not already present in the dataset.
-
-    **Middle — east and north velocity** (can be negative):
-        Median and IQR (p25/p50/p75) for each component.  East velocity in
-        Okabe-Ito blue (#0072B2); north velocity in Okabe-Ito orange (#E69F00); both
-        colours are distinguishable for common colour-vision deficiencies.
-        Positive east = rightward facing north (geographic ENU after declination
-        correction); positive north = toward True North.  A median near zero with
-        large IQR suggests rotary motion (e.g. tides or near-inertial oscillations);
-        a non-zero median indicates a mean current.
-
-    **Right — count** (dimensionless):
-        Number of non-NaN time steps at each pressure level.  Use this panel to assess
-        data coverage before interpreting velocity statistics: pressure levels with very
-        few records produce unreliable percentile estimates.
+    Speed: p2.5–p97.5 and p25–p75 bands with the median (from east and north if
+    ``current_speed`` is absent). East (#0072B2) and north (#E69F00): median and IQR. Count:
+    time steps with a value per level.
 
     Parameters
     ----------
-    ds : xr.Dataset
-        Gridded dataset with dimensions ``(time, pressure)`` containing at minimum one
-        of ``current_speed``, ``east_velocity``, or ``north_velocity`` in m s⁻¹.
+    ds : xarray.Dataset
+        Grid on ``(time, pressure)`` with ``current_speed``, ``east_velocity`` or
+        ``north_velocity`` (m s-1).
     width_in : float, optional
-        Figure width in inches -- the display-slot width the report builder
-        resolves; standalone callers get the full content width.
+        Figure width (inches), the report slot; default the full content width.
     scale : SectionScale or None, optional
-        The page's vertical scale (:func:`oceanarray.plotters.timeseries.hydro_scale`):
-        the panels span the levels with velocity, down to the seabed, at the
-        hydrography's dbar per inch.  Default: that of *ds*'s own hydrography.
+        The page's vertical scale (:func:`oceanarray.plotters.timeseries.hydro_scale`);
+        default that of *ds*'s hydrography.
 
     Returns
     -------
-    plt.Figure or None
-        Figure, or None if no velocity data are present.
-
+    matplotlib.figure.Figure or None
+        None without velocity.
     """
     import warnings
 

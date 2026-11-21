@@ -41,9 +41,7 @@ from ._instrument import generate_instrument_pages
 from ._navs import _type_label, mooring_nav
 from ._plots import (
     _make_clock_check_b64,
-    _make_knockdown_anomaly_b64,
-    _make_knockdown_displacement_b64,
-    _make_knockdown_hab_b64,
+    _make_knockdown_b64,
 )
 from ._read import (
     _read_instrument_info,
@@ -569,10 +567,7 @@ class MooringReport:
     def _rel(self, path: Path) -> str:
         """Return a short display path relative to proc_dir."""
         if self._proc_dir:
-            try:
-                return path.relative_to(self._proc_dir).as_posix()
-            except ValueError:
-                pass
+            return logger.format_rel_path(path, self._proc_dir)
         return path.name
 
     def generate(
@@ -1082,24 +1077,21 @@ class MooringReport:
         fig_knockdown_anomaly_b64 = None
         fig_knockdown_displacement_b64 = None
         if stack_exists:
-            try:
-                import xarray as _xr
+            import xarray as _xr
 
-                with _xr.open_dataset(stack_nc) as _ds_kd:
-                    # Design pressures and measured records, built once for the
-                    # three knockdown figures.
-                    _kd = build_knockdown(_ds_kd)
-                    fig_knockdown_hab_b64 = _figdebug.as_panel(
-                        lambda: _make_knockdown_hab_b64(_ds_kd, _kd)
-                    )
-                    fig_knockdown_anomaly_b64 = _figdebug.as_panel(
-                        lambda: _make_knockdown_anomaly_b64(_ds_kd, _kd)
-                    )
-                    fig_knockdown_displacement_b64 = _figdebug.as_panel(
-                        lambda: _make_knockdown_displacement_b64(_ds_kd, _kd)
-                    )
-            except Exception:
-                pass
+            with _xr.open_dataset(stack_nc) as _ds_kd:
+                # Design pressures and measured records, built once for the
+                # three knockdown figures.
+                _kd = build_knockdown(_ds_kd)
+                fig_knockdown_hab_b64 = _figdebug.as_panel(
+                    lambda: _make_knockdown_b64("hab", _ds_kd, _kd)
+                )
+                fig_knockdown_anomaly_b64 = _figdebug.as_panel(
+                    lambda: _make_knockdown_b64("anomaly", _ds_kd, _kd)
+                )
+                fig_knockdown_displacement_b64 = _figdebug.as_panel(
+                    lambda: _make_knockdown_b64("displacement", _ds_kd, _kd)
+                )
 
         common = _masthead.common_facts(cfg, instrument_list)
         return {

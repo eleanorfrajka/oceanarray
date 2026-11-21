@@ -15,10 +15,9 @@ from oceanarray.pipeline.units import UnitsError
 
 log = logging.getLogger(__name__)
 
-# Merge priority for combining QC flags (higher priority wins = worse quality).
-# Single source of truth: parameters.QC_MERGE_PRIORITY, shared with
-# _worst_flag below so the two merge paths cannot drift.
-_QC_PRIORITY: dict[int, int] = params.QC_MERGE_PRIORITY
+#: ``qc_ranges`` keys not run as gross-range tests: tilt QC is geometric only.
+TILT_KEYS = ("tilt", "pitch", "roll")
+
 
 # Velocity variable names in both beam and ENU coordinate systems.
 _VELOCITY_VARS = (
@@ -134,28 +133,23 @@ def load_qc_config(
     mooring_cfg: dict[str, Any],
     entry: dict[str, Any],
 ) -> tuple[dict, dict, dict, dict]:
-    """Return QC threshold dicts for one instrument.
+    """Return ``(gross_range, spike, tilt, flat_line)`` thresholds for one instrument.
 
-    Returns a 4-tuple ``(gross_range, spike, tilt, flat_line)`` built from
-    package defaults with mooring-level and then instrument-level YAML
-    overrides applied (later values win).
+    Package defaults, overridden by the mooring's and then the instrument's ``qc_ranges``,
+    ``qc_spike``, ``tilt_qc`` (over ``qc_ranges.tilt``) and ``qc_flat_line``. ``tilt``,
+    ``pitch`` and ``roll`` are dropped from the gross range: tilt QC is geometric only
+    (:func:`apply_tilt_qc`).
 
-    ``gross_range`` and ``spike`` map variable names (e.g. ``"temperature"``,
-    ``"pressure"``) to threshold dicts understood by ``apply_qc_tests``.
-    ``tilt`` holds ``suspect_threshold`` / ``fail_threshold`` in degrees,
-    used to flag Aquadopp velocity data when the instrument is tilted beyond
-    acceptable limits.  ``flat_line`` maps variable names to
-    ``{suspect_n, fail_n, tolerance}`` dicts for the stuck-sensor test.
+    Parameters
+    ----------
+    mooring_cfg : dict
+        The mooring description.
+    entry : dict
+        The instrument's entry.
 
-    YAML override keys:
-
-    * ``qc_ranges`` (mooring or instrument level) — gross-range and tilt spans
-    * ``qc_spike`` — spike thresholds
-    * ``tilt_qc`` — tilt thresholds (takes precedence over ``qc_ranges.tilt``)
-    * ``qc_flat_line`` — stuck-sensor thresholds
-
-    ``tilt`` is stripped from the gross-range dict before returning so it is
-    not passed to the QARTOD gross-range test runner.
+    Returns
+    -------
+    tuple of dict
     """
     gr = copy.deepcopy(params.QC_GROSS_RANGE)
     sp = copy.deepcopy(params.QC_SPIKE)
@@ -184,9 +178,8 @@ def load_qc_config(
     if "qc_flat_line" in entry:
         fl = _deep_merge(fl, entry["qc_flat_line"])
 
-    # Remove tilt from the gross-range dict — it is handled separately and
-    # is not a valid QARTOD gross-range variable.
-    gr.pop("tilt", None)
+    for key in TILT_KEYS:
+        gr.pop(key, None)
 
     return gr, sp, tilt, fl
 
@@ -199,8 +192,7 @@ def apply_tilt_qc(
 
     The geometric tilt (:func:`oceanarray.physics.instrument_tilt`) is compared against
     ``suspect_threshold`` / ``fail_threshold`` (``QC_TILT`` updated by *tilt_cfg*); the
-    flags are merged into each velocity ``_qc`` variable.  Any ``pitch_qc`` / ``roll_qc``
-    (gross range on the components) is left as it is.  The thresholds are written to the
+    flags are merged into each velocity ``_qc`` variable.  The thresholds are written to the
     global attrs ``tilt_suspect_threshold`` / ``tilt_fail_threshold`` for the report's tilt
     panel.
 
@@ -260,24 +252,26 @@ def compute_salinity_data(
     ds: xr.Dataset,
     log_fn: Any = None,
 ) -> xr.Dataset:
-    """Compute Practical Salinity (SP) data values only — no QC flags yet (public entry).
+    """Add Practical Salinity (``salinity``) from T, C and P, in place; no flags yet.
 
-    This logs through the ``oceanarray.pipeline.qc`` logger; see
-    :func:`_compute_salinity_data` for the full behaviour. The ``log_fn`` callback is
-    deprecated (removed in 0.7.0) — if given, each message is still passed to it and a
-    :class:`DeprecationWarning` is raised; configure logging instead.
+    Run before ``apply_qc_tests`` (so salinity gets gross-range QC) and before
+    ``merge_salinity_parent_qc``.
 
     Parameters
     ----------
     ds : xarray.Dataset
-        Dataset carrying temperature, conductivity and pressure (modified in place).
+        Dataset with temperature, conductivity (``mS cm-1``) and pressure.
     log_fn : callable, optional
-        Deprecated legacy callback; see above.
+        Deprecated (removed in 0.7.0): configure logging instead.
 
     Returns
     -------
     xarray.Dataset
-        *ds*, with a ``salinity`` variable added when the inputs are present.
+
+    Raises
+    ------
+    UnitsError
+        Conductivity is not ``mS cm-1`` (the units pass was skipped).
     """
     with logger.deprecated_log_fn(log_fn):
         return _compute_salinity_data(ds)
@@ -286,27 +280,7 @@ def compute_salinity_data(
 def _compute_salinity_data(
     ds: xr.Dataset,
 ) -> xr.Dataset:
-    """Compute Practical Salinity (SP) data values only — no QC flags yet.
-
-    Call this BEFORE ``apply_qc_tests`` so that salinity participates in the
-    gross-range QC pass and gets its threshold attrs written to ``salinity_qc``.
-    Call ``merge_salinity_parent_qc`` afterward to fold in T/C/P parent flags.
-
-    Conductivity must already be canonical ``mS cm-1`` — stage 3 runs
-    :func:`oceanarray.pipeline.units.to_canonical_units` first, which converts any
-    S/m input.  A non-canonical unit here means that pass was skipped and the ×10 is
-    missing, so this raises rather than compute salinity 10× too small from S/m.
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        Dataset carrying temperature, conductivity and pressure (modified in place).
-
-    Returns
-    -------
-    xarray.Dataset
-        *ds*, with a ``salinity`` variable added when the inputs are present.
-    """
+    """Implement :func:`compute_salinity_data` (without ``log_fn``)."""
     required = {"temperature", "conductivity", "pressure"}
     if not required.issubset(ds.data_vars):
         return ds
@@ -398,35 +372,28 @@ def apply_qc_tests(
     spike: dict[str, Any],
     flat_line: dict[str, Any] | None = None,
 ) -> xr.Dataset:
-    """Apply QARTOD gross-range, spike, and flat-line tests, writing ``*_qc`` variables.
+    """Apply the QARTOD gross-range, spike and flat-line tests, writing ``<var>_qc``.
 
-    Three QARTOD tests are applied in sequence; the worst flag across all
-    tests wins for each sample:
+    The worst flag wins, including an existing ``<var>_qc`` (e.g. interpolated pressure,
+    8). Flat-line counts (``suspect_n``, ``fail_n``) become seconds by the median step;
+    by default only pressure (``parameters.QC_FLAT_LINE``). The thresholds applied are
+    recorded on each flag variable: ``qc_gross_range_{fail,suspect}_{min,max}``,
+    ``qc_spike_{suspect,fail}_threshold``, ``qc_flat_line_{suspect,fail}_count``.
 
-    * **Gross-range**: flags values outside physically plausible bounds as
-      SUSPECT (3) or BAD (4) — e.g. temperature below -2.5 °C or above 40 °C.
-    * **Spike**: flags isolated outliers that deviate from the surrounding
-      record by more than a threshold — e.g. a brief salinity glitch from
-      biofouling or a pressure transient.
-    * **Flat-line** (stuck-sensor): flags runs of consecutive samples where
-      the value does not change by more than ``tolerance`` — e.g. a pressure
-      sensor frozen at 0 dbar after a failure.  Threshold is expressed in
-      sample counts (``suspect_n``, ``fail_n``) and converted to seconds
-      using the median sample interval.  Applied by default to pressure only
-      (see ``parameters.QC_FLAT_LINE``).
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The instrument's dataset.
+    gross_range : dict
+        Variable → ``fail_span`` / ``suspect_span``.
+    spike : dict
+        Variable → ``suspect_threshold`` / ``fail_threshold``.
+    flat_line : dict, optional
+        Variable → ``suspect_n`` / ``fail_n`` / ``tolerance``.
 
-    Pre-existing ``*_qc`` values (e.g. ``pressure_qc = 8`` set by the
-    pressure-interpolation step in the stack) are preserved: the worst flag
-    across the incoming value and the new test flags is written to the output.
-
-    Provenance: the thresholds actually applied are stored as attributes on
-    each ``{var}_qc`` variable so the treatment can be reconstructed from
-    the NetCDF file alone, without re-reading the YAML:
-
-    * ``qc_gross_range_fail_min`` / ``qc_gross_range_fail_max``
-    * ``qc_gross_range_suspect_min`` / ``qc_gross_range_suspect_max``
-    * ``qc_spike_suspect_threshold`` / ``qc_spike_fail_threshold``
-    * ``qc_flat_line_suspect_count`` / ``qc_flat_line_fail_count``
+    Returns
+    -------
+    xarray.Dataset
     """
     from ioos_qc import qartod
 
@@ -621,34 +588,27 @@ def unify_velocity_qc(ds: xr.Dataset) -> xr.Dataset:
 
 
 def derive_oxygen_saturation(ds: xr.Dataset) -> xr.Dataset:
-    """Compute O2 % saturation and AOU from dissolved_oxygen, temperature, salinity, pressure.
+    """Add ``oxygen_saturation_pct`` (%) and ``apparent_oxygen_utilization`` (µmol kg-1).
 
-    Requires dissolved_oxygen, temperature (°C), salinity (PSU), and pressure (dbar)
-    all present in *ds*.  Returns *ds* unchanged when any variable is missing or when
-    gsw is unavailable.
+    Saturation is ``100 × O2 / O2sol`` and AOU ``O2sol − O2`` with ``O2sol =
+    gsw.O2sol_SP_pt(SP, pt)`` (µmol kg-1). Oxygen in ``umol kg-1`` is used as it is; in
+    ``umol L-1`` it is divided by in-situ seawater density (``gsw.rho / 1000``, ~2.5 % from
+    fresh water). Position for ``SA_from_SP`` from the global attributes, else 0.
 
-    The saturation reference ``gsw.O2sol_SP_pt`` is per mass (µmol kg⁻¹), so the
-    measured oxygen is compared in µmol kg⁻¹.  The measured value is taken by its
-    ``units`` attribute:
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        With ``dissolved_oxygen``, ``temperature``, ``salinity`` and ``pressure``.
 
-    - ``umol kg-1`` (the canonical, per mass): used directly.
-    - ``umol L-1`` (a per-volume variable, if ever read): divided by in-situ
-      **seawater** density ``gsw.rho(SA, CT, p)/1000`` (kg L⁻¹) to convert to per mass.
-      Seawater density (~1025–1028 kg m⁻³) gives a ~2.5 % correction relative to
-      freshwater — oceanographically significant, not skippable.
-    - anything else: :class:`~oceanarray.pipeline.units.UnitsError` — the basis must
-      be known, never guessed.
+    Returns
+    -------
+    xarray.Dataset
+        Unchanged when an input or gsw is missing.
 
-    lon/lat for ``gsw.SA_from_SP`` are taken from global attrs (default 0.0 if absent;
-    the SA error from a wrong position is typically < 0.05 g kg⁻¹ at open-ocean sites).
-
-    Derived variables stored
-    ------------------------
-    oxygen_saturation_pct : %
-        100 × O2_measured(µmol kg⁻¹) / O2sol(µmol kg⁻¹)
-        where O2sol is from ``gsw.O2sol_SP_pt(SP, pt)``.
-    apparent_oxygen_utilization : µmol kg⁻¹
-        O2sol − O2_measured (positive = oxygen-depleted water).
+    Raises
+    ------
+    UnitsError
+        Oxygen in any other units.
     """
     required = {"dissolved_oxygen", "temperature", "salinity", "pressure"}
     if not required.issubset(ds.data_vars):

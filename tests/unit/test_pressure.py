@@ -74,39 +74,6 @@ def test_times_to_float_is_nanoseconds_since_epoch():
 
 
 # ---------------------------------------------------------------------------
-# _is_burst_mode
-# ---------------------------------------------------------------------------
-
-
-def test_is_burst_mode_false_when_too_few_samples():
-    """Fewer than 10 samples cannot be classified — returns False."""
-    assert P._is_burst_mode(_dt(list(range(5)))) is False
-
-
-def test_is_burst_mode_false_for_uniform_sampling():
-    """Evenly spaced samples (p90 == p50) are not burst mode."""
-    assert P._is_burst_mode(_dt([i * 60.0 for i in range(20)])) is False
-
-
-def test_is_burst_mode_true_for_bimodal_gaps():
-    """Many 1 s within-burst gaps and rare long gaps → burst mode."""
-    # 4 bursts of 5 pings at 1 Hz, separated by 120 s waits.
-    secs: list[float] = []
-    t = 0.0
-    for _burst in range(4):
-        for _ping in range(5):
-            secs.append(t)
-            t += 1.0
-        t += 120.0
-    assert P._is_burst_mode(_dt(secs)) is True
-
-
-def test_is_burst_mode_false_when_all_timestamps_equal():
-    """All-equal timestamps give no positive Δt — returns False, no crash."""
-    assert P._is_burst_mode(_dt([0.0] * 15)) is False
-
-
-# ---------------------------------------------------------------------------
 # interp_pressure
 # ---------------------------------------------------------------------------
 

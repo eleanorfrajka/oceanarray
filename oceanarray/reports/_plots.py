@@ -810,32 +810,24 @@ def _make_analog_timeseries_b64(
     return render_b64(draw_analog_timeseries, nc_path, analog_vars, optional=True)
 
 
-def _make_knockdown_hab_b64(ds: xr.Dataset, knockdown: Any = None) -> str | None:
-    """IQR of measured HAB vs. nominal HAB, for the stack report; *knockdown* is the report's shared input."""
-    from oceanarray.plotters.diagnostic import draw_knockdown_hab
+#: Knockdown figure → (drawing function in ``plotters.diagnostic``, report slot).
+_KNOCKDOWN_FIGURES = {
+    "hab": ("draw_knockdown_hab", "half"),
+    "anomaly": ("draw_knockdown_anomaly", "half"),
+    "displacement": ("draw_knockdown_displacement", "full"),
+}
 
+
+def _make_knockdown_b64(kind: str, ds: xr.Dataset, knockdown: Any = None) -> str | None:
+    """Render one knockdown figure (a :data:`_KNOCKDOWN_FIGURES` key) from the stack.
+
+    *knockdown* is the report's shared input, built once for all three figures.
+    """
+    from oceanarray.plotters import diagnostic
+
+    name, slot = _KNOCKDOWN_FIGURES[kind]
     return render_slot(
-        draw_knockdown_hab, ds, knockdown=knockdown, slot="half", optional=True
-    )
-
-
-def _make_knockdown_displacement_b64(
-    ds: xr.Dataset, knockdown: Any = None
-) -> str | None:
-    """Scatter of estimated horizontal displacement vs. measured pressure; *knockdown* is the report's shared input."""
-    from oceanarray.plotters.diagnostic import draw_knockdown_displacement
-
-    return render_slot(
-        draw_knockdown_displacement, ds, knockdown=knockdown, slot="full", optional=True
-    )
-
-
-def _make_knockdown_anomaly_b64(ds: xr.Dataset, knockdown: Any = None) -> str | None:
-    """Per-instrument IQR of pressure anomaly (measured − nominal), stack report; *knockdown* is the report's shared input."""
-    from oceanarray.plotters.diagnostic import draw_knockdown_anomaly
-
-    return render_slot(
-        draw_knockdown_anomaly, ds, knockdown=knockdown, slot="half", optional=True
+        getattr(diagnostic, name), ds, knockdown=knockdown, slot=slot, optional=True
     )
 
 

@@ -229,8 +229,8 @@ def test_apply_tilt_qc_uses_the_geometric_tilt_and_qc_tilt_on_real_data():
     assert out.attrs["tilt_fail_threshold"] == 50.0
 
 
-def test_apply_tilt_qc_ignores_component_flags_on_real_data():
-    """9920 with pitch_qc / roll_qc at 30°/50°: a record with both under 30° but tilt over is flagged."""
+def test_pitch_and_roll_qc_ranges_are_not_run_on_real_data():
+    """9920 with pitch / roll spans configured: no component flags, tilt still flags."""
     path = (
         Path(__file__).parents[1]
         / "fixtures/proc/dune2_1_2026/aquadopp/dune2_1_2026_9920_stage2.nc"
@@ -238,16 +238,16 @@ def test_apply_tilt_qc_ignores_component_flags_on_real_data():
     with xr.open_dataset(path) as src:
         ds = src.load()
     span = {"suspect_span": [-30, 30], "fail_span": [-50, 50]}
-    ds = Q.apply_qc_tests(ds, {"pitch": span, "roll": span}, {})
-    pitch_qc = ds["pitch_qc"].values.copy()
-    i = 1173  # pitch -29.1°, roll -9.9°: tilt 30.6°
-    assert ds["pitch_qc"][i] == 1 and ds["roll_qc"][i] == 1
+    gr, sp, tilt, fl = Q.load_qc_config(
+        {"qc_ranges": {"pitch": span, "roll": span}}, {}
+    )
+    assert "pitch" not in gr and "roll" not in gr
+    ds = Q.apply_qc_tests(ds, gr, sp, fl)
+    assert "pitch_qc" not in ds and "roll_qc" not in ds
 
-    out, n_suspect, _ = Q.apply_tilt_qc(ds, {})
+    out, _, _ = Q.apply_tilt_qc(ds, tilt)
 
-    assert out["velocity_beam1_qc"][i] == 3
-    assert n_suspect > int(np.sum(pitch_qc == 3))
-    np.testing.assert_array_equal(out["pitch_qc"].values, pitch_qc)
+    assert out["velocity_beam1_qc"][1173] == 3  # pitch -29.1°, roll -9.9°: tilt 30.6°
 
 
 # ---------------------------------------------------------------------------
