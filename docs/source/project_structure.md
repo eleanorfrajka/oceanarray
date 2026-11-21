@@ -85,8 +85,8 @@ oceanarray/
 │   └── legacy/                    # Legacy RODB/RAPID processing (nothing outside imports it; excluded from lint)
 │
 ├── tests/                         # pytest test suite
-│   ├── unit/                      # seasenselib-free unit tests
-│   ├── integration/               # Golden + pipeline tests (needs_seasenselib)
+│   ├── unit/                      # Unit tests
+│   ├── integration/               # Golden + pipeline tests
 │   ├── fixtures/                  # Committed raw + processed dune2_1_2026 fixtures
 │   └── legacy/                    # Tests for legacy RODB/RAPID processing
 │

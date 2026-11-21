@@ -17,10 +17,8 @@ import xarray as xr
 import yaml
 
 pytest.importorskip("seasenselib", reason="seasenselib not installed")
-pytestmark = pytest.mark.needs_seasenselib
-
-from oceanarray.pipeline import _process_legacy as process  # noqa: E402
-from oceanarray.reports import report  # noqa: E402
+from oceanarray.pipeline import _process_legacy as process
+from oceanarray.reports import report
 
 OSNAP = Path(__file__).parent.parent / "fixtures" / "raw" / "osnap"
 

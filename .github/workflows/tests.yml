@@ -57,7 +57,7 @@ jobs:
           # here. No effect on Linux/macOS.
           HDF5_PLUGIN_PRELOAD: "::"
         run: >
-          pytest tests/unit -m "not slow and not local and not needs_seasenselib" -q
+          pytest tests/unit -m "not slow and not local" -q
           ${{ (matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11') && '--cov=oceanarray --cov-report=term-missing --cov-fail-under=58' || '--no-cov' }}
 
   integration:
@@ -80,6 +80,49 @@ jobs:
 
       - name: Run integration tests
         run: pytest tests/integration -m "not local" -q
+
+  wheel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0  # setuptools-scm reads the version from the tags
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      - name: Build the wheel
+        run: |
+          pip install build
+          python -m build --wheel
+
+      # From outside the checkout, so only the installed wheel can be imported.
+      - name: Install it in a fresh env and open every packaged data file
+        working-directory: ${{ runner.temp }}
+        run: |
+          python -m venv wheel-env
+          wheel-env/bin/pip install "$GITHUB_WORKSPACE"/dist/*.whl
+          wheel-env/bin/python -m oceanarray.reports._vendored.check
+          wheel-env/bin/python - <<'EOF'
+          import matplotlib.pyplot as plt
+
+          import oceanarray
+          from oceanarray.config import parameters as params
+          from oceanarray.logger import load_logging_config
+          from oceanarray.pipeline.qc.originator import vocabulary
+          from oceanarray.reports._env import _ENV
+          from oceanarray.reports._vendored.leaflet import load_leaflet
+
+          assert "site-packages" in oceanarray.__file__, oceanarray.__file__
+          load_logging_config()
+          vocabulary()
+          load_leaflet()
+          plt.style.use(str(params.MPLSTYLE))
+          for name in _ENV.list_templates():
+              _ENV.get_template(name)
+          EOF
 
   lint:
     runs-on: ubuntu-latest

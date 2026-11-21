@@ -13,10 +13,8 @@ import xarray as xr
 import yaml
 
 pytest.importorskip("seasenselib", reason="seasenselib not installed")
-pytestmark = pytest.mark.needs_seasenselib
-
-import oceanarray as oa  # noqa: E402
-from oceanarray.pipeline import sensors  # noqa: E402
+import oceanarray as oa
+from oceanarray.pipeline import sensors
 
 OSNAP = Path(__file__).parent.parent / "fixtures" / "raw" / "osnap"
 MCTD = "CF7_MCTD_2020_22225_50m.nc"

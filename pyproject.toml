@@ -105,7 +105,6 @@ include = ["oceanarray", "oceanarray.*"]
 
 [tool.setuptools.package-data]
 oceanarray = [
-  "oceanarray.mplstyle",
   "config/*.yaml",
   "config/legacy/*.yaml",
   "reports/templates/*.html",   # report page templates loaded via FileSystemLoader
@@ -139,10 +138,8 @@ ignore = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = [
-  "integration: requires real data files or exercises a full processing pipeline (skip on CI)",
   "slow: takes more than ~5 s even with synthetic data (excluded from CI; run with -m slow)",
   "local: requires developer-machine context (mounted volumes, GUIs, instrument-specific paths); never on CI",
-  "needs_seasenselib: requires seasenselib to be installed",
 ]
 
 [tool.coverage.run]

@@ -179,7 +179,7 @@ Tests live in `tests/unit/` and `tests/integration/`. Run the full suite:
 
 ```bash
 pytest                                                # all tests
-pytest tests/unit -m "not slow and not needs_seasenselib"  # without seasenselib
+pytest tests/unit -m "not slow and not local"         # as the CI unit job
 pytest --cov=oceanarray --cov-report=term-missing -q  # with coverage
 ```
 

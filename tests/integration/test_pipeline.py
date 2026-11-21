@@ -36,8 +36,6 @@ from oceanarray.pipeline.stack import MooringStacker
 from oceanarray.pipeline.stage2 import Stage2Processor
 from oceanarray.pipeline.stage3 import Stage3Processor
 
-pytestmark = pytest.mark.needs_seasenselib
-
 FIXTURE_PROC = Path(__file__).parent.parent / "fixtures" / "proc" / "dune2_1_2026"
 MOORING = "dune2_1_2026"
 

@@ -14,8 +14,6 @@ from oceanarray.pipeline import stage1 as s1
 from oceanarray.pipeline.raw_files import find_file_tag
 from oceanarray.pipeline.stage1 import MooringProcessor
 
-pytestmark = pytest.mark.needs_seasenselib
-
 
 class TestMooringProcessor:
     """Test cases for MooringProcessor class."""
@@ -31,10 +29,13 @@ class TestMooringProcessor:
         """Create a MooringProcessor instance for testing."""
         import logging
 
+        from oceanarray.logger import detach_handlers
+
         p = MooringProcessor(raw_dir=str(temp_dir), proc_dir=str(temp_dir))
         yield p
-        # Close any FileHandlers added to library loggers by _setup_logging so
-        # Windows can delete the temp directory when the fixture tears down.
+        # Close the stage log and any FileHandlers added to library loggers by
+        # _setup_logging so Windows can delete the temp directory at teardown.
+        detach_handlers(getattr(p, "_log_handlers", []))
         for name in ("seasenselib", "pycnv"):
             log = logging.getLogger(name)
             for h in list(log.handlers):

@@ -96,12 +96,11 @@ def test_no_private_copies_of_safe_serial():
     assert copies == []
 
 
-@pytest.mark.needs_seasenselib
 def test_stage1_call_site_agrees(tmp_path):
     """Stage 1 names a comma serial's output by the primary serial, as every stage does.
 
     Separated from :func:`test_all_call_sites_agree` because importing stage1
-    pulls in the optional ``seasenselib`` dependency.
+    pulls in ``seasenselib``.
     """
     pytest.importorskip("seasenselib")
     import shutil

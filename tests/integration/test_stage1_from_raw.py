@@ -1,10 +1,7 @@
 """Golden integration tests: raw instrument files → MooringProcessor → stage1 NC.
 
 Runs the full stage1 pipeline on the committed raw fixtures and compares key
-arrays to the committed stage1 NC files.  Marked ``needs_seasenselib`` because
-``MooringProcessor`` imports seasenselib at module load.  These tests run in CI
-on the integration job (which installs seasenselib) and are skipped in the
-seasenselib-free unit matrix.
+arrays to the committed stage1 NC files.
 """
 
 import shutil
@@ -16,9 +13,7 @@ import xarray as xr
 
 pytest.importorskip("seasenselib", reason="seasenselib not installed")
 
-pytestmark = pytest.mark.needs_seasenselib
-
-from oceanarray.pipeline.stage1 import MooringProcessor  # noqa: E402
+from oceanarray.pipeline.stage1 import MooringProcessor
 
 FIXTURE_ROOT = Path(__file__).parent.parent / "fixtures"
 FIXTURE_RAW = FIXTURE_ROOT / "raw" / "dune2_1_2026"

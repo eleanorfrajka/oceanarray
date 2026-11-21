@@ -342,14 +342,8 @@ class TestRunWrappersNoSeasenselib:
         inst.stack.assert_called_once_with("m", dt_seconds=120, force=True)
 
 
-@pytest.mark.needs_seasenselib
 class TestRunWrappersSeasenselib:
-    """Wrapper bodies whose stage module imports seasenselib (local only).
-
-    stage1/stage2/grid modules ``import seasenselib`` at module top, so these
-    are marked and additionally guarded with ``importorskip`` to skip cleanly
-    when seasenselib is absent (e.g. the CI unit job).
-    """
+    """Wrapper bodies whose stage module imports seasenselib at module top."""
 
     def test_run_stage1_instantiates_and_forwards(self, tmp_path, monkeypatch):
         pytest.importorskip("seasenselib")
