@@ -31,6 +31,7 @@ import numpy as np
 import xarray as xr
 from matplotlib.collections import LineCollection
 
+from oceanarray import paths
 from oceanarray.config import parameters as params
 from oceanarray.config.unit_tables import (
     unit_label,
@@ -594,17 +595,17 @@ def draw_aquadopp_speed_profile(
     appear on the same axes so the speed distribution can be compared across
     depths.
 
-    If *speed_var* is not present in *ds*, speed is computed from *u_var* and
-    *v_var* as ``sqrt(u² + v²)``.
+    A level without a finite *speed_var* takes ``sqrt(u² + v²)`` from *u_var* and
+    *v_var*; a level with neither is left out.
 
     Parameters
     ----------
     ds : xr.Dataset
         Stacked mooring dataset with shape (time, N_LEVELS).
     speed_var : str
-        Preferred speed variable name; computed from u/v if absent.
+        Preferred speed variable name.
     u_var, v_var : str
-        Used to compute speed when *speed_var* is not present.
+        Used to compute speed for a level where *speed_var* has none.
     instr_type_var, serial_var, hab_var : str
         Dimension-coordinate variable names.
     width_in : float, optional
@@ -614,7 +615,7 @@ def draw_aquadopp_speed_profile(
     Returns
     -------
     matplotlib.figure.Figure or None
-        None if no Aquadopp instruments are found.
+        None if no Aquadopp level has a finite speed.
 
     Notes
     -----
@@ -633,16 +634,18 @@ def draw_aquadopp_speed_profile(
     # Collect per-instrument speed arrays
     records = []
     for i in aqd_idx:
+        spd = np.array([np.nan])
         if speed_var in ds.data_vars:
             spd = ds[speed_var].values[:, i].ravel()
-        elif u_var in ds.data_vars and v_var in ds.data_vars:
-            u = ds[u_var].values[:, i]
-            v = ds[v_var].values[:, i]
-            spd, _ = speed_direction(u, v)
-        else:
-            continue
+        if (
+            not np.isfinite(spd).any()
+            and u_var in ds.data_vars
+            and v_var in ds.data_vars
+        ):
+            spd, _ = speed_direction(ds[u_var].values[:, i], ds[v_var].values[:, i])
         spd_clean = spd[np.isfinite(spd)]
-        records.append((float(habs[i]), str(serials[i]), spd_clean))
+        if spd_clean.size:
+            records.append((float(habs[i]), str(serials[i]), spd_clean))
 
     if not records:
         return None
@@ -1027,7 +1030,7 @@ def draw_rose_grid(
         adcp_by_serial: dict[str, list[int]] = defaultdict(list)
         for i in _all_cand:
             if str(instr_type_vals[i]).upper() == "ADCP":
-                ser = str(serial_list[i]) if i < len(serial_list) else "?"
+                ser = paths.adcp_parent_serial(str(serial_list[i]))
                 adcp_by_serial[ser].append(i)
 
         _ADCP_PCTS = [0, 33, 67, 100]
@@ -1831,8 +1834,9 @@ def draw_aquadopp_tilt_panels(
     Within each row the time-series panel and its paired scatter panel share one
     0–90° y-axis, so the pitch/roll time series and the pressure-tilt scatter read
     on the same scale.  Gridlines are drawn on both panels.  Horizontal reference
-    lines are drawn at the suspect and fail thresholds read from ds.attrs (falling
-    back to 20° / 30° if absent).
+    lines are drawn at the suspect and fail thresholds stored with the flags
+    (:func:`~oceanarray.plotters.helpers.tilt_limits`). A row without pitch or
+    roll leaves its scatter panel blank.
 
     Parameters
     ----------
@@ -1853,8 +1857,7 @@ def draw_aquadopp_tilt_panels(
     """
     import matplotlib.dates as mdates
 
-    tilt_suspect = float(ds.attrs.get("tilt_suspect_threshold", 20.0))
-    tilt_fail = float(ds.attrs.get("tilt_fail_threshold", 30.0))
+    tilt_suspect, tilt_fail = helpers.tilt_limits(ds)
 
     instr_types = ds["instrument_type"].values
     serials = ds["serial"].values
@@ -1962,7 +1965,8 @@ def draw_aquadopp_tilt_panels(
             date_offset_left(ax_ts)
             ax_ts.tick_params(axis="x")
 
-        if tp_data is not None and np.any(np.isfinite(tp_data)):
+        has_pr = any(d is not None and np.isfinite(d).any() for d in (p_data, r_data))
+        if has_pr and tp_data is not None and np.isfinite(tp_data).any():
             sc_kw = {"s": 3, "alpha": 0.25, "rasterized": True, "linewidths": 0}
             if p_data is not None and np.any(np.isfinite(p_data)):
                 fin = np.isfinite(tp_data) & np.isfinite(p_data)
@@ -2014,15 +2018,8 @@ def draw_aquadopp_tilt_panels(
             # No scatter legend — the time-series panel legend already names
             # pitch/roll; a second legend here is a redundant repeat.
         else:
-            ax_sc.text(
-                0.5,
-                0.5,
-                "no tilt data",
-                transform=ax_sc.transAxes,
-                ha="center",
-                va="center",
-                color="gray",
-            )
+            # Nothing to compare (e.g. an imported current meter without pitch and
+            # roll): the panel is left blank, keeping the time series' width.
             ax_sc.set_axis_off()
 
     if _n_dropped:
@@ -2171,7 +2168,8 @@ def _velocity_by_depth(ds: xr.Dataset) -> dict | None:
     dict or None
         ``groups`` (``(label, column)`` with a known depth), ``depth`` (per group),
         ``u``, ``v`` (time × column, the values the rule hides set to NaN), ``cell_dep``,
-        ``names``, ``offset`` (spacing of side-by-side markers, m) and ``cells``:
+        ``names``, ``adcp`` (per group, whether it is an ADCP bin), ``offset``
+        (spacing of side-by-side markers at the other depths, m) and ``cells``:
         for each group, the deployments drawn there as ``(k, rows)``, ``rows`` the
         boolean time mask of that deployment's finite velocity. A deployment is
         drawn at a depth only when at least
@@ -2201,9 +2199,10 @@ def _velocity_by_depth(ds: xr.Dataset) -> dict | None:
                 drawn.append((k, rows))
         cells.append(drawn)
     group_depth = [float(depth[j]) for _, j in groups]
-    spacing = (
-        np.diff(sorted(group_depth)) if len(group_depth) > 1 else np.array([200.0])
-    )
+    types = ds["instrument_type"].values
+    adcp = [str(types[j]).lower() == "adcp" for _, j in groups]
+    point = sorted(d for d, a in zip(group_depth, adcp, strict=True) if not a)
+    spacing = np.diff(point) if len(point) > 1 else np.array([200.0])
     n_dep = max(1, ds.sizes.get("DEPLOYMENT", 1))
     offset = (
         0.8 * float(np.min(spacing[spacing > 0])) if (spacing > 0).any() else 100.0
@@ -2217,16 +2216,35 @@ def _velocity_by_depth(ds: xr.Dataset) -> dict | None:
         "names": short_names([str(n) for n in ds["deployment_name"].values]),
         "n": int(ds["deployment_name"].size),
         "offset": offset,
+        "adcp": adcp,
         "cells": cells,
     }
 
 
 def _depth_axis(ax: plt.Axes, by: dict) -> None:
-    """Label a depth axis with the velocity depths, in metres, deepest at the bottom."""
-    ax.set_yticks(by["depth"])
-    ax.set_yticklabels([f"{d:.0f}" for d in by["depth"]])
+    """Label a depth axis at the point instruments' depths (m), deepest at the bottom.
+
+    ADCP bins add no ticks; with no point instrument the ticks are automatic.
+    """
+    point = [d for d, a in zip(by["depth"], by["adcp"], strict=True) if not a]
+    if point:
+        ax.set_yticks(point)
+        ax.set_yticklabels([f"{d:.0f}" for d in point])
     ax.invert_yaxis()
     ax.set_ylabel("Nominal depth (m)")
+
+
+def _adcp_profiles(by: dict, stat: Any) -> dict[int, np.ndarray]:
+    """Return, per deployment, its ADCP bins' ``(depth, *stat(rows, j))`` rows, by depth."""
+    out: dict[int, list] = {}
+    for (_label, j), y, drawn, adcp in zip(
+        by["groups"], by["depth"], by["cells"], by["adcp"], strict=True
+    ):
+        for k, rows in drawn if adcp else ():
+            values = stat(rows, j)
+            if values is not None:
+                out.setdefault(k, []).append((y, *values))
+    return {k: np.array(sorted(v)) for k, v in out.items()}
 
 
 def draw_speed_profile_by_deployment(
@@ -2236,7 +2254,10 @@ def draw_speed_profile_by_deployment(
 
     Boxes of one depth sit at the depth's nominal depth, one per deployment in its
     color (two consecutive deployments share a color, the second hatched), so a
-    change in speed between deployments shows as boxes that do not overlap.
+    change in speed between deployments shows as boxes that do not overlap. An
+    ADCP is drawn as a profile instead: per deployment, its bins' median speed
+    against depth with the middle 50 % shaded; the depth axis is labelled at the
+    other instruments only.
     Values the ``mask_flags`` rule hides are left out, and a deployment's box is drawn at a
     depth only when at least
     :data:`~oceanarray.config.parameters.MIN_RECORD_FRACTION` of that depth's own
@@ -2273,10 +2294,19 @@ def draw_speed_profile_by_deployment(
 
     fig, ax = plt.subplots(figsize=(width_in, width_in * 0.9), layout="constrained")
     used: set[int] = set()
-    for (_label, j), y, drawn in zip(
-        by["groups"], by["depth"], by["cells"], strict=True
+    # An ADCP: per deployment, the bins' median speed against depth, middle 50 % shaded.
+    profiles = _adcp_profiles(
+        by, lambda rows, j: np.percentile(speed[rows, j], [25, 50, 75])
+    )
+    for k, prof in profiles.items():
+        color = deployment_color(k, by["n"])
+        ax.fill_betweenx(prof[:, 0], prof[:, 1], prof[:, 3], color=color, alpha=0.3)
+        ax.plot(prof[:, 2], prof[:, 0], color=color, lw=1.5)
+        used.add(k)
+    for (_label, j), y, drawn, adcp in zip(
+        by["groups"], by["depth"], by["cells"], by["adcp"], strict=True
     ):
-        for m, (k, rows) in enumerate(drawn):
+        for m, (k, rows) in enumerate(() if adcp else drawn):
             color = deployment_color(k, by["n"])
             # Side by side about the depth's value, so deployments do not overlap.
             ax.boxplot(
@@ -2340,8 +2370,10 @@ def draw_direction_profile_by_deployment(
     Each marker is the direction of the deployment's mean velocity at that depth
     (from daily means, so tides do not count); its bar is the circular standard
     deviation of the daily-mean directions, stopped at the axis edge with an arrow
-    where it runs past. The direction axis is centred on the mean direction of all
-    depths and deployments, ±180°, so a flow near north is not split across 0°/360°.
+    where it runs past. An ADCP is drawn as a profile: per deployment, its bins'
+    direction against depth with that deviation shaded. The direction axis is
+    centred on the mean direction of all depths and deployments, ±180°, so a flow
+    near north is not split across 0°/360°.
 
     Parameters
     ----------
@@ -2365,46 +2397,58 @@ def draw_direction_profile_by_deployment(
     if by is None:
         return None
     time = ds["time"].values
+    mean_uv = []
+
+    def direction(rows: np.ndarray, j: int) -> tuple[float, float] | None:
+        """Return the direction of the mean of daily means (°) and its spread (°)."""
+        du = _daily_mean(time[rows], by["u"][rows, j])
+        dv = _daily_mean(time[rows], by["v"][rows, j])
+        n = min(du.size, dv.size)
+        if n < 3:
+            return None
+        du, dv = du[:n], dv[:n]
+        mean_uv.append((float(du.mean()), float(dv.mean())))
+        angle = np.arctan2(du, dv)
+        resultant = float(np.hypot(np.cos(angle).mean(), np.sin(angle).mean()))
+        spread = (
+            float(np.degrees(np.sqrt(-2.0 * np.log(resultant))))
+            if resultant > 0
+            else 180.0
+        )
+        return float(flow_direction(*mean_uv[-1])), min(spread, 180.0)
+
     points = []  # (k, y, direction °, spread °)
-    sum_u = sum_v = 0.0
-    for (_label, j), y, drawn in zip(
-        by["groups"], by["depth"], by["cells"], strict=True
+    for (_label, j), y, drawn, adcp in zip(
+        by["groups"], by["depth"], by["cells"], by["adcp"], strict=True
     ):
-        for m, (k, rows) in enumerate(drawn):
-            du = _daily_mean(time[rows], by["u"][rows, j])
-            dv = _daily_mean(time[rows], by["v"][rows, j])
-            n = min(du.size, dv.size)
-            if n < 3:
-                continue
-            du, dv = du[:n], dv[:n]
-            mu, mv = float(du.mean()), float(dv.mean())
-            angle = np.arctan2(du, dv)
-            resultant = float(np.hypot(np.cos(angle).mean(), np.sin(angle).mean()))
-            spread = (
-                float(np.degrees(np.sqrt(-2.0 * np.log(resultant))))
-                if resultant > 0
-                else 180.0
-            )
-            offset = (m - (len(drawn) - 1) / 2) * by["offset"]
-            points.append(
-                (
-                    k,
-                    y + offset,
-                    float(flow_direction(mu, mv)),
-                    min(spread, 180.0),
-                )
-            )
-            sum_u += mu
-            sum_v += mv
-    if not points:
+        for m, (k, rows) in enumerate(() if adcp else drawn):
+            found = direction(rows, j)
+            if found is not None:
+                offset = (m - (len(drawn) - 1) / 2) * by["offset"]
+                points.append((k, y + offset, *found))
+    profiles = _adcp_profiles(by, direction)
+    if not points and not profiles:
         return None
-    centre = float(flow_direction(sum_u, sum_v))
+    centre = float(flow_direction(*np.sum(mean_uv, axis=0)))
 
     fig, ax = plt.subplots(figsize=(width_in, width_in * 0.9), layout="constrained")
     used: set[int] = set()
     lo_edge, hi_edge = centre - 180.0, centre + 180.0
-    for k, y, direction, spread in points:
-        x = centre + ((direction - centre + 180.0) % 360.0) - 180.0
+    # An ADCP: per deployment, its bins' direction against depth, ± the spread shaded.
+    for k, prof in profiles.items():
+        color = deployment_color(k, by["n"])
+        x = centre + ((prof[:, 1] - centre + 180.0) % 360.0) - 180.0
+        ax.fill_betweenx(
+            prof[:, 0],
+            np.maximum(x - prof[:, 2], lo_edge),
+            np.minimum(x + prof[:, 2], hi_edge),
+            color=color,
+            alpha=0.3,
+        )
+        ax.plot(x, prof[:, 0], color=color, lw=1.5)
+        used.add(k)
+    for k, y, angle, spread in points:
+        x = centre + ((angle - centre + 180.0) % 360.0) - 180.0
         color = deployment_color(k, by["n"])
         # A bar past the axis edge stops there, with an arrow pointing on.
         lo, hi = max(x - spread, lo_edge), min(x + spread, hi_edge)

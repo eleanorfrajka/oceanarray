@@ -199,6 +199,10 @@ MASK_FLAGS: tuple[int, ...] = (4,)
 #: and the caption names it.
 MIN_RECORD_FRACTION: float = 0.5
 
+#: Share of the record a grid level must have filled to carry a spectrum, wavelet
+#: or rotary spectrum line; an ADCP bin, to be the top of the bins a site page shows.
+SPECTRAL_MIN_FILLED: float = 0.9
+
 #: A display bin of a site section is shown only when its cell has values for at
 #: least this share of the bin's time steps; an edge level the grid fills only part
 #: of the time (an instrument riding across it) is left blank, not a chequer of

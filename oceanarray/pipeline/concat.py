@@ -1079,6 +1079,124 @@ def own_levels(ds: xr.Dataset) -> np.ndarray:
     return (counts >= 0) & (cell_deployment(ds) == counts)
 
 
+def adcp_bins(ds: xr.Dataset) -> dict[tuple[int, str], list[int]]:
+    """Return the three ADCP bins a per-depth figure of a site stack shows, by ADCP.
+
+    For each ADCP of each deployment, from its bins below the surface with east
+    velocity for at least
+    :data:`~oceanarray.config.parameters.SPECTRAL_MIN_FILLED` of their own steps
+    (all its bins with any, when none has that much): the bin nearest the
+    instrument, the farthest, and the one midway between.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A site stack.
+
+    Returns
+    -------
+    dict of (int, str) to list of int
+        ``(deployment, ADCP serial)`` → depth indices, nearest the instrument first.
+    """
+    if "east_velocity" not in ds:
+        return {}
+    serials = [str(s) for s in ds["serial"].values]
+    types = ds["instrument_type"].values
+    depth_index = ds["depth_index"].values
+    level = ds["level_index"].values
+    finite = np.isfinite(ds["east_velocity"].transpose("time", "N_DEPTHS").values)
+    nominal = ds["nominal_depth"].values
+    bins: dict[tuple[int, str], list[tuple[int, int, float]]] = {}
+    for i, serial in enumerate(serials):
+        s = int(depth_index[i])
+        if _family(types[i], serial) != "adcp" or "_b" not in serial or s < 0:
+            continue
+        if nominal[s] <= 0:
+            continue
+        own = level[:, s] == i
+        filled = float(finite[own, s].mean()) if own.any() else 0.0
+        key = (int(ds["deployment"].values[i]), paths.adcp_parent_serial(serial))
+        bins.setdefault(key, []).append((int(serial.rsplit("_b", 1)[1]), s, filled))
+    out = {}
+    for key, members in bins.items():
+        full = [m for m in members if m[2] >= params.SPECTRAL_MIN_FILLED]
+        pool = sorted(full or [m for m in members if m[2] > 0])
+        if pool:
+            picks = [pool[0], pool[len(pool) // 2], pool[-1]]
+            out[key] = list(dict.fromkeys(s for _n, s, _f in picks))
+    return out
+
+
+def shown_depths(ds: xr.Dataset, *, bins: str = "all") -> np.ndarray:
+    """Return which depths of a site stack a figure draws.
+
+    An ADCP bin at or above the surface (nominal depth ≤ 0 m) is never drawn.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A site stack.
+    bins : {"all", "three"}, optional
+        Every ADCP bin below the surface, or only the three :func:`adcp_bins` picks.
+
+    Returns
+    -------
+    numpy.ndarray of bool
+        One per ``N_DEPTHS``.
+    """
+    family = ds["depth_family"].values.astype(str)
+    is_bin = family == "adcp"
+    keep = ~(is_bin & (ds["nominal_depth"].values <= 0))
+    if bins == "three":
+        chosen = np.zeros_like(keep)
+        for picks in adcp_bins(ds).values():
+            chosen[picks] = True
+        keep &= ~is_bin | chosen
+    return keep
+
+
+def select_depths(ds: xr.Dataset, keep: np.ndarray) -> xr.Dataset:
+    """Return a site stack with only the depths *keep* marks, and their levels.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A site stack.
+    keep : numpy.ndarray of bool
+        One per ``N_DEPTHS`` (:func:`shown_depths`).
+
+    Returns
+    -------
+    xarray.Dataset
+        The depths, their levels and their overlap values, renumbered.
+    """
+    keep = np.asarray(keep, bool)
+    if keep.all():
+        return ds
+    depth_index = ds["depth_index"].values
+    levels = np.flatnonzero(keep[depth_index])
+    renumber = {
+        "depth": np.cumsum(keep) - 1,
+        "level": np.full(ds.sizes["N_LEVELS"], -1),
+    }
+    renumber["level"][levels] = np.arange(levels.size)
+    sel = {"N_DEPTHS": np.flatnonzero(keep), "N_LEVELS": levels}
+    if "overlap_depth_index" in ds:
+        sel["N_OVERLAP"] = np.flatnonzero(keep[ds["overlap_depth_index"].values])
+    out = ds.isel(sel)
+    for name, kind in (
+        ("depth_index", "depth"),
+        ("overlap_depth_index", "depth"),
+        ("level_index", "level"),
+        ("overlap_level_index", "level"),
+    ):
+        if name in out:
+            old = out[name].values
+            new = np.where(old >= 0, renumber[kind][np.clip(old, 0, None)], -1)
+            out[name] = out[name].copy(data=new.astype(old.dtype))
+    return out
+
+
 #: Seconds per chunk along time in the site stack file: about one year.
 _CHUNK_SECONDS = 365 * 86400
 

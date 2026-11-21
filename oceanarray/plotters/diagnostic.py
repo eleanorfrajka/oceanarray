@@ -52,6 +52,7 @@ from .helpers import (
     grid_despine,
     marker_flags,
     serial_text,
+    tilt_limits,
 )
 from .primitives import (
     date_offset_left,
@@ -1019,8 +1020,7 @@ def draw_windows(
             mask: np.ndarray,
             col: str,
         ) -> None:
-            _suspect_t = float(ds.attrs.get("tilt_suspect_threshold", 20.0))
-            _fail_t = float(ds.attrs.get("tilt_fail_threshold", 30.0))
+            _suspect_t, _fail_t = tilt_limits(ds)
 
             if vname == "_pitch_roll_combo":
                 t = time[mask]

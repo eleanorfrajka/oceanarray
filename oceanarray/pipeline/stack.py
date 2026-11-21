@@ -12,7 +12,7 @@ from oceanarray import catalog, logger, paths, provenance
 from oceanarray import mooring as _mooring
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
-from oceanarray.instruments import instrument_entries
+from oceanarray.instruments import instrument_entries, nominal_depth
 from oceanarray.location import (
     is_unknown_latlon_source,
     parse_latlon,
@@ -110,6 +110,30 @@ _ADCP_HEAD_VARS: frozenset = frozenset(
 )
 
 
+def _with_speed_direction(ds: xr.Dataset, names: Sequence[str]) -> xr.Dataset:
+    """Return *ds* with *names* (of speed and direction) from east/north velocity."""
+    if not names or "east_velocity" not in ds or "north_velocity" not in ds:
+        return ds
+    speed, direction = speed_direction(
+        ds["east_velocity"].values.astype(float),
+        ds["north_velocity"].values.astype(float),
+    )
+    # Direction is oceanographic: toward which the water flows, clockwise from true
+    # north once stage 3 applied declination (magnetic north in a stage-2 stack);
+    # 0 = northward, 90 = eastward, the opposite of meteorological "from".
+    values = {"current_speed": speed, "current_direction": direction}
+    return ds.assign(
+        {
+            name: xr.Variable(
+                ds["east_velocity"].dims,
+                values[name].astype(np.float32),
+                params.cf_attrs(name),
+            )
+            for name in names
+        }
+    )
+
+
 def _build_adcp_head_ds(ds_parent: xr.Dataset) -> xr.Dataset:
     """Create a 1-D (time-only) view of the ADCP transducer head for stack insertion."""
     # The head is its own stack position carrying sensor diagnostics, not water-column
@@ -154,23 +178,7 @@ def _build_adcp_bin_ds(ds_parent: xr.Dataset, bin_idx: int) -> xr.Dataset:
             )
         ).drop_vars("bin_pressure")
 
-    if "east_velocity" in ds_bin.data_vars and "north_velocity" in ds_bin.data_vars:
-        e = ds_bin["east_velocity"].values.astype(float)
-        n = ds_bin["north_velocity"].values.astype(float)
-        speed, direction = speed_direction(e, n)
-        # Direction is oceanographic: toward which the water flows, clockwise from true
-        # north once stage 3 applied declination (magnetic north in a stage-2 stack);
-        # 0 = northward, 90 = eastward, the opposite of meteorological "from".
-        ds_bin = ds_bin.assign(
-            current_speed=xr.Variable(
-                "time", speed.astype(np.float32), params.cf_attrs("current_speed")
-            ),
-            current_direction=xr.Variable(
-                "time",
-                direction.astype(np.float32),
-                params.cf_attrs("current_direction"),
-            ),
-        )
+    ds_bin = _with_speed_direction(ds_bin, ("current_speed", "current_direction"))
 
     # Beam-dimension arrays (amplitude, correlation, percent_good) cannot be a point
     # time series without choosing a beam; dropping them leaves only ("time",) or
@@ -259,7 +267,8 @@ def stack(
     interpolation or averaging in time); a step with no sample in that window is
     NaN, so an instrument sampling slower than the step leaves the steps between
     its samples empty (with a warning). ADCPs expand into one level per bin plus a
-    head level. Instruments marked ``stack: false`` are left out and named in
+    head level; a bin is at its own depth (water depth less its ``hab``), and one at
+    or above the surface is left out. Instruments marked ``stack: false`` are left out and named in
     ``instruments_excluded``; instruments that cannot be stacked (no ``hab`` in
     the description, non-canonical units, low-passed data) are left out and named
     in ``instruments_omitted``. A level whose stage-3 ``magnetic_declination`` is
@@ -444,6 +453,13 @@ def stack(
             log.warning(f"  omitting ADCP s/n {info['serial']} — {reason}")
             continue
         looking_down = str(orientation).lower() == "down"
+        # A bin's depth is its own (water depth less its hab), not the head's.
+        parent = _stage.normalize_identity_names(ds_adcp)
+        head_depth = (
+            float(parent["instrument_depth"].values)
+            if "instrument_depth" in parent.variables
+            else nominal_depth({"hab": info["hab"]}, mooring_config.get("waterdepth"))
+        )
         # Rows keep the originator's bin numbers when bins are missing (RODB sets).
         bin_numbers = (
             ds_adcp["bin_number"].values
@@ -465,12 +481,6 @@ def stack(
             else:
                 valid_bins.append(i)
 
-        log.debug(
-            f"  ADCP s/n {info['serial']}: expanding {len(valid_bins)} of {n_bins} bins "
-            f"({orientation}-looking) into stack + head entry"
-            + (f" [{n_skipped} bins always below seabed, skipped]" if n_skipped else "")
-        )
-
         # Head entry — transducer location carries temperature and orientation.
         # Uses the instrument HAB directly (range = 0 from the transducer).
         expanded.append(
@@ -478,22 +488,42 @@ def stack(
                 **info,
                 "serial": f"{info['serial']}_hd",
                 "hab": float(info["hab"]),
+                "depth": head_depth,
                 "_adcp_head": True,
                 "_adcp_nc_key": nc_key,
             }
         )
+        n_above = 0
         for i in valid_bins:
             r = float(range_vals[i])
             bin_hab = float(info["hab"]) - r if looking_down else float(info["hab"]) + r
+            bin_depth = (
+                head_depth - (bin_hab - float(info["hab"]))
+                if head_depth is not None and np.isfinite(head_depth)
+                else nominal_depth({"hab": bin_hab}, mooring_config.get("waterdepth"))
+            )
+            if bin_depth is None and head_depth is not None:
+                bin_depth = head_depth - (bin_hab - float(info["hab"]))
+            if bin_depth is not None and bin_depth <= 0:
+                n_above += 1  # at or above the surface: not a level
+                continue
             expanded.append(
                 {
                     **info,
                     "serial": f"{info['serial']}_b{int(bin_numbers[i]):02d}",
                     "hab": bin_hab,
+                    "depth": bin_depth,
                     "_adcp_bin_idx": i,
                     "_adcp_nc_key": nc_key,
                 }
             )
+        log.debug(
+            f"  ADCP s/n {info['serial']}: expanding "
+            f"{len(valid_bins) - n_above} of {n_bins} bins "
+            f"({orientation}-looking) into stack + head entry"
+            + (f" [{n_skipped} bins always below seabed, skipped]" if n_skipped else "")
+            + (f" [{n_above} bins at or above the surface, skipped]" if n_above else "")
+        )
     instruments = expanded
     # Re-sort after expansion so ADCP bins interleave with other instruments by depth
     instruments.sort(key=lambda x: x["hab"])
@@ -534,6 +564,7 @@ def stack(
     decl_unknown: list[str] = []  # levels whose stage-3 declination is "UNK"
     slow_warned: set[str] = set()  # instruments already warned as slower than dt
     slow: list[str] = []  # recorded in instruments_slower_than_step
+    speed_derived: list[str] = []  # non-bin levels given speed from their velocity
 
     for i, info in enumerate(instruments):
         serials.append(info["serial"])
@@ -553,6 +584,12 @@ def stack(
             # Canonicalise each instrument's units and identity names before
             # stacking, so an older input (degC, S/m, InstrDepth, …) joins canonical.
             ds = to_canonical_units(_stage.normalize_identity_names(ds), stage="stack")
+            if info.get("depth") is not None:
+                ds = ds.assign(
+                    instrument_depth=xr.Variable(
+                        (), info["depth"], _stage.IDENTITY_ATTRS["instrument_depth"]
+                    )
+                )
             # A low-passed file (e.g. RODB .lowedt) would be sampled onto the
             # stack's steps as if it were full-rate data.
             if "originator_low_passed" in ds.attrs:
@@ -561,6 +598,20 @@ def stack(
                     f"({ds.attrs['originator_low_passed']}); set stack: false "
                     f"on this instrument in the mooring YAML"
                 )
+            # A current meter imported with velocity only (no speed or direction).
+            missing = [
+                v
+                for v in ("current_speed", "current_direction")
+                if v not in ds or not np.isfinite(ds[v].values).any()
+            ]
+            if (
+                missing
+                and "_adcp_bin_idx" not in info
+                and {"east_velocity", "north_velocity"} <= set(ds.data_vars)
+                and np.isfinite(ds["east_velocity"].values).any()
+            ):
+                ds = _with_speed_direction(ds, missing)
+                speed_derived.append(info["serial"])
         except Exception as e:  # noqa: BLE001  — one bad instrument must not abort the stack
             if isinstance(e, UnitsError):
                 reason = f"units error: {e}"
@@ -991,6 +1042,22 @@ def stack(
                     ("N_LEVELS",), arr, attrs=scalar_attrs[vname]
                 )
 
+    has_bins = any("_adcp_bin_idx" in info for info in instruments)
+    if speed_derived:
+        for name in ("current_speed", "current_direction"):
+            if name in data_vars:
+                data_vars[name].attrs["comment"] = (
+                    "from east_velocity and north_velocity when stacked, for "
+                    + ("ADCP bins and for: " if has_bins else "")
+                    + "; ".join(speed_derived)
+                )
+    if "instrument_depth" in data_vars and has_bins:
+        attrs = data_vars["instrument_depth"].attrs
+        attrs["comment"] = (
+            f"{attrs.get('comment', '')}; an ADCP bin's is the water depth less the "
+            "bin's height above bottom"
+        ).lstrip("; ")
+
     ds_out = xr.Dataset(
         data_vars,
         coords={
@@ -1175,6 +1242,21 @@ def stack(
             if no_velocity:
                 ds_out.attrs["stage2_no_velocity"] = " ".join(no_velocity)
         log.warning(f"  stacked from stage 2 ({stage2_reason}): {' '.join(at_stage2)}")
+    # The tilt QC limits stage 3 applied, for the tilt panel's lines.
+    tilt = {
+        (float(a["tilt_suspect_threshold"]), float(a["tilt_fail_threshold"]))
+        for a in (info["ds"].attrs for info in kept_infos)
+        if "tilt_suspect_threshold" in a and "tilt_fail_threshold" in a
+    }
+    if len(tilt) == 1:
+        suspect, fail = tilt.pop()
+        ds_out.attrs["tilt_suspect_threshold"] = suspect
+        ds_out.attrs["tilt_fail_threshold"] = fail
+    elif tilt:
+        log.warning(
+            f"  {mooring_name}: instruments differ in tilt QC limits {sorted(tilt)}; "
+            "none recorded in the stack"
+        )
     if excluded:
         ds_out.attrs["instruments_excluded"] = "; ".join(excluded)
     if slow:

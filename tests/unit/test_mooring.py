@@ -127,6 +127,15 @@ def test_unknown_key_warns() -> None:
     assert mooring.load(cfg)["wibble"] == 3
 
 
+def test_density_reference_is_a_known_key(tmp_path) -> None:
+    """``density_reference`` is read by the stack, so validate does not call it ignored."""
+    path = tmp_path / FIXTURE.parent.name / FIXTURE.name
+    path.parent.mkdir()
+    path.write_text(FIXTURE.read_text() + "density_reference: 2000\n")
+    assert not [i for i in mooring.check(path) if "'density_reference'" in i.message]
+    assert mooring.load(path)["density_reference"] == 2000
+
+
 def test_template_and_comment_keys_are_known() -> None:
     """The template and its field comments stay within ``KNOWN_KEYS`` (no drift)."""
     from oceanarray.mooring import _FIELD_COMMENTS, KNOWN_KEYS

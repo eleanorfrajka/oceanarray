@@ -7,6 +7,7 @@ declination alone.
 """
 
 import logging
+import re
 import shutil
 from pathlib import Path
 
@@ -273,6 +274,12 @@ def test_oceansites_adcp_to_stage3_and_stack(tmp_path):
         rows = stack["serial"].values.tolist()
         assert rows[:2] == ["CM173_b00", "CM173_b01"][:0] + rows[:2]
         assert "CM173_hd" in rows and "CM173_b13" in rows
+        # Each bin at its own depth (water depth less its hab), not the head's.
+        bins = [i for i, r in enumerate(rows) if "_b" in r]
+        np.testing.assert_allclose(
+            stack["instrument_depth"].values[bins],
+            CF1["waterdepth"] - stack["hab"].values[bins],
+        )
         k = rows.index("CM173_b05")
         np.testing.assert_array_equal(
             stack["pressure"]
@@ -682,7 +689,12 @@ def test_rodb_bin_files_to_stage3_and_stack(tmp_path):
     assert s3["error_velocity"].attrs["units"] == "m s-1"
     with xr.open_dataset(files[-2]) as stack:
         rows = stack["serial"].values.tolist()
+        depth = stack["instrument_depth"].values
+        hab = stack["hab"].values
     assert {"20961_b01", "20961_b02", "20961_b04", "20961_hd"} <= set(rows)
+    bins = [i for i, r in enumerate(rows) if "_b" in r]
+    np.testing.assert_allclose(depth[bins], EGM3["waterdepth"] - hab[bins])
+    assert len(set(depth[bins])) == len(bins)
 
 
 def test_rodb_bin_pattern_without_a_match_is_refused(tmp_path):
@@ -720,3 +732,148 @@ def test_a_newer_bin_file_regenerates_stage1(tmp_path):
     os.utime(rf.paths[-1], (out.stat().st_mtime + 10,) * 2)
     assert len(rf.paths) == 3
     assert not should_skip_regeneration(out, False, False, *rf.paths)
+
+
+@pytest.fixture(scope="module")
+def cf1_site(tmp_path_factory):
+    """The CF1 2020 ADCP cut as two deployments (its record split in two), stacked."""
+    import oceanarray as oa
+
+    root = tmp_path_factory.mktemp("cf1_site")
+    windows = (
+        ("cf1_a", "2020-08-26T02:00", "2020-09-05T00:00"),
+        ("cf1_b", "2020-09-05T01:00", "2020-09-15T00:00"),
+    )
+    stacks = []
+    for name, start, end in windows:
+        header = {**CF1, "deployment_time": start, "recovery_time": end}
+        raw, proc = _mooring(root, name, header, [{**_CF1_ADCP, "orientation": "up"}])
+        files = oa.run(proc / name / f"{name}.mooring.yaml", raw_dir=raw)
+        stacks.append(xr.open_dataset(files[-2]).load())
+    return stacks
+
+
+def test_stack_leaves_out_bins_above_the_surface(cf1_site):
+    """CF1's upward ADCP reaches 70 m above the surface: those bins are not levels."""
+    stack = cf1_site[0]
+    bins = np.char.find(stack["serial"].values.astype(str), "_b") > 0
+    depth = stack["instrument_depth"].values[bins]
+    assert (depth > 0).all()
+    raw = xr.open_dataset(OSNAP / _CF1_ADCP["filename"])
+    assert bins.sum() == int((raw["BINDEPTH"].values > 0).sum())
+
+
+def test_deployment_roses_show_four_bins_of_an_adcp(cf1_site):
+    """The stack page's roses take at most four bins of one ADCP."""
+    import matplotlib.pyplot as plt
+
+    from oceanarray.plotters.current import draw_rose_grid
+
+    stack = cf1_site[0]
+    fig, n = draw_rose_grid(stack, list(stack["serial"].values))
+    plt.close(fig)
+    assert n == 4
+
+
+def test_site_profiles_draw_an_adcp_as_one_line_per_deployment(cf1_site):
+    """Per deployment one line and one band through the bins; the bins add no y ticks."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    from oceanarray.pipeline.concat import concat
+    from oceanarray.plotters import current
+    from oceanarray.reports._concat import _report_view
+
+    view = _report_view(concat(cf1_site, name="cf1"))
+    bins = view["depth"].values[view["instrument_type"].values == "adcp"]
+    for draw in (
+        current.draw_speed_profile_by_deployment,
+        current.draw_direction_profile_by_deployment,
+    ):
+        fig = draw(view)
+        ax = fig.axes[0]
+        assert len(ax.lines) == len(ax.collections) == 2
+        assert not np.isin(np.round(ax.get_yticks(), 3), np.round(bins, 3)).any()
+        plt.close(fig)
+
+
+def test_three_adcp_bins_per_deployment_and_none_above_the_surface(cf1_site, tmp_path):
+    """Roses and flags show three bins per ADCP; bins at or above the surface go."""
+    from oceanarray.analysis.spectral import SPECTRAL_MIN_FILLED
+    from oceanarray.pipeline.concat import (
+        adcp_bins,
+        concat,
+        select_depths,
+        shown_depths,
+    )
+
+    # A deployment stack whose water depth is 30 m less: its top bins are above
+    # the surface, as in a stack made before such bins were left out.
+    shallow = cf1_site[1].copy()
+    shallow.attrs["waterdepth"] = CF1["waterdepth"] - 30
+    site = concat([cf1_site[0], shallow], name="cf1")
+    picks = adcp_bins(site)
+    assert sorted(len(p) for p in picks.values()) == [3, 3]
+    for (k, _serial), at in picks.items():
+        own = site["level_index"].values[:, at]
+        ok = np.isfinite(site["east_velocity"].values[:, at])
+        levels = site["depth_index"].values
+        nearest = min(
+            int(str(s).rsplit("_b", 1)[1])
+            for i, s in enumerate(site["serial"].values)
+            if levels[i] == at[0]
+        )
+        assert nearest == 0
+        for c in range(len(at)):
+            mine = (own[:, c] >= 0) & (
+                site["deployment"].values[np.clip(own[:, c], 0, None)] == k
+            )
+            assert ok[mine, c].mean() >= SPECTRAL_MIN_FILLED
+    keep = shown_depths(site)
+    assert (site["nominal_depth"].values <= 0).any()
+    assert not (select_depths(site, keep)["nominal_depth"].values <= 0).any()
+    path = tmp_path / "cf1_stackcat.nc"
+    site.to_netcdf(path)
+    from oceanarray.reports._concat import generate_concat_page
+
+    html = generate_concat_page(path, tmp_path / "report").read_text()
+    assert "ADCP bins shown:" in html and "ADCP bin " in html
+    assert not re.search(r"at -\d+ m|· -\d+ m|bin -\d+ m", html)
+
+
+def test_the_flag_strip_shows_each_adcp_once(cf1_site):
+    """Two deployments of one ADCP: one panel at its head, pressure once, half-height bars."""
+    import matplotlib.pyplot as plt
+
+    from oceanarray.pipeline.concat import concat, select_depths, shown_depths
+    from oceanarray.plotters.flags import BAR_HEIGHT_IN, draw_flag_strip
+    from oceanarray.reports._qcflags import instrument_labels
+
+    site = concat(cf1_site, name="cf1")
+    shown = select_depths(site, shown_depths(site, bins="three"))
+    # CF1's flags are all good: mark one step suspect, pressure at the head and
+    # every bin (as a pressure test flags each), east velocity at one bin.
+    family = shown["depth_family"].values.astype(str)
+    adcp = np.flatnonzero(np.isin(family, ["adcp", "adcp_head"]))
+    one = np.flatnonzero(family == "adcp")[0]
+    for var, at in (("pressure", adcp), ("east_velocity", [one])):
+        flags = shown[f"{var}_qc"].transpose("time", "N_DEPTHS").values.copy()
+        for k in at:
+            t = np.flatnonzero(np.isfinite(shown[var].values[:, k]))[0]
+            flags[t, k] = 3
+        shown[f"{var}_qc"] = (("time", "N_DEPTHS"), flags)
+    fig = draw_flag_strip(shown, labels=instrument_labels(shown))
+    fig.canvas.draw()
+    titles = [ax.get_title(loc="left") for ax in fig.axes]
+    ticks = [t.get_text() for ax in fig.axes for t in ax.get_yticklabels()]
+    per_bar = [
+        ax.get_position().height * fig.get_figheight() / len(ax.get_yticks())
+        for ax in fig.axes
+    ]
+    plt.close(fig)
+    depth = shown["nominal_depth"].values
+    assert titles == [f"ADCP · {depth[family == 'adcp_head'][0]:.0f} m"]
+    assert ticks == ["P oceanarray", f"u {depth[one]:.0f} m oceanarray"]
+    np.testing.assert_allclose(per_bar, BAR_HEIGHT_IN, rtol=0.01)

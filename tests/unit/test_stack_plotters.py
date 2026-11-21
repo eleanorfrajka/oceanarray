@@ -17,6 +17,10 @@ import pytest
 import xarray as xr
 
 from oceanarray.config import parameters as params
+from oceanarray.plotters.current import (
+    draw_aquadopp_speed_profile,
+    draw_aquadopp_tilt_panels,
+)
 from oceanarray.plotters.diagnostic import draw_instrument_spacing
 from oceanarray.plotters.timeseries import draw_stack_timeseries
 
@@ -103,3 +107,78 @@ def test_spacing_histogram_counts_pairs_two_dbar_or_more_apart(ds):
         order = np.argsort(np.nanmedian(p, axis=0))
     d = np.diff(p[:, order], axis=1)
     assert total == np.sum(np.isfinite(d) & (d >= 2.0))
+
+
+def _aquadopps(ds) -> list[int]:
+    return [i for i, t in enumerate(ds["instrument_type"].values) if t == "aquadopp"]
+
+
+def test_speed_profile_leaves_out_levels_without_speed(ds):
+    """No figure when no Aquadopp has a finite speed; a level without one is left out."""
+    blank = ds.copy(deep=True)
+    for name in ("current_speed", "east_velocity", "north_velocity"):
+        blank[name][:, _aquadopps(ds)] = np.nan
+    assert draw_aquadopp_speed_profile(blank) is None
+    one = ds.copy(deep=True)
+    k = _aquadopps(ds)[0]
+    for name in ("current_speed", "east_velocity", "north_velocity"):
+        one[name][:, k] = np.nan
+    fig = draw_aquadopp_speed_profile(one)
+    labels = [t.get_text() for t in fig.axes[0].texts]
+    plt.close(fig)
+    assert f"s/n {ds['serial'].values[k]}" not in labels
+    assert len(labels) == len(_aquadopps(ds)) - 1
+
+
+def test_tilt_scatter_is_blank_for_a_level_without_pitch_and_roll(ds):
+    """Its scatter panel is off and the figure keeps its size, row by row."""
+    full = draw_aquadopp_tilt_panels(ds)
+    size = full.get_size_inches()
+    plt.close(full)
+    k = _aquadopps(ds)[0]  # the deepest: the first row
+    no_pr = ds.copy(deep=True)
+    no_pr["pitch"][:, k] = np.nan
+    no_pr["roll"][:, k] = np.nan
+    fig = draw_aquadopp_tilt_panels(no_pr)
+    scatter = fig.axes[1::2]
+    np.testing.assert_array_equal(fig.get_size_inches(), size)
+    assert not scatter[0].axison and not scatter[0].texts
+    assert scatter[1].axison
+    plt.close(fig)
+
+
+@pytest.mark.parametrize("stored", [None, (25.0, 40.0)])
+def test_tilt_lines_are_the_stored_limits_else_the_qc_default(ds, stored):
+    """The lines match the limits stored with the flags, else ``QC_TILT``."""
+    ds = ds.copy()
+    if stored:
+        ds.attrs["tilt_suspect_threshold"], ds.attrs["tilt_fail_threshold"] = stored
+    want = stored or (
+        params.QC_TILT["suspect_threshold"],
+        params.QC_TILT["fail_threshold"],
+    )
+    fig = draw_aquadopp_tilt_panels(ds)
+    flat = {
+        float(line.get_ydata()[0])
+        for line in fig.axes[0].get_lines()
+        if len(set(line.get_ydata())) == 1
+    }
+    plt.close(fig)
+    assert flat == set(want)
+
+
+def test_every_flag_bar_has_one_height(ds):
+    """Every flag bar is BAR_HEIGHT_IN high (half the earlier 0.36 in), across the figure."""
+    from oceanarray.plotters.flags import BAR_HEIGHT_IN, draw_flag_strip
+
+    fig = draw_flag_strip(ds)
+    fig.canvas.draw()
+    per_bar = [
+        ax.get_position().height * fig.get_figheight() / len(ax.get_yticks())
+        for ax in fig.axes
+    ]
+    bars = {len(ax.get_yticks()) for ax in fig.axes}
+    plt.close(fig)
+    assert len(bars) > 1
+    assert BAR_HEIGHT_IN == 0.36 / 2
+    np.testing.assert_allclose(per_bar, BAR_HEIGHT_IN, rtol=0.01)

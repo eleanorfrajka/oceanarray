@@ -13,6 +13,8 @@ import logging
 import numpy as np
 from scipy.signal import welch as _scipy_welch
 
+from oceanarray.config import parameters as params
+
 _log = logging.getLogger(__name__)
 
 #: Period of the principal lunar semidiurnal tide M2, in days (12.42 h).
@@ -22,7 +24,7 @@ K1_PERIOD_DAYS: float = 23.9344696 / 24.0
 
 #: Share of the record a grid level must have filled to carry a spectrum, wavelet
 #: or rotary spectrum line.
-SPECTRAL_MIN_FILLED: float = 0.9
+SPECTRAL_MIN_FILLED: float = params.SPECTRAL_MIN_FILLED
 #: With at least this many candidate levels the temperature spectrum draws five
 #: lines instead of three.
 SPECTRAL_MANY_LEVELS: int = 10

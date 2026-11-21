@@ -189,3 +189,46 @@ def test_stack_omits_an_adcp_without_orientation(stage3, cfg):
     ds = stack({**stage3, "16430": adcp}, cfg2, dt_seconds=_DT)
     assert "ADCP s/n 16430 (ADCP orientation None" in ds.attrs["instruments_omitted"]
     assert not any(str(s).startswith("16430") for s in ds["serial"].values)
+
+
+def test_adcp_bin_depth_is_water_depth_less_its_hab(stage3, cfg):
+    """A down-looking ADCP's bins each sit at their own depth, not the head's."""
+    adcp = xr.open_dataset(
+        _FIX.parents[1] / "adcp" / "dsG2_adcp_stage3_knockdown.nc"
+    ).load()
+    cfg2 = copy.deepcopy(cfg)
+    cfg2["clamp"].append({"serial": 16430, "instrument": "ADCP", "hab": 400})
+    ds = stack({**stage3, "16430": adcp}, cfg2, dt_seconds=_DT)
+    serials = ds["serial"].values.astype(str)
+    depth = ds["instrument_depth"].values
+    bins = np.char.startswith(serials, "16430_b")
+    assert bins.sum() > 1
+    np.testing.assert_allclose(depth[bins], cfg["waterdepth"] - ds["hab"].values[bins])
+    assert depth[serials == "16430_hd"] == cfg["waterdepth"] - 400
+    assert "bin's height above bottom" in ds["instrument_depth"].attrs["comment"]
+
+
+def test_stack_derives_aquadopp_speed_from_its_velocity(stage3, cfg):
+    """An Aquadopp file without speed and direction gets them from east/north."""
+    no_speed = {
+        s: ds.drop_vars(["current_speed", "current_direction"], errors="ignore")
+        for s, ds in stage3.items()
+    }
+    ds = stack(no_speed, cfg, dt_seconds=_DT)
+    k = ds["instrument_type"].values.tolist().index("aquadopp")
+    level = ds.isel(N_LEVELS=k)
+    assert np.isfinite(level["current_speed"]).sum() > 0
+    np.testing.assert_allclose(
+        level["current_speed"],
+        np.hypot(level["east_velocity"], level["north_velocity"]),
+        rtol=1e-6,
+    )
+    assert str(level["serial"].values) in ds["current_speed"].attrs["comment"]
+    assert np.isfinite(level["current_direction"]).sum() > 0
+
+
+def test_stack_records_the_tilt_limits_stage3_applied(ds_stack, stage3):
+    """The tilt panel's lines are the limits stored with the stage-3 flags."""
+    aqd = next(ds for ds in stage3.values() if "tilt_suspect_threshold" in ds.attrs)
+    for name in ("tilt_suspect_threshold", "tilt_fail_threshold"):
+        assert ds_stack.attrs[name] == aqd.attrs[name]

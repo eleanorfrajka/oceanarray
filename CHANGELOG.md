@@ -7,6 +7,17 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ## [Unreleased]
 
+### Fixed
+
+- Stack: an ADCP bin's `instrument_depth` is its own (water depth − `hab`), not the head's; bins at or above the surface are left out. Restack to apply.
+- Stack: a current meter imported with east/north velocity only gets `current_speed` and `current_direction` (named in their `comment`).
+- Stack and stage pages: tilt lines at the stored QC limits, else `QC_TILT` (30°/50°, not 20°/30°); the scatter panel is blank without pitch or roll.
+- Deployment page: the Aquadopp speed profile leaves out a level with no speed; the rose grid takes at most four bins per ADCP.
+- Stack cat page: an ADCP is a median line and middle-50 % band per deployment; roses and flags show three bins per ADCP; bins above the surface go.
+- Stack cat page: every flag bar has one height; ADCP bins left out are named as one range per deployment.
+- Flag strip: bars half as tall; an ADCP is one panel at its head (its pressure once, per-bin variables a row per bin shown); collapsed on the Stack cat page.
+- `validate` knows `density_reference`.
+
 ---
 
 ## [0.6.1] — 2026-11-20

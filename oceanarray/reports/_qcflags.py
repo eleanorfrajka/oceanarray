@@ -229,7 +229,8 @@ def _summary(
 def instrument_labels(ds: xr.Dataset) -> list[str]:
     """Return one label per level: ``"MicroCAT 2941 · 1500 m"`` (type, serial, nominal depth).
 
-    A Stack cat's depth is labelled by its most common type: ``"MicroCAT · 1500 m"``.
+    A Stack cat's depth is labelled by its most common type: ``"MicroCAT · 1500 m"``,
+    an ADCP bin's ``"ADCP bin 152 m"``.
     A level beyond the end of a shorter ``instrument_type`` or depth array is
     labelled without that part, with a warning.
 
@@ -250,9 +251,12 @@ def instrument_labels(ds: xr.Dataset) -> list[str]:
     if "N_DEPTHS" in ds.dims:
         from oceanarray.pipeline.concat import depth_types
 
+        bins = ds["depth_family"].values.astype(str) == "adcp"
         return [
-            f"{_type_label(t.lower())} · {d:.0f} m" if np.isfinite(d) else t
-            for t, d in zip(depth_types(ds), nominal_depths(ds), strict=True)
+            (f"ADCP bin {d:.0f} m" if b else f"{_type_label(t.lower())} · {d:.0f} m")
+            if np.isfinite(d)
+            else t
+            for t, d, b in zip(depth_types(ds), nominal_depths(ds), bins, strict=True)
         ]
     if "serial" not in ds.variables:
         return _labels(ds)

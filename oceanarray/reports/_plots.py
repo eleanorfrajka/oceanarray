@@ -41,6 +41,7 @@ from ..plotters.helpers import (  # noqa: F401
     as_dataset,
     grid_despine,
     nominal_depth_text,
+    tilt_limits,
 )
 from ..plotters.hydrography import (
     draw_isopycnal_coverage,
@@ -199,8 +200,7 @@ def _draw_instrument_panels(
         for ax, (vname, label, color, invert) in zip(axs, panels, strict=False):
             grid_despine(ax)
             if vname == "_pitch_roll_combo":
-                _suspect_t = float(ds.attrs.get("tilt_suspect_threshold", 20.0))
-                _fail_t = float(ds.attrs.get("tilt_fail_threshold", 30.0))
+                _suspect_t, _fail_t = tilt_limits(ds)
                 if "pitch" in ds.data_vars:
                     ax.plot(
                         time,
@@ -239,8 +239,7 @@ def _draw_instrument_panels(
             if "velocity" in vname and not invert:
                 ax.axhline(0, color="k", linewidth=0.4, linestyle="--", zorder=0)
             if vname == "tilt":
-                _suspect_t = float(ds.attrs.get("tilt_suspect_threshold", 20.0))
-                _fail_t = float(ds.attrs.get("tilt_fail_threshold", 30.0))
+                _suspect_t, _fail_t = tilt_limits(ds)
                 ax.axhline(
                     _suspect_t,
                     color="tab:orange",

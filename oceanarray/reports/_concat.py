@@ -17,7 +17,13 @@ from markupsafe import Markup
 from oceanarray import location, logger, paths
 from oceanarray.analysis.derived import derived_fields
 from oceanarray.pipeline import masking
-from oceanarray.pipeline.concat import cell_deployment, depth_types
+from oceanarray.pipeline.concat import (
+    adcp_bins,
+    cell_deployment,
+    depth_types,
+    select_depths,
+    shown_depths,
+)
 
 from ..config import parameters as params
 from ..plotters import current as _current
@@ -48,6 +54,7 @@ from ._plots import (
 )
 from ._read import _read_nc_metadata
 from ._slots import render as render_slot
+from ._stack import STACK_CAPTIONS as _STACK_CAPTIONS
 from ._stack import (
     STACK_PANELS,
     STACK_SECTIONS,
@@ -115,6 +122,26 @@ def _left_out(short: dict[str, list[str]], family: str) -> str:
     )
 
 
+def _bins_shown(ds: Any) -> str:
+    """Return the sentence naming the ADCP bins the roses and flag figure show, or ``""``."""
+    from oceanarray.analysis.spectral import SPECTRAL_MIN_FILLED
+
+    picks = adcp_bins(ds)
+    if not picks:
+        return ""
+    names = _helpers.short_names([str(n) for n in ds["deployment_name"].values])
+    depth = ds["nominal_depth"].values
+    each = [
+        f"{names[k]} at {_captions._join([f'{depth[s]:.0f}' for s in at])} m"
+        for (k, _serial), at in sorted(picks.items())
+    ]
+    return (
+        f" ADCP bins shown: {'; '.join(each)} (per ADCP, the bin nearest the "
+        "instrument, the farthest with velocity at least "
+        f"{_captions.percent_text(SPECTRAL_MIN_FILLED)} of the time, and one midway)."
+    )
+
+
 def _page_captions(
     ds: Any,
     view: Any,
@@ -160,7 +187,17 @@ def _page_captions(
         if by_dep.get("outlines", True)
         else f"Outlines not drawn: {n_levels} levels (more than {_ts.TS_MAX_OUTLINES}). "
     )
+    shown = _bins_shown(ds)
     out = {
+        "qc_strip": _STACK_CAPTIONS["qc_strip"]
+        + (
+            " Each ADCP is one panel at its head: the head's series (pressure) once, "
+            "their flags filled from its bins where the head has none; then each "
+            "per-bin variable flagged, a row per bin shown."
+            if shown
+            else ""
+        )
+        + shown,
         "hydro_pts": stack["hydro_pts"].replace(
             "over the deployment", "over every deployment"
         )
@@ -201,11 +238,13 @@ def _page_captions(
         "roses": (
             f"One rose per depth, one outline per deployment: the percentage of that "
             f"deployment's record flowing in each direction ({toward}); rings share "
-            f"one scale. {flags['roses']}"
+            f"one scale.{shown} {flags['roses']}"
         ),
         "speed_profile": (
             "Current speed at each current-meter depth, one box per deployment "
-            "(median, middle 50 %, whiskers to 1.5 × that range). Deployments with "
+            "(median, middle 50 %, whiskers to 1.5 × that range); an ADCP, one line "
+            "per deployment through its bins' medians, the middle 50 % shaded. "
+            "Deployments with "
             f"velocity for less than {_captions.record_fraction_text()} their time "
             "are left out ("
             + (_captions._join(short["velocity"]) if short.get("velocity") else "none")
@@ -216,7 +255,8 @@ def _page_captions(
             f"deployment: {toward}, of the deployment's mean velocity, from daily "
             "means so tides do not count; the bar is the circular standard deviation "
             "of the daily-mean directions, with an arrow where it runs past the axis "
-            "edge. The axis is centred on the mean direction "
+            "edge; an ADCP, one line per deployment through its bins, the deviation "
+            "shaded. The axis is centred on the mean direction "
             f"of all depths, ±180°. {flags['direction_profile']}"
         ),
         "trajectories_aquadopp": (
@@ -305,10 +345,24 @@ def _page_panels(captions: dict[str, str]) -> dict[str, Panel]:
         **captions,
         "nc_file": _captions.netcdf_caption("site stack file", SITE_DESCRIPTION),
     }
-    return {
+    out = {
         pid: replace(panel, caption=captions[pid]) if pid in captions else panel
         for pid, panel in CONCAT_PANELS.items()
     }
+    out["qc_strip"] = Panel(
+        "qc_strip",
+        render=lambda c: render_template(
+            "_collapsed_figure.html",
+            summary="Flags through time",
+            caption=captions["qc_strip"],
+            images=[c.figs["qc_strip"]],
+        ),
+        kind="html",
+        applies_to=lambda c: (
+            bool(c.qc_rule and c.qc_rows) and isinstance(c.figs.get("qc_strip"), str)
+        ),
+    )
+    return out
 
 
 def _has_velocity(c: Any) -> bool:
@@ -866,7 +920,11 @@ _FAMILY_VARIABLES: dict[str, frozenset[str]] = {
 
 
 def _drop_short(
-    view: Any, member: np.ndarray, names: list[str], at: np.ndarray | None = None
+    view: Any,
+    member: np.ndarray,
+    names: list[str],
+    at: np.ndarray | None = None,
+    bins: np.ndarray | None = None,
 ) -> tuple[Any, dict[str, list[str]]]:
     """Return *view* without the short records, and who was left out, by family.
 
@@ -885,13 +943,16 @@ def _drop_short(
         Short deployment names, in deployment order.
     at : numpy.ndarray of str, optional
         Each level's label, for a per-level *member*.
+    bins : numpy.ndarray of bool, optional
+        Which levels are ADCP bins: named together, per deployment.
 
     Returns
     -------
     view : xarray.Dataset
         A copy with those values set to NaN.
     left_out : dict of str to list of str
-        ``"2016 at 1820 m"`` per record left out (``"2016"`` per step), by family.
+        ``"2016 at 1820 m"`` per record left out (``"2016"`` per step), and
+        ``"2014 ADCP bins at 9–29 m"`` per deployment for ADCP bins, by family.
     """
     cells = member if member.ndim == 2 else member[:, None]
     view = view.copy(deep=True)
@@ -903,13 +964,26 @@ def _drop_short(
         if member.ndim == 1:
             finite = finite.any(axis=1)[:, None]
         drop = np.zeros_like(finite)
+        short: dict = {}  # label, or (deployment, "bins") → bin depths
         for j in range(cells.shape[1]):
             for k in np.unique(cells[:, j][cells[:, j] >= 0]):
                 here = cells[:, j] == k
                 if 0 < finite[here, j].mean() < params.MIN_RECORD_FRACTION:
                     drop[here, j] = True
-                    where = f" at {at[j]}" if member.ndim == 2 else ""
-                    left_out.setdefault(family, []).append(f"{names[k]}{where}")
+                    if bins is not None and bins[j]:
+                        short.setdefault((int(k), "bins"), []).append(
+                            float(view["depth"].values[j])
+                        )
+                    else:
+                        where = f" at {at[j]}" if member.ndim == 2 else ""
+                        short[f"{names[k]}{where}"] = None
+        for key, depths in short.items():
+            if depths is None:
+                left_out.setdefault(family, []).append(key)
+                continue
+            lo, hi = min(depths), max(depths)
+            where = f"bin at {lo:.0f} m" if lo == hi else f"bins at {lo:.0f}–{hi:.0f} m"
+            left_out.setdefault(family, []).append(f"{names[key[0]]} ADCP {where}")
         if drop.any():
             for v in _FAMILY_VARIABLES[family] & set(view.data_vars):
                 if view[v].dims == view[test].dims:
@@ -1029,6 +1103,8 @@ def generate_concat_page(
     try:
         with xr.open_dataset(stack_path, engine="netcdf4") as opened:
             ds = opened.load()
+        # ADCP bins at or above the surface are not levels: no figure, table or caption.
+        ds = select_depths(ds, shown_depths(ds))
         name = str(ds.attrs.get("site_name", stack_path.stem))
         out_path = out_dir / f"{name}_stackcat_report.html"
         names = [str(n) for n in ds["deployment_name"].values]
@@ -1036,12 +1112,16 @@ def generate_concat_page(
         # Instruments table (egM4_2014 → 2014); the Deployments table keeps the full name.
         short = dict(zip(names, _helpers.short_names(names), strict=True))
         view = _report_view(ds)
+        order = _depth_order(ds)
         view, left_out = _drop_short(
             view,
             view["cell_deployment"].values,
             [short[n] for n in names],
             view["serial"].values,
+            ds["depth_family"].values[order].astype(str) == "adcp",
         )
+        # Roses and the flag figure: three bins per ADCP (adcp_bins).
+        three = shown_depths(ds, bins="three")
         depth_view = _depth_view(view)
         # Position and θ for the T-S figures, derived once for the page.
         derived = derived_fields(view)
@@ -1105,7 +1185,11 @@ def generate_concat_page(
                 **series,
             ),
             "roses": as_panel(
-                lambda: render_slot(_current.draw_rose_outlines, view, optional=True)
+                lambda: render_slot(
+                    _current.draw_rose_outlines,
+                    view.isel(N_LEVELS=three[order]),
+                    optional=True,
+                )
             ),
             "ts_diagram": as_panel(
                 lambda: _make_stack_ts_diagram_b64(
@@ -1166,7 +1250,12 @@ def generate_concat_page(
         )
         qc_ruled = masking.STACK_ATTR in ds.attrs
         figs["qc_strip"] = (
-            as_panel(lambda: _make_flag_strip_b64(ds, _qcflags.instrument_labels(ds)))
+            as_panel(
+                lambda: _make_flag_strip_b64(
+                    select_depths(ds, three),
+                    _qcflags.instrument_labels(select_depths(ds, three)),
+                )
+            )
             if qc_ruled
             else None
         )

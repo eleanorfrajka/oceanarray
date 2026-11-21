@@ -856,6 +856,30 @@ def serial_text(ds: xr.Dataset) -> str:
     return str(ds.attrs.get("serial", "?"))
 
 
+def tilt_limits(ds: xr.Dataset) -> tuple[float, float]:
+    """Return the tilt QC suspect and fail limits (degrees) stored with the flags.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A stage file or stack.
+
+    Returns
+    -------
+    tuple of float
+        ``tilt_suspect_threshold`` and ``tilt_fail_threshold`` from the attributes,
+        else ``parameters.QC_TILT``.
+    """
+    from oceanarray.config import parameters as params
+
+    return (
+        float(
+            ds.attrs.get("tilt_suspect_threshold", params.QC_TILT["suspect_threshold"])
+        ),
+        float(ds.attrs.get("tilt_fail_threshold", params.QC_TILT["fail_threshold"])),
+    )
+
+
 def nominal_depths(ds: xr.Dataset) -> np.ndarray | None:
     """Return each level's nominal depth (m): ``instrument_depth``, else water depth minus HAB.
 

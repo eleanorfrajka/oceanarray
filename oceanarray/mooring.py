@@ -109,6 +109,8 @@ KNOWN_KEYS: frozenset[str] = frozenset(
         # optional stack / grid settings for oceanarray.run (``_check_settings``)
         "stack",
         "grid",
+        # reference pressure (dbar) of the stack's potential density
+        "density_reference",
         # optional report sections to turn on, keyed by page (``_check_report_sections``)
         "report_sections",
         # extra periods marked on the grid page's spectra (``_check_spectrum_markers``)
