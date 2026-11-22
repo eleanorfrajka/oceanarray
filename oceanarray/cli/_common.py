@@ -10,6 +10,7 @@ from typing import NoReturn
 
 from oceanarray import paths
 from oceanarray.cli._deprecate import DeprecatedAlias
+from oceanarray.config import parameters as params
 from oceanarray.pipeline import resolve_stage
 
 log = logging.getLogger(__name__)
@@ -149,17 +150,35 @@ def _add_stack_grid_args(
     *hidden* keeps them working but out of ``--help`` (``process``, where they only
     serve the deprecated ``--stage stack|grid``).
     """
-    from ..pipeline._run import DEFAULTS
-
     # The flags spell the Python keywords; the time step carries its unit.
     flags = (
-        ("--dt-seconds", "dt_seconds", int, "SECONDS", "Stack time step, in seconds"),
-        ("--dp", "dp", float, "DBAR", "Grid spacing, in dbar"),
-        ("--pmin", "pmin", float, "DBAR", "Shallowest grid level, in dbar"),
-        ("--pmax", "pmax", float, "DBAR", "Deepest grid level, in dbar"),
+        (
+            "--dt-seconds",
+            "dt_seconds",
+            int,
+            "SECONDS",
+            "Stack time step, in seconds",
+            params.STACK_DT_SECONDS,
+        ),
+        ("--dp", "dp", float, "DBAR", "Grid spacing, in dbar", params.GRID_DP_DBAR),
+        (
+            "--pmin",
+            "pmin",
+            float,
+            "DBAR",
+            "Shallowest grid level, in dbar",
+            params.GRID_PMIN_DBAR,
+        ),
+        (
+            "--pmax",
+            "pmax",
+            float,
+            "DBAR",
+            "Deepest grid level, in dbar",
+            params.GRID_PMAX_DBAR,
+        ),
     )
-    for flag, key, kind, metavar, text in flags:
-        default = DEFAULTS["stack" if key == "dt_seconds" else "grid"][key]
+    for flag, key, kind, metavar, text, default in flags:
         where = (
             f"the description's {'stack' if key == 'dt_seconds' else 'grid'}: "
             f"block, else {default:g}"

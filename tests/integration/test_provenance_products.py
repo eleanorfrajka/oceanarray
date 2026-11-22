@@ -20,7 +20,7 @@ from oceanarray import mooring, paths, provenance
 from oceanarray.exceptions import MooringError
 from oceanarray.pipeline import stage1
 from oceanarray.pipeline.concat import concat
-from oceanarray.pipeline.grid import _grid_file
+from oceanarray.pipeline.grid import _grid_file, grid_stale_reason
 from oceanarray.pipeline.read_mooring import read_mooring
 from oceanarray.pipeline.stack import _stack_file
 from oceanarray.readers import read
@@ -217,18 +217,35 @@ def test_a_current_stack_and_grid_are_kept(egm2016, caplog):
 
 
 def test_a_grid_level_float32_cannot_hold_still_keeps_the_grid_current(egm2016, caplog):
-    """p_start_dbar is stored as float32; 1800.3 read back still matches 1800.3."""
+    """pmin_dbar is stored as float32; 1800.3 read back still matches 1800.3."""
     cfg, folder = egm2016
     stack_path, ds = _stack_file(cfg, folder, force=False)
     kw = {"pmin": 1800.3, "pmax": 2400, "dp": 50, "stack_path": stack_path}
     grid_path = _grid_file(ds, cfg, folder, force=False, **kw)
     with xr.open_dataset(grid_path, engine="netcdf4") as g:
-        assert g.attrs["p_start_dbar"].dtype == np.float32
+        assert g.attrs["pmin_dbar"].dtype == np.float32
     with caplog.at_level(logging.INFO, logger="oceanarray"):
         _grid_file(ds, cfg, folder, force=False, **kw)
     assert "egM2_2016: grid current (egM2_2016_grid.nc)" in [
         r.getMessage() for r in caplog.records
     ]
+
+
+def test_a_grid_with_the_old_level_names_is_still_current(egm2016):
+    """A grid written by 0.6.x names its levels p_start_dbar / p_end_dbar; it is kept."""
+    cfg, folder = egm2016
+    stack_path, ds = _stack_file(cfg, folder, force=False)
+    grid_path = _grid(ds, cfg, folder, stack_path)
+    with xr.open_dataset(grid_path, engine="netcdf4") as g:
+        old = g.load()
+    old.attrs["p_start_dbar"] = old.attrs.pop("pmin_dbar")
+    old.attrs["p_end_dbar"] = old.attrs.pop("pmax_dbar")
+    old.to_netcdf(grid_path, engine="netcdf4")
+    assert grid_stale_reason(grid_path, stack_path, pmin=1800, pmax=2400, dp=50) is None
+    assert (
+        grid_stale_reason(grid_path, stack_path, pmin=1800, pmax=2500, dp=50)
+        == "pmax_dbar changed"
+    )
 
 
 def test_a_new_time_step_rebuilds_the_stack_and_grid(egm2016):

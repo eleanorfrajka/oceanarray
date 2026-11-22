@@ -25,6 +25,8 @@ from oceanarray.analysis.spectral import (
     select_levels,
     welch_segment,
 )
+from oceanarray.config import parameters as params
+from oceanarray.pipeline.dataset import OLD_GRID_ATTR_NAMES
 from oceanarray.pipeline.grid import grid
 from oceanarray.reports import _captions
 from oceanarray.reports._grid import (
@@ -85,6 +87,45 @@ def test_grid_steps_read_the_file(gridded):
     assert grid_step.settings == "50 dbar levels, 100–800 dbar"
     assert flags.what.startswith("Values flagged 4 (bad) left out before gridding")
     assert flags.settings.startswith("rule: 4")
+
+
+def test_a_grid_records_its_levels_as_pmin_and_pmax(gridded):
+    """A grid written now names its levels pmin_dbar / pmax_dbar, not the 0.6.x names."""
+    ds, _ = gridded
+    assert (ds.attrs["pmin_dbar"], ds.attrs["pmax_dbar"], ds.attrs["dp_dbar"]) == (
+        100,
+        800,
+        50,
+    )
+    assert not set(OLD_GRID_ATTR_NAMES) & set(ds.attrs)
+
+
+def test_grid_without_levels_uses_the_parameter_defaults(stack):
+    """No pmin/pmax/dp: the levels are GRID_PMIN_DBAR to GRID_PMAX_DBAR every GRID_DP_DBAR."""
+    ds = grid(stack)
+    assert (ds.attrs["pmin_dbar"], ds.attrs["pmax_dbar"], ds.attrs["dp_dbar"]) == (
+        params.GRID_PMIN_DBAR,
+        params.GRID_PMAX_DBAR,
+        params.GRID_DP_DBAR,
+    )
+    # 200, 220, ..., 1000 dbar.
+    np.testing.assert_array_equal(ds["pressure"].values, np.arange(200, 1001, 20))
+
+
+def test_grid_steps_read_a_grid_with_the_old_level_names(gridded, tmp_path):
+    """A grid written by 0.6.x (p_start_dbar / p_end_dbar) gives the same Grid step."""
+    ds, _ = gridded
+    old = ds.copy()
+    old.attrs = {
+        {new: o for o, new in OLD_GRID_ATTR_NAMES.items()}.get(k, k): v
+        for k, v in ds.attrs.items()
+    }
+    path = tmp_path / "dune2_1_2026_grid.nc"
+    old.to_netcdf(path, engine="netcdf4")
+    with xr.open_dataset(path, engine="netcdf4") as reopened:
+        assert "p_start_dbar" in reopened.attrs and "pmin_dbar" not in reopened.attrs
+        _, grid_step, _ = _captions.grid_steps(reopened, 22)
+    assert grid_step.settings == "50 dbar levels, 100–800 dbar"
 
 
 def test_stack_history_rows_without_a_recorded_rule(stack):

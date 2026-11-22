@@ -14,13 +14,6 @@ from oceanarray.config import parameters as params
 
 log = logging.getLogger(__name__)
 
-#: Stack and grid settings used when neither the call nor the description's
-#: ``stack:`` / ``grid:`` block gives one.
-DEFAULTS: dict[str, dict[str, float]] = {
-    "stack": {"dt_seconds": params.STACK_DT_SECONDS},
-    "grid": {"pmin": 200.0, "pmax": 1000.0, "dp": 20.0},
-}
-
 
 def run(
     mooring: str | PathLike | Mapping[str, Any],
@@ -68,7 +61,8 @@ def run(
     dt_seconds : int or None, optional
         Stack time step (s); default ``stack: dt_seconds``, else 3600.
     pmin, pmax, dp : float or None, optional
-        Grid pressure levels (dbar); default the ``grid:`` block, else 200, 1000, 20.
+        Grid pressure levels (dbar); default the ``grid:`` block, else
+        ``parameters.GRID_PMIN_DBAR``, ``GRID_PMAX_DBAR``, ``GRID_DP_DBAR``.
     mask_flags : iterable of int, or Mapping of str to iterable of int, optional
         Flags the stack pages hide and the grid leaves out (``stack_mask_flags``; see
         :func:`~oceanarray.pipeline.masking.resolve_mask_flags`); default
@@ -327,11 +321,19 @@ def _set_aside_stale(paths_: list[Path], why: str) -> None:
 def _resolve_settings(
     cfg: Mapping[str, Any], **given: float | None
 ) -> dict[str, float]:
-    """Return checked stack/grid settings: call, else description, else DEFAULTS."""
+    """Return checked stack/grid settings: call, else description, else the defaults."""
     from oceanarray.exceptions import MooringError
 
+    defaults = {
+        "stack": {"dt_seconds": params.STACK_DT_SECONDS},
+        "grid": {
+            "pmin": params.GRID_PMIN_DBAR,
+            "pmax": params.GRID_PMAX_DBAR,
+            "dp": params.GRID_DP_DBAR,
+        },
+    }
     out: dict[str, float] = {}
-    for block, keys in DEFAULTS.items():
+    for block, keys in defaults.items():
         from_yaml = cfg.get(block) or {}
         for key, default in keys.items():
             value = given.get(key)
@@ -437,7 +439,7 @@ def resolve_dt_seconds(mooring: Mapping[str, Any], given: int | None = None) -> 
         if from_yaml is not None:
             value, where = from_yaml, "the description's stack: block"
         else:
-            value, where = DEFAULTS["stack"]["dt_seconds"], "the default"
+            value, where = params.STACK_DT_SECONDS, "the default"
     problem = _dt_seconds_problem(value)
     if problem:
         raise MooringError(f"stack time step (from {where}): {problem}")

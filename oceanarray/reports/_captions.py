@@ -464,9 +464,10 @@ def grid_steps(
     list of Step
         Combine, Grid, Flags.
     """
-    attrs = ds.attrs
+    from oceanarray.pipeline.dataset import canonical_grid_attrs, time_step_seconds
+
+    attrs = canonical_grid_attrs(ds.attrs)
     history = str(attrs.get("history", ""))
-    from oceanarray.pipeline.dataset import time_step_seconds
 
     dt = time_step_seconds(ds)
     n = n_instruments or _n_from_history(history)
@@ -474,8 +475,8 @@ def grid_steps(
     dp = attrs.get("dp_dbar")
     if dp is None and len(pressure) > 1:
         dp = float(np.median(np.diff(pressure)))
-    pmin = attrs.get("p_start_dbar", pressure.min() if len(pressure) else np.nan)
-    pmax = attrs.get("p_end_dbar", pressure.max() if len(pressure) else np.nan)
+    pmin = attrs.get("pmin_dbar", pressure.min() if len(pressure) else np.nan)
+    pmax = attrs.get("pmax_dbar", pressure.max() if len(pressure) else np.nan)
     combine = _combine_what(n, dt, history)
     return [
         Step(

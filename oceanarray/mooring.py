@@ -1172,20 +1172,18 @@ def template(name: str, *, instruments: list[dict] | None = None) -> dict:
 def _format_optional_blocks() -> str:
     """Return the commented-out ``stack:``, ``grid:``, ``people:`` and ``source:`` blocks."""
     from oceanarray.config import parameters as params
-    from oceanarray.pipeline._run import DEFAULTS
 
-    st, gr = DEFAULTS["stack"], DEFAULTS["grid"]
     return "\n".join(
         [
             "optional: uncomment to change the stack and grid settings",
             "stack:",
-            f"  dt_seconds: {st['dt_seconds']:g}  # time step of the stack, seconds",
+            f"  dt_seconds: {params.STACK_DT_SECONDS:g}  # time step of the stack, seconds",
             f"  mask_flags: {list(params.MASK_FLAGS)}  # flags hidden from the pages "
             "and the grid; or {default: [4], velocity: [3, 4]}",
             "grid:",
-            f"  pmin: {gr['pmin']:g}  # shallowest grid level, dbar",
-            f"  pmax: {gr['pmax']:g}  # deepest grid level, dbar",
-            f"  dp: {gr['dp']:g}  # grid spacing, dbar",
+            f"  pmin: {params.GRID_PMIN_DBAR:g}  # shallowest grid level, dbar",
+            f"  pmax: {params.GRID_PMAX_DBAR:g}  # deepest grid level, dbar",
+            f"  dp: {params.GRID_DP_DBAR:g}  # grid spacing, dbar",
             "  # mask_flags: [3, 4]  # the grid may leave out more than the stack hides",
             "",
             "optional: who and where the data came from, for files that do not say",

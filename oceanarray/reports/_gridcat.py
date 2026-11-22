@@ -14,6 +14,7 @@ from oceanarray import logger, paths
 from oceanarray.analysis import site
 
 from ..config import parameters as params
+from ..pipeline.dataset import canonical_grid_attrs
 from ..plotters import helpers as _helpers
 from ..plotters import site as site_plots
 from ..plotters.site import section_cmap, symmetric_limit
@@ -576,6 +577,7 @@ def generate_gridcat_page(
         )
         report = resolve(_profile(captions["intro"]), context, _panels(captions))
         f = _masthead._fact
+        grid_attrs = canonical_grid_attrs(grid.attrs)
         facts = [
             fact
             for fact in _masthead_facts(stackcat, stack_path)
@@ -583,9 +585,9 @@ def generate_gridcat_page(
         ] + [
             f(
                 "Grid",
-                f"{float(grid.attrs['p_start_dbar']):g}–"
-                f"{float(grid.attrs['p_end_dbar']):g} every "
-                f"{float(grid.attrs['dp_dbar']):g}",
+                f"{float(grid_attrs['pmin_dbar']):g}–"
+                f"{float(grid_attrs['pmax_dbar']):g} every "
+                f"{float(grid_attrs['dp_dbar']):g}",
                 "dbar",
             ),
             f("Source file", grid_path.name),

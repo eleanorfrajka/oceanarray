@@ -154,9 +154,9 @@ def _run_grid(
     proc_dir: Path,
     *,
     force: bool = False,
-    p_start: float = 200.0,
-    p_end: float = 1000.0,
-    dp: float = 20.0,
+    p_start: float | None = None,
+    p_end: float | None = None,
+    dp: float | None = None,
     **_kw: Any,
 ) -> bool:
     """Run the grid stage (pressure-level interpolation) for *mooring*."""

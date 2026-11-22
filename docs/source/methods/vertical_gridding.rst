@@ -75,7 +75,9 @@ Pressure grid axis
 
    p_grid = numpy.arange(pmin, pmax + dp / 2, dp)   # dbar
 
-Default: 200 to 1000 dbar in 20 dbar steps.
+``pmin``, ``pmax`` and ``dp`` come from the call (or ``--pmin``, ``--pmax``,
+``--dp``), else the YAML's ``grid:`` block, else ``parameters.GRID_PMIN_DBAR``
+(200), ``GRID_PMAX_DBAR`` (1000) and ``GRID_DP_DBAR`` (20).
 
 Output
 ------
@@ -100,7 +102,9 @@ Output file
 ``proc/{mooring}/{mooring}_grid.nc``
 
 Global attributes are inherited from the stack file. The following attributes are added:
-``p_start_dbar``, ``p_end_dbar``, ``dp_dbar``. The ``history`` attribute is extended.
+``pmin_dbar``, ``pmax_dbar``, ``dp_dbar`` (grids written before 0.7.0 carry
+``p_start_dbar`` and ``p_end_dbar`` instead; both are read). The ``history`` attribute
+is extended.
 Each gridded variable carries a ``vertical_interpolation`` note in its attributes.
 
 The grid's report page is described in :doc:`../reports`.

@@ -190,8 +190,8 @@ class TestGridStructural:
         assert p.max() <= 600.0
 
     def test_pressure_attrs_recorded(self):
-        assert "p_start_dbar" in self._ds.attrs
-        assert "p_end_dbar" in self._ds.attrs
+        assert "pmin_dbar" in self._ds.attrs
+        assert "pmax_dbar" in self._ds.attrs
         assert "dp_dbar" in self._ds.attrs
 
     def test_temperature_variable_present(self):

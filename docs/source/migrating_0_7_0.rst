@@ -63,3 +63,16 @@ Tilt QC is on the geometric tilt only (``QC_TILT``, overridden by ``tilt_qc``), 
 ``pitch_qc`` / ``roll_qc``; the stack no longer carries them. A mooring YAML that
 still sets them gets a warning; remove them, and set ``tilt_qc`` to change the
 thresholds.
+
+Grid levels are ``pmin_dbar`` and ``pmax_dbar``
+-----------------------------------------------
+
+A grid file now records its pressure range as ``pmin_dbar`` and ``pmax_dbar`` (with
+``dp_dbar``, unchanged), the same words as ``pmin``/``pmax`` in the YAML, the call and
+the CLI. Grids written before carry ``p_start_dbar`` / ``p_end_dbar``; oceanarray still
+reads them (pages, the check whether a grid is current), but code of your own that reads
+these attributes should read the new names, falling back to the old ones for older
+files. The default levels (200 to 1000 dbar every 20 dbar) moved from
+``oceanarray.pipeline._run.DEFAULTS``, which is gone, to
+``oceanarray.config.parameters``: ``GRID_PMIN_DBAR``, ``GRID_PMAX_DBAR`` and
+``GRID_DP_DBAR`` (and ``STACK_DT_SECONDS`` for the stack's time step).

@@ -43,6 +43,7 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 What to do for each: *Upgrading from 0.6.1 to 0.7.0* (`migrating_0_7_0`).
 
+- Grid files name their levels `pmin_dbar` / `pmax_dbar` (were `p_start_dbar` / `p_end_dbar`, still read); the grid defaults are `config.parameters.GRID_*_DBAR`, not `_run.DEFAULTS` (#162).
 - All package errors derive from the new `OceanarrayError`; `StageError` is no longer a `MooringError` and moves to `oceanarray.exceptions` (#161).
 - `qc_ranges: pitch` / `roll` are no longer applied and `pitch_qc` / `roll_qc` are no longer written or stacked: tilt QC is geometric only (`tilt_qc`); the mooring check warns if they are set.
 

@@ -13,8 +13,8 @@ from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
 from oceanarray.physics import speed_direction
 from oceanarray.pipeline import _stage, attribution, masking
-from oceanarray.pipeline._run import DEFAULTS
 from oceanarray.pipeline.concat import chunks, is_site_stack, own_levels
+from oceanarray.pipeline.dataset import canonical_grid_attrs
 from oceanarray.pipeline.masking import (  # noqa: F401  (re-exported)
     VELOCITY_GROUP,
     resolve_mask_flags,
@@ -58,9 +58,9 @@ _GRID_EXCLUDE: frozenset[str] = frozenset(
 def grid(
     ds_stack: xr.Dataset,
     *,
-    pmin: float = 200.0,
-    pmax: float = 1000.0,
-    dp: float = 20.0,
+    pmin: float | None = None,
+    pmax: float | None = None,
+    dp: float | None = None,
     mask_flags: Iterable[int] | Mapping[str, Iterable[int]] | None = None,
     slope_angle: float | None = None,
 ) -> xr.Dataset:
@@ -86,8 +86,10 @@ def grid(
     ds_stack : xarray.Dataset
         The stack, as :func:`oceanarray.pipeline.stack.stack` returns it, or a site
         stack.
-    pmin, pmax, dp : float, optional
-        The pressure grid, in dbar.
+    pmin, pmax, dp : float or None, optional
+        The pressure grid, in dbar; default ``parameters.GRID_PMIN_DBAR``,
+        ``GRID_PMAX_DBAR`` and ``GRID_DP_DBAR``. Recorded as ``pmin_dbar``,
+        ``pmax_dbar`` and ``dp_dbar``.
     mask_flags : iterable of int, or Mapping of str to iterable of int, optional
         The grid's own rule (see
         :func:`oceanarray.pipeline.masking.resolve_mask_flags`), which must hide at
@@ -131,6 +133,9 @@ def grid(
             DeprecationWarning,
             stacklevel=2,
         )
+    pmin = params.GRID_PMIN_DBAR if pmin is None else pmin
+    pmax = params.GRID_PMAX_DBAR if pmax is None else pmax
+    dp = params.GRID_DP_DBAR if dp is None else dp
     p_grid = np.arange(pmin, pmax + dp * 0.5, dp)
     n_p = len(p_grid)
 
@@ -257,8 +262,8 @@ def grid(
         {
             **ds.attrs,
             "data_mode": "P",
-            "p_start_dbar": pmin,
-            "p_end_dbar": pmax,
+            "pmin_dbar": pmin,
+            "pmax_dbar": pmax,
             "dp_dbar": dp,
             "grid_mask_flags": masking.to_json(flags),
         }
@@ -352,14 +357,14 @@ def grid_stale_reason(
     if not grid_path.exists():
         return "no grid yet"
     with xr.open_dataset(grid_path, engine="netcdf4") as old:
-        attrs = dict(old.attrs)
+        attrs = canonical_grid_attrs(old.attrs)
     if (reason := provenance.release_change_reason(attrs)) is not None:
         return reason
     if attrs.get("stack_sha256") != provenance.sha256(stack_path):
         return f"{stack_path.name} changed"
     key = provenance.changed_attr(
         attrs,
-        {"p_start_dbar": float(pmin), "p_end_dbar": float(pmax), "dp_dbar": float(dp)},
+        {"pmin_dbar": float(pmin), "pmax_dbar": float(pmax), "dp_dbar": float(dp)},
     )
     if key is not None:
         return f"{key} changed"
@@ -511,7 +516,7 @@ def grid_site(
         deployments' own ``grid:`` settings are not used; a deployment whose
         settings differ from the site grid's is named in a warning.
     dp : float, optional
-        The grid spacing, in dbar; default 20.
+        The grid spacing, in dbar; default ``parameters.GRID_DP_DBAR``.
     mask_flags : iterable of int, or Mapping of str to iterable of int, optional
         As for :func:`grid`.
     slope_angle : float, optional
@@ -541,7 +546,7 @@ def grid_site(
     out_path = paths.product_file(stackcat.parent, site, "gridcat")
     if out_path.exists() and not overwrite:
         raise MooringError(f"{out_path} exists; pass overwrite=True (CLI --force).")
-    step = float(dp) if dp is not None else DEFAULTS["grid"]["dp"]
+    step = float(dp) if dp is not None else params.GRID_DP_DBAR
     try:
         if not step > 0:
             raise ValueError(f"dp={step:g} must be > 0")
@@ -623,16 +628,17 @@ class MooringGridder:
     def grid(
         self,
         mooring_name: str,
-        p_start: float = 200.0,
-        p_end: float = 1000.0,
-        dp: float = 20.0,
+        p_start: float | None = None,
+        p_end: float | None = None,
+        dp: float | None = None,
         force: bool = False,
     ) -> bool:
         """Interpolate the stacked mooring dataset onto a regular pressure grid.
 
         Reads ``{mooring}_stack.nc``, interpolates all variables onto a pressure
-        axis from *p_start* to *p_end* in steps of *dp* dbar, and writes
-        ``{mooring}_grid.nc``.
+        axis from *p_start* to *p_end* in steps of *dp* dbar (each defaults to
+        ``GRID_PMIN_DBAR``, ``GRID_PMAX_DBAR``, ``GRID_DP_DBAR`` in
+        :mod:`oceanarray.config.parameters`), and writes ``{mooring}_grid.nc``.
 
         Returns True on success, False on error.
         """

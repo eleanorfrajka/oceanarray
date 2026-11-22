@@ -59,9 +59,21 @@ DEFAULT_COLORMAP = "RdBu_r"  # red (warm) → blue (cold); good for temperature
 COLORBAR_PLOW = 5  # lower percentile for vmin
 COLORBAR_PHIGH = 95  # upper percentile for vmax
 
-# Time step of the stack, in seconds: used when neither the call (or
-# --dt-seconds) nor the mooring YAML's ``stack: dt_seconds`` gives one.
+#: Time step of the stack, in seconds: used when neither the call (or
+#: --dt-seconds) nor the mooring YAML's ``stack: dt_seconds`` gives one.
 STACK_DT_SECONDS: int = 3600
+
+#: Shallowest level of a mooring grid, in dbar: used when neither the call (or
+#: --pmin) nor the mooring YAML's ``grid: pmin`` gives one.
+GRID_PMIN_DBAR: float = 200.0
+
+#: Deepest level of a mooring grid, in dbar: used when neither the call (or
+#: --pmax) nor the mooring YAML's ``grid: pmax`` gives one.
+GRID_PMAX_DBAR: float = 1000.0
+
+#: Spacing of the grid levels, in dbar: used when neither the call (or --dp) nor
+#: the mooring YAML's ``grid: dp`` gives one.
+GRID_DP_DBAR: float = 20.0
 
 #: A recovery clock drift further than this (seconds) from the median of the other
 #: instruments on the same mooring is reported by the mooring check: a mistyped reading

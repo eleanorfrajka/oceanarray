@@ -2,8 +2,18 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+from typing import Any
+
 import numpy as np
 import xarray as xr
+
+#: Grid attributes renamed in 0.7.0, old name to new: grids written by 0.6.x carry
+#: the pressure range as ``p_start_dbar`` / ``p_end_dbar``.
+OLD_GRID_ATTR_NAMES: dict[str, str] = {
+    "p_start_dbar": "pmin_dbar",
+    "p_end_dbar": "pmax_dbar",
+}
 
 
 def drop_all_zero_vars(ds: xr.Dataset, prefixes: list[str]) -> xr.Dataset:
@@ -86,3 +96,24 @@ def time_step_seconds(ds: xr.Dataset) -> float:
         return float("nan")
     steps = np.diff(ds["time"].values) / np.timedelta64(1, "s")
     return float(np.median(steps))
+
+
+def canonical_grid_attrs(attrs: Mapping[str, Any]) -> dict[str, Any]:
+    """Return a grid file's global attributes under their names since 0.7.0.
+
+    Parameters
+    ----------
+    attrs : Mapping
+        The global attributes of a grid or site grid, of any version.
+
+    Returns
+    -------
+    dict
+        A copy of *attrs* with each name in :data:`OLD_GRID_ATTR_NAMES` renamed,
+        unless the new name is already there.
+    """
+    out = dict(attrs)
+    for old, new in OLD_GRID_ATTR_NAMES.items():
+        if old in out and new not in out:
+            out[new] = out.pop(old)
+    return out

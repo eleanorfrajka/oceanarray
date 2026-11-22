@@ -249,10 +249,9 @@ ignore_imports = [
   "oceanarray.config.validation -> oceanarray.paths",
   "oceanarray.config.validation -> oceanarray.instruments",
   # To change, and a cycle (pipeline.stack and pipeline.concat import mooring): the
-  # mooring YAML reads pipeline helpers and defaults; those pieces move below mooring.
+  # mooring YAML reads pipeline helpers; those pieces move below mooring.
   "oceanarray.mooring -> oceanarray.pipeline.attribution",
   "oceanarray.mooring -> oceanarray.pipeline.masking",
-  "oceanarray.mooring -> oceanarray.pipeline._run",
   # To change: readers use pipeline helpers (they move below the readers).
   "oceanarray.readers.rodb -> oceanarray.pipeline.pressure",
   "oceanarray.readers.oceansites -> oceanarray.pipeline.pressure",

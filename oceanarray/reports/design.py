@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import os
 
+from oceanarray.pipeline.dataset import OLD_GRID_ATTR_NAMES
 from oceanarray.reports._vendored.css import (
     _JS_SORT_TABLES,
     _JS_TOP_LINKS,
@@ -121,8 +122,9 @@ ATTR_GROUP_EXTRAS: dict[str, tuple[str, ...]] = {
         "QC_manual",
         "dt_seconds",
         "dp_dbar",
-        "p_start_dbar",
-        "p_end_dbar",
+        "pmin_dbar",
+        "pmax_dbar",
+        *OLD_GRID_ATTR_NAMES,
         "density_reference",
         "pressure_units",
     ),

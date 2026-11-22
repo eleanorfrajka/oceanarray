@@ -167,8 +167,8 @@ each marked "To change": the readers using pipeline helpers, the sensor catalog
 and provenance using a pipeline or writer helper, and two **cycles**, where the
 lower module imports back inside a function to avoid a circular import at load
 time: ``mooring`` and ``pipeline`` (``pipeline.stack`` and ``pipeline.concat``
-import ``mooring``; ``mooring`` uses ``pipeline.attribution``, ``masking`` and
-``_run``), and ``mooring`` and ``config/validation.py``. A cycle is fixed by
+import ``mooring``; ``mooring`` uses ``pipeline.attribution`` and ``masking``),
+and ``mooring`` and ``config/validation.py``. A cycle is fixed by
 moving the shared pieces below both modules, not by deleting a line. A pull
 request that removes an exception deletes its line; a new one fails the lint job.
 ``pipeline/_run.py`` importing ``reports`` is allowed: ``run`` ends with the
@@ -513,11 +513,9 @@ import.
 
 **Not.** A literal default in a function signature that duplicates a constant;
 defaults in a second table; reassigning a parameter to change one call's behavior.
-*Planned for 0.7.0:* the grid's ``pmin``/``pmax``/``dp`` move from
-``pipeline/_run.DEFAULTS`` to ``config/parameters.py``, and the three signatures
-that repeat 200/1000/20 read them; ``reports/_verb.py`` passes ``SIGMA_GRID`` as an
-argument instead of swapping the module value; ``OCEANARRAY_RAISE_ON_PLOT_ERROR``
-is read at render time instead of at import.
+*Planned for 0.7.0:* ``reports/_verb.py`` passes ``SIGMA_GRID`` as an argument
+instead of swapping the module value; ``OCEANARRAY_RAISE_ON_PLOT_ERROR`` is read at
+render time instead of at import.
 
 3.11 Deprecations
 ~~~~~~~~~~~~~~~~~
@@ -867,10 +865,8 @@ The rest:
 - With the shared report layer: the line under a figure or table that names the
   function that made it changes from ``source:`` to ``code:``; the page model's
   ``Profile`` and ``Section`` become ``Layout`` and ``Part``.
-- 0.7.0: the grid attributes ``p_start_dbar`` / ``p_end_dbar`` become
-  ``pmin_dbar`` / ``pmax_dbar`` (files with the old names are still read), and the
-  ``p_start`` / ``p_end`` keywords become ``pmin`` / ``pmax`` (old keywords
-  deprecated).
+- 0.7.0: the ``p_start`` / ``p_end`` keywords become ``pmin`` / ``pmax`` (old
+  keywords deprecated).
 
 **Names that do not follow the table yet** (renamed in the module naming review):
 ``compute_*`` and ``calc_*`` become bare nouns (``compute_adcp_bin_pressure``,
@@ -1154,10 +1150,6 @@ that makes the change.
      - Configuration separate from location
      - From the call, a CLI flag or a user configuration file (section 3.9)
      - planned
-   * - Defaults in ``config/parameters.py`` and ``pipeline/_run.DEFAULTS``
-     - One place
-     - All in ``config/parameters.py`` (section 3.10)
-     - 0.7.0
    * - Docs build without ``-W``
      - Warnings as errors
      - ``-W --keep-going``, once the current warnings are cleared

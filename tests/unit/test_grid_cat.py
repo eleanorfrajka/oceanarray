@@ -232,9 +232,7 @@ def test_concat_writes_the_site_grid_and_both_pages(egm2):
         assert len(ds.attrs["stackcat_sha256"]) == 64
         assert ds.attrs["dp_dbar"] == 50
         with xr.open_dataset(folder / "egM2_stackcat.nc", engine="netcdf4") as sc:
-            assert (ds.attrs["p_start_dbar"], ds.attrs["p_end_dbar"]) == site_levels(
-                sc, 50
-            )
+            assert (ds.attrs["pmin_dbar"], ds.attrs["pmax_dbar"]) == site_levels(sc, 50)
     page = (folder / "report" / "egM2_gridcat_report.html").read_text(encoding="utf-8")
     # Sections, anomalies, T and S profiles and the T-S diagram; one current meter
     # per deployment gives no velocity grid (two levels are needed to interpolate).
