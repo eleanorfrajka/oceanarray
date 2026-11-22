@@ -129,7 +129,8 @@ the code (analytic case, invariant, a ``gsw`` cross-check).
    * - Config
      - ``config/``
      - The variable registry and defaults (``parameters.py``), unit tables, flag
-       translation table, mooring YAML validation.
+       translation table (``flag_meanings.yaml``), mooring YAML validation. Tables
+       only: the code that reads and applies them lives above.
    * - CLI
      - ``cli/``
      - One module per subcommand; argument parsing only. Nothing the CLI does is
@@ -152,7 +153,7 @@ for a page).
   ``reports`` → ``plotters`` → ``analysis`` → ``pipeline`` → ``readers`` and
   ``writers`` → the mooring YAML and its helpers (``mooring``, ``catalog``,
   ``provenance``, ``logger``, ``paths``, ``instruments``, ``location``,
-  ``physics``, ``inspect``) → ``config`` and ``_deprecated`` → ``exceptions``. The
+  ``physics``, ``inspect``, ``mask_rules``, ``originator_flags``) → ``config`` and ``_deprecated`` → ``exceptions``. The
   shared report layer (``reports/_vendored/``) may be used by every part and
   imports none of them.
 - ``plotters/`` never imports a ``reports/`` module directly (the shared report
@@ -163,12 +164,11 @@ for a page).
 - Nothing outside ``legacy/`` imports ``oceanarray.legacy``.
 
 The imports that break a rule today are listed as exceptions in the contracts,
-each marked "To change": the readers using pipeline helpers, the sensor catalog
-and provenance using a pipeline or writer helper, and two **cycles**, where the
-lower module imports back inside a function to avoid a circular import at load
-time: ``mooring`` and ``pipeline`` (``pipeline.stack`` and ``pipeline.concat``
-import ``mooring``; ``mooring`` uses ``pipeline.attribution`` and ``masking``),
-and ``mooring`` and ``config/validation.py``. A cycle is fixed by
+each marked "To change": the readers using pipeline helpers, provenance using a
+writer helper, and two **cycles**, where the lower module imports back inside a
+function to avoid a circular import at load time: ``mooring`` and ``pipeline``
+(``pipeline.stack`` and ``pipeline.concat`` import ``mooring``; ``mooring`` uses
+``pipeline.attribution``), and ``mooring`` and ``config/validation.py``. A cycle is fixed by
 moving the shared pieces below both modules, not by deleting a line. A pull
 request that removes an exception deletes its line; a new one fails the lint job.
 ``pipeline/_run.py`` importing ``reports`` is allowed: ``run`` ends with the
@@ -269,7 +269,7 @@ is what gets shared.
 
    _stage.append_history(
        ds_out,
-       f"flags: values flagged {masking.rule_words(flags)} left out before gridding "
+       f"flags: values flagged {mask_rules.rule_words(flags)} left out before gridding "
        "(grid_mask_flags)",
    )
 

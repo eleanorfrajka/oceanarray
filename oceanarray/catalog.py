@@ -43,6 +43,7 @@ import numpy as np
 import xarray as xr
 import yaml
 
+from oceanarray import originator_flags
 from oceanarray.exceptions import MooringError
 
 #: The maker's label prefix of each instrument type, as the catalog keys it.
@@ -225,8 +226,6 @@ def measured_pressure(ds: xr.Dataset) -> tuple[bool, str]:
     why : str
         One phrase for the log.
     """
-    from oceanarray.pipeline.qc import originator
-
     if "pressure" not in ds.data_vars:
         return False, "no pressure values"
     here = np.isfinite(ds["pressure"].values)
@@ -236,7 +235,7 @@ def measured_pressure(ds: xr.Dataset) -> tuple[bool, str]:
         return True, "pressure values, not flagged"
     lut = {
         num: ours
-        for num, _, ours in originator.dictionary(ds["pressure_qc_originator"])
+        for num, _, ours in originator_flags.dictionary(ds["pressure_qc_originator"])
         if ours is not None
     }
     # Only the samples with a value: a gap flagged 9 says nothing of the sensor.

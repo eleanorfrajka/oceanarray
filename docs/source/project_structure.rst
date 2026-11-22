@@ -21,6 +21,8 @@ Package layout
    │   ├── paths.py                   # file names, suffixes and folder layout
    │   ├── catalog.py                 # the sensor catalog: what each instrument is, by serial
    │   ├── physics.py                 # seawater and current formulas shared by pipeline and pages
+   │   ├── mask_rules.py              # mask_flags rules: parse, combine, describe, record
+   │   ├── originator_flags.py        # originator flag words → our flags (reads config/flag_meanings.yaml)
    │   ├── provenance.py              # which oceanarray wrote a file (version, commit)
    │   ├── inspect.py                 # quick dataset inspection for interactive use
    │   ├── logger.py                  # logging configuration, status lines
@@ -42,7 +44,7 @@ Package layout
    │   │   ├── _stage.py              # the stage marker; append_history
    │   │   ├── raw_files.py           # finding and reading each instrument's raw file
    │   │   ├── stamp.py               # marking pre-0.6 stage files with their stage
-   │   │   ├── masking.py             # which flagged values the pages and the grid hide
+   │   │   ├── masking.py             # hides the flagged values a mask rule names
    │   │   ├── pressure.py            # pressure interpolation for stage 3
    │   │   ├── coordinate.py          # BEAM → XYZ → ENU transforms
    │   │   ├── units.py               # canonical units

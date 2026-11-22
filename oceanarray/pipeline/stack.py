@@ -8,7 +8,7 @@ from typing import Any
 import numpy as np
 import xarray as xr
 
-from oceanarray import catalog, logger, paths, provenance
+from oceanarray import catalog, logger, mask_rules, paths, provenance
 from oceanarray import mooring as _mooring
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
@@ -18,13 +18,13 @@ from oceanarray.location import (
     parse_latlon,
     parse_latlon_with_source,
 )
+from oceanarray.originator_flags import MAPPED_SUFFIX
 from oceanarray.paths import safe_serial
 from oceanarray.physics import potential_density_anomaly, speed_direction
-from oceanarray.pipeline import _stage, attribution, masking, sensors
+from oceanarray.pipeline import _stage, attribution, sensors
 from oceanarray.pipeline.dataset import drop_all_zero_vars, time_axis
 from oceanarray.pipeline.pressure import _times_to_float
 from oceanarray.pipeline.qc import _worst_flag
-from oceanarray.pipeline.qc.originator import MAPPED_SUFFIX
 from oceanarray.pipeline.read_mooring import read_mooring
 from oceanarray.pipeline.units import UnitsError, to_canonical_units
 from oceanarray.writers import write
@@ -70,7 +70,7 @@ STACK_VARS = [
 
 #: The originator's flags, translated to our table at stage 3, carried for each
 #: variable an originator file can hold (``<var>_qc_originator_mapped``).
-STACK_VARS += [f"{v}{MAPPED_SUFFIX}" for v in masking.FLAGGED_VARIABLES]
+STACK_VARS += [f"{v}{MAPPED_SUFFIX}" for v in mask_rules.FLAGGED_VARIABLES]
 
 
 def _is_flag(name: str) -> bool:
@@ -302,7 +302,7 @@ def stack(
         shown in the report's amber note (e.g. ``"stage 3 failed in this run"``).
     mask_flags : iterable of int, or Mapping of str to iterable of int, optional
         The flags hidden from the pages and left out of the grid
-        (:func:`oceanarray.pipeline.masking.resolve_mask_flags`); ``None`` takes
+        (:func:`oceanarray.mask_rules.resolve_mask_flags`); ``None`` takes
         ``stack: mask_flags`` from *mooring*, else ``parameters.MASK_FLAGS`` (4).
 
     Returns
@@ -323,7 +323,7 @@ def stack(
     mooring_name = mooring["name"]
     omitted = list(omitted or [])
     try:
-        rule = masking.stack_rule(mooring, mask_flags)
+        rule = mask_rules.stack_rule(mooring, mask_flags)
     except ValueError as exc:
         raise MooringError(f"{mooring_name}: {exc}") from exc
 
@@ -829,7 +829,7 @@ def stack(
     # Physics derived here use only the values the rule does not hide.
     def _usable(name: str) -> np.ndarray:
         values = stacked[name].copy()
-        hide = masking.flags_for(rule, name)
+        hide = mask_rules.flags_for(rule, name)
         for flag in (f"{name}_qc", f"{name}{MAPPED_SUFFIX}"):
             if flag in data_vars:
                 values[np.isin(data_vars[flag].values, hide)] = np.nan
@@ -1104,8 +1104,8 @@ def stack(
             "deployment_time": _stage.iso_time(deploy_time),
             "recovery_time": _stage.iso_time(recover_time),
             "dt_seconds": dt_seconds,
-            masking.STACK_ATTR: masking.to_json(rule),
-            "stack_mask_flag_sources": masking.FLAG_SOURCES,
+            mask_rules.STACK_ATTR: mask_rules.to_json(rule),
+            "stack_mask_flag_sources": mask_rules.FLAG_SOURCES,
             # What built this stack, as YAML a description can take back.
             "deployment_settings": _mooring.settings_yaml(
                 mooring_config, stack={"dt_seconds": dt_seconds}
@@ -1125,9 +1125,9 @@ def stack(
     )
     _stage.append_history(
         ds_out,
-        f"flags: values flagged {masking.rule_words(rule)} by oceanarray or the "
+        f"flags: values flagged {mask_rules.rule_words(rule)} by oceanarray or the "
         "originator hidden on the stack pages and left out of the grid "
-        f"({masking.STACK_ATTR})",
+        f"({mask_rules.STACK_ATTR})",
     )
 
     # The people stage 1 cleaned for each instrument, joined without repeats. A
@@ -1456,8 +1456,8 @@ def stack_stale_reason(
     )
     if _stack_settings(str(attrs.get("deployment_settings", ""))) != want:
         return "the description's settings for the stack changed"
-    if attrs.get(masking.STACK_ATTR) != masking.to_json(
-        masking.stack_rule(mooring, mask_flags)
+    if attrs.get(mask_rules.STACK_ATTR) != mask_rules.to_json(
+        mask_rules.stack_rule(mooring, mask_flags)
     ):
         return "mask_flags changed"
     # Stage 1 applies people:, source: and the sensor catalog, so a new stack from

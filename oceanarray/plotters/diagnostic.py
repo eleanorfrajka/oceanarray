@@ -1076,7 +1076,7 @@ def draw_data_histogram(
     width_in : float, optional
         Figure width (inches), the report slot; default the full content width.
     rule : dict or None, optional
-        The flag rule (``masking.resolve_mask_flags``): a value is kept unless
+        The flag rule (``mask_rules.resolve_mask_flags``): a value is kept unless
         oceanarray's or the originator's flag is in it. Without one, the rule the
         file records, else the default.
 
@@ -1090,12 +1090,13 @@ def draw_data_histogram(
 
     import matplotlib.pyplot as plt
 
+    from oceanarray import mask_rules
     from oceanarray.pipeline import masking
 
     from ..config import parameters as params
 
     with as_dataset(nc_path) as ds:
-        rule = masking.from_attrs(ds.attrs) if rule is None else rule
+        rule = mask_rules.from_attrs(ds.attrs) if rule is None else rule
         panels = _instrument_panels(ds)
         _HIST_EXCLUDE = {"battery_voltage"}
         plot_panels: list = [

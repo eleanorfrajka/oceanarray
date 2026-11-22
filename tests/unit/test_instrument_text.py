@@ -13,8 +13,8 @@ from pathlib import Path
 
 import xarray as xr
 
+from oceanarray.mask_rules import resolve_mask_flags
 from oceanarray.pipeline import _stage
-from oceanarray.pipeline.masking import resolve_mask_flags
 from oceanarray.reports import _instrument_text as it
 from oceanarray.reports._captions import rule_sentence
 from oceanarray.reports._html_helpers import _build_history_tables, _parse_history

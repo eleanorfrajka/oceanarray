@@ -21,13 +21,12 @@ import pytest
 import xarray as xr
 
 import oceanarray as oa
-from oceanarray import mooring, physics
+from oceanarray import mask_rules, mooring, physics
 from oceanarray.location import parse_latlon
-from oceanarray.pipeline import masking
+from oceanarray.originator_flags import MAPPED_SUFFIX
 from oceanarray.pipeline.coordinate import apply_beam_to_enu
 from oceanarray.pipeline.grid import _speed_direction as _grid_speed_direction
 from oceanarray.pipeline.grid import grid
-from oceanarray.pipeline.qc.originator import MAPPED_SUFFIX
 from oceanarray.pipeline.read_mooring import read_mooring
 from oceanarray.pipeline.stack import _build_adcp_bin_ds
 
@@ -168,7 +167,7 @@ def test_stack_potential_density_is_unchanged(folder: pathlib.Path, name: str) -
         with warnings.catch_warnings(), contextlib.redirect_stdout(io.StringIO()):
             warnings.simplefilter("ignore")
             st = oa.stack({k: v.copy(deep=True) for k, v in data.items()}, cfg)
-        rule = masking.from_attrs(st.attrs)
+        rule = mask_rules.from_attrs(st.attrs)
 
         def usable(var: str, st: xr.Dataset = st, rule: dict = rule) -> np.ndarray:
             values = st[var].transpose("N_LEVELS", "time").values.astype(float)
@@ -176,7 +175,7 @@ def test_stack_potential_density_is_unchanged(folder: pathlib.Path, name: str) -
                 if flag in st:
                     hide = np.isin(
                         st[flag].transpose("N_LEVELS", "time").values,
-                        masking.flags_for(rule, var),
+                        mask_rules.flags_for(rule, var),
                     )
                     values[hide] = np.nan
             return values

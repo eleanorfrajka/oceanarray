@@ -16,6 +16,7 @@ import xarray as xr
 from oceanarray import provenance
 from oceanarray.config.parameters import ADCP_BIN_DIM
 from oceanarray.exceptions import ReaderError
+from oceanarray.originator_flags import vocabulary
 
 log = logging.getLogger(__name__)
 
@@ -179,8 +180,6 @@ def _outside_valid_range(
 
 def _usable_flag_variable(da: xr.DataArray, data: xr.DataArray) -> str | None:
     """Return why a ``<CODE>_flag`` variable cannot be used as flags, or None."""
-    from oceanarray.pipeline.qc.originator import vocabulary
-
     if da.dtype.kind not in "iuf":
         return "not numeric"
     if da.shape != data.shape:

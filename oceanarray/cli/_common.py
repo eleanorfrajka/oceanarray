@@ -234,7 +234,7 @@ def _mask_flags(args: argparse.Namespace) -> dict[str, tuple[int, ...]] | None:
     Each token is ``4`` (the default for every variable) or ``VAR=3,4`` (one
     exception); a bad token is a usage error.
     """
-    from oceanarray.pipeline.masking import resolve_mask_flags
+    from oceanarray.mask_rules import resolve_mask_flags
 
     tokens = getattr(args, "mask_flags", None)
     if not tokens:

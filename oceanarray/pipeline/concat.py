@@ -18,14 +18,14 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+from oceanarray import mask_rules, paths, provenance
 from oceanarray import mooring as _mooring
-from oceanarray import paths, provenance
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
 from oceanarray.location import parse_coordinate
-from oceanarray.pipeline import _stage, attribution, masking, sensors
+from oceanarray.originator_flags import MAPPED_SUFFIX
+from oceanarray.pipeline import _stage, attribution, sensors
 from oceanarray.pipeline.dataset import time_axis
-from oceanarray.pipeline.qc.originator import MAPPED_SUFFIX
 from oceanarray.provenance import sha256
 from oceanarray.writers import write
 
@@ -421,7 +421,7 @@ _OWN_ATTRS = frozenset(
         "license",
         "references",
         "people_not_cleaned",
-        masking.STACK_ATTR,
+        mask_rules.STACK_ATTR,
         *attribution.PI_ATTRS.values(),
         *attribution.CONTRIBUTOR_ATTRS.values(),
     }
@@ -504,10 +504,10 @@ def concat(
     ]
     dt = _check_time_steps(stacks, names)
     reference, tolerance = _depth_rule(stacks, names)
-    own_rules = [masking.to_json(masking.from_attrs(ds.attrs)) for ds in stacks]
+    own_rules = [mask_rules.to_json(mask_rules.from_attrs(ds.attrs)) for ds in stacks]
     if mask_flags is not None:
         try:
-            site_rule = masking.to_json(masking.resolve_mask_flags(mask_flags))
+            site_rule = mask_rules.to_json(mask_rules.resolve_mask_flags(mask_flags))
         except ValueError as exc:
             raise MooringError(f"{name}: {exc}") from exc
     elif len(set(own_rules)) > 1:
@@ -969,8 +969,8 @@ def concat(
             "depth_match": reference,
             "depth_tolerance_m": tolerance,
             "overlap_rule": overlap,
-            masking.STACK_ATTR: site_rule,
-            "stack_mask_flag_sources": masking.FLAG_SOURCES,
+            mask_rules.STACK_ATTR: site_rule,
+            "stack_mask_flag_sources": mask_rules.FLAG_SOURCES,
             **(
                 {
                     "latitude": float(np.nanmedian(finite_lats)),
@@ -1003,10 +1003,10 @@ def concat(
     )
     _stage.append_history(
         out,
-        f"flags: values flagged {masking.rule_words(masking.from_attrs(out.attrs))} "
+        f"flags: values flagged {mask_rules.rule_words(mask_rules.from_attrs(out.attrs))} "
         "by oceanarray or the originator hidden on the site pages and left out of "
         "the site grid "
-        f"({masking.STACK_ATTR})",
+        f"({mask_rules.STACK_ATTR})",
     )
     return attribution.apply_product_citation(out, f"{name} site stack", sources)
 

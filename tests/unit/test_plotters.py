@@ -361,7 +361,7 @@ def test_instrument_rose_leaves_out_what_the_rule_hides():
     """A rule hiding every flag the file has leaves nothing to draw."""
     import matplotlib.pyplot as plt
 
-    from oceanarray.pipeline.masking import resolve_mask_flags
+    from oceanarray.mask_rules import resolve_mask_flags
 
     everything = resolve_mask_flags([0, 1, 2, 3, 4, 5, 7, 8, 9])
     fig = draw_instrument_rose(_EGM2_CM, width_in=W_FULL, rule=everything)

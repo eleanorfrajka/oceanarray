@@ -12,9 +12,9 @@ from typing import Any
 from oceanarray import paths
 from oceanarray.paths import should_skip_regeneration
 
+from .. import mask_rules
 from ..config import parameters as params
 from ..paths import safe_serial
-from ..pipeline import masking
 from . import _captions, _html_helpers, _instrument_text, _qcflags
 from ._breadcrumb import page_crumbs
 from ._env import (
@@ -517,7 +517,7 @@ def generate_instrument_pages(
         captions: dict[str, str] = {}
         # The flag rule the stack and grid apply, chosen once for every figure and
         # caption of the page.
-        rule = masking.stack_rule(cfg)
+        rule = mask_rules.stack_rule(cfg)
         ds_page = None
         if best_nc:
             try:

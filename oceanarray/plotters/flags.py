@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from oceanarray.config import parameters as params
-from oceanarray.pipeline.masking import FLAGGED_VARIABLES
-from oceanarray.pipeline.qc.originator import MAPPED_SUFFIX
+from oceanarray.mask_rules import FLAGGED_VARIABLES
+from oceanarray.originator_flags import MAPPED_SUFFIX
 from oceanarray.reports._vendored import design_tokens as report_tokens
 
 from .helpers import QC_COLORS

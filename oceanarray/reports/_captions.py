@@ -17,11 +17,11 @@ from typing import Any
 
 import numpy as np
 
+from oceanarray import mask_rules
 from oceanarray.analysis.derived import ROSE_MIN_FILLED
 from oceanarray.analysis.spectral import SPECTRAL_MIN_FILLED
 from oceanarray.config import parameters as params
-from oceanarray.pipeline import masking
-from oceanarray.pipeline.qc.originator import MAPPED_SUFFIX
+from oceanarray.originator_flags import MAPPED_SUFFIX
 from oceanarray.plotters.helpers import duration_words
 
 from ._navs import _type_label
@@ -206,7 +206,7 @@ def _rule(attrs: Mapping, key: str) -> dict | None:
     if not text:
         return None
     try:
-        return masking.resolve_mask_flags(json.loads(str(text)))
+        return mask_rules.resolve_mask_flags(json.loads(str(text)))
     except (ValueError, TypeError):
         return None
 
@@ -254,7 +254,7 @@ def flag_sentence(
         return "Which flags were left out is not recorded in this file."
     groups: dict[tuple[int, ...], list[str]] = {}
     for v in variables:
-        groups.setdefault(masking.flags_for(rule, v), []).append(v)
+        groups.setdefault(mask_rules.flags_for(rule, v), []).append(v)
     if len(groups) <= 1:
         flags = next(iter(groups), tuple(rule["default"]))
         if not flags:
@@ -287,7 +287,7 @@ def rule_sentence(
     Parameters
     ----------
     rule : Mapping or None
-        The flag rule (``masking.resolve_mask_flags``); None when the file does
+        The flag rule (``mask_rules.resolve_mask_flags``); None when the file does
         not record one.
     variables : sequence of str
         The variables the figure shows.
@@ -309,7 +309,7 @@ def rule_sentence(
         return "Which flags were left out is not recorded in this file."
     groups: dict[tuple[int, ...], list[str]] = {}
     for v in variables:
-        groups.setdefault(masking.flags_for(rule, v), []).append(v)
+        groups.setdefault(mask_rules.flags_for(rule, v), []).append(v)
     if not groups:
         groups = {tuple(rule["default"]): []}
     if ours and theirs:
@@ -351,12 +351,12 @@ def stack_rule_sentence(ds: Any, variables: Sequence[str]) -> str:
     """
     names = set(getattr(ds, "data_vars", ()))
     present = [v for v in variables if v in names] or list(variables)
-    rule = _rule(ds.attrs, masking.STACK_ATTR)
+    rule = _rule(ds.attrs, mask_rules.STACK_ATTR)
     if rule is None:
         ours = any(f"{v}_qc" in names for v in present)
         theirs = any(f"{v}{MAPPED_SUFFIX}" in names for v in present)
         return rule_sentence(
-            masking.resolve_mask_flags(None),
+            mask_rules.resolve_mask_flags(None),
             present,
             ours=ours or not theirs,
             theirs=theirs,
@@ -440,7 +440,7 @@ def _flags_step(attrs: Mapping, key: str, action: str) -> Step:
     return Step(
         "Flags",
         what,
-        f"rule: {masking.rule_words(rule, table=True)}"
+        f"rule: {mask_rules.rule_words(rule, table=True)}"
         + (f" ({source})" if source else ""),
     )
 
@@ -600,8 +600,8 @@ def stack_history_rows(ds: Any) -> list[HistoryRow]:
         rule = _rule(attrs, key)
         if rule is None:
             return ""
-        source = _rule_sources(attrs) if key == masking.STACK_ATTR else ""
-        return f"rule: {masking.rule_words(rule, table=True)}" + (
+        source = _rule_sources(attrs) if key == mask_rules.STACK_ATTR else ""
+        return f"rule: {mask_rules.rule_words(rule, table=True)}" + (
             f" ({source})" if source else ""
         )
 
@@ -626,7 +626,11 @@ def stack_history_rows(ds: Any) -> list[HistoryRow]:
 
     def settings(text: str) -> str:
         if text.startswith("flags:"):
-            key = "grid_mask_flags" if "grid_mask_flags" in text else masking.STACK_ATTR
+            key = (
+                "grid_mask_flags"
+                if "grid_mask_flags" in text
+                else mask_rules.STACK_ATTR
+            )
             return flags(key)
         return next((f() for prefix, f in by_prefix if text.startswith(prefix)), "")
 

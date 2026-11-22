@@ -14,9 +14,8 @@ from typing import Any
 import numpy as np
 from markupsafe import Markup
 
-from oceanarray import location, logger, paths
+from oceanarray import location, logger, mask_rules, paths
 from oceanarray.analysis.derived import derived_fields
-from oceanarray.pipeline import masking
 from oceanarray.pipeline.concat import (
     adcp_bins,
     cell_deployment,
@@ -914,7 +913,7 @@ def _report_view(ds: Any) -> Any:
 
 #: The variables left out with each family's short records.
 _FAMILY_VARIABLES: dict[str, frozenset[str]] = {
-    "velocity": masking.VELOCITY_GROUP,
+    "velocity": mask_rules.VELOCITY_GROUP,
     "hydrography": frozenset(
         {"temperature", "salinity", "conductivity", "pressure", "dissolved_oxygen"}
     ),
@@ -1252,7 +1251,7 @@ def generate_concat_page(
             if analog_vars
             else None
         )
-        qc_ruled = masking.STACK_ATTR in ds.attrs
+        qc_ruled = mask_rules.STACK_ATTR in ds.attrs
         figs["qc_strip"] = (
             as_panel(
                 lambda: _make_flag_strip_b64(
@@ -1271,13 +1270,13 @@ def generate_concat_page(
         context = ConcatContext(
             figs=figs,
             qc_rows=qc_rows,
-            qc_rule=masking.rule_words(masking.from_attrs(ds.attrs), table=True)
+            qc_rule=mask_rules.rule_words(mask_rules.from_attrs(ds.attrs), table=True)
             if qc_ruled
             else "",
             qc_tables=_qcflags.translation_tables(ds) if qc_ruled else [],
             qc_unflagged=qc_unflagged,
             qc_quiet=qc_quiet,
-            qc_sentence=_captions.stack_rule_sentence(ds, masking.FLAGGED_VARIABLES),
+            qc_sentence=_captions.stack_rule_sentence(ds, mask_rules.FLAGGED_VARIABLES),
             present_vars=set(ds.data_vars),
             instr_types=types,
             n_instr=ds.sizes["N_LEVELS"],

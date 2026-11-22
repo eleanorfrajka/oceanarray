@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 import xarray as xr
 
-from oceanarray.pipeline import masking
+from oceanarray import mask_rules
 from oceanarray.reports._read import _read_instrument_info
 
 FIXTURE = (
@@ -38,7 +38,7 @@ def test_pressure_range_leaves_out_what_the_mooring_rule_hides(tmp_path):
         "microcat",
         "egM2_2018",
         "13220",
-        rule=masking.resolve_mask_flags([3, 4]),
+        rule=mask_rules.resolve_mask_flags([3, 4]),
     )
     kept = np.isfinite(p) & (p > 0) & ~np.isin(flags, (3, 4))
     assert default["p_max"] == float(p[deepest])

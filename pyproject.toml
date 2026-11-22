@@ -234,7 +234,7 @@ layers = [
   "oceanarray.analysis",
   "oceanarray.pipeline",
   "oceanarray.readers : oceanarray.writers",
-  "oceanarray.mooring : oceanarray.catalog : oceanarray.provenance : oceanarray.logger : oceanarray.paths : oceanarray.instruments : oceanarray.location : oceanarray.physics : oceanarray.inspect",
+  "oceanarray.mooring : oceanarray.catalog : oceanarray.provenance : oceanarray.logger : oceanarray.paths : oceanarray.instruments : oceanarray.location : oceanarray.physics : oceanarray.inspect : oceanarray.mask_rules : oceanarray.originator_flags",
   "oceanarray.config : oceanarray._deprecated",
   "oceanarray.exceptions",
 ]
@@ -249,16 +249,12 @@ ignore_imports = [
   "oceanarray.config.validation -> oceanarray.paths",
   "oceanarray.config.validation -> oceanarray.instruments",
   # To change, and a cycle (pipeline.stack and pipeline.concat import mooring): the
-  # mooring YAML reads pipeline helpers; those pieces move below mooring.
+  # mooring YAML reads a pipeline helper; it moves below mooring.
   "oceanarray.mooring -> oceanarray.pipeline.attribution",
-  "oceanarray.mooring -> oceanarray.pipeline.masking",
   # To change: readers use pipeline helpers (they move below the readers).
   "oceanarray.readers.rodb -> oceanarray.pipeline.pressure",
   "oceanarray.readers.oceansites -> oceanarray.pipeline.pressure",
   "oceanarray.readers.oceansites -> oceanarray.pipeline._stage",
-  "oceanarray.readers.oceansites -> oceanarray.pipeline.qc.originator",
-  # To change: the sensor catalog uses the originator flag table.
-  "oceanarray.catalog -> oceanarray.pipeline.qc.originator",
   # To change: provenance compares attributes with a writer helper.
   "oceanarray.provenance -> oceanarray.writers.dtypes",
   # run ends with the report (section 2).

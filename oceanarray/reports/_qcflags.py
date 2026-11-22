@@ -16,9 +16,10 @@ from typing import Any
 import numpy as np
 import xarray as xr
 
+from oceanarray import mask_rules
 from oceanarray.config import parameters as params
+from oceanarray.originator_flags import MAPPED_SUFFIX
 from oceanarray.pipeline import masking
-from oceanarray.pipeline.qc.originator import MAPPED_SUFFIX
 from oceanarray.plotters.flags import SHORT, SHOWN_ORIGINATOR, SHOWN_OURS
 from oceanarray.plotters.flags import level_dim as _level_dim
 from oceanarray.plotters.flags import level_labels as _labels
@@ -291,14 +292,14 @@ def count_rows(ds: xr.Dataset) -> tuple[list[dict[str, Any]], list[str], int]:
         Level-and-variable pairs with values and nothing flagged (left out).
     """
     dim = _level_dim(ds)
-    rule = masking.from_attrs(ds.attrs)
+    rule = mask_rules.from_attrs(ds.attrs)
     labels = instrument_labels(ds)
     tds = ds.transpose(dim, "time", ...)
     rows: list[dict[str, Any]] = []
     has_values: set[int] = set()
     flagged_levels: set[int] = set()
     quiet = 0
-    for var in masking.FLAGGED_VARIABLES:
+    for var in mask_rules.FLAGGED_VARIABLES:
         if var not in ds.data_vars:
             continue
         values = tds[var].values
@@ -406,7 +407,7 @@ def translation_tables(ds: xr.Dataset) -> list[dict[str, Any]]:
 
     tables: dict[str, dict[int, dict[str, Any]]] = {}
     users: dict[str, dict[str, str]] = {}
-    for var in masking.FLAGGED_VARIABLES:
+    for var in mask_rules.FLAGGED_VARIABLES:
         for k, (text, counts) in enumerate(_per_level_entries(ds, var)):
             if text in ("", "none"):
                 continue

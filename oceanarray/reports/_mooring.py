@@ -11,13 +11,12 @@ from typing import Any
 
 import numpy as np
 
-from oceanarray import logger, paths
+from oceanarray import logger, mask_rules, paths
 from oceanarray import mooring as _mooring
 from oceanarray.analysis.derived import knockdown as build_knockdown
 from oceanarray.exceptions import MooringError
 from oceanarray.instruments import instrument_entries
 from oceanarray.paths import should_skip_regeneration
-from oceanarray.pipeline import masking
 
 from ..config import parameters as params
 from ..paths import safe_serial
@@ -793,7 +792,7 @@ class MooringReport:
 
         instrument_list = instrument_entries(cfg)
         # The pressure ranges leave out what the figures hide: the mooring's rule.
-        rule = masking.stack_rule(cfg)
+        rule = mask_rules.stack_rule(cfg)
 
         stack_nc = paths.product_file(proc_dir, mooring_name, "stack")
         grid_nc = paths.product_file(proc_dir, mooring_name, "grid")

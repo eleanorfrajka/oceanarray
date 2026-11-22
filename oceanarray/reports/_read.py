@@ -222,7 +222,7 @@ def _read_qc_summary(nc_path: Path) -> list[dict[str, Any]]:
     """
     import xarray as xr
 
-    from oceanarray.pipeline.qc.originator import MAPPED_SUFFIX
+    from oceanarray.originator_flags import MAPPED_SUFFIX
 
     from ._qcflags import flag_bar, flag_counts, good_share
 
@@ -286,7 +286,7 @@ def _read_instrument_info(
     """Read record statistics from the best available processed NetCDF file.
 
     The pressure range leaves out what *rule* hides: the mooring's
-    ``masking.stack_rule``, like the figures; None for the rule the file records,
+    ``mask_rules.stack_rule``, like the figures; None for the rule the file records,
     else the default.
     """
     base = proc_dir / instr_type / f"{mooring}_{serial}"

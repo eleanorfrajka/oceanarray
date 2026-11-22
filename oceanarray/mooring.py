@@ -17,6 +17,7 @@ from typing import Any
 import pandas as pd
 import yaml
 
+from oceanarray import mask_rules
 from oceanarray.config import validation
 from oceanarray.config.validation import ValidationIssue
 from oceanarray.exceptions import MooringError
@@ -819,10 +820,8 @@ def _check_settings(data: Mapping) -> list[ValidationIssue]:
                 continue
             integer = allowed[key]
             if integer is None:
-                from oceanarray.pipeline.masking import resolve_mask_flags
-
                 try:
-                    resolve_mask_flags(setting)
+                    mask_rules.resolve_mask_flags(setting)
                 except ValueError as exc:
                     issues.append(ValidationIssue("ERROR", f"{block}: {exc}."))
                 continue
@@ -871,12 +870,10 @@ def _check_settings(data: Mapping) -> list[ValidationIssue]:
                 )
     grid_block = data.get("grid")
     if isinstance(grid_block, Mapping) and grid_block.get("mask_flags") is not None:
-        from oceanarray.pipeline import masking
-
         try:
-            masking.combine(
-                masking.stack_rule(data),
-                masking.resolve_mask_flags(grid_block["mask_flags"]),
+            mask_rules.combine(
+                mask_rules.stack_rule(data),
+                mask_rules.resolve_mask_flags(grid_block["mask_flags"]),
             )
         except ValueError as exc:
             issues.append(ValidationIssue("ERROR", f"grid: {exc}."))

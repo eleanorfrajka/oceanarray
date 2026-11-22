@@ -18,6 +18,7 @@ import xarray as xr
 import yaml
 
 import oceanarray as oa
+from oceanarray import mask_rules, originator_flags
 from oceanarray.exceptions import MooringError
 from oceanarray.pipeline import masking
 from oceanarray.pipeline.qc import originator
@@ -157,7 +158,7 @@ def test_flags_are_translated_by_word_not_number(tmp_path, caplog):
 
 
 def test_the_vocabulary_never_gives_7_or_8():
-    meanings, unmapped = originator.vocabulary()
+    meanings, unmapped = originator_flags.vocabulary()
     assert not {7, 8} & set(meanings.values())
     assert {"nominal_value", "interpolated_value", "reseved"} <= unmapped
 
@@ -396,9 +397,9 @@ def test_a_present_value_is_never_9_in_the_stack(cf7):
 
 
 def test_mask_flags_from_the_call_adds_to_the_yaml_grid_rule():
-    rule = masking.union({"default": (3, 4)}, {"default": (4, 9)})
+    rule = mask_rules.union({"default": (3, 4)}, {"default": (4, 9)})
     assert rule == {"default": (3, 4, 9)}
-    assert masking.union({"default": (4,)}, {"velocity": (3,)})["velocity"] == (3, 4)
+    assert mask_rules.union({"default": (4,)}, {"velocity": (3,)})["velocity"] == (3, 4)
 
 
 def test_the_caption_names_where_the_description_changes_thresholds(cf7):

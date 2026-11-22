@@ -14,8 +14,8 @@ from oceanarray import logger, paths
 from oceanarray.analysis.derived import derived_fields
 from oceanarray.paths import should_skip_regeneration
 
+from .. import mask_rules
 from ..config import parameters as params
-from ..pipeline import masking
 from ..plotters.helpers import nominal_depths
 from . import _captions, _html_helpers, _masthead, _qcflags
 from ._breadcrumb import crumbs_from_ctx
@@ -777,7 +777,7 @@ def generate_stack_page(
         )
 
         # The Quality flags section, from the file alone.
-        qc_ruled = masking.STACK_ATTR in ds.attrs
+        qc_ruled = mask_rules.STACK_ATTR in ds.attrs
         qc_rows, qc_unflagged, qc_quiet = (
             _qcflags.count_rows(ds) if qc_ruled else ([], [], 0)
         )
@@ -788,7 +788,7 @@ def generate_stack_page(
             else None
         )
         qc_rule = (
-            masking.rule_words(masking.from_attrs(ds.attrs), table=True)
+            mask_rules.rule_words(mask_rules.from_attrs(ds.attrs), table=True)
             if qc_ruled
             else ""
         )
@@ -839,7 +839,7 @@ def generate_stack_page(
                 qc_unflagged=qc_unflagged,
                 qc_quiet=qc_quiet,
                 qc_sentence=_captions.stack_rule_sentence(
-                    ds, list(masking.FLAGGED_VARIABLES)
+                    ds, list(mask_rules.FLAGGED_VARIABLES)
                 )
                 if qc_ruled
                 else "",

@@ -16,11 +16,11 @@ from typing import Any
 
 import numpy as np
 
+from oceanarray import mask_rules, originator_flags
 from oceanarray.config import parameters as params
 from oceanarray.config.unit_tables import unit_label
-from oceanarray.pipeline import masking, sensors
-from oceanarray.pipeline.qc import originator
-from oceanarray.pipeline.qc.originator import MAPPED_SUFFIX
+from oceanarray.originator_flags import MAPPED_SUFFIX
+from oceanarray.pipeline import sensors
 from oceanarray.plotters.helpers import QC_COLORS, marker_flags
 
 from ._captions import HistoryRow, _join, history_rows, rule_sentence
@@ -285,7 +285,7 @@ def _translation_words(ds: Any) -> list[str]:
     for name in ds.data_vars:
         if not str(name).endswith("_qc_originator"):
             continue
-        for num, word, ours in originator.dictionary(ds[name]):
+        for num, word, ours in originator_flags.dictionary(ds[name]):
             used = int(np.sum(np.asarray(ds[name].values) == num))
             if not used:
                 continue
@@ -497,7 +497,7 @@ def flag_table(ds: Any) -> FlagTable:
     sets = [s for s in _TABLE_SETS if any(str(v).endswith(s[0]) for v in names)]
     variables = [
         v
-        for v in (*masking.FLAGGED_VARIABLES, *sorted(names))
+        for v in (*mask_rules.FLAGGED_VARIABLES, *sorted(names))
         if v in names and any(f"{v}{s[0]}" in names for s in sets)
     ]
     variables = list(dict.fromkeys(variables))

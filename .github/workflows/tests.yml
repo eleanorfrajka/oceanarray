@@ -114,7 +114,7 @@ jobs:
           import oceanarray
           from oceanarray.config import parameters as params
           from oceanarray.logger import load_logging_config
-          from oceanarray.pipeline.qc.originator import vocabulary
+          from oceanarray.originator_flags import vocabulary
           from oceanarray.reports._env import _ENV
           from oceanarray.reports._vendored.leaflet import load_leaflet
 

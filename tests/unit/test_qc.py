@@ -409,9 +409,9 @@ def test_derive_oxygen_saturation_unknown_units_raises():
 
 def test_packaged_flag_meanings_translate_to_valid_flags():
     """Every word in the shipped table maps to a flag an originator word may set."""
-    from oceanarray.pipeline.qc import originator
+    from oceanarray import originator_flags
 
-    meanings, _ = originator.vocabulary()
+    meanings, _ = originator_flags.vocabulary()
     assert meanings
     for word, flag in meanings.items():
         assert flag in params.QC_FLAG_VALUES, word

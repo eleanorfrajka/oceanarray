@@ -18,7 +18,7 @@ import numpy as np
 import xarray as xr
 from matplotlib.collections import LineCollection
 
-from oceanarray import paths
+from oceanarray import mask_rules, paths
 from oceanarray.config import parameters as params
 from oceanarray.config.unit_tables import (
     unit_label,
@@ -740,10 +740,10 @@ def draw_adcp_progressive_vector(
     trajs: list = []  # (hab, x, y)
     hab_all: list = []
     # The rule hides by every velocity flag: the seabed and ping quality too.
-    rule = masking.from_attrs(ds.attrs)
+    rule = mask_rules.from_attrs(ds.attrs)
     u_all = masking.masked(ds, u_var, rule)
     v_all = masking.masked(ds, v_var, rule)
-    hide = masking.flags_for(rule, u_var)
+    hide = mask_rules.flags_for(rule, u_var)
     for i in adcp_idx:
         if seabed_qc_var in ds.data_vars and np.all(
             np.isin(ds[seabed_qc_var].values[:, i], hide)
@@ -815,7 +815,7 @@ def rose_panels(
     ds : xarray.Dataset
         An instrument's stage file with ``east_velocity`` and ``north_velocity``.
     rule : dict or None, optional
-        The flag rule (``masking.resolve_mask_flags``); the default when not given.
+        The flag rule (``mask_rules.resolve_mask_flags``); the default when not given.
 
     Returns
     -------
@@ -823,9 +823,9 @@ def rose_panels(
         ``(east, north, label, n)`` per panel, e.g. ``"Suspect (originator)"``
         with its number of values; good first.
     """
-    from oceanarray.pipeline.qc.originator import MAPPED_SUFFIX
+    from oceanarray.originator_flags import MAPPED_SUFFIX
 
-    rule = rule if rule is not None else masking.resolve_mask_flags(None)
+    rule = rule if rule is not None else mask_rules.resolve_mask_flags(None)
     east = np.asarray(ds["east_velocity"].values, dtype=float)
     north = np.asarray(ds["north_velocity"].values, dtype=float)
     here = np.isfinite(east) & np.isfinite(north)
@@ -887,7 +887,7 @@ def draw_instrument_rose(
         good rose is drawn; the serial when not given. With flagged roses each
         is titled by its values instead (``"Suspect (originator): 246 values"``).
     rule : dict or None, optional
-        The flag rule (``masking.resolve_mask_flags``); the default rule when
+        The flag rule (``mask_rules.resolve_mask_flags``); the default rule when
         not given.
 
     Returns
@@ -1153,7 +1153,7 @@ def draw_adcp_velocity(
     width_in : float, optional
         Figure width (inches), the report slot; default the full content width.
     rule : dict or None, optional
-        The flag rule (``masking.resolve_mask_flags``); the default when not given.
+        The flag rule (``mask_rules.resolve_mask_flags``); the default when not given.
 
     Returns
     -------
@@ -1190,10 +1190,10 @@ def draw_adcp_velocity(
         # originator's and the ADCP flags (masking.flagged); speed and direction
         # where east or north is hidden; any other (time, N_BINS) array by
         # seabed_qc. Applied before the panels and their percentile scales.
-        rule = rule or masking.from_attrs(ds.attrs)
+        rule = rule or mask_rules.from_attrs(ds.attrs)
         hidden = {
             v: masking.flagged(ds, v, rule)
-            for v in (*sorted(masking.VELOCITY_GROUP), "error_velocity")
+            for v in (*sorted(mask_rules.VELOCITY_GROUP), "error_velocity")
             if v in ds.data_vars
         }
         if "east_velocity" in hidden and "north_velocity" in hidden:
@@ -1201,7 +1201,7 @@ def draw_adcp_velocity(
             hidden.setdefault("current_speed", either)
             hidden.setdefault("current_direction", either)
         seabed = (
-            np.isin(ds["seabed_qc"].values, masking.flags_for(rule, "east_velocity"))
+            np.isin(ds["seabed_qc"].values, mask_rules.flags_for(rule, "east_velocity"))
             if "seabed_qc" in ds.data_vars
             else None
         )

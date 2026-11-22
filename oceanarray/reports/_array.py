@@ -21,11 +21,10 @@ import numpy as np
 import yaml
 from markupsafe import Markup, escape
 
-from oceanarray import location, logger
+from oceanarray import location, logger, mask_rules
 from oceanarray import mooring as _mooring
 from oceanarray.exceptions import MooringError
 from oceanarray.instruments import instrument_entries
-from oceanarray.pipeline import masking
 
 from ..config.unit_tables import unit_label
 from ..paths import safe_serial
@@ -319,7 +318,7 @@ def _build_mooring_instruments(
     # array page reads YAMLs unchecked, so a rule it cannot read falls back to the
     # file's own.
     try:
-        rule = masking.stack_rule(mcfg)
+        rule = mask_rules.stack_rule(mcfg)
     except ValueError:
         rule = None
     for entry in instrument_entries(mcfg):

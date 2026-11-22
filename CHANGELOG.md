@@ -14,6 +14,7 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Changed
 
+- The mask-rule helpers (`resolve_mask_flags`, `stack_rule`, ...) moved to `oceanarray.mask_rules` and the originator flag vocabulary to `oceanarray.originator_flags`, unchanged (#163).
 - Problems with the user's input raise `OceanarrayError` subclasses: the new `ReaderError` from the readers, `MooringError` for YAML content; both still subclass `ValueError` (#161).
 - Data problems found while reading or reporting are logged as WARNINGs instead of Python `UserWarning`s, so they reach the log files; report progress lines go through logging too (#160).
 - An unreadable file or header is skipped with a WARNING naming the file, no longer silently (#159).
