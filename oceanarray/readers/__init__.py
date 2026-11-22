@@ -12,6 +12,7 @@ One module per format: :mod:`~oceanarray.readers.sbe`,
 :mod:`~oceanarray.readers.oceansites`, :mod:`~oceanarray.readers.netcdf`.
 """
 
+import logging
 import re
 import warnings
 from pathlib import Path
@@ -25,6 +26,8 @@ from oceanarray.readers.netcdf import read_netcdf
 from oceanarray.readers.nortek import load_nortek_csv
 from oceanarray.readers.oceansites import read_oceansites
 from oceanarray.readers.rodb import read_rodb, read_rodb_bins
+
+log = logging.getLogger(__name__)
 
 __all__ = [
     "load_nortek_csv",
@@ -87,10 +90,7 @@ def _drop_missing_time(dataset: xr.Dataset, source: str) -> xr.Dataset:
         return dataset
     if n == missing.size:
         raise ValueError(f"{source}: no record has a timestamp (all {n} missing).")
-    warnings.warn(
-        f"{source}: dropped {n} record(s) with no timestamp (missing time).",
-        stacklevel=3,
-    )
+    log.warning("%s: dropped %d record(s) with no timestamp (missing time).", source, n)
     out = dataset.isel(time=np.where(~missing)[0])
     out.attrs[N_RECORDS_WITHOUT_TIME_ATTR] = n
     return out
@@ -140,9 +140,10 @@ def _dispatch(
         ds = load_nortek_csv(file_path, header_file=header_path)
         coord_system = ds.attrs.get("coordinate_system")
         if coord_system is None:
-            print(
-                f"WARNING: nortek-csv-oa file {file_path} has no coordinate_system "
-                "attribute — coordinate system unknown (UNK); velocities not renamed."
+            log.warning(
+                "nortek-csv-oa file %s has no coordinate_system attribute — "
+                "coordinate system unknown (UNK); velocities not renamed.",
+                file_path,
             )
             coord_system = "UNK"
         return nortek.to_canonical_nortek(ds, coord_system=coord_system)
@@ -168,9 +169,10 @@ def _dispatch(
         if header_path:
             coord_system = nortek._parse_nortek_coord_system(Path(header_path))
         else:
-            print(
-                f"WARNING: no header file for {file_path} — "
-                "coordinate system unknown (UNK); velocities not renamed."
+            log.warning(
+                "no header file for %s — coordinate system unknown (UNK); "
+                "velocities not renamed.",
+                file_path,
             )
             coord_system = "UNK"
         ds = nortek.to_canonical_nortek(ds, coord_system=coord_system)

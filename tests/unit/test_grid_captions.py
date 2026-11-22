@@ -5,6 +5,7 @@ carries the attributes a grid written today has (``grid_mask_flags``, the
 variables' ``vertical_interpolation``).
 """
 
+import logging
 import pathlib
 
 import matplotlib
@@ -363,7 +364,7 @@ def test_method_words_only_from_what_the_file_says(gridded):
     assert _captions.method_words(bare) == "by PCHIP"
 
 
-def test_ts_without_position_notes_it_on_the_figure_and_the_caption(gridded):
+def test_ts_without_position_notes_it_on_the_figure_and_the_caption(gridded, caplog):
     """No position: in-situ T, the note on the figure, the caption says so."""
     from oceanarray.plotters.ts import draw_grid_ts_diagram
 
@@ -372,8 +373,9 @@ def test_ts_without_position_notes_it_on_the_figure_and_the_caption(gridded):
     bare.attrs = {
         k: v for k, v in ds.attrs.items() if "lat" not in k and "lon" not in k
     }
-    with pytest.warns(UserWarning):
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
         c = build_grid_context(bare, path, None)
+    assert "WARNING" in caplog.text
     assert c.derived.theta is None and c.density is None
     assert c.ts_bounds["sigma_interval"] is None
     assert _captions.NO_SIGMA_CAPTION in _captions.grid_captions(c)["ts_diagram"]

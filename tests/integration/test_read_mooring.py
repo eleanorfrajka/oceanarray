@@ -6,6 +6,8 @@ committed dune2 fixture tree. A mooring's identity is its ``name``; its location
 is the directory passed as ``mooring_dir`` (or derived from a path).
 """
 
+import logging
+import re
 import shutil
 import warnings
 from pathlib import Path
@@ -45,7 +47,7 @@ def test_stage3_from_a_directory_path():
     assert sorted(datasets) == ["2941", "9920"]
 
 
-def test_stage3_warns_and_infers_on_unmarked_files(tmp_path):
+def test_stage3_warns_and_infers_on_unmarked_files(tmp_path, caplog):
     """A stage file written before the marker existed has its stage inferred (with a WARNING)."""
     moor_dir = tmp_path / "dune2_1_2026"
     shutil.copytree(_MOORING_DIR, moor_dir)
@@ -54,8 +56,9 @@ def test_stage3_warns_and_infers_on_unmarked_files(tmp_path):
             ds = ds.load()
         del ds.attrs[_stage.STAGE_ATTR]
         ds.to_netcdf(path)
-    with pytest.warns(UserWarning, match="inferring stage 3 from the filename"):
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
         datasets = read_mooring(_cfg(), stage=3, mooring_dir=moor_dir)
+    assert re.search("inferring stage 3 from the filename", caplog.text)
     # The inferred marker is stamped in memory, so the returned datasets carry it.
     assert all(ds.attrs[_stage.STAGE_ATTR] == 3 for ds in datasets.values())
 
@@ -121,10 +124,11 @@ def test_mooring_attrs_stamp_position_and_window():
     assert "latitude_str" in attrs
 
 
-def test_mooring_attrs_warn_and_mark_none_when_absent():
+def test_mooring_attrs_warn_and_mark_none_when_absent(caplog):
     """No position: none stamped. No window: the placeholder. Both *_source=none."""
-    with pytest.warns(UserWarning):
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
         attrs = header_attrs({"name": "x"})
+    assert "WARNING" in caplog.text
     assert "latitude" not in attrs and "longitude" not in attrs
     assert attrs["location_source"] == "none"
     assert attrs["deployment_window_source"] == "none"

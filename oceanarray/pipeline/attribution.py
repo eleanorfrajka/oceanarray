@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import logging
 import re
-import warnings
 from collections.abc import Iterable, Mapping, Sequence
 
 import xarray as xr
@@ -146,9 +145,8 @@ def _aligned(n: int, values: list[str], label: str) -> list[str]:
         return [""] * n
     if len(values) == n:
         return values
-    warnings.warn(
-        f"{label}: {len(values)} entries for {n} names; left out (not paired).",
-        stacklevel=3,
+    log.warning(
+        "%s: %d entries for %d names; left out (not paired).", label, len(values), n
     )
     return [""] * n
 
@@ -161,10 +159,10 @@ def _aligned_roles(n: int, values: list[str], label: str) -> list[str]:
     count that differs from the names' is left out, as :func:`_aligned` does.
     """
     if len(values) == 1 and n > 1:
-        warnings.warn(
-            f"{label}: 1 role for {n} names; given to the first name, the others "
-            "left blank.",
-            stacklevel=3,
+        log.warning(
+            "%s: 1 role for %d names; given to the first name, the others left blank.",
+            label,
+            n,
         )
         return values + [""] * (n - 1)
     return _aligned(n, values, label)
@@ -392,9 +390,8 @@ def union(
                 "",
             )
     for name, emails in replaced.items():
-        warnings.warn(
-            f"{name}: earlier email(s) {sorted(emails)} replaced by the newest.",
-            stacklevel=2,
+        log.warning(
+            "%s: earlier email(s) %s replaced by the newest.", name, sorted(emails)
         )
     return out
 
@@ -407,9 +404,8 @@ def _clean(value: str, separator: str, label: str) -> str:
     """
     mark = separator.strip()
     if mark in value:
-        warnings.warn(
-            f"{label}: {value!r} holds the list separator {mark!r}; kept up to it.",
-            stacklevel=3,
+        log.warning(
+            "%s: %r holds the list separator %r; kept up to it.", label, value, mark
         )
         return value.split(mark)[0].strip()
     return value

@@ -755,7 +755,9 @@ class MooringReport:
                     skip_existing=skip_existing,
                 )
             else:
-                print("  NOTE: no grid file found — run 'oceanarray run MOORING' first")
+                log.info(
+                    "no grid file found — run 'oceanarray run %s' first", mooring_name
+                )
 
         if stack:
             stack_path = paths.product_file(proc_dir, mooring_name, "stack")
@@ -770,8 +772,9 @@ class MooringReport:
                     skip_existing=skip_existing,
                 )
             else:
-                print(
-                    "  NOTE: no stack file found — run 'oceanarray process MOORING --stage stack' first"
+                log.info(
+                    "no stack file found — run 'oceanarray process %s --stage stack' first",
+                    mooring_name,
                 )
 
         return output_path

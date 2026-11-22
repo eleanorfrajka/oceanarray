@@ -443,13 +443,11 @@ def apply_qc_tests(
             if dt_s <= 0:
                 # All timestamps are identical (or single record); ioos_qc would
                 # divide by zero inside flat_line_test — skip the test.
-                import warnings
-
-                warnings.warn(
-                    f"flat_line_test skipped for '{varname}': median time interval is "
-                    f"{dt_s:.1f} s (all timestamps identical?)",
-                    RuntimeWarning,
-                    stacklevel=2,
+                log.warning(
+                    "flat_line_test skipped for '%s': median time interval is "
+                    "%.1f s (all timestamps identical?)",
+                    varname,
+                    dt_s,
                 )
                 continue
             suspect_n = int(fl_cfg.get("suspect_n", 3))
@@ -463,13 +461,7 @@ def apply_qc_tests(
                     tolerance=float(fl_cfg.get("tolerance", 0.0)),
                 )
             except (ValueError, OverflowError) as _fl_err:
-                import warnings
-
-                warnings.warn(
-                    f"flat_line_test skipped for '{varname}': {_fl_err}",
-                    RuntimeWarning,
-                    stacklevel=2,
-                )
+                log.warning("flat_line_test skipped for '%s': %s", varname, _fl_err)
                 continue
             flags_list.append(_qartod_flags(_fl_result))
 

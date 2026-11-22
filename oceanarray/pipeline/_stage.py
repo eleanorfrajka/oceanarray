@@ -9,7 +9,7 @@ working.
 """
 
 import datetime
-import warnings
+import logging
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -20,6 +20,8 @@ import xarray as xr
 from oceanarray import provenance
 from oceanarray.exceptions import MooringError
 from oceanarray.instruments import nominal_depth
+
+log = logging.getLogger(__name__)
 
 STAGE_ATTR = "processing_stage"
 
@@ -287,10 +289,13 @@ def require(
     for key, ds in items:
         marker = ds.attrs.get(STAGE_ATTR)
         if marker is None:
-            warnings.warn(
-                f"stage {next_stage}: dataset {key!r} has no '{STAGE_ATTR}' marker; "
-                f"assuming stage {stage} (written before the marker existed).",
-                stacklevel=2,
+            log.warning(
+                "stage %s: dataset %r has no '%s' marker; "
+                "assuming stage %s (written before the marker existed).",
+                next_stage,
+                key,
+                STAGE_ATTR,
+                stage,
             )
             continue
         if int(marker) != stage:

@@ -14,6 +14,7 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Changed
 
+- Data problems found while reading or reporting are logged as WARNINGs instead of Python `UserWarning`s, so they reach the log files; report progress lines go through logging too (#160).
 - An unreadable file or header is skipped with a WARNING naming the file, no longer silently (#159).
 - A missing processing folder or mooring YAML raises `MooringError`; `MooringReport.generate` and `generate_recovery_table` returned `None` (#159).
 - The clock tools moved from `oceanarray.pipeline.clock` to `oceanarray.analysis.clock`, unchanged; the old path warns until 0.8.0 (#158).

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import warnings
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 from pathlib import Path
@@ -51,6 +51,8 @@ from ._plots import (
 )
 from ._read import _read_nc_metadata
 from ._vendored.page_model import Panel, Profile, Section, resolve
+
+log = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Aquadopp tilt helper (was @staticmethod on MooringReport)
@@ -901,4 +903,4 @@ def generate_stack_page(
         out_path.write_text(html, encoding="utf-8")
         logger.status("file", logger.format_rel_path(out_path, display_root))
     except Exception as exc:
-        warnings.warn(f"stack report generation failed: {exc}", stacklevel=2)
+        log.warning("stack report generation failed: %s", exc)

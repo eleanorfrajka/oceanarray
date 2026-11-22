@@ -7,6 +7,7 @@ stage1/stage3/report filenames but ``"16430"`` via the stack path — the same
 instrument landing under two different filenames.
 """
 
+import logging
 from pathlib import Path
 
 import pytest
@@ -169,13 +170,13 @@ def test_require_current_layout_ok_when_empty(tmp_path):
     assert require_current_layout(tmp_path, "dsG3") is None
 
 
-def test_require_current_layout_warns_when_both_present(tmp_path, capsys):
+def test_require_current_layout_warns_when_both_present(tmp_path, caplog):
     """Current + stale legacy dir both present → warn (don't fail); legacy ignored."""
     (tmp_path / "dsG3").mkdir()
     (tmp_path / "moor" / "proc" / "dsG3").mkdir(parents=True)
-    assert require_current_layout(tmp_path, "dsG3") is None
-    err = capsys.readouterr().err
-    assert "both the current" in err and "legacy" in err
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
+        assert require_current_layout(tmp_path, "dsG3") is None
+    assert "both the current" in caplog.text and "legacy" in caplog.text
 
 
 def test_require_current_layout_raises_on_moor_proc(tmp_path):

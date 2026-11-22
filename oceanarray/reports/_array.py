@@ -12,7 +12,6 @@ from __future__ import annotations
 import json
 import logging
 import re
-import warnings
 from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
@@ -561,14 +560,13 @@ def _array_map_payload(rows: list[dict[str, Any]]) -> tuple[str, str, str]:
 def _mooring_yaml(config_path: Path) -> dict[str, Any]:
     """Return a mooring YAML, unvalidated when it has errors (its own page names them)."""
     if not config_path.exists():
-        warnings.warn(f"mooring YAML not found: {config_path}", stacklevel=3)
+        _log.warning("mooring YAML not found: %s", config_path)
         return {}
     try:
         return _mooring.load(config_path)
     except MooringError as exc:
-        warnings.warn(
-            f"{config_path} has validation errors ({exc}); shown unvalidated.",
-            stacklevel=3,
+        _log.warning(
+            "%s has validation errors (%s); shown unvalidated.", config_path, exc
         )
         with config_path.open() as fh:
             return yaml.safe_load(fh) or {}
@@ -680,7 +678,7 @@ def generate_array_report(
     array_yaml_path = Path(array_yaml_path)
     proc_dir = Path(proc_dir)
     if not array_yaml_path.exists():
-        warnings.warn(f"array YAML not found: {array_yaml_path}", stacklevel=2)
+        _log.warning("array YAML not found: %s", array_yaml_path)
         return None
     with array_yaml_path.open() as fh:
         array_cfg = yaml.safe_load(fh)

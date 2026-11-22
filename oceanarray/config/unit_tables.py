@@ -13,8 +13,8 @@ oceanarray's real differences from the family are live here.
 
 from __future__ import annotations
 
+import logging
 import os
-import warnings
 from typing import Any
 
 from oceanarray.reports._vendored.units import (
@@ -25,6 +25,8 @@ from oceanarray.reports._vendored.units import (
     merge_tables,
     resolve_units,
 )
+
+log = logging.getLogger(__name__)
 
 #: Stored-spelling overrides, keyed by CF ``standard_name``.  oceanarray writes the
 #: squared buoyancy frequency as ``s-2``, the spelling its gridded files have always
@@ -211,8 +213,11 @@ def warn_if_not_canonical(da: Any, expected: str, *, quantity: str) -> None:
             return
     except UnitsError:
         pass
-    warnings.warn(
-        f"{quantity}: source variable carries units {u!r}, not the expected "
-        f"{expected!r}; the derived label assumes {expected!r} and may be wrong.",
-        stacklevel=3,
+    log.warning(
+        "%s: source variable carries units %r, not the expected %r; "
+        "the derived label assumes %r and may be wrong.",
+        quantity,
+        u,
+        expected,
+        expected,
     )

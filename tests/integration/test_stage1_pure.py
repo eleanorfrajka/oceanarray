@@ -8,6 +8,7 @@ and when the Aquadopp sits in the legacy ``nortek/`` folder.
 
 import copy
 import logging
+import re
 import shutil
 import warnings
 from pathlib import Path
@@ -186,17 +187,18 @@ def test_processor_finds_raw_files_by_folder_and_names_outputs_from_name(tmp_pat
     assert (proc / "aquadopp" / "dune2_1_2026_9920_stage1.nc").exists()
 
 
-def test_raw_read_allow_missing_skips_an_absent_named_file(tmp_path):
+def test_raw_read_allow_missing_skips_an_absent_named_file(tmp_path, caplog):
     """A filename: that does not exist raises, or is skipped with allow_missing."""
     raw = tmp_path / "raw" / "dune2_1_2026"
     shutil.copytree(_RAW / "dune2_1_2026" / "aquadopp", raw / "aquadopp")
     cfg = _mooring.load(_YAML)
     with pytest.raises(FileNotFoundError, match="2941"):
         read_mooring(cfg, stage=None, raw_dir=tmp_path / "raw")
-    with pytest.warns(UserWarning, match="2941"):
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
         datasets = read_mooring(
             cfg, stage=None, raw_dir=tmp_path / "raw", allow_missing=True
         )
+    assert re.search("2941", caplog.text)
     assert list(datasets) == ["9920"]
 
 
@@ -229,7 +231,7 @@ def test_stage1_pointing_down_flips_y_and_z():
     )
 
 
-def test_stage1_records_records_dropped_for_missing_time(tmp_path):
+def test_stage1_records_records_dropped_for_missing_time(tmp_path, caplog):
     """A raw file with fill times: stage 1 writes the count and a history line."""
     from oceanarray import readers
     from oceanarray.writers import write
@@ -259,8 +261,9 @@ def test_stage1_records_records_dropped_for_missing_time(tmp_path):
             }
         ],
     }
-    with pytest.warns(UserWarning, match="dropped 1 record"):
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
         raw = readers._read_typed("rodb", str(path))
+    assert re.search("dropped 1 record", caplog.text)
     raw.attrs["source_file"] = path.name
     out = stage1({"11335": raw}, cfg)["11335"]
     assert "dropped 1 record(s) with no time at read" in out.attrs["history"]

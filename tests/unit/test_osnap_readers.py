@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import logging
+import re
 import shutil
 import warnings
 from pathlib import Path
@@ -95,7 +97,7 @@ def test_oceansites_one_record_file_keeps_its_time_axis(tmp_path):
     assert ds["temperature_qc_originator"].dims == ("time",)
 
 
-def test_oceansites_drops_records_with_missing_time(tmp_path):
+def test_oceansites_drops_records_with_missing_time(tmp_path, caplog):
     """NaT padding at the tail of TIME is dropped at read time with a count.
 
     Some originators pad a record that ended early with missing timestamps; left in,
@@ -117,8 +119,9 @@ def test_oceansites_drops_records_with_missing_time(tmp_path):
         coords={"TIME": times},
     ).to_netcdf(path)
 
-    with pytest.warns(UserWarning, match="dropped 2 record"):
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
         ds = readers.read(path)
+    assert re.search("dropped 2 record", caplog.text)
     assert ds.sizes == {"time": 3}
     assert not np.isnat(ds["time"].values).any()
 
@@ -159,14 +162,15 @@ def _whoi_with_fill_times(tmp_path: Path, index: slice) -> Path:
 
 
 @pytest.mark.parametrize("entry", ["read", "_read_typed"])
-def test_padded_tail_is_dropped_through_every_entry_point(tmp_path, entry):
+def test_padded_tail_is_dropped_through_every_entry_point(tmp_path, entry, caplog):
     """A NaT tail is dropped, counted and recorded, by read() and _read_typed alike."""
     path = _whoi_with_fill_times(tmp_path, slice(-3, None))
-    with pytest.warns(UserWarning, match=rf"{WHOI_CM.name}: dropped 3 record"):
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
         if entry == "read":
             ds = readers.read(path)
         else:
             ds = readers._read_typed("oceansites", str(path))
+    assert re.search(rf"{WHOI_CM.name}: dropped 3 record", caplog.text)
     assert ds.sizes == {"time": 477}
     assert ds.attrs["n_records_without_time"] == 3
     assert (np.diff(ds["time"].values) > np.timedelta64(0, "s")).all()
@@ -226,7 +230,7 @@ def _microcat_with_lines(tmp_path: Path, edit) -> Path:
     return path
 
 
-def test_rodb_fill_in_a_time_column_drops_the_record(tmp_path):
+def test_rodb_fill_in_a_time_column_drops_the_record(tmp_path, caplog):
     """HH = -9999 and YY = -9999 give no time (not midnight) and are dropped."""
 
     def edit(lines):
@@ -243,8 +247,9 @@ def test_rodb_fill_in_a_time_column_drops_the_record(tmp_path):
         warnings.simplefilter("error", RuntimeWarning)
         raw = read_rodb(path)
     assert int(np.isnat(raw["time"].values).sum()) == 2
-    with pytest.warns(UserWarning, match="dropped 2 record"):
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
         ds = readers.read(path)
+    assert re.search("dropped 2 record", caplog.text)
     assert ds.sizes == {"time": full.sizes["time"] - 2}
     assert ds.attrs["n_records_without_time"] == 2
     kept = set(ds["time"].values)

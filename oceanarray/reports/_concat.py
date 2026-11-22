@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import logging
 import math
 import os
-import warnings
 from collections import Counter
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
@@ -63,6 +63,8 @@ from ._stack import (
     velocity_rows,
 )
 from ._vendored.page_model import Panel, Profile, Section, resolve, validate_nav
+
+log = logging.getLogger(__name__)
 
 #: The variables a short record is judged on, by figure family: a deployment with
 #: values at a depth for less than ``MIN_RECORD_FRACTION`` of its time there is
@@ -1320,5 +1322,5 @@ def generate_concat_page(
         logger.status("file", str(out_path))
         return out_path
     except Exception as exc:  # noqa: BLE001 — a failed page must not abort the concat
-        warnings.warn(f"concat report generation failed: {exc}", stacklevel=2)
+        log.warning("concat report generation failed: %s", exc)
         return None

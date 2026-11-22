@@ -217,8 +217,7 @@ no later stage has to check for missing times.
            )
 
 **Not.** Guessing the format from the extension; ``xr.open_dataset`` on a raw
-file in pipeline code; ``print("WARNING: …")`` in a reader (see
-:ref:`dev-deviations`).
+file in pipeline code; ``print("WARNING: …")`` in a reader.
 
 3.2 Adding a variable
 ~~~~~~~~~~~~~~~~~~~~~
@@ -1135,14 +1134,6 @@ that makes the change.
    * - Docstrings longer than the code
      - Proportionate docstrings
      - Trimmed (section 6)
-     - planned
-   * - ``print`` in library code
-     - ``logging``
-     - ``logging`` (section 3.4)
-     - planned
-   * - ``warnings.warn(UserWarning)`` for some data problems
-     - ``logging`` for run-time events
-     - ``log.warning``; ``warnings`` for deprecations only (section 3.4)
      - planned
    * - Some figures drop ``QC_BAD_FLAGS`` (3, 4, 9) themselves
      - One rule

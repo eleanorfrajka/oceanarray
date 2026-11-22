@@ -95,6 +95,46 @@ def _forward_to_callback(log_fn: Callable[[str], None] | None) -> Iterator[None]
         log.removeHandler(handler)
 
 
+@contextlib.contextmanager
+def count_warnings(name: str) -> Iterator[list[logging.LogRecord]]:
+    """Collect the WARNING-or-worse records logger *name* logs in the block.
+
+    The records still go to every handler as usual; this only collects them, so a
+    caller can count them. Records logged by child loggers are not included.
+
+    Parameters
+    ----------
+    name : str
+        Logger name, e.g. ``"oceanarray.pipeline.attribution"``.
+
+    Yields
+    ------
+    list of logging.LogRecord
+        The warnings so far; ``len()`` is their count.
+
+    Examples
+    --------
+    >>> import logging
+    >>> with count_warnings("oceanarray.example") as warned:
+    ...     logging.getLogger("oceanarray.example").warning("odd value")
+    >>> len(warned)
+    1
+    """
+    warned: list[logging.LogRecord] = []
+
+    def collect(record: logging.LogRecord) -> bool:
+        if record.levelno >= logging.WARNING:
+            warned.append(record)
+        return True  # never drops the record
+
+    target = logging.getLogger(name)
+    target.addFilter(collect)
+    try:
+        yield warned
+    finally:
+        target.removeFilter(collect)
+
+
 def enable_logging() -> None:
     """Re-enable the ``oceanarray`` logger.
 

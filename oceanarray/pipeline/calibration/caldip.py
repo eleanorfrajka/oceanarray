@@ -20,7 +20,7 @@ corrected toward the reference by subtracting it (``corrected = measured − dif
 
 from __future__ import annotations
 
-import warnings
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -30,6 +30,8 @@ import xarray as xr
 from oceanarray.config import parameters as params
 from oceanarray.config.unit_tables import TABLES, UnitsError, resolve_units
 from oceanarray.paths import safe_serial
+
+log = logging.getLogger(__name__)
 
 #: Filename suffix of the per-cast caldip netCDF (strict — excludes CSV exports and variants).
 CALDIP_SUFFIX = "_caldip.nc"
@@ -269,7 +271,6 @@ def _warn_unknown_instrument_types(ds: xr.Dataset, path: Path) -> None:
     seen = {str(t) for t in np.atleast_1d(ds["instrument_type"].values)}
     unknown = sorted(t for t in seen if not params.is_known_instrument_type(t))
     if unknown:
-        warnings.warn(
-            f"{path.name}: instrument_type {unknown} not in oceanarray's vocabulary",
-            stacklevel=3,
+        log.warning(
+            "%s: instrument_type %s not in oceanarray's vocabulary", path.name, unknown
         )

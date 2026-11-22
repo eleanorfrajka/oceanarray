@@ -14,7 +14,7 @@ differs from ``name`` is tolerated â€” the files are still named from ``name`` â
 and the validator warns about it.
 """
 
-import warnings
+import logging
 from collections.abc import Iterable, Mapping
 from pathlib import Path
 from typing import Any
@@ -31,6 +31,8 @@ from oceanarray.location import (
     parse_latlon_with_source,
 )
 from oceanarray.pipeline import _stage, raw_files
+
+log = logging.getLogger(__name__)
 
 # Placeholders the pipeline has always written when position / window are absent
 # (Eleanor, 2026-10-24: nobody mistakes 0/0 or the YYYY string for data). They
@@ -104,11 +106,11 @@ def header_attrs(cfg: Mapping[str, Any], *, warn: bool = True) -> dict[str, Any]
     if is_unknown_latlon_source(source):
         attrs["location_source"] = "none"
         if warn:
-            warnings.warn(
-                f"{name}: no position in the mooring description "
-                f"(seabed_/deployment_/planned_latitude or latitude); "
-                f"leaving latitude/longitude out, location_source='none'.",
-                stacklevel=2,
+            log.warning(
+                "%s: no position in the mooring description "
+                "(seabed_/deployment_/planned_latitude or latitude); "
+                "leaving latitude/longitude out, location_source='none'.",
+                name,
             )
     else:
         attrs["latitude"] = lat
@@ -129,11 +131,11 @@ def header_attrs(cfg: Mapping[str, Any], *, warn: bool = True) -> dict[str, Any]
         attrs["recovery_time"] = _TIME_PLACEHOLDER
         attrs["deployment_window_source"] = "none"
         if warn:
-            warnings.warn(
-                f"{name}: no deployment window in the mooring description "
-                f"(deployment_time/recovery_time); stamping the placeholder with "
-                f"deployment_window_source='none'.",
-                stacklevel=2,
+            log.warning(
+                "%s: no deployment window in the mooring description "
+                "(deployment_time/recovery_time); stamping the placeholder with "
+                "deployment_window_source='none'.",
+                name,
             )
 
     for key in ("waterdepth", "density_reference"):
@@ -234,10 +236,11 @@ def read_mooring(
             except (MooringError, FileNotFoundError):
                 if not allow_missing:
                     raise
-                warnings.warn(
-                    f"{name}: {instr_type} s/n {serial} has no raw file; skipping "
-                    "(allow_missing).",
-                    stacklevel=2,
+                log.warning(
+                    "%s: %s s/n %s has no raw file; skipping (allow_missing).",
+                    name,
+                    instr_type,
+                    serial,
                 )
                 continue
             ds = raw_files.read_raw_file(raw)
@@ -347,10 +350,13 @@ def _read_stage(
     stage_path = paths.stage_file(mooring_dir, name, instr_type, serial, stage)
     if not stage_path.exists():
         if allow_missing:
-            warnings.warn(
-                f"{name}: {instr_type} s/n {serial} has no stage-{stage} "
-                f"file ({stage_path.name}); skipping (allow_missing).",
-                stacklevel=2,
+            log.warning(
+                "%s: %s s/n %s has no stage-%s file (%s); skipping (allow_missing).",
+                name,
+                instr_type,
+                serial,
+                stage,
+                stage_path.name,
             )
             return None
         raise FileNotFoundError(
@@ -362,11 +368,15 @@ def _read_stage(
     # A file older than the marker is stamped in memory only: reading never writes
     # to disk, so the read/write pair stays symmetric. ``stamp`` persists it.
     if _stage.STAGE_ATTR not in ds.attrs:
-        warnings.warn(
-            f"{name}: {instr_type} s/n {serial} stage-{stage} file has no "
-            f"'{_stage.STAGE_ATTR}' marker (written before it existed); inferring "
-            f"stage {stage} from the filename. Run stamp to persist it.",
-            stacklevel=2,
+        log.warning(
+            "%s: %s s/n %s stage-%s file has no '%s' marker (written before it "
+            "existed); inferring stage %s from the filename. Run stamp to persist it.",
+            name,
+            instr_type,
+            serial,
+            stage,
+            _stage.STAGE_ATTR,
+            stage,
         )
         ds = _stage.stamp(ds, stage, inferred=True)
     return ds

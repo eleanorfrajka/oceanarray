@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import warnings
+import logging
 from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
@@ -52,6 +52,8 @@ from ._plots import (
 )
 from ._read import _read_nc_metadata
 from ._vendored.page_model import Panel, PanelGroup, Profile, Section, resolve
+
+log = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Section manifest — grid registry
@@ -319,11 +321,10 @@ def build_grid_context(
     lat_v, _, source = parse_latlon_with_source(dict(ds.attrs))
     lat_resolved = not is_unknown_latlon_source(source)
     if not lat_resolved:
-        warnings.warn(
-            f"grid report: mooring latitude unresolved from attrs "
-            f"({ds.attrs.get('mooring_name', '?')}); N² stubs and spectra "
-            f"compute at lat=0.",
-            stacklevel=2,
+        log.warning(
+            "grid report: mooring latitude unresolved from attrs (%s); "
+            "N² stubs and spectra compute at lat=0.",
+            ds.attrs.get("mooring_name", "?"),
         )
         lat_v = 0.0
     derived = derived_fields(ds)
@@ -457,10 +458,7 @@ def _isopycnal_ts_panel(sigma_var: str) -> Panel:
             return _make_isopycnal_ts_b64(ds_iso)
         except Exception as exc:
             # Report stays partial, but say why instead of swallowing silently.
-            warnings.warn(
-                f"isopycnal T/S panel for {_sv} unavailable: {exc!r}",
-                stacklevel=2,
-            )
+            log.warning("isopycnal T/S panel for %s unavailable: %r", _sv, exc)
             return None
 
     caption = GRID_CAPTIONS["isopycnal_ts"].format(sigma_var=sigma_var)
@@ -822,10 +820,10 @@ def generate_grid_page(
                 with xr.open_dataset(stack_path) as _f:
                     ds_stack = _f.load()
             except Exception as exc:
-                warnings.warn(
-                    f"grid report: could not read the stack ({exc}); instrument "
+                log.warning(
+                    "grid report: could not read the stack (%s); instrument "
                     "pressures and counts are left out",
-                    stacklevel=2,
+                    exc,
                 )
         # Build the shared context (latitude, levels, scale, history, nc_meta)
         # once, then resolve the profile against it.  ``resolve`` renders every
@@ -891,4 +889,4 @@ def generate_grid_page(
         out_path.write_text(html, encoding="utf-8")
         logger.status("file", logger.format_rel_path(out_path, display_root))
     except Exception as exc:
-        print(f"  ERROR generating grid report: {exc}")
+        log.error("%s: grid report not built: %s", mooring_name, exc)

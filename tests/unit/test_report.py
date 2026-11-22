@@ -6,6 +6,8 @@ Three test classes:
   TestPageGenerators    — generate_instrument_pages / _stack / _grid with synthetic NC
 """
 
+import logging
+import re
 from pathlib import Path
 
 import numpy as np
@@ -689,7 +691,7 @@ class TestPageGenerators:
         assert "TEST_M1" in html
 
 
-def test_isopycnal_panel_warns_and_stubs_on_failure(monkeypatch):
+def test_isopycnal_panel_warns_and_stubs_on_failure(monkeypatch, caplog):
     """A failure inside the isopycnal renderer warns, naming the sigma variable,
     and returns None (the stub path) instead of swallowing the exception.
     """
@@ -703,8 +705,9 @@ def test_isopycnal_panel_warns_and_stubs_on_failure(monkeypatch):
     monkeypatch.setattr(hydrography, "isopycnal_dataset", _boom)
     panel = _grid._isopycnal_ts_panel("sigma0")
     ctx = type("Ctx", (), {"ds": None})()
-    with pytest.warns(UserWarning, match="sigma0"):
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
         assert panel.render(ctx) is None
+    assert re.search("sigma0", caplog.text)
 
 
 def test_render_nc_tables_tolerate_empty_meta():

@@ -21,6 +21,16 @@ The clock tools moved to ``analysis``
 ``DeprecationWarning``, until 0.8.0; change ``from oceanarray.pipeline.clock import …``
 to ``from oceanarray.analysis.clock import …``.
 
+Data warnings are log records
+-----------------------------
+
+Problems found while reading or reporting (records dropped for a missing time,
+unexpected units, a stage file without its marker, an attribute dropped on writing)
+were Python ``UserWarning`` s; they are now ``WARNING`` records of the ``oceanarray``
+logger, so they also reach the stage log files. Code that caught them with
+``warnings.catch_warnings`` or ``pytest.warns`` should read the log instead
+(``caplog`` in pytest). Deprecations are still ``DeprecationWarning`` s.
+
 A missing folder or mooring YAML raises
 ---------------------------------------
 

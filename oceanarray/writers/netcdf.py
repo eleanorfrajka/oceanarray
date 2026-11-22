@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import json
 import logging
-import warnings
 from collections.abc import Mapping
 from pathlib import Path
 
@@ -108,17 +107,14 @@ def _netcdf_safe_attr_value(value: object) -> object:
     return value
 
 
-def _netcdf_safe_attr_dict(attrs: dict, scope: str, *, stacklevel: int) -> dict:
+def _netcdf_safe_attr_dict(attrs: dict, scope: str) -> dict:
     """Clean an attribute mapping, dropping ``None``-valued keys with a warning."""
     cleaned: dict = {}
     for key, value in attrs.items():
         result = _netcdf_safe_attr_value(value)
         if result is _DROP:
-            # stacklevel counts frames up to the user's write() call, so the
-            # warning points at the caller's line rather than into the writer.
-            warnings.warn(
-                f"{scope}: dropping attribute {key!r} because its value is None",
-                stacklevel=stacklevel,
+            log.warning(
+                "%s: dropping attribute %r because its value is None", scope, key
             )
             continue
         cleaned[key] = result
@@ -165,11 +161,8 @@ def _netcdf_safe_names(ds: xr.Dataset) -> xr.Dataset:
 def _netcdf_safe_attrs(ds: xr.Dataset) -> xr.Dataset:
     """Return a shallow copy of *ds* with netCDF-safe attributes and encoding."""
 
-    # stacklevel to the user's write() call: warn -> _netcdf_safe_attr_dict ->
-    # (clean_variable ->) _netcdf_safe_attrs -> _prepare -> write -> caller. The
-    # per-variable path is one frame deeper than the global path.
     def clean_variable(name: str, var: xr.DataArray) -> tuple[dict, dict]:
-        attrs = _netcdf_safe_attr_dict(var.attrs, f"variable {name!r}", stacklevel=6)
+        attrs = _netcdf_safe_attr_dict(var.attrs, f"variable {name!r}")
         encoding = dict(var.encoding)
         # A decoded time coordinate still carrying a units attribute would collide
         # with xarray's time encoding at write time, so move it to encoding.
@@ -180,7 +173,7 @@ def _netcdf_safe_attrs(ds: xr.Dataset) -> xr.Dataset:
         return attrs, encoding
 
     safe = ds.copy(deep=False)
-    safe.attrs = _netcdf_safe_attr_dict(ds.attrs, "global", stacklevel=5)
+    safe.attrs = _netcdf_safe_attr_dict(ds.attrs, "global")
     for name, var in ds.variables.items():
         attrs, encoding = clean_variable(name, var)
         safe[name].attrs = attrs

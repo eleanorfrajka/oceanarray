@@ -8,10 +8,14 @@ Pairs with :mod:`oceanarray.plotters.hydrography` for figure output.
 
 from __future__ import annotations
 
+import logging
+
 import gsw
 import numpy as np
 import pandas as pd
 import xarray as xr
+
+log = logging.getLogger(__name__)
 
 
 def calc_psal(ds: xr.Dataset) -> xr.Dataset:
@@ -40,7 +44,7 @@ def calc_psal(ds: xr.Dataset) -> xr.Dataset:
         SP = gsw.SP_from_C(ds["CNDC"], ds["TEMP"], ds["PRES"])
         ds["PSAL"] = (ds["CNDC"].dims, SP.data)
     else:
-        print("ds already contains variable PSAL")
+        log.debug("PSAL already present; left unchanged")
     return ds
 
 

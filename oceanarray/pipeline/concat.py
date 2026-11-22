@@ -11,7 +11,6 @@ import contextlib
 import logging
 import os
 import re
-import warnings
 from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 
@@ -43,10 +42,10 @@ def _stack_settings(ds: xr.Dataset) -> dict:
     text = ds.attrs.get("deployment_settings", "")
     settings = _mooring.settings_from_yaml(text)
     if text and not settings:
-        warnings.warn(
-            f"{ds.attrs.get('mooring_name', 'a stack')}: its deployment_settings do not "
-            "parse; the default depth-matching rule is used for it.",
-            stacklevel=2,
+        log.warning(
+            "%s: its deployment_settings do not parse; "
+            "the default depth-matching rule is used for it.",
+            ds.attrs.get("mooring_name", "a stack"),
         )
     block = settings.get("stack")
     return block if isinstance(block, Mapping) else {}
@@ -274,12 +273,13 @@ def _assign_depths(
             and abs(v - depth_group["center"]) > depth_group["tolerance"]
         ]
         if far:
-            warnings.warn(
-                f"a {depth_group['family']} depth (center {depth_group['center']:.0f} m) has "
-                f"levels more than {depth_group['tolerance']:g} m from its center: "
-                f"{', '.join(f'{v:.0f}' for v in far)} m; check the grouping in the "
-                "report's instrument table.",
-                stacklevel=2,
+            log.warning(
+                "a %s depth (center %.0f m) has levels more than %g m from its "
+                "center: %s m; check the grouping in the report's instrument table.",
+                depth_group["family"],
+                depth_group["center"],
+                depth_group["tolerance"],
+                ", ".join(f"{v:.0f}" for v in far),
             )
     return out, depth_groups
 

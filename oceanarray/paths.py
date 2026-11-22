@@ -6,10 +6,12 @@ Every processing stage derives its read/write locations from here so the
 logic is defined once rather than copied per stage.
 """
 
+import logging
 import re
-import sys
 from pathlib import Path
 from typing import Any
+
+log = logging.getLogger(__name__)
 
 _PathLike = str | Path
 
@@ -287,11 +289,11 @@ def require_current_layout(proc_root: _PathLike, mooring: str) -> None:
         # the legacy one is silently ignored.
         for legacy_root in legacy_roots:
             if (legacy_root / mooring).is_dir():
-                print(
-                    f"WARNING: both the current '{proc_root / mooring}' and a "
-                    f"legacy '{legacy_root / mooring}' directory exist; the legacy "
-                    f"copy is ignored. Remove it to avoid confusion.",
-                    file=sys.stderr,
+                log.warning(
+                    "both the current '%s' and a legacy '%s' directory exist; the "
+                    "legacy copy is ignored. Remove it to avoid confusion.",
+                    proc_root / mooring,
+                    legacy_root / mooring,
                 )
                 break
         return

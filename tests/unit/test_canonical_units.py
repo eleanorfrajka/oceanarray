@@ -10,6 +10,7 @@ registered variable's display unit is derived from, via :func:`vunit`/:func:`vla
 
 from __future__ import annotations
 
+import logging
 import re
 import subprocess
 import sys
@@ -390,14 +391,15 @@ def test_warn_if_not_canonical_silent_on_canonical_and_aliases():
             ut.warn_if_not_canonical(da, expected, quantity="x")  # must not raise
 
 
-def test_warn_if_not_canonical_warns_on_real_mismatch():
+def test_warn_if_not_canonical_warns_on_real_mismatch(caplog):
     """A source unit that is not the expected canonical (nor an alias) warns loudly."""
     da = xr.DataArray([1.0], attrs={"units": "furlong"})
-    with pytest.warns(UserWarning, match="may be wrong"):
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
         ut.warn_if_not_canonical(da, "dbar", quantity="instrument spacing (dbar)")
+    assert re.search("may be wrong", caplog.text)
 
 
-def test_warn_if_not_canonical_rejects_cross_quantity_standard_name():
+def test_warn_if_not_canonical_rejects_cross_quantity_standard_name(caplog):
     """A standard_name from a different quantity must not silence the guard.
 
     ``units='deg'`` with ``standard_name='latitude'`` resolves to ``('dbar', 1.0)``
@@ -405,8 +407,9 @@ def test_warn_if_not_canonical_rejects_cross_quantity_standard_name():
     is not the expected quantity, so a foreign/mislabelled variable still warns.
     """
     da = xr.DataArray([1.0], attrs={"units": "deg", "standard_name": "latitude"})
-    with pytest.warns(UserWarning, match="may be wrong"):
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
         ut.warn_if_not_canonical(da, "dbar", quantity="instrument spacing (dbar)")
+    assert re.search("may be wrong", caplog.text)
 
 
 def test_oceanarray_unit_aliases_reach_vunit():

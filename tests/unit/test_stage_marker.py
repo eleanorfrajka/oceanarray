@@ -1,5 +1,7 @@
 """Tests for the processing-stage marker (:mod:`oceanarray.pipeline._stage`)."""
 
+import logging
+import re
 from pathlib import Path
 
 import pytest
@@ -49,10 +51,11 @@ def test_require_raises_on_the_wrong_stage() -> None:
         require({"2941": ds}, 2, 3)
 
 
-def test_require_tolerates_a_missing_marker_with_a_warning() -> None:
+def test_require_tolerates_a_missing_marker_with_a_warning(caplog) -> None:
     """An unmarked dataset (written before the marker) is a WARNING, not a refusal."""
     ds = _ds()
     ds.attrs.pop(STAGE_ATTR, None)
-    with pytest.warns(UserWarning, match="no 'processing_stage'"):
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
         require([ds], 2, 3)
+    assert re.search("no 'processing_stage'", caplog.text)
     ds.close()

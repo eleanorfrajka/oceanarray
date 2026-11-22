@@ -8,6 +8,8 @@ the correction is not yet. These tests pin the reader against caldip's real outp
 
 from __future__ import annotations
 
+import logging
+import re
 import shutil
 from pathlib import Path
 
@@ -174,7 +176,7 @@ def test_two_serials_with_one_join_key_are_refused(tmp_path):
         caldip.read_caldip_cast(path)
 
 
-def test_an_unknown_instrument_type_warns(tmp_path):
+def test_an_unknown_instrument_type_warns(tmp_path, caplog):
     """An instrument_type outside the vocabulary is read, with a warning."""
 
     def edit(ds):
@@ -183,8 +185,9 @@ def test_an_unknown_instrument_type_warns(tmp_path):
         ds["instrument_type"] = ("instrument", types.astype(str))
 
     path = _copy_with(tmp_path, edit)
-    with pytest.warns(UserWarning, match="mystery"):
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
         caldip.read_caldip_cast(path)
+    assert re.search("mystery", caplog.text)
 
 
 # ── finding the dips ─────────────────────────────────────────────────────────

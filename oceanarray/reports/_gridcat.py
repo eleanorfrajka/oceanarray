@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-import warnings
 from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -617,7 +616,7 @@ def generate_gridcat_page(
         logger.status("file", str(out_path))
         return out_path
     except Exception as exc:  # noqa: BLE001 — a failed page must not abort the concat
-        warnings.warn(f"site grid report generation failed: {exc}", stacklevel=2)
+        log.warning("site grid report generation failed: %s", exc)
         return None
 
 

@@ -7,7 +7,6 @@ files. :class:`MooringProcessor` reads each instrument's raw file, calls
 """
 
 import logging
-import warnings
 from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any
@@ -530,21 +529,19 @@ def _apply_analog_and_unit_hygiene(
         units = da.attrs.get("units")
         if units in bad_units:
             del dataset[vname].attrs["units"]
-            warnings.warn(
-                f"Variable '{vname}': units attr was '{units}' (placeholder from "
-                f"instrument file) and has been removed.  Verify the sensor "
-                f"specification and set units manually if required.",
-                UserWarning,
-                stacklevel=2,
+            log.warning(
+                "Variable '%s': units attr was '%s' (placeholder from instrument "
+                "file) and has been removed.  Verify the sensor specification and "
+                "set units manually if required.",
+                vname,
+                units,
             )
     # Turbidity often has no units at all (Seapoint: no units in the RSK table).
     if "turbidity" in dataset.data_vars and "units" not in dataset["turbidity"].attrs:
-        warnings.warn(
+        log.warning(
             "Variable 'turbidity' has no units attribute.  Typical units are "
             "'FTU' (Seapoint) or 'NTU' (WET Labs).  Verify the sensor spec and "
-            "add a units attribute to the output file if required.",
-            UserWarning,
-            stacklevel=2,
+            "add a units attribute to the output file if required."
         )
 
     # seasenselib attrs that duplicate our own provenance fields.
@@ -571,13 +568,12 @@ def _people_counts(people: Mapping[str, str]) -> str:
 def _cleaned(
     read: Callable[[], dict[str, str]], label: str
 ) -> tuple[dict[str, str], int]:
-    """Return *read*'s people, logging each warning the reading raised, and their count."""
-    with warnings.catch_warnings(record=True) as caught:
-        warnings.simplefilter("always")
+    """Return *read*'s people and how many warnings reading them logged."""
+    with logger.count_warnings(attribution.__name__) as warned:
         people = read()
-    for w in caught:
-        log.warning(f"  people ({label}): {w.message}")
-    return people, len(caught)
+    if warned:
+        log.info("  people (%s): %d warning(s) above", label, len(warned))
+    return people, len(warned)
 
 
 def _add_people(dataset: xr.Dataset, mooring: Mapping[str, Any]) -> xr.Dataset:

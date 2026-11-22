@@ -5,7 +5,8 @@ attribute strings copied from other OSNAP East files (egM2 2018, IC1 2020, rrD5 
 CF4 2014).
 """
 
-import warnings
+import logging
+import re
 from pathlib import Path
 
 import pytest
@@ -17,9 +18,7 @@ _OSNAP = Path(__file__).parent.parent / "fixtures" / "raw" / "osnap"
 
 
 def _people(attrs: dict, prefix: str = "") -> dict:
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        return attribution.union([attribution.people_from_attrs(attrs, prefix=prefix)])
+    return attribution.union([attribution.people_from_attrs(attrs, prefix=prefix)])
 
 
 def _clean(path: Path) -> dict:
@@ -51,9 +50,9 @@ def test_every_parallel_list_has_one_entry_per_person():
         assert len(out[attr].split("; ")) == n
 
 
-def test_one_role_for_two_contributors_goes_to_the_first():
+def test_one_role_for_two_contributors_goes_to_the_first(caplog):
     """GEOMAR K7 2014: one role for two contributors goes to the first; the second is blank."""
-    with pytest.warns(UserWarning, match="1 role for 2 names; given to the first name"):
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
         people = attribution.people_from_attrs(
             read_oceansites(
                 _OSNAP
@@ -61,6 +60,7 @@ def test_one_role_for_two_contributors_goes_to_the_first():
             ).attrs,
             prefix="originator_",
         )
+    assert re.search("1 role for 2 names; given to the first name", caplog.text)
     out = attribution.to_attrs(attribution.union([people]))
     # Johannes Karstensen takes the role, which names two ("data collection and
     # processing"); Marilena Oltmanns's blank one merges into her publisher entry.
@@ -108,7 +108,7 @@ def test_pis_named_only_by_a_contributor_role():
     assert tiago == ["originator", "Data Processor"]
 
 
-def test_one_person_with_two_emails_stays_one():
+def test_one_person_with_two_emails_stays_one(caplog):
     """rrD5: William Johns as bjonhs@ (a typo) then bjohns@ — one PI, the newest email."""
     groups = [
         attribution.people_from_attrs(
@@ -119,8 +119,9 @@ def test_one_person_with_two_emails_stays_one():
         )
         for email in ("bjonhs@rsmas.miami.edu", "bjohns@rsmas.miami.edu")
     ]
-    with pytest.warns(UserWarning, match="replaced by the newest"):
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
         people = attribution.union(groups)
+    assert re.search("replaced by the newest", caplog.text)
     assert people["principal_investigator"] == [
         {
             "name": "William Johns",
@@ -181,9 +182,9 @@ def test_surname_given_becomes_given_surname():
     ]
 
 
-def test_a_shared_contact_email_keeps_both_people():
+def test_a_shared_contact_email_keeps_both_people(caplog):
     """Two contributors with one email between them: both stay, the email is not paired."""
-    with pytest.warns(UserWarning, match="left out"):
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
         parsed = attribution.people_from_attrs(
             {
                 "contributor_name": "M. Femke de Jong; Nora Fried",
@@ -191,6 +192,7 @@ def test_a_shared_contact_email_keeps_both_people():
                 "contributor_email": "femke.de.jong@nioz.nl",
             }
         )
+    assert re.search("left out", caplog.text)
     people = attribution.union([parsed])
     assert [p["name"] for p in people["contributor"]] == [
         "M. Femke de Jong",
@@ -277,3 +279,15 @@ def test_the_version_check(written, ok):
         provenance.requires_version(attrs, "0.7.0", key="stage1_oceanarray_version")
         is ok
     )
+
+
+def test_stage1_counts_the_people_warnings_it_logs(caplog):
+    """A real file with one e-mail too many: logged once, and counted in the history."""
+    from oceanarray.pipeline import stage1
+
+    ds = read_oceansites(_OSNAP / "CF7_MCTD_2020_22225_50m.nc")
+    ds.attrs["originator_contributor_email"] = "a@ucsd.edu, b@ucsd.edu, c@ucsd.edu"
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
+        out = stage1._add_people(ds, {})
+    assert caplog.text.count("left out (not paired)") == 1
+    assert "1 warning)" in out.attrs["history"]

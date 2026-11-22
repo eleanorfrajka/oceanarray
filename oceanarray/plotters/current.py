@@ -223,7 +223,7 @@ def draw_speed_boxplot(
 
     for p in [5, 25, 50, 75, 95]:
         val = np.percentile(speed_clean, p)
-        print(f"  {p:2d}th percentile: {val:.4f} {units}")
+        logger.debug("%2dth percentile: %.4f %s", p, val, units)
 
     fig, ax = plt.subplots(figsize=(width_in, 3.5))
     bp = ax.boxplot(

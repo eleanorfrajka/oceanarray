@@ -458,7 +458,7 @@ def generate_instrument_pages(
 
         stages = instr.get("stages", {})
         if not any(stages.get(s) for s in ("stage1", "stage2", "stage3")):
-            print(f"{prefix}  [skipped — no processed files]")
+            log.info("%s  [skipped — no processed files]", prefix)
             continue
 
         _base = proc_dir / instr_type / f"{mooring_name}_{serial}"
@@ -477,7 +477,7 @@ def generate_instrument_pages(
         if should_skip_regeneration(
             out_path, force, skip_existing, *([_source_nc] if _source_nc else [])
         ):
-            print(f"{prefix}  {out_path.name}  [skip]")
+            log.info("%s  %s  [skip]", prefix, out_path.name)
             continue
         best_nc = (
             stage3_nc
@@ -767,6 +767,6 @@ def generate_instrument_pages(
             html = render_template("instrument.html", **ctx)
             out_path.parent.mkdir(parents=True, exist_ok=True)
             out_path.write_text(html, encoding="utf-8")
-            print(f"{prefix}  {out_path.name}")
+            log.info("%s  %s", prefix, out_path.name)
         except Exception as exc:
-            print(f"{prefix}  ERROR: {exc}")
+            log.error("%s  ERROR: %s", prefix, exc)

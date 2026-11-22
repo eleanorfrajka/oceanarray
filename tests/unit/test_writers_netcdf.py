@@ -8,6 +8,8 @@ was removed with the writer cleanup — after that branch there is no old writer
 
 from __future__ import annotations
 
+import logging
+import re
 from pathlib import Path
 
 import numpy as np
@@ -241,7 +243,7 @@ def test_bool_attribute_is_stored_as_int8():
         assert isinstance(out, np.int8)
 
 
-def test_none_attributes_dropped_with_warning(tmp_path):
+def test_none_attributes_dropped_with_warning(tmp_path, caplog):
     """A None global or variable attribute is dropped from the file, with a warning."""
     ds = xr.Dataset(
         {"temperature": ("x", np.arange(3.0))},
@@ -250,8 +252,9 @@ def test_none_attributes_dropped_with_warning(tmp_path):
     )
     ds["temperature"].attrs["note"] = None
     out = tmp_path / "none.nc"
-    with pytest.warns(UserWarning, match="dropping attribute"):
+    with caplog.at_level(logging.WARNING, logger="oceanarray"):
         write(ds, out)
+    assert re.search("dropping attribute", caplog.text)
 
     reopened = xr.open_dataset(out, engine="netcdf4")
     try:
