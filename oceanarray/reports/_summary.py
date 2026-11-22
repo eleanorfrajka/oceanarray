@@ -118,7 +118,7 @@ def _format_instrument_line(
                 n_raw = str(len(raw.time))
         else:
             n_raw = "?"
-    except Exception:  # noqa: BLE001  — an unreadable stage-1 file is shown, not raised
+    except (OSError, ValueError):  # an unreadable stage-1 file is shown, not raised
         n_raw = "HDF ERR"
     counts = f"{n_raw:>7} raw → {n_rec:>7} stage{stage_n}"
     mtime = datetime.datetime.fromtimestamp(best.stat().st_mtime).strftime(

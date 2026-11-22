@@ -14,6 +14,8 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Changed
 
+- An unreadable file or header is skipped with a WARNING naming the file, no longer silently (#159).
+- A missing processing folder or mooring YAML raises `MooringError`; `MooringReport.generate` and `generate_recovery_table` returned `None` (#159).
 - The clock tools moved from `oceanarray.pipeline.clock` to `oceanarray.analysis.clock`, unchanged; the old path warns until 0.8.0 (#158).
 - Import rules are checked in CI by `lint-imports` (contracts in `pyproject.toml`), docstring examples run as doctests, and `AGENTS.md` points coding assistants to the developer guide (#156).
 - Every figure and the instrument summary hide flagged values by the `mask_flags` rule (default 4), like the grid: suspect (3) values are now drawn on instrument pages and on stacks without a recorded rule, and the Stack cat page marks them with black dots as the stack page does. Re-run the report to apply (#155).

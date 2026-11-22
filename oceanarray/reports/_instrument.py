@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from dataclasses import replace
 from datetime import UTC, datetime
@@ -48,6 +49,8 @@ from ._plots import (
 )
 from ._read import _read_nc_metadata, _read_qc_thresholds
 from ._vendored.page_model import Panel, PanelGroup, Profile, Section, resolve
+
+log = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Per-instrument HTML template
@@ -523,7 +526,10 @@ def generate_instrument_pages(
                 # Loaded and closed at once: the figures open the file again.
                 with xr.open_dataset(best_nc, decode_timedelta=False) as _ds:
                     ds_page = _ds.load()
-            except Exception:
+            except (OSError, ValueError) as e:
+                log.warning(
+                    "%s: not read for the instrument page (%s)", Path(best_nc).name, e
+                )
                 ds_page = None
         if ds_page is not None:
             history_entries = _parse_history(ds_page.attrs.get("history", ""))

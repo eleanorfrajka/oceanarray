@@ -12,6 +12,7 @@ Entry point: :func:`generate_recovery_table`.
 
 from __future__ import annotations
 
+import logging
 from datetime import UTC
 from pathlib import Path
 from typing import Any
@@ -19,12 +20,15 @@ from typing import Any
 import yaml
 
 from oceanarray import logger, paths
+from oceanarray.exceptions import MooringError
 from oceanarray.instruments import instrument_entries
 
 from ..paths import safe_serial
 from . import _masthead
 from ._env import render_template
 from ._html_helpers import _resolve_clock
+
+log = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Instrument type → parameter abbreviations
@@ -84,7 +88,8 @@ def _read_stage_times(
             return "—", "—"
         t0 = str(time[0])[:16].replace("T", " ")
         t1 = str(time[-1])[:16].replace("T", " ")
-    except Exception:  # noqa: BLE001
+    except (OSError, KeyError, ValueError) as e:
+        log.warning("%s: start and end times not read (%s)", stage_path.name, e)
         return "—", "—"
     else:
         return t0, t1
@@ -240,7 +245,7 @@ def generate_recovery_table(
     yaml_path: Path | None = None,
     out_path: Path | None = None,
     force: bool = False,
-) -> Path | None:
+) -> Path:
     """Generate a standalone HTML cruise-report recovery table.
 
     Parameters
@@ -261,8 +266,13 @@ def generate_recovery_table(
 
     Returns
     -------
-    Path or None
-        Path to the written HTML file, or ``None`` on failure.
+    Path
+        Path to the written HTML file.
+
+    Raises
+    ------
+    MooringError
+        When the mooring YAML is missing.
 
     """
     from datetime import datetime
@@ -274,13 +284,12 @@ def generate_recovery_table(
     if out_path is None:
         out_path = proc_dir / f"{mooring_name}_recovery_table.html"
 
+    if not yaml_path.exists():
+        raise MooringError(f"{mooring_name}: mooring YAML not found: {yaml_path}")
+
     if out_path.exists() and not force:
         logger.status("skip", str(out_path))
         return out_path
-
-    if not yaml_path.exists():
-        print(f"ERROR: YAML not found: {yaml_path}")
-        return None
 
     with yaml_path.open() as fh:
         cfg = yaml.safe_load(fh) or {}

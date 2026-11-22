@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import contextlib
+import logging
 from collections.abc import Mapping
 from datetime import UTC, datetime
 from pathlib import Path
@@ -13,6 +14,7 @@ import numpy as np
 from oceanarray import logger, paths
 from oceanarray import mooring as _mooring
 from oceanarray.analysis.derived import knockdown as build_knockdown
+from oceanarray.exceptions import MooringError
 from oceanarray.instruments import instrument_entries
 from oceanarray.paths import should_skip_regeneration
 from oceanarray.pipeline import masking
@@ -53,6 +55,8 @@ from ._read import (
 )
 from ._stack import generate_stack_page
 from ._vendored.page_model import Panel, Profile, Section, resolve
+
+log = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Section manifest — mooring registry
@@ -528,8 +532,8 @@ def _serials_in_nc(nc_path: Path) -> frozenset:
             # so the YAML instrument serial matches.
             base = frozenset(paths.adcp_parent_serial(s) for s in raw)
             return raw | base
-    except Exception:
-        pass
+    except (OSError, ValueError) as e:
+        log.warning("%s: serials not read (%s)", nc_path.name, e)
     return frozenset()
 
 
@@ -586,7 +590,7 @@ class MooringReport:
         cfg: Mapping[str, Any] | None = None,
         mooring_dir: str | Path | None = None,
         yaml_path: str | Path | None = None,
-    ) -> Path | None:
+    ) -> Path:
         """Build the mooring's summary page and, when asked, its other pages.
 
         Parameters
@@ -619,8 +623,13 @@ class MooringReport:
 
         Returns
         -------
-        pathlib.Path or None
-            The summary page, or None when the folder or description is missing.
+        pathlib.Path
+            The summary page.
+
+        Raises
+        ------
+        MooringError
+            When the processing folder or the mooring YAML is missing.
         """
         # Reset the per-figure debug capture at the start of each report so a
         # long-lived process (a batch of moorings) does not accumulate it
@@ -635,8 +644,9 @@ class MooringReport:
             else paths.mooring_proc_dir(self._proc_dir, mooring_name)
         )
         if not proc_dir.exists():
-            print(f"ERROR: Processing directory not found: {proc_dir}")
-            return None
+            raise MooringError(
+                f"{mooring_name}: processing directory not found: {proc_dir}"
+            )
 
         out_dir = paths.resolve_report_dir(
             mooring_name,
@@ -658,8 +668,7 @@ class MooringReport:
         elif yaml_path.exists():
             cfg = _mooring.load(yaml_path)
         else:
-            print(f"ERROR: Config not found: {yaml_path}")
-            return None
+            raise MooringError(f"{mooring_name}: mooring YAML not found: {yaml_path}")
         # The summary's inputs are the description and its instruments' stage files,
         # named from the description (not found by searching the folder).
         source_ncs = [

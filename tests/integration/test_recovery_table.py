@@ -11,6 +11,9 @@ missing-variable guards that only surface on a real NetCDF.
 
 import re
 
+import pytest
+
+from oceanarray.exceptions import MooringError
 from oceanarray.reports._recovery_table import generate_recovery_table
 
 MOORING = "dune2_1_2026"
@@ -82,14 +85,14 @@ class TestRecoveryTable:
 
 
 class TestRecoveryTableMissingYaml:
-    """A mooring directory with no YAML yields None, not a crash."""
+    """A mooring directory with no YAML raises, naming the missing file."""
 
-    def test_missing_yaml_returns_none(self, tmp_path):
+    def test_missing_yaml_raises(self, tmp_path):
         (tmp_path / MOORING).mkdir()
-        result = generate_recovery_table(
-            mooring_name=MOORING,
-            proc_dir=tmp_path / MOORING,
-            out_path=tmp_path / "out.html",
-            force=True,
-        )
-        assert result is None
+        with pytest.raises(MooringError, match="mooring YAML not found"):
+            generate_recovery_table(
+                mooring_name=MOORING,
+                proc_dir=tmp_path / MOORING,
+                out_path=tmp_path / "out.html",
+                force=True,
+            )

@@ -13,6 +13,7 @@ Tier classification:  Tier-2 domain functions (xr.Dataset-in / file-out).
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 import matplotlib.colors as mcolors
@@ -23,6 +24,8 @@ import xarray as xr
 from oceanarray.config.unit_tables import unit_label
 from oceanarray.plotters.helpers import tukey_smooth
 from oceanarray.plotters.primitives import nice_colorbar_bounds
+
+log = logging.getLogger(__name__)
 
 
 def animate_hodograph(
@@ -253,7 +256,8 @@ def animate_hodograph(
 
     try:
         anim.save(str(output_path), writer="pillow", fps=fps, dpi=dpi)
-    except Exception:  # noqa: BLE001  — broad catch at I/O boundary; caller checks return value
+    except (OSError, ValueError, RuntimeError) as e:  # the caller checks for None
+        log.warning("animation not written to %s: %s", output_path, e)
         plt.close(fig)
         return None
 

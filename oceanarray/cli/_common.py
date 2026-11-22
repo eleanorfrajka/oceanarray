@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import logging
 import sys
 from pathlib import Path
 from typing import NoReturn
@@ -10,6 +11,8 @@ from typing import NoReturn
 from oceanarray import paths
 from oceanarray.cli._deprecate import DeprecatedAlias
 from oceanarray.pipeline import resolve_stage
+
+log = logging.getLogger(__name__)
 
 
 def _usage_error(message: str) -> NoReturn:
@@ -336,6 +339,11 @@ def _pressure_targets(cfg: dict, moor_dir: Path) -> set[str]:
     try:
         datasets = read_mooring(cfg, stage=2, allow_missing=True, mooring_dir=moor_dir)
         _, targets = _split_pressure_sources(_build_instrument_table(datasets, cfg))
-    except Exception:  # noqa: BLE001  — a preview: no stage-2 files, or unreadable ones
+    except (
+        OSError,
+        KeyError,
+        ValueError,
+    ) as e:  # a preview: no stage-2 files, or unreadable ones
+        log.debug("pressure-target preview skipped: %s", e)
         return set()
     return {str(t["serial"]) for t in targets}

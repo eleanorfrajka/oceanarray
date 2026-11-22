@@ -197,7 +197,8 @@ def _read_qc_thresholds(nc_path: Path) -> list[dict[str, Any]]:
             )
         ds.close()
         return rows
-    except Exception:
+    except (OSError, KeyError, ValueError) as e:
+        log.warning("%s: QC thresholds not read (%s)", nc_path.name, e)
         return []
 
 
@@ -456,7 +457,8 @@ def _read_timing_info(
             "stage1_end_early": stage1_end_early,
             "dt_s": dt_s,
         }
-    except Exception:
+    except (OSError, KeyError, ValueError) as e:
+        log.warning("%s s/n %s: timing not read (%s)", instr_type, serial, e)
         return {}
 
 
@@ -569,5 +571,8 @@ def _read_sensor_info(
             )
         ds.close()
         return rows
-    except Exception:
+    except (OSError, KeyError, ValueError) as e:
+        log.warning(
+            "%s s/n %s: sensor information not read (%s)", instr_type, serial, e
+        )
         return []

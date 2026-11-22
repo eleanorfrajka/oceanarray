@@ -68,10 +68,7 @@ def record(b64: str | None, func: str, fig: Any) -> None:
     """
     if not enabled() or not b64 or fig is None:
         return
-    try:
-        w_in, h_in = (float(v) for v in fig.get_size_inches())
-    except Exception:  # noqa: BLE001 - figure size is best-effort debug metadata
-        return
+    w_in, h_in = (float(v) for v in fig.get_size_inches())
     _COLLECTED[b64] = {
         "func": func,
         "figsize_in": (round(w_in, 2), round(h_in, 2)),

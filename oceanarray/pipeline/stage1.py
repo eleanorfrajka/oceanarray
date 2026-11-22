@@ -404,8 +404,12 @@ def _to_canonical_rdi(
         _orient_raw = _ga.get("orientation")
         if _orient_raw:
             dataset.attrs["orientation_instrument"] = str(_orient_raw)
-    except Exception:  # noqa: BLE001 — raw_metadata absent or malformed; proceed without
-        pass
+    except (ValueError, TypeError, AttributeError) as e:  # raw_metadata malformed
+        log.warning(
+            "raw_metadata could not be read (%s); the ADCP setup attributes "
+            "(cell size, firmware coordinate system, ...) are not copied",
+            e,
+        )
 
     # 7. Set coordinate system — only mark ENU if at least one ENU component was
     #    extracted.  If the RDI was configured in beam or instrument coords dolfyn

@@ -14,6 +14,7 @@ import xarray as xr
 
 pytest.importorskip("seasenselib", reason="seasenselib not installed")
 
+from oceanarray.exceptions import MooringError
 from oceanarray.instruments import parse_clock_reading, resolve_clock_correction
 from oceanarray.pipeline.stage2 import (
     Stage2Processor,
@@ -350,10 +351,10 @@ class TestErrorHandling:
         assert result is False
 
     def test_processing_directory_not_found(self, tmp_path):
-        """Test handling when processing directory doesn't exist."""
+        """A missing processing directory raises, naming the path."""
         processor = Stage2Processor(proc_dir=str(tmp_path))
-        result = processor.process_mooring("nonexistent_mooring")
-        assert result is False
+        with pytest.raises(MooringError, match="processing directory not found"):
+            processor.process_mooring("nonexistent_mooring")
 
 
 class TestParseClockReading:

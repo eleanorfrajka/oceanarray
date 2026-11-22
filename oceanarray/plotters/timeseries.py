@@ -9,6 +9,7 @@ Grid sections (pressure × time): :func:`draw_grid_hydro`,
 from __future__ import annotations
 
 import contextlib
+import logging
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -61,6 +62,8 @@ from .primitives import (
     section_layout,
     section_scale,
 )
+
+log = logging.getLogger(__name__)
 
 
 def _draw_grid(
@@ -269,8 +272,8 @@ def draw_grid_hydro(
                 )
             )
             panels.insert(1, "salinity")
-        except Exception:  # noqa: BLE001
-            pass
+        except (KeyError, ValueError) as e:
+            log.warning("salinity not computed from conductivity: %s", e)
     if not panels:
         return None
 

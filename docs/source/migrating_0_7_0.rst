@@ -21,6 +21,16 @@ The clock tools moved to ``analysis``
 ``DeprecationWarning``, until 0.8.0; change ``from oceanarray.pipeline.clock import …``
 to ``from oceanarray.analysis.clock import …``.
 
+A missing folder or mooring YAML raises
+---------------------------------------
+
+``MooringReport.generate`` and ``generate_recovery_table`` returned ``None``, and
+``Stage2Processor`` / ``Stage3Processor.process_mooring`` returned ``False``, when the
+processing folder or the mooring YAML was missing, printing the reason. They now raise
+``MooringError`` with the path in the message. Replace a check for ``None`` or
+``False`` with ``except MooringError``. The ``oceanarray`` commands already stopped
+with an error; only the message changes.
+
 No pitch or roll flags
 ----------------------
 

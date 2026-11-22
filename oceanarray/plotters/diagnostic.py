@@ -634,7 +634,8 @@ def draw_clock_offset_check(
                 temp[ds[qc_var].values >= 4] = np.nan
             ds.close()
             series[serial] = (t, temp)
-        except Exception:  # noqa: BLE001
+        except (OSError, KeyError, ValueError) as e:
+            logger.warning("%s: left out of the plot, cannot be read (%s)", serial, e)
             continue
 
     if len(series) < 2:
@@ -815,7 +816,10 @@ def draw_windows(
         try:
             ds1 = xr.open_dataset(stage1_nc, decode_timedelta=False).load()
             time1 = ds1["time"].values
-        except Exception:  # noqa: BLE001
+        except (OSError, KeyError, ValueError) as e:
+            logger.warning(
+                "%s: stage-1 record not drawn, cannot be read (%s)", stage1_nc.name, e
+            )
             ds1 = None
     try:
         time = ds["time"].values
@@ -1516,10 +1520,7 @@ def _hourly(ds: xr.Dataset) -> bool:
     """Return True when *ds*'s time step is one hour."""
     from oceanarray.pipeline.dataset import time_step_seconds
 
-    try:
-        return abs(float(time_step_seconds(ds)) - 3600.0) < 1.0
-    except Exception:  # noqa: BLE001
-        return False
+    return abs(float(time_step_seconds(ds)) - 3600.0) < 1.0  # NaN (no step): False
 
 
 def draw_instrument_spacing(

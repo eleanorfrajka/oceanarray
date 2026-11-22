@@ -146,8 +146,6 @@ def report(
             mooring_dir=moor_dir,
             yaml_path=yaml_path,
         )
-    if not page:
-        raise MooringError(f"{name}: the report could not be built (see above).")
     if pdf:
         _combine_pdf(name, Path(page).parent, pdf_dir)
     return Path(page)
@@ -321,6 +319,4 @@ def _write_recovery_table(
         out_path=_recovery_path(name, moor_dir, out_dir, report_dir),
         force=force,
     )
-    if not page:
-        raise MooringError(f"{name}: the recovery table could not be built.")
     return Path(page)

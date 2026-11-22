@@ -37,8 +37,10 @@ def _parse_nortek_coord_system(hdr_path: Path) -> str:
                     cy = re.search(r'\bCY="([^"]+)"', line)
                     if cy:
                         return cy.group(1).strip().upper()
-    except Exception:  # noqa: BLE001  — intentional broad catch at I/O boundary
-        pass
+    except OSError as e:
+        log.warning(
+            "%s: header not read (%s); coordinate system unknown", hdr_path.name, e
+        )
     return "UNK"
 
 
@@ -75,8 +77,8 @@ def _parse_nortek_T_matrix_hdr(hdr_path: Path) -> dict[str, float] | None:
         if len(floats) >= 9:
             keys = ["M11", "M12", "M13", "M21", "M22", "M23", "M31", "M32", "M33"]
             return {k: floats[i] for i, k in enumerate(keys)}
-    except Exception:  # noqa: BLE001  — intentional broad catch at I/O boundary
-        pass
+    except (OSError, ValueError) as e:
+        log.warning("%s: transformation matrix not read (%s)", hdr_path.name, e)
     return None
 
 

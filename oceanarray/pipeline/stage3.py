@@ -679,8 +679,9 @@ class Stage3Processor:
         """
         proc_dir = paths.mooring_proc_dir(self._proc_dir, mooring_name)
         if not proc_dir.exists():
-            print(f"ERROR: Processing directory not found: {proc_dir}")
-            return False
+            raise MooringError(
+                f"{mooring_name}: processing directory not found: {proc_dir}"
+            )
 
         self._setup_logging(mooring_name, proc_dir)
         mode = "DRY RUN — " if dry_run else ""
@@ -693,8 +694,7 @@ class Stage3Processor:
 
         config_file = proc_dir / f"{mooring_name}.mooring.yaml"
         if not config_file.exists():
-            self._log(f"ERROR: Config not found: {config_file}")
-            return False
+            raise MooringError(f"{mooring_name}: mooring YAML not found: {config_file}")
 
         try:
             mooring_config = _mooring.load(config_file)

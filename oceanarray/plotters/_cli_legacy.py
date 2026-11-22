@@ -10,6 +10,7 @@ build new code on these functions or add to this module — new plotting belongs
 the three-tier ``plotters/`` package.
 """
 
+import logging
 import re
 from pathlib import Path
 
@@ -21,6 +22,8 @@ import xarray as xr
 from oceanarray import paths
 from oceanarray.config import parameters as params
 from oceanarray.plotters.helpers import nominal_depth_text, serial_text
+
+log = logging.getLogger(__name__)
 
 #: The report style, applied while each figure is drawn and saved (never set
 #: globally, so later figures in the same process are not changed).
@@ -196,7 +199,11 @@ def draw_mooring_timeseries(
     for nc in use_files:
         try:
             ds = xr.open_dataset(nc, decode_timedelta=False)
-        except Exception:  # noqa: BLE001  — skip unreadable NC; one bad file must not abort plot
+        except (
+            OSError,
+            ValueError,
+        ) as e:  # one unreadable file must not abort the plot
+            log.warning("%s: left out of the plot, cannot be read (%s)", nc.name, e)
             continue
 
         has_y = var_y in ds.data_vars
@@ -223,7 +230,17 @@ def draw_mooring_timeseries(
             else:
                 step = 1
             ds_small = ds[keep].isel(time=slice(None, None, step)).load()
-        except Exception:  # noqa: BLE001  — skip instruments that fail to subsample
+        except (
+            OSError,
+            KeyError,
+            ValueError,
+            IndexError,
+            TypeError,
+            ArithmeticError,
+        ) as e:
+            log.warning(
+                "%s: left out of the plot, cannot be subsampled (%s)", nc.name, e
+            )
             ds.close()
             continue
 

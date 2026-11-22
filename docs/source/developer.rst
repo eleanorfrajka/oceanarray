@@ -1132,10 +1132,6 @@ that makes the change.
      - The switch read at render time (3.13); the level set when a log file or
        console is attached (3.4)
      - 0.7.0
-   * - ``except`` blocks that swallow an error silently
-     - Catch specific exceptions
-     - Narrowed or removed
-     - planned
    * - Docstrings longer than the code
      - Proportionate docstrings
      - Trimmed (section 6)

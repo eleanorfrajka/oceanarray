@@ -14,6 +14,7 @@ import pytest
 import xarray as xr
 import yaml
 
+from oceanarray.exceptions import MooringError
 from oceanarray.paths import safe_serial
 from oceanarray.reports._html_helpers import (
     _format_dt,
@@ -452,18 +453,20 @@ class TestMooringReport:
         report.generate("TEST_M1", force=True)
         assert out.stat().st_mtime > mtime1
 
-    def test_generate_missing_yaml_returns_none(self, tmp_path):
+    def test_generate_missing_yaml_raises(self, tmp_path):
         empty_proc = tmp_path / "proc"
         empty_proc.mkdir()
         (empty_proc / "NO_MOORING").mkdir()
         report = MooringReport(proc_dir=str(empty_proc))
-        result = report.generate("NO_MOORING")
-        assert result is None
+        with pytest.raises(MooringError, match="NO_MOORING: mooring YAML not found"):
+            report.generate("NO_MOORING")
 
-    def test_generate_missing_proc_dir_returns_none(self, tmp_path):
+    def test_generate_missing_proc_dir_raises(self, tmp_path):
         report = MooringReport(proc_dir=str(tmp_path / "proc"))
-        result = report.generate("NONEXISTENT")
-        assert result is None
+        with pytest.raises(
+            MooringError, match="NONEXISTENT: processing directory not found"
+        ):
+            report.generate("NONEXISTENT")
 
 
 # ---------------------------------------------------------------------------
