@@ -14,7 +14,8 @@ from pathlib import Path
 import netCDF4
 
 from oceanarray import paths
-from oceanarray.pipeline._stage import STAGE_ATTR, StageError, _history_stamp
+from oceanarray.exceptions import StageError
+from oceanarray.pipeline._stage import STAGE_ATTR, _history_stamp
 
 _STAGES = (1, 2, 3)
 
@@ -44,11 +45,16 @@ def stamp_file(path: str | Path, stage: int) -> bool:
 
     Raises
     ------
-    oceanarray.pipeline._stage.StageError
+    oceanarray.exceptions.StageError
         If the filename is not a stage file, names a different stage, or the file
         already carries a different ``processing_stage``.
+    FileNotFoundError
+        If *path* does not exist.
     """
     path = Path(path)
+    if not path.is_file():
+        # netCDF4 append mode would create the file.
+        raise FileNotFoundError(f"{path}: no such stage file")
     named = _parse_stage(path)
     if named is None:
         raise StageError(

@@ -11,6 +11,7 @@ from pathlib import Path
 
 import pytest
 
+from oceanarray.exceptions import MooringError
 from oceanarray.pipeline import attribution
 from oceanarray.readers import read_oceansites
 
@@ -232,11 +233,11 @@ def test_the_written_lists_round_trip():
 
 
 def test_the_strict_reader_refuses_lists_that_do_not_line_up():
-    with pytest.raises(ValueError, match="must line up"):
+    with pytest.raises(MooringError, match="must line up"):
         attribution.read_own(
             {"contributor_name": "Amy Bower; Adam Houk", "contributor_role": "PI"}
         )
-    with pytest.raises(ValueError, match="must line up"):
+    with pytest.raises(MooringError, match="must line up"):
         # A comma inside a PI's name shifts every entry after it.
         attribution.read_own(
             {

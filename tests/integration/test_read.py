@@ -13,6 +13,7 @@ import xarray as xr
 
 from oceanarray import readers
 from oceanarray.config import parameters as params
+from oceanarray.exceptions import MooringError, ReaderError
 
 _RAW = Path(__file__).parent.parent / "fixtures" / "raw"
 _DUNE2 = _RAW / "dune2_1_2026"
@@ -56,7 +57,7 @@ def test_unknown_content_raises_naming_the_file(tmp_path):
     """A file of unrecognised content and no ``file_type=`` raises, naming it."""
     junk = tmp_path / "mystery.dat"
     junk.write_text("random text\nwith no instrument header\n")
-    with pytest.raises(ValueError, match="mystery.dat: cannot determine"):
+    with pytest.raises(ReaderError, match="mystery.dat: cannot determine"):
         readers.read(junk)
 
 
@@ -120,5 +121,5 @@ def test_file_type_overrides_the_sniffer():
 
 def test_unknown_file_type_raises():
     """An unknown ``file_type=`` raises ValueError naming the type."""
-    with pytest.raises(ValueError, match="Unknown file type"):
+    with pytest.raises(MooringError, match="unknown file_type"):
         readers.read(_RODB_EDT, file_type="not-a-type")

@@ -24,6 +24,8 @@ from os import PathLike
 from pathlib import Path
 from typing import Any, Literal
 
+from oceanarray.exceptions import MooringError, OceanarrayError, ValidationIssue
+
 __all__ = [
     "Stage",
     "STAGES",
@@ -240,10 +242,10 @@ def _process_legacy(
         proc_dir / mooring / f"{mooring}.mooring.yaml"
     )
     if _collisions:
-        raise ValueError(
-            f"Refusing to process '{mooring}': serial collisions would silently "
-            f"overwrite output files. Fix the mooring YAML:\n  - "
-            + "\n  - ".join(_collisions)
+        raise MooringError(
+            f"{mooring}: serial collisions would silently overwrite output files; "
+            f"fix the serials in the mooring YAML: {'; '.join(_collisions)}",
+            issues=[ValidationIssue("ERROR", c) for c in _collisions],
         )
 
     if stage is None:
@@ -455,7 +457,6 @@ def resolve_mooring(
     >>> cfg, folder = resolve_mooring("proc/dune2_1_2026/dune2_1_2026.mooring.yaml", None)  # doctest: +SKIP
     """
     from oceanarray import mooring as _mooring
-    from oceanarray.exceptions import MooringError
     from oceanarray.pipeline.read_mooring import _resolve_description
 
     if isinstance(mooring, Mapping):
@@ -494,7 +495,6 @@ def _process_stages(
     caldip_dir: PathLike | None,
 ) -> None:
     """Run *wanted* of stages 1–3, filling *outcome*; raise on failure unless *keep_going*."""
-    from oceanarray.exceptions import MooringError
     from oceanarray.logger import StageLog
     from oceanarray.pipeline.stage1 import (
         _attach_reader_logs,
@@ -552,7 +552,7 @@ def _process_stages(
                 except Exception as e:
                     log(
                         f"ERROR: {e}"
-                        if isinstance(e, MooringError)
+                        if isinstance(e, OceanarrayError)
                         else f"ERROR: Stage 3 failed: {e}"
                     )
                     if keep_going:
@@ -560,7 +560,7 @@ def _process_stages(
                         outcome.failures.append(f"stage 3: {e}")
                         outcome.stage3_failed = True
                         continue
-                    if isinstance(e, MooringError):
+                    if isinstance(e, OceanarrayError):
                         raise
                     raise MooringError(
                         f"{name}: stage 3 failed (nothing written; see {log.file}): {e}"

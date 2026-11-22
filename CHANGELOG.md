@@ -14,6 +14,7 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Changed
 
+- Problems with the user's input raise `OceanarrayError` subclasses: the new `ReaderError` from the readers, `MooringError` for YAML content; both still subclass `ValueError` (#161).
 - Data problems found while reading or reporting are logged as WARNINGs instead of Python `UserWarning`s, so they reach the log files; report progress lines go through logging too (#160).
 - An unreadable file or header is skipped with a WARNING naming the file, no longer silently (#159).
 - A missing processing folder or mooring YAML raises `MooringError`; `MooringReport.generate` and `generate_recovery_table` returned `None` (#159).
@@ -24,6 +25,7 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Fixed
 
+- `oceanarray stamp` on a missing file reports it instead of creating an empty file (#161).
 - Deployment and array pages: an instrument's pressure range leaves out what the mooring's `stack: mask_flags` hides, like its figures (it used the default rule, so a mooring hiding suspect values showed suspect pressures in its range) (#156).
 - Clock: a recovery reading of `unknown` (or empty) is a warning, not an error; the instrument's drift is not corrected and its stage-2 history says so (#157).
 - Deployment page clock table: the recovery correction shows the sign stage 2 applies (computer − instrument); it showed the opposite. Not-read instruments are listed (#157).
@@ -41,6 +43,7 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 What to do for each: *Upgrading from 0.6.1 to 0.7.0* (`migrating_0_7_0`).
 
+- All package errors derive from the new `OceanarrayError`; `StageError` is no longer a `MooringError` and moves to `oceanarray.exceptions` (#161).
 - `qc_ranges: pitch` / `roll` are no longer applied and `pitch_qc` / `roll_qc` are no longer written or stacked: tilt QC is geometric only (`tilt_qc`); the mooring check warns if they are set.
 
 ---

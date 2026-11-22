@@ -34,7 +34,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     HTML tree) and ``--sig-level`` (grid isopycnal targets); when unset it writes
     to the default ``{proc-dir}/{mooring}/report/`` with the default σ₀ grid.
     """
-    from ..exceptions import MooringError
+    from ..exceptions import OceanarrayError
     from ..pipeline import run as _run
     from ..pipeline._run import _resolve_stages
 
@@ -71,7 +71,7 @@ def cmd_run(args: argparse.Namespace) -> int:
             dp=args.dp,
             mask_flags=_mask_flags(args),
         )
-    except (MooringError, ValueError) as e:
+    except (OceanarrayError, ValueError) as e:
         print(f"ERROR: {e}")
         return 1
 
@@ -88,7 +88,7 @@ def cmd_run(args: argparse.Namespace) -> int:
             force=args.force,
             skip_existing=args.skip_existing,
         )
-    except MooringError as e:
+    except OceanarrayError as e:
         print(f"ERROR: {e}")
         return 1
     return 0

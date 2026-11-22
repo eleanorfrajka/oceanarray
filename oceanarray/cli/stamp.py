@@ -11,7 +11,7 @@ from oceanarray.cli._deprecate import DeprecatedAlias
 
 def cmd_stamp(args: argparse.Namespace) -> int:
     """Write the processing_stage marker into stage files written before it existed."""
-    from ..pipeline._stage import StageError
+    from ..exceptions import StageError
     from ..pipeline.stamp import stamp_file
 
     if args.stage is None:

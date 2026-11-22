@@ -152,7 +152,7 @@ for a page).
   ``reports`` → ``plotters`` → ``analysis`` → ``pipeline`` → ``readers`` and
   ``writers`` → the mooring YAML and its helpers (``mooring``, ``catalog``,
   ``provenance``, ``logger``, ``paths``, ``instruments``, ``location``,
-  ``physics``, ``inspect``) → ``config``, ``exceptions`` and ``_deprecated``. The
+  ``physics``, ``inspect``) → ``config`` and ``_deprecated`` → ``exceptions``. The
   shared report layer (``reports/_vendored/``) may be used by every part and
   imports none of them.
 - ``plotters/`` never imports a ``reports/`` module directly (the shared report
@@ -211,9 +211,10 @@ no later stage has to check for missing times.
    if file_type is None:
        file_type = _sniff_text(path)
        if file_type is None:
-           raise ValueError(
+           raise ReaderError(
                f"{path.name}: cannot determine the file type from its content; "
-               f"pass file_type= (one of {sorted(params.ALL_FILE_TYPES)})."
+               "set file_type: in the instrument entry of the mooring YAML, or "
+               f"pass file_type= to read() (one of {sorted(params.ALL_FILE_TYPES)})."
            )
 
 **Not.** Guessing the format from the extension; ``xr.open_dataset`` on a raw
@@ -283,8 +284,22 @@ and one caption counts entries from it.
 **Rule.**
 
 - **Raise** when the input is wrong and continuing would write a wrong file:
-  ``MooringError`` for a problem in the mooring YAML or the input, ``UnitsError`` for an unknown
-  unit, ``StageError`` for a file at the wrong stage.
+  ``MooringError`` for a problem in the mooring YAML or the input, ``ReaderError``
+  for a file a reader cannot read, ``UnitsError`` for an unknown
+  unit, ``StageError`` for a file at the wrong stage. Every error about the user's
+  input derives from ``OceanarrayError`` and keeps its built-in base
+  (``ValueError``, ``RuntimeError``); the CLI catches ``OceanarrayError`` and
+  prints one line. A package bug (e.g. an inconsistent table shipped with
+  oceanarray) raises a built-in error such as ``RuntimeError``, so it shows a
+  traceback. The base and the general errors are in ``exceptions.py``; an
+  error tied to one module stays beside it (``OceanSitesError``, ``CaldipError``,
+  ``UnitsError``).
+- **User input or caller mistake.** A problem with the user's input (the YAML and
+  its content, a file, a stage) raises an ``OceanarrayError`` subclass. A caller's
+  programming mistake (a wrong argument value or combination) raises a plain
+  ``ValueError`` or ``TypeError``, as in Python. A helper that does not know the
+  mooring may raise ``ValueError``; the stage boundary then re-raises it as
+  ``MooringError`` with the mooring's name.
 - **WARNING** (``log.warning``) for every data problem the user should act on:
   data dropped, a value assumed, a key ignored. Also recorded in the file when it
   changed the data.
@@ -311,12 +326,8 @@ Message style: what (instrument and serial), what is wrong, what to do; lazy
    )
 
 **Not.** ``print`` in library code; a broad ``except`` that swallows;
-``UserWarning`` for a data problem. Planned: ``UserWarning`` remains in stage 1
-(units) and ``concat`` (settings).
-
-*Planned for 0.7.0:* one base exception, ``OceanarrayError``. ``MooringError``
-(still a ``ValueError``, so ``except ValueError`` keeps working) is kept for
-mooring YAML problems only; ``StageError`` stops being a ``MooringError``.
+``UserWarning`` for a data problem; an error class that does not derive from
+``OceanarrayError``.
 
 3.5 Old file names and layouts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1143,10 +1154,6 @@ that makes the change.
      - Configuration separate from location
      - From the call, a CLI flag or a user configuration file (section 3.9)
      - planned
-   * - Exceptions without a common base
-     - One package base exception
-     - ``OceanarrayError`` as the base (section 3.4)
-     - 0.7.0
    * - Defaults in ``config/parameters.py`` and ``pipeline/_run.DEFAULTS``
      - One place
      - All in ``config/parameters.py`` (section 3.10)

@@ -42,8 +42,9 @@ def vocabulary() -> tuple[dict[str, int], frozenset[str]]:
 
     Raises
     ------
-    ValueError
-        When a word translates to a flag outside our table or to 7 or 8.
+    RuntimeError
+        When a word of the packaged table translates to a flag outside our table
+        or to 7 or 8 (a package bug, not a problem with the user's input).
     """
     text = (
         resources.files("oceanarray.config")
@@ -55,7 +56,7 @@ def vocabulary() -> tuple[dict[str, int], frozenset[str]]:
     unmapped = frozenset(str(w).lower() for w in raw.get("unmapped") or [])
     for word, flag in meanings.items():
         if flag not in params.QC_FLAG_VALUES or flag in OURS_ONLY:
-            raise ValueError(
+            raise RuntimeError(
                 f"flag_meanings.yaml: {word!r} -> {flag} is not a flag an originator "
                 f"word can translate to"
             )

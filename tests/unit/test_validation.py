@@ -6,6 +6,7 @@ import pytest
 import yaml
 
 from oceanarray import mooring
+from oceanarray.exceptions import MooringError
 
 _DUNE2_YAML = (
     Path(__file__).resolve().parents[1]
@@ -445,8 +446,10 @@ def test_process_refuses_colliding_serials_before_writing(tmp_path):
     data["instruments"] = [_mk("1234"), _mk("1234")]
     (mdir / f"{mooring}.mooring.yaml").write_text(yaml.dump(data))
 
-    with pytest.raises(ValueError, match="silently overwrite"):
+    with pytest.raises(MooringError, match="silently overwrite") as info:
         process(mooring, stage=2, proc_dir=tmp_path, force=True)
+    assert "\n" not in str(info.value)
+    assert [i.level for i in info.value.issues] == ["ERROR"]
     # Guard fires before any stage output directory is created.
     assert list(mdir.glob("**/*.nc")) == []
 

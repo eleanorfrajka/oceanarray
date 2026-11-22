@@ -29,7 +29,7 @@ def cmd_report(args: argparse.Namespace) -> int:
     array index linking each mooring's report is built; the other report flags
     are ignored.
     """
-    from ..exceptions import MooringError
+    from ..exceptions import OceanarrayError
     from ..reports import report
 
     raw_dir, proc_root = _resolve_dirs(args, proc_required=False)
@@ -58,7 +58,7 @@ def cmd_report(args: argparse.Namespace) -> int:
                 force=args.force,
                 bathymetry=getattr(args, "bathymetry", None),
             )
-        except MooringError as e:
+        except OceanarrayError as e:
             logger.status("error", str(e))
             return 1
         return 0
@@ -107,7 +107,7 @@ def cmd_report(args: argparse.Namespace) -> int:
                 report_dir=report_dir,
                 force=args.force,
             )
-    except MooringError as e:
+    except OceanarrayError as e:
         logger.status("error", str(e))
         return 1
     if want_pdf:
@@ -116,7 +116,7 @@ def cmd_report(args: argparse.Namespace) -> int:
         name, _ = _resolve_name_and_dir(moor_dir, None)
         try:
             _combine_pdf(name, page.parent, getattr(args, "pdf_dir", None))
-        except MooringError as e:
+        except OceanarrayError as e:
             # An explicit --pdf that cannot be honoured is a failure; a PDF only
             # implied by --all is best-effort, so the HTML result stands.
             logger.status("error", str(e))
@@ -146,12 +146,12 @@ def _report_dry_run(
         _resolve_name_and_dir,
     )
 
-    from ..exceptions import MooringError
+    from ..exceptions import OceanarrayError
 
     logger.status("section", f"Report (dry run): {args.mooring}")
     try:
         name, _ = _resolve_name_and_dir(moor_dir, None)
-    except MooringError as e:
+    except OceanarrayError as e:
         logger.status("error", str(e))
         return 1
     where = report_paths(

@@ -17,12 +17,12 @@ correction far from those of the other instruments on the mooring is a warning t
 """
 
 import re
-from typing import NamedTuple
 
 import numpy as np
 
 from oceanarray import paths
 from oceanarray.config import parameters as params
+from oceanarray.exceptions import ValidationIssue
 from oceanarray.instruments import (
     clock_seconds,
     hab_for,
@@ -99,13 +99,6 @@ RECOMMENDED_MOORING_KEYS = ["deployment_time", "recovery_time"]
 # ``summary`` serial writes a distinct ``{mooring}_summary_report.html`` and collides
 # with nothing (the nav current-key clash is already handled in ``reports/_navs.py``).
 _RESERVED_SERIALS = frozenset({"stack", "grid"})
-
-
-class ValidationIssue(NamedTuple):
-    """A single validation finding with a severity level and human-readable message."""
-
-    level: str  # "ERROR" or "WARNING"
-    message: str
 
 
 def check_depth_key(entry: dict) -> ValidationIssue | None:

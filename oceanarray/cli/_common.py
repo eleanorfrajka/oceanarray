@@ -283,7 +283,7 @@ def _print_stage_plan(
     """Print each stage file *wanted* stages would write; write nothing."""
     from oceanarray import logger
     from oceanarray import mooring as _mooring
-    from oceanarray.exceptions import MooringError
+    from oceanarray.exceptions import OceanarrayError
     from oceanarray.instruments import instrument_entries
     from oceanarray.reports._verb import (
         _resolve_description_file,
@@ -292,7 +292,7 @@ def _print_stage_plan(
 
     try:
         name, moor_dir = _resolve_name_and_dir(location, None)
-    except MooringError as e:
+    except OceanarrayError as e:
         logger.status("error", str(e))
         return None
     cfg = (

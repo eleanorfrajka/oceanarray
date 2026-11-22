@@ -21,6 +21,7 @@ import numpy as np
 import xarray as xr
 
 from oceanarray.config import parameters as params
+from oceanarray.exceptions import MooringError, ReaderError
 from oceanarray.readers import nortek
 from oceanarray.readers.netcdf import read_netcdf
 from oceanarray.readers.nortek import load_nortek_csv
@@ -72,7 +73,7 @@ def _drop_missing_time(dataset: xr.Dataset, source: str) -> xr.Dataset:
 
     Raises
     ------
-    ValueError
+    ReaderError
         If no record has a valid timestamp.
     """
     if "time" not in dataset.coords:
@@ -83,13 +84,13 @@ def _drop_missing_time(dataset: xr.Dataset, source: str) -> xr.Dataset:
         # np.isnat cannot take and which cannot hold NaT; nothing to drop.
         return dataset
     if not time.size:
-        raise ValueError(f"{source}: no record has a timestamp (file has no records).")
+        raise ReaderError(f"{source}: no record has a timestamp (file has no records).")
     missing = np.isnat(time)
     n = int(missing.sum())
     if not n:
         return dataset
     if n == missing.size:
-        raise ValueError(f"{source}: no record has a timestamp (all {n} missing).")
+        raise ReaderError(f"{source}: no record has a timestamp (all {n} missing).")
     log.warning("%s: dropped %d record(s) with no timestamp (missing time).", source, n)
     out = dataset.isel(time=np.where(~missing)[0])
     out.attrs[N_RECORDS_WITHOUT_TIME_ATTR] = n
@@ -123,8 +124,10 @@ def _dispatch(
         file_type = canonical
 
     if file_type not in params.ALL_FILE_TYPES:
-        msg = f"Unknown file type: {file_type}"
-        raise ValueError(msg)
+        raise MooringError(
+            f"{Path(file_path).name}: unknown file_type {file_type!r}; expected one "
+            f"of {sorted(params.ALL_FILE_TYPES)}"
+        )
 
     if file_type in ("oceansites", "rodb"):
         reader = read_oceansites if file_type == "oceansites" else read_rodb
@@ -263,9 +266,11 @@ def read(path: str | Path, *, file_type: str | None = None) -> xr.Dataset:
 
     Raises
     ------
-    ValueError
-        If *file_type* is not a known type, no *file_type* is given and the
-        content is not one the sniffer recognises, or no record has a time.
+    MooringError
+        If *file_type* is not a known type.
+    ReaderError
+        If no *file_type* is given and the content is not one the sniffer
+        recognises, or no record has a time.
     """
     path = Path(path)
 
@@ -288,9 +293,10 @@ def read(path: str | Path, *, file_type: str | None = None) -> xr.Dataset:
     if file_type is None:
         file_type = _sniff_text(path)
         if file_type is None:
-            raise ValueError(
+            raise ReaderError(
                 f"{path.name}: cannot determine the file type from its content; "
-                f"pass file_type= (one of {sorted(params.ALL_FILE_TYPES)})."
+                "set file_type: in the instrument entry of the mooring YAML, or "
+                f"pass file_type= to read() (one of {sorted(params.ALL_FILE_TYPES)})."
             )
 
     header_path = None

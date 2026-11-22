@@ -18,7 +18,7 @@ from oceanarray import catalog, logger, paths
 from oceanarray import mooring as _mooring
 from oceanarray.config import parameters as params
 from oceanarray.config.validation import check_depth_key
-from oceanarray.exceptions import MooringError
+from oceanarray.exceptions import MooringError, StageError
 from oceanarray.instruments import extract_inline_instruments, instrument_entries
 from oceanarray.location import parse_coordinate
 from oceanarray.logger import with_stage_handlers
@@ -152,13 +152,18 @@ def _apply_units_override(
     # labelled S/m with values in mS/cm). Each entry is a units string, or a mapping
     # {units, reason} whose free-text reason is carried into the variable's attributes.
     overrides = instrument_config.get("units_override") or {}
+    who = (
+        f"{instrument_config.get('instrument', 'unknown')} s/n "
+        f"{safe_serial(instrument_config.get('serial', 'unknown'))}"
+    )
     for var, given in overrides.items():
         if var not in dataset.data_vars:
-            raise ValueError(
-                f"units_override names {var!r}, which the file does not hold "
-                f"(variables: {sorted(dataset.data_vars)})"
+            raise MooringError(
+                f"{who}: units_override names {var!r}, which the file does not hold "
+                f"(variables: {sorted(dataset.data_vars)}); correct the variable "
+                "name in the mooring YAML"
             )
-        units, reason = _override_units_and_reason(var, given)
+        units, reason = _override_units_and_reason(who, var, given)
         attrs = dict(dataset[var].attrs)
         # Keep the stated value so the correction is visible in the output.
         attrs["units_override_from"] = str(attrs.get("units", ""))
@@ -174,13 +179,13 @@ def _apply_units_override(
     return dataset
 
 
-def _override_units_and_reason(var: str, given: Any) -> tuple[str, str]:
+def _override_units_and_reason(who: str, var: str, given: Any) -> tuple[str, str]:
     """Return the units and the reason (``""`` when none) of one override entry."""
     if isinstance(given, dict):
         unknown = sorted(set(given) - {"units", "reason"})
         if unknown or not given.get("units"):
-            raise ValueError(
-                f"units_override.{var} must be a units string or "
+            raise MooringError(
+                f"{who}: units_override.{var} must be a units string or "
                 f"{{units: <units>, reason: <text>}}; got {given!r}"
             )
         return str(given["units"]).strip(), str(given.get("reason") or "").strip()
@@ -746,7 +751,7 @@ def stage1(
 
     Raises
     ------
-    oceanarray.pipeline._stage.StageError
+    oceanarray.exceptions.StageError
         If a dataset already carries a ``processing_stage`` marker.
     oceanarray.exceptions.MooringError
         If a dataset's serial has no entry in the description.
@@ -762,7 +767,7 @@ def stage1(
     for serial, ds in datasets.items():
         marker = ds.attrs.get(_stage.STAGE_ATTR)
         if marker is not None:
-            raise _stage.StageError(
+            raise StageError(
                 f"stage 1 expects raw datasets; {serial!r} is already stage "
                 f"{int(marker)}."
             )
@@ -884,7 +889,7 @@ class MooringProcessor:
                 log=self._log_print,
                 rel=self._rel,
             )
-        except MooringError as e:
+        except (MooringError, StageError) as e:
             self._log_print(f"ERROR: {e}")
             return False
         # Partial success is still success: instruments that processed are written

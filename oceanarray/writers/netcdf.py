@@ -25,6 +25,7 @@ import xarray as xr
 from xarray.coding.times import CFDatetimeCoder
 
 from oceanarray import provenance
+from oceanarray.exceptions import MooringError
 from oceanarray.writers.dtypes import cast_attr_dtypes, cast_output_dtypes
 
 log = logging.getLogger(__name__)
@@ -140,9 +141,10 @@ def _netcdf_safe_names(ds: xr.Dataset) -> xr.Dataset:
             )
             previous = final.get(safe)
             if previous is not None and previous != name:
-                raise ValueError(
-                    f"NetCDF name sanitization would map both '{previous}' and "
-                    f"'{name}' to '{safe}'. Rename one before writing."
+                raise MooringError(
+                    f"names '{previous}' and '{name}': NetCDF name sanitization "
+                    f"would write both as '{safe}' ('/' is not allowed in a NetCDF "
+                    "name); rename one before writing"
                 )
             final[safe] = name
             if safe != name:
@@ -301,6 +303,8 @@ def write(
     ------
     FileExistsError
         If *path* exists and *overwrite* is False.
+    oceanarray.exceptions.MooringError
+        If two names of *ds* would be written under one NetCDF name.
     """
     path = Path(path)
     if path.exists():

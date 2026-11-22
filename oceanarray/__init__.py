@@ -31,9 +31,13 @@ except ImportError:  # pragma: no cover - source tree with no build artefact
 
 if TYPE_CHECKING:
     from oceanarray import mooring
-    from oceanarray.exceptions import MooringError
+    from oceanarray.exceptions import (
+        MooringError,
+        OceanarrayError,
+        ReaderError,
+        StageError,
+    )
     from oceanarray.pipeline import process, run
-    from oceanarray.pipeline._stage import StageError
     from oceanarray.pipeline.concat import concat
     from oceanarray.pipeline.export import export
     from oceanarray.pipeline.grid import grid
@@ -49,6 +53,8 @@ if TYPE_CHECKING:
 
 __all__ = [
     "MooringError",
+    "OceanarrayError",
+    "ReaderError",
     "StageError",
     "__version__",
     "concat",
@@ -71,7 +77,9 @@ __all__ = [
 #: Public name -> (module, attribute); attribute None means the module itself.
 _EXPORTS: dict[str, tuple[str, str | None]] = {
     "MooringError": ("oceanarray.exceptions", "MooringError"),
-    "StageError": ("oceanarray.pipeline._stage", "StageError"),
+    "StageError": ("oceanarray.exceptions", "StageError"),
+    "ReaderError": ("oceanarray.exceptions", "ReaderError"),
+    "OceanarrayError": ("oceanarray.exceptions", "OceanarrayError"),
     "concat": ("oceanarray.pipeline.concat", "concat"),
     "export": ("oceanarray.pipeline.export", "export"),
     "grid": ("oceanarray.pipeline.grid", "grid"),

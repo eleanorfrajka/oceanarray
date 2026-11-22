@@ -10,6 +10,7 @@ import xarray as xr
 
 from oceanarray import logger, paths, provenance
 from oceanarray.config import parameters as params
+from oceanarray.exceptions import MooringError
 from oceanarray.physics import speed_direction
 from oceanarray.pipeline import _stage, attribution, masking
 from oceanarray.pipeline._run import DEFAULTS
@@ -103,9 +104,10 @@ def grid(
 
     Raises
     ------
+    oceanarray.exceptions.MooringError
+        If the stack has no ``pressure`` variable.
     ValueError
-        If the stack has no ``pressure`` variable, or *mask_flags* is invalid or
-        drops a flag the stack's rule hides.
+        If *mask_flags* is invalid or drops a flag the stack's rule hides.
     """
     if masking.STACK_ATTR not in ds_stack.attrs:
         # A stack written before the rule was recorded (its values are already
@@ -148,7 +150,10 @@ def grid(
     _warn_slow_instruments(ds)
 
     if "pressure" not in ds.data_vars:
-        raise ValueError("'pressure' not found in the stack — cannot grid vertically")
+        raise MooringError(
+            f"{ds_stack.attrs.get('mooring_name', 'stack')}: no 'pressure' variable "
+            "in the stack; cannot grid vertically"
+        )
 
     own = own_levels(ds) if site else None
 
@@ -400,11 +405,11 @@ def _grid_file(
             return out_path
     try:
         ds = grid(ds_stack, pmin=pmin, pmax=pmax, dp=dp, mask_flags=mask_flags)
+    except MooringError:
+        raise  # already names the mooring
     except ValueError as exc:
         # A rule that drops a flag the stack hides, or bad levels: the existing
         # grid stays as it is.
-        from oceanarray.exceptions import MooringError
-
         raise MooringError(f"{mooring.get('name', 'mooring')}: {exc}") from exc
     if stack_path is not None:
         ds.attrs["stack_file"] = Path(stack_path).name
@@ -434,7 +439,7 @@ def site_levels(ds: xr.Dataset, dp: float) -> tuple[float, float]:
 
     Raises
     ------
-    ValueError
+    oceanarray.exceptions.MooringError
         No depth has a finite pressure.
     """
     pressure = ds["pressure"].values.astype(float)
@@ -442,7 +447,10 @@ def site_levels(ds: xr.Dataset, dp: float) -> tuple[float, float]:
         warnings.simplefilter("ignore", RuntimeWarning)  # an empty depth's median
         median = np.nanmedian(pressure, axis=0)
     if not np.isfinite(median).any():
-        raise ValueError("the site stack has no finite pressure")
+        raise MooringError(
+            f"{ds.attrs.get('site_name', 'site stack')}: no depth of the site stack "
+            "has a finite pressure"
+        )
     low, high = params.SITE_GRID_PERCENTILES
     lo = float(np.nanpercentile(pressure[:, np.nanargmin(median)], low))
     hi = float(np.nanpercentile(pressure[:, np.nanargmax(median)], high))
@@ -522,8 +530,6 @@ def grid_site(
         The file is not a site stack, the output exists without *overwrite*, or a
         setting is invalid.
     """
-    from oceanarray.exceptions import MooringError
-
     stackcat = Path(stackcat)
     with xr.open_dataset(stackcat, engine="netcdf4") as opened:
         ds = opened.load()
@@ -559,6 +565,8 @@ def grid_site(
             mask_flags=flags,
             slope_angle=slope_angle,
         )
+    except MooringError:
+        raise  # already names the site
     except ValueError as exc:
         raise MooringError(f"{site}: cannot grid the site stack: {exc}") from exc
     out.attrs["stackcat_file"] = stackcat.name

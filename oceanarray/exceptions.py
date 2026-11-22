@@ -1,9 +1,28 @@
-"""Exception types for oceanarray."""
+"""Exception types for oceanarray.
 
-from oceanarray.config.validation import ValidationIssue
+Every error the package raises about the user's input (the mooring YAML, a file,
+its data or stage) derives from :class:`OceanarrayError`, so ``except
+OceanarrayError`` catches them all; each also keeps its built-in base (``ValueError``,
+``RuntimeError``), so existing ``except`` clauses still work. A bug in the package
+itself, such as an inconsistent table shipped with it, raises a built-in error and
+shows a traceback.
+"""
+
+from typing import NamedTuple
 
 
-class MooringError(ValueError):
+class ValidationIssue(NamedTuple):
+    """A single validation finding with a severity level and human-readable message."""
+
+    level: str  # "ERROR" or "WARNING"
+    message: str
+
+
+class OceanarrayError(Exception):
+    """Base class of the errors oceanarray raises."""
+
+
+class MooringError(OceanarrayError, ValueError):
     """Raised when a mooring description fails validation.
 
     Carries the full list of validation issues so a caller can inspect every
@@ -23,3 +42,11 @@ class MooringError(ValueError):
     ) -> None:
         super().__init__(message)
         self.issues: list[ValidationIssue] = list(issues) if issues else []
+
+
+class StageError(OceanarrayError, ValueError):
+    """Raised when a dataset is at the wrong processing stage for the step requested."""
+
+
+class ReaderError(OceanarrayError, ValueError):
+    """Raised when a reader cannot read a file: unknown format, missing header, column or time."""

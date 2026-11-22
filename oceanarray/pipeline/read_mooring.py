@@ -197,7 +197,7 @@ def read_mooring(
     FileNotFoundError
         If an instrument's file for the chosen *stage* is absent and
         *allow_missing* is False.
-    oceanarray.pipeline._stage.StageError
+    oceanarray.exceptions.StageError
         If an opened stage file carries the wrong ``processing_stage`` marker.
     """
     cfg, mooring_dir = _resolve_description(mooring, mooring_dir, stage)

@@ -11,6 +11,8 @@ import re
 from pathlib import Path
 from typing import Any
 
+from oceanarray.exceptions import OceanarrayError
+
 log = logging.getLogger(__name__)
 
 _PathLike = str | Path
@@ -19,7 +21,7 @@ _PathLike = str | Path
 DOCS_URL = "https://ocean-uhh.github.io/oceanarray/"
 
 
-class LegacyLayoutError(RuntimeError):
+class LegacyLayoutError(OceanarrayError, RuntimeError):
     """Raised when a directory uses the removed ``moor/proc`` (``basedir``) layout."""
 
 

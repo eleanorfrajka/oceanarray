@@ -7,7 +7,8 @@ from pathlib import Path
 import pytest
 import xarray as xr
 
-from oceanarray.pipeline._stage import STAGE_ATTR, StageError, require, stamp
+from oceanarray.exceptions import StageError
+from oceanarray.pipeline._stage import STAGE_ATTR, require, stamp
 
 _FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "proc" / "dune2_1_2026"
 _STAGE3 = _FIXTURE / "microcat" / "dune2_1_2026_2941_stage3.nc"

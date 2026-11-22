@@ -16,6 +16,7 @@ import xarray as xr
 
 from oceanarray import readers
 from oceanarray.config import parameters as params
+from oceanarray.exceptions import ReaderError
 from oceanarray.pipeline.coordinate import apply_declination_to_enu
 from oceanarray.pipeline.stage3 import _fill_cf_attrs
 from oceanarray.pipeline.units import UnitsError, to_canonical_units
@@ -65,7 +66,7 @@ def test_oceansites_flag_meanings_from_the_file_are_kept():
 def test_oceansites_rejects_a_file_with_no_known_codes(tmp_path):
     path = tmp_path / "x.nc"
     xr.Dataset({"FOO": ("TIME", [1.0])}, coords={"TIME": [0.0]}).to_netcdf(path)
-    with pytest.raises(ValueError, match="none of"):
+    with pytest.raises(ReaderError, match="none of"):
         read_oceansites(path)
 
 
@@ -186,7 +187,7 @@ def test_read_oceansites_itself_keeps_the_padding(tmp_path):
 
 def test_all_missing_time_raises(tmp_path):
     path = _whoi_with_fill_times(tmp_path, slice(None))
-    with pytest.raises(ValueError, match="no record has a timestamp"):
+    with pytest.raises(ReaderError, match="no record has a timestamp"):
         readers.read(path)
 
 
@@ -203,7 +204,7 @@ def test_zero_length_time_raises(tmp_path):
         },
         coords={"TIME": np.array([], dtype="datetime64[ns]")},
     ).to_netcdf(path)
-    with pytest.raises(ValueError, match="no record has a timestamp"):
+    with pytest.raises(ReaderError, match="no record has a timestamp"):
         readers.read(path)
 
 
@@ -258,13 +259,13 @@ def test_rodb_fill_in_a_time_column_drops_the_record(tmp_path, caplog):
 
 def test_rodb_header_only_raises_no_data_rows(tmp_path):
     path = _microcat_with_lines(tmp_path, lambda lines: lines[:11])
-    with pytest.raises(ValueError, match="no data rows after the RODB header"):
+    with pytest.raises(ReaderError, match="no data rows after the RODB header"):
         read_rodb(path)
 
 
 def test_rodb_header_and_blank_lines_raises_no_data_rows(tmp_path):
     path = _microcat_with_lines(tmp_path, lambda lines: lines[:11] + ["", "  "])
-    with pytest.raises(ValueError, match="no data rows"):
+    with pytest.raises(ReaderError, match="no data rows"):
         read_rodb(path)
 
 
@@ -273,7 +274,7 @@ def test_rodb_rows_with_fewer_than_four_columns_raise(tmp_path):
     path = _microcat_with_lines(
         tmp_path, lambda lines: lines[:11] + ["  12.0  3.0", "  13.0  3.1"]
     )
-    with pytest.raises(ValueError, match="fewer than 4 columns"):
+    with pytest.raises(ReaderError, match="fewer than 4 columns"):
         read_rodb(path)
 
 
@@ -313,7 +314,7 @@ def test_rodb_edt_keeps_real_minus_nine_and_records_declination():
 def test_rodb_unknown_column_raises(tmp_path):
     path = tmp_path / "x.microcat"
     path.write_text("Mooring = m\nColumns = YY:MM:DD:HH:ZZZ\n2014 7 17 12.5 1.0\n")
-    with pytest.raises(ValueError, match="ZZZ"):
+    with pytest.raises(ReaderError, match="ZZZ"):
         read_rodb(path)
 
 
@@ -484,7 +485,7 @@ def test_oceansites_profile_with_no_head_depth_is_refused(tmp_path, instrdepth):
         src["INSTRDEPTH"] = src["INSTRDEPTH"].copy(data=[fill])
         src["INSTRDEPTH"].encoding["_FillValue"] = fill
     src.to_netcdf(path)
-    with pytest.raises(ValueError, match="no head pressure"):
+    with pytest.raises(ReaderError, match="no head pressure"):
         read_oceansites(path)
 
 
@@ -494,7 +495,7 @@ def test_oceansites_profile_with_no_bin_depth_is_refused(tmp_path):
     shutil.copy(WHOI_ADCP, path)
     with netCDF4.Dataset(path, "a") as nc:
         nc["DEPTH"][:] = nc["DEPTH"]._FillValue
-    with pytest.raises(ValueError, match="no bin has a depth"):
+    with pytest.raises(ReaderError, match="no bin has a depth"):
         read_oceansites(path)
 
 
@@ -503,7 +504,7 @@ def test_oceansites_profile_without_velocity_bins_is_refused(tmp_path):
     path = tmp_path / "no_ucur.nc"
     with xr.open_dataset(WHOI_ADCP) as src:
         src.drop_vars("UCUR").to_netcdf(path)
-    with pytest.raises(ValueError, match=r"is on BINDEPTH \(23 levels\)"):
+    with pytest.raises(ReaderError, match=r"is on BINDEPTH \(23 levels\)"):
         read_oceansites(path)
 
 
@@ -512,7 +513,7 @@ def test_oceansites_profile_orientation_contradicting_bin_depths_is_refused(tmp_
     shutil.copy(WHOI_ADCP, path)
     with netCDF4.Dataset(path, "a") as nc:
         nc["UCUR"].sensor_orientation = "downward"
-    with pytest.raises(ValueError, match="sensor_orientation says 'down'"):
+    with pytest.raises(ReaderError, match="sensor_orientation says 'down'"):
         read_oceansites(path)
 
 
@@ -572,5 +573,5 @@ def test_rodb_bins_refusals(tmp_path, change, match):
         paths[1].write_text("\n".join(paths[1].read_text().splitlines()[:-1]) + "\n")
     else:
         paths[1] = paths[1].rename(paths[1].with_suffix(".lowedt"))
-    with pytest.raises(ValueError, match=match):
+    with pytest.raises(ReaderError, match=match):
         read_rodb_bins(paths)

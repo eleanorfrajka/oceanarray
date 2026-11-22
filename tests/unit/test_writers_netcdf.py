@@ -16,6 +16,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
+from oceanarray.exceptions import MooringError
 from oceanarray.writers import write
 from oceanarray.writers.dtypes import cast_output_dtypes
 from oceanarray.writers.netcdf import (
@@ -211,7 +212,7 @@ def test_name_sanitization_collision_raises():
         {"a/b": ("x", np.arange(2.0)), "a_b": ("x", np.arange(2.0))},
         coords={"x": np.arange(2)},
     )
-    with pytest.raises(ValueError, match="sanitization would map"):
+    with pytest.raises(MooringError, match="sanitization would write both"):
         _netcdf_safe_names(ds)
 
 

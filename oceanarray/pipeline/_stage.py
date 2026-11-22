@@ -18,7 +18,7 @@ import pandas as pd
 import xarray as xr
 
 from oceanarray import provenance
-from oceanarray.exceptions import MooringError
+from oceanarray.exceptions import StageError
 from oceanarray.instruments import nominal_depth
 
 log = logging.getLogger(__name__)
@@ -127,10 +127,6 @@ def iso_time(value: object) -> str:
     if ts.tzinfo is not None:
         ts = ts.tz_convert("UTC")
     return ts.strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-class StageError(MooringError):
-    """Raised when a dataset is at the wrong processing stage for the step requested."""
 
 
 @dataclass

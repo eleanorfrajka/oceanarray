@@ -24,6 +24,7 @@ import xarray as xr
 
 from oceanarray import location
 from oceanarray.config import parameters as params
+from oceanarray.exceptions import OceanarrayError
 from oceanarray.instruments import instrument_entries
 from oceanarray.mooring import DEPLOYMENT_CODE_PATTERN
 from oceanarray.paths import safe_serial
@@ -72,7 +73,7 @@ _SENSOR_VARIABLES = {
 _SEABED_VARIABLES = frozenset({"east_velocity", "north_velocity", "up_velocity"})
 
 
-class OceanSitesError(ValueError):
+class OceanSitesError(OceanarrayError, ValueError):
     """Raised when a dataset or description cannot make a valid OceanSITES file."""
 
 

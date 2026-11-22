@@ -37,14 +37,14 @@ def cmd_animate(args: argparse.Namespace) -> int:
 
     from oceanarray.instruments import instrument_entries
 
-    from ..exceptions import MooringError
+    from ..exceptions import OceanarrayError
     from ..pipeline import resolve_mooring
     from ..plotters import animate_hodograph
 
     location = _mooring_location(args)
     try:
         cfg, proc_dir = resolve_mooring(location, None, "animate")
-    except MooringError as e:
+    except OceanarrayError as e:
         logger.status("error", str(e))
         return 1
     wanted = {paths.safe_serial(s) for s in args.serials} if args.serials else None

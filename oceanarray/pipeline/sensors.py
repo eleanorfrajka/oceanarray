@@ -31,6 +31,8 @@ from typing import Any
 import numpy as np
 import xarray as xr
 
+from oceanarray.exceptions import MooringError
+
 log = logging.getLogger(__name__)
 
 #: The OG1 sensor-type word for each instrument type. Every MicroCAT is a CTD,
@@ -192,11 +194,11 @@ def build_record(
 
     Raises
     ------
-    ValueError
+    oceanarray.exceptions.MooringError
         When *serial* is empty: two such instruments would share one record name.
     """
     if not str(serial or "").strip():
-        raise ValueError(
+        raise MooringError(
             f"{entry.get('instrument', 'an instrument')}: no serial; a sensor record "
             "is named by the instrument's serial"
         )

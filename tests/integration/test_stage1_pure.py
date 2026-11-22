@@ -18,8 +18,8 @@ import pytest
 import xarray as xr
 
 from oceanarray import mooring as _mooring
-from oceanarray.exceptions import MooringError
-from oceanarray.pipeline._stage import STAGE_ATTR, StageError
+from oceanarray.exceptions import MooringError, StageError
+from oceanarray.pipeline._stage import STAGE_ATTR
 from oceanarray.pipeline.read_mooring import read_mooring
 
 pytest.importorskip("seasenselib", reason="seasenselib not installed")

@@ -24,7 +24,7 @@ import xarray as xr
 from oceanarray import mooring as _mooring
 from oceanarray import paths
 from oceanarray.config import parameters as params
-from oceanarray.exceptions import MooringError
+from oceanarray.exceptions import MooringError, OceanarrayError
 from oceanarray.instruments import instrument_entries
 from oceanarray.location import parse_latlon_with_source
 from oceanarray.logger import with_stage_handlers
@@ -575,7 +575,7 @@ def stage3(
 
     Raises
     ------
-    oceanarray.pipeline._stage.StageError
+    oceanarray.exceptions.StageError
         If any dataset is not at stage 2.
     """
     _stage.require(datasets, 2, 3)
@@ -734,7 +734,7 @@ class Stage3Processor:
                 caldip_dir=caldip_dir,
                 log=self._log,
             )
-        except MooringError as e:
+        except OceanarrayError as e:
             self._log(f"ERROR: {e}")
             return False
         except Exception as e:  # noqa: BLE001  — intentional broad catch at I/O boundary

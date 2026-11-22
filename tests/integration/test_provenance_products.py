@@ -17,6 +17,7 @@ import xarray as xr
 
 import oceanarray as oa
 from oceanarray import mooring, paths, provenance
+from oceanarray.exceptions import MooringError
 from oceanarray.pipeline import stage1
 from oceanarray.pipeline.concat import concat
 from oceanarray.pipeline.grid import _grid_file
@@ -532,7 +533,7 @@ def test_an_instrument_without_a_serial_gets_no_record():
 
     with xr.open_dataset(BEFORE, engine="netcdf4") as ds:
         old = ds.load()
-    with pytest.raises(ValueError, match="no serial"):
+    with pytest.raises(MooringError, match="no serial"):
         sensors.build_record(old, {"instrument": "microcat"}, "")
 
 

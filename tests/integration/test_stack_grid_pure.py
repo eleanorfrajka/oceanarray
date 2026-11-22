@@ -114,7 +114,7 @@ def test_grid_is_linear_interpolation_in_pressure(ds_stack):
 
 def test_grid_refuses_a_stack_without_pressure(ds_stack):
     """A stack with no pressure variable cannot be gridded."""
-    with pytest.raises(ValueError, match="pressure"):
+    with pytest.raises(MooringError, match="pressure"):
         grid(ds_stack.drop_vars("pressure"))
 
 

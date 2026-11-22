@@ -9,7 +9,8 @@ import pytest
 import xarray as xr
 
 from oceanarray.cli import build_parser
-from oceanarray.pipeline._stage import STAGE_ATTR, StageError
+from oceanarray.exceptions import StageError
+from oceanarray.pipeline._stage import STAGE_ATTR
 from oceanarray.pipeline.stamp import stamp_file
 
 _FIX = Path(__file__).parent.parent / "fixtures" / "proc" / "dune2_1_2026"
@@ -80,6 +81,14 @@ def test_stamp_refuses_a_product_file(tmp_path):
     path = shutil.copy(_FIX / "dune2_1_2026_stack.nc", tmp_path)
     with pytest.raises(StageError, match="not a stage file"):
         stamp_file(path, 3)
+
+
+def test_stamp_refuses_a_missing_file_and_creates_nothing(tmp_path):
+    """A stage file name that does not exist is refused, not created."""
+    path = tmp_path / _STAGE3.name
+    with pytest.raises(FileNotFoundError, match="no such stage file"):
+        stamp_file(path, 3)
+    assert not path.exists()
 
 
 def test_cli_stamp_exits_nonzero_when_any_file_is_refused(tmp_path, capsys):

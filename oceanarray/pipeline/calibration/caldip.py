@@ -29,6 +29,7 @@ import xarray as xr
 
 from oceanarray.config import parameters as params
 from oceanarray.config.unit_tables import TABLES, UnitsError, resolve_units
+from oceanarray.exceptions import OceanarrayError
 from oceanarray.paths import safe_serial
 
 log = logging.getLogger(__name__)
@@ -96,7 +97,7 @@ _UNIT_SUFFIXES = ("_diff", "_std")
 _UNIT_PREFIXES = ("inst_", "ctd_")
 
 
-class CaldipError(Exception):
+class CaldipError(OceanarrayError):
     """Base error for caldip-file reading and matching."""
 
 

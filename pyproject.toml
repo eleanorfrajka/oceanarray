@@ -235,7 +235,8 @@ layers = [
   "oceanarray.pipeline",
   "oceanarray.readers : oceanarray.writers",
   "oceanarray.mooring : oceanarray.catalog : oceanarray.provenance : oceanarray.logger : oceanarray.paths : oceanarray.instruments : oceanarray.location : oceanarray.physics : oceanarray.inspect",
-  "oceanarray.config : oceanarray.exceptions : oceanarray._deprecated",
+  "oceanarray.config : oceanarray._deprecated",
+  "oceanarray.exceptions",
 ]
 ignore_imports = [
   # The shared report layer is a foundation: every part may use its tokens and units.

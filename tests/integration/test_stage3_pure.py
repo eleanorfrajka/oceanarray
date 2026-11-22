@@ -15,8 +15,7 @@ import pytest
 import xarray as xr
 
 from oceanarray import mooring as _mooring
-from oceanarray.exceptions import MooringError
-from oceanarray.pipeline._stage import StageError
+from oceanarray.exceptions import MooringError, StageError
 from oceanarray.pipeline.read_mooring import read_mooring
 from oceanarray.pipeline.stage3 import stage3
 from oceanarray.writers import write

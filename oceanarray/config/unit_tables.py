@@ -17,16 +17,69 @@ import logging
 import os
 from typing import Any
 
+from oceanarray.exceptions import OceanarrayError
 from oceanarray.reports._vendored.units import (
     DEFAULT_TABLES,
     Tables,
-    UnitsError,
     format_units,
     merge_tables,
-    resolve_units,
 )
+from oceanarray.reports._vendored.units import UnitsError as _SharedUnitsError
+from oceanarray.reports._vendored.units import resolve_units as _shared_resolve_units
 
 log = logging.getLogger(__name__)
+
+
+class UnitsError(OceanarrayError, _SharedUnitsError):
+    """Raised for a unit oceanarray cannot read or convert.
+
+    The shared report layer's ``UnitsError`` (still a ``ValueError``) placed under
+    :class:`~oceanarray.exceptions.OceanarrayError`; ``except`` on either catches it.
+    """
+
+
+def resolve_units(
+    units: str,
+    standard_name: str | None = None,
+    *,
+    tables: Tables | None = None,
+    canonical: str | None = None,
+) -> tuple[str, float]:
+    """Return ``(canonical spelling, factor)`` for a reader *units* string.
+
+    The shared layer's ``resolve_units``, raising oceanarray's :class:`UnitsError`.
+
+    Parameters
+    ----------
+    units : str
+        The units string as read.
+    standard_name : str, optional
+        CF standard name, which selects the canonical spelling when known.
+    tables : Tables, optional
+        Unit tables; default :data:`TABLES` (oceanarray's overrides on the family's).
+    canonical : str, optional
+        The canonical spelling, when the caller already knows it.
+
+    Returns
+    -------
+    tuple of (str, float)
+        The canonical spelling and the factor that converts to it.
+
+    Raises
+    ------
+    UnitsError
+        When *units* is empty or not a spelling of the canonical.
+    """
+    try:
+        return _shared_resolve_units(
+            units,
+            standard_name,
+            tables=TABLES if tables is None else tables,
+            canonical=canonical,
+        )
+    except _SharedUnitsError as exc:
+        raise UnitsError(str(exc)) from exc
+
 
 #: Stored-spelling overrides, keyed by CF ``standard_name``.  oceanarray writes the
 #: squared buoyancy frequency as ``s-2``, the spelling its gridded files have always

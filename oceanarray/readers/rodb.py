@@ -15,6 +15,7 @@ import xarray as xr
 
 from oceanarray import provenance
 from oceanarray.config.parameters import ADCP_BIN_DIM, RDI_BAD_VALUE_CM_S
+from oceanarray.exceptions import ReaderError
 
 log = logging.getLogger(__name__)
 
@@ -84,7 +85,7 @@ def read_rodb(path: str | Path) -> xr.Dataset:
 
     Raises
     ------
-    ValueError
+    ReaderError
         If the header has no ``Columns`` line, a column is not in
         :data:`RODB_COLUMNS`, ``YY:MM:DD:HH`` are missing, or no data rows follow
         the header.
@@ -102,23 +103,24 @@ def read_rodb(path: str | Path) -> xr.Dataset:
         key, val = (s.strip() for s in line.split("=", 1))
         header[key] = val
     if "Columns" not in header:
-        raise ValueError(f"{path.name}: no 'Columns' header line; not a RODB file")
+        raise ReaderError(f"{path.name}: no 'Columns' header line; not a RODB file")
     columns = header["Columns"].split(":")
     if columns[:4] != ["YY", "MM", "DD", "HH"]:
-        raise ValueError(f"{path.name}: columns must start YY:MM:DD:HH, got {columns}")
+        raise ReaderError(f"{path.name}: columns must start YY:MM:DD:HH, got {columns}")
     unknown = [c for c in columns[4:] if c not in RODB_COLUMNS]
     if unknown:
-        raise ValueError(
-            f"{path.name}: RODB column(s) {unknown} have no mapping; add them to "
-            f"RODB_COLUMNS with the units documented in config/legacy/rodb_keys.yaml"
+        raise ReaderError(
+            f"{path.name}: RODB column code(s) {unknown} are not supported "
+            f"(supported: {', '.join(RODB_COLUMNS)}); the file cannot be read until "
+            "the reader maps them, so report the code(s) and their units"
         )
 
     if start is None:
-        raise ValueError(f"{path.name}: no data rows after the RODB header")
+        raise ReaderError(f"{path.name}: no data rows after the RODB header")
 
     data = np.atleast_2d(np.genfromtxt(lines[start:], dtype=float))
     if data.shape[1] < 4:
-        raise ValueError(
+        raise ReaderError(
             f"{path.name}: data rows have fewer than 4 columns (need YY MM DD HH)"
         )
     for fill in RODB_FILL_VALUES:
@@ -188,7 +190,7 @@ def read_rodb_bins(paths: list[str | Path]) -> xr.Dataset:
 
     Raises
     ------
-    ValueError
+    ReaderError
         If a file is not ``.edt`` or has no bin number, two files share a bin, the
         header serials differ, or the files' times differ.
     """
@@ -204,19 +206,23 @@ def read_rodb_bins(paths: list[str | Path]) -> xr.Dataset:
     for p in paths:
         m = re.search(r"_bin(\d+)$", p.stem)
         if p.suffix.lower() != ".edt" or m is None:
-            raise ValueError(f"{p.name}: not a per-bin .edt file (<name>_binNN.edt)")
+            raise ReaderError(f"{p.name}: not a per-bin .edt file (<name>_binNN.edt)")
         if int(m.group(1)) in numbered:
-            raise ValueError(f"{p.name} and {numbered[int(m.group(1))].name}: same bin")
+            raise ReaderError(
+                f"{p.name} and {numbered[int(m.group(1))].name}: same bin"
+            )
         numbered[int(m.group(1))] = p
     numbers = sorted(numbered)
     parts = [read_rodb(numbered[n]) for n in numbers]
     first = parts[0]
     serials = {ds.attrs.get("originator_SerialNumber") for ds in parts}
     if len(serials) > 1:
-        raise ValueError(f"{first.attrs['originator_file']}: serials differ: {serials}")
+        raise ReaderError(
+            f"{first.attrs['originator_file']}: serials differ: {serials}"
+        )
     for ds in parts[1:]:
         if not np.array_equal(ds["time"].values, first["time"].values):
-            raise ValueError(
+            raise ReaderError(
                 f"{ds.attrs['originator_file']}: times differ from "
                 f"{first.attrs['originator_file']}"
             )

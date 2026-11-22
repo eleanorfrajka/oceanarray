@@ -184,3 +184,21 @@ def test_run_accepts_shared_report_args():
     assert ns.outdir == "/tmp/out"
     assert ns.report_dir == "/tmp/central"
     assert ns.sig_level == [27.5, 27.7]
+
+
+@pytest.mark.parametrize("value", ["nan", "inf", "-inf", "north"])
+def test_concat_rotate_to_refuses_a_non_finite_angle(value, capsys):
+    """``concat --rotate-to`` takes only a finite angle: a usage error, not a traceback."""
+    with pytest.raises(SystemExit) as info:
+        build_parser().parse_args(
+            ["concat", "a", "b", "--name", "x", f"--rotate-to={value}"]
+        )
+    assert info.value.code == 2
+    assert "not a finite angle" in capsys.readouterr().err
+
+
+def test_concat_rotate_to_accepts_a_finite_angle():
+    ns = build_parser().parse_args(
+        ["concat", "a", "b", "--name", "x", "--rotate-to", "-30.5"]
+    )
+    assert ns.rotate_to == -30.5

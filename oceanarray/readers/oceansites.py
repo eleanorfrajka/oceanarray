@@ -15,6 +15,7 @@ import xarray as xr
 
 from oceanarray import provenance
 from oceanarray.config.parameters import ADCP_BIN_DIM
+from oceanarray.exceptions import ReaderError
 
 log = logging.getLogger(__name__)
 
@@ -249,7 +250,7 @@ def _add_bin_geometry(
 
     Raises
     ------
-    ValueError
+    ReaderError
         If the file has no bin depths, no head depth to place them from, no bin
         with a depth, or a stated orientation that contradicts them.
     """
@@ -293,27 +294,27 @@ def _add_bin_geometry(
             out["bin_pressure"].attrs["comment"] = f"PRES on {prof} ({name})"
         out["bin_pressure"].attrs.update(ORIGINATOR_BIN_PRESSURE_ATTRS)
         if head is None:
-            raise ValueError(
+            raise ReaderError(
                 f"{name}: no head pressure (PREST) or INSTRDEPTH; the bins cannot be "
                 "placed relative to the instrument. Give the file one of them."
             )
         offset = bin_depth - head
     elif prof in src and src[prof].ndim == 1:
         if head is None:
-            raise ValueError(
+            raise ReaderError(
                 f"{name}: no INSTRDEPTH; the bins on {prof} cannot be placed "
                 "relative to the instrument. Give the file one."
             )
         offset = src[prof].values.astype(float) - head
     else:
-        raise ValueError(f"{name}: no bin depths on {prof}; cannot place the bins")
+        raise ReaderError(f"{name}: no bin depths on {prof}; cannot place the bins")
 
     geometry, rng = originator_bin_geometry(offset)
     if not np.isfinite(rng).any():
-        raise ValueError(f"{name}: no bin has a depth; cannot place the bins")
+        raise ReaderError(f"{name}: no bin has a depth; cannot place the bins")
     stated = _ORIENTATION.get(str(src["UCUR"].attrs.get("sensor_orientation", "")))
     if stated and stated != geometry:
-        raise ValueError(
+        raise ReaderError(
             f"{name}: sensor_orientation says '{stated}' but the bin depths are "
             f"{'above' if geometry == 'up' else 'below'} the instrument"
         )
@@ -357,20 +358,21 @@ def read_oceansites(path: str | Path) -> xr.Dataset:
 
     Raises
     ------
-    ValueError
-        No known parameter code.
+    ReaderError
+        If the file has no ``TIME`` dimension or no known parameter code, or a
+        code is on more than one level.
     """
     path = Path(path)
     src, n_missing, n_kept = _outside_valid_range(
         xr.open_dataset(path, engine="netcdf4", mask_and_scale=True), path.name
     )
     if "TIME" not in src.dims:
-        raise ValueError(
+        raise ReaderError(
             f"{path.name}: no TIME dimension; not an OceanSITES time series"
         )
     found = [code for code in OCEANSITES_VARIABLES if code in src.data_vars]
     if not found:
-        raise ValueError(
+        raise ReaderError(
             f"{path.name}: none of {sorted(OCEANSITES_VARIABLES)} present; not a "
             f"supported OceanSITES file"
         )
@@ -392,7 +394,7 @@ def read_oceansites(path: str | Path) -> xr.Dataset:
         da = _squeeze_non_time(src[code])
         extra = [d for d in da.dims if d not in dims_map]
         if extra:
-            raise ValueError(
+            raise ReaderError(
                 f"{path.name}: {code} is on {extra[0]} ({da.sizes[extra[0]]} levels); "
                 "one instrument per entry — this reader takes one depth"
             )

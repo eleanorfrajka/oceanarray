@@ -11,9 +11,8 @@ from oceanarray.cli._deprecate import DeprecatedAlias
 
 def cmd_export(args: argparse.Namespace) -> int:
     """Write the OceanSITES files through :func:`oceanarray.export`; 1 if nothing was written."""
-    from oceanarray.exceptions import MooringError
+    from oceanarray.exceptions import OceanarrayError
     from oceanarray.pipeline.export import export
-    from oceanarray.pipeline.oceansites import OceanSitesError
 
     location = _mooring_location(args)
     try:
@@ -26,7 +25,7 @@ def cmd_export(args: argparse.Namespace) -> int:
             overwrite=args.force,
             dry_run=args.dry_run,
         )
-    except (MooringError, OceanSitesError, FileExistsError) as e:
+    except (OceanarrayError, FileExistsError) as e:
         print(f"ERROR: {e}")
         return 1
     verb = "would write" if args.dry_run else "wrote"

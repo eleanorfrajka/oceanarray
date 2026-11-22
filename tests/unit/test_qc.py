@@ -400,3 +400,19 @@ def test_derive_oxygen_saturation_unknown_units_raises():
 
     with pytest.raises(UnitsError, match="dissolved_oxygen units"):
         Q.derive_oxygen_saturation(_o2_ds(250.0, "mL/L"))
+
+
+# ---------------------------------------------------------------------------
+# The packaged originator flag vocabulary (config/flag_meanings.yaml)
+# ---------------------------------------------------------------------------
+
+
+def test_packaged_flag_meanings_translate_to_valid_flags():
+    """Every word in the shipped table maps to a flag an originator word may set."""
+    from oceanarray.pipeline.qc import originator
+
+    meanings, _ = originator.vocabulary()
+    assert meanings
+    for word, flag in meanings.items():
+        assert flag in params.QC_FLAG_VALUES, word
+        assert flag not in (7, 8), word

@@ -18,6 +18,8 @@ from collections.abc import Iterable, Mapping, Sequence
 
 import xarray as xr
 
+from oceanarray.exceptions import MooringError
+
 log = logging.getLogger(__name__)
 
 #: Fields of one principal investigator, and of one contributor entry.
@@ -483,7 +485,7 @@ def read_own(attrs: Mapping[str, object]) -> dict[str, list[dict[str, str]]]:
 
     Raises
     ------
-    ValueError
+    oceanarray.exceptions.MooringError
         A list whose parallel attributes have different entry counts.
     """
     out: dict[str, list[dict[str, str]]] = {}
@@ -500,10 +502,13 @@ def read_own(attrs: Mapping[str, object]) -> dict[str, list[dict[str, str]]]:
         n = len(columns["name"]) if columns["name"] is not None else 0
         for field, values in columns.items():
             if values is not None and len(values) != n:
-                raise ValueError(
-                    f"{names[field]} has {len(values)} entries for {n} names; the "
-                    "people lists of an oceanarray file must line up (rerun from "
-                    "stage 1)."
+                where = (
+                    f"{attrs['mooring_name']}: " if attrs.get("mooring_name") else ""
+                )
+                raise MooringError(
+                    f"{where}{names[field]} has {len(values)} entries for {n} "
+                    "names; the people lists of an oceanarray file must line up "
+                    "(rerun from stage 1)."
                 )
         out[kind] = [
             {

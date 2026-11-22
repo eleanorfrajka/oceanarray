@@ -8,6 +8,8 @@ from typing import Any, NamedTuple
 
 import pandas as pd
 
+from oceanarray.exceptions import MooringError
+
 #: How a logsheet says a clock was not read at recovery.
 _NO_CLOCK_READING: frozenset[str] = frozenset(
     {"", "unknown", "n/a", "na", "none", "not read", "-", "?"}
@@ -120,10 +122,6 @@ def clock_seconds(entry: dict[str, Any], field: str) -> float:
     -------
     float
     """
-    # Local import: ``oceanarray.exceptions`` imports from ``config.validation``, which
-    # imports this module — a module-level import would close that cycle.
-    from oceanarray.exceptions import MooringError
-
     value = entry.get(field, 0)
     if value is None or value == "":
         return 0.0

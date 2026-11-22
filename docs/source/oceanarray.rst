@@ -72,10 +72,16 @@ On datasets
 Errors
 ^^^^^^
 
+.. autoexception:: oceanarray.OceanarrayError
+   :no-index:
+
 .. autoexception:: oceanarray.MooringError
    :no-index:
 
 .. autoexception:: oceanarray.StageError
+   :no-index:
+
+.. autoexception:: oceanarray.ReaderError
    :no-index:
 
 Pipeline internals

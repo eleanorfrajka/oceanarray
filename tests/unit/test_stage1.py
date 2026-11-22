@@ -10,6 +10,7 @@ import xarray as xr
 pytest.importorskip("seasenselib", reason="seasenselib not installed")
 
 from oceanarray import paths, readers
+from oceanarray.exceptions import MooringError
 from oceanarray.pipeline import stage1 as s1
 from oceanarray.pipeline.raw_files import find_file_tag
 from oceanarray.pipeline.stage1 import MooringProcessor
@@ -340,7 +341,7 @@ class TestErrorHandling:
 
     def test_invalid_reader_type(self):
         """Test handling of invalid reader type."""
-        with pytest.raises(ValueError, match="Unknown file type"):
+        with pytest.raises(MooringError, match="unknown file_type"):
             readers._read_typed("invalid-type", "test.dat")
 
 
@@ -406,3 +407,27 @@ def test_a_description_without_position_keeps_the_files_own(tmp_path):
         del bare.attrs[key]
     out = s1._add_global_attributes(join_raw(bare, entry, cfg), cfg)
     assert "latitude" not in out.attrs and "longitude" not in out.attrs
+
+
+_CF7_MCTD = (
+    Path(__file__).resolve().parents[1]
+    / "fixtures"
+    / "raw"
+    / "osnap"
+    / "CF7_MCTD_2020_22225_50m.nc"
+)
+
+
+@pytest.mark.parametrize(
+    ("override", "match"),
+    [
+        ({"conductivty": "mS/cm"}, r"names 'conductivty', which the file does not"),
+        ({"conductivity": {"unit": "mS/cm"}}, r"units_override\.conductivity must be"),
+    ],
+)
+def test_units_override_errors_name_the_instrument(override, match):
+    """A units_override the file cannot take is refused, naming instrument and serial."""
+    ds = readers.read(_CF7_MCTD, file_type="oceansites")
+    entry = {"instrument": "microcat", "serial": 22225, "units_override": override}
+    with pytest.raises(MooringError, match=rf"^microcat s/n 22225: .*{match}"):
+        s1._apply_units_override(ds, entry)

@@ -480,3 +480,17 @@ def test_stage2_log_counts_instruments_left_out(ran, tmp_path, capsys):
     _stage2_files(cfg, yaml_path.parent, force=True, exclude={"9920"}, log=print)
     out = capsys.readouterr().out
     assert "Stage 2 completed: 1/1 instruments successful, 1 left out" in out
+
+
+def test_a_wrong_stage_file_raises_stage_error_not_a_wrapped_failure(tmp_path):
+    """Stage 3 on a 'stage-2' file that is really stage 1: the StageError reaches the caller as is."""
+    from oceanarray.exceptions import StageError
+
+    yaml_path = _fresh_tree(tmp_path)
+    moor = yaml_path.parent
+    oa.process(yaml_path, raw_dir=_RAW, stages=(1, 2), keep_going=False)
+    stage1 = paths.stage_file(moor, _NAME, "microcat", "2941", 1)
+    stage2 = paths.stage_file(moor, _NAME, "microcat", "2941", 2)
+    shutil.copy(stage1, stage2)
+    with pytest.raises(StageError):
+        oa.process(yaml_path, raw_dir=_RAW, stages=3, keep_going=False)
