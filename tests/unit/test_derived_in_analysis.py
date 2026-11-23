@@ -17,7 +17,7 @@ import xarray as xr
 
 from oceanarray.analysis import derived as dv
 from oceanarray.location import parse_coordinate
-from oceanarray.pipeline.pressure import depth_from_pressure, pressure_from_depth
+from oceanarray.physics import depth_from_pressure, pressure_from_depth
 
 _DUNE2 = (
     pathlib.Path(__file__).resolve().parents[1] / "fixtures" / "proc" / "dune2_1_2026"

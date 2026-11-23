@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from oceanarray.physics import sigma_function, speed_direction
+from oceanarray.physics import pressure_from_depth, sigma_function, speed_direction
 
 if TYPE_CHECKING:
     import xarray as xr
@@ -322,8 +322,6 @@ def seabed_pressure(ds: xr.Dataset) -> float | None:
             ds.attrs.get("mooring_name", "product"),
         )
         return None
-    from oceanarray.pipeline.pressure import pressure_from_depth
-
     return float(pressure_from_depth(waterdepth, lat))
 
 
@@ -570,8 +568,6 @@ class Knockdown:
         """
         if self.latitude is None:
             return np.full(np.shape(hab), np.nan) if np.ndim(hab) else float("nan")
-        from oceanarray.pipeline.pressure import pressure_from_depth
-
         return pressure_from_depth(
             self.waterdepth - np.asarray(hab, float), self.latitude
         )

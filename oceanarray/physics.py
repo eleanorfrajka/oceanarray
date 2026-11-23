@@ -1,7 +1,8 @@
-"""Seawater and current formulas shared by the pipeline and the report pages.
+"""Seawater and current formulas shared by the readers, the pipeline and the report pages.
 
-Imports nothing from oceanarray, so :mod:`oceanarray.pipeline` (writing the products)
-and :mod:`oceanarray.analysis` (the figures) share one implementation.
+Imports nothing from oceanarray, so :mod:`oceanarray.readers`, :mod:`oceanarray.pipeline`
+(writing the products) and :mod:`oceanarray.analysis` (the figures) share one
+implementation.
 """
 
 from __future__ import annotations
@@ -181,10 +182,42 @@ def potential_density_anomaly(
     )
 
 
-__all__ = [
-    "SIGMA_REFERENCES_DBAR",
-    "flow_direction",
-    "potential_density_anomaly",
-    "sigma_function",
-    "speed_direction",
-]
+def pressure_from_depth(depth_m: Any, latitude: float) -> Any:
+    """Return sea pressure (dbar) at a depth below the surface, by TEOS-10.
+
+    Parameters
+    ----------
+    depth_m : float or numpy.ndarray
+        Depth below the sea surface (m, positive down).
+    latitude : float
+        Latitude (decimal degrees).
+
+    Returns
+    -------
+    float or numpy.ndarray
+        ``gsw.p_from_z(-depth_m, latitude)`` (dbar); 1–1.5 % more than the depth in m.
+    """
+    import gsw
+
+    p = gsw.p_from_z(-np.asarray(depth_m, dtype=float), latitude)
+    return float(p) if np.ndim(p) == 0 else p
+
+
+def depth_from_pressure(pressure_dbar: Any, latitude: float) -> Any:
+    """Return depth below the surface (m, positive down) at a sea pressure (dbar), by TEOS-10.
+
+    Parameters
+    ----------
+    pressure_dbar : float or numpy.ndarray
+        Sea pressure (dbar).
+    latitude : float
+        Latitude (decimal degrees).
+
+    Returns
+    -------
+    float or numpy.ndarray
+    """
+    import gsw
+
+    z = -gsw.z_from_p(np.asarray(pressure_dbar, dtype=float), latitude)
+    return float(z) if np.ndim(z) == 0 else z

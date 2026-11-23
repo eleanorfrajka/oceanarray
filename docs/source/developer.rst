@@ -108,9 +108,15 @@ the code (analytic case, invariant, a ``gsw`` cross-check).
      - ``writers/``
      - Writing only: ``writers.write`` (encoding, compression, dtypes). Never
        changes values.
+   * - Foundation
+     - ``mask_rules.py``, ``originator_flags.py``, ``history.py``
+     - The mask rules (which flag values a rule hides; parse, combine, record),
+       the originator flag vocabulary (reads the packaged
+       ``config/flag_meanings.yaml``) and the ``history`` attribute. Used by the
+       mooring YAML code, readers, pipeline and pages; they read no data.
    * - Physics
      - ``physics.py``
-     - Seawater and current formulas shared by the pipeline and the pages.
+     - Seawater and current formulas shared by the readers, the pipeline and the pages.
    * - Analysis
      - ``analysis/``
      - Physics on the products that is not a pipeline step: θ, σθ, speed and
@@ -153,7 +159,7 @@ for a page).
   ``reports`` → ``plotters`` → ``analysis`` → ``pipeline`` → ``readers`` and
   ``writers`` → the mooring YAML and its helpers (``mooring``, ``catalog``,
   ``provenance``, ``logger``, ``paths``, ``instruments``, ``location``,
-  ``physics``, ``inspect``, ``mask_rules``, ``originator_flags``) → ``config`` and ``_deprecated`` → ``exceptions``. The
+  ``physics``, ``history``, ``inspect``, ``mask_rules``, ``originator_flags``) → ``config`` and ``_deprecated`` → ``exceptions``. The
   shared report layer (``reports/_vendored/``) may be used by every part and
   imports none of them.
 - ``plotters/`` never imports a ``reports/`` module directly (the shared report
@@ -164,9 +170,9 @@ for a page).
 - Nothing outside ``legacy/`` imports ``oceanarray.legacy``.
 
 The imports that break a rule today are listed as exceptions in the contracts,
-each marked "To change": the readers using pipeline helpers, provenance using a
-writer helper, and two **cycles**, where the lower module imports back inside a
-function to avoid a circular import at load time: ``mooring`` and ``pipeline``
+each marked "To change": provenance using a writer helper, and two **cycles**,
+where the lower module imports back inside a function to avoid a circular import
+at load time: ``mooring`` and ``pipeline``
 (``pipeline.stack`` and ``pipeline.concat`` import ``mooring``; ``mooring`` uses
 ``pipeline.attribution``), and ``mooring`` and ``config/validation.py``. A cycle is fixed by
 moving the shared pieces below both modules, not by deleting a line. A pull
@@ -251,7 +257,7 @@ through (``UnitsError``).
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Rule.** Every processing step adds one ``history`` entry with
-``pipeline._stage.append_history(ds, note)`` (timestamp and separator live there),
+``history.append_history(ds, note)`` (timestamp and separator live there),
 and writes the settings it used as structured attributes. The note is a sentence a
 reader understands, with the values in it; it never contains ``"; "`` (the entry
 separator; ``append_history`` cleans it).
@@ -267,7 +273,7 @@ is what gets shared.
 
 .. code-block:: python
 
-   _stage.append_history(
+   append_history(
        ds_out,
        f"flags: values flagged {mask_rules.rule_words(flags)} left out before gridding "
        "(grid_mask_flags)",
@@ -534,8 +540,10 @@ next minor release, never a patch release.
    attrs = _deprecated.alias("oceanarray.inspect.attrs", attributes)
 
 **Not.** An alias for something never released; a second spelling of the removal
-version. Planned: ``REMOVED_IN`` is also defined in ``cli/_deprecate.py``, and
-``logger.LOG_FN_DEPRECATED`` writes "0.7.0" out.
+version. Planned: ``REMOVED_IN`` is also defined in ``cli/_deprecate.py``,
+``logger.LOG_FN_DEPRECATED`` writes "0.7.0" out, and the moved-module aliases
+in ``pipeline/clock`` and ``pipeline/pressure`` write "0.8.0" out (the
+mechanism has one removal release; these need the next one).
 
 3.12 Tests
 ~~~~~~~~~~
@@ -736,7 +744,9 @@ The rest:
   verb's body has the verb's name in ``pipeline/``; a set of alternatives is a
   plural agent noun in its own subpackage (``readers/``, ``gridders/``). Never
   named for a kind of code: no ``tools``, ``utilities``, ``utils``, ``helpers``,
-  ``misc``.
+  ``misc``. A package's ``__init__.py`` lists the names it re-exports in
+  ``__all__``, right after its imports; a plain module has no ``__all__``: a
+  leading underscore marks what is private, and the API page shows the rest.
 - **Public functions** are named by kind:
 
   .. list-table::
@@ -1116,6 +1126,13 @@ that makes the change.
      - Short functions
      - A ``pipeline/stackers/`` subpackage, as ``pipeline/gridders/``
      - after 0.7.0
+   * - ``__all__`` in plain modules (``analysis/derived.py``,
+       ``pipeline/units.py``, ``reports/_gridcat.py``,
+       ``reports/_instrument_text.py``, ``reports/design.py``)
+     - ``__all__`` only in a package's ``__init__.py``
+     - Removed when the module is next touched (checking that nothing it hid
+       should be private); a sweep for the rest
+     - planned
    * - Private helpers imported across subpackages
      - Private means module-internal
      - Public, or moved to the subpackage that uses them (section 2)

@@ -130,3 +130,21 @@ def test_old_clock_package_warns_and_maps_to_the_moved_modules():
     assert "warned: oceanarray.pipeline.clock is deprecated" in out
     assert "oceanarray.analysis.clock" in out
     assert out.strip().endswith("True True True")
+
+
+@pytest.mark.parametrize(
+    ("name", "new_home"),
+    [
+        ("pressure_from_depth", "oceanarray.physics"),
+        ("depth_from_pressure", "oceanarray.physics"),
+        ("ORIGINATOR_BIN_PRESSURE_ATTRS", "oceanarray.readers.adcp_geometry"),
+        ("originator_bin_geometry", "oceanarray.readers.adcp_geometry"),
+    ],
+)
+def test_moved_pressure_names_warn_and_are_the_moved_objects(name, new_home):
+    """A name moved out of pipeline.pressure still imports there, warning with its new home."""
+    from oceanarray.pipeline import pressure
+
+    with pytest.warns(DeprecationWarning, match=re.escape(f"use {new_home}.{name}")):
+        old = getattr(pressure, name)
+    assert old is getattr(importlib.import_module(new_home), name)

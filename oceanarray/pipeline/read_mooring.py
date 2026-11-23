@@ -24,6 +24,7 @@ import xarray as xr
 from oceanarray import mooring as _mooring
 from oceanarray import paths, readers
 from oceanarray.exceptions import MooringError
+from oceanarray.history import append_history
 from oceanarray.instruments import instrument_entries
 from oceanarray.location import (
     format_latlon,
@@ -321,7 +322,7 @@ def _join_description(
                 f"description's name {name!r} by more than case — it was made under a "
                 "different description; reprocess it from stage 1."
             )
-        _stage.append_history(
+        append_history(
             ds, f"mooring_name corrected from {existing_name!r} to {name!r} (case)"
         )
     for key, value in moor_attrs.items():

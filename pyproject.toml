@@ -234,7 +234,7 @@ layers = [
   "oceanarray.analysis",
   "oceanarray.pipeline",
   "oceanarray.readers : oceanarray.writers",
-  "oceanarray.mooring : oceanarray.catalog : oceanarray.provenance : oceanarray.logger : oceanarray.paths : oceanarray.instruments : oceanarray.location : oceanarray.physics : oceanarray.inspect : oceanarray.mask_rules : oceanarray.originator_flags",
+  "oceanarray.mooring : oceanarray.catalog : oceanarray.provenance : oceanarray.logger : oceanarray.paths : oceanarray.instruments : oceanarray.location : oceanarray.physics : oceanarray.history : oceanarray.inspect : oceanarray.mask_rules : oceanarray.originator_flags",
   "oceanarray.config : oceanarray._deprecated",
   "oceanarray.exceptions",
 ]
@@ -251,10 +251,6 @@ ignore_imports = [
   # To change, and a cycle (pipeline.stack and pipeline.concat import mooring): the
   # mooring YAML reads a pipeline helper; it moves below mooring.
   "oceanarray.mooring -> oceanarray.pipeline.attribution",
-  # To change: readers use pipeline helpers (they move below the readers).
-  "oceanarray.readers.rodb -> oceanarray.pipeline.pressure",
-  "oceanarray.readers.oceansites -> oceanarray.pipeline.pressure",
-  "oceanarray.readers.oceansites -> oceanarray.pipeline._stage",
   # To change: provenance compares attributes with a writer helper.
   "oceanarray.provenance -> oceanarray.writers.dtypes",
   # run ends with the report (section 2).
@@ -286,7 +282,7 @@ forbidden_modules = [
   "oceanarray.reports._verb", "oceanarray.reports.design",
   "oceanarray.mooring", "oceanarray.paths", "oceanarray.logger", "oceanarray.catalog",
   "oceanarray.provenance", "oceanarray.instruments", "oceanarray.location",
-  "oceanarray.physics", "oceanarray.inspect", "oceanarray.exceptions",
+  "oceanarray.physics", "oceanarray.history", "oceanarray.inspect", "oceanarray.exceptions",
   "oceanarray._deprecated", "oceanarray.legacy",
 ]
 

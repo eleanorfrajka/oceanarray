@@ -12,6 +12,7 @@ from oceanarray import catalog, logger, mask_rules, paths, provenance
 from oceanarray import mooring as _mooring
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
+from oceanarray.history import append_history
 from oceanarray.instruments import instrument_entries, nominal_depth
 from oceanarray.location import (
     is_unknown_latlon_source,
@@ -1116,14 +1117,14 @@ def stack(
     )
     # Two dated entries, one per step, so the page's processing table reads them
     # back as written (no entry separator inside a note).
-    _stage.append_history(
+    append_history(
         ds_out,
         f"stack: {n_instr} instruments placed on a {dt_seconds} s time axis (whole "
         f"multiples of {dt_seconds} s), each step taking the instrument's nearest "
         f"sample within ±{dt_seconds / 2:g} s, with no interpolation or averaging in "
         "time, steps with no sample left empty",
     )
-    _stage.append_history(
+    append_history(
         ds_out,
         f"flags: values flagged {mask_rules.rule_words(rule)} by oceanarray or the "
         "originator hidden on the stack pages and left out of the grid "
@@ -1755,7 +1756,7 @@ def _stack_file(
     if digest := catalog.digest(mooring, list(sensors.records(ds).values())):
         ds.attrs[CATALOG_ATTR] = digest
     why = reason or ("stage processing failed" if failures else "unknown")
-    _stage.append_history(ds, f"stack rebuilt: {why}")
+    append_history(ds, f"stack rebuilt: {why}")
     if failures:
         # The grid inherits this attribute from the stack.
         ds.attrs["keep_going_failures"] = "; ".join(failures)

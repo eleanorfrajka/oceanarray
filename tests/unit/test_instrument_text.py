@@ -13,8 +13,8 @@ from pathlib import Path
 
 import xarray as xr
 
+from oceanarray.history import append_history
 from oceanarray.mask_rules import resolve_mask_flags
-from oceanarray.pipeline import _stage
 from oceanarray.reports import _instrument_text as it
 from oceanarray.reports._captions import rule_sentence
 from oceanarray.reports._html_helpers import _build_history_tables, _parse_history
@@ -133,7 +133,7 @@ def test_a_disturbed_end_is_found_in_the_pressure_record():
 def test_append_history_keeps_a_note_one_entry():
     ds = _open(_EGM2_CM)
     ds.attrs["history"] = "2026-11-15T13:07Z: processing_stage 1"
-    _stage.append_history(ds, "people: from the description (2 PI; 1 warning)")
+    append_history(ds, "people: from the description (2 PI; 1 warning)")
     entries = _parse_history(ds.attrs["history"])
     assert [e["text"] for e in entries] == [
         "processing_stage 1",

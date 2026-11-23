@@ -134,6 +134,9 @@ is returned unchanged; an OceanSITES netCDF is read to oceanarray names. A known
    :members:
    :undoc-members:
 
+.. automodule:: oceanarray.readers.adcp_geometry
+   :members:
+
 netcdf writer
 ^^^^^^^^^^^^^
 ``oceanarray.writers.write(ds, path)`` is the single write seam used by every
@@ -190,9 +193,17 @@ Geographic position of a mooring: parse and format latitude and longitude.
 
 physics
 ^^^^^^^
-Seawater and current formulas shared by the pipeline writers and the report pages.
+Seawater and current formulas shared by the readers, the pipeline and the report
+pages, including depth ↔ sea-pressure conversion.
 
 .. automodule:: oceanarray.physics
+   :members:
+
+history
+^^^^^^^
+The ``history`` attribute: each stage and reader appends one timestamped entry.
+
+.. automodule:: oceanarray.history
    :members:
 
 storage dtypes
@@ -260,7 +271,9 @@ correction, and compute derived quantities (salinity, density, speed/direction).
 
 pressure
 ^^^^^^^^
-Pressure interpolation helpers (HAB computation, gap-filling).
+Pressure interpolation helpers (HAB computation, gap-filling). ``pressure_from_depth`` and
+``depth_from_pressure`` moved to :mod:`oceanarray.physics`, the originator's bin
+geometry to :mod:`oceanarray.readers.adcp_geometry`.
 
 .. automodule:: oceanarray.pipeline.pressure
    :members:

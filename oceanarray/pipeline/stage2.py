@@ -29,6 +29,7 @@ from oceanarray import mooring as _mooring
 from oceanarray import paths
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
+from oceanarray.history import append_history
 from oceanarray.instruments import (
     clock_seconds,
     instrument_entries,
@@ -217,7 +218,7 @@ def _apply_clock_offset(dataset: xr.Dataset, clock_offset: float) -> xr.Dataset:
         time=result["time"].values + np.timedelta64(int(clock_offset * 1e9), "ns")
     )
     sign = "+" if clock_offset >= 0 else ""
-    _stage.append_history(
+    append_history(
         result, f"clock corrected: clock_offset={sign}{clock_offset:.1f}s applied"
     )
     return result
@@ -257,7 +258,7 @@ def _apply_clock_drift(
     }
     corrected_times = dataset["time"].values + correction_ns.astype("timedelta64[ns]")
     result = result.assign_coords(time=corrected_times)
-    _stage.append_history(
+    append_history(
         result, history_note or f"clock_drift={clock_drift_seconds:+.1f}s applied"
     )
     return result
@@ -473,7 +474,7 @@ def _drop_redundant_sbe_vars(dataset: xr.Dataset) -> xr.Dataset:
                 "Removing 'flag': all values are zero (no SeaBird scan flags set)"
             )
             dataset = dataset.drop_vars("flag")
-            _stage.append_history(
+            append_history(
                 dataset, "dropped SeaBird 'flag' column: all values were 0 (good data)"
             )
         else:
@@ -564,7 +565,7 @@ def _stage2_instrument(
         note = correction.reason
         if correction.source == "none" and dataset.attrs.get("originator_file"):
             note = "clock: time as delivered by the originator"
-        _stage.append_history(dataset, note)
+        append_history(dataset, note)
     dataset = _trim_to_deployment_window(dataset, deploy_time, recover_time)
 
     if len(dataset.time) == 0:

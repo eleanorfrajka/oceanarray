@@ -19,6 +19,7 @@ from collections.abc import Iterable, Mapping, Sequence
 import xarray as xr
 
 from oceanarray.exceptions import MooringError
+from oceanarray.history import append_history
 
 log = logging.getLogger(__name__)
 
@@ -900,13 +901,12 @@ def apply_product_citation(
         *ds*.
     """
     from oceanarray import provenance
-    from oceanarray.pipeline import _stage
 
     for key in ("citation", "license", "references"):
         ds.attrs.pop(key, None)
     ds.attrs.update(product_citation(sources))
     version = provenance.version_attrs()[provenance.VERSION_ATTR]
-    _stage.append_history(ds, derivation(title, version, sources))
+    append_history(ds, derivation(title, version, sources))
     return ds
 
 

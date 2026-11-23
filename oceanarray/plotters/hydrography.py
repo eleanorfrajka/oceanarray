@@ -227,7 +227,7 @@ def draw_isopycnal_coverage(
     )  # (n_time, n_tgt)
 
     from oceanarray.analysis.derived import mooring_position
-    from oceanarray.pipeline.pressure import depth_from_pressure
+    from oceanarray.physics import depth_from_pressure
 
     try:
         waterdepth = float(ds.attrs.get("waterdepth", ""))

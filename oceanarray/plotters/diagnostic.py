@@ -449,7 +449,7 @@ def draw_knockdown_displacement(
     import matplotlib.pyplot as plt
 
     from oceanarray.config import parameters as params
-    from oceanarray.pipeline.pressure import depth_from_pressure
+    from oceanarray.physics import depth_from_pressure
     from oceanarray.plotters.primitives import nice_colorbar_bounds
 
     waterdepth = kd.waterdepth

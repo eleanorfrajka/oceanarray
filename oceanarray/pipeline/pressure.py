@@ -1,9 +1,10 @@
-"""Pressure helpers: depth ↔ sea-pressure conversion and stage-3 interpolation."""
+"""Pressure helpers: stage-3 interpolation of pressure onto instruments and ADCP bins."""
 
 from __future__ import annotations
 
 import logging
 import warnings
+from types import ModuleType
 from typing import Any
 
 import numpy as np
@@ -12,111 +13,34 @@ import xarray as xr
 from oceanarray import logger, physics
 from oceanarray.exceptions import MooringError
 from oceanarray.pipeline.qc import set_qc_attrs
+from oceanarray.readers import adcp_geometry
 
 log = logging.getLogger(__name__)
 
 HAB_THRESHOLD = 2.0  # metres — use near-neighbour below this Δhab
 
-
-def pressure_from_depth(depth_m: Any, latitude: float) -> Any:
-    """Return sea pressure (dbar) at a depth below the surface, by TEOS-10.
-
-    Parameters
-    ----------
-    depth_m : float or numpy.ndarray
-        Depth below the sea surface (m, positive down).
-    latitude : float
-        Latitude (decimal degrees).
-
-    Returns
-    -------
-    float or numpy.ndarray
-        ``gsw.p_from_z(-depth_m, latitude)`` (dbar); 1–1.5 % more than the depth in m.
-    """
-    import gsw
-
-    p = gsw.p_from_z(-np.asarray(depth_m, dtype=float), latitude)
-    return float(p) if np.ndim(p) == 0 else p
-
-
-def depth_from_pressure(pressure_dbar: Any, latitude: float) -> Any:
-    """Return depth below the surface (m, positive down) at a sea pressure (dbar), by TEOS-10.
-
-    Parameters
-    ----------
-    pressure_dbar : float or numpy.ndarray
-        Sea pressure (dbar).
-    latitude : float
-        Latitude (decimal degrees).
-
-    Returns
-    -------
-    float or numpy.ndarray
-    """
-    import gsw
-
-    z = -gsw.z_from_p(np.asarray(pressure_dbar, dtype=float), latitude)
-    return float(z) if np.ndim(z) == 0 else z
-
-
-#: ``bin_pressure`` attributes of bin pressures read from an originator's file; stage 3
-#: keeps a ``bin_pressure`` with this ``bin_pressure_source``.
-ORIGINATOR_BIN_PRESSURE_ATTRS: dict[str, str] = {
-    "units": "dbar",
-    "bin_pressure_source": "originator",
-    "tilt_correction": "none (originator bin pressures)",
+#: Released names that moved out of this module: old name -> the module now holding
+#: it. Each still imports from here, with a DeprecationWarning, until 0.8.0.
+_MOVED: dict[str, ModuleType] = {
+    "pressure_from_depth": physics,
+    "depth_from_pressure": physics,
+    "ORIGINATOR_BIN_PRESSURE_ATTRS": adcp_geometry,
+    "originator_bin_geometry": adcp_geometry,
 }
 
 
-def originator_bin_geometry(offset: np.ndarray) -> tuple[str, np.ndarray]:
-    """Return an imported ADCP's orientation and its bins' distances from the head.
-
-    Parameters
-    ----------
-    offset : numpy.ndarray
-        Bin depth minus head depth (m), on ``(bin,)`` or ``(time, bin)``.
-
-    Returns
-    -------
-    orientation : str
-        ``"up"`` when the bins are above the head (median *offset* < 0), else ``"down"``.
-    range : numpy.ndarray
-        ``|offset|`` on ``(bin,)``; for a 2-D *offset*, the median over time.
-    """
-    rng = np.abs(offset)
-    if rng.ndim == 2:
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", RuntimeWarning)
-            rng = np.nanmedian(rng, axis=0)
-    return ("up" if np.nanmedian(offset) < 0 else "down"), rng
-
-
-def originator_range(rng: np.ndarray, how: str) -> tuple[str, np.ndarray, dict]:
-    """Return an imported ADCP's ``range`` coordinate, for ``assign_coords``.
-
-    Parameters
-    ----------
-    rng : numpy.ndarray
-        Bin distances from the head (m), from :func:`originator_bin_geometry`.
-    how : str
-        How the distances were found, for the ``comment``.
-
-    Returns
-    -------
-    tuple
-        ``(dim, values, attrs)`` on :data:`~oceanarray.config.parameters.ADCP_BIN_DIM`.
-    """
-    from oceanarray.config.parameters import ADCP_BIN_DIM
-
-    return (
-        ADCP_BIN_DIM,
-        rng,
-        {
-            "units": "m",
-            "long_name": "distance from the transducer to the bin centre",
-            "comment": f"nominal, {how}; places the stack row only, not bin_pressure",
-        },
+def __getattr__(name: str) -> object:
+    """Return a moved name from its new module, warning that this path is deprecated."""
+    if name not in _MOVED:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    new = _MOVED[name]
+    warnings.warn(
+        f"{__name__}.{name} is deprecated and is removed in 0.8.0; "
+        f"use {new.__name__}.{name}.",
+        DeprecationWarning,
+        stacklevel=2,
     )
+    return getattr(new, name)
 
 
 def _times_to_float(time_values: np.ndarray) -> np.ndarray:
@@ -530,7 +454,7 @@ def _compute_adcp_bin_pressure(
 
     if (
         ds.get("bin_pressure", xr.DataArray()).attrs.get("bin_pressure_source")
-        == ORIGINATOR_BIN_PRESSURE_ATTRS["bin_pressure_source"]
+        == adcp_geometry.ORIGINATOR_BIN_PRESSURE_ATTRS["bin_pressure_source"]
     ):
         log.info("  ADCP bin_pressure: kept from the originator (not re-derived)")
         return ds

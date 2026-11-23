@@ -8,7 +8,6 @@ dataset is taken at the stage the caller expected, so existing proc trees keep
 working.
 """
 
-import datetime
 import logging
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
@@ -19,6 +18,7 @@ import xarray as xr
 
 from oceanarray import provenance
 from oceanarray.exceptions import StageError
+from oceanarray.history import append_history
 from oceanarray.instruments import nominal_depth
 
 log = logging.getLogger(__name__)
@@ -155,61 +155,12 @@ class StageRun:
     matched: int = 0
 
 
-def _history_stamp() -> str:
-    """Return the current UTC time as the package's ``history`` timestamp."""
-    return datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%dT%H:%MZ")
-
-
 #: What each stage did, as its ``history`` entry says it.
 STAGE_WORDS: dict[int, str] = {
     1: "read into oceanarray's variable names and units",
     2: "trimmed to the deployment window",
     3: "checked (automatic tests, originator flags translated) and derived variables added",
 }
-
-#: Separates the entries of ``history``; a note never contains it.
-HISTORY_SEPARATOR = "; "
-
-
-def clean_history_note(note: str) -> str:
-    """Return *note* without the entry separator, so it reads back as one entry.
-
-    ``history`` is read back by splitting on ``"; "`` (between entries) and then on
-    the first ``": "`` (time from text); a ``"; "`` inside a note would split it
-    mid-sentence. Each one becomes ``", "``. Several events of one entry are joined
-    with ``" | "`` instead.
-
-    Parameters
-    ----------
-    note : str
-        The event text.
-
-    Returns
-    -------
-    str
-        *note* with every ``"; "`` replaced by ``", "``, stripped.
-    """
-    return str(note).replace(HISTORY_SEPARATOR, ", ").strip()
-
-
-def append_history(ds: xr.Dataset, note: str) -> None:
-    """Append a timestamped *note* to ``ds.attrs['history']`` in place.
-
-    The one place the ``history`` timestamp format and the ``"; "`` separator
-    live, so every stage appends in the same form. A ``"; "`` inside *note* is
-    cleaned to ``", "`` (:func:`clean_history_note`) so the entry is read back
-    whole.
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        The dataset whose ``history`` attribute is extended.
-    note : str
-        The event text, timestamped and appended.
-    """
-    entry = f"{_history_stamp()}: {clean_history_note(note)}"
-    existing = ds.attrs.get("history", "")
-    ds.attrs["history"] = f"{existing}{HISTORY_SEPARATOR}{entry}" if existing else entry
 
 
 def stamp(

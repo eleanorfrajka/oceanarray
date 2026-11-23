@@ -11,9 +11,10 @@ import xarray as xr
 from oceanarray import logger, mask_rules, paths, provenance
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
+from oceanarray.history import append_history
 from oceanarray.originator_flags import MAPPED_SUFFIX
 from oceanarray.physics import speed_direction
-from oceanarray.pipeline import _stage, attribution, masking
+from oceanarray.pipeline import attribution, masking
 from oceanarray.pipeline.concat import chunks, is_site_stack, own_levels
 from oceanarray.pipeline.dataset import canonical_grid_attrs
 from oceanarray.pipeline.units import to_canonical_units
@@ -264,12 +265,12 @@ def grid(
             "grid_mask_flags": mask_rules.to_json(flags),
         }
     )
-    _stage.append_history(
+    append_history(
         ds_out,
         f"flags: values flagged {mask_rules.rule_words(flags)} left out before gridding "
         "(grid_mask_flags)",
     )
-    _stage.append_history(
+    append_history(
         ds_out,
         f"grid: linear interpolation in pressure onto {dp:g} dbar levels "
         f"({pmin:g}–{pmax:g} dbar), no extrapolation"
@@ -416,7 +417,7 @@ def _grid_file(
     if stack_path is not None:
         ds.attrs["stack_file"] = Path(stack_path).name
         ds.attrs["stack_sha256"] = provenance.sha256(stack_path)
-        _stage.append_history(ds, f"grid rebuilt: {reason}")
+        append_history(ds, f"grid rebuilt: {reason}")
     return write(ds, out_path, overwrite=True)
 
 

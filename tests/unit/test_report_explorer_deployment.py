@@ -17,7 +17,7 @@ import xarray as xr
 
 from oceanarray.analysis.derived import knockdown
 from oceanarray.location import parse_coordinate
-from oceanarray.pipeline.pressure import pressure_from_depth
+from oceanarray.physics import pressure_from_depth
 from oceanarray.reports._html_helpers import _format_seconds
 from oceanarray.reports._mooring import SKIP_NO_REASON, _trim_note
 

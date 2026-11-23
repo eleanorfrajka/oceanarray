@@ -21,6 +21,16 @@ The clock tools moved to ``analysis``
 ``DeprecationWarning``, until 0.8.0; change ``from oceanarray.pipeline.clock import …``
 to ``from oceanarray.analysis.clock import …``.
 
+Depth and pressure conversion moved out of ``pipeline.pressure``
+-----------------------------------------------------------------
+
+``pressure_from_depth`` and ``depth_from_pressure`` are now in ``oceanarray.physics``,
+and ``ORIGINATOR_BIN_PRESSURE_ATTRS`` and ``originator_bin_geometry`` in
+``oceanarray.readers.adcp_geometry``, unchanged. Importing them from
+``oceanarray.pipeline.pressure`` still works, with a ``DeprecationWarning``, until
+0.8.0; change ``from oceanarray.pipeline.pressure import pressure_from_depth`` to
+``from oceanarray.physics import pressure_from_depth``.
+
 One base for the package's errors
 ---------------------------------
 

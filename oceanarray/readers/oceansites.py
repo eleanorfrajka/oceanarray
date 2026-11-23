@@ -16,7 +16,14 @@ import xarray as xr
 from oceanarray import provenance
 from oceanarray.config.parameters import ADCP_BIN_DIM
 from oceanarray.exceptions import ReaderError
+from oceanarray.history import append_history
 from oceanarray.originator_flags import vocabulary
+from oceanarray.physics import depth_from_pressure, pressure_from_depth
+from oceanarray.readers.adcp_geometry import (
+    ORIGINATOR_BIN_PRESSURE_ATTRS,
+    originator_bin_geometry,
+    originator_range,
+)
 
 log = logging.getLogger(__name__)
 
@@ -253,14 +260,6 @@ def _add_bin_geometry(
         If the file has no bin depths, no head depth to place them from, no bin
         with a depth, or a stated orientation that contradicts them.
     """
-    from oceanarray.pipeline.pressure import (
-        ORIGINATOR_BIN_PRESSURE_ATTRS,
-        depth_from_pressure,
-        originator_bin_geometry,
-        originator_range,
-        pressure_from_depth,
-    )
-
     lat = float(np.ravel(src["LATITUDE"].values)[0])
     head = float(np.ravel(src["INSTRDEPTH"].values)[0]) if "INSTRDEPTH" in src else None
     if head is not None and not np.isfinite(head):
@@ -472,8 +471,6 @@ def read_oceansites(path: str | Path) -> xr.Dataset:
             out.attrs["coordinate_system_source"] = (
                 "originator: geographic east/north velocity in the file"
             )
-    from oceanarray.pipeline._stage import append_history
-
     for counts, what, say in (
         (n_missing, "set missing", log.info),
         (n_kept, "kept", log.warning),

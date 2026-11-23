@@ -29,7 +29,7 @@ def apply_adcp_seabed_qc(
     water_depth_m : float
         Water depth (m, the YAML ``waterdepth``); no-op if ≤ 0.
     lat : float
-        Latitude (decimal degrees), for :func:`~oceanarray.pipeline.pressure.pressure_from_depth`.
+        Latitude (decimal degrees), for :func:`~oceanarray.physics.pressure_from_depth`.
     fail_margin_m : float, optional
         Metres below the seabed beyond which a bin is bad (4) rather than suspect (3).
     log_fn : callable, optional
@@ -60,7 +60,7 @@ def _apply_adcp_seabed_qc(
         return ds
 
     from oceanarray.config import parameters as params
-    from oceanarray.pipeline.pressure import pressure_from_depth
+    from oceanarray.physics import pressure_from_depth
 
     p_seabed = pressure_from_depth(water_depth_m, lat)
     p_fail = pressure_from_depth(water_depth_m + fail_margin_m, lat)
@@ -138,7 +138,7 @@ def _apply_adcp_surface_qc(
         return ds
 
     from oceanarray.config import parameters as params
-    from oceanarray.pipeline.pressure import pressure_from_depth
+    from oceanarray.physics import pressure_from_depth
 
     p_suspect = pressure_from_depth(suspect_margin_m, lat)
 

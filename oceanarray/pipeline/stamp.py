@@ -15,7 +15,8 @@ import netCDF4
 
 from oceanarray import paths
 from oceanarray.exceptions import StageError
-from oceanarray.pipeline._stage import STAGE_ATTR, _history_stamp
+from oceanarray.history import history_stamp
+from oceanarray.pipeline._stage import STAGE_ATTR
 
 _STAGES = (1, 2, 3)
 
@@ -76,7 +77,7 @@ def stamp_file(path: str | Path, stage: int) -> bool:
                 f"{path.name} already carries {STAGE_ATTR} = {marker}; refusing "
                 f"to declare it stage {stage}."
             )
-        entry = f"{_history_stamp()}: processing_stage {stage} declared via stamp"
+        entry = f"{history_stamp()}: processing_stage {stage} declared via stamp"
         history = nc.getncattr("history") if "history" in attrs else ""
         nc.setncattr(STAGE_ATTR, stage)
         nc.setncattr("history", f"{history}; {entry}" if history else entry)

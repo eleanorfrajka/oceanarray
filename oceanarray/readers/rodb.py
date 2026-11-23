@@ -16,6 +16,12 @@ import xarray as xr
 from oceanarray import provenance
 from oceanarray.config.parameters import ADCP_BIN_DIM, RDI_BAD_VALUE_CM_S
 from oceanarray.exceptions import ReaderError
+from oceanarray.physics import pressure_from_depth
+from oceanarray.readers.adcp_geometry import (
+    ORIGINATOR_BIN_PRESSURE_ATTRS,
+    originator_bin_geometry,
+    originator_range,
+)
 
 log = logging.getLogger(__name__)
 
@@ -194,13 +200,6 @@ def read_rodb_bins(paths: list[str | Path]) -> xr.Dataset:
         If a file is not ``.edt`` or has no bin number, two files share a bin, the
         header serials differ, or the files' times differ.
     """
-    from oceanarray.pipeline.pressure import (
-        ORIGINATOR_BIN_PRESSURE_ATTRS,
-        originator_bin_geometry,
-        originator_range,
-        pressure_from_depth,
-    )
-
     paths = [Path(p) for p in paths]
     numbered: dict[int, Path] = {}
     for p in paths:

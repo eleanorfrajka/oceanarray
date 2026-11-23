@@ -20,7 +20,8 @@ Package layout
    │   ├── location.py                # latitude/longitude parsing and formatting
    │   ├── paths.py                   # file names, suffixes and folder layout
    │   ├── catalog.py                 # the sensor catalog: what each instrument is, by serial
-   │   ├── physics.py                 # seawater and current formulas shared by pipeline and pages
+   │   ├── physics.py                 # seawater and current formulas; depth ↔ sea pressure
+   │   ├── history.py                 # append_history: the history attribute's entries
    │   ├── mask_rules.py              # mask_flags rules: parse, combine, describe, record
    │   ├── originator_flags.py        # originator flag words → our flags (reads config/flag_meanings.yaml)
    │   ├── provenance.py              # which oceanarray wrote a file (version, commit)
@@ -41,7 +42,7 @@ Package layout
    │   │   ├── read_mooring.py        # read_mooring(): every instrument of a mooring, by stage
    │   │   ├── write_mooring.py       # write_mooring(): a dict of datasets → stage files
    │   │   ├── _run.py                # the standard chain for one mooring: stages 1–3, stack, grid
-   │   │   ├── _stage.py              # the stage marker; append_history
+   │   │   ├── _stage.py              # the stage marker; instrument identity scalars
    │   │   ├── raw_files.py           # finding and reading each instrument's raw file
    │   │   ├── stamp.py               # marking pre-0.6 stage files with their stage
    │   │   ├── masking.py             # hides the flagged values a mask rule names
@@ -57,7 +58,8 @@ Package layout
    │   │   ├── qc/                    # QARTOD tests and OceanSITES flags; ADCP QC; originator flags
    │   │   └── gridders/              # vertical gridding methods: rapid_interp, climatology, filters
    │   │
-   │   ├── readers/                   # vendor file → canonical dataset, one module per format
+   │   ├── readers/                   # vendor file → canonical dataset, one module per format;
+   │   │                              #   adcp_geometry.py: the originator's ADCP bin geometry
    │   ├── writers/                   # the one netCDF writer; storage dtypes
    │   │
    │   ├── analysis/                  # physics on the products, computed once per page

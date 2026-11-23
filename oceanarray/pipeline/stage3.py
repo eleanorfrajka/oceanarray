@@ -25,6 +25,7 @@ from oceanarray import mooring as _mooring
 from oceanarray import paths
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError, OceanarrayError
+from oceanarray.history import append_history
 from oceanarray.instruments import instrument_entries
 from oceanarray.location import parse_latlon_with_source
 from oceanarray.logger import with_stage_handlers
@@ -486,7 +487,7 @@ def _stage3_instrument(
     qc_summary = _format_qc_summary(ds)
     if qc_summary:
         history_notes.append("QARTOD gross-range+spike: " + " | ".join(qc_summary))
-    _stage.append_history(ds, " | ".join(history_notes))
+    append_history(ds, " | ".join(history_notes))
 
     # The QC treatment, reconstructible from the file alone: flag convention, worst-wins
     # merge order, and the QARTOD → OceanSITES ingest remap.

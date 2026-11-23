@@ -22,6 +22,7 @@ from oceanarray import mask_rules, paths, provenance
 from oceanarray import mooring as _mooring
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
+from oceanarray.history import append_history
 from oceanarray.location import parse_coordinate
 from oceanarray.originator_flags import MAPPED_SUFFIX
 from oceanarray.pipeline import _stage, attribution, sensors
@@ -988,20 +989,20 @@ def concat(
         }
     )
     # One dated entry per step, so the page's processing table reads them back.
-    _stage.append_history(
+    append_history(
         out,
         f"join: {len(stacks)} deployment stacks ({', '.join(names)}) on one {dt} s "
         f"time axis in {n_depths} depths, each depth empty outside its levels' "
         "deployments, nothing filled across a turnaround",
     )
-    _stage.append_history(
+    append_history(
         out,
         f"overlaps: where two deployments overlap the {overlap} one fills the depth, "
         f"the other's {ov_rows.size} depth steps are in the overlap block"
         if ov_rows.size
         else "overlaps: no deployments overlap",
     )
-    _stage.append_history(
+    append_history(
         out,
         f"flags: values flagged {mask_rules.rule_words(mask_rules.from_attrs(out.attrs))} "
         "by oceanarray or the originator hidden on the site pages and left out of "

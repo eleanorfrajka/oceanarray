@@ -14,6 +14,8 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Changed
 
+- The readers no longer import the pipeline: depth/pressure conversion moved to `oceanarray.physics`, ADCP bin geometry to `readers.adcp_geometry`, `append_history` to `oceanarray.history` (#164).
+- `pressure_from_depth`, `depth_from_pressure`, `ORIGINATOR_BIN_PRESSURE_ATTRS` and `originator_bin_geometry` warn when imported from `oceanarray.pipeline.pressure`, until 0.8.0 (#164).
 - The mask-rule helpers (`resolve_mask_flags`, `stack_rule`, ...) moved to `oceanarray.mask_rules` and the originator flag vocabulary to `oceanarray.originator_flags`, unchanged (#163).
 - Problems with the user's input raise `OceanarrayError` subclasses: the new `ReaderError` from the readers, `MooringError` for YAML content; both still subclass `ValueError` (#161).
 - Data problems found while reading or reporting are logged as WARNINGs instead of Python `UserWarning`s, so they reach the log files; report progress lines go through logging too (#160).

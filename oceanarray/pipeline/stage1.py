@@ -19,6 +19,7 @@ from oceanarray import mooring as _mooring
 from oceanarray.config import parameters as params
 from oceanarray.config.validation import check_depth_key
 from oceanarray.exceptions import MooringError, StageError
+from oceanarray.history import append_history
 from oceanarray.instruments import extract_inline_instruments, instrument_entries
 from oceanarray.location import parse_coordinate
 from oceanarray.logger import with_stage_handlers
@@ -281,7 +282,7 @@ def _add_sources(dataset: xr.Dataset, yaml_data: dict[str, Any]) -> xr.Dataset:
         dataset.attrs[f"{field}_source"] = str(source)
         value = yaml_data.get(field, "")
         unit = " m" if field == "waterdepth" else ""
-        _stage.append_history(
+        append_history(
             dataset, f"{field} {value}{unit} from the mooring YAML: {source}"
         )
     return dataset
@@ -600,7 +601,7 @@ def _add_people(dataset: xr.Dataset, mooring: Mapping[str, Any]) -> xr.Dataset:
             lambda: attribution.people_from_block(block), "mooring YAML"
         )
         dataset.attrs.update(people)
-        _stage.append_history(
+        append_history(
             dataset,
             f"people: from the mooring YAML ({block.get('people_source') or 'no people_source given'}, "
             f"{_people_counts(people)}, {n_warn} warning{'' if n_warn == 1 else 's'})",
@@ -608,7 +609,7 @@ def _add_people(dataset: xr.Dataset, mooring: Mapping[str, Any]) -> xr.Dataset:
         return dataset
     dataset.attrs.update(people)
     if any(k.startswith("originator_") for k in dataset.attrs):
-        _stage.append_history(
+        append_history(
             dataset,
             f"people: cleaned per OceanSITES 1.4 from originator_* ({_people_counts(people)}, "
             f"{n_warn} warning{'' if n_warn == 1 else 's'})",
@@ -644,7 +645,7 @@ def _add_source(dataset: xr.Dataset, mooring: Mapping[str, Any]) -> xr.Dataset:
     if given:
         note = (block or {}).get("source_note") or "no source_note given"
         parts.append(f"{', '.join(given)} from the mooring YAML ({note})")
-    _stage.append_history(dataset, f"source: {' | '.join(parts)}")
+    append_history(dataset, f"source: {' | '.join(parts)}")
     return dataset
 
 
@@ -705,7 +706,7 @@ def _stage1_instrument(
     if file_type in ("oceansites", "rodb"):
         _refuse_out_of_range(dataset, stated_units)
     if params.ADCP_BIN_DIM in dataset.dims and file_type in ("oceansites", "rodb"):
-        _stage.append_history(
+        append_history(
             dataset,
             f"imported ADCP: {dataset.sizes[params.ADCP_BIN_DIM]} bins, "
             + (
@@ -718,7 +719,7 @@ def _stage1_instrument(
     # The reader drops records with no time and counts them; say so in history.
     n_no_time = dataset.attrs.get("n_records_without_time")
     if n_no_time:
-        _stage.append_history(
+        append_history(
             dataset,
             f"dropped {int(n_no_time)} record(s) with no time at read "
             f"({dataset.attrs.get('source_file', 'raw file')})",
