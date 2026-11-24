@@ -367,7 +367,7 @@ def draw_grid_velocity_stacked(
     matplotlib.figure.Figure or None
         None when no velocity component is present or all are empty.
     """
-    from oceanarray.analysis.derived import speed_direction
+    from oceanarray.physics import speed_direction
 
     from .helpers import _velocity_panel_style
 

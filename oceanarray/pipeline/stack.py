@@ -11,6 +11,7 @@ import xarray as xr
 from oceanarray import catalog, logger, mask_rules, paths, provenance
 from oceanarray import mooring as _mooring
 from oceanarray.config import parameters as params
+from oceanarray.config.unit_tables import UnitsError
 from oceanarray.exceptions import MooringError
 from oceanarray.history import append_history
 from oceanarray.instruments import instrument_entries, nominal_depth
@@ -27,8 +28,8 @@ from oceanarray.pipeline.dataset import drop_all_zero_vars, time_axis
 from oceanarray.pipeline.pressure import _times_to_float
 from oceanarray.pipeline.qc import _worst_flag
 from oceanarray.pipeline.read_mooring import read_mooring
-from oceanarray.pipeline.units import UnitsError, to_canonical_units
-from oceanarray.writers import write
+from oceanarray.pipeline.units import to_canonical_units
+from oceanarray.writers import dtypes, write
 from oceanarray.writers.netcdf import as_stored
 
 log = logging.getLogger(__name__)
@@ -1450,7 +1451,7 @@ def stack_stale_reason(
         # A <field>_source the stack holds but the description no longer states.
         if k.endswith("_source") and k[:-7] in _mooring.SOURCE_FIELDS:
             expected.setdefault(k, "")
-    if (key := provenance.changed_attr(attrs, expected)) is not None:
+    if (key := dtypes.changed_attr(attrs, expected)) is not None:
         return f"the description's {key} changed"
     want = _stack_settings(
         _mooring.settings_yaml(mooring, stack={"dt_seconds": dt_seconds})

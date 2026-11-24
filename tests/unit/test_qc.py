@@ -396,7 +396,7 @@ def test_derive_oxygen_saturation_per_volume_divides_by_density():
 
 
 def test_derive_oxygen_saturation_unknown_units_raises():
-    from oceanarray.pipeline.units import UnitsError
+    from oceanarray.config.unit_tables import UnitsError
 
     with pytest.raises(UnitsError, match="dissolved_oxygen units"):
         Q.derive_oxygen_saturation(_o2_ds(250.0, "mL/L"))

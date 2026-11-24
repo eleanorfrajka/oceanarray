@@ -22,8 +22,9 @@ from .. import __version__ as _oceanarray_version
 from ..config import parameters as params
 from . import _figdebug
 from ._html_helpers import _build_history_tables
+from ._vendored.css import _JS_SORT_TABLES
 from ._vendored.figure_png import source_of
-from .design import _JS_SORT_TABLES, FIGURE_SOURCE, SHARED_CSS
+from .design import FIGURE_SOURCE, SHARED_CSS
 
 #: Directory holding the report page templates.
 TEMPLATES_DIR: Path = Path(__file__).with_name("templates")

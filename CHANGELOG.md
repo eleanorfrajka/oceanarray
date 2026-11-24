@@ -14,6 +14,8 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Changed
 
+- `changed_attr` (has a product attribute changed, at the precision the writer stores it) moved from `oceanarray.provenance` to `oceanarray.writers.dtypes`, beside `same_attr` (#165).
+- Plain modules no longer define `__all__` (only package `__init__.py` files do); names are imported from where they are defined, e.g. `UnitsError` from `config.unit_tables` (#165).
 - The readers no longer import the pipeline: depth/pressure conversion moved to `oceanarray.physics`, ADCP bin geometry to `readers.adcp_geometry`, `append_history` to `oceanarray.history` (#164).
 - `pressure_from_depth`, `depth_from_pressure`, `ORIGINATOR_BIN_PRESSURE_ATTRS` and `originator_bin_geometry` warn when imported from `oceanarray.pipeline.pressure`, until 0.8.0 (#164).
 - The mask-rule helpers (`resolve_mask_flags`, `stack_rule`, ...) moved to `oceanarray.mask_rules` and the originator flag vocabulary to `oceanarray.originator_flags`, unchanged (#163).

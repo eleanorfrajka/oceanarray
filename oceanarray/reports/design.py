@@ -15,8 +15,6 @@ import os
 
 from oceanarray.pipeline.dataset import OLD_GRID_ATTR_NAMES
 from oceanarray.reports._vendored.css import (
-    _JS_SORT_TABLES,
-    _JS_TOP_LINKS,
     emit_css,
 )
 
@@ -147,19 +145,3 @@ def is_sensor(name: str) -> bool:
     in which case the sensor catalog is simply empty.
     """
     return name.startswith("SENSOR_")
-
-
-__all__ = [
-    "ARRAY_MAP_LEAFLET",
-    "ATTR_GROUP_EXTRAS",
-    "COVERAGE_TOLERANCE",
-    "FIGURE_SOURCE",
-    "ORIGINAL_NAME_ATTRS",
-    "PACKAGE_ACCENT",
-    "SHARED_CSS",
-    "TABLE_WIDTHS",
-    "_JS_SORT_TABLES",
-    "_JS_TOP_LINKS",
-    "is_qc",
-    "is_sensor",
-]

@@ -216,6 +216,7 @@ def depth_from_pressure(pressure_dbar: Any, latitude: float) -> Any:
     Returns
     -------
     float or numpy.ndarray
+        Depth (m, positive down).
     """
     import gsw
 

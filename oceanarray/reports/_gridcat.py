@@ -10,7 +10,7 @@ from typing import Any
 
 import numpy as np
 
-from oceanarray import logger, paths
+from oceanarray import logger
 from oceanarray.analysis import site
 
 from ..config import parameters as params
@@ -620,6 +620,3 @@ def generate_gridcat_page(
     except Exception as exc:  # noqa: BLE001 — a failed page must not abort the concat
         log.warning("site grid report generation failed: %s", exc)
         return None
-
-
-__all__ = ["generate_gridcat_page", "paths"]

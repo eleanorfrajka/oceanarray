@@ -180,34 +180,3 @@ def release_change_reason(attrs: Mapping[str, object]) -> str | None:
     if was != now:
         return f"oceanarray {was or 'unknown'} wrote it, this is {now}"
     return None
-
-
-def changed_attr(
-    attrs: Mapping[str, object], expected: Mapping[str, object]
-) -> str | None:
-    """Return the first attribute (in name order) a product holds differently, or None.
-
-    Values are compared at the precision the writer stores them
-    (:func:`oceanarray.writers.dtypes.same_attr`), so a float32 ``dp_dbar`` or a NaN
-    position read back is not a change.
-
-    Parameters
-    ----------
-    attrs : Mapping
-        The product's global attributes.
-    expected : Mapping
-        The values the current run would write.
-
-    Returns
-    -------
-    str or None
-        The attribute name, or None when all agree.
-    """
-    from oceanarray.writers.dtypes import same_attr
-
-    for key in sorted(expected):
-        # An absent attribute reads as "" where the expected value is text.
-        stored = attrs.get(key, "" if isinstance(expected[key], str) else None)
-        if not same_attr(key, stored, expected[key]):
-            return key
-    return None

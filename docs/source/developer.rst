@@ -170,7 +170,7 @@ for a page).
 - Nothing outside ``legacy/`` imports ``oceanarray.legacy``.
 
 The imports that break a rule today are listed as exceptions in the contracts,
-each marked "To change": provenance using a writer helper, and two **cycles**,
+each marked "To change": two **cycles**,
 where the lower module imports back inside a function to avoid a circular import
 at load time: ``mooring`` and ``pipeline``
 (``pipeline.stack`` and ``pipeline.concat`` import ``mooring``; ``mooring`` uses
@@ -746,7 +746,7 @@ The rest:
   named for a kind of code: no ``tools``, ``utilities``, ``utils``, ``helpers``,
   ``misc``. A package's ``__init__.py`` lists the names it re-exports in
   ``__all__``, right after its imports; a plain module has no ``__all__``: a
-  leading underscore marks what is private, and the API page shows the rest.
+  leading underscore marks what is private, and the API page shows the rest. A test fails if a plain module defines one.
 - **Public functions** are named by kind:
 
   .. list-table::
@@ -1126,13 +1126,6 @@ that makes the change.
      - Short functions
      - A ``pipeline/stackers/`` subpackage, as ``pipeline/gridders/``
      - after 0.7.0
-   * - ``__all__`` in plain modules (``analysis/derived.py``,
-       ``pipeline/units.py``, ``reports/_gridcat.py``,
-       ``reports/_instrument_text.py``, ``reports/design.py``)
-     - ``__all__`` only in a package's ``__init__.py``
-     - Removed when the module is next touched (checking that nothing it hid
-       should be private); a sweep for the rest
-     - planned
    * - Private helpers imported across subpackages
      - Private means module-internal
      - Public, or moved to the subpackage that uses them (section 2)

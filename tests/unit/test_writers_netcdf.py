@@ -484,7 +484,7 @@ def test_global_attributes_are_written_at_storage_precision(tmp_path):
 
 def test_a_nan_attribute_is_unchanged_when_read_back(tmp_path):
     """A no-position mooring: NaN stays NaN, so the product stays current."""
-    from oceanarray import provenance
+    from oceanarray.writers import dtypes
     from oceanarray.writers.dtypes import is_position
 
     with xr.open_dataset(_FIXTURES["grid"], engine="netcdf4") as ds:
@@ -494,12 +494,12 @@ def test_a_nan_attribute_is_unchanged_when_read_back(tmp_path):
     write(grid, out)
     with xr.open_dataset(out, engine="netcdf4") as back:
         assert (
-            provenance.changed_attr(
+            dtypes.changed_attr(
                 back.attrs, {"waterdepth_m": float("nan"), "dp_dbar": 0.1}
             )
             is None
         )
-        assert provenance.changed_attr(back.attrs, {"dp_dbar": 0.2}) == "dp_dbar"
+        assert dtypes.changed_attr(back.attrs, {"dp_dbar": 0.2}) == "dp_dbar"
     assert is_position("geospatial_lat_min") and is_position("deployment_latitude")
     assert not is_position("qc_flat_line")
 

@@ -251,8 +251,6 @@ ignore_imports = [
   # To change, and a cycle (pipeline.stack and pipeline.concat import mooring): the
   # mooring YAML reads a pipeline helper; it moves below mooring.
   "oceanarray.mooring -> oceanarray.pipeline.attribution",
-  # To change: provenance compares attributes with a writer helper.
-  "oceanarray.provenance -> oceanarray.writers.dtypes",
   # run ends with the report (section 2).
   "oceanarray.pipeline._run -> oceanarray.reports",
   # Deprecated alias of the moved clock modules; removed in 0.8.0.

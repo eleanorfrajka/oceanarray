@@ -11,7 +11,7 @@ import xarray as xr
 
 from oceanarray import logger, physics
 from oceanarray.config import parameters as params
-from oceanarray.pipeline.units import UnitsError
+from oceanarray.config.unit_tables import UnitsError
 
 log = logging.getLogger(__name__)
 

@@ -36,7 +36,6 @@ from oceanarray.config.unit_tables import (
 log = logging.getLogger(__name__)
 
 # Re-exported so existing callers keep importing it from the processing layer.
-__all__ = ["UnitsError", "to_canonical_units"]
 
 
 def _canonical_by_standard_name() -> dict[str, str]:

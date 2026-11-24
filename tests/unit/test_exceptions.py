@@ -53,7 +53,8 @@ def test_stage_error_is_not_a_mooring_error_but_still_a_value_error():
 
 def test_a_unit_problem_is_an_oceanarray_error():
     """A real stage-1 variable with an unreadable unit raises an OceanarrayError."""
-    from oceanarray.pipeline.units import UnitsError, to_canonical_units
+    from oceanarray.config.unit_tables import UnitsError
+    from oceanarray.pipeline.units import to_canonical_units
     from oceanarray.readers import read_oceansites
 
     ds = read_oceansites(_OSNAP / "CF7_MCTD_2020_22225_50m.nc")

@@ -16,10 +16,11 @@ import xarray as xr
 
 from oceanarray import readers
 from oceanarray.config import parameters as params
+from oceanarray.config.unit_tables import UnitsError
 from oceanarray.exceptions import ReaderError
 from oceanarray.pipeline.coordinate import apply_declination_to_enu
 from oceanarray.pipeline.stage3 import _fill_cf_attrs
-from oceanarray.pipeline.units import UnitsError, to_canonical_units
+from oceanarray.pipeline.units import to_canonical_units
 from oceanarray.readers import read_oceansites, read_rodb
 
 OSNAP = Path(__file__).resolve().parents[1] / "fixtures" / "raw" / "osnap"

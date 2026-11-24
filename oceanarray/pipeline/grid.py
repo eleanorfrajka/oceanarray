@@ -18,7 +18,7 @@ from oceanarray.pipeline import attribution, masking
 from oceanarray.pipeline.concat import chunks, is_site_stack, own_levels
 from oceanarray.pipeline.dataset import canonical_grid_attrs
 from oceanarray.pipeline.units import to_canonical_units
-from oceanarray.writers import write
+from oceanarray.writers import dtypes, write
 from oceanarray.writers.netcdf import as_stored
 
 log = logging.getLogger(__name__)
@@ -359,7 +359,7 @@ def grid_stale_reason(
         return reason
     if attrs.get("stack_sha256") != provenance.sha256(stack_path):
         return f"{stack_path.name} changed"
-    key = provenance.changed_attr(
+    key = dtypes.changed_attr(
         attrs,
         {"pmin_dbar": float(pmin), "pmax_dbar": float(pmax), "dp_dbar": float(dp)},
     )

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any
 
 import numpy as np
@@ -217,3 +218,32 @@ def same_attr(name: str, stored: Any, expected: Any) -> bool:
     except (TypeError, ValueError):
         pass  # text: compared as written below
     return str(stored) == str(want)
+
+
+def changed_attr(
+    attrs: Mapping[str, object], expected: Mapping[str, object]
+) -> str | None:
+    """Return the first attribute (in name order) a product holds differently, or None.
+
+    Values are compared at the precision the writer stores them
+    (:func:`same_attr`), so a float32 ``dp_dbar`` or a NaN
+    position read back is not a change.
+
+    Parameters
+    ----------
+    attrs : Mapping
+        The product's global attributes.
+    expected : Mapping
+        The values the current run would write.
+
+    Returns
+    -------
+    str or None
+        The attribute name, or None when all agree.
+    """
+    for key in sorted(expected):
+        # An absent attribute reads as "" where the expected value is text.
+        stored = attrs.get(key, "" if isinstance(expected[key], str) else None)
+        if not same_attr(key, stored, expected[key]):
+            return key
+    return None

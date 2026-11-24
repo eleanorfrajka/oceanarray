@@ -771,26 +771,3 @@ def potential_density(
         )
         for values, name, ref in ((s0, "sigma0", "0 dbar"), (s2, "sigma2", "2000 dbar"))
     }
-
-
-__all__ = [
-    "DerivedFields",
-    "InstrumentLevel",
-    "Knockdown",
-    "KnockdownRecord",
-    "derived_fields",
-    "instrument_levels",
-    "knockdown",
-    "level_of_max_speed",
-    "mooring_position",
-    "n_squared",
-    "potential_density",
-    "potential_density_fields",
-    "potential_density_grid",
-    "potential_temperature_of",
-    "seabed_pressure",
-    "speed_direction",
-    "sparse_velocity_levels",
-    "velocity_coverage",
-    "velocity_levels",
-]
