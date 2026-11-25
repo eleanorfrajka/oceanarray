@@ -16,7 +16,7 @@ import pytest
 import xarray as xr
 
 from oceanarray.analysis import derived as dv
-from oceanarray.location import parse_coordinate
+from oceanarray.mooring.location import parse_coordinate
 from oceanarray.physics import depth_from_pressure, pressure_from_depth
 
 _DUNE2 = (

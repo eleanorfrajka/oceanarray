@@ -21,7 +21,7 @@ import yaml
 
 from oceanarray import logger, paths
 from oceanarray.exceptions import MooringError
-from oceanarray.instruments import instrument_entries
+from oceanarray.mooring.instruments import instrument_entries
 
 from ..paths import safe_serial
 from . import _masthead

@@ -51,7 +51,7 @@ def summary(
     """
     import xarray as xr
 
-    from oceanarray.instruments import instrument_entries
+    from oceanarray.mooring.instruments import instrument_entries
     from oceanarray.pipeline import resolve_mooring
 
     cfg, moor_dir = resolve_mooring(mooring, mooring_dir, "summary")

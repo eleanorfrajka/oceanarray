@@ -188,7 +188,7 @@ def test_the_catalog_describes_the_sensor_the_file_gets_wrong(tmp_path, caplog):
 
 
 def test_whether_an_instrument_measured_pressure_follows_its_flags(tmp_path):
-    from oceanarray import catalog
+    from oceanarray.mooring import catalog
     from oceanarray.readers import read
 
     def measured(name):
@@ -225,7 +225,7 @@ def test_the_description_beats_the_catalog(tmp_path):
 
 
 def test_a_model_not_known_takes_the_series_entry():
-    from oceanarray import catalog
+    from oceanarray.mooring import catalog
 
     found = catalog.lookup(
         {"sensor_catalog": str(CATALOG)}, {"instrument": "microcat", "serial": 10227}
@@ -294,7 +294,7 @@ def test_no_clock_check_when_every_instrument_was_imported(cf7, tmp_path):
 
 
 def test_only_this_moorings_catalog_entries_ask_for_a_rerun(tmp_path):
-    from oceanarray import catalog
+    from oceanarray.mooring import catalog
 
     records = list(sensors.records(_ic1(tmp_path)).values())
     path = tmp_path / "sensor_catalog.yaml"
@@ -311,7 +311,7 @@ def test_only_this_moorings_catalog_entries_ask_for_a_rerun(tmp_path):
 
 
 def test_gaps_flagged_missing_do_not_hide_a_pressure_sensor():
-    from oceanarray import catalog
+    from oceanarray.mooring import catalog
     from oceanarray.readers import read
 
     # K7 2014: pressure never quality-controlled (flag 0); open a gap as the

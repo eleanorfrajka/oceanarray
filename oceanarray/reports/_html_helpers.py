@@ -217,10 +217,10 @@ def _format_clock(s: str | None) -> str | None:
 def _resolve_clock(entry: dict[str, Any]) -> dict[str, Any]:
     """Return one YAML instrument entry's clock correction, as stage 2 applies it.
 
-    Delegates to the single :func:`~oceanarray.instruments.resolve_clock_correction` so
+    Delegates to the single :func:`~oceanarray.mooring.instruments.resolve_clock_correction` so
     the page table cannot disagree with the applied correction or the outlier check.
     """
-    from oceanarray.instruments import (
+    from oceanarray.mooring.instruments import (
         is_missing_clock_reading,
         resolve_clock_correction,
     )

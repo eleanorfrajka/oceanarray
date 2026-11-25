@@ -148,3 +148,40 @@ def test_moved_pressure_names_warn_and_are_the_moved_objects(name, new_home):
     with pytest.warns(DeprecationWarning, match=re.escape(f"use {new_home}.{name}")):
         old = getattr(pressure, name)
     assert old is getattr(importlib.import_module(new_home), name)
+
+
+@pytest.mark.parametrize(
+    ("old", "new", "name"),
+    [
+        ("oceanarray.instruments", "oceanarray.mooring.instruments", "nominal_depth"),
+        ("oceanarray.location", "oceanarray.mooring.location", "parse_latlon"),
+        (
+            "oceanarray.config.validation",
+            "oceanarray.mooring.validation",
+            "check_serials",
+        ),
+    ],
+)
+def test_moved_mooring_modules_warn_and_give_the_moved_objects(old, new, name):
+    """An old mooring-module path still imports, warns with the new home, and gives the same object."""
+    module = importlib.import_module(old)
+    new_module = importlib.import_module(new)
+    match = re.escape(
+        f"{old}.{name} is deprecated and is removed in 0.8.0; use {new}.{name}"
+    )
+    with pytest.warns(DeprecationWarning, match=match):
+        attribute = getattr(module, name)
+    namespace: dict = {}
+    with pytest.warns(DeprecationWarning, match=match):
+        exec(f"from {old} import {name}", namespace)
+    assert attribute is namespace[name] is getattr(new_module, name)
+
+
+@pytest.mark.parametrize(
+    "old",
+    ["oceanarray.instruments", "oceanarray.location", "oceanarray.config.validation"],
+)
+def test_moved_mooring_modules_reject_an_unknown_name(old):
+    """A name the moved module does not have is an AttributeError on the old path too."""
+    with pytest.raises(AttributeError, match=re.escape(old)):
+        importlib.import_module(old).no_such_name  # noqa: B018

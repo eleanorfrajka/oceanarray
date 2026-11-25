@@ -12,7 +12,10 @@ import numpy as np
 from oceanarray import logger, paths
 from oceanarray import mooring as _mooring
 from oceanarray.analysis.derived import derived_fields
-from oceanarray.location import is_unknown_latlon_source, parse_latlon_with_source
+from oceanarray.mooring.location import (
+    is_unknown_latlon_source,
+    parse_latlon_with_source,
+)
 from oceanarray.paths import should_skip_regeneration
 from oceanarray.pipeline.dataset import time_step_seconds
 

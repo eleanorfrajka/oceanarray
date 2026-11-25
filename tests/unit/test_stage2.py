@@ -15,7 +15,7 @@ import xarray as xr
 pytest.importorskip("seasenselib", reason="seasenselib not installed")
 
 from oceanarray.exceptions import MooringError
-from oceanarray.instruments import parse_clock_reading, resolve_clock_correction
+from oceanarray.mooring.instruments import parse_clock_reading, resolve_clock_correction
 from oceanarray.pipeline.stage2 import (
     Stage2Processor,
     _add_missing_metadata,

@@ -6,10 +6,13 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from oceanarray.instruments import extract_inline_instruments, instrument_entries
 from oceanarray.legacy.convertOS import is_iso8601_utc, iso8601_duration_from_seconds
 from oceanarray.legacy.mooring_rodb import concat_with_scalar_vars
-from oceanarray.location import (
+from oceanarray.mooring.instruments import (
+    extract_inline_instruments,
+    instrument_entries,
+)
+from oceanarray.mooring.location import (
     _parse_dms,
     format_ddm,
     format_latlon,

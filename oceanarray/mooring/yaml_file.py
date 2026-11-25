@@ -18,10 +18,12 @@ import pandas as pd
 import yaml
 
 from oceanarray import mask_rules
-from oceanarray.config import validation
-from oceanarray.config.validation import ValidationIssue
 from oceanarray.exceptions import MooringError
-from oceanarray.location import LATLON_KEY_PAIRS
+from oceanarray.mooring import catalog, validation
+from oceanarray.mooring.blocks import check_people_block, check_source_block
+from oceanarray.mooring.instruments import instrument_entries
+from oceanarray.mooring.location import LATLON_KEY_PAIRS
+from oceanarray.mooring.validation import ValidationIssue
 from oceanarray.paths import is_path_component
 
 logger = logging.getLogger(__name__)
@@ -184,8 +186,6 @@ def settings_yaml(cfg: Mapping, *, stack: Mapping | None = None) -> str:
         the hardware-only keys) under ``instruments``, the key ``load`` also
         reads. Pasted into a mooring description, it reruns the same product.
     """
-    from oceanarray.instruments import instrument_entries
-
     out: dict = {k: cfg[k] for k in SETTINGS_BLOCKS if cfg.get(k) is not None}
     if stack is not None:
         out["stack"] = {**(out.get("stack") or {}), **stack}
@@ -733,8 +733,6 @@ def _check_sources(data: Mapping) -> list[ValidationIssue]:
 
 def _check_sensor_models(data: Mapping) -> list[ValidationIssue]:
     """Return ERRORs for an instrument's ``sensor_model`` without its ``sensor_model_source``."""
-    from oceanarray.instruments import instrument_entries
-
     issues: list[ValidationIssue] = []
     for entry in instrument_entries(data):
         if not isinstance(entry, Mapping) or entry.get("sensor_model") in (None, ""):
@@ -757,8 +755,6 @@ def _check_sensor_models(data: Mapping) -> list[ValidationIssue]:
 
 def _check_catalog(data: Mapping) -> list[ValidationIssue]:
     """Return an ERROR when ``sensor_catalog`` names a file that cannot be used."""
-    from oceanarray import catalog
-
     path = data.get(catalog.KEY)
     if path is None:
         return []
@@ -777,12 +773,10 @@ def _check_catalog(data: Mapping) -> list[ValidationIssue]:
 
 def _check_people_and_source(data: Mapping) -> list[ValidationIssue]:
     """Return ERRORs and WARNINGs for the optional ``people:`` and ``source:`` blocks."""
-    from oceanarray.pipeline import attribution
-
     issues: list[ValidationIssue] = []
     for key, check_block in (
-        ("people", attribution.check_people_block),
-        ("source", attribution.check_source_block),
+        ("people", check_people_block),
+        ("source", check_source_block),
     ):
         if data.get(key) is None:
             continue
@@ -1297,8 +1291,8 @@ def serial_collision_errors(mooring_config: str | Path | Mapping) -> list[str]:
 
     The pre-flight guard the processing path runs before any stage writes: it
     builds the combined instrument list (``clamp`` + ``instruments`` + inline, same
-    rule as :func:`~oceanarray.config.validation.validate_mooring`) and returns only the
-    :func:`~oceanarray.config.validation.check_serials`
+    rule as :func:`~oceanarray.mooring.validation.validate_mooring`) and returns only the
+    :func:`~oceanarray.mooring.validation.check_serials`
     ERROR messages.  It parses leniently through :func:`_parse`
     — a missing or unparseable file returns ``[]`` (those are reported by the normal
     validator, not this guard) — rather than :func:`load`, which

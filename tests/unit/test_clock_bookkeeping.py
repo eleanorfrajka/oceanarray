@@ -11,12 +11,12 @@ import pytest
 import xarray as xr
 
 from oceanarray import mooring
-from oceanarray.config.validation import (
+from oceanarray.exceptions import MooringError
+from oceanarray.mooring.instruments import resolve_clock_correction
+from oceanarray.mooring.validation import (
     is_missing_clock_reading,
     validate_mooring,
 )
-from oceanarray.exceptions import MooringError
-from oceanarray.instruments import resolve_clock_correction
 from oceanarray.pipeline import _stage
 from oceanarray.pipeline.stage2 import _parse_yaml_time, _stage2_instrument
 from oceanarray.reports._html_helpers import _resolve_clock

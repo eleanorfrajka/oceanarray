@@ -15,11 +15,14 @@ Package layout
    │   │                              #   process, stack, grid, run, write, write_mooring, report, export)
    │   ├── _version.py                # package version (written by setuptools-scm)
    │   ├── _deprecated.py             # the one table of deprecated names and their replacements
-   │   ├── mooring.py                 # the *.mooring.yaml: load / check / template / save
-   │   ├── instruments.py             # instrument entries of a description, inline-serial parsing
-   │   ├── location.py                # latitude/longitude parsing and formatting
+   │   ├── mooring/                   # the *.mooring.yaml and what it describes
+   │   │   ├── yaml_file.py           # the *.mooring.yaml: load / check / template / save
+   │   │   ├── validation.py          # mooring YAML validation
+   │   │   ├── blocks.py              # the people: and source: blocks: fields and checks
+   │   │   ├── instruments.py         # instrument entries of a description, inline-serial parsing
+   │   │   ├── location.py            # latitude/longitude parsing and formatting
+   │   │   └── catalog.py             # the sensor catalog: what each instrument is, by serial
    │   ├── paths.py                   # file names, suffixes and folder layout
-   │   ├── catalog.py                 # the sensor catalog: what each instrument is, by serial
    │   ├── physics.py                 # seawater and current formulas; depth ↔ sea pressure
    │   ├── history.py                 # append_history: the history attribute's entries
    │   ├── mask_rules.py              # mask_flags rules: parse, combine, describe, record
@@ -102,7 +105,6 @@ Package layout
    │   ├── config/
    │   │   ├── parameters.py          # the variable registry and every default
    │   │   ├── unit_tables.py         # units: oceanarray's additions to the shared tables
-   │   │   ├── validation.py          # mooring YAML validation
    │   │   ├── flag_meanings.yaml     # originator flag translation table
    │   │   ├── logging.yaml           # logging configuration
    │   │   └── legacy/                # RAPID/RODB configuration files

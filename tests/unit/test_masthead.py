@@ -4,7 +4,7 @@ from pathlib import Path
 
 import yaml
 
-from oceanarray.instruments import instrument_entries
+from oceanarray.mooring.instruments import instrument_entries
 from oceanarray.reports import _masthead
 from oceanarray.reports._masthead import (
     common_facts,

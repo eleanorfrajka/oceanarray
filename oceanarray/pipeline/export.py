@@ -13,7 +13,7 @@ import yaml
 
 from oceanarray import paths
 from oceanarray.exceptions import MooringError
-from oceanarray.instruments import instrument_entries
+from oceanarray.mooring.instruments import instrument_entries
 from oceanarray.pipeline.oceansites import (
     OceanSitesError,
     oceansites_filename,

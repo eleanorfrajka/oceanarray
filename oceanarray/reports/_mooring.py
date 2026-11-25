@@ -15,7 +15,7 @@ from oceanarray import logger, mask_rules, paths
 from oceanarray import mooring as _mooring
 from oceanarray.analysis.derived import knockdown as build_knockdown
 from oceanarray.exceptions import MooringError
-from oceanarray.instruments import instrument_entries
+from oceanarray.mooring.instruments import instrument_entries
 from oceanarray.paths import should_skip_regeneration
 
 from ..config import parameters as params

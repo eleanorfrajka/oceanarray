@@ -194,7 +194,7 @@ def _resolve_name_and_dir(
     mooring: str | PathLike | Mapping[str, Any], mooring_dir: PathLike | None
 ) -> tuple[str, Path]:
     """Return the description's ``name`` and the mooring's folder, without checking it."""
-    from oceanarray import mooring as _mooring
+    from oceanarray.mooring import yaml_file as _mooring
 
     if isinstance(mooring, Mapping):
         if mooring_dir is None:

@@ -480,7 +480,7 @@ def threshold_note(mooring: dict[str, Any]) -> str:
         ``"the mooring (qc_spike); 2941 (qc_ranges)"``, or ``""`` when every
         instrument ran with the defaults.
     """
-    from oceanarray.instruments import instrument_entries
+    from oceanarray.mooring.instruments import instrument_entries
 
     parts = []
     own = [k for k in QC_OVERRIDE_KEYS if k in mooring]

@@ -10,7 +10,7 @@ Three cases, from the mooring entry:
 - both — the ramp runs from ``clock_offset`` at deployment to the recovery correction.
 
 A pair read as ``unknown`` (or empty) gives no drift. The recovery correction is
-resolved by :func:`oceanarray.instruments.resolve_clock_correction`. A corrected file
+resolved by :func:`oceanarray.mooring.instruments.resolve_clock_correction`. A corrected file
 keeps ``time_orig`` and its history says what was applied; a file with no correction
 says why (no offset or reading, readings that agree, or time as delivered by the
 originator). The record is then trimmed to ``deployment_time`` … ``recovery_time``.
@@ -30,12 +30,12 @@ from oceanarray import paths
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
 from oceanarray.history import append_history
-from oceanarray.instruments import (
+from oceanarray.logger import format_time, with_stage_handlers
+from oceanarray.mooring.instruments import (
     clock_seconds,
     instrument_entries,
     resolve_clock_correction,
 )
-from oceanarray.logger import format_time, with_stage_handlers
 from oceanarray.pipeline import _stage
 from oceanarray.pipeline.dataset import drop_all_zero_vars
 from oceanarray.pipeline.read_mooring import read_mooring

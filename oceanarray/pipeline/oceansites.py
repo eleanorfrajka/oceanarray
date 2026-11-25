@@ -22,11 +22,10 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from oceanarray import location
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import OceanarrayError
-from oceanarray.instruments import instrument_entries
-from oceanarray.mooring import DEPLOYMENT_CODE_PATTERN
+from oceanarray.mooring import DEPLOYMENT_CODE_PATTERN, location
+from oceanarray.mooring.instruments import instrument_entries
 from oceanarray.originator_flags import MAPPED_SUFFIX
 from oceanarray.paths import safe_serial
 from oceanarray.pipeline import _stage, attribution, dataset, sensors

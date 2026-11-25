@@ -14,7 +14,7 @@ from typing import Any
 
 from markupsafe import Markup
 
-from oceanarray import location
+from oceanarray.mooring import location
 
 from ._html_helpers import _format_dt, _format_duration, _parse_dt
 from ._navs import _TYPE_ORDER, _type_label

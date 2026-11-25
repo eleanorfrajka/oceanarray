@@ -20,7 +20,7 @@ from oceanarray import mooring as _mooring
 from oceanarray import paths
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
-from oceanarray.instruments import instrument_entries
+from oceanarray.mooring.instruments import instrument_entries
 from oceanarray.pipeline import stack as st
 from oceanarray.pipeline.dataset import time_axis, time_step_seconds
 from oceanarray.pipeline.pressure import _times_to_float

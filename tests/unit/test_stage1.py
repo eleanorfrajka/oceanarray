@@ -385,7 +385,7 @@ if __name__ == "__main__":
 def test_a_description_without_position_keeps_the_files_own(tmp_path):
     """No position in the YAML: stage 1 keeps the file's own, never writes 0, 0."""
     from oceanarray import mooring as _mooring
-    from oceanarray.instruments import instrument_entries
+    from oceanarray.mooring.instruments import instrument_entries
     from oceanarray.pipeline.read_mooring import join_raw
 
     proc = Path(__file__).resolve().parents[1] / "fixtures" / "proc" / "dune2_1_2026"

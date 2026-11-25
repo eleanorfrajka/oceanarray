@@ -138,7 +138,7 @@ def test_density_reference_is_a_known_key(tmp_path) -> None:
 
 def test_template_and_comment_keys_are_known() -> None:
     """The template and its field comments stay within ``KNOWN_KEYS`` (no drift)."""
-    from oceanarray.mooring import _FIELD_COMMENTS, KNOWN_KEYS
+    from oceanarray.mooring.yaml_file import _FIELD_COMMENTS, KNOWN_KEYS
 
     assert set(_FIELD_COMMENTS) <= KNOWN_KEYS
     assert set(mooring.template("dsX_1_2026")) <= KNOWN_KEYS

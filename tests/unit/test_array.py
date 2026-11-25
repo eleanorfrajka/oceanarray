@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from oceanarray.location import parse_coordinate as _parse_coordinate
+from oceanarray.mooring.location import parse_coordinate as _parse_coordinate
 from oceanarray.reports._array import (
     _array_map_payload,
     _build_array_masthead,

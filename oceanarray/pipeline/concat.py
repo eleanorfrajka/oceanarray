@@ -23,7 +23,7 @@ from oceanarray import mooring as _mooring
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
 from oceanarray.history import append_history
-from oceanarray.location import parse_coordinate
+from oceanarray.mooring.location import parse_coordinate
 from oceanarray.originator_flags import MAPPED_SUFFIX
 from oceanarray.pipeline import _stage, attribution, sensors
 from oceanarray.pipeline.dataset import time_axis

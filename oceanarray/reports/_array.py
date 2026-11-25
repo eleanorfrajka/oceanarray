@@ -21,10 +21,11 @@ import numpy as np
 import yaml
 from markupsafe import Markup, escape
 
-from oceanarray import location, logger, mask_rules
+from oceanarray import logger, mask_rules
 from oceanarray import mooring as _mooring
 from oceanarray.exceptions import MooringError
-from oceanarray.instruments import instrument_entries
+from oceanarray.mooring import location
+from oceanarray.mooring.instruments import instrument_entries
 
 from ..config.unit_tables import unit_label
 from ..paths import safe_serial

@@ -234,7 +234,7 @@ layers = [
   "oceanarray.analysis",
   "oceanarray.pipeline",
   "oceanarray.readers : oceanarray.writers",
-  "oceanarray.mooring : oceanarray.catalog : oceanarray.provenance : oceanarray.logger : oceanarray.paths : oceanarray.instruments : oceanarray.location : oceanarray.physics : oceanarray.history : oceanarray.inspect : oceanarray.mask_rules : oceanarray.originator_flags",
+  "oceanarray.mooring : oceanarray.provenance : oceanarray.logger : oceanarray.paths : oceanarray.physics : oceanarray.history : oceanarray.inspect : oceanarray.mask_rules : oceanarray.originator_flags",
   "oceanarray.config : oceanarray._deprecated",
   "oceanarray.exceptions",
 ]
@@ -243,19 +243,13 @@ ignore_imports = [
   "oceanarray.** -> oceanarray.reports._vendored.**",
   # The package version, read from the package root.
   "oceanarray.provenance -> oceanarray",
-  # To change, and a cycle (mooring imports config.validation back): mooring-YAML
-  # validation belongs above the modules it checks against.
-  "oceanarray.config.validation -> oceanarray.mooring",
-  "oceanarray.config.validation -> oceanarray.paths",
-  "oceanarray.config.validation -> oceanarray.instruments",
-  # To change, and a cycle (pipeline.stack and pipeline.concat import mooring): the
-  # mooring YAML reads a pipeline helper; it moves below mooring.
-  "oceanarray.mooring -> oceanarray.pipeline.attribution",
   # run ends with the report (section 2).
   "oceanarray.pipeline._run -> oceanarray.reports",
   # Deprecated alias of the moved clock modules; removed in 0.8.0.
   "oceanarray.pipeline.clock -> oceanarray.analysis.clock.deployment",
   "oceanarray.pipeline.clock -> oceanarray.analysis.clock.offsets",
+  # Deprecated alias of the moved module; removed in 0.8.0.
+  "oceanarray.config.validation -> oceanarray.mooring.*",
 ]
 
 [[tool.importlinter.contracts]]
@@ -278,7 +272,7 @@ forbidden_modules = [
   "oceanarray.reports._recovery_table", "oceanarray.reports._slots",
   "oceanarray.reports._stack", "oceanarray.reports._summary",
   "oceanarray.reports._verb", "oceanarray.reports.design",
-  "oceanarray.mooring", "oceanarray.paths", "oceanarray.logger", "oceanarray.catalog",
+  "oceanarray.mooring", "oceanarray.paths", "oceanarray.logger",
   "oceanarray.provenance", "oceanarray.instruments", "oceanarray.location",
   "oceanarray.physics", "oceanarray.history", "oceanarray.inspect", "oceanarray.exceptions",
   "oceanarray._deprecated", "oceanarray.legacy",
@@ -297,7 +291,7 @@ name = "Plotters import no page module directly (the shared report layer excepte
 type = "forbidden"
 source_modules = ["oceanarray.plotters"]
 forbidden_modules = ["oceanarray.reports"]
-# Direct imports only for now: indirect chains still reach the pages through the
-# mooring <-> pipeline cycle (pipeline._run ends with the report).
+# Direct imports only for now: indirect chains still reach the pages, through the
+# package root (provenance reads the package version there).
 allow_indirect_imports = true
 ignore_imports = ["oceanarray.plotters.** -> oceanarray.reports._vendored.**"]

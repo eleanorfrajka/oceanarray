@@ -25,8 +25,8 @@ from oceanarray import mooring as _mooring
 from oceanarray import paths, readers
 from oceanarray.exceptions import MooringError
 from oceanarray.history import append_history
-from oceanarray.instruments import instrument_entries
-from oceanarray.location import (
+from oceanarray.mooring.instruments import instrument_entries
+from oceanarray.mooring.location import (
     format_latlon,
     is_unknown_latlon_source,
     parse_latlon_with_source,

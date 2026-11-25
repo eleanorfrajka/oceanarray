@@ -35,7 +35,7 @@ def cmd_animate(args: argparse.Namespace) -> int:
     matplotlib.use("Agg")
     import xarray as xr
 
-    from oceanarray.instruments import instrument_entries
+    from oceanarray.mooring.instruments import instrument_entries
 
     from ..exceptions import OceanarrayError
     from ..pipeline import resolve_mooring

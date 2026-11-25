@@ -110,6 +110,55 @@ entries to process, the position — is the caller's job, through
    :members:
    :undoc-members:
 
+The constants beside them, defined in ``oceanarray.mooring.yaml_file``:
+
+.. autodata:: oceanarray.mooring.yaml_file.SOURCE_FIELDS
+.. autodata:: oceanarray.mooring.yaml_file.OPTIONAL_REPORT_SECTIONS
+.. autodata:: oceanarray.mooring.yaml_file.DEPLOYMENT_CODE_PATTERN
+.. autodata:: oceanarray.mooring.yaml_file.SETTINGS_BLOCKS
+
+validation
+^^^^^^^^^^
+Validate mooring YAML configuration files and check instrument type names.
+
+.. automodule:: oceanarray.mooring.validation
+   :members:
+   :undoc-members:
+
+.. autofunction:: oceanarray.config.validation.validate_mooring_yaml
+
+blocks
+^^^^^^
+The ``people:`` and ``source:`` blocks of a mooring YAML: their fields and checks.
+
+.. automodule:: oceanarray.mooring.blocks
+   :members:
+   :undoc-members:
+
+instruments
+^^^^^^^^^^^
+The instruments a mooring description lists: its entries and inline hardware serials.
+
+.. automodule:: oceanarray.mooring.instruments
+   :members:
+   :undoc-members:
+
+location
+^^^^^^^^
+Geographic position of a mooring: parse and format latitude and longitude.
+
+.. automodule:: oceanarray.mooring.location
+   :members:
+   :undoc-members:
+
+catalog
+^^^^^^^
+The sensor catalog a mooring YAML names: what each instrument is, by serial.
+
+.. automodule:: oceanarray.mooring.catalog
+   :members:
+   :undoc-members:
+
 I/O and shared tools
 ---------------------
 
@@ -172,22 +221,6 @@ filters
 Time filters applied to a series before it is gridded.
 
 .. automodule:: oceanarray.pipeline.gridders.filters
-   :members:
-   :undoc-members:
-
-instruments
-^^^^^^^^^^^
-The instruments a mooring description lists: its entries and inline hardware serials.
-
-.. automodule:: oceanarray.instruments
-   :members:
-   :undoc-members:
-
-location
-^^^^^^^^
-Geographic position of a mooring: parse and format latitude and longitude.
-
-.. automodule:: oceanarray.location
    :members:
    :undoc-members:
 
@@ -387,8 +420,8 @@ When each instrument entered and left the water, from its temperature record.
    :members:
    :undoc-members:
 
-Configuration and validation
------------------------------
+Configuration
+-------------
 
 parameters
 ^^^^^^^^^^
@@ -396,14 +429,6 @@ Global processing parameters (QC thresholds, grid defaults, file paths,
 variable registry).
 
 .. automodule:: oceanarray.config.parameters
-   :members:
-   :undoc-members:
-
-validation
-^^^^^^^^^^
-Validate mooring YAML configuration files and check instrument type names.
-
-.. automodule:: oceanarray.config.validation
    :members:
    :undoc-members:
 

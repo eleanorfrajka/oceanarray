@@ -26,9 +26,9 @@ from oceanarray import paths
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError, OceanarrayError
 from oceanarray.history import append_history
-from oceanarray.instruments import instrument_entries
-from oceanarray.location import parse_latlon_with_source
 from oceanarray.logger import with_stage_handlers
+from oceanarray.mooring.instruments import instrument_entries
+from oceanarray.mooring.location import parse_latlon_with_source
 from oceanarray.paths import safe_serial
 from oceanarray.pipeline import _stage, sensors
 from oceanarray.pipeline.calibration import CALDIP_STUB_APPLIED

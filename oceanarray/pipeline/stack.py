@@ -8,14 +8,15 @@ from typing import Any
 import numpy as np
 import xarray as xr
 
-from oceanarray import catalog, logger, mask_rules, paths, provenance
+from oceanarray import logger, mask_rules, paths, provenance
 from oceanarray import mooring as _mooring
 from oceanarray.config import parameters as params
 from oceanarray.config.unit_tables import UnitsError
 from oceanarray.exceptions import MooringError
 from oceanarray.history import append_history
-from oceanarray.instruments import instrument_entries, nominal_depth
-from oceanarray.location import (
+from oceanarray.mooring import catalog
+from oceanarray.mooring.instruments import instrument_entries, nominal_depth
+from oceanarray.mooring.location import (
     is_unknown_latlon_source,
     parse_latlon,
     parse_latlon_with_source,

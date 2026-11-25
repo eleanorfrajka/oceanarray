@@ -49,7 +49,7 @@ def mooring_position(
         ``(latitude, longitude)`` in decimal degrees; None for a coordinate that is
         not recorded.  Never substitutes 0.
     """
-    from oceanarray.location import parse_coordinate
+    from oceanarray.mooring.location import parse_coordinate
 
     attrs = ds.attrs
     lat = lon = None

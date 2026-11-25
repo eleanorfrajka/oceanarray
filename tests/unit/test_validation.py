@@ -365,7 +365,7 @@ def test_validate_serial_with_special_chars_is_warning(tmp_path):
 # Serial uniqueness / collision checks (fix/serial-uniqueness)
 # ---------------------------------------------------------------------------
 
-from oceanarray.config.validation import (  # noqa: E402
+from oceanarray.mooring.validation import (  # noqa: E402
     check_serials,
 )
 

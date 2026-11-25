@@ -20,18 +20,17 @@ import xarray as xr
 
 from oceanarray.exceptions import MooringError
 from oceanarray.history import append_history
+from oceanarray.mooring.blocks import (
+    CITATION_FIELDS,
+    CONTRIBUTOR_ATTRS,
+    CONTRIBUTOR_FIELDS,
+    PI_ATTRS,
+    PI_FIELDS,
+    bare_doi,
+    split_list,
+)
 
 log = logging.getLogger(__name__)
-
-#: Fields of one principal investigator, and of one contributor entry.
-PI_FIELDS = ("name", "email", "url", "id")
-CONTRIBUTOR_FIELDS = ("name", "role", "email")
-
-#: The attribute names written, in order.
-PI_ATTRS = {
-    f: "principal_investigator" + ("" if f == "name" else f"_{f}") for f in PI_FIELDS
-}
-CONTRIBUTOR_ATTRS = {f: f"contributor_{f}" for f in CONTRIBUTOR_FIELDS}
 
 #: The separator each list is written with (OceanSITES 1.4).
 PI_SEPARATOR = ", "
@@ -86,14 +85,6 @@ def strip_titles(name: str) -> str:
     return " ".join(words)
 
 
-def _split(value: object) -> list[str]:
-    """Split a list attribute on ``;`` when it has one, else on ``,``."""
-    text = "" if value is None else str(value).strip()
-    if not text:
-        return []
-    return [part.strip() for part in text.split(";" if ";" in text else ",")]
-
-
 def split_names(value: object, n_paired: int | None = None) -> list[str]:
     """Split a names attribute into ``"Given Surname"`` names, one per person, titles removed.
 
@@ -116,7 +107,7 @@ def split_names(value: object, n_paired: int | None = None) -> list[str]:
     text = "" if value is None else str(value)
     if ";" in text:
         out = []
-        for part in _split(text):
+        for part in split_list(text):
             pieces = [strip_titles(p) for p in part.split(",")]
             pieces = [p for p in pieces if p]
             if len(pieces) == 2:
@@ -124,7 +115,7 @@ def split_names(value: object, n_paired: int | None = None) -> list[str]:
             elif pieces:
                 out.append(" ".join(pieces))
         return out
-    parts = [strip_titles(p) for p in _split(text)]
+    parts = [strip_titles(p) for p in split_list(text)]
     parts = [p for p in parts if p]
     if (
         n_paired
@@ -173,7 +164,7 @@ def _aligned_roles(n: int, values: list[str], label: str) -> list[str]:
 
 def _paired_count(*fields: object) -> int | None:
     """Return the number of entries the paired fields agree on, or None."""
-    counts = {len(_split(f)) for f in fields if _split(f)}
+    counts = {len(split_list(f)) for f in fields if split_list(f)}
     return counts.pop() if len(counts) == 1 else None
 
 
@@ -181,7 +172,7 @@ def _single(get: object, stem: str, role: str, prefix: str) -> list[dict[str, st
     """Return the contributor entries of a ``<stem>_name`` / ``<stem>_email`` pair."""
     email = get(f"{stem}_email")  # type: ignore[operator]
     names = split_names(get(f"{stem}_name"), _paired_count(email))  # type: ignore[operator]
-    emails = _aligned(len(names), _split(email), f"{prefix}{stem}_email")
+    emails = _aligned(len(names), split_list(email), f"{prefix}{stem}_email")
     return [
         {"name": n, "role": role, "email": e}
         for n, e in zip(names, emails, strict=True)
@@ -233,7 +224,7 @@ def people_from_attrs(
         get("principal_investigator"), _paired_count(*pi_values.values())
     )
     columns = {
-        f: _aligned(len(names), _split(v), prefix + PI_ATTRS[f])
+        f: _aligned(len(names), split_list(v), prefix + PI_ATTRS[f])
         for f, v in pi_values.items()
     }
     pis = [
@@ -247,8 +238,8 @@ def people_from_attrs(
     contributors += _single(get, "publisher", PUBLISHER_ROLE, prefix)
     role, email = get("contributor_role"), get("contributor_email")
     names = split_names(get("contributor_name"), _paired_count(email))
-    roles = _aligned_roles(len(names), _split(role), f"{prefix}contributor_role")
-    emails = _aligned(len(names), _split(email), f"{prefix}contributor_email")
+    roles = _aligned_roles(len(names), split_list(role), f"{prefix}contributor_role")
+    emails = _aligned(len(names), split_list(email), f"{prefix}contributor_email")
     named = [
         {"name": n, "role": one, "email": e}
         for n, r, e in zip(names, roles, emails, strict=True)
@@ -545,132 +536,11 @@ def cleaned_at_stage1(attrs: Mapping[str, object]) -> bool:
 
 # ── People and source from the mooring description ─────────────────────────
 
-#: The fields a description's ``people:`` block may hold: the OceanSITES 1.4 names
-#: of :data:`PI_ATTRS` and :data:`CONTRIBUTOR_ATTRS`, and where they came from.
-PEOPLE_BLOCK_KEYS: tuple[str, ...] = (
-    *PI_ATTRS.values(),
-    *CONTRIBUTOR_ATTRS.values(),
-    "people_source",
-)
-
-#: What a ``source:`` block (and a file) can say about where the data came from;
-#: each is written as ``source_<field>``.
-CITATION_FIELDS: tuple[str, ...] = (
-    "doi",
-    "citation",
-    "license",
-    "acknowledgement",
-    "references",
-)
-
-#: The fields a description's ``source:`` block may hold.
-SOURCE_BLOCK_KEYS: tuple[str, ...] = (*CITATION_FIELDS, "source_note")
-
 #: The ``source_*`` attributes a product carries: one per citation field, and the note.
 SOURCE_ATTRS: tuple[str, ...] = (
     *(f"source_{f}" for f in CITATION_FIELDS),
     "source_note",
 )
-
-#: A DOI: the ``10.`` prefix, a registrant code, a slash and a suffix.
-_DOI = re.compile(r"^10\.\d{4,9}/\S+$")
-_DOI_PREFIXES = ("https://doi.org/", "http://doi.org/", "https://dx.doi.org/", "doi:")
-
-
-def bare_doi(value: object) -> str | None:
-    """Return *value* as a bare DOI (``10.xxxx/...``), or None if it is not one.
-
-    Parameters
-    ----------
-    value : object
-        A DOI as written: bare, ``doi:``-prefixed or as a ``https://doi.org/`` link.
-
-    Returns
-    -------
-    str or None
-        The bare DOI, or None for an empty value or one that is not a DOI.
-    """
-    text = "" if value is None else str(value).strip()
-    for prefix in _DOI_PREFIXES:
-        if text.lower().startswith(prefix):
-            text = text[len(prefix) :].strip()
-            break
-    return text if _DOI.match(text) else None
-
-
-def _entry_counts(
-    block: Mapping[str, object], names: Mapping[str, str]
-) -> list[tuple[str, str]]:
-    """Return ``(field, problem)`` for each field of one list whose entry count differs from its names'."""
-    name_attr = names["name"]
-    n = len(_split(block.get(name_attr)))
-    return [
-        (
-            field,
-            f"{attr} has {len(_split(block.get(attr)))} entries for {n} "
-            f"name{'' if n == 1 else 's'} in {name_attr}",
-        )
-        for field, attr in names.items()
-        if field != "name"
-        and _split(block.get(attr))
-        and len(_split(block.get(attr))) != n
-    ]
-
-
-def check_people_block(block: object) -> tuple[list[str], list[str]]:
-    """Check a description's ``people:`` block.
-
-    Parameters
-    ----------
-    block : object
-        The ``people:`` value as parsed from the YAML.
-
-    Returns
-    -------
-    tuple of (list of str, list of str)
-        Errors (not a mapping, an unknown field, a value that is not text, a field
-        whose entry count differs from its names') and warnings (no
-        ``people_source``, no ``principal_investigator`` or ``contributor_name``).
-    """
-    if not isinstance(block, Mapping):
-        return [
-            f"'people:' must be a mapping of {', '.join(PEOPLE_BLOCK_KEYS)}; got {block!r}."
-        ], []
-    errors = [
-        f"'people: {key}' is not an OceanSITES people field; expected one of "
-        f"{', '.join(PEOPLE_BLOCK_KEYS)}."
-        for key in block
-        if key not in PEOPLE_BLOCK_KEYS
-    ]
-    errors += [
-        f"'people: {key}' must be text; got {value!r}."
-        for key, value in block.items()
-        if key in PEOPLE_BLOCK_KEYS and value is not None and not isinstance(value, str)
-    ]
-    if errors:
-        return errors, []
-    warnings_: list[str] = []
-    for names in (PI_ATTRS, CONTRIBUTOR_ATTRS):
-        for field, problem in _entry_counts(block, names):
-            if field == "role" and len(_split(block.get(names["role"]))) == 1:
-                warnings_.append(
-                    f"'people:' {problem}: the first name gets the role, the others a "
-                    "blank one (write a role two people share for each, e.g. 'PI; PI')."
-                )
-            else:
-                errors.append(
-                    f"'people:' {problem}; give one entry per person, in order."
-                )
-    if not block.get("people_source"):
-        warnings_.append(
-            "'people:' has no people_source; say where these people came from "
-            "(it is written into the files' history)."
-        )
-    if not block.get(PI_ATTRS["name"]) and not block.get(CONTRIBUTOR_ATTRS["name"]):
-        warnings_.append(
-            "'people:' names no principal_investigator or contributor_name."
-        )
-    return errors, warnings_
 
 
 def people_from_block(block: Mapping[str, object]) -> dict[str, str]:
@@ -692,49 +562,6 @@ def people_from_block(block: Mapping[str, object]) -> dict[str, str]:
         writes them; empty when the block names nobody.
     """
     return to_attrs(union([people_from_attrs(block)]))
-
-
-def check_source_block(block: object) -> tuple[list[str], list[str]]:
-    """Check a description's ``source:`` block.
-
-    Parameters
-    ----------
-    block : object
-        The ``source:`` value as parsed from the YAML.
-
-    Returns
-    -------
-    tuple of (list of str, list of str)
-        Errors (not a mapping, an unknown field, a value that is not text, a
-        ``doi`` that is not a DOI) and warnings (no ``source_note``).
-    """
-    if not isinstance(block, Mapping):
-        return [
-            f"'source:' must be a mapping of {', '.join(SOURCE_BLOCK_KEYS)}; got {block!r}."
-        ], []
-    errors = [
-        f"'source: {key}' is not a source field; expected one of "
-        f"{', '.join(SOURCE_BLOCK_KEYS)}."
-        for key in block
-        if key not in SOURCE_BLOCK_KEYS
-    ]
-    errors += [
-        f"'source: {key}' must be text; got {value!r}."
-        for key, value in block.items()
-        if key in SOURCE_BLOCK_KEYS and value is not None and not isinstance(value, str)
-    ]
-    doi = block.get("doi")
-    if isinstance(doi, str) and doi.strip() and bare_doi(doi) is None:
-        errors.append(
-            f"'source: doi' {doi!r} is not a DOI (expected 10.xxxx/..., with or "
-            "without doi: or https://doi.org/)."
-        )
-    warnings_ = (
-        []
-        if block.get("source_note")
-        else ["'source:' has no source_note; say where these values came from."]
-    )
-    return errors, warnings_
 
 
 def source_attrs(

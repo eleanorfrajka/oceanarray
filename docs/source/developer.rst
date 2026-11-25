@@ -88,10 +88,11 @@ the code (analytic case, invariant, a ``gsw`` cross-check).
        ``stack``, ``grid``, ``run``, ``write``, ``write_mooring``, ``report``,
        ``export``. ``__all__`` is the public surface.
    * - Description
-     - ``mooring.py``, ``instruments.py``, ``location.py``, ``paths.py``,
-       ``catalog.py``
-     - The ``*.mooring.yaml`` (load, check, template, save); instrument entries;
-       positions; every file name and suffix; the sensor catalog.
+     - ``mooring/`` (``yaml_file.py``, ``validation.py``, ``blocks.py``,
+       ``instruments.py``, ``location.py``, ``catalog.py``), ``paths.py``
+     - The ``*.mooring.yaml`` (load, check, template, save) and the checks on its
+       content, its ``people:`` and ``source:`` blocks included; instrument
+       entries; positions; every file name and suffix; the sensor catalog.
    * - Readers
      - ``readers/``
      - Vendor file → canonical dataset, one module per format. Instrument formats
@@ -135,8 +136,8 @@ the code (analytic case, invariant, a ``gsw`` cross-check).
    * - Config
      - ``config/``
      - The variable registry and defaults (``parameters.py``), unit tables, flag
-       translation table (``flag_meanings.yaml``), mooring YAML validation. Tables
-       only: the code that reads and applies them lives above.
+       translation table (``flag_meanings.yaml``). Tables only: the code that reads
+       and applies them lives above.
    * - CLI
      - ``cli/``
      - One module per subcommand; argument parsing only. Nothing the CLI does is
@@ -157,28 +158,27 @@ for a page).
 
 - **Layers.** Each part imports only the parts listed below it: ``cli`` →
   ``reports`` → ``plotters`` → ``analysis`` → ``pipeline`` → ``readers`` and
-  ``writers`` → the mooring YAML and its helpers (``mooring``, ``catalog``,
-  ``provenance``, ``logger``, ``paths``, ``instruments``, ``location``,
-  ``physics``, ``history``, ``inspect``, ``mask_rules``, ``originator_flags``) → ``config`` and ``_deprecated`` → ``exceptions``. The
+  ``writers`` → the mooring YAML and its helpers (the ``mooring`` package,
+  ``provenance``, ``logger``, ``paths``, ``physics``, ``history``, ``inspect``,
+  ``mask_rules``, ``originator_flags``) → ``config`` and ``_deprecated`` →
+  ``exceptions``. The
   shared report layer (``reports/_vendored/``) may be used by every part and
   imports none of them.
 - ``plotters/`` never imports a ``reports/`` module directly (the shared report
   layer excepted). Indirect chains are not checked yet: they still reach the pages
-  through the mooring and pipeline cycle below.
+  through the package root (``provenance`` reads the package version there).
 - **Units have one door.** Pipeline code gets the unit tables through
   ``config/unit_tables.py``, never from ``reports/_vendored/`` directly.
 - Nothing outside ``legacy/`` imports ``oceanarray.legacy``.
 
-The imports that break a rule today are listed as exceptions in the contracts,
-each marked "To change": two **cycles**,
-where the lower module imports back inside a function to avoid a circular import
-at load time: ``mooring`` and ``pipeline``
-(``pipeline.stack`` and ``pipeline.concat`` import ``mooring``; ``mooring`` uses
-``pipeline.attribution``), and ``mooring`` and ``config/validation.py``. A cycle is fixed by
-moving the shared pieces below both modules, not by deleting a line. A pull
-request that removes an exception deletes its line; a new one fails the lint job.
-``pipeline/_run.py`` importing ``reports`` is allowed: ``run`` ends with the
-report.
+The imports that break a rule are listed as exceptions in the contracts, each
+with its reason. Two are left: ``pipeline/_run.py`` importing ``reports``, allowed
+because ``run`` ends with the report, and the deprecated aliases of moved modules
+(``pipeline/clock/``, ``config/validation.py``), which import their new homes
+until 0.8.0. There are no **cycles**, where a lower module imports back inside a
+function to avoid a circular import at load time. A cycle is fixed by moving the
+shared pieces below both modules, not by deleting a line. A pull request that
+removes an exception deletes its line; a new one fails the lint job.
 
 Not yet checked: **anything imported across subpackages is public** (no leading
 ``_``). A private helper is used inside its own subpackage only. Planned: about 20
@@ -375,7 +375,7 @@ compatibility for unreleased development builds.
      - ``reports._html_helpers.duration_cells(seconds)`` (unit in the header) or
        ``format_durations``
    * - Position
-     - ``location.format_ddm`` (degrees, decimal minutes)
+     - ``mooring.location.format_ddm`` (degrees, decimal minutes)
    * - Axis label / unit
      - ``parameters.vlabel(var)``, ``parameters.vunit(var)``;
        ``config.unit_tables.unit_label(units, standard_name)`` for a raw ``units``
@@ -463,7 +463,7 @@ made in ctdcast and copied back. If a macro you need is missing, ask for it ther
 ~~~~~~~~~~~~~~~~~~~~~
 
 **Rule.** Every top-level key is listed in ``KNOWN_KEYS`` in
-``oceanarray/mooring.py`` and documented in :doc:`yaml_configuration`.
+``oceanarray/mooring/yaml_file.py`` and documented in :doc:`yaml_configuration`.
 ``mooring.check`` reports an unknown top-level key as a WARNING; inside a block
 (``caldip``, ``qc_*``, ``stack``, ``grid``) every shape mistake is an ERROR naming
 the allowed set. The YAML key, the Python keyword and the CLI flag are the same
@@ -740,7 +740,7 @@ The rest:
 5. Naming
 ---------
 
-- **Modules**: named for what they hold (``mooring.py``, ``masking.py``); a
+- **Modules**: named for what they hold (``location.py``, ``masking.py``); a
   verb's body has the verb's name in ``pipeline/``; a set of alternatives is a
   plural agent noun in its own subpackage (``readers/``, ``gridders/``). Never
   named for a kind of code: no ``tools``, ``utilities``, ``utils``, ``helpers``,

@@ -182,9 +182,9 @@ def build_record(
         The maker when the file format says it (a Sea-Bird file).
     catalog : Mapping, optional
         What the sensor catalog says of this instrument
-        (:func:`oceanarray.catalog.lookup`). Its model's attributes and
+        (:func:`oceanarray.mooring.catalog.lookup`). Its model's attributes and
         vocabularies are written, the "with pressure" entry when the instrument
-        measured pressure (:func:`oceanarray.catalog.measured_pressure`).
+        measured pressure (:func:`oceanarray.mooring.catalog.measured_pressure`).
 
     Returns
     -------
@@ -253,7 +253,7 @@ def build_record(
     )
     cat: dict[str, str] = {}
     if catalog:
-        from oceanarray import catalog as _catalog
+        from oceanarray.mooring import catalog as _catalog
 
         measured, why = _catalog.measured_pressure(ds)
         cat = _catalog.record_attrs(catalog, measured)

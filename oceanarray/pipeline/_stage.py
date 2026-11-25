@@ -19,7 +19,7 @@ import xarray as xr
 from oceanarray import provenance
 from oceanarray.exceptions import StageError
 from oceanarray.history import append_history
-from oceanarray.instruments import nominal_depth
+from oceanarray.mooring.instruments import nominal_depth
 
 log = logging.getLogger(__name__)
 
@@ -92,7 +92,7 @@ def identity_variables(
     -------
     dict of str to xarray.Variable
         ``instrument_serial`` (text) when the entry has a serial, and
-        ``instrument_depth`` (m) when :func:`oceanarray.instruments.nominal_depth`
+        ``instrument_depth`` (m) when :func:`oceanarray.mooring.instruments.nominal_depth`
         gives one.
     """
     out = {}

@@ -301,9 +301,9 @@ def _print_stage_plan(
 ) -> tuple[str, Path] | None:
     """Print each stage file *wanted* stages would write; write nothing."""
     from oceanarray import logger
-    from oceanarray import mooring as _mooring
     from oceanarray.exceptions import OceanarrayError
-    from oceanarray.instruments import instrument_entries
+    from oceanarray.mooring import yaml_file as _mooring
+    from oceanarray.mooring.instruments import instrument_entries
     from oceanarray.reports._verb import (
         _resolve_description_file,
         _resolve_name_and_dir,

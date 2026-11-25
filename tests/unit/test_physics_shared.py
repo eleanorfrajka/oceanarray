@@ -22,7 +22,7 @@ import xarray as xr
 
 import oceanarray as oa
 from oceanarray import mask_rules, mooring, physics
-from oceanarray.location import parse_latlon
+from oceanarray.mooring.location import parse_latlon
 from oceanarray.originator_flags import MAPPED_SUFFIX
 from oceanarray.pipeline.coordinate import apply_beam_to_enu
 from oceanarray.pipeline.grid import _speed_direction as _grid_speed_direction

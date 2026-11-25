@@ -14,8 +14,9 @@ from typing import Any
 import numpy as np
 from markupsafe import Markup
 
-from oceanarray import location, logger, mask_rules, paths
+from oceanarray import logger, mask_rules, paths
 from oceanarray.analysis.derived import derived_fields
+from oceanarray.mooring import location
 from oceanarray.pipeline.concat import (
     adcp_bins,
     cell_deployment,

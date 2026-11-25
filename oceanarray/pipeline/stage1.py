@@ -14,16 +14,20 @@ from typing import Any
 import numpy as np
 import xarray as xr
 
-from oceanarray import catalog, logger, paths
+from oceanarray import logger, paths
 from oceanarray import mooring as _mooring
 from oceanarray.config import parameters as params
 from oceanarray.config.unit_tables import UnitsError
-from oceanarray.config.validation import check_depth_key
 from oceanarray.exceptions import MooringError, StageError
 from oceanarray.history import append_history
-from oceanarray.instruments import extract_inline_instruments, instrument_entries
-from oceanarray.location import parse_coordinate
 from oceanarray.logger import with_stage_handlers
+from oceanarray.mooring import catalog
+from oceanarray.mooring.instruments import (
+    extract_inline_instruments,
+    instrument_entries,
+)
+from oceanarray.mooring.location import parse_coordinate
+from oceanarray.mooring.validation import check_depth_key
 from oceanarray.paths import safe_serial, should_skip_regeneration
 from oceanarray.pipeline import _stage, attribution, sensors
 from oceanarray.pipeline.raw_files import read_raw_file, resolve_raw_file

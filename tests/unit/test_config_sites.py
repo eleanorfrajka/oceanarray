@@ -6,7 +6,7 @@ modules. Every stage and report receives the loaded dict from
 ``safe_load`` site in a stage is a regression this test catches.
 
 All mooring-config loading goes through :func:`oceanarray.mooring.load` /
-``mooring._parse``; the stages, reports and CLI receive the dict. A new
+``mooring.yaml_file._parse``; the stages, reports and CLI receive the dict. A new
 ``safe_load`` on a mooring config in any other module is a regression.
 """
 
@@ -15,22 +15,22 @@ from pathlib import Path
 PKG = Path(__file__).resolve().parents[2] / "oceanarray"
 
 # Files allowed to call ``yaml.safe_load`` at the end of the branch:
-#   mooring.py            — the one mooring-config loader
+#   mooring/yaml_file.py  — the one mooring-config loader
 #   logger.py             — loads config/logging.yaml, not a mooring config
 #   reports/_array.py     — array-level config (no array loader planned; stays)
 #   reports/_recovery_table.py — recovery-table config
 #   pipeline/export.py    — array-level config (site_code, project), not a mooring config
 #   originator_flags.py   — the packaged flag-meaning vocabulary, not a mooring config
-#   catalog.py            — the sensor catalog a mooring names, not a mooring config
+#   mooring/catalog.py    — the sensor catalog a mooring names, not a mooring config
 # Everything under legacy/ is excluded wholesale (vendored/managed upstream).
 ALLOWED = {
-    "mooring.py",
+    "mooring/yaml_file.py",
     "logger.py",
     "reports/_array.py",
     "reports/_recovery_table.py",
     "pipeline/export.py",
     "originator_flags.py",
-    "catalog.py",
+    "mooring/catalog.py",
 }
 
 

@@ -31,6 +31,34 @@ and ``ORIGINATOR_BIN_PRESSURE_ATTRS`` and ``originator_bin_geometry`` in
 0.8.0; change ``from oceanarray.pipeline.pressure import pressure_from_depth`` to
 ``from oceanarray.physics import pressure_from_depth``.
 
+The mooring YAML modules moved into ``oceanarray.mooring``
+----------------------------------------------------------
+
+Everything about the mooring YAML is now in the ``oceanarray.mooring`` package,
+unchanged. ``from oceanarray import mooring`` and ``oceanarray.mooring.load``,
+``check``, ``template``, ``save`` and the other names work as before.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 50 50
+
+   * - Old path
+     - New path
+   * - ``oceanarray.instruments``
+     - ``oceanarray.mooring.instruments``
+   * - ``oceanarray.location``
+     - ``oceanarray.mooring.location``
+   * - ``oceanarray.config.validation``
+     - ``oceanarray.mooring.validation``
+   * - ``oceanarray.catalog``
+     - ``oceanarray.mooring.catalog``
+
+The first three old paths still import, with a ``DeprecationWarning`` naming the
+new one, until 0.8.0; change ``from oceanarray.instruments import instrument_entries``
+to ``from oceanarray.mooring.instruments import instrument_entries``.
+``oceanarray.catalog`` moved without an old path: import it as
+``from oceanarray.mooring import catalog``.
+
 One base for the package's errors
 ---------------------------------
 

@@ -16,6 +16,7 @@ import xarray as xr
 import yaml
 
 from oceanarray import mooring, provenance
+from oceanarray.mooring import blocks
 from oceanarray.pipeline import attribution
 from oceanarray.readers import read_oceansites
 from oceanarray.reports._html_helpers import doi_link
@@ -44,7 +45,7 @@ def _own_people(path: Path) -> dict:
     return {
         key.removeprefix("originator_"): str(value)
         for key, value in attrs.items()
-        if key.removeprefix("originator_") in attribution.PEOPLE_BLOCK_KEYS
+        if key.removeprefix("originator_") in blocks.PEOPLE_BLOCK_KEYS
     }
 
 

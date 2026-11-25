@@ -14,6 +14,8 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Changed
 
+- All the mooring YAML code is in one package, `oceanarray.mooring`: `instruments`, `location`, `catalog` and `validation` moved into it, unchanged; it no longer imports the pipeline (#166).
+- `oceanarray.instruments`, `oceanarray.location` and `oceanarray.config.validation` warn when imported, until 0.8.0; `oceanarray.catalog` is now `oceanarray.mooring.catalog` (#166).
 - `changed_attr` (has a product attribute changed, at the precision the writer stores it) moved from `oceanarray.provenance` to `oceanarray.writers.dtypes`, beside `same_attr` (#165).
 - Plain modules no longer define `__all__` (only package `__init__.py` files do); names are imported from where they are defined, e.g. `UnitsError` from `config.unit_tables` (#165).
 - The readers no longer import the pipeline: depth/pressure conversion moved to `oceanarray.physics`, ADCP bin geometry to `readers.adcp_geometry`, `append_history` to `oceanarray.history` (#164).
