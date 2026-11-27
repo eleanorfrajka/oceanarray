@@ -79,19 +79,22 @@ def _resolve_relative_paths(data: object, path: Path) -> None:
 
 
 def check(
-    mooring: str | PathLike | Mapping,
+    yaml_path: str | PathLike | Mapping | None = None,
     *,
     dir_name: str | None = None,
+    mooring: str | PathLike | Mapping | None = None,
 ) -> list[ValidationIssue]:
     """Validate a mooring YAML without raising.
 
     Parameters
     ----------
-    mooring : str or os.PathLike or Mapping
-        A path to a ``*.mooring.yaml`` file or an already-parsed mapping.
+    yaml_path : str or os.PathLike
+        The ``*.mooring.yaml`` file. A loaded mapping is deprecated; removed in 0.8.0.
     dir_name : str or None, optional
-        The directory name the ``name`` field is compared against. When
-        *mooring* is a path, the path's parent name is used and this is ignored.
+        The folder name the ``name`` field is compared against; default the file's
+        folder.
+    mooring : str or os.PathLike or Mapping, optional
+        Deprecated name of *yaml_path*; removed in 0.8.0.
 
     Returns
     -------
@@ -99,21 +102,36 @@ def check(
         Every finding (ERROR and WARNING); an empty list means it passed. An
         unknown top-level key is reported as a WARNING.
     """
-    if isinstance(mooring, Mapping):
-        data: object = dict(mooring)
-    else:
-        path = Path(mooring)
-        if not path.exists():
-            return [ValidationIssue("ERROR", f"File not found: {path}")]
-        try:
-            with path.open() as f:
-                data = yaml.safe_load(f)
-        except yaml.YAMLError as e:
-            return [ValidationIssue("ERROR", f"YAML parse error: {e}")]
-        if dir_name is None:
-            dir_name = path.parent.name
-        _resolve_relative_paths(data, path)
+    yaml_path = _deprecated.resolve_keyword(
+        "oceanarray.mooring.check(mooring=)",
+        yaml_path,
+        mooring,
+        required="yaml_path",
+        quiet=True,
+    )
+    if mooring is not None or isinstance(yaml_path, Mapping):
+        # One warning for the call, the first old form it uses.
+        _deprecated.warn(
+            "oceanarray.mooring.check(mooring=)"
+            if mooring is not None
+            else _deprecated.DICT_GIVEN
+        )
+    if isinstance(yaml_path, Mapping):
+        return _check_data(dict(yaml_path), dir_name)
+    path = Path(yaml_path)
+    if not path.exists():
+        return [ValidationIssue("ERROR", f"File not found: {path}")]
+    try:
+        with path.open() as f:
+            data = yaml.safe_load(f)
+    except yaml.YAMLError as e:
+        return [ValidationIssue("ERROR", f"YAML parse error: {e}")]
+    _resolve_relative_paths(data, path)
+    return _check_data(data, path.parent.name if dir_name is None else dir_name)
 
+
+def _check_data(data: object, dir_name: str | None) -> list[ValidationIssue]:
+    """Return every ERROR and WARNING in a parsed mooring YAML."""
     issues = list(validation.validate_mooring(data, dir_name=dir_name))
 
     if isinstance(data, Mapping):

@@ -8,15 +8,16 @@ Public API
 ----------
 
 ``import oceanarray as oa`` gives every name below (``oceanarray.__all__``); each
-loads on first use. A mooring is given as its ``*.mooring.yaml`` path, the folder
-holding it, or a loaded mooring YAML with ``mooring_dir=``.
+loads on first use. The verbs take a mooring as its ``*.mooring.yaml`` path and the
+folders as an ``oceanarray.Paths`` (:ref:`paths-file`).
 
 .. code-block:: python
 
    import oceanarray as oa
 
+   paths = oa.Paths(raw_dir="raw/", proc_dir="proc/", report_dir="reports/")
    yaml_path = "proc/dune2_1_2026/dune2_1_2026.mooring.yaml"
-   oa.run(yaml_path, raw_dir="raw/", report=True)   # stages 1-3, stack, grid, report
+   oa.run(yaml_path, paths, report=True)   # stages 1-3, stack, grid, report
 
    # or step by step, on datasets
    cfg = oa.mooring.load(yaml_path)
@@ -393,7 +394,7 @@ Interpolate stacked mooring data onto a regular pressure grid
 
 OceanSITES export
 ^^^^^^^^^^^^^^^^^
-``oceanarray.export(mooring)`` (``oceanarray export``) writes a mooring's stage-3 files
+``oceanarray.export(yaml_path, paths)`` (``oceanarray export``) writes a mooring's stage-3 files
 and grid as OceanSITES 1.4 files; see :doc:`methods/oceansites_export`.
 ``to_oceansites`` is the conversion it uses, for a dataset already in hand; it writes
 nothing.

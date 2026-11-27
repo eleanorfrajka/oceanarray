@@ -1,4 +1,4 @@
-"""``oceanarray.process(mooring)`` runs stages 1–3 on the dune2 fixtures and writes their files.
+"""``oceanarray.process(yaml_path, paths)`` runs stages 1–3 on the dune2 fixtures and writes their files.
 
 Builds a fresh proc tree holding only the mooring YAML, runs ``process`` against the
 committed raw files, and checks the written stage files against the committed
@@ -50,6 +50,11 @@ def _values_differ(a: Path, b: Path) -> list[str]:
         return diffs
 
 
+def _paths(yaml_path: Path, raw_dir: Path | None = None) -> oa.Paths:
+    """Return the Paths of a tree whose mooring folder holds its YAML, with *raw_dir*."""
+    return oa.Paths(raw_dir=raw_dir, proc_dir=yaml_path.parent.parent)
+
+
 def _fresh_tree(tmp_path: Path) -> Path:
     """Return the path of a mooring YAML in a proc tree that holds nothing else."""
     moor = tmp_path / "proc" / _NAME
@@ -62,7 +67,7 @@ def _fresh_tree(tmp_path: Path) -> Path:
 def processed(tmp_path_factory) -> tuple[Path, list[Path]]:
     """Run process once over a fresh tree; return the mooring YAML path and the files written."""
     yaml_path = _fresh_tree(tmp_path_factory.mktemp("process"))
-    return yaml_path, oa.process(yaml_path, raw_dir=_RAW)
+    return yaml_path, oa.process(yaml_path, _paths(yaml_path, _RAW))
 
 
 def test_process_writes_every_stage_file_in_stage_order(processed):
@@ -94,7 +99,7 @@ def test_process_keeps_existing_files_and_returns_them(processed, capsys):
     """A second run rewrites nothing but still returns every file, and says so."""
     yaml_path, written = processed
     before = {p: p.stat().st_mtime_ns for p in written}
-    assert oa.process(yaml_path, raw_dir=_RAW) == written
+    assert oa.process(yaml_path, _paths(yaml_path, _RAW)) == written
     assert {p: p.stat().st_mtime_ns for p in written} == before
     out = capsys.readouterr().out
     assert "Stage 3: 0 file(s) written, 2 kept" in out
@@ -104,19 +109,26 @@ def test_process_force_rewrites_the_serial_asked_for(own_tree, capsys):
     """force with serials rewrites that instrument's file and returns only it."""
     path = own_tree.parent / _rel("2941", 2)
     mtime = path.stat().st_mtime_ns
-    assert oa.process(own_tree, stages=2, serials=["2941"], force=True) == [path]
+    assert oa.process(
+        own_tree, _paths(own_tree), stages=2, serials=["2941"], force=True
+    ) == [path]
     assert path.stat().st_mtime_ns != mtime
     assert "Stage 2: 1 file(s) written, 0 kept" in capsys.readouterr().out
 
 
 def test_process_takes_a_loaded_description_with_its_directory(processed):
-    """A dict needs mooring_dir=; given it, the run finds the files."""
+    """A dict (deprecated) needs mooring_dir= or paths; given either, the run finds the files."""
     yaml_path, _ = processed
     cfg = oa.mooring.load(yaml_path)
-    with pytest.raises(MooringError, match="mooring_dir="):
+    with (
+        pytest.warns(DeprecationWarning, match="a mooring dict"),
+        pytest.raises(MooringError, match="mooring_dir="),
+    ):
         oa.process(cfg, stages=3)
-    files = oa.process(cfg, stages=3, mooring_dir=yaml_path.parent)
-    assert [p.name for p in files] == [_rel(s, 3).name for s in ("2941", "9920")]
+    for where in ({"mooring_dir": yaml_path.parent}, {"paths": _paths(yaml_path)}):
+        with pytest.warns(DeprecationWarning, match="a mooring dict"):
+            files = oa.process(cfg, stages=3, **where)
+        assert [p.name for p in files] == [_rel(s, 3).name for s in ("2941", "9920")]
 
 
 @pytest.mark.parametrize("stages", [4, 0, "stack", (), (1, "grid"), True])
@@ -124,7 +136,7 @@ def test_process_refuses_anything_but_stages_1_to_3(processed, stages):
     """Stack and grid are not process's stages; nor is any other number."""
     yaml_path, _ = processed
     with pytest.raises(ValueError, match="expected 1, 2, 3"):
-        oa.process(yaml_path, stages=stages)
+        oa.process(yaml_path, _paths(yaml_path), stages=stages)
 
 
 def test_process_raises_naming_the_instrument_whose_raw_file_is_missing(tmp_path):
@@ -135,7 +147,7 @@ def test_process_raises_naming_the_instrument_whose_raw_file_is_missing(tmp_path
         f.unlink()
     yaml_path = _fresh_tree(tmp_path)
     with pytest.raises(MooringError, match=r"(?s)stage 1 failed for 1 of 2.*9920"):
-        oa.process(yaml_path, raw_dir=raw, keep_going=False)
+        oa.process(yaml_path, _paths(yaml_path, raw), keep_going=False)
     moor = yaml_path.parent
     assert (moor / _rel("2941", 1)).exists()
     assert not list(moor.rglob(paths.stage_glob(2))), "stage 2 ran after stage 1 failed"
@@ -145,13 +157,14 @@ def test_process_raises_when_no_serial_matches(processed):
     """A serials filter that matches nothing is an error, not an empty success."""
     yaml_path, _ = processed
     with pytest.raises(MooringError, match="no instrument matching 0000"):
-        oa.process(yaml_path, stages=2, serials=["0000"])
+        oa.process(yaml_path, _paths(yaml_path), stages=2, serials=["0000"])
 
 
 def test_process_raises_without_a_raw_directory(tmp_path):
     """Stage 1 with no raw_dir (and no absolute directory: in the mooring YAML) raises."""
+    yaml_path = _fresh_tree(tmp_path)
     with pytest.raises(MooringError, match="raw_dir="):
-        oa.process(_fresh_tree(tmp_path), stages=1)
+        oa.process(yaml_path, _paths(yaml_path), stages=1)
 
 
 def test_process_keeps_the_name_and_stage_form_for_one_release(processed, tmp_path):
@@ -176,7 +189,13 @@ def test_process_turns_a_stage3_failure_into_a_logged_mooring_error(
     moor = tmp_path / _NAME
     shutil.copytree(yaml_path.parent, moor)
     with pytest.raises(MooringError, match="stage 3 failed.*boom"):
-        oa.process(moor / yaml_path.name, stages=3, force=True, keep_going=False)
+        oa.process(
+            moor / yaml_path.name,
+            _paths(moor / yaml_path.name),
+            stages=3,
+            force=True,
+            keep_going=False,
+        )
     logs = list(moor.rglob("*stage3.log"))
     assert any("ERROR: Stage 3 failed: boom" in p.read_text() for p in logs)
 
@@ -187,7 +206,8 @@ def test_process_restores_the_reader_loggers(tmp_path):
 
     lib = logging.getLogger("seasenselib")
     before = (lib.level, lib.propagate, list(lib.handlers))
-    oa.process(_fresh_tree(tmp_path), stages=1, raw_dir=_RAW)
+    yaml_path = _fresh_tree(tmp_path)
+    oa.process(yaml_path, _paths(yaml_path, _RAW), stages=1)
     assert (lib.level, lib.propagate, list(lib.handlers)) == before
 
 
@@ -227,7 +247,9 @@ def test_target_records_the_stage2_files_its_pressure_came_from(processed):
 
 def test_stage3_on_a_target_alone_still_interpolates_its_pressure(own_tree):
     """serials=[target] reads the whole mooring, so the pressure source is there; only the target is written."""
-    written = oa.process(own_tree, stages=3, serials=["2941"], force=True)
+    written = oa.process(
+        own_tree, _paths(own_tree), stages=3, serials=["2941"], force=True
+    )
     assert [p.name for p in written] == [_rel("2941", 3).name]
     _, qc = _pressure(own_tree.parent / _rel("2941", 3))
     assert set(np.unique(qc)) == {8}
@@ -235,16 +257,16 @@ def test_stage3_on_a_target_alone_still_interpolates_its_pressure(own_tree):
 
 def test_a_changed_source_names_its_kept_targets_as_stale(own_tree, capsys):
     """Rewriting the aquadopp's stage 2 then its stage 3 alone warns that the microcat's pressure is stale."""
-    oa.process(own_tree, stages=2, serials=["9920"], force=True)
+    oa.process(own_tree, _paths(own_tree), stages=2, serials=["9920"], force=True)
     capsys.readouterr()
-    oa.process(own_tree, stages=3, serials=["9920"], force=True)
+    oa.process(own_tree, _paths(own_tree), stages=3, serials=["9920"], force=True)
     out = capsys.readouterr().out
     assert f"WARNING: {_rel('2941', 3).name}: its pressure was interpolated" in out
 
 
 def test_no_stale_warning_when_the_sources_are_unchanged(own_tree, capsys):
     """Re-running stage 3 for the source alone, with its stage 2 untouched, warns about nothing."""
-    oa.process(own_tree, stages=3, serials=["9920"], force=True)
+    oa.process(own_tree, _paths(own_tree), stages=3, serials=["9920"], force=True)
     assert "its pressure was interpolated" not in capsys.readouterr().out
 
 

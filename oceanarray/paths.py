@@ -241,6 +241,49 @@ class Paths:
             sources={k: "file" for k, v in dirs.items() if v is not None},
         )
 
+    @classmethod
+    def from_mooring_dir(
+        cls,
+        mooring_name: str,
+        mooring_dir: _PathLike,
+        *,
+        raw_dir: _PathLike | None = None,
+        caldip_dir: _PathLike | None = None,
+        report_dir: _PathLike | None = None,
+        export_dir: _PathLike | None = None,
+        mooring_report_dir: _PathLike | None = None,
+    ) -> "Paths":
+        """Return the Paths the verbs' old folder keywords meant, for one mooring's folder.
+
+        The raw files are in ``<raw_dir>/<name of mooring_dir>``; the CLI builds its
+        Paths from its folder flags this way.
+
+        Parameters
+        ----------
+        mooring_name, mooring_dir : str or Path
+            The mooring's name and its processed-data folder (its exact ``proc_dir``).
+        raw_dir, caldip_dir, report_dir, export_dir : str or Path, optional
+            As for :class:`Paths`.
+        mooring_report_dir : str or Path, optional
+            The mooring's exact report folder.
+        """
+        exact: dict[str, _PathLike] = {"proc_dir": mooring_dir}
+        if raw_dir is not None:
+            folder = Path(mooring_dir)
+            # A folder given as "." or ".." is named by the folder it stands for.
+            name = (
+                folder.name if folder.name not in ("", "..") else folder.resolve().name
+            )
+            exact["raw_dir"] = Path(raw_dir) / name
+        if mooring_report_dir is not None:
+            exact["report_dir"] = mooring_report_dir
+        return cls(
+            raw_dir=raw_dir,
+            caldip_dir=caldip_dir,
+            report_dir=report_dir,
+            export_dir=export_dir,
+        ).with_mooring(mooring_name, **exact)
+
     def with_mooring(self, mooring_name: str, **fields: _PathLike) -> "Paths":
         """Return a copy with exact folders for one mooring, added to any it has.
 

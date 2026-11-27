@@ -590,6 +590,7 @@ class MooringReport:
         mooring_dir: str | Path | None = None,
         yaml_path: str | Path | None = None,
         *,
+        raw_mooring_dir: str | Path | None = None,
         cfg: Mapping[str, Any] | None = None,
     ) -> Path:
         """Build the mooring's summary page and, when asked, its other pages.
@@ -621,6 +622,9 @@ class MooringReport:
         yaml_path : str or pathlib.Path or None, optional
             The mooring YAML file (for staleness and display); default
             ``<mooring folder>/<mooring_name>.mooring.yaml``.
+        raw_mooring_dir : str or pathlib.Path or None, optional
+            The mooring's raw-data folder, whatever it is called; default
+            ``<raw_dir>/<mooring_name>`` when *raw_dir* was given.
         cfg : Mapping or None, optional
             Deprecated name of *mooring_dict*; removed in 0.8.0.
 
@@ -707,8 +711,15 @@ class MooringReport:
         # Display root for pretty-printing paths in the instrument/grid/stack pages.
         display_root = self._proc_dir or proc_dir.parent
 
+        raw_folder = (
+            Path(raw_mooring_dir)
+            if raw_mooring_dir is not None
+            else self._raw_dir / mooring_name
+            if self._raw_dir is not None
+            else None
+        )
         ctx = self._build_context(
-            mooring_name, mooring_dict, proc_dir, yaml_path, out_dir
+            mooring_name, mooring_dict, proc_dir, yaml_path, out_dir, raw_folder
         )
         # The caller's breadcrumb ancestors ride in the context so every page (the
         # summary here and the stack/grid/instrument pages below) builds its own
@@ -731,7 +742,7 @@ class MooringReport:
                 out_dir,
                 force,
                 serials=serials,
-                raw_dir=self._raw_dir,
+                raw_mooring_dir=raw_folder,
                 skip_existing=skip_existing,
                 breadcrumb=breadcrumb,
             )
@@ -793,6 +804,7 @@ class MooringReport:
         proc_dir: Path,
         yaml_path: Path,
         out_dir: Path | None = None,
+        raw_folder: Path | None = None,
     ) -> dict[str, Any]:
         deploy_dt = _parse_dt(mooring_dict.get("deployment_time"))
         recover_dt = _parse_dt(mooring_dict.get("recovery_time"))
@@ -837,10 +849,10 @@ class MooringReport:
             file_type = entry.get("file_type", "")
             yaml_interval_s = entry.get("sample_interval_seconds")
 
-            if filename and self._raw_dir is not None:
-                # New layout: {raw_dir}/{mooring}/{instrument}/filename
-                raw_path = self._raw_dir / mooring_name / instr_type / filename
-                raw_path_str = raw_path.relative_to(self._raw_dir).as_posix()
+            if filename and raw_folder is not None:
+                # Shown from the mooring's folder: <folder>/<instrument>/<filename>
+                raw_path = raw_folder / instr_type / filename
+                raw_path_str = raw_path.relative_to(raw_folder.parent).as_posix()
                 # A wildcard (RODB per-bin ADCP files): count the matches, check one.
                 matches = sorted(raw_path.parent.glob(filename))
                 if matches and matches[0] != raw_path:
@@ -865,21 +877,20 @@ class MooringReport:
                 # Skip guessing for instruments marked skip:true — they won't
                 # be processed and there's nothing useful to report.
                 _guessed = None
-                if self._raw_dir is not None and not entry.get("skip"):
+                if raw_folder is not None and not entry.get("skip"):
                     from oceanarray.pipeline.raw_files import guess_instrument_filename
 
-                    _raw_mooring = self._raw_dir / mooring_name
                     _guessed = guess_instrument_filename(
-                        entry, mooring_name, _raw_mooring, None
+                        entry, mooring_name, raw_folder, None
                     )
                 if _guessed is not None:
                     _gfname, _gftype, _ghdr = _guessed
                     file_type = file_type or _gftype
-                    _gpath = self._raw_dir / mooring_name / instr_type / _gfname
+                    _gpath = raw_folder / instr_type / _gfname
                     if not _gpath.exists():
-                        _gpath = self._raw_dir / mooring_name / _gfname
+                        _gpath = raw_folder / _gfname
                     raw_path_str = (
-                        _gpath.relative_to(self._raw_dir).as_posix()
+                        _gpath.relative_to(raw_folder.parent).as_posix()
                         if _gpath.exists()
                         else f"(auto) {_gfname}"
                     )

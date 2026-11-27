@@ -395,7 +395,7 @@ def generate_instrument_pages(
     out_dir: Path,
     force: bool,
     serials: list[str] | None = None,
-    raw_dir: Path | None = None,
+    raw_mooring_dir: Path | None = None,
     skip_existing: bool = False,
     breadcrumb: list[tuple[str, str | None]] | None = None,
 ) -> None:
@@ -427,10 +427,10 @@ def generate_instrument_pages(
         If provided, only generate pages for instruments whose serial number is in
         this list.  Useful for regenerating a single instrument without reprocessing
         the full mooring.
-    raw_dir : Path, optional
-        Cruise-level raw data directory for the new directory layout.  When given,
-        raw file existence is checked at ``{raw_dir}/{mooring}/{instr_type}/filename``.
-        When None, the raw file is not located on disk.
+    raw_mooring_dir : Path, optional
+        The mooring's raw-data folder.  When given, raw file existence is checked at
+        ``{raw_mooring_dir}/{instr_type}/filename``.  When None, the raw file is not
+        located on disk.
     skip_existing : bool
         If True, skip pages whose output file is newer than the source NetCDF.
     breadcrumb : list of (str, str or None) or None, optional
@@ -558,9 +558,8 @@ def generate_instrument_pages(
 
         # File listing — the data read and the file of each processing step
         raw_filename = instr.get("filename", "")
-        if raw_filename and raw_dir is not None:
-            # New layout: {raw_dir}/{mooring}/{instrument}/filename
-            raw_file = _file_info(raw_dir / mooring_name / instr_type / raw_filename)
+        if raw_filename and raw_mooring_dir is not None:
+            raw_file = _file_info(raw_mooring_dir / instr_type / raw_filename)
         elif raw_filename:
             # No raw_dir configured: the raw file's location is unknown.  Do NOT
             # probe the filesystem — a bare filename resolves against the current

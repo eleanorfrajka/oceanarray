@@ -471,43 +471,53 @@ def test_stack_key_must_be_boolean(tmp_path):
     assert not any("stack=" in e.message for e in errors)
 
 
-def test_stacked_entry_without_hab_is_warning():
+def test_stacked_entry_without_hab_is_warning(mooring_yaml):
     """A stacked entry with no hab is omitted by the stack, so validate warns."""
     cfg = mooring.load(_DUNE2_YAML)
     for entry in cfg["clamp"]:
         if str(entry["serial"]) == "2941":
             entry.pop("hab")
-    warns = [w.message for w in _warnings(mooring.check(cfg)) if "hab" in w.message]
+    warns = [
+        w.message
+        for w in _warnings(mooring.check(mooring_yaml(cfg)))
+        if "hab" in w.message
+    ]
     assert len(warns) == 1 and "2941" in warns[0] and "stack: false" in warns[0]
 
 
-def test_entry_without_hab_is_quiet_when_not_stacked():
+def test_entry_without_hab_is_quiet_when_not_stacked(mooring_yaml):
     cfg = mooring.load(_DUNE2_YAML)
     for entry in cfg["clamp"]:
         entry.pop("hab")
     cfg["clamp"][0]["stack"] = False
     cfg["clamp"][1]["skip"] = True
-    assert not [w for w in _warnings(mooring.check(cfg)) if "'hab'" in w.message]
+    assert not [
+        w for w in _warnings(mooring.check(mooring_yaml(cfg))) if "'hab'" in w.message
+    ]
 
 
-def test_adcp_resolves_hab_from_hab_bottom_no_warning():
+def test_adcp_resolves_hab_from_hab_bottom_no_warning(mooring_yaml):
     """An ADCP with hab_bottom (downward) resolves its hab, so validate is quiet."""
     cfg = mooring.load(_DUNE2_YAML)
     for entry in cfg["clamp"]:
         if str(entry["serial"]) == "2941":
             entry.pop("hab")
             entry["hab_bottom"] = 100.0  # downward default → hab resolves to this
-    assert not [i for i in mooring.check(cfg) if "hab" in i.message]
+    assert not [i for i in mooring.check(mooring_yaml(cfg)) if "hab" in i.message]
 
 
-def test_adcp_missing_orientation_key_is_an_error():
+def test_adcp_missing_orientation_key_is_an_error(mooring_yaml):
     """An ADCP that declares an orientation but lacks the matching hab key is an ERROR."""
     cfg = mooring.load(_DUNE2_YAML)
     for entry in cfg["clamp"]:
         if str(entry["serial"]) == "2941":
             entry.pop("hab")
             entry["orientation"] = "up"  # needs hab_top, which is absent
-    errs = [e.message for e in _errors(mooring.check(cfg)) if "hab_top" in e.message]
+    errs = [
+        e.message
+        for e in _errors(mooring.check(mooring_yaml(cfg)))
+        if "hab_top" in e.message
+    ]
     assert len(errs) == 1 and "2941" in errs[0] and "up" in errs[0]
 
 
@@ -520,12 +530,16 @@ def test_adcp_missing_orientation_key_is_an_error():
         ({"skip": True}, 0),
     ],
 )
-def test_adcp_orientation_is_required(extra, n_errors):
+def test_adcp_orientation_is_required(extra, n_errors, mooring_yaml):
     """An ADCP to be processed needs orientation up or down; it is never assumed."""
     cfg = mooring.load(_DUNE2_YAML)
     entry = next(e for e in cfg["clamp"] if str(e["serial"]) == "2941")
     entry.update({"instrument": "ADCP", "file_type": "oceansites", **extra})
-    errs = [e for e in _errors(mooring.check(cfg)) if "never assumed" in e.message]
+    errs = [
+        e
+        for e in _errors(mooring.check(mooring_yaml(cfg)))
+        if "never assumed" in e.message
+    ]
     assert len(errs) == n_errors
 
 
@@ -539,7 +553,7 @@ def test_adcp_orientation_is_required(extra, n_errors):
     ],
 )
 def test_wildcard_filename_only_for_rodb_adcp_bins(
-    instrument, file_type, filename, n_errors
+    instrument, file_type, filename, n_errors, mooring_yaml
 ):
     cfg = mooring.load(_DUNE2_YAML)
     entry = next(e for e in cfg["clamp"] if str(e["serial"]) == "2941")
@@ -549,7 +563,9 @@ def test_wildcard_filename_only_for_rodb_adcp_bins(
         filename=filename,
         orientation="down",
     )
-    errs = [e for e in _errors(mooring.check(cfg)) if "wildcard" in e.message]
+    errs = [
+        e for e in _errors(mooring.check(mooring_yaml(cfg))) if "wildcard" in e.message
+    ]
     assert len(errs) == n_errors
 
 

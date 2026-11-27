@@ -80,7 +80,13 @@ def cf7(tmp_path_factory):
     cfg = {"name": name, **CF7, "stack": {"dt_seconds": 900}, "clamp": INSTRUMENTS}
     yaml_path = proc / f"{name}.mooring.yaml"
     yaml_path.write_text(yaml.safe_dump(cfg, sort_keys=False))
-    files = oa.run(yaml_path, raw_dir=tmp / "raw", pmin=40, pmax=520, dp=40)
+    files = oa.run(
+        yaml_path,
+        oa.Paths(raw_dir=tmp / "raw", proc_dir=tmp / "proc"),
+        pmin=40,
+        pmax=520,
+        dp=40,
+    )
     return yaml_path, proc, files
 
 
@@ -344,7 +350,14 @@ def test_the_stack_page_has_the_quality_flags_section(cf7, tmp_path):
     assert (row["word"], row["ours"]) == ("appears_probably_bad", 3)
     assert "22225" in row["used_by"]
 
-    page = oa.report(yaml_path, out_dir=tmp_path, instruments=False, grid=False)
+    page = oa.report(
+        yaml_path,
+        oa.Paths(proc_dir=yaml_path.parent.parent).with_mooring(
+            "cf7_2020", report_dir=tmp_path
+        ),
+        instruments=False,
+        grid=False,
+    )
     html = (page.parent / "cf7_2020_stack_report.html").read_text(encoding="utf-8")
     assert "Quality flags" in html
     assert "leave out (rule 4)" in html
@@ -531,7 +544,14 @@ def test_no_declination_warning_when_the_originator_applied_it(cf7, tmp_path):
         ("Aquadopp s/n 500", "its stage-3 file records no declination")
     ]
     yaml_path, _, _ = cf7
-    page = oa.report(yaml_path, out_dir=tmp_path, instruments=False, grid=False)
+    page = oa.report(
+        yaml_path,
+        oa.Paths(proc_dir=yaml_path.parent.parent).with_mooring(
+            "cf7_2020", report_dir=tmp_path
+        ),
+        instruments=False,
+        grid=False,
+    )
     html = (page.parent / "cf7_2020_stack_report.html").read_text(encoding="utf-8")
     assert "as provided by the originator" in html
     assert "declination was not applied" not in html

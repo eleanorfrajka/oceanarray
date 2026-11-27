@@ -40,6 +40,28 @@ def _raise_on_plot_error(monkeypatch):
 
 
 @pytest.fixture
+def mooring_yaml(tmp_path):
+    """Return a function writing a mooring dict to ``<name>/<name>.mooring.yaml`` under tmp_path.
+
+    The verbs, ``mooring.load`` and ``mooring.check`` take a YAML's path; a test that
+    edits a loaded mooring YAML writes it back with this and passes the path. The
+    folder is named after ``name:``, so the name-and-folder check stays quiet.
+    """
+    import yaml
+
+    def write(mooring_dict) -> Path:
+        name = str(mooring_dict.get("name", "mooring"))
+        path = tmp_path / name / f"{name}.mooring.yaml"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            yaml.safe_dump(dict(mooring_dict), sort_keys=False), encoding="utf-8"
+        )
+        return path
+
+    return write
+
+
+@pytest.fixture
 def microcat_stage3_path() -> Path:
     """Path to the committed microcat (serial 2941) stage-3 NetCDF fixture."""
     return MICROCAT_STAGE3

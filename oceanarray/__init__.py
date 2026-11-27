@@ -6,10 +6,11 @@ cheap.
 
 Examples
 --------
-Not run as tests: they need a mooring folder on disk.
+Not run as tests: they need a mooring YAML and its files on disk.
 
 >>> import oceanarray as oa
->>> oa.run("proc/dune2_1_2026/dune2_1_2026.mooring.yaml", raw_dir="raw/", report=True)  # doctest: +SKIP
+>>> paths = oa.Paths(raw_dir="raw/", proc_dir="proc/", report_dir="reports/")
+>>> oa.run("proc/dune2_1_2026/dune2_1_2026.mooring.yaml", paths, report=True)  # doctest: +SKIP
 """
 
 from __future__ import annotations

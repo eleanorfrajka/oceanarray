@@ -28,7 +28,7 @@ Python API
    import oceanarray as oa
 
    # stage 3 (kept where it exists), then the stack and grid
-   oa.run(yaml_path, stages=3, pmin=200.0, pmax=1000.0, dp=20.0)
+   oa.run(yaml_path, paths, stages=3, pmin=200.0, pmax=1000.0, dp=20.0)
 
    # or on a stack dataset: the grid itself, no files written
    gridded = oa.grid(stacked, pmin=200.0, pmax=1000.0, dp=20.0)

@@ -8,9 +8,10 @@ Example usage::
 
     import oceanarray
 
-    yaml_path = "/data/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml"
-    oceanarray.process(yaml_path, raw_dir="/data/raw")            # stages 1-3
-    oceanarray.process(yaml_path, stages=3, serials=["2941"])      # stage 3, one instrument
+    paths = oceanarray.Paths.standard("/data/OSNAP")
+    yaml_path = paths.yaml_path("dsG3_1_2026")
+    oceanarray.process(yaml_path, paths)                           # stages 1-3
+    oceanarray.process(yaml_path, paths, stages=3, serials=["2941"])  # stage 3, one instrument
 
 """
 
@@ -24,13 +25,16 @@ from os import PathLike
 from pathlib import Path
 from typing import Any, Literal
 
+from oceanarray import _deprecated
 from oceanarray.exceptions import MooringError, OceanarrayError, ValidationIssue
+from oceanarray.paths import Paths
 
 __all__ = [
     "Stage",
     "STAGES",
     "resolve_stage",
     "resolve_mooring",
+    "resolve_verb_call",
     "process",
     "run",
 ]
@@ -305,14 +309,25 @@ def _process_legacy(
 _UNSET: Any = object()
 
 
+def _is_legacy_stage(value: Any) -> bool:
+    """Return whether *value* is what the pre-0.6.0 form took second: a stage number or name, or a list of them."""
+    names = {s.name for s in STAGES}
+    items = value if isinstance(value, (list, tuple)) else [value]
+    return bool(items) and all(
+        isinstance(v, int) or (isinstance(v, str) and v.lower() in names) for v in items
+    )
+
+
 def process(
-    mooring: str | PathLike | Mapping[str, Any],
-    stage: Any = _UNSET,
+    yaml_path: str | PathLike | None = None,
+    paths: Paths | None = None,
     *,
     stages: int | str | Iterable[int] = (1, 2, 3),
     serials: Iterable[str] | None = None,
     force: bool = False,
     keep_going: bool | None = None,
+    stage: Any = _UNSET,
+    mooring: str | PathLike | Mapping[str, Any] | None = None,
     mooring_dir: PathLike | None = None,
     raw_dir: PathLike | None = None,
     caldip_dir: PathLike | None = None,
@@ -323,9 +338,13 @@ def process(
 
     Parameters
     ----------
-    mooring : str or os.PathLike or Mapping
-        A ``*.mooring.yaml``, a directory holding one, or a loaded mooring YAML (then
-        *mooring_dir* is required).
+    yaml_path : str or os.PathLike
+        The ``*.mooring.yaml``.
+    paths : oceanarray.Paths
+        Where the files are: the stage files in ``paths.mooring_dir(name)``, the raw
+        files (stage 1) in ``paths.raw_mooring_dir(name)``, the caldip results
+        (stage 3; recorded as ``caldip_applied``, not yet applied) in
+        ``paths.caldip_dir``.
     stages : int or "all" or iterable of int, optional
         Stages to run, always in order 1, 2, 3.
     serials : iterable of str or None, optional
@@ -336,14 +355,10 @@ def process(
         None or True: a failed instrument is logged and left out, later stages run on the
         rest, and every stage-3 file is ``data_mode = "P"``. False: raise once a stage has
         written what worked, and stop.
-    mooring_dir : os.PathLike or None, optional
-        The mooring's directory; taken from *mooring* when it is a path.
-    raw_dir : os.PathLike or None, optional
-        Raw-data root holding the mooring's folder; needed for stage 1 unless the
-        mooring YAML gives an absolute ``directory:``.
-    caldip_dir : os.PathLike or None, optional
-        Calibration-dip results for stage 3 (recorded as ``caldip_applied``, not yet
-        applied); rewrites existing stage-3 files.
+    mooring : str or os.PathLike or Mapping, optional
+        Deprecated name of *yaml_path*; removed in 0.8.0.
+    mooring_dir, raw_dir, caldip_dir : os.PathLike, optional
+        Deprecated folders, used when *paths* is not given; removed in 0.8.0.
     stage, proc_dir, **legacy_kw
         The pre-0.6.0 form ``process(name, stage, proc_dir=...)``: deprecated, removed in
         0.7.0; use :func:`oceanarray.run`.
@@ -356,27 +371,46 @@ def process(
     Raises
     ------
     oceanarray.exceptions.MooringError
-        Invalid mooring YAML, missing directory, no instrument matched, or (with
-        ``keep_going=False``) any failed instrument.
+        Invalid mooring YAML, a folder missing from *paths*, no instrument matched, or
+        (with ``keep_going=False``) any failed instrument.
     ValueError
         *stages* names anything but 1, 2 and 3.
+    TypeError
+        *paths* is not an :class:`oceanarray.Paths` (or a pre-0.6.0 stage), or comes
+        with the pre-0.6.0 keywords.
 
     Examples
     --------
-    Not run as tests: they need a mooring folder on disk.
+    Not run as tests: they need a mooring YAML and its files on disk.
 
     >>> import oceanarray as oa
-    >>> oa.process("proc/dune2_1_2026/dune2_1_2026.mooring.yaml", raw_dir="raw/")  # doctest: +SKIP
-    >>> oa.process(mooring, stages=3, serials=["2941"], force=True)  # doctest: +SKIP
+    >>> paths = oa.Paths.standard("/data/OSNAP")  # doctest: +SKIP
+    >>> oa.process(paths.yaml_path("M2_2016"), paths)  # doctest: +SKIP
+    >>> oa.process(yaml_path, paths, stages=3, serials=["2941"], force=True)  # doctest: +SKIP
     """
+    if paths is not None and not isinstance(paths, Paths):
+        if not _is_legacy_stage(paths):
+            raise TypeError(
+                "process() paths must be an oceanarray.Paths, "
+                f"got {type(paths).__name__}"
+            )
+        # The pre-0.6.0 form gave the stage second.
+        stage, paths = paths, None
+    legacy = ["stage="] if stage is not _UNSET else []
+    legacy += ["proc_dir="] if proc_dir is not None else []
+    legacy += [k + "=" for k in legacy_kw]
+    if paths is not None and legacy:
+        raise TypeError(
+            f"process() got paths and {', '.join(legacy)}, which it does not take"
+        )
     if stage is not _UNSET or proc_dir is not None or legacy_kw:
         if keep_going is not None:
             raise TypeError("keep_going= needs the new form: process(yaml_path, ...)")
         warnings.warn(
             "process(name, stage, proc_dir=...) is deprecated and will be removed in "
             "0.7.0. Pass the mooring's *.mooring.yaml instead: "
-            "oceanarray.process(yaml_path, raw_dir=...) runs stages 1-3, and "
-            "oceanarray.run(yaml_path, ...) runs stages 1-3, stack and grid.",
+            "oceanarray.process(yaml_path, paths) runs stages 1-3, and "
+            "oceanarray.run(yaml_path, paths) runs stages 1-3, stack and grid.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -385,7 +419,7 @@ def process(
         if caldip_dir is not None:
             legacy_kw["caldip_dir"] = caldip_dir
         return _process_legacy(
-            mooring,
+            yaml_path if mooring is None else mooring,
             None if stage is _UNSET else stage,
             proc_dir=proc_dir,
             raw_dir=raw_dir,
@@ -394,18 +428,26 @@ def process(
         )
 
     wanted = _canonical_stages(stages)
-    mooring_dict, moor_dir = resolve_mooring(mooring, mooring_dir, "process")
+    renamed = "oceanarray.process(mooring=)"
+    yaml_path = _deprecated.resolve_keyword(
+        renamed, yaml_path, mooring, required="yaml_path", quiet=True
+    )
+    mooring_dict, _, paths, _ = resolve_verb_call(
+        "process",
+        yaml_path,
+        paths,
+        {"mooring_dir": mooring_dir, "raw_dir": raw_dir, "caldip_dir": caldip_dir},
+        renamed=[renamed] if mooring is not None else [],
+    )
     outcome = _Outcome()
     _process_stages(
         mooring_dict,
-        moor_dir,
+        paths,
         wanted,
         outcome,
         serial_list=list(serials) if serials is not None else None,
         force=force,
         keep_going=keep_going is not False,
-        raw_dir=raw_dir,
-        caldip_dir=caldip_dir,
     )
     return outcome.files
 
@@ -465,7 +507,9 @@ def resolve_mooring(
                 f"{caller} was given a mooring dict but no mooring_dir=; a dict has "
                 "no location for the stage files — pass mooring_dir=."
             )
-        mooring_dict, moor_dir = _mooring.load(mooring), Path(mooring_dir)
+        # Loading a dict is deprecated; the caller has warned for it.
+        with _deprecated.internal():
+            mooring_dict, moor_dir = _mooring.load(mooring), Path(mooring_dir)
         # A dict has no file to be relative to: a relative catalog path is taken
         # from where the mooring YAML lives — the real folder of the mooring
         # directory's mooring YAML when it is a link to a file kept elsewhere, else
@@ -486,17 +530,113 @@ def resolve_mooring(
     return mooring_dict, moor_dir
 
 
+def resolve_verb_call(
+    verb: str,
+    yaml_path: str | PathLike | Mapping[str, Any],
+    paths: Paths | None,
+    old: Mapping[str, PathLike | None],
+    to_paths: Callable[[str, Path], Paths] | None = None,
+    *,
+    renamed: Iterable[str] = (),
+) -> tuple[dict, Path, Paths, bool]:
+    """Return a verb's mooring YAML, its path, its Paths and whether a dict was given.
+
+    An old form of the call warns once, for the first it uses: a renamed keyword, a
+    mooring dict or folder in place of *yaml_path*, an old folder keyword, no *paths*.
+
+    Parameters
+    ----------
+    verb : str
+        The verb's name, used in messages and deprecation keys.
+    yaml_path : str, os.PathLike or Mapping
+        The verb's *yaml_path*.
+    paths : oceanarray.Paths or None
+        The verb's *paths*.
+    old : Mapping of str to os.PathLike or None
+        The verb's old folder keywords, by name (``mooring_dir`` among them).
+    to_paths : callable, optional
+        ``to_paths(mooring_name, mooring_dir)``, the Paths of a call without *paths*;
+        default :meth:`~oceanarray.Paths.from_mooring_dir` with the keywords of *old*.
+    renamed : iterable of str, optional
+        Deprecation keys of the renamed keywords the call used.
+
+    Returns
+    -------
+    tuple of (dict, pathlib.Path, oceanarray.Paths, bool)
+
+    Raises
+    ------
+    TypeError
+        *paths* is not a Paths, or is given with an old folder keyword.
+    oceanarray.exceptions.MooringError
+        The mooring YAML cannot be used, or the mooring's folder does not exist.
+    """
+    from oceanarray import mooring as _mooring
+
+    if paths is not None and not isinstance(paths, Paths):
+        raise TypeError(
+            f"{verb}() paths must be an oceanarray.Paths, got {type(paths).__name__}"
+        )
+    given = [k for k, v in old.items() if v is not None]
+    if paths is not None and given:
+        raise TypeError(
+            f"{verb}() got paths and {', '.join(k + '=' for k in given)}; "
+            "give every folder in paths"
+        )
+    is_dict = isinstance(yaml_path, Mapping)
+    is_folder = not is_dict and Path(yaml_path).is_dir()
+    keys = list(renamed)
+    keys += (
+        [_deprecated.DICT_GIVEN]
+        if is_dict
+        else [_deprecated.FOLDER_GIVEN]
+        if is_folder
+        else []
+    )
+    keys += [f"oceanarray.{verb}({k}=)" for k in given]
+    if paths is None and not given:
+        keys.append(_deprecated.NO_PATHS)
+    if keys:
+        # Points at the caller of the verb.
+        _deprecated.warn(keys[0], stacklevel=4)
+    if is_dict:
+        name = str(yaml_path.get("name", ""))
+        where = old.get("mooring_dir") if paths is None else paths.mooring_dir(name)
+        mooring_dict, moor_dir = resolve_mooring(yaml_path, where, verb)
+        yaml_path = moor_dir / f"{mooring_dict['name']}.mooring.yaml"
+        if paths is not None:
+            try:
+                # The call has warned once already.
+                with _deprecated.internal():
+                    yaml_path = paths.yaml_path(mooring_dict["name"])
+            except MooringError:
+                pass  # no yaml_dir: the YAML beside the stage files, as before
+    else:
+        yaml_path = (
+            _mooring.folder_yaml_path(yaml_path, verb) if is_folder else Path(yaml_path)
+        )
+        mooring_dict = _mooring.load(yaml_path)
+        moor_dir = Path(old.get("mooring_dir") or yaml_path.parent)
+    if paths is None:
+        if not moor_dir.is_dir():
+            raise MooringError(f"Mooring directory not found: {moor_dir}")
+        if to_paths is None:
+            dirs = {k: v for k, v in old.items() if k != "mooring_dir"}
+            paths = Paths.from_mooring_dir(mooring_dict["name"], moor_dir, **dirs)
+        else:
+            paths = to_paths(mooring_dict["name"], moor_dir)
+    return mooring_dict, yaml_path, paths, is_dict
+
+
 def _process_stages(
     mooring_dict: dict,
-    moor_dir: Path,
+    paths: Paths,
     wanted: list[int],
     outcome: _Outcome,
     *,
     serial_list: list[str] | None,
     force: bool,
     keep_going: bool,
-    raw_dir: PathLike | None,
-    caldip_dir: PathLike | None,
 ) -> None:
     """Run *wanted* of stages 1–3, filling *outcome*; raise on failure unless *keep_going*."""
     from oceanarray.logger import StageLog
@@ -509,17 +649,22 @@ def _process_stages(
     from oceanarray.pipeline.stage3 import _stage3_files
 
     name = mooring_dict["name"]
+    moor_dir, caldip_dir = paths.mooring_dir(name), paths.caldip_dir
     for n in wanted:
         with StageLog(name, f"stage{n}", moor_dir) as log:
             log(f"Stage {n} for mooring: {name}")
             if n == 1:
+                # An absolute directory: in the mooring YAML stands in for raw_dir.
+                override = mooring_dict.get("directory")
+                absolute = override is not None and Path(override).is_absolute()
+                raw = None if absolute else paths.raw_mooring_dir(name)
                 readers = _attach_reader_logs(log.file)
                 try:
                     run = _stage1_files(
                         mooring_dict,
                         moor_dir,
-                        Path(raw_dir) if raw_dir is not None else None,
-                        folder=moor_dir.name,
+                        None if raw is None else raw.parent,
+                        folder=moor_dir.name if raw is None else raw.name,
                         serials=serial_list,
                         force=force,
                         log=log,

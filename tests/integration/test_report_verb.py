@@ -15,6 +15,18 @@ _PROC = Path(__file__).parent.parent / "fixtures" / "proc"
 _NAME = "dune2_1_2026"
 
 
+def _yaml(folder: Path) -> Path:
+    """Return the mooring YAML in *folder*."""
+    return folder / f"{_NAME}.mooring.yaml"
+
+
+def _paths(folder: Path, report_dir: Path | None = None) -> oa.Paths:
+    """Return the Paths of a mooring folder holding its YAML: pages in *report_dir*, else its report/."""
+    return oa.Paths(proc_dir=folder.parent).with_mooring(
+        _NAME, proc_dir=folder, report_dir=report_dir or folder / "report"
+    )
+
+
 @pytest.fixture
 def tree(tmp_path) -> Path:
     """A copy of the processed fixture tree; returns the mooring directory."""
@@ -25,7 +37,7 @@ def tree(tmp_path) -> Path:
 
 def test_report_builds_every_page_where_report_paths_says(tree):
     """The summary, stack, grid and instrument pages land at the paths report_paths gives."""
-    page = report(tree / f"{_NAME}.mooring.yaml")
+    page = report(_yaml(tree), _paths(tree))
     where = report_paths(tree)
     assert page == where["summary"] == tree / "report" / f"{_NAME}_report.html"
     for key in ("summary", "stack", "grid"):
@@ -40,7 +52,11 @@ def test_report_builds_every_page_where_report_paths_says(tree):
 def test_report_paths_follow_out_dir_and_report_dir(tree, tmp_path, where):
     """With out_dir or a central report_dir the pages and report_paths agree."""
     target = tmp_path / "elsewhere"
-    page = report(tree, stack=False, grid=False, instruments=False, **{where: target})
+    new = {
+        "out_dir": _paths(tree, report_dir=target),
+        "report_dir": oa.Paths(proc_dir=tree.parent, report_dir=target),
+    }[where]
+    page = report(_yaml(tree), new, stack=False, grid=False, instruments=False)
     assert page == report_paths(tree, **{where: target})["summary"]
     expected = target if where == "out_dir" else target / _NAME
     assert page.parent == expected
@@ -63,10 +79,10 @@ def test_cli_dry_run_prints_the_paths_report_writes(tree, capsys):
 
 def test_a_fresh_summary_does_not_stop_the_stack_page(tree):
     """The summary page is newer than its inputs, the stack page is missing: it is still built."""
-    report(tree, stack=False, grid=False, instruments=False)
+    report(_yaml(tree), _paths(tree), stack=False, grid=False, instruments=False)
     where = report_paths(tree)
     assert not where["stack"].exists()
-    report(tree, stack=True, grid=False, instruments=False)
+    report(_yaml(tree), _paths(tree), stack=True, grid=False, instruments=False)
     assert where["stack"].exists()
 
 
@@ -74,7 +90,7 @@ def test_an_entry_with_no_hab_stays_in_the_mooring_tables(tree):
     """No hab: the row stays, noted as not stacked, so it agrees with the masthead count."""
     yaml_path = tree / f"{_NAME}.mooring.yaml"
     yaml_path.write_text(yaml_path.read_text().replace("  hab: 425\n", ""))
-    page = report(tree, stack=False, grid=False, instruments=False)
+    page = report(_yaml(tree), _paths(tree), stack=False, grid=False, instruments=False)
     html = page.read_text(encoding="utf-8")
     assert "<dd>2 (MicroCAT 1 · Aquadopp 1)</dd>" in html
     pipeline = html[html.index('id="pipeline"') :]
@@ -85,14 +101,18 @@ def test_an_entry_with_no_hab_stays_in_the_mooring_tables(tree):
 
 def test_recovery_table_goes_beside_the_description(tree):
     """kind="recovery" writes the recovery table in the mooring directory by default."""
-    page = report(tree, kind="recovery")
+    page = report(_yaml(tree), _paths(tree, report_dir=tree), kind="recovery")
     assert page == tree / f"{_NAME}_recovery_table.html"
     assert page.exists()
 
 
 def test_array_index_from_an_array_description(tree):
     """kind="array" builds the array index from an *.array.yaml under the processed root."""
-    page = report(tree.parent / "MIXSED2026.array.yaml", kind="array")
+    page = report(
+        tree.parent / "MIXSED2026.array.yaml",
+        oa.Paths(proc_dir=tree.parent),
+        kind="array",
+    )
     assert page.exists()
     assert page.name.endswith("_array_report.html")
 
@@ -100,12 +120,19 @@ def test_array_index_from_an_array_description(tree):
 def test_report_refuses_an_unknown_kind_and_a_pdf_it_cannot_make(tree):
     """A bad kind is a ValueError; a PDF without the pdf extra is a MooringError."""
     with pytest.raises(ValueError, match="kind="):
-        report(tree, kind="index")  # type: ignore[arg-type]
+        report(_yaml(tree), _paths(tree), kind="index")  # type: ignore[arg-type]
     try:
         import weasyprint  # noqa: F401
     except ImportError:
         with pytest.raises(MooringError, match="no PDF"):
-            report(tree, stack=False, grid=False, instruments=False, pdf=True)
+            report(
+                _yaml(tree),
+                _paths(tree),
+                stack=False,
+                grid=False,
+                instruments=False,
+                pdf=True,
+            )
 
 
 def test_sig_level_is_restored_after_the_report(tree):
@@ -123,7 +150,14 @@ def test_sig_level_is_restored_after_the_report(tree):
 
     mooring_page.generate_grid_page = _spy
     try:
-        report(tree, stack=False, grid=True, instruments=False, sig_level=[27.8, 27.6])
+        report(
+            _yaml(tree),
+            _paths(tree),
+            stack=False,
+            grid=True,
+            instruments=False,
+            sig_level=[27.8, 27.6],
+        )
     finally:
         mooring_page.generate_grid_page = real
     assert [list(v) for v in seen] == [[27.6, 27.8]]
@@ -132,10 +166,10 @@ def test_sig_level_is_restored_after_the_report(tree):
 
 def test_skip_existing_keeps_a_fresh_summary(tree):
     """With every page there, skip_existing rewrites nothing, the summary included."""
-    report(tree, stack=False, grid=False)
+    report(_yaml(tree), _paths(tree), stack=False, grid=False)
     page = report_paths(tree)["summary"]
     page.write_text("kept", encoding="utf-8")
-    report(tree, stack=False, grid=False, skip_existing=True)
+    report(_yaml(tree), _paths(tree), stack=False, grid=False, skip_existing=True)
     assert page.read_text(encoding="utf-8") == "kept"
 
 
@@ -143,12 +177,12 @@ def test_a_new_stack_file_rebuilds_the_summary(tree):
     """The summary shows what is in the stack, so a newer stack file makes it stale."""
     import os
 
-    page = report(tree, stack=False, grid=False, instruments=False)
+    page = report(_yaml(tree), _paths(tree), stack=False, grid=False, instruments=False)
     page.write_text("old", encoding="utf-8")
     stack_nc = paths.product_file(tree, _NAME, "stack")
     later = page.stat().st_mtime + 10
     os.utime(stack_nc, (later, later))
-    report(tree, stack=False, grid=False, instruments=False)
+    report(_yaml(tree), _paths(tree), stack=False, grid=False, instruments=False)
     assert page.read_text(encoding="utf-8") != "old"
 
 
@@ -156,10 +190,15 @@ def test_a_loaded_description_is_the_one_reported(tree):
     """A dict is used as given, not replaced by the file on disk."""
     from oceanarray import mooring as _mooring
 
-    report(tree, stack=False, grid=False, instruments=False)  # a fresh page first
+    report(
+        _yaml(tree), _paths(tree), stack=False, grid=False, instruments=False
+    )  # a fresh page first
     cfg = _mooring.load(tree / f"{_NAME}.mooring.yaml")
     cfg["waterdepth"] = 4321
-    page = report(cfg, mooring_dir=tree, stack=False, grid=False, instruments=False)
+    with pytest.warns(DeprecationWarning, match="a mooring dict") as w:
+        page = report(cfg, mooring_dir=tree, stack=False, grid=False, instruments=False)
+    ours = [x for x in w if "0.8.0" in str(x.message)]
+    assert len(ours) == 1 and ours[0].filename == __file__
     assert "4321" in page.read_text(encoding="utf-8")
 
 
@@ -168,14 +207,15 @@ def test_a_folder_named_differently_from_the_mooring(tree, capsys):
     from oceanarray.cli import build_parser
 
     folder = tree.rename(tree.parent / "MIXSED_mooring_2")
-    page = report(folder / f"{_NAME}.mooring.yaml")
+    page = report(_yaml(folder), _paths(folder))
     where = report_paths(folder)
     assert page == where["summary"] == folder / "report" / f"{_NAME}_report.html"
     for key in ("summary", "stack", "grid"):
         assert where[key].exists(), key
     assert len(list(where["instrument_dir"].glob(f"{_NAME}_*_report.html"))) == 2
     assert "s/n 2941" in summary(folder)
-    assert report(folder, kind="recovery") == folder / f"{_NAME}_recovery_table.html"
+    table = report(_yaml(folder), _paths(folder, report_dir=folder), kind="recovery")
+    assert table == folder / f"{_NAME}_recovery_table.html"
 
     args = build_parser().parse_args(
         ["report", folder.name, "--proc-dir", str(folder.parent), "--all", "--dry-run"]
@@ -199,15 +239,20 @@ def test_run_with_report_returns_the_summary_page_last(tree, monkeypatch):
     """run(report=True) builds the report after the grid and returns its summary page."""
     pages = []
 
-    def _fake_report(*_a, **k):
-        pages.append((k.get("mooring_dir"), k.get("serials")))
+    def _fake_report(_yaml_path, paths_, **k):
+        pages.append((paths_.mooring_dir(_NAME), k.get("serials")))
         return report_paths(tree)["summary"]
 
     import oceanarray.reports as reports
 
     monkeypatch.setattr(reports, "report", _fake_report)
     files = oa.run(
-        tree, stages=3, serials=(s for s in ["2941"]), dt_seconds=3600, report=True
+        _yaml(tree),
+        _paths(tree),
+        stages=3,
+        serials=(s for s in ["2941"]),
+        dt_seconds=3600,
+        report=True,
     )
     assert files[-1] == report_paths(tree)["summary"]
     assert files[-3:-1] == [
@@ -219,14 +264,20 @@ def test_run_with_report_returns_the_summary_page_last(tree, monkeypatch):
 
 def test_a_stage_2_stack_says_so_in_the_amber_note(tree):
     """A stack built from stage-2 files: the page names them, and why the aquadopp has no velocity."""
-    oa.run(tree, stages=2, force=True, dt_seconds=3600, stack_stage=2)
-    report(tree, stack=True, grid=False, instruments=False, force=True)
+    oa.run(
+        _yaml(tree), _paths(tree), stages=2, force=True, dt_seconds=3600, stack_stage=2
+    )
+    report(
+        _yaml(tree), _paths(tree), stack=True, grid=False, instruments=False, force=True
+    )
     html = report_paths(tree)["stack"].read_text(encoding="utf-8")
     assert "Stacked from stage 2 (stage 2 requested with stack_stage=2)" in html
     assert "s/n&nbsp;2941, 9920" in html
     # the dune2 aquadopp is in beam coordinates: no east/north in the stack
     assert "instrument coordinates (beam or XYZ)" in html
-    report(tree, stack=False, grid=True, instruments=False, force=True)
+    report(
+        _yaml(tree), _paths(tree), stack=False, grid=True, instruments=False, force=True
+    )
     grid_html = report_paths(tree)["grid"].read_text(encoding="utf-8")
     assert "stage 2 requested with stack_stage=2" in grid_html
     assert "instrument coordinates (beam or XYZ)" in grid_html  # same note as the stack
@@ -248,7 +299,9 @@ def test_stage_2_velocities_are_flagged_as_magnetic_north(tree):
     ds["magnetic_declination"] = ("N_LEVELS", decl, ds["magnetic_declination"].attrs)
     stack_nc.unlink()
     ds.to_netcdf(stack_nc)
-    report(tree, stack=True, grid=False, instruments=False, force=True)
+    report(
+        _yaml(tree), _paths(tree), stack=True, grid=False, instruments=False, force=True
+    )
     html = report_paths(tree)["stack"].read_text(encoding="utf-8")
     assert "no magnetic declination correction" in html
     assert "Magnetic declination not applied to s/n&nbsp;9920" in html

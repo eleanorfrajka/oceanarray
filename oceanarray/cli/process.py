@@ -14,6 +14,7 @@ from oceanarray.cli._common import (
     _add_stack_grid_args,
     _folder,
     _mooring_location,
+    _mooring_paths,
     _parse_stage_token,
     _raw_dir,
     _usage_error,
@@ -74,13 +75,14 @@ def cmd_process(args: argparse.Namespace) -> int:
         from ..pipeline import process
 
         try:
+            yaml_path, paths_ = _mooring_paths(location, "process", raw_dir=raw_dir)
             process(
-                location,
+                yaml_path,
+                paths_,
                 stages=stages,
                 serials=args.serials,
                 force=args.force,
                 keep_going=args.keep_going,
-                raw_dir=raw_dir,
             )
         except OceanarrayError as e:
             logger.status("error", str(e))

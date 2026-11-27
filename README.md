@@ -48,10 +48,17 @@ See the [documentation](https://ocean-uhh.github.io/oceanarray/) for the recomme
 ```python
 import oceanarray as oa
 
+paths = oa.Paths(
+    raw_dir="/data/raw",
+    proc_dir="/data/proc",
+    report_dir="/data/reports",
+    export_dir="/data/oceansites",
+)
 yaml_path = "/data/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml"
-oa.process(yaml_path, raw_dir="/data/raw")  # stages 1-3
-oa.run(yaml_path, from_stage=3, report=True)  # re-run stage 3, stack, grid, report
-oa.export(yaml_path)  # OceanSITES 1.4 files in <mooring folder>/oceansites/
+oa.process(yaml_path, paths)  # stages 1-3
+# re-run stage 3, the stack, the grid and the report
+oa.run(yaml_path, paths, from_stage=3, report=True)
+oa.export(yaml_path, paths)  # OceanSITES 1.4 files in paths.export_dir
 ```
 
 See the [API reference](https://ocean-uhh.github.io/oceanarray/oceanarray.html) for the full interface.

@@ -61,6 +61,6 @@ positions and depths from each mooring's own YAML file; ``cruise``, ``ship``,
 ``waterdepth_min``, ``waterdepth_max``, ``vocab`` and ``bathymetry`` get one warning
 naming them. The bathymetry file (GEBCO or ETOPO, one elevation variable on latitude
 and longitude) is given on the command line (``--bathymetry``) or as
-``oa.report(..., kind="array", bathymetry=...)``: the map draws its 500, 1000, 2000
+``oa.report(array_yaml, paths, kind="array", bathymetry=...)``: the map draws its 500, 1000, 2000
 and 2500 m contours, cached beside the page, and names the dataset from the file's
 ``title`` (e.g. "ETOPO1", "GEBCO 2025").

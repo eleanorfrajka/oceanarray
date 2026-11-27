@@ -53,7 +53,8 @@ oceanarray supports two ways of working, and both are kept working:
 - **Your own directory structure, by path.** Give the mooring YAML's path (``oceanarray run
   /data/configs/my_mooring.yaml --raw-dir /data/raw``, or ``read_mooring(path)``;
   ``--raw-dir`` is needed whenever stage 1 runs). The file can have
-  any name; the stage files are written in the folder that holds it.
+  any name; on the command line the stage files are written in the folder that
+  holds it, and in Python in the folders of a ``Paths`` (:ref:`paths-file`).
 - **The prescribed directory structure, by name.** Keep each mooring's files in
   ``{proc_dir}/{name}/``, with its YAML as ``{name}.mooring.yaml``; then the name
   alone is enough (``oceanarray run M2_2016 --proc-dir proc``). A folder holding
@@ -109,8 +110,18 @@ as written. The keys are exactly those above; any other key is an error. In Pyth
 A mooring YAML still in its processed folder (``{proc_dir}/{name}/``) is found
 there, with a deprecation warning, until 0.8.0.
 
-Coming next: the verbs (``run``, ``process``, ``report``, ``export``) and the
-command line take a ``Paths``.
+The verbs (``run``, ``process``, ``report``, ``export``) take the mooring YAML's
+path and a ``Paths``, and take every folder from it:
+
+.. code-block:: python
+
+   yaml_path = paths.yaml_path("M2_2016")
+   oa.run(yaml_path, paths)                    # stage files, stack and grid in paths.mooring_dir
+   oa.report(yaml_path, paths, pdf=True)       # pages and PDF in paths.report_mooring_dir
+   oa.export(yaml_path, paths)                 # OceanSITES files in paths.export_dir
+
+Coming next: the command line takes a paths file (``--paths``); until then it
+builds a ``Paths`` from ``--raw-dir``, ``--proc-dir``, ``--report-dir`` and ``-o``.
 
 Each mooring YAML stands alone
 ------------------------------

@@ -12,8 +12,9 @@ from pathlib import Path
 
 import yaml
 
+from oceanarray import _deprecated
 from oceanarray.exceptions import MooringError
-from oceanarray.mooring.check_yaml import _resolve_relative_paths, check
+from oceanarray.mooring.check_yaml import _check_data, _resolve_relative_paths
 
 
 def _resolve_path(mooring: str | PathLike, proc_dir: str | PathLike | None) -> Path:
@@ -27,21 +28,42 @@ def _resolve_path(mooring: str | PathLike, proc_dir: str | PathLike | None) -> P
     return path
 
 
+def folder_yaml_path(folder: str | PathLike, caller: str) -> Path:
+    """Return the path of the one ``*.mooring.yaml`` in *folder*, else raise MooringError.
+
+    Parameters
+    ----------
+    folder : str or os.PathLike
+        The mooring's folder.
+    caller : str
+        The function or command the error names.
+    """
+    found = sorted(Path(folder).glob("*.mooring.yaml"))
+    if len(found) != 1:
+        raise MooringError(
+            f"{folder} holds {len(found)} '*.mooring.yaml' files; "
+            f"{caller} needs exactly one (or point at the file)."
+        )
+    return found[0]
+
+
 def load(
-    mooring: str | PathLike | Mapping,
+    yaml_path: str | PathLike | Mapping | None = None,
     *,
     proc_dir: str | PathLike | None = None,
+    mooring: str | PathLike | Mapping | None = None,
 ) -> dict:
     """Load and validate one mooring YAML.
 
     Parameters
     ----------
-    mooring : str or os.PathLike or Mapping
-        A path to a ``*.mooring.yaml`` file, a bare mooring name resolved
-        against *proc_dir*, or an already-parsed mapping (returned as a shallow
-        copy, keys unchanged).
+    yaml_path : str or os.PathLike
+        The ``*.mooring.yaml`` file. A bare mooring name (with *proc_dir*) or a
+        loaded mapping (returned as a shallow copy) is deprecated; removed in 0.8.0.
     proc_dir : str or os.PathLike or None, optional
-        The processing directory a bare mooring name is resolved against.
+        Deprecated: the folder a bare name is looked up in; removed in 0.8.0.
+    mooring : str or os.PathLike or Mapping, optional
+        Deprecated name of *yaml_path*; removed in 0.8.0.
 
     Returns
     -------
@@ -55,11 +77,23 @@ def load(
         ERROR-level issue. WARNING-level issues are kept on the exception's
         ``issues`` attribute but do not raise.
     """
-    if isinstance(mooring, Mapping):
-        data = dict(mooring)
+    renamed = "oceanarray.mooring.load(mooring=)"
+    yaml_path = _deprecated.resolve_keyword(
+        renamed, yaml_path, mooring, required="yaml_path", quiet=True
+    )
+    old_forms = [renamed] if mooring is not None else []
+    if isinstance(yaml_path, Mapping):
+        old_forms.append(_deprecated.DICT_GIVEN)
+    elif proc_dir is not None:
+        old_forms.append("oceanarray.mooring.load(proc_dir=)")
+    if old_forms:
+        # One warning for the call, the first old form it uses.
+        _deprecated.warn(old_forms[0])
+    if isinstance(yaml_path, Mapping):
+        data = dict(yaml_path)
         dir_name = None
     else:
-        path = _resolve_path(mooring, proc_dir)
+        path = _resolve_path(yaml_path, proc_dir)
         if not path.exists():
             raise MooringError(f"Mooring config not found: {path}")
         try:
@@ -73,7 +107,7 @@ def load(
     if not isinstance(data, dict):
         raise MooringError("Mooring YAML root must be a mapping")
 
-    issues = check(data, dir_name=dir_name)
+    issues = _check_data(data, dir_name)
     errors = [i for i in issues if i.level == "ERROR"]
     if errors:
         summary = "; ".join(i.message for i in errors)

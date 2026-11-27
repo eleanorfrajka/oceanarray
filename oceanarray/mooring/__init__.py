@@ -13,7 +13,7 @@ used as ``oceanarray.mooring.<name>``.
 """
 
 from oceanarray.mooring.check_yaml import check, serial_collision_errors
-from oceanarray.mooring.load_yaml import load
+from oceanarray.mooring.load_yaml import folder_yaml_path, load
 from oceanarray.mooring.settings import (
     OPTIONAL_REPORT_SECTIONS,
     SETTINGS_BLOCKS,
@@ -36,6 +36,7 @@ __all__ = [
     "SETTINGS_BLOCKS",
     "SOURCE_FIELDS",
     "check",
+    "folder_yaml_path",
     "load",
     "resolve_report_sections",
     "resolve_spectrum_markers",

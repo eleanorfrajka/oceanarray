@@ -19,18 +19,40 @@ def test_load_keeps_every_key() -> None:
     assert "clamp" in data
 
 
-def test_load_from_mapping_round_trips() -> None:
-    """A mapping passed to ``load`` comes back equal (shallow copy, keys kept)."""
+def test_load_from_mapping_round_trips_and_warns() -> None:
+    """A mapping passed to ``load`` comes back equal (shallow copy, keys kept), with a warning."""
     data = mooring.load(FIXTURE)
-    again = mooring.load(dict(data))
+    with pytest.warns(DeprecationWarning, match="a mooring dict in place") as w:
+        again = mooring.load(dict(data))
+    assert len(w) == 1 and w[0].filename == __file__
     assert again == data
     assert again is not data
 
 
-def test_load_by_name_and_proc_dir() -> None:
-    """A bare mooring name resolves against ``proc_dir``."""
-    data = mooring.load("dune2_1_2026", proc_dir="tests/fixtures/proc")
-    assert data["name"] == "dune2_1_2026"
+def test_load_by_name_and_proc_dir_warns() -> None:
+    """A bare mooring name resolves against ``proc_dir``, with a warning naming Paths."""
+    with pytest.warns(DeprecationWarning, match=r"paths\.yaml_path") as w:
+        data = mooring.load("dune2_1_2026", proc_dir="tests/fixtures/proc")
+    assert len(w) == 1 and w[0].filename == __file__
+    assert data == mooring.load(FIXTURE)
+
+
+def test_load_and_check_by_their_old_keyword_warn() -> None:
+    """``mooring=`` still works, warns once at the caller, and gives the same result."""
+    for func in (mooring.load, mooring.check):
+        with pytest.warns(DeprecationWarning, match="yaml_path= keyword") as w:
+            given_old = func(mooring=FIXTURE)
+        assert len(w) == 1 and w[0].filename == __file__
+        assert given_old == func(yaml_path=FIXTURE) == func(FIXTURE)
+
+
+def test_check_a_dict_warns_and_finds_the_same() -> None:
+    """``check`` on a loaded mooring YAML warns and reports what the file gives."""
+    data = mooring.load(FIXTURE)
+    with pytest.warns(DeprecationWarning, match="a mooring dict in place") as w:
+        issues = mooring.check(data, dir_name="dune2_1_2026")
+    assert len(w) == 1 and w[0].filename == __file__
+    assert issues == mooring.check(FIXTURE)
 
 
 def test_load_missing_file_raises() -> None:
@@ -47,42 +69,49 @@ def test_load_malformed_yaml_raises(tmp_path: Path) -> None:
         mooring.load(bad)
 
 
-def test_load_missing_required_key_raises_naming_it() -> None:
+def test_load_missing_required_key_raises_naming_it(mooring_yaml) -> None:
     """A missing required key raises ``MooringError`` and names the key."""
     bad = {"name": "x", "deployment_time": "2026-01-01T00:00"}
     # 'waterdepth' is required and absent.
     with pytest.raises(MooringError, match="waterdepth") as exc:
-        mooring.load(bad)
+        mooring.load(mooring_yaml(bad))
     assert any(i.level == "ERROR" for i in exc.value.issues)
 
 
-def test_check_returns_error_without_raising() -> None:
+def test_check_returns_error_without_raising(mooring_yaml) -> None:
     """``check`` reports the ERROR for the same config and does not raise."""
     bad = {"name": "x", "deployment_time": "2026-01-01T00:00"}
-    issues = mooring.check(bad)
+    issues = mooring.check(mooring_yaml(bad))
     errors = [i for i in issues if i.level == "ERROR"]
     assert any("waterdepth" in i.message for i in errors)
 
 
-def _export_warnings(**keys: object) -> list[str]:
+def _export_warnings(mooring_yaml, **keys: object) -> list[str]:
     """Return the check messages that name an OceanSITES export key, for the fixture plus *keys*."""
     cfg = {**mooring.load(FIXTURE), **keys}
     return [
         i.message
-        for i in mooring.check(cfg, dir_name="dune2_1_2026")
+        for i in mooring.check(mooring_yaml(cfg))
         if "platform_code" in i.message or "deployment_code" in i.message
     ]
 
 
-def test_export_codes_that_fit_pass_quietly() -> None:
+def test_export_codes_that_fit_pass_quietly(mooring_yaml) -> None:
     """A platform code without '_' and the deployment month as YYYYMM raise nothing."""
-    assert _export_warnings(platform_code="DUNE2", deployment_code=202607) == []
+    assert (
+        _export_warnings(mooring_yaml, platform_code="DUNE2", deployment_code=202607)
+        == []
+    )
 
 
 @pytest.mark.parametrize("code", ["DUNE2_1", 12])
-def test_platform_code_with_separator_or_not_text_warns(code: object) -> None:
+def test_platform_code_with_separator_or_not_text_warns(
+    code: object, mooring_yaml
+) -> None:
     """'_' is the OceanSITES file-name separator, so a platform code may not hold one."""
-    assert any("platform_code" in m for m in _export_warnings(platform_code=code))
+    assert any(
+        "platform_code" in m for m in _export_warnings(mooring_yaml, platform_code=code)
+    )
 
 
 @pytest.mark.parametrize(
@@ -95,22 +124,24 @@ def test_platform_code_with_separator_or_not_text_warns(code: object) -> None:
     ],
 )
 def test_deployment_code_off_pattern_or_month_warns(
-    code: object, fragment: str
+    code: object, fragment: str, mooring_yaml
 ) -> None:
     """The deployment code is YYYYMM and agrees with deployment_time (2026-07-11)."""
-    assert any(fragment in m for m in _export_warnings(deployment_code=code))
+    assert any(
+        fragment in m for m in _export_warnings(mooring_yaml, deployment_code=code)
+    )
 
 
-def test_missing_deployment_window_warns_not_errors() -> None:
+def test_missing_deployment_window_warns_not_errors(mooring_yaml) -> None:
     """An absent deployment/recovery time is a WARNING, so the config still loads."""
     cfg = {"name": "x", "waterdepth": 100}
-    issues = mooring.check(cfg)
+    issues = mooring.check(mooring_yaml(cfg))
     assert not [i for i in issues if i.level == "ERROR"]
     assert any("deployment_time" in i.message for i in issues)
-    assert mooring.load(cfg)["waterdepth"] == 100
+    assert mooring.load(mooring_yaml(cfg))["waterdepth"] == 100
 
 
-def test_unknown_key_warns() -> None:
+def test_unknown_key_warns(mooring_yaml) -> None:
     """An unrecognised top-level key is a WARNING, not an ERROR."""
     cfg = {
         "name": "x",
@@ -119,12 +150,12 @@ def test_unknown_key_warns() -> None:
         "recovery_time": "2026-02-01T00:00",
         "wibble": 3,
     }
-    issues = mooring.check(cfg)
+    issues = mooring.check(mooring_yaml(cfg))
     warnings = [i for i in issues if i.level == "WARNING"]
     assert any("wibble" in i.message for i in warnings)
     assert not [i for i in issues if i.level == "ERROR"]
     # A WARNING-only config still loads.
-    assert mooring.load(cfg)["wibble"] == 3
+    assert mooring.load(mooring_yaml(cfg))["wibble"] == 3
 
 
 def test_density_reference_is_a_known_key(tmp_path) -> None:
@@ -181,7 +212,9 @@ def test_save_is_lenient_on_incomplete_draft(tmp_path: Path) -> None:
     assert p.exists()
 
 
-def test_init_writes_the_optional_blocks_commented_out(tmp_path: Path) -> None:
+def test_init_writes_the_optional_blocks_commented_out(
+    tmp_path: Path, mooring_yaml
+) -> None:
     """The stub carries stack:/grid: commented out; uncommented, they are valid and the defaults."""
     import yaml
 
@@ -213,26 +246,29 @@ def test_init_writes_the_optional_blocks_commented_out(tmp_path: Path) -> None:
         **grid_defaults,
     }
     assert not [
-        i for i in mooring.check(doc) if "stack" in i.message or "grid" in i.message
+        i
+        for i in mooring.check(mooring_yaml(doc))
+        if "stack" in i.message or "grid" in i.message
     ]
 
 
-def _qc_issues(**keys: object) -> list[tuple[str, str]]:
+def _qc_issues(mooring_yaml, **keys: object) -> list[tuple[str, str]]:
     """Return (level, message) for the QC-override findings on the fixture plus *keys*."""
     cfg = {**mooring.load(FIXTURE), **keys}
     return [
         (i.level, i.message)
-        for i in mooring.check(cfg, dir_name="dune2_1_2026")
+        for i in mooring.check(mooring_yaml(cfg))
         if any(
             b in i.message for b in ("qc_ranges", "qc_spike", "tilt_qc", "qc_flat_line")
         )
     ]
 
 
-def test_qc_overrides_as_documented_pass() -> None:
+def test_qc_overrides_as_documented_pass(mooring_yaml) -> None:
     """The documented qc_ranges example and well-formed spike/tilt/flat-line blocks raise nothing."""
     assert (
         _qc_issues(
+            mooring_yaml,
             qc_ranges={
                 "temperature": {
                     "fail_span": [-2.0, 35.0],
@@ -269,28 +305,30 @@ def test_qc_overrides_as_documented_pass() -> None:
         ({"qc_ranges": {"sigma0": {"suspect_span": [20, 30]}}}, "needs a fail_span"),
     ],
 )
-def test_qc_override_shape_mistakes_are_errors(keys: dict, fragment: str) -> None:
+def test_qc_override_shape_mistakes_are_errors(
+    keys: dict, fragment: str, mooring_yaml
+) -> None:
     """A misspelt field or malformed value is an ERROR, so load() refuses the mooring YAML."""
-    issues = _qc_issues(**keys)
+    issues = _qc_issues(mooring_yaml, **keys)
     assert any(level == "ERROR" and fragment in msg for level, msg in issues), issues
     with pytest.raises(MooringError):
-        mooring.load({**mooring.load(FIXTURE), **keys})
+        mooring.load(mooring_yaml({**mooring.load(FIXTURE), **keys}))
 
 
-def test_qc_override_unknown_variable_only_warns() -> None:
+def test_qc_override_unknown_variable_only_warns(mooring_yaml) -> None:
     """A variable outside the registry is a WARNING (likely a typo, but allowed)."""
-    issues = _qc_issues(qc_spike={"temprature": {"fail_threshold": 5.0}})
+    issues = _qc_issues(mooring_yaml, qc_spike={"temprature": {"fail_threshold": 5.0}})
     assert [level for level, _ in issues] == ["WARNING"]
 
 
-def test_pitch_and_roll_qc_ranges_warn_they_are_ignored() -> None:
+def test_pitch_and_roll_qc_ranges_warn_they_are_ignored(mooring_yaml) -> None:
     """Tilt QC is geometric only, so a pitch or roll span is a WARNING, not applied."""
-    issues = _qc_issues(qc_ranges={"pitch": {"fail_span": [-50, 50]}})
+    issues = _qc_issues(mooring_yaml, qc_ranges={"pitch": {"fail_span": [-50, 50]}})
     assert [level for level, _ in issues] == ["WARNING"]
     assert "ignored" in issues[0][1] and "tilt_qc" in issues[0][1]
 
 
-def test_instrument_level_qc_overrides_are_checked() -> None:
+def test_instrument_level_qc_overrides_are_checked(mooring_yaml) -> None:
     """The same checks run on each instrument entry, naming its serial."""
     cfg = mooring.load(FIXTURE)
     cfg["clamp"][0] = {
@@ -298,11 +336,11 @@ def test_instrument_level_qc_overrides_are_checked() -> None:
         "qc_ranges": {"temperature": {"fail_spn": [0, 1]}},
     }
     serial = cfg["clamp"][0]["serial"]
-    messages = [i.message for i in mooring.check(cfg, dir_name="dune2_1_2026")]
+    messages = [i.message for i in mooring.check(mooring_yaml(cfg))]
     assert any(f"instrument {serial}: qc_ranges.temperature" in m for m in messages)
 
 
-def test_instrument_qc_ranges_inherit_the_mooring_fail_span() -> None:
+def test_instrument_qc_ranges_inherit_the_mooring_fail_span(mooring_yaml) -> None:
     """A fail_span set at mooring level counts for an instrument that adds only a suspect_span."""
     cfg = mooring.load(FIXTURE)
     cfg["qc_ranges"] = {"sigma0": {"fail_span": [20.0, 30.0]}}
@@ -310,14 +348,14 @@ def test_instrument_qc_ranges_inherit_the_mooring_fail_span() -> None:
         **cfg["clamp"][0],
         "qc_ranges": {"sigma0": {"suspect_span": [25.0, 28.0]}},
     }
-    messages = [i.message for i in mooring.check(cfg, dir_name="dune2_1_2026")]
+    messages = [i.message for i in mooring.check(mooring_yaml(cfg))]
     assert not [m for m in messages if "needs a fail_span" in m], messages
     del cfg["qc_ranges"]
-    messages = [i.message for i in mooring.check(cfg, dir_name="dune2_1_2026")]
+    messages = [i.message for i in mooring.check(mooring_yaml(cfg))]
     assert any("needs a fail_span" in m for m in messages)
 
 
-def test_mooring_level_qc_blocks_are_known_keys() -> None:
+def test_mooring_level_qc_blocks_are_known_keys(mooring_yaml) -> None:
     """qc_spike, tilt_qc and qc_flat_line are read by the QC pass, so not 'unknown'."""
     cfg = {
         **mooring.load(FIXTURE),
@@ -325,9 +363,7 @@ def test_mooring_level_qc_blocks_are_known_keys() -> None:
         "tilt_qc": {},
         "qc_flat_line": {},
     }
-    assert not [
-        i for i in mooring.check(cfg, dir_name="dune2_1_2026") if "Unknown" in i.message
-    ]
+    assert not [i for i in mooring.check(mooring_yaml(cfg)) if "Unknown" in i.message]
 
 
 # ── the caldip: block ───────────────────────────────────────────────────────
@@ -339,25 +375,25 @@ _CALDIP_OK = {
 }
 
 
-def _caldip_issues(block: object) -> list[tuple[str, str]]:
+def _caldip_issues(mooring_yaml, block: object) -> list[tuple[str, str]]:
     """Return (level, message) for the caldip findings on the fixture with *block*."""
     cfg = {**mooring.load(FIXTURE), "caldip": block}
     return [
         (i.level, i.message)
-        for i in mooring.check(cfg, dir_name="dune2_1_2026")
+        for i in mooring.check(mooring_yaml(cfg))
         if i.message.startswith("caldip:")
     ]
 
 
-def test_a_complete_caldip_block_passes() -> None:
+def test_a_complete_caldip_block_passes(mooring_yaml) -> None:
     """Both ends, a scheme and an override: no findings, and caldip is a known key."""
-    assert _caldip_issues(_CALDIP_OK) == []
+    assert _caldip_issues(mooring_yaml, _CALDIP_OK) == []
     assert "caldip" in mooring.KNOWN_KEYS
 
 
-def test_one_end_alone_passes() -> None:
+def test_one_end_alone_passes(mooring_yaml) -> None:
     """A deployment dip with no recovery dip is an ordinary case."""
-    assert _caldip_issues({"deployment": _CALDIP_OK["deployment"]}) == []
+    assert _caldip_issues(mooring_yaml, {"deployment": _CALDIP_OK["deployment"]}) == []
 
 
 @pytest.mark.parametrize(
@@ -391,9 +427,11 @@ def test_one_end_alone_passes() -> None:
         ),
     ],
 )
-def test_caldip_shape_mistakes_are_errors(block: object, match: str) -> None:
+def test_caldip_shape_mistakes_are_errors(
+    block: object, match: str, mooring_yaml
+) -> None:
     """Each malformed caldip block is an ERROR naming what is wrong."""
-    issues = _caldip_issues(block)
+    issues = _caldip_issues(mooring_yaml, block)
     assert issues and all(level == "ERROR" for level, _ in issues), issues
     assert any(match in message for _, message in issues), issues
 
@@ -403,28 +441,38 @@ def test_caldip_shape_mistakes_are_errors(block: object, match: str) -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_report_sections_check_accepts_a_valid_block() -> None:
+def test_report_sections_check_accepts_a_valid_block(mooring_yaml) -> None:
     """``grid: [overflow]`` is the one valid optional section today; no ERROR."""
-    issues = mooring.check({"name": "m", "report_sections": {"grid": ["overflow"]}})
+    issues = mooring.check(
+        mooring_yaml({"name": "m", "report_sections": {"grid": ["overflow"]}})
+    )
     assert not [
         i for i in issues if i.level == "ERROR" and "report_sections" in i.message
     ]
 
 
-def test_report_sections_check_rejects_unknown_page_and_section() -> None:
+def test_report_sections_check_rejects_unknown_page_and_section(mooring_yaml) -> None:
     """A page with no optional sections, an unknown section, and a non-list each ERROR."""
-    bad_page = mooring.check({"name": "m", "report_sections": {"stack": ["x"]}})
+    bad_page = mooring.check(
+        mooring_yaml({"name": "m", "report_sections": {"stack": ["x"]}})
+    )
     assert any(
         i.level == "ERROR" and "no optional sections" in i.message for i in bad_page
     )
-    bad_section = mooring.check({"name": "m", "report_sections": {"grid": ["nope"]}})
+    bad_section = mooring.check(
+        mooring_yaml({"name": "m", "report_sections": {"grid": ["nope"]}})
+    )
     assert any(i.level == "ERROR" and "nope" in i.message for i in bad_section)
-    bad_shape = mooring.check({"name": "m", "report_sections": {"grid": "overflow"}})
+    bad_shape = mooring.check(
+        mooring_yaml({"name": "m", "report_sections": {"grid": "overflow"}})
+    )
     assert any(
         i.level == "ERROR" and "list of section names" in i.message for i in bad_shape
     )
     # a non-string (unhashable) section name is an ERROR, not a raise — check() never raises
-    bad_type = mooring.check({"name": "m", "report_sections": {"grid": [["overflow"]]}})
+    bad_type = mooring.check(
+        mooring_yaml({"name": "m", "report_sections": {"grid": [["overflow"]]}})
+    )
     assert any(i.level == "ERROR" for i in bad_type)
 
 

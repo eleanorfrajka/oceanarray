@@ -20,7 +20,7 @@ Python API
    import oceanarray as oa
 
    # stage 3 (kept where it exists), then the stack and grid
-   oa.run(yaml_path, stages=3, dt_seconds=600)
+   oa.run(yaml_path, paths, stages=3, dt_seconds=600)
 
    # or on datasets: the stack itself, no files written
    cfg = oa.mooring.load(yaml_path)

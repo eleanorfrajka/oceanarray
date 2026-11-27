@@ -12,8 +12,10 @@ from oceanarray.cli._common import (
     _add_only,
     _add_shared_report_args,
     _add_stack_grid_args,
+    _folder,
     _mask_flags,
     _mooring_location,
+    _mooring_paths,
     _raw_dir,
     _usage_error,
 )
@@ -38,7 +40,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     from ..pipeline import run as _run
     from ..pipeline._run import _resolve_stages
 
-    yaml_path = _mooring_location(args)
+    location = _mooring_location(args)
     raw_dir = _raw_dir(args)
     try:
         wanted = _resolve_stages(
@@ -48,7 +50,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         print(f"ERROR: {e}")
         return 1
     if args.dry_run:
-        return _run_dry_run(args, yaml_path, wanted)
+        return _run_dry_run(args, location, wanted)
     if wanted and wanted[0] == 1 and raw_dir is None:
         _usage_error(
             "--raw-dir is required for stage 1 (or pass --from 2 to start "
@@ -57,13 +59,21 @@ def cmd_run(args: argparse.Namespace) -> int:
 
     serials = args.serials
     try:
+        yaml_path, paths = _mooring_paths(
+            location,
+            "run",
+            raw_dir=raw_dir,
+            report_dir=args.report_dir,
+            mooring_report_dir=args.outdir
+            or (None if args.report_dir else _folder(location) / "report"),
+        )
         _run(
             yaml_path,
+            paths,
             stages=wanted,
             serials=serials,
             force=args.force,
             keep_going=args.keep_going,
-            raw_dir=raw_dir,
             stack_stage=args.stack_stage,
             dt_seconds=args.dt_seconds,
             pmin=args.pmin,
@@ -80,9 +90,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     try:
         report(
             yaml_path,
-            raw_dir=raw_dir,
-            out_dir=args.outdir,
-            report_dir=args.report_dir,
+            paths,
             serials=serials,
             sig_level=args.sig_level,
             force=args.force,

@@ -64,18 +64,20 @@ def test_a_people_block_reads_like_the_file_it_was_copied_from():
     assert attribution.people_from_block(block) == attribution.clean(same_fields)
 
 
-def test_a_valid_people_block_passes_validate():
+def test_a_valid_people_block_passes_validate(mooring_yaml):
     data = _egm2()
     data["people"] = {**_own_people(CF7), "people_source": "OSNAP CF7 file header"}
-    assert not [i for i in mooring.check(data) if "people" in i.message]
+    assert not [i for i in mooring.check(mooring_yaml(data)) if "people" in i.message]
 
 
-def test_one_role_for_two_names_goes_to_the_first_with_a_warning(caplog):
+def test_one_role_for_two_names_goes_to_the_first_with_a_warning(caplog, mooring_yaml):
     """K7 gives one role for two contributors: the first name gets it, the second a blank."""
     data = _egm2()
     data["people"] = {**_own_people(K7), "people_source": "OSNAP K7 file header"}
     issues = [
-        (i.level, i.message) for i in mooring.check(data) if "people" in i.message
+        (i.level, i.message)
+        for i in mooring.check(mooring_yaml(data))
+        if "people" in i.message
     ]
     assert [lv for lv, _ in issues] == ["WARNING"]
     assert "the first name gets the role" in issues[0][1]
@@ -90,21 +92,23 @@ def test_one_role_for_two_names_goes_to_the_first_with_a_warning(caplog):
     assert out["contributor_role"] == "data collection; processing; "
 
 
-def test_emails_that_do_not_line_up_are_still_an_error():
+def test_emails_that_do_not_line_up_are_still_an_error(mooring_yaml):
     data = _egm2()
     data["people"] = {
         "contributor_name": "Johannes Karstensen; Marilena Oltmanns",
         "contributor_email": "jkarstensen@geomar.de",
         "people_source": "OSNAP K7 file header",
     }
-    errors = [i.message for i in mooring.check(data) if i.level == "ERROR"]
+    errors = [
+        i.message for i in mooring.check(mooring_yaml(data)) if i.level == "ERROR"
+    ]
     assert errors == [
         "'people:' contributor_email has 1 entries for 2 names in contributor_name; "
         "give one entry per person, in order."
     ]
 
 
-def test_a_role_written_for_each_person_passes_without_a_warning(caplog):
+def test_a_role_written_for_each_person_passes_without_a_warning(caplog, mooring_yaml):
     """K7's two contributors, each given the shared role: no finding, both keep it."""
     data = _egm2()
     data["people"] = {
@@ -112,7 +116,7 @@ def test_a_role_written_for_each_person_passes_without_a_warning(caplog):
         "contributor_role": "PI; PI",
         "people_source": "OSNAP K7 file header",
     }
-    assert not [i for i in mooring.check(data) if "people" in i.message]
+    assert not [i for i in mooring.check(mooring_yaml(data)) if "people" in i.message]
     with caplog.at_level(logging.WARNING, logger="oceanarray"):
         out = attribution.people_from_block(data["people"])
     assert "WARNING" not in caplog.text
@@ -120,29 +124,35 @@ def test_a_role_written_for_each_person_passes_without_a_warning(caplog):
     assert out["contributor_role"] == "PI; PI"
 
 
-def test_people_lists_that_do_not_line_up_are_an_error():
+def test_people_lists_that_do_not_line_up_are_an_error(mooring_yaml):
     data = _egm2()
     data["people"] = {
         "principal_investigator": "Penny Holliday",
         "principal_investigator_email": "a@noc.ac.uk, b@noc.ac.uk",
         "people_source": "cruise report",
     }
-    errors = [i.message for i in mooring.check(data) if i.level == "ERROR"]
+    errors = [
+        i.message for i in mooring.check(mooring_yaml(data)) if i.level == "ERROR"
+    ]
     assert any(
         "principal_investigator_email has 2 entries for 1 name" in m for m in errors
     )
 
 
-def test_an_unknown_people_field_is_an_error_and_no_source_a_warning():
+def test_an_unknown_people_field_is_an_error_and_no_source_a_warning(mooring_yaml):
     data = _egm2()
     data["people"] = {"principal_investigator": "Penny Holliday", "pi_orcid": "x"}
     issues = [
-        (i.level, i.message) for i in mooring.check(data) if "people" in i.message
+        (i.level, i.message)
+        for i in mooring.check(mooring_yaml(data))
+        if "people" in i.message
     ]
     assert ("ERROR", next(m for lv, m in issues if "pi_orcid" in m)) in issues
     data["people"] = {"principal_investigator": "Penny Holliday"}
     issues = [
-        (i.level, i.message) for i in mooring.check(data) if "people" in i.message
+        (i.level, i.message)
+        for i in mooring.check(mooring_yaml(data))
+        if "people" in i.message
     ]
     assert [lv for lv, m in issues] == ["WARNING"]
     assert "people_source" in issues[0][1]
@@ -180,12 +190,16 @@ def test_a_file_that_says_nothing_takes_the_whole_block():
     assert both == []
 
 
-def test_validate_checks_the_source_block():
+def test_validate_checks_the_source_block(mooring_yaml):
     data = _egm2()
     data["source"] = {"doi": "doi:" + ADC_DOI, "source_note": "ADC"}
-    assert not [i for i in mooring.check(data) if i.message.startswith("'source")]
+    assert not [
+        i for i in mooring.check(mooring_yaml(data)) if i.message.startswith("'source")
+    ]
     data["source"] = {"doi": "not-a-doi", "licence": "x"}
-    errors = [i.message for i in mooring.check(data) if i.level == "ERROR"]
+    errors = [
+        i.message for i in mooring.check(mooring_yaml(data)) if i.level == "ERROR"
+    ]
     assert any("'source: doi'" in m for m in errors)
     assert any("'source: licence'" in m for m in errors)
 

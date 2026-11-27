@@ -13,9 +13,11 @@ from oceanarray.cli._common import (
     _add_shared_report_args,
     _folder,
     _mooring_location,
+    _mooring_paths,
     _resolve_dirs,
 )
 from oceanarray.cli._deprecate import DeprecatedAlias
+from oceanarray.paths import Paths
 
 
 def cmd_report(args: argparse.Namespace) -> int:
@@ -52,9 +54,11 @@ def cmd_report(args: argparse.Namespace) -> int:
         try:
             report(
                 args.mooring,
+                Paths(
+                    proc_dir=proc_root or Path(args.mooring).parent,
+                    report_dir=report_dir,
+                ),
                 kind="array",
-                proc_dir=proc_root,
-                report_dir=report_dir,
                 force=args.force,
                 bathymetry=getattr(args, "bathymetry", None),
             )
@@ -85,12 +89,18 @@ def cmd_report(args: argparse.Namespace) -> int:
             want_pdf,
         )
 
+    folder = _folder(moor_dir)
     try:
-        page = report(
+        yaml_path, paths_ = _mooring_paths(
             moor_dir,
+            "report",
             raw_dir=raw_dir,
-            out_dir=outdir,
             report_dir=report_dir,
+            mooring_report_dir=outdir or (None if report_dir else folder / "report"),
+        )
+        page = report(
+            yaml_path,
+            paths_,
             instruments=do_instruments,
             stack=do_stack,
             grid=do_grid,
@@ -100,13 +110,14 @@ def cmd_report(args: argparse.Namespace) -> int:
             skip_existing=getattr(args, "skip_existing", False),
         )
         if getattr(args, "cruise_table", False):
-            report(
+            # The recovery table's default folder is the mooring's own.
+            _, table_paths = _mooring_paths(
                 moor_dir,
-                kind="recovery",
-                out_dir=outdir,
+                "report",
                 report_dir=report_dir,
-                force=args.force,
+                mooring_report_dir=outdir or (None if report_dir else folder),
             )
+            report(yaml_path, table_paths, kind="recovery", force=args.force)
     except OceanarrayError as e:
         logger.status("error", str(e))
         return 1

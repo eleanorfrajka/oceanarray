@@ -60,7 +60,13 @@ def cf7(tmp_path_factory):
     cfg = {"name": name, **CF7, "stack": {"dt_seconds": 900}, "clamp": INSTRUMENTS}
     yaml_path = proc / f"{name}.mooring.yaml"
     yaml_path.write_text(yaml.safe_dump(cfg, sort_keys=False))
-    oa.run(yaml_path, raw_dir=tmp / "raw", pmin=40, pmax=520, dp=40)
+    oa.run(
+        yaml_path,
+        oa.Paths(raw_dir=tmp / "raw", proc_dir=tmp / "proc"),
+        pmin=40,
+        pmax=520,
+        dp=40,
+    )
     return proc
 
 
@@ -155,7 +161,8 @@ def _ic1(tmp_path, **extra):
     }
     yaml_path = proc / "ic1_2016.mooring.yaml"
     yaml_path.write_text(yaml.safe_dump(cfg, sort_keys=False))
-    oa.process(yaml_path, raw_dir=tmp_path / "raw", stages=1)
+    paths = oa.Paths(raw_dir=tmp_path / "raw", proc_dir=yaml_path.parent.parent)
+    oa.process(yaml_path, paths, stages=1)
     return _stage(proc, "microcat", "MC76", 1)
 
 
@@ -241,14 +248,16 @@ def test_a_model_not_known_takes_the_series_entry():
     )
 
 
-def test_validate_refuses_a_missing_or_unusable_catalog(tmp_path):
+def test_validate_refuses_a_missing_or_unusable_catalog(tmp_path, mooring_yaml):
     from oceanarray import mooring
 
-    issues = mooring.check({"sensor_catalog": str(tmp_path / "none.yaml")})
+    issues = mooring.check(
+        mooring_yaml({"sensor_catalog": str(tmp_path / "none.yaml")})
+    )
     assert any(i.level == "ERROR" and "sensor_catalog" in i.message for i in issues)
     bad = tmp_path / "bad.yaml"
     bad.write_text('instruments:\n  "37-1": {model: SBE 37-XX}\n')
-    issues = mooring.check({"sensor_catalog": str(bad)})
+    issues = mooring.check(mooring_yaml({"sensor_catalog": str(bad)}))
     assert any("'SBE 37-XX' is not under 'models:'" in i.message for i in issues)
 
 
@@ -269,7 +278,10 @@ def test_the_export_keeps_the_license_and_citation(cf7):
 
 def test_the_mooring_page_lists_each_sensor_record(cf7, tmp_path):
     oa.report(
-        cf7 / "cf7_2020.mooring.yaml", out_dir=tmp_path, instruments=False, grid=False
+        cf7 / "cf7_2020.mooring.yaml",
+        oa.Paths(proc_dir=cf7.parent).with_mooring("cf7_2020", report_dir=tmp_path),
+        instruments=False,
+        grid=False,
     )
     (page,) = [
         p for p in tmp_path.rglob("*.html") if "Sensor calibration" in p.read_text()
@@ -283,7 +295,10 @@ def test_the_mooring_page_lists_each_sensor_record(cf7, tmp_path):
 def test_no_clock_check_when_every_instrument_was_imported(cf7, tmp_path):
     """No figure: one line says why the check does not apply to originator data."""
     oa.report(
-        cf7 / "cf7_2020.mooring.yaml", out_dir=tmp_path, instruments=False, grid=False
+        cf7 / "cf7_2020.mooring.yaml",
+        oa.Paths(proc_dir=cf7.parent).with_mooring("cf7_2020", report_dir=tmp_path),
+        instruments=False,
+        grid=False,
     )
     (page,) = tmp_path.rglob("*_stack_report.html")
     html = page.read_text()
@@ -327,7 +342,7 @@ def test_gaps_flagged_missing_do_not_hide_a_pressure_sensor():
     )
 
 
-def test_a_catalog_entry_that_is_not_a_mapping_is_refused(tmp_path):
+def test_a_catalog_entry_that_is_not_a_mapping_is_refused(tmp_path, mooring_yaml):
     from oceanarray import mooring
 
     bad = tmp_path / "bad.yaml"
@@ -337,7 +352,7 @@ def test_a_catalog_entry_that_is_not_a_mapping_is_refused(tmp_path):
             '  "37-9":\n  "37-10227":\n    model: SBE 37\n',
         )
     )
-    issues = mooring.check({"sensor_catalog": str(bad)})
+    issues = mooring.check(mooring_yaml({"sensor_catalog": str(bad)}))
     assert any("37-9: not a mapping" in i.message for i in issues)
 
 
@@ -370,12 +385,12 @@ def test_a_dict_description_takes_its_catalog_from_the_mooring_directory(tmp_pat
     )
 
 
-def test_pumped_must_be_true_or_false(tmp_path):
+def test_pumped_must_be_true_or_false(tmp_path, mooring_yaml):
     from oceanarray import mooring
 
     bad = tmp_path / "bad.yaml"
     bad.write_text(CATALOG.read_text().replace("pumped: true", 'pumped: "false"', 1))
-    issues = mooring.check({"sensor_catalog": str(bad)})
+    issues = mooring.check(mooring_yaml({"sensor_catalog": str(bad)}))
     assert any(
         "37-12046: pumped 'false' is not true or false" in i.message for i in issues
     )

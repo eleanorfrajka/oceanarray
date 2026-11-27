@@ -1,4 +1,4 @@
-"""``oceanarray.run(mooring)``: stages 1–3, then stack and grid, on the dune2 fixtures.
+"""``oceanarray.run(yaml_path, paths)``: stages 1–3, then stack and grid, on the dune2 fixtures.
 
 A fresh proc tree holding only the mooring YAML is run against the committed raw
 files. Covers the files returned, ``data_mode``, the stack/grid settings from the
@@ -36,6 +36,11 @@ def _fresh_tree(tmp_path: Path, extra_yaml: str = "") -> Path:
     return moor / f"{_NAME}.mooring.yaml"
 
 
+def _paths(yaml_path: Path, raw_dir: Path | None = None) -> oa.Paths:
+    """Return the Paths of a tree whose mooring folder holds its YAML, with *raw_dir*."""
+    return oa.Paths(raw_dir=raw_dir, proc_dir=yaml_path.parent.parent)
+
+
 def _attrs(path: Path) -> dict:
     """Return a netCDF file's global attributes."""
     with xr.open_dataset(path, decode_times=False) as ds:
@@ -46,7 +51,7 @@ def _attrs(path: Path) -> dict:
 def ran(tmp_path_factory) -> tuple[Path, list[Path]]:
     """Run once over a fresh tree, hourly stack; return the mooring YAML path and the files."""
     yaml_path = _fresh_tree(tmp_path_factory.mktemp("run"))
-    return yaml_path, oa.run(yaml_path, raw_dir=_RAW, dt_seconds=3600)
+    return yaml_path, oa.run(yaml_path, _paths(yaml_path, _RAW), dt_seconds=3600)
 
 
 def test_run_returns_the_stage_files_then_the_stack_and_grid(ran):
@@ -112,12 +117,12 @@ def test_grid_settings_come_from_the_description_unless_given(tmp_path):
         tmp_path,
         "stack:\n  dt_seconds: 3600\ngrid:\n  pmin: 100\n  pmax: 300\n  dp: 50\n",
     )
-    files = oa.run(yaml_path, raw_dir=_RAW)
+    files = oa.run(yaml_path, _paths(yaml_path, _RAW))
     with xr.open_dataset(files[-1]) as ds:
         assert ds["pressure"].values.tolist() == [100, 150, 200, 250, 300]
     with xr.open_dataset(files[-2]) as ds:
         assert np.all(np.diff(ds["time"].values) == np.timedelta64(3600, "s"))
-    files = oa.run(yaml_path, raw_dir=_RAW, dp=100)
+    files = oa.run(yaml_path, _paths(yaml_path, _RAW), dp=100)
     with xr.open_dataset(files[-1]) as ds:
         assert ds["pressure"].values.tolist() == [100, 200, 300]
 
@@ -155,7 +160,7 @@ def test_strict_run_stops_at_the_failed_stage(tmp_path):
     raw = _without_aquadopp_raw(tmp_path)
     yaml_path = _fresh_tree(tmp_path)
     with pytest.raises(MooringError, match="stage 1 failed"):
-        oa.run(yaml_path, raw_dir=raw, dt_seconds=3600, keep_going=False)
+        oa.run(yaml_path, _paths(yaml_path, raw), dt_seconds=3600, keep_going=False)
     assert not paths.product_file(yaml_path.parent, _NAME, "stack").exists()
 
 
@@ -163,7 +168,8 @@ def test_keep_going_process_carries_on_without_the_failed_instrument(tmp_path, c
     """keep_going: the aquadopp is left out, the microcat goes through all three stages."""
     raw = _without_aquadopp_raw(tmp_path)
     with caplog.at_level(logging.WARNING, logger="oceanarray"):
-        files = oa.process(_fresh_tree(tmp_path), raw_dir=raw, keep_going=True)
+        yaml_path = _fresh_tree(tmp_path)
+        files = oa.process(yaml_path, _paths(yaml_path, raw), keep_going=True)
     assert [p.name for p in files] == [f"{_NAME}_2941_stage{n}.nc" for n in (1, 2, 3)]
     assert "failure(s) left behind by keep_going" in caplog.text
 
@@ -177,7 +183,7 @@ def test_keep_going_stacks_from_stage2_when_stage3_fails(tmp_path, monkeypatch):
 
     monkeypatch.setattr(st3, "stage3", _boom)
     yaml_path = _fresh_tree(tmp_path)
-    files = oa.run(yaml_path, raw_dir=_RAW, dt_seconds=3600, keep_going=True)
+    files = oa.run(yaml_path, _paths(yaml_path, _RAW), dt_seconds=3600, keep_going=True)
     with xr.open_dataset(files[-2]) as ds:
         assert set(ds["source_stage"].values.tolist()) == {2}
         assert ds.attrs["stage2_instruments"] == "2941 9920"
@@ -185,7 +191,7 @@ def test_keep_going_stacks_from_stage2_when_stage3_fails(tmp_path, monkeypatch):
         assert ds.attrs["stage2_no_velocity"] == "9920"
     assert _attrs(files[-1])["stage2_instruments"] == "2941 9920"
     with pytest.raises(MooringError, match="stage 3 failed"):
-        oa.run(yaml_path, raw_dir=_RAW, dt_seconds=3600, keep_going=False)
+        oa.run(yaml_path, _paths(yaml_path, _RAW), dt_seconds=3600, keep_going=False)
 
 
 def test_strict_stack_refuses_a_missing_stage3_file(ran, tmp_path):
@@ -209,7 +215,12 @@ def test_run_from_stage2_needs_no_raw_directory(ran, tmp_path):
     yaml_path, _ = ran
     moor = tmp_path / _NAME
     shutil.copytree(yaml_path.parent, moor)
-    files = oa.run(moor / yaml_path.name, stages=(2, 3), dt_seconds=3600)
+    files = oa.run(
+        moor / yaml_path.name,
+        _paths(moor / yaml_path.name),
+        stages=(2, 3),
+        dt_seconds=3600,
+    )
     assert [p.name for p in files[-2:]] == [f"{_NAME}_stack.nc", f"{_NAME}_grid.nc"]
 
 
@@ -254,7 +265,9 @@ def test_cli_run_takes_stages_and_the_description_settings(ran, monkeypatch):
     import oceanarray.pipeline as pipeline
 
     seen: dict = {}
-    monkeypatch.setattr(pipeline, "run", lambda _path, **kw: seen.update(kw) or [])
+    monkeypatch.setattr(
+        pipeline, "run", lambda _path, _paths, **kw: seen.update(kw) or []
+    )
     import oceanarray.reports as reports
 
     monkeypatch.setattr(reports, "report", lambda *_a, **_k: None)
@@ -287,7 +300,12 @@ def test_keep_going_does_not_stack_stage3_files_older_than_a_failed_stage3(
     monkeypatch.setattr(st3, "stage3", _boom)
     yaml_path = _copy(ran, tmp_path)
     files = oa.run(
-        yaml_path, stages=(2, 3), force=True, dt_seconds=3600, keep_going=True
+        yaml_path,
+        _paths(yaml_path),
+        stages=(2, 3),
+        force=True,
+        dt_seconds=3600,
+        keep_going=True,
     )
     with xr.open_dataset(files[-2]) as ds:
         assert set(ds["source_stage"].values.tolist()) == {2}
@@ -304,7 +322,9 @@ def test_keep_going_leaves_out_an_instrument_that_failed_this_run(ran, tmp_path)
     """
     yaml_path = _copy(ran, tmp_path)
     raw = _without_aquadopp_raw(tmp_path)
-    files = oa.run(yaml_path, raw_dir=raw, force=True, dt_seconds=3600, keep_going=True)
+    files = oa.run(
+        yaml_path, _paths(yaml_path, raw), force=True, dt_seconds=3600, keep_going=True
+    )
     assert not [f for f in files if "9920" in f.name]
     assert files[-1] == paths.product_file(yaml_path.parent, _NAME, "stack")
     s3 = next(f for f in files if f.name.endswith(f"2941{paths.stage_suffix(3)}"))
@@ -338,7 +358,9 @@ def test_strict_run_removes_a_grid_the_new_stack_no_longer_matches(
     grid = paths.product_file(yaml_path.parent, _NAME, "grid")
     assert grid.exists()
     with pytest.raises(MooringError, match="written but not gridded"):
-        oa.run(yaml_path, stages=3, dt_seconds=1800, keep_going=False)
+        oa.run(
+            yaml_path, _paths(yaml_path), stages=3, dt_seconds=1800, keep_going=False
+        )
     assert paths.product_file(yaml_path.parent, _NAME, "stack").exists()
     assert not grid.exists()
     assert paths.stale_file(grid).exists()
@@ -375,14 +397,16 @@ def test_run_refuses_bad_settings_before_processing(
     """The merged settings are checked first: nothing is processed with a bad one."""
     yaml_path = _fresh_tree(tmp_path, extra_yaml)
     with pytest.raises(MooringError, match=message):
-        oa.run(yaml_path, raw_dir=_RAW, **kwargs)
+        oa.run(yaml_path, _paths(yaml_path, _RAW), **kwargs)
     assert not list(yaml_path.parent.rglob("*.nc"))
 
 
 def test_run_from_stage_2_continues_through_stage_3(ran, tmp_path):
     """from_stage=2 rewrites stage 2 and then stage 3, so the stack is never older data."""
     yaml_path = _copy(ran, tmp_path)
-    files = oa.run(yaml_path, from_stage=2, force=True, dt_seconds=3600)
+    files = oa.run(
+        yaml_path, _paths(yaml_path), from_stage=2, force=True, dt_seconds=3600
+    )
     s2 = [f for f in files if f.name.endswith(paths.stage_suffix(2))]
     s3 = [f for f in files if f.name.endswith(paths.stage_suffix(3))]
     assert len(s2) == len(s3) == 2
@@ -397,9 +421,9 @@ def test_run_refuses_stages_that_leave_older_files_under_the_stack(ran, tmp_path
     before = {p: p.stat().st_mtime for p in yaml_path.parent.rglob("*.nc")}
     for stages in (2, (1, 3)):
         with pytest.raises(ValueError, match="must run from stage"):
-            oa.run(yaml_path, stages=stages, force=True)
+            oa.run(yaml_path, _paths(yaml_path), stages=stages, force=True)
     with pytest.raises(ValueError, match="not both"):
-        oa.run(yaml_path, stages=(2, 3), from_stage=2)
+        oa.run(yaml_path, _paths(yaml_path), stages=(2, 3), from_stage=2)
     assert {p: p.stat().st_mtime for p in before} == before
 
 
@@ -427,14 +451,21 @@ def test_stack_stage_2_is_a_quick_look_without_stage_3(ran, tmp_path):
     s3_before = {
         p: p.stat().st_mtime for p in yaml_path.parent.rglob(paths.stage_glob(3))
     }
-    files = oa.run(yaml_path, stages=2, force=True, dt_seconds=3600, stack_stage=2)
+    files = oa.run(
+        yaml_path,
+        _paths(yaml_path),
+        stages=2,
+        force=True,
+        dt_seconds=3600,
+        stack_stage=2,
+    )
     assert not [f for f in files if f.name.endswith(paths.stage_suffix(3))]
     assert {p: p.stat().st_mtime for p in s3_before} == s3_before
     with xr.open_dataset(files[-2]) as ds:
         assert set(ds["source_stage"].values.tolist()) == {2}
         assert ds.attrs["stage2_instruments"].split() == ["2941", "9920"]
     with pytest.raises(ValueError, match="stack_stage"):
-        oa.run(yaml_path, stages=3, stack_stage=2)
+        oa.run(yaml_path, _paths(yaml_path), stages=3, stack_stage=2)
 
 
 def test_any_error_after_the_stage_files_change_sets_the_products_aside(
@@ -451,7 +482,7 @@ def test_any_error_after_the_stage_files_change_sets_the_products_aside(
     stack_nc = paths.product_file(yaml_path.parent, _NAME, "stack")
     monkeypatch.setattr(st, "stack", _broken)
     with pytest.raises(OSError, match="disk full"):
-        oa.run(yaml_path, stages=3, force=True, dt_seconds=3600)
+        oa.run(yaml_path, _paths(yaml_path), stages=3, force=True, dt_seconds=3600)
     assert not stack_nc.exists() and not grid.exists()
     assert paths.stale_file(stack_nc).exists() and paths.stale_file(grid).exists()
 
@@ -488,9 +519,9 @@ def test_a_wrong_stage_file_raises_stage_error_not_a_wrapped_failure(tmp_path):
 
     yaml_path = _fresh_tree(tmp_path)
     moor = yaml_path.parent
-    oa.process(yaml_path, raw_dir=_RAW, stages=(1, 2), keep_going=False)
+    oa.process(yaml_path, _paths(yaml_path, _RAW), stages=(1, 2), keep_going=False)
     stage1 = paths.stage_file(moor, _NAME, "microcat", "2941", 1)
     stage2 = paths.stage_file(moor, _NAME, "microcat", "2941", 2)
     shutil.copy(stage1, stage2)
     with pytest.raises(StageError):
-        oa.process(yaml_path, raw_dir=_RAW, stages=3, keep_going=False)
+        oa.process(yaml_path, _paths(yaml_path, _RAW), stages=3, keep_going=False)

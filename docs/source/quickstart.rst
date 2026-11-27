@@ -269,10 +269,16 @@ The same steps from Python:
 
    import oceanarray as oa
 
+   paths = oa.Paths(
+       raw_dir="/data/cruise2026/raw",
+       proc_dir="/data/cruise2026/proc",
+       report_dir="/data/cruise2026/reports",
+       export_dir="/data/cruise2026/oceansites",
+   )
    yaml_path = "/data/cruise2026/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml"
-   oa.process(yaml_path, stages=1, raw_dir="/data/cruise2026/raw")  # stage 1
-   oa.run(yaml_path, raw_dir="/data/cruise2026/raw", report=True)   # everything
-   oa.export(yaml_path)                                              # OceanSITES files
+   oa.process(yaml_path, paths, stages=1)   # stage 1
+   oa.run(yaml_path, paths, report=True)    # everything
+   oa.export(yaml_path, paths)              # OceanSITES files
 
 See :doc:`oceanarray` for the full API and :doc:`migrating_0_6_0` when updating
 code written for 0.5.

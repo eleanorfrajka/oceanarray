@@ -864,6 +864,7 @@ def test_grid_page_overflow_off_by_default_and_on_by_config(tmp_path, dune2_page
     mooring YAML's report_sections turns it on; turning it on restores the section."""
     import shutil
 
+    from oceanarray import Paths
     from oceanarray.reports import report
 
     src = Path("tests/fixtures/proc/dune2_1_2026")
@@ -882,7 +883,10 @@ def test_grid_page_overflow_off_by_default_and_on_by_config(tmp_path, dune2_page
         "\n".join(ln for ln in lines if "report_sections" not in ln) + "\n",
         encoding="utf-8",
     )
-    report(off, instruments=False, stack=False, grid=True, force=True)
+    paths = Paths().with_mooring(
+        "dune2_1_2026", proc_dir=off, report_dir=off / "report"
+    )
+    report(yml, paths, instruments=False, stack=False, grid=True, force=True)
     html_off = (off / grid).read_text(encoding="utf-8")
     assert "Overflow</h2>" not in html_off  # the section is absent
     # ...and it is not named in the not-applicable footer (it was not asked for).

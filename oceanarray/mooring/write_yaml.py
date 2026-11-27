@@ -5,7 +5,7 @@ from collections.abc import Iterable, Mapping
 from os import PathLike
 from pathlib import Path
 
-from oceanarray.mooring.check_yaml import check
+from oceanarray.mooring.check_yaml import _check_data
 
 logger = logging.getLogger(__name__)
 
@@ -184,7 +184,7 @@ def save(
     """Write a mooring YAML to a file with field comments.
 
     Lenient by design — a mooring YAML being drafted may be incomplete, so ``save``
-    runs :func:`check` and logs a warning on any ERROR but still writes (unlike
+    checks it and logs a warning on any ERROR but still writes (unlike
     :func:`load`, which refuses an invalid mooring YAML about to be processed). The
     field comments come from the module's comment tables, so they cannot drift
     from the validator.
@@ -218,7 +218,7 @@ def save(
     if path.exists() and not overwrite:
         raise FileExistsError(f"{path} already exists")
 
-    errors = [i.message for i in check(mooring) if i.level == "ERROR"]
+    errors = [i.message for i in _check_data(dict(mooring), None) if i.level == "ERROR"]
     if errors:
         logger.warning(
             "saving an incomplete mooring YAML (%d issue(s) to resolve): %s",

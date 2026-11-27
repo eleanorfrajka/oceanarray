@@ -317,7 +317,11 @@ def dune2_run(tmp_path_factory) -> Path:
     folder = tmp_path_factory.mktemp("d2") / "dune2_1_2026"
     folder.mkdir()
     shutil.copy(DUNE2 / "dune2_1_2026.mooring.yaml", folder)
-    oa.run(folder / "dune2_1_2026.mooring.yaml", raw_dir=FIX / "raw", dt_seconds=3600)
+    oa.run(
+        folder / "dune2_1_2026.mooring.yaml",
+        oa.Paths(raw_dir=FIX / "raw", proc_dir=folder.parent),
+        dt_seconds=3600,
+    )
     return folder
 
 
@@ -400,10 +404,12 @@ def test_an_rodb_file_has_no_model_unless_the_yaml_gives_one():
     assert ds["SENSOR_CTD_001"].attrs["sensor_metadata_source"] == "none"
 
 
-def test_a_yaml_model_needs_its_source():
+def test_a_yaml_model_needs_its_source(mooring_yaml):
     data = mooring.load(EGM2 / "egM2_2016" / "egM2_2016.mooring.yaml")
     data["clamp"][0]["sensor_model"] = "SBE 37-SMP"
-    errors = [i.message for i in mooring.check(data) if i.level == "ERROR"]
+    errors = [
+        i.message for i in mooring.check(mooring_yaml(data)) if i.level == "ERROR"
+    ]
     assert errors == [
         "microcat s/n 11331: sensor_model needs sensor_model_source (where the model "
         "came from, e.g. the cruise report)."

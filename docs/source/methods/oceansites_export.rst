@@ -23,10 +23,12 @@ or from Python:
 
    import oceanarray as oa
 
-   oa.export("/data/proc/dune2_1_2026/dune2_1_2026.mooring.yaml",
-             array="/data/proc/MIXSED2026.array.yaml")
+   paths = oa.Paths(proc_dir="/data/proc", export_dir="/data/oceansites")
+   oa.export("/data/proc/dune2_1_2026/dune2_1_2026.mooring.yaml", paths,
+             array_yaml="/data/proc/MIXSED2026.array.yaml")
 
-The files go to ``<mooring folder>/oceansites/`` (``-o DIR`` / ``out_dir=`` to change it).
+The files go to ``<mooring folder>/oceansites/`` (``-o DIR`` to change it); from Python,
+to ``paths.export_dir``.
 An existing file is kept unless ``--force`` (``overwrite=True``) is given.  An instrument
 that cannot be exported is listed and left out; the others are written.  ``--no-grid``
 (``grid=False``) leaves the grid out.

@@ -17,6 +17,7 @@ import xarray as xr
 import yaml
 
 pytest.importorskip("seasenselib", reason="seasenselib not installed")
+import oceanarray as oa
 from oceanarray.pipeline import _process_legacy as process
 from oceanarray.reports import report
 
@@ -33,6 +34,14 @@ def _mooring(tmp_path, name, header, instruments):
     cfg = {"name": name, **header, "clamp": instruments}
     (proc / f"{name}.mooring.yaml").write_text(yaml.safe_dump(cfg, sort_keys=False))
     return tmp_path / "raw", tmp_path / "proc"
+
+
+def _paths(yaml_path: Path, raw_dir: Path | None = None) -> oa.Paths:
+    """Return the Paths of a tree from _mooring: the pages in the mooring folder's report/."""
+    folder = yaml_path.parent
+    return oa.Paths(raw_dir=raw_dir, proc_dir=folder.parent).with_mooring(
+        folder.name, report_dir=folder / "report"
+    )
 
 
 def _open(proc, name, instrument, serial, stage):
@@ -116,8 +125,11 @@ def test_imported_aquadopp_report_builds_without_panel_crash(tmp_path):
         ],
     )
     assert process("cf7", [1, 2, 3], proc_dir=proc, raw_dir=raw, force=True)
-    mooring_dir = proc / "cf7"
-    summary = report(mooring_dir, instruments=True, stack=False, grid=False)
+    yaml_path = proc / "cf7" / "cf7.mooring.yaml"
+    summary = report(
+        yaml_path, _paths(yaml_path), instruments=True, stack=False, grid=False
+    )
+    mooring_dir = yaml_path.parent
     assert Path(summary).exists()
     instr_page = mooring_dir / "report" / "instrument" / "cf7_500_report.html"
     assert instr_page.exists()
@@ -144,8 +156,10 @@ def test_imported_rodb_report_labels_current_meter(tmp_path):
         ],
     )
     assert process("rtwb1_01_2014", [1, 2, 3], proc_dir=proc, raw_dir=raw, force=True)
-    mooring_dir = proc / "rtwb1_01_2014"
-    summary = report(mooring_dir, instruments=True, stack=False, grid=False)
+    yaml_path = proc / "rtwb1_01_2014" / "rtwb1_01_2014.mooring.yaml"
+    summary = report(
+        yaml_path, _paths(yaml_path), instruments=True, stack=False, grid=False
+    )
     html = Path(summary).read_text(encoding="utf-8")
     assert "Current meter" in html
     assert "CURRENTMETER" not in html
@@ -257,11 +271,14 @@ def test_oceansites_adcp_orientation_is_required_and_checked(orientation, match)
 
 def test_oceansites_adcp_to_stage3_and_stack(tmp_path):
     """The originator's bin pressures pass stage 3 unchanged and place the stack rows."""
-    import oceanarray as oa
 
     raw, proc = _mooring(tmp_path, "cf1", CF1, [{**_CF1_ADCP, "orientation": "up"}])
     files = oa.run(
-        proc / "cf1" / "cf1.mooring.yaml", raw_dir=raw, pmin=20, pmax=160, dp=20
+        proc / "cf1" / "cf1.mooring.yaml",
+        _paths(proc / "cf1" / "cf1.mooring.yaml", raw),
+        pmin=20,
+        pmax=160,
+        dp=20,
     )
     s1 = _open(proc, "cf1", "adcp", "CM173", 1)
     s3 = _open(proc, "cf1", "adcp", "CM173", 3)
@@ -290,11 +307,14 @@ def test_oceansites_adcp_to_stage3_and_stack(tmp_path):
 
 def test_adcp_velocity_axis_ends_at_the_last_bin_with_data(tmp_path):
     """An upward ADCP's range axis stops at its last bin with data, not its last bin."""
-    import oceanarray as oa
     from oceanarray.plotters import draw_adcp_velocity
 
     raw, proc = _mooring(tmp_path, "cf1", CF1, [{**_CF1_ADCP, "orientation": "up"}])
-    oa.run(proc / "cf1" / "cf1.mooring.yaml", stages=[1, 2, 3], raw_dir=raw)
+    oa.run(
+        proc / "cf1" / "cf1.mooring.yaml",
+        _paths(proc / "cf1" / "cf1.mooring.yaml", raw),
+        stages=[1, 2, 3],
+    )
     s3 = _open(proc, "cf1", "adcp", "CM173", 3)
     rng = s3["range"].values
     has_data = np.isfinite(s3["east_velocity"].values).any(axis=0)
@@ -314,11 +334,14 @@ def test_adcp_velocity_axis_ends_at_the_last_bin_with_data(tmp_path):
 
 def test_adcp_velocity_hides_values_its_own_flags_mark_bad(tmp_path):
     """A velocity flagged 4 by its own flag variable is not drawn, nor scaled on."""
-    import oceanarray as oa
     from oceanarray.plotters import draw_adcp_velocity
 
     raw, proc = _mooring(tmp_path, "cf1", CF1, [{**_CF1_ADCP, "orientation": "up"}])
-    oa.run(proc / "cf1" / "cf1.mooring.yaml", stages=[1, 2, 3], raw_dir=raw)
+    oa.run(
+        proc / "cf1" / "cf1.mooring.yaml",
+        _paths(proc / "cf1" / "cf1.mooring.yaml", raw),
+        stages=[1, 2, 3],
+    )
     s3 = _open(proc, "cf1", "adcp", "CM173", 3)
     east = s3["east_velocity"]
     k = int(np.flatnonzero(np.isfinite(east.values).any(axis=0))[0])
@@ -350,7 +373,6 @@ _IC1_ADCP = {
 
 def test_percent_good_per_bin_is_flagged_per_bin(tmp_path):
     """A ``PERG`` on ``TIME × BINDEPTH`` (no beam) is one value per bin at stage 3."""
-    import oceanarray as oa
     from oceanarray.config.parameters import QC_ADCP
 
     raw, proc = _mooring(tmp_path, "ic1", IC1, [_IC1_ADCP])
@@ -360,7 +382,11 @@ def test_percent_good_per_bin_is_flagged_per_bin(tmp_path):
     src["PERG"] = src["PERG"].isel(BEAM=3)  # the 4-beam column
     src.to_netcdf(path, format="NETCDF3_CLASSIC")
 
-    oa.run(proc / "ic1" / "ic1.mooring.yaml", stages=[1, 2, 3], raw_dir=raw)
+    oa.run(
+        proc / "ic1" / "ic1.mooring.yaml",
+        _paths(proc / "ic1" / "ic1.mooring.yaml", raw),
+        stages=[1, 2, 3],
+    )
     s3 = _open(proc, "ic1", "adcp", "ADCP480", 3)
     pg = s3["percent_good"]
     assert pg.dims == s3["percent_good_qc"].dims == ("time", "N_BINS")
@@ -450,7 +476,6 @@ def test_rodb_instruments_stack_by_nearest_sample_only(tmp_path, caplog, dt_seco
     are empty (with a warning per instrument); at 3600 s each step takes the
     nearest sample. No value is interpolated in time.
     """
-    import oceanarray as oa
 
     name = "rtwb1_01_2014"
     raw, proc = _mooring(
@@ -459,7 +484,7 @@ def test_rodb_instruments_stack_by_nearest_sample_only(tmp_path, caplog, dt_seco
     with caplog.at_level(logging.WARNING, logger="oceanarray"):
         files = oa.run(
             proc / name / f"{name}.mooring.yaml",
-            raw_dir=raw,
+            _paths(proc / name / f"{name}.mooring.yaml", raw),
             dt_seconds=dt_seconds,
             pmin=70,
             pmax=110,
@@ -501,7 +526,6 @@ def test_people_are_cleaned_once_at_stage1_and_joined_after(tmp_path):
     """CF7 2020 (WHOI current meter, Scripps MicroCAT): stage 1 cleans the people and
     says so in history; every file names its oceanarray; the stack and the export
     only join, and name the same people."""
-    import oceanarray as oa
     from oceanarray import mooring, provenance
     from oceanarray.pipeline import attribution
     from oceanarray.pipeline.oceansites import _people
@@ -560,7 +584,6 @@ def test_people_are_cleaned_once_at_stage1_and_joined_after(tmp_path):
 def test_a_stage_file_from_before_people_cleaning_gives_no_people(tmp_path):
     """The same stage-3 file without its stage-1 version (as a file from before
     stage 1 cleaned people): the stack names it and writes no people from it."""
-    import oceanarray as oa
     from oceanarray import mooring
     from oceanarray.pipeline.read_mooring import read_mooring
 
@@ -693,11 +716,14 @@ def _egm3(tmp_path, pattern=_EGM3_ADCP["filename"]):
 
 def test_rodb_bin_files_to_stage3_and_stack(tmp_path):
     """Three per-bin files (bin 3 missing) become one ADCP; rows keep the bin numbers."""
-    import oceanarray as oa
 
     raw, proc = _egm3(tmp_path)
     files = oa.run(
-        proc / "egm3" / "egm3.mooring.yaml", raw_dir=raw, pmin=2400, pmax=2600, dp=50
+        proc / "egm3" / "egm3.mooring.yaml",
+        _paths(proc / "egm3" / "egm3.mooring.yaml", raw),
+        pmin=2400,
+        pmax=2600,
+        dp=50,
     )
     s1 = _open(proc, "egm3", "adcp", "20961", 1)
     s3 = _open(proc, "egm3", "adcp", "20961", 3)
@@ -754,7 +780,6 @@ def test_a_newer_bin_file_regenerates_stage1(tmp_path):
 @pytest.fixture(scope="module")
 def cf1_site(tmp_path_factory):
     """The CF1 2020 ADCP cut as two deployments (its record split in two), stacked."""
-    import oceanarray as oa
 
     root = tmp_path_factory.mktemp("cf1_site")
     windows = (
@@ -765,7 +790,10 @@ def cf1_site(tmp_path_factory):
     for name, start, end in windows:
         header = {**CF1, "deployment_time": start, "recovery_time": end}
         raw, proc = _mooring(root, name, header, [{**_CF1_ADCP, "orientation": "up"}])
-        files = oa.run(proc / name / f"{name}.mooring.yaml", raw_dir=raw)
+        files = oa.run(
+            proc / name / f"{name}.mooring.yaml",
+            _paths(proc / name / f"{name}.mooring.yaml", raw),
+        )
         stacks.append(xr.open_dataset(files[-2]).load())
     return stacks
 

@@ -373,7 +373,7 @@ def test_the_command(site):
     assert "at least two" in out.getvalue()
 
 
-def test_validate_knows_the_depth_keys():
+def test_validate_knows_the_depth_keys(mooring_yaml):
     cfg = mooring.load(_FIX / "egM2_2016" / "egM2_2016.mooring.yaml")
     good = copy.deepcopy(cfg)
     good["stack"] = {
@@ -381,11 +381,13 @@ def test_validate_knows_the_depth_keys():
         "depth_match": "hab",
         "depth_tolerance_m": 75,
     }
-    assert not [i for i in mooring.check(good) if i.level == "ERROR"]
+    assert not [i for i in mooring.check(mooring_yaml(good)) if i.level == "ERROR"]
     bad = copy.deepcopy(cfg)
     bad["stack"] = {"dt_seconds": 3600, "depth_match": "pressure"}
     assert any(
-        "depth_match" in i.message for i in mooring.check(bad) if i.level == "ERROR"
+        "depth_match" in i.message
+        for i in mooring.check(mooring_yaml(bad))
+        if i.level == "ERROR"
     )
 
 
@@ -620,14 +622,14 @@ def test_a_waterdepth_source_reaches_the_stack_and_the_deployment_record(
         assert "deployment_time_source" not in ds
 
 
-def test_validate_wants_a_source_as_text():
+def test_validate_wants_a_source_as_text(mooring_yaml):
     cfg = mooring.load(_FIX / "egM2_2018" / "egM2_2018.mooring.yaml")
     cfg["waterdepth_source"] = "from the cruise report"
-    assert not [i for i in mooring.check(cfg) if "_source" in i.message]
+    assert not [i for i in mooring.check(mooring_yaml(cfg)) if "_source" in i.message]
     cfg["waterdepth_source"] = 3125
     assert any(
         i.level == "ERROR" and "'waterdepth_source' must be text" in i.message
-        for i in mooring.check(cfg)
+        for i in mooring.check(mooring_yaml(cfg))
     )
 
 

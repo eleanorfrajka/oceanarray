@@ -203,7 +203,7 @@ def test_instrument_report_warns_when_declination_unknown(no_position, tmp_path)
     """
     import yaml
 
-    from oceanarray import report, write_mooring
+    from oceanarray import Paths, report, write_mooring
 
     cfg, out = no_position
     mdir = tmp_path / "dune2_1_2026"
@@ -211,7 +211,15 @@ def test_instrument_report_warns_when_declination_unknown(no_position, tmp_path)
     (mdir / "dune2_1_2026.mooring.yaml").write_text(
         yaml.safe_dump(cfg), encoding="utf-8"
     )
-    report(mdir, instruments=True, stack=False, grid=False)
+    report(
+        mdir / "dune2_1_2026.mooring.yaml",
+        Paths(proc_dir=tmp_path).with_mooring(
+            "dune2_1_2026", report_dir=mdir / "report"
+        ),
+        instruments=True,
+        stack=False,
+        grid=False,
+    )
     html = (mdir / "report" / "instrument" / "dune2_1_2026_9920_report.html").read_text(
         encoding="utf-8"
     )

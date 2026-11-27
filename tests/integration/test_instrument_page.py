@@ -77,7 +77,13 @@ def pages(tmp_path_factory) -> dict[str, tuple[str, xr.Dataset]]:
         cfg = {"name": name, **moor, "stack": {"dt_seconds": 3600}, "clamp": [inst]}
         yaml_path = proc / f"{name}.mooring.yaml"
         yaml_path.write_text(yaml.safe_dump(cfg, sort_keys=False))
-        oa.run(yaml_path, raw_dir=tmp / "raw", pmin=400, pmax=2300, dp=50)
+        oa.run(
+            yaml_path,
+            oa.Paths(raw_dir=tmp / "raw", proc_dir=tmp / "proc"),
+            pmin=400,
+            pmax=2300,
+            dp=50,
+        )
         report = tmp / "report" / name
         MooringReport(proc_dir=str(tmp / "proc")).generate(
             name, force=True, outdir=str(report), instruments=True

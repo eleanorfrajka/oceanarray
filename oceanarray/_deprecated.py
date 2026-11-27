@@ -54,9 +54,18 @@ RENAMED: dict[str, str] = {
     ),
 }
 
+#: The deprecation key for a mooring folder given where a verb takes its yaml_path.
+FOLDER_GIVEN = "a mooring folder in place of a verb's yaml_path"
+
+#: The deprecation key for a verb called without a Paths.
+NO_PATHS = "a verb called without paths"
+
+#: The deprecation key for a loaded mooring YAML given where its path is taken.
+DICT_GIVEN = "a mooring dict in place of a yaml_path"
+
 #: Old dotted name -> what to use instead, for names deprecated during 0.7. A
-#: renamed keyword is written ``<function>(<old keyword>=)``; a file location
-#: is described in words.
+#: renamed keyword is written ``<function>(<old keyword>=)``; a file location or
+#: a call form is described in words.
 RENAMED_NEXT: dict[str, str] = {
     "oceanarray.mooring.resolve_report_sections(description=)": (
         "the mooring_dict= keyword"
@@ -87,6 +96,63 @@ RENAMED_NEXT: dict[str, str] = {
     "a mooring YAML inside proc_dir/<mooring_name>/": (
         "<yaml_dir>/<mooring_name>.mooring.yaml (yaml_dir of paths.yaml or oceanarray.Paths)"
     ),
+    NO_PATHS: (
+        "an oceanarray.Paths as the second argument, e.g. oceanarray.run(yaml_path, paths)"
+    ),
+    FOLDER_GIVEN: "the folder's <mooring_name>.mooring.yaml as yaml_path",
+    DICT_GIVEN: "the mooring YAML's path as yaml_path",
+    "oceanarray.process(mooring=)": "the yaml_path= keyword",
+    "oceanarray.process(mooring_dir=)": (
+        "paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.process(yaml_path, paths)"
+    ),
+    "oceanarray.process(raw_dir=)": (
+        "oceanarray.Paths(raw_dir=...) in oceanarray.process(yaml_path, paths)"
+    ),
+    "oceanarray.process(caldip_dir=)": (
+        "oceanarray.Paths(caldip_dir=...) in oceanarray.process(yaml_path, paths)"
+    ),
+    "oceanarray.run(mooring=)": "the yaml_path= keyword",
+    "oceanarray.run(mooring_dir=)": (
+        "paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.run(yaml_path, paths)"
+    ),
+    "oceanarray.run(raw_dir=)": (
+        "oceanarray.Paths(raw_dir=...) in oceanarray.run(yaml_path, paths)"
+    ),
+    "oceanarray.run(caldip_dir=)": (
+        "oceanarray.Paths(caldip_dir=...) in oceanarray.run(yaml_path, paths)"
+    ),
+    "oceanarray.report(mooring=)": "the yaml_path= keyword",
+    "oceanarray.report(mooring_dir=)": (
+        "paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.report(yaml_path, paths)"
+    ),
+    "oceanarray.report(proc_dir=)": (
+        "oceanarray.Paths(proc_dir=...) in oceanarray.report(array_yaml, paths, kind='array')"
+    ),
+    "oceanarray.report(raw_dir=)": (
+        "oceanarray.Paths(raw_dir=...) in oceanarray.report(yaml_path, paths)"
+    ),
+    "oceanarray.report(out_dir=)": (
+        "paths.with_mooring(mooring_name, report_dir=...) in oceanarray.report(yaml_path, paths)"
+    ),
+    "oceanarray.report(report_dir=)": (
+        "oceanarray.Paths(report_dir=...) in oceanarray.report(yaml_path, paths)"
+    ),
+    "oceanarray.report(pdf_dir=)": (
+        "oceanarray.report(yaml_path, paths, pdf=True), which writes the PDF beside the pages"
+    ),
+    "oceanarray.export(mooring=)": "the yaml_path= keyword",
+    "oceanarray.export(mooring_dir=)": (
+        "paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.export(yaml_path, paths)"
+    ),
+    "oceanarray.export(out_dir=)": (
+        "oceanarray.Paths(export_dir=...) in oceanarray.export(yaml_path, paths)"
+    ),
+    "oceanarray.export(array=)": "the array_yaml= keyword",
+    "oceanarray.mooring.load(mooring=)": "the yaml_path= keyword",
+    "oceanarray.mooring.load(proc_dir=)": (
+        "oceanarray.mooring.load(paths.yaml_path(mooring_name))"
+    ),
+    "oceanarray.mooring.check(mooring=)": "the yaml_path= keyword",
 }
 
 _F = TypeVar("_F", bound=Callable[..., Any])
@@ -153,7 +219,12 @@ def alias(old: str, func: _F) -> _F:
 
 
 def resolve_keyword(
-    old: str, value: _T | None, old_value: _T | None, *, required: str | None = None
+    old: str,
+    value: _T | None,
+    old_value: _T | None,
+    *,
+    required: str | None = None,
+    quiet: bool = False,
 ) -> _T | None:
     """Return the argument given under its new keyword or under its old one, warning for the old.
 
@@ -167,6 +238,8 @@ def resolve_keyword(
         The argument given under the old keyword.
     required : str, optional
         The new parameter's name, when the call must give one of the two.
+    quiet : bool, optional
+        Do not warn for the old keyword: the caller warns once for the whole call.
 
     Returns
     -------
@@ -186,8 +259,9 @@ def resolve_keyword(
         return value
     if value is not None:
         raise TypeError(f"{function}() got both {keyword}= and {RENAMED_NEXT[old]}")
-    # Points at the caller of the function whose keyword was renamed.
-    warn(old, stacklevel=4)
+    if not quiet:
+        # Points at the caller of the function whose keyword was renamed.
+        warn(old, stacklevel=4)
     return old_value
 
 

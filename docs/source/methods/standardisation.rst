@@ -12,7 +12,8 @@ recorded: no trimming, no QC. Everything later starts from these files.
 
    import oceanarray as oa
 
-   oa.process("/data/proc/dsG3_1_2026", stages=1, raw_dir="/data/raw")
+   paths = oa.Paths(raw_dir="/data/raw", proc_dir="/data/proc")
+   oa.process("/data/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml", paths, stages=1)
 
 What it reads
 -------------

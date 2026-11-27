@@ -258,8 +258,8 @@ mooring as a whole.
 
 The ``stack:`` and ``grid:`` blocks configure ``oceanarray run`` (and
 ``oceanarray.run``); the per-instrument ``stack: false`` flag one level down is a
-different key. From Python, ``oceanarray.mooring.load(path)`` returns the
-mooring YAML as a dict, which every verb also accepts with ``mooring_dir=``.
+different key. From Python, ``oceanarray.mooring.load(yaml_path)`` returns the
+mooring YAML as a dict; the verbs take the path (``oceanarray.run(yaml_path, paths)``).
 
 ----
 
@@ -1066,14 +1066,15 @@ The same file is read, written and validated from Python through
 
 .. code-block:: python
 
+   import oceanarray as oa
    from oceanarray import mooring
 
-   # Load one mooring YAML (a path, a name + proc_dir, or a dict).
-   m = mooring.load("proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml")
-   m = mooring.load("dsG3_1_2026", proc_dir="proc")
+   # Load one mooring YAML, by its path or by its name in a paths file.
+   m = mooring.load("config/moorings/dsG3_1_2026.mooring.yaml")
+   m = mooring.load(oa.Paths.from_file("paths.yaml").yaml_path("dsG3_1_2026"))
 
    # Validate without raising (returns a list of issues).
-   issues = mooring.check("proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml")
+   issues = mooring.check("config/moorings/dsG3_1_2026.mooring.yaml")
 
    # Write a commented stub (what ``oceanarray init`` does).
    mooring.save(mooring.template("dsG3_1_2026"), "proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml")

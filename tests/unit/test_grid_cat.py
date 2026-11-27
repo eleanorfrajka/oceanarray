@@ -148,12 +148,14 @@ def test_the_call_then_the_yaml_then_the_default():
         resolve_grid_mask_flags(cfg)
 
 
-def test_validate_checks_grid_mask_flags():
+def test_validate_checks_grid_mask_flags(mooring_yaml):
     cfg = mooring.load(_FIX / "egM2_concat" / "egM2_2018" / "egM2_2018.mooring.yaml")
     cfg["grid"]["mask_flags"] = [4, 9]
-    assert not [i for i in mooring.check(cfg) if "mask_flags" in i.message]
+    assert not [
+        i for i in mooring.check(mooring_yaml(cfg)) if "mask_flags" in i.message
+    ]
     cfg["grid"]["mask_flags"] = {"velocty": [3]}
-    errors = [i for i in mooring.check(cfg) if i.level == "ERROR"]
+    errors = [i for i in mooring.check(mooring_yaml(cfg)) if i.level == "ERROR"]
     assert any("'velocty' is not a variable" in i.message for i in errors)
 
 

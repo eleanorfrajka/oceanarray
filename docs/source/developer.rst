@@ -659,8 +659,9 @@ The rest:
      - Meaning
      - In the code
    * - yaml_path
-     - The path of one ``*.mooring.yaml`` file (several: ``yaml_paths``). Not
-       ``config_path`` or ``description``.
+     - The path of one ``*.mooring.yaml`` (for ``report(kind="array")``, the
+       ``*.array.yaml``; several: ``yaml_paths``). Not ``config_path`` or
+       ``description``.
      - ``yaml_path``
    * - mooring_dict
      - The parsed contents of a mooring YAML, a dict or Mapping, as
@@ -683,9 +684,11 @@ The rest:
      - The folder holding the mooring YAMLs, apart from the processed files.
      - ``Paths.yaml_dir``
    * - mooring (parameter)
-     - Anything ``mooring.load`` accepts: a mooring's name, the path of its
-       mooring YAML, or a mooring dict. A parameter holding only the name is
-       ``mooring_name`` (see **mooring** above).
+     - A mooring's name, the path of its mooring YAML, its folder or a mooring
+       dict, guessed from the value. The verbs, ``mooring.load`` and ``mooring.check``
+       take ``yaml_path`` (and the verbs ``paths``) instead; ``mooring=`` is deprecated
+       there until 0.8.0. A parameter holding only the name is ``mooring_name``
+       (see **mooring** above).
      - ``mooring``
    * - originator
      - Whoever produced the data files we read (a data center, a PI). Their

@@ -169,6 +169,87 @@ with a ``DeprecationWarning``, until 0.8.0; move each YAML to its ``yaml_dir``.
    * - ``a mooring YAML inside proc_dir/<mooring_name>/``
      - ``<yaml_dir>/<mooring_name>.mooring.yaml``
 
+The verbs take ``yaml_path`` and ``paths``
+------------------------------------------
+
+``run``, ``process``, ``report`` and ``export`` take the mooring YAML's path and an
+``oceanarray.Paths`` (:ref:`paths-file`), and nothing else about where files are;
+``oceanarray.mooring.load`` and ``check`` take the YAML's path. Every folder comes
+from ``paths``: the stage, stack and grid files from ``paths.mooring_dir(name)``,
+the raw files from ``paths.raw_mooring_dir(name)``, the pages (and the PDF, beside
+them) from ``paths.report_mooring_dir(name)``, the OceanSITES files from
+``paths.export_dir``. A mooring whose folder is not ``<dir>/<mooring_name>`` gets it
+from ``paths.with_mooring``. Change
+
+.. code-block:: python
+
+   oa.run("proc/M2_2016/M2_2016.mooring.yaml", raw_dir="raw")
+
+to
+
+.. code-block:: python
+
+   paths = oa.Paths(raw_dir="raw", proc_dir="proc")
+   oa.run("proc/M2_2016/M2_2016.mooring.yaml", paths)
+
+The old forms still work, with one ``DeprecationWarning`` naming the new call, until
+0.8.0, and write the same files to the same folders as before: a verb called without
+``paths`` works in the folder holding the YAML (``mooring_dir=``, the mooring's own
+folder, overrides it), its raw files in ``<raw_dir>/<that folder's name>``, its
+pages in ``<folder>/report`` (the recovery table in the folder itself), its
+OceanSITES files in ``<folder>/oceansites``. A mooring folder or a loaded mooring
+YAML (a dict) given in place of the path, and the first argument given as
+``mooring=``, warn the same way. The command line is unchanged.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 45 55
+
+   * - Old form
+     - Use instead
+   * - ``a verb called without paths``
+     - ``an oceanarray.Paths as the second argument, e.g. oceanarray.run(yaml_path, paths)``
+   * - ``a mooring folder in place of a verb's yaml_path``
+     - ``the folder's <mooring_name>.mooring.yaml as yaml_path``
+   * - ``a mooring dict in place of a yaml_path``
+     - ``the mooring YAML's path as yaml_path``
+   * - ``oceanarray.process(mooring=)``, ``oceanarray.run(mooring=)``,
+       ``oceanarray.report(mooring=)``, ``oceanarray.export(mooring=)``,
+       ``oceanarray.mooring.load(mooring=)``, ``oceanarray.mooring.check(mooring=)``
+     - ``yaml_path=``
+   * - ``oceanarray.process(mooring_dir=)``
+     - ``paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.process(yaml_path, paths)``
+   * - ``oceanarray.process(raw_dir=)``
+     - ``oceanarray.Paths(raw_dir=...) in oceanarray.process(yaml_path, paths)``
+   * - ``oceanarray.process(caldip_dir=)``
+     - ``oceanarray.Paths(caldip_dir=...) in oceanarray.process(yaml_path, paths)``
+   * - ``oceanarray.run(mooring_dir=)``
+     - ``paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.run(yaml_path, paths)``
+   * - ``oceanarray.run(raw_dir=)``
+     - ``oceanarray.Paths(raw_dir=...) in oceanarray.run(yaml_path, paths)``
+   * - ``oceanarray.run(caldip_dir=)``
+     - ``oceanarray.Paths(caldip_dir=...) in oceanarray.run(yaml_path, paths)``
+   * - ``oceanarray.report(mooring_dir=)``
+     - ``paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.report(yaml_path, paths)``
+   * - ``oceanarray.report(proc_dir=)``
+     - ``oceanarray.Paths(proc_dir=...) in oceanarray.report(array_yaml, paths, kind='array')``
+   * - ``oceanarray.report(raw_dir=)``
+     - ``oceanarray.Paths(raw_dir=...) in oceanarray.report(yaml_path, paths)``
+   * - ``oceanarray.report(out_dir=)``
+     - ``paths.with_mooring(mooring_name, report_dir=...) in oceanarray.report(yaml_path, paths)``
+   * - ``oceanarray.report(report_dir=)``
+     - ``oceanarray.Paths(report_dir=...) in oceanarray.report(yaml_path, paths)``
+   * - ``oceanarray.report(pdf_dir=)``
+     - ``oceanarray.report(yaml_path, paths, pdf=True), which writes the PDF beside the pages``
+   * - ``oceanarray.export(mooring_dir=)``
+     - ``paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.export(yaml_path, paths)``
+   * - ``oceanarray.export(out_dir=)``
+     - ``oceanarray.Paths(export_dir=...) in oceanarray.export(yaml_path, paths)``
+   * - ``oceanarray.export(array=)``
+     - ``array_yaml=``
+   * - ``oceanarray.mooring.load(proc_dir=)``
+     - ``oceanarray.mooring.load(paths.yaml_path(mooring_name))``
+
 One base for the package's errors
 ---------------------------------
 

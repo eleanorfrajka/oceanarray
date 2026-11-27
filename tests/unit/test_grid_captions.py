@@ -288,11 +288,11 @@ def test_spectrum_default_markers_are_tides_and_inertial():
     assert [m[0] for m in spectrum_markers(65.7, [("4 d", 4.0)])][-1] == "4 d"
 
 
-def test_spectrum_markers_key_is_checked():
+def test_spectrum_markers_key_is_checked(mooring_yaml):
     """A period without a unit is an error; a good block reads in days."""
     assert any(
         "spectrum_markers" in i.message
-        for i in mooring.check({"spectrum_markers": {"x": "4 weeks"}})
+        for i in mooring.check(mooring_yaml({"spectrum_markers": {"x": "4 weeks"}}))
     )
     assert mooring.resolve_spectrum_markers({"spectrum_markers": {"S2": "12 h"}}) == [
         ("S2", 0.5)

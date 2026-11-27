@@ -9,13 +9,14 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Added
 
-- `oa.Paths` and the paths file (`paths.yaml`): where a project's mooring YAMLs, raw, processed, report and export folders are, with exact folders per mooring; not yet used by the verbs.
+- `oa.Paths` and the paths file (`paths.yaml`): where a project's mooring YAMLs, raw, processed, report and export folders are, with exact folders per mooring.
 - A test imports every module with `DeprecationWarning` as an error, so package code never imports a moved module through its old path.
 - Developer guide (`developer`): principles, layers, one idiom per job, vocabulary, naming, branches and pull requests, known deviations; replaces the style guide (#154).
 - Configuration files page (`configuration_files`): the YAML files, which value wins, finding a mooring by name or by path; a sensor catalog page (`sensor_catalog`) with an example (#154).
 
 ### Changed
 
+- `run`, `process`, `report` and `export` take `(yaml_path, paths)`, every folder from the `oa.Paths`, and `mooring.load`/`check` take `yaml_path`, with the CLI unchanged.
 - `check_people_block`, `check_source_block` and their key lists moved from `pipeline.attribution` to `oceanarray.mooring.blocks`; every name moved without an old path is on the 0.7.0 migration page.
 - Deprecations removed in 0.8.0 have their own table and constant (`_deprecated.RENAMED_NEXT`, `REMOVED_IN_NEXT`); no warning writes a release number out.
 - Package code calls a loaded mooring YAML `mooring_dict` and its path `yaml_path` (was `cfg`, `mooring_config`, `description`, `config_path`).
@@ -39,6 +40,7 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Deprecated
 
+- The verbs' folder keywords (`raw_dir=`, `mooring_dir=`, `out_dir=`, ...), a folder or dict for the YAML, `mooring=` and calls without `paths` warn until 0.8.0; same files as before.
 - `plotters.helpers.masked` and `ruled`, removed without a warning, are back as aliases that warn until 0.8.0: use `pipeline.masking.masked` and `mask_rules.STACK_ATTR in ds.attrs`.
 - Twelve keywords renamed to say what they carry (`mooring_dict=`, `mooring_dicts=`, `yaml_paths=`, `mooring=`); the old ones warn until 0.8.0. See the 0.7.0 migration page.
 

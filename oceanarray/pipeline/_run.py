@@ -9,23 +9,22 @@ from os import PathLike
 from pathlib import Path
 from typing import Any
 
-from oceanarray import mask_rules, paths
+from oceanarray import _deprecated, mask_rules
 from oceanarray.config import parameters as params
+from oceanarray.paths import Paths, product_file, stale_file
 
 log = logging.getLogger(__name__)
 
 
 def run(
-    mooring: str | PathLike | Mapping[str, Any],
+    yaml_path: str | PathLike | None = None,
+    paths: Paths | None = None,
     *,
     stages: int | str | Iterable[int] | None = None,
     from_stage: int | None = None,
     serials: Iterable[str] | None = None,
     force: bool = False,
     keep_going: bool = True,
-    mooring_dir: PathLike | None = None,
-    raw_dir: PathLike | None = None,
-    caldip_dir: PathLike | None = None,
     dt_seconds: int | None = None,
     pmin: float | None = None,
     pmax: float | None = None,
@@ -33,14 +32,20 @@ def run(
     mask_flags: Iterable[int] | Mapping[str, Iterable[int]] | None = None,
     stack_stage: int = 3,
     report: bool = False,
+    mooring: str | PathLike | Mapping[str, Any] | None = None,
+    mooring_dir: PathLike | None = None,
+    raw_dir: PathLike | None = None,
+    caldip_dir: PathLike | None = None,
 ) -> list[Path]:
     """Run stages 1–3 for one mooring, then stack and grid it (and build its report).
 
     Parameters
     ----------
-    mooring : str or os.PathLike or Mapping
-        A ``*.mooring.yaml``, a directory holding exactly one, or a loaded mooring YAML
-        (then *mooring_dir* is required).
+    yaml_path : str or os.PathLike
+        The ``*.mooring.yaml``.
+    paths : oceanarray.Paths
+        Where the files are, as for :func:`oceanarray.process`; with *report*, the pages
+        go in ``paths.report_mooring_dir(name)``.
     stages : int or "all" or iterable of int or None, optional
         Stages to run before the stack, from the first given through the stage the stack
         reads: ``(2, 3)`` needs no *raw_dir*; ``2`` alone is refused. Default: all.
@@ -56,8 +61,6 @@ def run(
         ``stage2_instruments``), names what it left out (``instruments_omitted``,
         ``keep_going_failures``) and products are ``data_mode = "P"``. False: any failure
         raises.
-    mooring_dir, raw_dir, caldip_dir : os.PathLike or None, optional
-        As for :func:`oceanarray.process`.
     dt_seconds : int or None, optional
         Stack time step (s); default ``stack: dt_seconds``, else 3600.
     pmin, pmax, dp : float or None, optional
@@ -72,6 +75,10 @@ def run(
         or declination.
     report : bool, optional
         Also build the report pages (no PDF) with :func:`oceanarray.report`.
+    mooring : str or os.PathLike or Mapping, optional
+        Deprecated name of *yaml_path*; removed in 0.8.0.
+    mooring_dir, raw_dir, caldip_dir : os.PathLike, optional
+        Deprecated folders, used when *paths* is not given; removed in 0.8.0.
 
     Returns
     -------
@@ -81,8 +88,10 @@ def run(
     Raises
     ------
     oceanarray.exceptions.MooringError
-        Nothing can be stacked or a setting is invalid; with ``keep_going=False`` also any
-        failure.
+        Nothing can be stacked, a setting is invalid, or *report* without a report
+        folder in *paths*; with ``keep_going=False`` also any failure.
+    TypeError
+        *paths* is not an :class:`oceanarray.Paths`.
 
     Notes
     -----
@@ -92,18 +101,15 @@ def run(
 
     Examples
     --------
-    Not run as tests: they need a mooring folder on disk.
+    Not run as tests: they need a mooring YAML and its files on disk.
 
     >>> import oceanarray as oa
-    >>> oa.run("proc/dune2_1_2026/dune2_1_2026.mooring.yaml", raw_dir="raw/")  # doctest: +SKIP
-    >>> oa.run(yaml_path, stages=3, dp=10)  # re-QC, regrid finer  # doctest: +SKIP
+    >>> paths = oa.Paths.from_file("paths.yaml")  # doctest: +SKIP
+    >>> oa.run(paths.yaml_path("M2_2016"), paths)  # doctest: +SKIP
+    >>> oa.run(yaml_path, paths, stages=3, dp=10)  # re-QC, regrid finer  # doctest: +SKIP
     """
     from oceanarray.exceptions import MooringError
-    from oceanarray.pipeline import (
-        _Outcome,
-        _process_stages,
-        resolve_mooring,
-    )
+    from oceanarray.pipeline import _Outcome, _process_stages, resolve_verb_call
     from oceanarray.pipeline.grid import _grid_file
     from oceanarray.pipeline.stack import _stack_file
     from oceanarray.pipeline.summary import RunSummary
@@ -112,7 +118,29 @@ def run(
         raise ValueError(f"stack_stage={stack_stage!r}: expected 3 or 2")
     wanted = _resolve_stages(stages, from_stage, stack_stage)
     serial_list = _as_serial_list(serials)
-    mooring_dict, moor_dir = resolve_mooring(mooring, mooring_dir, "run")
+    renamed = "oceanarray.run(mooring=)"
+    yaml_path = _deprecated.resolve_keyword(
+        renamed, yaml_path, mooring, required="yaml_path", quiet=True
+    )
+    mooring_dict, yaml_path, paths, given_dict = resolve_verb_call(
+        "run",
+        yaml_path,
+        paths,
+        {"mooring_dir": mooring_dir, "raw_dir": raw_dir, "caldip_dir": caldip_dir},
+        # The old run(report=True) wrote the pages in <mooring folder>/report.
+        lambda name, folder: Paths.from_mooring_dir(
+            name,
+            folder,
+            raw_dir=raw_dir,
+            caldip_dir=caldip_dir,
+            mooring_report_dir=folder / "report",
+        ),
+        renamed=[renamed] if mooring is not None else [],
+    )
+    moor_dir = paths.mooring_dir(mooring_dict["name"])
+    if report:
+        # Fail before processing when the pages have nowhere to go.
+        paths.report_mooring_dir(mooring_dict["name"])
     settings = _resolve_settings(
         mooring_dict, dt_seconds=dt_seconds, pmin=pmin, pmax=pmax, dp=dp
     )
@@ -130,7 +158,7 @@ def run(
                 f"{mooring_dict.get('name', 'mooring')}: {exc} (the call)"
             ) from exc
     name = mooring_dict["name"]
-    products = [paths.product_file(moor_dir, name, p) for p in ("stack", "grid")]
+    products = [product_file(moor_dir, name, p) for p in ("stack", "grid")]
     outcome = _Outcome()
     # Collect the run's warnings on the package logger; the summary is logged and
     # written to processing_logs/<name>_summary.json at the end, whatever happens.
@@ -140,14 +168,12 @@ def run(
         try:
             _process_stages(
                 mooring_dict,
-                moor_dir,
+                paths,
                 wanted,
                 outcome,
                 serial_list=serial_list,
                 force=force,
                 keep_going=keep_going,
-                raw_dir=raw_dir,
-                caldip_dir=caldip_dir,
             )
             log.info("Stack for mooring %s (dt = %s s)", name, settings["dt_seconds"])
             stack_path, ds_stack = _stack_file(
@@ -219,15 +245,15 @@ def run(
         if report:
             from oceanarray.reports import report as _report
 
-            files.append(
-                _report(
-                    mooring_dict,
-                    mooring_dir=moor_dir,
-                    raw_dir=raw_dir,
+            # A mooring dict given in place of the YAML is what the pages show.
+            with _deprecated.internal():
+                page = _report(
+                    mooring_dict if given_dict else yaml_path,
+                    paths,
                     serials=serial_list,
                     force=force,
                 )
-            )
+            files.append(page)
         return files
     finally:
         logging.getLogger("oceanarray").removeHandler(summary)
@@ -308,7 +334,7 @@ def _set_aside_stale(paths_: list[Path], why: str) -> None:
     """Rename product files that no longer match the stage files to ``*.stale.nc``."""
     for path in paths_:
         if path.exists():
-            stale = paths.stale_file(path)
+            stale = stale_file(path)
             # One stale copy per product: a later rename replaces it.
             path.replace(stale)
             log.warning(
