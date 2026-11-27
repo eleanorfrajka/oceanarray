@@ -55,7 +55,8 @@ RENAMED: dict[str, str] = {
 }
 
 #: Old dotted name -> what to use instead, for names deprecated during 0.7. A
-#: renamed keyword is written ``<function>(<old keyword>=)``.
+#: renamed keyword is written ``<function>(<old keyword>=)``; a file location
+#: is described in words.
 RENAMED_NEXT: dict[str, str] = {
     "oceanarray.mooring.resolve_report_sections(description=)": (
         "the mooring_dict= keyword"
@@ -82,6 +83,9 @@ RENAMED_NEXT: dict[str, str] = {
     "oceanarray.pipeline.read_mooring.header_attrs(cfg=)": "the mooring_dict= keyword",
     "oceanarray.pipeline.stack.mooring_attrs(mooring_config=)": (
         "the mooring_dict= keyword"
+    ),
+    "a mooring YAML inside proc_dir/<mooring_name>/": (
+        "<yaml_dir>/<mooring_name>.mooring.yaml (yaml_dir of paths.yaml or oceanarray.Paths)"
     ),
 }
 
