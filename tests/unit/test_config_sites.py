@@ -24,6 +24,7 @@ PKG = Path(__file__).resolve().parents[2] / "oceanarray"
 #   pipeline/export.py    — array-level config (site_code, project), not a mooring config
 #   originator_flags.py   — the packaged flag-meaning vocabulary, not a mooring config
 #   mooring/catalog.py    — the sensor catalog a mooring names, not a mooring config
+#   paths.py              — the paths file (paths.yaml), not a mooring config
 # Everything under legacy/ is excluded wholesale (vendored/managed upstream).
 ALLOWED = {
     "mooring/load_yaml.py",
@@ -35,6 +36,7 @@ ALLOWED = {
     "pipeline/export.py",
     "originator_flags.py",
     "mooring/catalog.py",
+    "paths.py",
 }
 
 

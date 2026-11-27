@@ -151,6 +151,24 @@ keyword still works, with a ``DeprecationWarning`` naming the new one, until
    * - ``oceanarray.reports.MooringReport.generate(cfg=)``
      - ``mooring_dict=``
 
+Mooring YAMLs in their own folder
+---------------------------------
+
+New in 0.7.0: a paths file, ``paths.yaml``, says where a project's folders are
+(:ref:`paths-file`), and the mooring YAMLs live in its ``yaml_dir``, apart from the
+processed files. ``oceanarray.Paths.yaml_path`` and ``yaml_paths`` still find a
+mooring YAML in the processed-data folder, as in the standard structure until now,
+with a ``DeprecationWarning``, until 0.8.0; move each YAML to its ``yaml_dir``.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 50 50
+
+   * - Old location
+     - New location
+   * - ``a mooring YAML inside proc_dir/<mooring_name>/``
+     - ``<yaml_dir>/<mooring_name>.mooring.yaml``
+
 One base for the package's errors
 ---------------------------------
 

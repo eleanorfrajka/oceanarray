@@ -667,6 +667,21 @@ The rest:
        ``mooring.load`` returns it (several: ``mooring_dicts``). Not ``cfg``,
        ``mooring_config`` or ``description``.
      - ``mooring_dict``
+   * - ``*_path`` / ``*_dir`` / ``*_name``
+     - A name ending ``_path`` holds a file (relative is fine; never
+       ``*_fullpath``), ``_dir`` a folder, ``_name`` a bare name.
+       ``paths.yaml`` is "path" in the general sense: it may also hold files.
+     - ``yaml_path``, ``raw_dir``, ``mooring_name``
+   * - paths file / Paths
+     - Where a project's files are, in one place: the ``paths.yaml`` file and
+       the ``Paths`` read from it (or built in Python, or by
+       ``Paths.standard(root)``). A frozen dataclass: data and the methods that
+       build a mooring's folders. Its keys, the Python attributes and the CLI flags
+       are the same word (``raw_dir``, ``--raw-dir``).
+     - ``paths.yaml``, ``oceanarray.Paths``
+   * - yaml_dir
+     - The folder holding the mooring YAMLs, apart from the processed files.
+     - ``Paths.yaml_dir``
    * - mooring (parameter)
      - Anything ``mooring.load`` accepts: a mooring's name, the path of its
        mooring YAML, or a mooring dict. A parameter holding only the name is
