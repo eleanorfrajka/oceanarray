@@ -9,11 +9,14 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Added
 
+- A test imports every module with `DeprecationWarning` as an error, so package code never imports a moved module through its old path.
 - Developer guide (`developer`): principles, layers, one idiom per job, vocabulary, naming, branches and pull requests, known deviations; replaces the style guide (#154).
 - Configuration files page (`configuration_files`): the YAML files, which value wins, finding a mooring by name or by path; a sensor catalog page (`sensor_catalog`) with an example (#154).
 
 ### Changed
 
+- The mooring YAML code is split by job into `mooring.load_yaml`, `check_yaml`, `write_yaml`, `yaml_keys` and `settings`; every name still imports from `oceanarray.mooring`.
+- Docstrings, messages and the docs call the `*.mooring.yaml` file "the mooring YAML", not "the description"; some error and log messages read differently.
 - All the mooring YAML code is in one package, `oceanarray.mooring`: `instruments`, `location`, `catalog` and `validation` moved into it, unchanged; it no longer imports the pipeline (#166).
 - `oceanarray.instruments`, `oceanarray.location` and `oceanarray.config.validation` warn when imported, until 0.8.0; `oceanarray.catalog` is now `oceanarray.mooring.catalog` (#166).
 - `changed_attr` (has a product attribute changed, at the precision the writer stores it) moved from `oceanarray.provenance` to `oceanarray.writers.dtypes`, beside `same_attr` (#165).

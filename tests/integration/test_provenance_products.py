@@ -71,9 +71,9 @@ def test_source_comes_from_the_file_first_and_the_yaml_fills_the_rest(caplog):
     assert ds.attrs["source_citation"] == cf7.attrs["originator_citation"]
     assert ds.attrs["source_license"] == cf7.attrs["originator_license"]
     assert [r.message for r in caplog.records if "source" in r.message] == [
-        "  source citation: the file's value is kept; the description's "
+        "  source citation: the file's value is kept; the mooring YAML's "
         "'a citation the file does not give' is not used",
-        "  source license: the file's value is kept; the description's "
+        "  source license: the file's value is kept; the mooring YAML's "
         "'CC-BY 4.0' is not used",
     ]
     assert (
@@ -255,7 +255,7 @@ def test_a_new_time_step_rebuilds_the_stack_and_grid(egm2016):
     cfg["stack"] = {**(cfg.get("stack") or {}), "dt_seconds": 1800}
     _, ds = _stack_file(cfg, folder, force=False, dt_seconds=1800)
     assert (
-        "stack rebuilt: the description's settings for the stack changed"
+        "stack rebuilt: the mooring YAML's settings for the stack changed"
         in ds.attrs["history"]
     )
     grid_path = _grid(ds, cfg, folder, stack_path)

@@ -22,7 +22,7 @@ _DUNE2 = (
     / "dune2_1_2026.mooring.yaml"
 )
 
-#: The OSNAP RODB mooring description (``tests/fixtures/raw/osnap/run_example.sh``).
+#: The OSNAP RODB mooring YAML (``tests/fixtures/raw/osnap/run_example.sh``).
 _RTWB = {
     "name": "rtwb1_01_2014",
     "waterdepth": 1600,

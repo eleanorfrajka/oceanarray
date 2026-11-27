@@ -8,8 +8,8 @@ import warnings
 
 from oceanarray import _deprecated
 from oceanarray.exceptions import ValidationIssue as _ValidationIssue
+from oceanarray.mooring import check_yaml as _mooring
 from oceanarray.mooring import validation as _new
-from oceanarray.mooring import yaml_file as _mooring
 
 
 def __getattr__(name: str) -> object:

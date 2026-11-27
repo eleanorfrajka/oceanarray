@@ -33,7 +33,7 @@ _YAML = _FIX / f"{_NAME}.mooring.yaml"
 
 @pytest.fixture(scope="module")
 def cfg() -> dict:
-    """The dune2 mooring description."""
+    """The dune2 mooring YAML."""
     return _mooring.load(_YAML)
 
 
@@ -97,7 +97,7 @@ def _loop_nearest(ds: xr.Dataset, common_time: np.ndarray, half_window_s: float)
 
 
 def _axis(cfg: dict, dt_seconds: int) -> np.ndarray:
-    """Return the stack time axis for the description's window at *dt_seconds*."""
+    """Return the stack time axis for the mooring YAML's window at *dt_seconds*."""
     return time_axis(
         np.datetime64(cfg["deployment_time"], "ns"),
         np.datetime64(cfg["recovery_time"], "ns"),
@@ -155,7 +155,7 @@ def test_a_window_with_no_whole_step_is_refused(stage3, cfg):
 
 
 def test_the_yaml_block_applies_unless_the_call_gives_one(stage3, cfg):
-    """oa.stack: call > the description's stack: block > the default."""
+    """oa.stack: call > the mooring YAML's stack: block > the default."""
     cfg2 = _with_stack_block(cfg, 1800)
     assert oa.stack(stage3, cfg2).attrs["dt_seconds"] == 1800
     assert oa.stack(stage3, cfg2, dt_seconds=3600).attrs["dt_seconds"] == 3600
@@ -366,7 +366,7 @@ def test_the_stack_records_the_settings_that_built_it(stage3, cfg):
 
 
 def test_the_recorded_settings_carry_the_step_actually_used(stage3, cfg):
-    """A ``dt_seconds`` from the call wins over the description's in the record too."""
+    """A ``dt_seconds`` from the call wins over the mooring YAML's in the record too."""
     ds = st.stack(stage3, _with_stack_block(cfg, 1800), dt_seconds=3600)
     assert ds.attrs["dt_seconds"] == 3600
     assert yaml.safe_load(ds.attrs["deployment_settings"])["stack"] == {

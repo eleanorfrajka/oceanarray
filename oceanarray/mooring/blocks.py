@@ -41,7 +41,7 @@ def split_list(value: object) -> list[str]:
     return [part.strip() for part in text.split(";" if ";" in text else ",")]
 
 
-#: The fields a description's ``people:`` block may hold: the OceanSITES 1.4 names
+#: The fields a mooring YAML's ``people:`` block may hold: the OceanSITES 1.4 names
 #: of :data:`PI_ATTRS` and :data:`CONTRIBUTOR_ATTRS`, and where they came from.
 PEOPLE_BLOCK_KEYS: tuple[str, ...] = (
     *PI_ATTRS.values(),
@@ -59,7 +59,7 @@ CITATION_FIELDS: tuple[str, ...] = (
     "references",
 )
 
-#: The fields a description's ``source:`` block may hold.
+#: The fields a mooring YAML's ``source:`` block may hold.
 SOURCE_BLOCK_KEYS: tuple[str, ...] = (*CITATION_FIELDS, "source_note")
 
 #: A DOI: the ``10.`` prefix, a registrant code, a slash and a suffix.
@@ -108,7 +108,7 @@ def _entry_counts(
 
 
 def check_people_block(block: object) -> tuple[list[str], list[str]]:
-    """Check a description's ``people:`` block.
+    """Check a mooring YAML's ``people:`` block.
 
     Parameters
     ----------
@@ -164,7 +164,7 @@ def check_people_block(block: object) -> tuple[list[str], list[str]]:
 
 
 def check_source_block(block: object) -> tuple[list[str], list[str]]:
-    """Check a description's ``source:`` block.
+    """Check a mooring YAML's ``source:`` block.
 
     Parameters
     ----------

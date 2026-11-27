@@ -23,7 +23,7 @@ class OceanarrayError(Exception):
 
 
 class MooringError(OceanarrayError, ValueError):
-    """Raised when a mooring description fails validation.
+    """Raised when a mooring YAML fails validation.
 
     Carries the full list of validation issues so a caller can inspect every
     finding, not only the summary message.
@@ -31,7 +31,7 @@ class MooringError(OceanarrayError, ValueError):
     Parameters
     ----------
     message : str
-        A human-readable summary of why the description was rejected.
+        A human-readable summary of why the mooring YAML was rejected.
     issues : list of ValidationIssue, optional
         The individual validation findings (errors and warnings) that led to
         the failure. Defaults to an empty list.

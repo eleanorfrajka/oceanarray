@@ -72,7 +72,7 @@ def export(
     Parameters
     ----------
     mooring : str, os.PathLike or Mapping
-        The ``*.mooring.yaml``, the folder holding it, or a loaded description
+        The ``*.mooring.yaml``, the folder holding it, or a loaded mooring YAML
         (then *mooring_dir* is required).  It must carry ``platform_code``.
     mooring_dir : os.PathLike or None, optional
         The mooring's processed folder.
@@ -97,9 +97,9 @@ def export(
     Raises
     ------
     oceanarray.exceptions.MooringError
-        If the description cannot be loaded or nothing could be exported.
+        If the mooring YAML cannot be loaded or nothing could be exported.
     oceanarray.pipeline.oceansites.OceanSitesError
-        If the description has no usable ``platform_code`` or deployment code.
+        If the mooring YAML has no usable ``platform_code`` or deployment code.
 
     Examples
     --------
@@ -112,7 +112,7 @@ def export(
     from oceanarray.pipeline.oceansites import deployment_code, platform_code
 
     cfg, folder = resolve_mooring(mooring, mooring_dir, caller="export")
-    # Fail before any file is opened if the description cannot name the files.
+    # Fail before any file is opened if the mooring YAML cannot name the files.
     platform_code(cfg)
     deployment_code(cfg)
     array_cfg = _array_description(array)

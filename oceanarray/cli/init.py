@@ -1,4 +1,4 @@
-"""``oceanarray init`` — write a skeleton mooring description."""
+"""``oceanarray init`` — write a skeleton mooring YAML."""
 
 from __future__ import annotations
 

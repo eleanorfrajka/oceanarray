@@ -1,6 +1,6 @@
 """``oceanarray.process(mooring)`` runs stages 1–3 on the dune2 fixtures and writes their files.
 
-Builds a fresh proc tree holding only the description, runs ``process`` against the
+Builds a fresh proc tree holding only the mooring YAML, runs ``process`` against the
 committed raw files, and checks the written stage files against the committed
 fixtures value for value. Also covers the stage selection, the skip-if-exists
 default, and the failures that now raise ``MooringError``.
@@ -51,7 +51,7 @@ def _values_differ(a: Path, b: Path) -> list[str]:
 
 
 def _fresh_tree(tmp_path: Path) -> Path:
-    """Return the path of a description in a proc tree that holds nothing else."""
+    """Return the path of a mooring YAML in a proc tree that holds nothing else."""
     moor = tmp_path / "proc" / _NAME
     moor.mkdir(parents=True)
     shutil.copy(_PROC / f"{_NAME}.mooring.yaml", moor)
@@ -60,7 +60,7 @@ def _fresh_tree(tmp_path: Path) -> Path:
 
 @pytest.fixture(scope="module")
 def processed(tmp_path_factory) -> tuple[Path, list[Path]]:
-    """Run process once over a fresh tree; return the description path and the files written."""
+    """Run process once over a fresh tree; return the mooring YAML path and the files written."""
     yaml_path = _fresh_tree(tmp_path_factory.mktemp("process"))
     return yaml_path, oa.process(yaml_path, raw_dir=_RAW)
 
@@ -149,7 +149,7 @@ def test_process_raises_when_no_serial_matches(processed):
 
 
 def test_process_raises_without_a_raw_directory(tmp_path):
-    """Stage 1 with no raw_dir (and no absolute directory: in the description) raises."""
+    """Stage 1 with no raw_dir (and no absolute directory: in the mooring YAML) raises."""
     with pytest.raises(MooringError, match="raw_dir="):
         oa.process(_fresh_tree(tmp_path), stages=1)
 
@@ -202,7 +202,7 @@ def test_stage3_dry_run_with_no_stage2_files_still_fails(tmp_path):
 
 @pytest.fixture
 def own_tree(processed, tmp_path) -> Path:
-    """A copy of the processed tree this test may change; returns its description path."""
+    """A copy of the processed tree this test may change; returns its mooring YAML path."""
     yaml_path, _ = processed
     shutil.copytree(yaml_path.parent, tmp_path / _NAME)
     return tmp_path / _NAME / yaml_path.name

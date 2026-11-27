@@ -77,7 +77,7 @@ CONTOUR_JS = """
     }).addTo(map);
   })();"""
 
-#: Why an instrument the description skips has no pages: not processed here, not
+#: Why an instrument the mooring YAML skips has no pages: not processed here, not
 #: missing at the originator.
 NOT_HERE = "not processed here"
 
@@ -466,7 +466,7 @@ def _build_array_masthead(
     -------
     list of Fact
         Year deployed, project, moorings, status, deployed, recovered, water
-        depth, instruments, and the instruments the descriptions skip, when any.
+        depth, instruments, and the instruments the mooring YAMLs skip, when any.
     """
     now = now or datetime.now(UTC)
     deployed = [r["_deploy_dt"] for r in rows if r["_deploy_dt"]]

@@ -268,7 +268,7 @@ def union(
     stack_rule : Mapping
         The stack's rule.
     extra : Mapping
-        Flags to add (e.g. the description's ``grid: mask_flags``).
+        Flags to add (e.g. the mooring YAML's ``grid: mask_flags``).
 
     Returns
     -------
@@ -296,7 +296,7 @@ def stack_rule(
     Parameters
     ----------
     mooring : Mapping
-        The loaded mooring description.
+        The loaded mooring YAML.
     given : iterable of int, or Mapping, optional
         The rule the caller (or ``--mask-flags``) gave.
 

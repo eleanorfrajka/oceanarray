@@ -115,7 +115,7 @@ def test_raw_without_raw_dir_raises():
 
 
 def test_mooring_attrs_stamp_position_and_window():
-    """A full description stamps position/window with their real sources."""
+    """A full mooring YAML stamps position/window with their real sources."""
     attrs = header_attrs(_cfg())
     assert attrs["mooring_name"] == "dune2_1_2026"
     assert attrs["location_source"] == "latitude/longitude"

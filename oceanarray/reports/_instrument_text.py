@@ -579,7 +579,7 @@ def window_lines(
 ) -> list[tuple[str, str, str]]:
     """Return the vertical lines of the start and end windows: one per time.
 
-    A suggested time (from the pressure record) and the mooring description's
+    A suggested time (from the pressure record) and the mooring YAML's
     time within *tolerance_s* of each other are drawn as one line.
 
     Parameters
@@ -587,7 +587,7 @@ def window_lines(
     suggested : sequence of str or None
         The suggested deployment and recovery times.
     described : sequence of str or None
-        The description's deployment and recovery times.
+        The mooring YAML's deployment and recovery times.
     tolerance_s : float, optional
         Two times this close are one line.
 

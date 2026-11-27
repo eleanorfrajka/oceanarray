@@ -28,7 +28,7 @@ _DT = 3600
 
 @pytest.fixture(scope="module")
 def cfg() -> dict:
-    """The dune2 mooring description."""
+    """The dune2 mooring YAML."""
     return _mooring.load(_YAML)
 
 
@@ -87,7 +87,7 @@ def test_stack_excludes_instruments_marked_stack_false(stage3, cfg):
 
 
 def test_stack_refuses_without_a_deployment_window(stage3, cfg):
-    """No deployment window in the description raises MooringError."""
+    """No deployment window in the mooring YAML raises MooringError."""
     cfg2 = {k: v for k, v in cfg.items() if k != "recovery_time"}
     with pytest.raises(MooringError, match="deployment_time"):
         stack(stage3, cfg2, dt_seconds=_DT)

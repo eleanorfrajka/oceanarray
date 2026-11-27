@@ -300,7 +300,7 @@ class TestMooringProcessor:
         attrs = updated_ds.attrs
         assert attrs["mooring_name"] == "test_mooring"
         assert attrs["waterdepth"] == 1000
-        # The best position the description gives (seabed), in decimal degrees.
+        # The best position the mooring YAML gives (seabed), in decimal degrees.
         assert attrs["latitude"] == pytest.approx(59 + 59.5 / 60)
         assert attrs["longitude"] == pytest.approx(-(30 + 0.5 / 60))
         assert attrs["deployment_latitude"] == 60.0
@@ -331,7 +331,7 @@ class TestMooringProcessor:
         assert "longitude" not in updated_ds.attrs
         assert updated_ds.attrs["deployment_time"] == "YYYY-mm-ddTHH:MM:ss"
         assert updated_ds.attrs["recovery_time"] == "YYYY-mm-ddTHH:MM:ss"
-        # A position the description does not give is left out, not a placeholder.
+        # A position the mooring YAML does not give is left out, not a placeholder.
         for key in ("deployment_latitude", "seabed_latitude", "seabed_longitude"):
             assert key not in updated_ds.attrs
 

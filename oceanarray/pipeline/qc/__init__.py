@@ -143,7 +143,7 @@ def load_qc_config(
     Parameters
     ----------
     mooring_cfg : dict
-        The mooring description.
+        The mooring YAML.
     entry : dict
         The instrument's entry.
 

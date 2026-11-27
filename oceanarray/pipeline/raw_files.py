@@ -1,6 +1,6 @@
 """Find and read one instrument's raw file, as stage 1 does.
 
-A mooring description names each instrument's raw file (``filename``, ``file_type``,
+A mooring YAML names each instrument's raw file (``filename``, ``file_type``,
 ``header_file``); when it does not, the file is found from the instrument type and
 serial by the recovery-file naming conventions. The raw read also takes what only the
 raw file holds: the calibration coefficients in an SBE header and the Nortek
@@ -33,12 +33,12 @@ _NORTEK_TYPES = ("nortek-raw", "nortek-ascii", "nortek-csv")
 
 @dataclass(frozen=True)
 class RawFile:
-    """One instrument's raw file, as found from its description entry.
+    """One instrument's raw file, as found from its mooring YAML entry.
 
     Attributes
     ----------
     entry : dict
-        The description entry, with ``filename``, ``file_type`` and ``header_file``
+        The mooring YAML entry, with ``filename``, ``file_type`` and ``header_file``
         filled in when they were found by naming convention.
     path : pathlib.Path
         The raw data file.
@@ -264,25 +264,25 @@ def resolve_raw_file(
     *,
     folder: str | None = None,
 ) -> RawFile:
-    """Find one instrument's raw file (and Nortek header) from its description entry.
+    """Find one instrument's raw file (and Nortek header) from its mooring YAML entry.
 
     The file is ``<raw_dir>/<name>/<instrument>/<filename>``. A missing ``filename``
     is found by naming convention (:func:`guess_instrument_filename`). An Aquadopp
     file not in ``aquadopp/`` is looked for in the legacy ``nortek/`` folder. An
-    absolute ``directory:`` in the description (deprecated) replaces the raw root,
+    absolute ``directory:`` in the mooring YAML (deprecated) replaces the raw root,
     with the old ``<directory>/<instrument>/<name>/<filename>`` layout.
 
     Parameters
     ----------
     entry : dict
-        The instrument's description entry.
+        The instrument's mooring YAML entry.
     mooring : dict
-        The loaded mooring description.
+        The loaded mooring YAML.
     raw_dir : str or pathlib.Path or None
         The cruise-level raw-data root.
     folder : str or None, optional
         The mooring's folder name under *raw_dir* (and under an absolute
-        ``directory:``); defaults to the description's ``name``.
+        ``directory:``); defaults to the mooring YAML's ``name``.
 
     Returns
     -------

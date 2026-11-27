@@ -17,7 +17,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from oceanarray.mooring import KNOWN_KEYS
-from oceanarray.mooring import yaml_file as mooring
+from oceanarray.mooring import check_yaml as mooring
 
 
 def main(argv: list[str] | None = None) -> int:

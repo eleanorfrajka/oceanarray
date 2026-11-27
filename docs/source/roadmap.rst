@@ -25,7 +25,7 @@ Status Overview
   (``reports/``)
 - Clock offset analysis (``analysis/clock/offsets.py``)
 - Multi-instrument overview plots (``plotters/``)
-- Mooring description validation (``oceanarray validate``, ``mooring.check``)
+- Mooring YAML validation (``oceanarray validate``, ``mooring.check``)
 - Several deployments of a site: the Stack cat and the Grid cat (``oceanarray concat``)
 
 **Partly implemented**
@@ -104,7 +104,7 @@ variables.  See :doc:`methods/auto_qc`.
 -----------------
 
 Tests cover the stages, stack, grid, export, reports, plotters, readers, writer and the
-mooring description.  The stage-3 and stack orchestration paths are the thinnest; new
+mooring YAML.  The stage-3 and stack orchestration paths are the thinnest; new
 work there adds tests as it goes.
 
 ---

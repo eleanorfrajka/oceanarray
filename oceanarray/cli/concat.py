@@ -75,7 +75,7 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
         "concat",
         help="Join one site's deployment stacks end to end in time.",
         description=(
-            "Read each named mooring's stack (<name>_stack.nc beside its description)\n"
+            "Read each named mooring's stack (<name>_stack.nc beside its mooring YAML)\n"
             "and join them on one time axis by depth: every level of every\n"
             "deployment, each depth empty outside its levels' deployments; nothing is\n"
             "filled across a turnaround, and where two deployments overlap the newer\n"

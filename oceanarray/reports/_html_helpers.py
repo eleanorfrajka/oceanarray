@@ -79,7 +79,7 @@ DESCRIPTION_ANCHOR = "description"
 
 
 def description_links(ctx: Mapping[str, Any]) -> list[tuple[str, str]]:
-    """Return the link from a stack or grid page to its mooring description.
+    """Return the link from a stack or grid page to its mooring YAML.
 
     Parameters
     ----------

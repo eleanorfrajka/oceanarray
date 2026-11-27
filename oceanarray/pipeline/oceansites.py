@@ -73,7 +73,7 @@ _SEABED_VARIABLES = frozenset({"east_velocity", "north_velocity", "up_velocity"}
 
 
 class OceanSitesError(OceanarrayError, ValueError):
-    """Raised when a dataset or description cannot make a valid OceanSITES file."""
+    """Raised when a dataset or mooring YAML cannot make a valid OceanSITES file."""
 
 
 def _iso_duration(seconds: float) -> str:
@@ -152,17 +152,15 @@ def _bin_depths(ds: xr.Dataset, head: float) -> np.ndarray:
 
 
 def _position(mooring: Mapping) -> tuple[float, float]:
-    """Return the mooring's position; refused when the description has none (no 0, 0)."""
+    """Return the mooring's position; refused when the mooring YAML has none (no 0, 0)."""
     lat, lon, source = location.parse_latlon_with_source(dict(mooring))
     if location.is_unknown_latlon_source(source):
-        raise OceanSitesError(
-            "the mooring description has no position (latitude/longitude)"
-        )
+        raise OceanSitesError("the mooring YAML has no position (latitude/longitude)")
     return lat, lon
 
 
 def _entry(mooring: Mapping, serial: str) -> Mapping:
-    """Return the mooring description's entry for instrument *serial* ({} if absent)."""
+    """Return the mooring YAML's entry for instrument *serial* ({} if absent)."""
     for entry in instrument_entries(dict(mooring)):
         if safe_serial(entry.get("serial")) == serial:
             return entry
@@ -288,7 +286,7 @@ def _qc_variable(flags: np.ndarray, long_name: str) -> xr.DataArray:
 
 
 def _first(mooring: Mapping, *keys: str) -> str | None:
-    """Return the first non-empty value among *keys* in the description, as text."""
+    """Return the first non-empty value among *keys* in the mooring YAML, as text."""
     for key in keys:
         if mooring.get(key):
             return str(mooring[key])
@@ -314,7 +312,7 @@ def platform_code(mooring: Mapping) -> str:
     """Return ``platform_code``; refused if absent or holding ``_`` (the file-name separator)."""
     code = mooring.get("platform_code")
     if code is None or code == "":
-        raise OceanSitesError("the mooring description has no platform_code")
+        raise OceanSitesError("the mooring YAML has no platform_code")
     if not isinstance(code, str):
         # YAML reads an unquoted 12 as a number; the validator warns, and a number
         # is not taken as a code.
@@ -521,7 +519,7 @@ def to_oceansites(
     ds : xarray.Dataset
         A stage-3 dataset for one instrument, or a mooring's grid.
     mooring : Mapping
-        The loaded mooring description; supplies ``platform_code``,
+        The loaded mooring YAML; supplies ``platform_code``,
         ``deployment_code`` (default: ``YYYYMM`` of ``deployment_time``), the
         position, the ships and cruises, and each variable's data mode.
     array : Mapping or None, optional

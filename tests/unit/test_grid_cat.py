@@ -144,7 +144,7 @@ def test_the_call_then_the_yaml_then_the_default():
     assert stack_rule(cfg, [9]) == {"default": (9,)}
     assert resolve_grid_mask_flags(cfg) is None
     cfg["grid"]["mask_flags"] = {"velocty": [3]}
-    with pytest.raises(MooringError, match="description's grid: block"):
+    with pytest.raises(MooringError, match="mooring YAML's grid: block"):
         resolve_grid_mask_flags(cfg)
 
 

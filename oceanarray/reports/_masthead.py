@@ -1,7 +1,7 @@
 """Masthead facts shared by the mooring, stack and grid report pages.
 
 The common facts (cruises, ships, position, water depth, deployment window,
-duration, instruments) come from the mooring description once, in one fixed
+duration, instruments) come from the mooring YAML once, in one fixed
 order, so the three pages cannot disagree on a label, an order or a value. Each
 page appends its own product facts in the order defined here.
 """
@@ -19,9 +19,9 @@ from oceanarray.mooring import location
 from ._html_helpers import _format_dt, _format_duration, _parse_dt
 from ._navs import _TYPE_ORDER, _type_label
 
-#: Shown when a value is absent from the description.
+#: Shown when a value is absent from the mooring YAML.
 MISSING = "—"
-#: Shown for a recovery cruise or ship the description does not give.
+#: Shown for a recovery cruise or ship the mooring YAML does not give.
 UNKNOWN = "UNK"
 
 #: One masthead fact: ``(label, value, missing)``.
@@ -76,12 +76,12 @@ def _fact(label: str, value: Any, unit: str = "") -> Fact:
 
 
 def cruise_label(cfg: Mapping[str, Any]) -> str:
-    """Return a description's cruise as one line, for the page footer and instrument page.
+    """Return a mooring YAML's cruise as one line, for the page footer and instrument page.
 
     Parameters
     ----------
     cfg : Mapping
-        A loaded mooring description.
+        A loaded mooring YAML.
 
     Returns
     -------
@@ -96,12 +96,12 @@ def cruise_label(cfg: Mapping[str, Any]) -> str:
 
 
 def format_position(cfg: Mapping[str, Any]) -> tuple[str, str]:
-    """Return a description's (latitude, longitude) in degrees and decimal minutes.
+    """Return a mooring YAML's (latitude, longitude) in degrees and decimal minutes.
 
     Parameters
     ----------
     cfg : Mapping
-        A loaded mooring description.
+        A loaded mooring YAML.
 
     Returns
     -------
@@ -127,7 +127,7 @@ def format_instrument_counts(
     Parameters
     ----------
     entries : iterable
-        Instrument entries of a description (``instruments.instrument_entries``);
+        Instrument entries of a mooring YAML (``instruments.instrument_entries``);
         entries that are not dicts are ignored.
     labels : Mapping, optional
         Display labels by lower-case instrument type, consulted before the
@@ -181,7 +181,7 @@ def common_facts(cfg: Mapping[str, Any], entries: Iterable[Any]) -> list[Fact]:
     Parameters
     ----------
     cfg : Mapping
-        A loaded mooring description.
+        A loaded mooring YAML.
     entries : iterable
         Its instrument entries (``instruments.instrument_entries(cfg)``).
 
@@ -191,7 +191,7 @@ def common_facts(cfg: Mapping[str, Any], entries: Iterable[Any]) -> list[Fact]:
         ``(label, value, missing)`` for: Deployment cruise, Deployment ship,
         Recovery cruise, Recovery ship, Latitude, Longitude, Water depth,
         Deployment, Recovery, Duration, Instruments. A recovery cruise or ship
-        absent from the description reads ``UNK``; the legacy single ``cruise``
+        absent from the mooring YAML reads ``UNK``; the legacy single ``cruise``
         and ``ship`` keys are the deployment values only.
 
     """

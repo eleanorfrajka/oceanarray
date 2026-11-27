@@ -1,4 +1,4 @@
-"""``oceanarray validate`` — check mooring descriptions."""
+"""``oceanarray validate`` — check mooring YAMLs."""
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ def _description_path(given: str, proc_dir: str | None) -> Path:
 
 
 def cmd_validate(args: argparse.Namespace) -> int:
-    """Validate each mooring description; 1 on any error (or, with --strict, any warning)."""
+    """Validate each mooring YAML; 1 on any error (or, with --strict, any warning)."""
     all_ok = True
     for given in args.mooring:
         ok = _print_report(
@@ -38,17 +38,17 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
     """Add the ``validate`` subcommand to *sub*."""
     p_validate = sub.add_parser(
         "validate",
-        help="Check mooring descriptions (<name>.mooring.yaml) without processing anything.",
+        help="Check mooring YAMLs (<name>.mooring.yaml) without processing anything.",
         description=(
-            "Read and check one or more mooring descriptions: instrument types, serial\n"
+            "Read and check one or more mooring YAMLs: instrument types, serial\n"
             "numbers, file types, heights above bottom, deployment dates, inline\n"
             "instruments, QC override blocks and the OceanSITES codes. Prints every ERROR\n"
-            "and WARNING. Exits 0 if no description has an ERROR (with --strict: no\n"
+            "and WARNING. Exits 0 if no mooring YAML has an ERROR (with --strict: no\n"
             "WARNING either), 1 otherwise."
         ),
         epilog=(
             "Examples:\n"
-            "  # one description\n"
+            "  # one mooring YAML\n"
             "  oceanarray validate /data/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml\n"
             "  # every mooring of a cruise, failing on warnings too\n"
             "  oceanarray validate /data/proc/*/*.mooring.yaml --strict\n"
@@ -60,7 +60,7 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
     p_validate.add_argument(
         "mooring",
         nargs="+",
-        help="Mooring description(s): a <name>.mooring.yaml, its folder, or a name with --proc-dir.",
+        help="Mooring YAML(s): a <name>.mooring.yaml, its folder, or a name with --proc-dir.",
     )
     _add_dir_args(p_validate, raw_needed=False)
     p_validate.add_argument(
@@ -70,7 +70,7 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
 
 
 def _print_report(yaml_path: str, *, strict: bool = False) -> bool:
-    """Print a human-readable validation report; return True when the description passes."""
+    """Print a human-readable validation report; return True when the mooring YAML passes."""
     from oceanarray import mooring as _mooring
 
     issues = _mooring.check(yaml_path)

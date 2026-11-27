@@ -87,8 +87,9 @@ the code (analytic case, invariant, a ``gsw`` cross-check).
      - The verbs: ``read``, ``read_mooring``, ``stage1``–``stage3``, ``process``,
        ``stack``, ``grid``, ``run``, ``write``, ``write_mooring``, ``report``,
        ``export``. ``__all__`` is the public surface.
-   * - Description
-     - ``mooring/`` (``yaml_file.py``, ``validation.py``, ``blocks.py``,
+   * - Mooring YAML
+     - ``mooring/`` (``load_yaml.py``, ``check_yaml.py``, ``write_yaml.py``,
+       ``yaml_keys.py``, ``settings.py``, ``validation.py``, ``blocks.py``,
        ``instruments.py``, ``location.py``, ``catalog.py``), ``paths.py``
      - The ``*.mooring.yaml`` (load, check, template, save) and the checks on its
        content, its ``people:`` and ``source:`` blocks included; instrument
@@ -463,7 +464,7 @@ made in ctdcast and copied back. If a macro you need is missing, ask for it ther
 ~~~~~~~~~~~~~~~~~~~~~
 
 **Rule.** Every top-level key is listed in ``KNOWN_KEYS`` in
-``oceanarray/mooring/yaml_file.py`` and documented in :doc:`yaml_configuration`.
+``oceanarray/mooring/yaml_keys.py`` and documented in :doc:`yaml_configuration`.
 ``mooring.check`` reports an unknown top-level key as a WARNING; inside a block
 (``caldip``, ``qc_*``, ``stack``, ``grid``) every shape mistake is an ERROR naming
 the allowed set. The YAML key, the Python keyword and the CLI flag are the same

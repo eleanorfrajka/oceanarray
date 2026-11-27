@@ -467,12 +467,12 @@ QC_OVERRIDE_KEYS: tuple[str, ...] = ("qc_ranges", "qc_spike", "tilt_qc", "qc_fla
 
 
 def threshold_note(mooring: dict[str, Any]) -> str:
-    """Return where the description changes the QC thresholds, in words, or ``""``.
+    """Return where the mooring YAML changes the QC thresholds, in words, or ``""``.
 
     Parameters
     ----------
     mooring : dict
-        The loaded mooring description.
+        The loaded mooring YAML.
 
     Returns
     -------

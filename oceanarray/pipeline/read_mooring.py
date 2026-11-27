@@ -1,8 +1,8 @@
 """Read every instrument of one mooring into a dict of datasets.
 
 :func:`read_mooring` reads each raw file (or opens each stage file) of the
-instruments a mooring description lists, and stamps each dataset with the
-description's facts: the per-instrument entry (serial, instrument, hab, …) and the per-mooring header
+instruments a mooring YAML lists, and stamps each dataset with the
+mooring YAML's facts: the per-instrument entry (serial, instrument, hab, …) and the per-mooring header
 (name, position, deployment window, water depth). These attributes are the
 contract every pure stage function and product relies on, so they travel with
 the data rather than being re-read from the YAML at each step.
@@ -57,7 +57,7 @@ def _resolve_description(
     stage: int | None,
     caller: str = "read_mooring",
 ) -> tuple[Mapping[str, Any], Path | None]:
-    """Return the loaded description and its directory from *mooring*."""
+    """Return the loaded mooring YAML and its directory from *mooring*."""
     if isinstance(mooring, Mapping):
         if stage is not None and mooring_dir is None:
             raise MooringError(
@@ -85,7 +85,7 @@ def header_attrs(cfg: Mapping[str, Any], *, warn: bool = True) -> dict[str, Any]
     Parameters
     ----------
     cfg : Mapping
-        The loaded mooring description.
+        The loaded mooring YAML.
     warn : bool, optional
         Warn when the position or deployment window is missing (default True).
 
@@ -100,7 +100,7 @@ def header_attrs(cfg: Mapping[str, Any], *, warn: bool = True) -> dict[str, Any]
     # absent); a missing position is left out, so a file's own is kept.
     name = cfg.get("name")
     if name is None:
-        raise MooringError("the mooring description has no 'name'; it is required.")
+        raise MooringError("the mooring YAML has no 'name'; it is required.")
     attrs: dict[str, Any] = {"mooring_name": name}
 
     lat, lon, source = parse_latlon_with_source(cfg)
@@ -108,7 +108,7 @@ def header_attrs(cfg: Mapping[str, Any], *, warn: bool = True) -> dict[str, Any]
         attrs["location_source"] = "none"
         if warn:
             log.warning(
-                "%s: no position in the mooring description "
+                "%s: no position in the mooring YAML "
                 "(seabed_/deployment_/planned_latitude or latitude); "
                 "leaving latitude/longitude out, location_source='none'.",
                 name,
@@ -133,7 +133,7 @@ def header_attrs(cfg: Mapping[str, Any], *, warn: bool = True) -> dict[str, Any]
         attrs["deployment_window_source"] = "none"
         if warn:
             log.warning(
-                "%s: no deployment window in the mooring description "
+                "%s: no deployment window in the mooring YAML "
                 "(deployment_time/recovery_time); stamping the placeholder with "
                 "deployment_window_source='none'.",
                 name,
@@ -160,7 +160,7 @@ def read_mooring(
     Parameters
     ----------
     mooring : Mapping or str or pathlib.Path
-        A loaded mooring description, a ``*.mooring.yaml`` path, or a directory
+        A loaded mooring YAML, a ``*.mooring.yaml`` path, or a directory
         holding exactly one such file.
     stage : int or None, optional
         ``None`` finds and reads each raw file (from *raw_dir*) as stage 1 does —
@@ -168,7 +168,7 @@ def read_mooring(
         raw header's calibration metadata — and returns it unmarked, ready for
         :func:`oceanarray.pipeline.stage1.stage1`; entries marked ``skip`` are left
         out. ``1``, ``2`` or ``3`` opens the stage file (from *mooring_dir*) and
-        checks its ``processing_stage`` marker. The description's facts are
+        checks its ``processing_stage`` marker. The mooring YAML's facts are
         stamped on every path.
     serials : iterable of str or None, optional
         If given, read only the instruments whose (cleaned) serial is listed.
@@ -186,12 +186,12 @@ def read_mooring(
     -------
     dict of str to xarray.Dataset
         One dataset per instrument, keyed by cleaned serial, in the order the
-        description lists them.
+        mooring YAML lists them.
 
     Raises
     ------
     oceanarray.exceptions.MooringError
-        If a dict is given with a stage but no *mooring_dir*, or the description
+        If a dict is given with a stage but no *mooring_dir*, or the mooring YAML
         has no ``name``.
     ValueError
         If *raw_dir* is not given for ``stage=None``.
@@ -263,7 +263,7 @@ def read_mooring(
 def join_raw(
     ds: xr.Dataset, entry: dict[str, Any], mooring: Mapping[str, Any]
 ) -> xr.Dataset:
-    """Join one instrument's raw dataset with its description, as ``read_mooring`` does.
+    """Join one instrument's raw dataset with its mooring YAML, as ``read_mooring`` does.
 
     For a caller that has already found and read the raw file (the stage-1 class,
     which needs the file's path before reading to decide whether to skip it).
@@ -273,9 +273,9 @@ def join_raw(
     ds : xarray.Dataset
         The raw dataset, from :func:`oceanarray.pipeline.raw_files.read_raw_file`.
     entry : dict
-        The instrument's description entry.
+        The instrument's mooring YAML entry.
     mooring : Mapping
-        The loaded mooring description.
+        The loaded mooring YAML.
 
     Returns
     -------
@@ -300,7 +300,7 @@ def _join_description(
     instr_type: str,
     moor_attrs: dict[str, Any],
 ) -> xr.Dataset:
-    """Join a dataset with its mooring description (the stamping contract)."""
+    """Join a dataset with its mooring YAML (the stamping contract)."""
     # The contract attributes must travel on the dataset whatever path it came by
     # (raw or a stage file).
     ds = ds.copy()
@@ -309,18 +309,18 @@ def _join_description(
     if existing is not None and paths.safe_serial(existing) != serial:
         raise MooringError(
             f"{moor_attrs['mooring_name']}: dataset serial {existing!r} contradicts "
-            f"the description's {serial!r} for this instrument — refusing to mislabel it."
+            f"the mooring YAML's {serial!r} for this instrument — refusing to mislabel it."
         )
     name = moor_attrs["mooring_name"]
     existing_name = ds.attrs.get("mooring_name")
     # mooring_name is the identity: a case-only difference is corrected with a
-    # history line; any other means the file was made under another description.
+    # history line; any other means the file was made under another mooring YAML.
     if existing_name is not None and existing_name != name:
         if str(existing_name).lower() != str(name).lower():
             raise MooringError(
                 f"{name}: the dataset's mooring_name {existing_name!r} differs from the "
-                f"description's name {name!r} by more than case — it was made under a "
-                "different description; reprocess it from stage 1."
+                f"mooring YAML's name {name!r} by more than case — it was made under a "
+                "different mooring YAML; reprocess it from stage 1."
             )
         append_history(
             ds, f"mooring_name corrected from {existing_name!r} to {name!r} (case)"

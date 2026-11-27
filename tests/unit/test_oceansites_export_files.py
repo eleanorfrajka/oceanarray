@@ -40,7 +40,7 @@ _REQUIRED_GLOBALS = (
 
 @pytest.fixture
 def description() -> dict:
-    """The dune2 mooring description with the OceanSITES platform code added."""
+    """The dune2 mooring YAML with the OceanSITES platform code added."""
     return {
         **mooring.load(_PROC / "dune2_1_2026.mooring.yaml"),
         "platform_code": "DUNE2",

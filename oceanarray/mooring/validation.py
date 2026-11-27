@@ -1,4 +1,4 @@
-"""Validation of mooring YAML descriptions.
+"""Validation of mooring YAMLs.
 
 The ``instrument`` field names the subfolder of the raw and processed files
 (``<dir>/<mooring>/<instrument>/``): ``microcat``, ``sbe56``, ``sbe16``, ``rbrsolo``,
@@ -253,7 +253,7 @@ def validate_mooring(
                 )
             )
 
-    # A raw-data root in the description is a run-time fact, not part of the
+    # A raw-data root in the mooring YAML is a run-time fact, not part of the
     # mooring; it belongs to raw_dir / --raw-dir. Deprecated: the stage-1
     # absolute-path override is removed in 0.7.0.
     if "directory" in data:

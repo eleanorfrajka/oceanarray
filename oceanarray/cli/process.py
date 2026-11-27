@@ -160,7 +160,7 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
         help="Run the per-instrument stages 1-3 (raw files to QC'd netCDF).",
         description=(
             "Run one or more per-instrument processing stages for a mooring. Reads the\n"
-            "mooring description and the raw files (stage 1) or the previous stage's files;\n"
+            "mooring YAML and the raw files (stage 1) or the previous stage's files;\n"
             "writes <proc-dir>/<name>/<instrument>/<name>_<serial>_stage<N>.nc.\n"
             "  Stage 1: read raw files into CF-NetCDF\n"
             "  Stage 2: trim to the deployment window, correct clock drift\n"

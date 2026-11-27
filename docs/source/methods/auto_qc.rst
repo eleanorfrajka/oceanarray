@@ -341,7 +341,7 @@ QC ranges are configured in the ``qc_ranges`` block of the mooring YAML, at moor
 level or under an instrument entry (which wins for its own variables).  If absent,
 the package defaults are used.  The spike, flat-line and tilt tests take the
 ``qc_spike``, ``qc_flat_line`` and ``tilt_qc`` blocks; all four are checked when
-the description is read (see :doc:`../yaml_configuration`, "Other QC blocks").
+the mooring YAML is read (see :doc:`../yaml_configuration`, "Other QC blocks").
 
 .. code-block:: yaml
 

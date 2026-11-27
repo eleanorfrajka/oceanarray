@@ -137,7 +137,7 @@ def _report_dry_run(
 ) -> int:
     """Print the pages a report run would write, at the paths it would write them to."""
     from oceanarray import logger
-    from oceanarray.mooring import yaml_file as _mooring
+    from oceanarray.mooring import check_yaml as _mooring
     from oceanarray.mooring.instruments import instrument_entries
     from oceanarray.reports import report_paths
     from oceanarray.reports._verb import (

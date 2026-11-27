@@ -84,7 +84,7 @@ def identity_variables(
     Parameters
     ----------
     entry : Mapping
-        The instrument entry of the mooring description.
+        The instrument entry of the mooring YAML.
     waterdepth : float or None
         The mooring's water depth (m).
 
@@ -139,7 +139,7 @@ class StageRun:
         The stage files written.
     files : list of pathlib.Path
         Every stage file the instruments asked for now have, written or kept
-        because it was already there, in the description's order.
+        because it was already there, in the mooring YAML's order.
     failed : list of str
         One message per instrument that failed, naming it.
     failed_serials : list of str

@@ -262,7 +262,7 @@ def test_a_new_rule_rebuilds_the_stack(cf7, caplog):
     _, ds = _stack_file(cfg, proc, force=False, mask_flags={"salinity": [3, 4]})
     assert "stack rebuilt: mask_flags changed" in ds.attrs["history"]
     assert json.loads(ds.attrs["stack_mask_flags"])["salinity"] == [3, 4]
-    _stack_file(cfg, proc, force=False)  # back to the description's rule
+    _stack_file(cfg, proc, force=False)  # back to the mooring YAML's rule
 
 
 # ── interpolated pressure ─────────────────────────────────────────────

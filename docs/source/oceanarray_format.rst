@@ -36,7 +36,7 @@ Manual §2.3–2.4.  No coordinate holds a fill value.
        pressure, so the knock-down is in the data, not in ``DEPTH``.
    * - ``LATITUDE``, ``LONGITUDE``
      - ``degrees_north``, ``degrees_east``
-     - WGS84 (``EPSG::4326``), one value, from the mooring description.
+     - WGS84 (``EPSG::4326``), one value, from the mooring YAML.
 
 Data variables
 --------------
@@ -121,7 +121,7 @@ Data mode
 ---------
 
 Reference table 4.  ``P`` (provisional) unless the instrument entry in the mooring
-description records ``D`` after a manual review, which is accepted only when the stage-3
+YAML records ``D`` after a manual review, which is accepted only when the stage-3
 file records the calibration-dip correction.  ``data_mode`` on the instrument entry is
 one letter or a mapping from variable name to letter.  The global ``data_mode`` is the
 single mode, or ``M`` when variables differ.  A grid records no per-input modes, so only
@@ -139,7 +139,7 @@ Manual §2.2.
    * - Attribute
      - Source
    * - ``platform_code``
-     - ``platform_code`` in the mooring description (required; no ``_``)
+     - ``platform_code`` in the mooring YAML (required; no ``_``)
    * - ``site_code``
      - ``site_code`` in the array description; left out when absent, never invented
    * - ``data_mode``
@@ -152,11 +152,11 @@ Manual §2.2.
      - ``"OceanSITES time-series data"``, ``"Station"``, ``"timeSeries"``,
        ``"subsurface mooring"``
    * - ``geospatial_*``
-     - position from the mooring description; vertical range from ``DEPTH``
+     - position from the mooring YAML; vertical range from ``DEPTH``
    * - ``time_coverage_start``, ``_end``, ``_resolution``
      - from ``TIME`` (``YYYY-MM-DDThh:mm:ssZ``) and the sampling interval (ISO 8601)
    * - ``platform_deployment_*``, ``platform_recovery_*``
-     - date, ship and cruise from the mooring description
+     - date, ship and cruise from the mooring YAML
    * - ``sea_floor_depth_below_sea_surface``
      - ``waterdepth``
    * - ``project``

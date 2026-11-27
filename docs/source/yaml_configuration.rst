@@ -198,7 +198,7 @@ mooring as a whole.
      - string
      - Deprecated
      - **Deprecated — do not use.**  The raw-data root is a run-time location,
-       not part of the mooring description; pass it as ``raw_dir`` / ``--raw-dir``.
+       not part of the mooring YAML; pass it as ``raw_dir`` / ``--raw-dir``.
        ``validate`` warns on this key, and the stage-1 absolute-path override is
        removed in 0.7.0.
    * - ``qc_ranges``
@@ -259,7 +259,7 @@ mooring as a whole.
 The ``stack:`` and ``grid:`` blocks configure ``oceanarray run`` (and
 ``oceanarray.run``); the per-instrument ``stack: false`` flag one level down is a
 different key. From Python, ``oceanarray.mooring.load(path)`` returns the
-description as a dict, which every verb also accepts with ``mooring_dir=``.
+mooring YAML as a dict, which every verb also accepts with ``mooring_dir=``.
 
 ----
 
@@ -983,8 +983,8 @@ the defaults):
 ``tilt`` may also be given in ``qc_ranges`` as symmetric spans
 (``suspect_span: [-20, 20]``); ``tilt_qc`` takes precedence.
 
-**The blocks are checked when the description is read.**  These are ERRORs, so
-``oceanarray validate`` reports them and processing refuses the description:
+**The blocks are checked when the mooring YAML is read.**  These are ERRORs, so
+``oceanarray validate`` reports them and processing refuses the mooring YAML:
 
 - an unknown field (e.g. ``suspect_spn``);
 - a span that is not two increasing numbers;
@@ -1068,7 +1068,7 @@ The same file is read, written and validated from Python through
 
    from oceanarray import mooring
 
-   # Load one mooring's description (a path, a name + proc_dir, or a dict).
+   # Load one mooring YAML (a path, a name + proc_dir, or a dict).
    m = mooring.load("proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml")
    m = mooring.load("dsG3_1_2026", proc_dir="proc")
 

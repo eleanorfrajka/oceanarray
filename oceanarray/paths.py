@@ -144,7 +144,7 @@ def stage_suffix(stage: int) -> str:
 def stage_glob(stage: int) -> str:
     """Return the glob pattern matching every stage-*N* file, ``"*_stage<N>.nc"``.
 
-    For discovery in a directory tree where no mooring description is at hand.
+    For discovery in a directory tree where no mooring YAML is at hand.
 
     Parameters
     ----------
@@ -315,7 +315,7 @@ def is_path_component(name: Any) -> bool:
     Parameters
     ----------
     name : Any
-        A name from a description (a cruise, a cast).
+        A name from a mooring YAML (a cruise, a cast).
 
     Returns
     -------

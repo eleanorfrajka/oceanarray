@@ -49,7 +49,7 @@ def cmd_animate(args: argparse.Namespace) -> int:
         return 1
     wanted = {paths.safe_serial(s) for s in args.serials} if args.serials else None
 
-    # Each listed instrument's stage-3 file, else its stage-2 file, from the description.
+    # Each listed instrument's stage-3 file, else its stage-2 file, from the mooring YAML.
     candidates: list[tuple[str, Path]] = []
     for entry in instrument_entries(cfg):
         if not isinstance(entry, dict) or entry.get("skip"):
@@ -75,7 +75,7 @@ def cmd_animate(args: argparse.Namespace) -> int:
         if isinstance(e, dict)
     }
     for serial in sorted((wanted or set()) - listed):
-        print(f"  WARNING: serial {serial} is not in {cfg['name']}'s description")
+        print(f"  WARNING: serial {serial} is not in {cfg['name']}'s mooring YAML")
     if not candidates:
         print(f"  No processed files found under {proc_dir}")
         return 1

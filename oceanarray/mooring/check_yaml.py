@@ -1,18 +1,13 @@
-"""Load, check, template and save one mooring deployment's ``*.mooring.yaml``.
+"""Check a mooring YAML without raising: every ERROR and WARNING it holds.
 
-The one seam for reading a description: every stage and report receives the loaded
-dict. Imported in the package as ``from oceanarray import mooring as _mooring`` so a
-``mooring`` parameter does not shadow it. The file is a cross-package contract
-(moordiag reads it), so :func:`load` keeps every key and value as written.
+Also the lenient reader used where a file must be read without being checked.
 """
 
-import logging
 import math
 import re
-from collections.abc import Iterable, Mapping
+from collections.abc import Mapping
 from os import PathLike
 from pathlib import Path
-from typing import Any
 
 import pandas as pd
 import yaml
@@ -23,98 +18,14 @@ from oceanarray.mooring import catalog, validation
 from oceanarray.mooring.blocks import check_people_block, check_source_block
 from oceanarray.mooring.instruments import instrument_entries
 from oceanarray.mooring.location import LATLON_KEY_PAIRS
+from oceanarray.mooring.settings import OPTIONAL_REPORT_SECTIONS, _period_days
 from oceanarray.mooring.validation import ValidationIssue
+from oceanarray.mooring.yaml_keys import (
+    DEPLOYMENT_CODE_PATTERN,
+    KNOWN_KEYS,
+    SOURCE_FIELDS,
+)
 from oceanarray.paths import is_path_component
-
-logger = logging.getLogger(__name__)
-
-# Keys the fixtures, ``cmd_init`` and real UHH configs are known to use. The
-# list is deliberately generous: ``cmd_init`` writes ``deployment_cruise`` /
-# ``recovery_ship`` etc. while older configs use ``cruise`` / ``ship`` /
-# ``status``, and both are valid. An unknown top-level key is a WARNING (not an
-# ERROR) for now so a real config carrying a key the fixtures never showed is
-# not rejected; promotion to ERROR is planned for a later release, once this list
-# has been checked against the configs on the drive (``scripts/survey_mooring_keys.py``).
-#: The mooring-level fields whose origin or correction a description may record
-#: as ``<field>_source`` (free text), carried into every file beside the field.
-SOURCE_FIELDS: tuple[str, ...] = (
-    "waterdepth",
-    "deployment_time",
-    "recovery_time",
-    "latitude",
-    "longitude",
-)
-
-KNOWN_KEYS: frozenset[str] = frozenset(
-    {
-        # where a mooring-level value came from, or why it was corrected
-        *(f"{field}_source" for field in SOURCE_FIELDS),
-        # identity / header
-        "name",
-        "cleaname",
-        "year",
-        "waterdepth",
-        "status",
-        # OceanSITES identity (read by the export; see ``_check_export_codes``)
-        "platform_code",
-        "deployment_code",
-        # cruise / ship (both vocabularies)
-        "cruise",
-        "ship",
-        "deployment_cruise",
-        "deployment_ship",
-        "recovery_cruise",
-        "recovery_ship",
-        # time
-        "deployment_time",
-        "recovery_time",
-        # position: the bare pair and the three graded tiers the position chain
-        # reads in order of preference (seabed → deployment → planned → latitude).
-        "latitude",
-        "longitude",
-        "seabed_latitude",
-        "seabed_longitude",
-        "deployment_latitude",
-        "deployment_longitude",
-        "planned_latitude",
-        "planned_longitude",
-        # QC thresholds (read by the QC pass; shapes checked by _check_qc_overrides).
-        "qc_ranges",
-        "qc_spike",
-        "tilt_qc",
-        "qc_flat_line",
-        # calibration-dip correction (read at the front of stage 3; ``_check_caldip``)
-        "caldip",
-        # Deprecated: a raw-data root in the description is a run-time fact; use
-        # raw_dir / --raw-dir. check() WARNs; the override is removed in 0.7.0.
-        "directory",
-        # instrument lists
-        "clamp",
-        "instruments",
-        "inline",
-        # optional stack / grid settings for oceanarray.run (``_check_settings``)
-        "stack",
-        "grid",
-        # reference pressure (dbar) of the stack's potential density
-        "density_reference",
-        # optional report sections to turn on, keyed by page (``_check_report_sections``)
-        "report_sections",
-        # extra periods marked on the grid page's spectra (``_check_spectrum_markers``)
-        "spectrum_markers",
-        # people and data source for files that name none (``_check_people_and_source``)
-        "people",
-        "source",
-        # what each instrument is, by serial: the sensor record's model and vocabularies (``catalog``)
-        "sensor_catalog",
-    }
-)
-
-#: Optional report sections that ``report_sections`` may turn on, keyed by page.
-#: A page or section not listed here is rejected by ``_check_report_sections``.
-OPTIONAL_REPORT_SECTIONS: dict[str, frozenset[str]] = {"grid": frozenset({"overflow"})}
-
-#: A deployment code: ``YYYYMM`` with a calendar month (01–12).
-DEPLOYMENT_CODE_PATTERN = r"\d{4}(0[1-9]|1[0-2])"
 
 #: The keys each optional settings block may hold, and whether the value must be
 #: an integer (True), any non-negative number (False), one of a few words (a
@@ -128,104 +39,6 @@ _SETTINGS_KEYS: dict[str, dict[str, bool | tuple[str, ...] | None]] = {
     },
     "grid": {"pmin": False, "pmax": False, "dp": False, "mask_flags": None},
 }
-
-
-#: The description's settings (as opposed to its facts): what a stack records as
-#: its ``deployment_settings``.
-SETTINGS_BLOCKS: tuple[str, ...] = (
-    "density_reference",
-    "qc_ranges",
-    "qc_spike",
-    "qc_flat_line",
-    "tilt_qc",
-    "stack",
-    "grid",
-    "caldip",
-    "report_sections",
-    "spectrum_markers",
-)
-
-#: Instrument-entry keys that describe hardware only and are left out of
-#: ``deployment_settings``.
-_HARDWARE_ONLY_KEYS: frozenset[str] = frozenset({"image", "label"})
-
-
-def _plain(value: Any) -> Any:
-    """Return *value* with numpy scalars, paths and tuples turned into plain YAML types."""
-    if isinstance(value, Mapping):
-        return {str(k): _plain(v) for k, v in value.items()}
-    if isinstance(value, (list, tuple)):
-        return [_plain(v) for v in value]
-    if (
-        hasattr(value, "item")
-        and callable(value.item)
-        and getattr(value, "ndim", 1) == 0
-    ):
-        return value.item()
-    if isinstance(value, PathLike):
-        return str(value)
-    return value
-
-
-def settings_yaml(cfg: Mapping, *, stack: Mapping | None = None) -> str:
-    """Return the settings that built a product, as YAML text.
-
-    Parameters
-    ----------
-    cfg : Mapping
-        A loaded mooring description.
-    stack : Mapping, optional
-        The ``stack:`` settings actually used (e.g. a ``dt_seconds`` given on the
-        command line); they replace the description's own ``stack:`` block.
-
-    Returns
-    -------
-    str
-        The :data:`SETTINGS_BLOCKS` the description sets, then its instrument
-        entries as processed (clamp and inline merged, ``hab`` resolved, without
-        the hardware-only keys) under ``instruments``, the key ``load`` also
-        reads. Pasted into a mooring description, it reruns the same product.
-    """
-    out: dict = {k: cfg[k] for k in SETTINGS_BLOCKS if cfg.get(k) is not None}
-    if stack is not None:
-        out["stack"] = {**(out.get("stack") or {}), **stack}
-    out["instruments"] = [
-        {k: v for k, v in e.items() if k not in _HARDWARE_ONLY_KEYS}
-        for e in instrument_entries(cfg)
-        if isinstance(e, Mapping)
-    ]
-    return yaml.safe_dump(_plain(out), sort_keys=False)
-
-
-def settings_from_yaml(text: str) -> dict:
-    """Return the settings a product recorded (``deployment_settings``) as a mapping.
-
-    Parameters
-    ----------
-    text : str
-        The YAML text :func:`settings_yaml` wrote.
-
-    Returns
-    -------
-    dict
-        The settings; empty when the text is blank, not YAML, or not a mapping.
-    """
-    try:
-        parsed = yaml.safe_load(text or "")
-    except yaml.YAMLError:
-        return {}
-    return parsed if isinstance(parsed, dict) else {}
-
-
-def _resolve_path(mooring: str | PathLike, proc_dir: str | PathLike | None) -> Path:
-    """Resolve a reference (a YAML path, or a bare name + *proc_dir*) to a YAML path."""
-    path = Path(mooring)
-    if path.suffix in {".yaml", ".yml"} or path.exists():
-        return path
-    if proc_dir is not None:
-        name = str(mooring)
-        return Path(proc_dir) / name / f"{name}.mooring.yaml"
-    return path
 
 
 def _parse(source: str | PathLike | Mapping) -> dict | None:
@@ -243,75 +56,21 @@ def _parse(source: str | PathLike | Mapping) -> dict | None:
     return data if isinstance(data, dict) else None
 
 
-def load(
-    mooring: str | PathLike | Mapping,
-    *,
-    proc_dir: str | PathLike | None = None,
-) -> dict:
-    """Load and validate one mooring's description.
-
-    Parameters
-    ----------
-    mooring : str or os.PathLike or Mapping
-        A path to a ``*.mooring.yaml`` file, a bare mooring name resolved
-        against *proc_dir*, or an already-parsed mapping (returned as a shallow
-        copy, keys unchanged).
-    proc_dir : str or os.PathLike or None, optional
-        The processing directory a bare mooring name is resolved against.
-
-    Returns
-    -------
-    dict
-        The parsed description, every key kept as written.
-
-    Raises
-    ------
-    MooringError
-        If the file is missing, is not a mapping, or fails validation with any
-        ERROR-level issue. WARNING-level issues are kept on the exception's
-        ``issues`` attribute but do not raise.
-    """
-    if isinstance(mooring, Mapping):
-        data = dict(mooring)
-        dir_name = None
-    else:
-        path = _resolve_path(mooring, proc_dir)
-        if not path.exists():
-            raise MooringError(f"Mooring config not found: {path}")
-        try:
-            with path.open() as f:
-                data = yaml.safe_load(f)
-        except yaml.YAMLError as e:
-            raise MooringError(f"YAML parse error in {path}: {e}") from e
-        dir_name = path.parent.name
-        _resolve_relative_paths(data, path)
-
-    if not isinstance(data, dict):
-        raise MooringError("Mooring YAML root must be a mapping")
-
-    issues = check(data, dir_name=dir_name)
-    errors = [i for i in issues if i.level == "ERROR"]
-    if errors:
-        summary = "; ".join(i.message for i in errors)
-        raise MooringError(f"Invalid mooring config: {summary}", issues)
-    return data
-
-
 def _resolve_relative_paths(data: object, path: Path) -> None:
-    """Make the description's relative paths absolute, from the file's real folder.
+    """Make the mooring YAML's relative paths absolute, from the file's real folder.
 
-    A relative path written in a description (``sensor_catalog``) is relative to
+    A relative path written in a mooring YAML (``sensor_catalog``) is relative to
     the file as its author wrote it, so it is taken from the folder of the file a
     link points to, not the folder of the link: a processing folder may hold a
-    link to a description kept elsewhere.  The link's folder still names the
+    link to a mooring YAML kept elsewhere.  The link's folder still names the
     mooring and holds its stage files.
 
     Parameters
     ----------
     data : object
-        The parsed description; changed in place when it is a dict.
+        The parsed mooring YAML; changed in place when it is a dict.
     path : pathlib.Path
-        The description file as given (possibly a link).
+        The mooring YAML file as given (possibly a link).
     """
     if isinstance(data, dict) and data.get("sensor_catalog"):
         data["sensor_catalog"] = str(
@@ -324,7 +83,7 @@ def check(
     *,
     dir_name: str | None = None,
 ) -> list[ValidationIssue]:
-    """Validate a mooring description without raising.
+    """Validate a mooring YAML without raising.
 
     Parameters
     ----------
@@ -761,7 +520,7 @@ def _check_catalog(data: Mapping) -> list[ValidationIssue]:
     if not isinstance(path, (str, PathLike)):
         return [ValidationIssue("ERROR", f"sensor_catalog: {path!r} is not a path")]
     if not Path(path).is_absolute():
-        # A description given as a dict: the path is relative to the mooring
+        # A mooring YAML given as a dict: the path is relative to the mooring
         # directory, which the caller resolves (``pipeline.resolve_mooring``).
         return []
     try:
@@ -929,26 +688,6 @@ def _check_report_sections(data: Mapping) -> list[ValidationIssue]:
     return issues
 
 
-#: Units a ``spectrum_markers`` period may be given in, with their length in days.
-_PERIOD_UNITS: dict[str, float] = {
-    "s": 1.0 / 86400.0,
-    "min": 1.0 / 1440.0,
-    "h": 1.0 / 24.0,
-    "d": 1.0,
-}
-
-
-def _period_days(value: object) -> float | None:
-    """Return a period such as ``"1.8 d"`` or ``"9 min"`` in days, or None if malformed."""
-    import re
-
-    m = re.fullmatch(r"\s*([0-9]*\.?[0-9]+)\s*(s|min|h|d)\s*", str(value))
-    if m is None:
-        return None
-    days = float(m.group(1)) * _PERIOD_UNITS[m.group(2)]
-    return days if days > 0 else None
-
-
 def _check_spectrum_markers(data: Mapping) -> list[ValidationIssue]:
     """Return ERRORs for a malformed ``spectrum_markers`` block (optional).
 
@@ -975,315 +714,6 @@ def _check_spectrum_markers(data: Mapping) -> list[ValidationIssue]:
         for label, period in block.items()
         if _period_days(period) is None
     ]
-
-
-def resolve_spectrum_markers(description: Mapping) -> list[tuple[str, float]]:
-    """Return the extra periods marked on the spectra, from the mooring description.
-
-    Parameters
-    ----------
-    description : Mapping
-        The mooring description; its optional ``spectrum_markers`` maps a label to
-        a period with its unit (``"1.8 d"``, ``"12.42 h"``, ``"9 min"``).
-
-    Returns
-    -------
-    list of (str, float)
-        ``(label, period in days)``, in the description's order; malformed entries
-        (which ``check`` reports) are skipped.
-    """
-    block = description.get("spectrum_markers")
-    if not isinstance(block, Mapping):
-        return []
-    out = []
-    for label, period in block.items():
-        days = _period_days(period)
-        if days is not None:
-            out.append((str(label), days))
-    return out
-
-
-def resolve_report_sections(page: str, description: Mapping) -> list[str]:
-    """Return the optional sections turned on for a report *page*, from *description*.
-
-    Reads ``report_sections.<page>`` from the mooring description and defaults to ``[]``
-    (every optional section off).  Every report setting is read from the mooring YAML —
-    the one complete description of how a mooring was processed — and this is the single
-    place this key is resolved.
-
-    Parameters
-    ----------
-    page : str
-        The report page, e.g. ``"grid"``.
-    description : Mapping
-        The mooring description.
-
-    Returns
-    -------
-    list of str
-        The optional section names turned on for *page* (empty when none).
-    """
-    block = description.get("report_sections")
-    if not isinstance(block, Mapping):
-        return []
-    val = block.get(page)
-    return list(val) if isinstance(val, (list, tuple)) else []
-
-
-# The one source for the commented ``init`` template: key -> inline description.
-# ``save`` writes these as end-of-line comments; keep in sync with KNOWN_KEYS.
-_FIELD_COMMENTS: dict[str, str] = {
-    "name": "mooring identifier; every output file is named from it",
-    "platform_code": "OceanSITES station code, no '_' (e.g. DUNE2); used by the export",
-    "deployment_code": "YYYYMM of deployment_time (e.g. 202607); used by the export",
-    "year": "deployment year, e.g. 2026",
-    "waterdepth": "water depth at anchor in metres",
-    "deployment_cruise": "cruise ID, e.g. MSM142",
-    "deployment_ship": "ship name, e.g. MS Merian",
-    "recovery_cruise": "cruise ID at recovery (omit if same cruise)",
-    "recovery_ship": "ship name at recovery (omit if same ship)",
-    "latitude": "planned position, e.g. 65 29.840 N",
-    "longitude": "planned position, e.g. 029 24.600 W",
-    "deployment_time": "ISO-8601, e.g. '2026-05-07T17:06'",
-    "recovery_time": "ISO-8601, e.g. '2026-07-10T17:45'",
-}
-
-# Per-instrument field descriptions. ``save`` comments the first clamp entry that
-# carries each field, so the explanation appears once (as the hand-written stub did).
-_INSTRUMENT_COMMENTS: dict[str, str] = {
-    "serial": (
-        "if comma-separated (e.g. '16430, R01-024') the first token is the "
-        "primary serial used in filenames/output; the rest is beacon_id. "
-        "Characters illegal in filenames are stripped."
-    ),
-    "hab": "height above bottom (m) of transducer",
-    "header": ".hdr file for T-matrix (same base name if null)",
-    "clock_offset": "seconds added to instrument time (positive: clock slow)",
-    "computer_clock_at_recovery": (
-        "UTC when the clock was read; correction = computer - instrument"
-    ),
-    "hab_bottom": "HAB of transducer face (downward-looking)",
-    "hab_top": "HAB of top of housing",
-    "orientation": "down or up",
-}
-
-# One example clamp block per instrument type; a user fills these in and deletes
-# the unused ones. Key order is the order written to the file.
-_TEMPLATE_INSTRUMENTS: list[dict] = [
-    {
-        "instrument": "aquadopp",
-        "serial": None,
-        "hab": None,
-        "sample_interval_seconds": None,
-        "filename": None,
-        "file_type": "nortek-raw",
-        "header": None,
-        "clock_offset": 0,
-        "computer_clock_at_recovery": None,
-        "instrument_clock_at_recovery": None,
-    },
-    {
-        "instrument": "microcat",
-        "serial": None,
-        "hab": None,
-        "sample_interval_seconds": None,
-        "filename": None,
-        "file_type": "sbe-cnv",
-        "clock_offset": 0,
-        "computer_clock_at_recovery": None,
-        "instrument_clock_at_recovery": None,
-    },
-    {
-        "instrument": "rbrsolo",
-        "serial": None,
-        "hab": None,
-        "sample_interval_seconds": None,
-        "filename": None,
-        "file_type": "rbr-rsk",
-        "clock_offset": 0,
-        "computer_clock_at_recovery": None,
-        "instrument_clock_at_recovery": None,
-    },
-    {
-        "instrument": "ADCP",
-        "serial": None,
-        "hab_bottom": None,
-        "hab_top": None,
-        "sample_interval_seconds": None,
-        "filename": None,
-        "file_type": "rdi-raw",
-        "orientation": "down",
-        "clock_offset": 0,
-        "computer_clock_at_recovery": None,
-        "instrument_clock_at_recovery": None,
-    },
-]
-
-
-def template(name: str, *, instruments: list[dict] | None = None) -> dict:
-    """Return a skeleton mooring description for *name*, as a plain dict.
-
-    The required and recommended keys are present with ``None`` values for a user
-    to fill in; ``clamp`` carries one example block per instrument type (or
-    *instruments* if given). :func:`save` renders it with the field comments.
-
-    Parameters
-    ----------
-    name : str
-        The mooring name (becomes the ``name`` field; matches the directory).
-    instruments : list of dict or None, optional
-        Clamp entries to use instead of the one-per-type examples.
-
-    Returns
-    -------
-    dict
-        The skeleton description, keys in write order.
-    """
-    doc: dict = {"name": name}
-    for key in (
-        "platform_code",
-        "year",
-        "waterdepth",
-        "deployment_cruise",
-        "deployment_ship",
-        "recovery_cruise",
-        "recovery_ship",
-        "latitude",
-        "longitude",
-        "deployment_time",
-        "deployment_code",
-        "recovery_time",
-    ):
-        doc[key] = None
-    examples = _TEMPLATE_INSTRUMENTS if instruments is None else instruments
-    doc["clamp"] = [dict(entry) for entry in examples]
-    return doc
-
-
-def _format_optional_blocks() -> str:
-    """Return the commented-out ``stack:``, ``grid:``, ``people:`` and ``source:`` blocks."""
-    from oceanarray.config import parameters as params
-
-    return "\n".join(
-        [
-            "optional: uncomment to change the stack and grid settings",
-            "stack:",
-            f"  dt_seconds: {params.STACK_DT_SECONDS:g}  # time step of the stack, seconds",
-            f"  mask_flags: {list(params.MASK_FLAGS)}  # flags hidden from the pages "
-            "and the grid; or {default: [4], velocity: [3, 4]}",
-            "grid:",
-            f"  pmin: {params.GRID_PMIN_DBAR:g}  # shallowest grid level, dbar",
-            f"  pmax: {params.GRID_PMAX_DBAR:g}  # deepest grid level, dbar",
-            f"  dp: {params.GRID_DP_DBAR:g}  # grid spacing, dbar",
-            "  # mask_flags: [3, 4]  # the grid may leave out more than the stack hides",
-            "",
-            "optional: who and where the data came from, for files that do not say",
-            "people:  # used when the data files name no one",
-            "  principal_investigator: Given Surname  # comma-separated",
-            "  principal_investigator_email: name@example.org",
-            "  principal_investigator_id: https://orcid.org/0000-0000-0000-0000",
-            "  contributor_name: Given Surname; Given Surname  # semicolon-separated",
-            "  contributor_role: data processing; technician",
-            "  people_source: where these names came from",
-            "source:  # fills what the data files do not say",
-            "  doi: 10.xxxx/xxxxx  # the data package's DOI",
-            "  citation: how the source asks to be cited",
-            "  license: the source's license",
-            "  acknowledgement: funding and acknowledgement",
-            "  source_note: where these values came from",
-        ]
-    )
-
-
-def save(
-    mooring: Mapping,
-    path: str | PathLike,
-    *,
-    overwrite: bool = False,
-    optional_blocks: bool = False,
-) -> Path:
-    """Write a mooring description to a YAML file with field comments.
-
-    Lenient by design — a description being drafted may be incomplete, so ``save``
-    runs :func:`check` and logs a warning on any ERROR but still writes (unlike
-    :func:`load`, which refuses an invalid description about to be processed). The
-    field comments come from the module's comment tables, so they cannot drift
-    from the validator.
-
-    Parameters
-    ----------
-    mooring : Mapping
-        The description to write (e.g. from :func:`template`).
-    path : str or os.PathLike
-        Destination ``*.mooring.yaml`` path.
-    overwrite : bool, default False
-        Overwrite an existing file; otherwise a ``FileExistsError`` is raised.
-    optional_blocks : bool, default False
-        Also write the optional ``stack:`` and ``grid:`` blocks, commented out with
-        their default values, before ``clamp`` (``oceanarray init`` does).
-
-    Returns
-    -------
-    pathlib.Path
-        The path written.
-
-    Raises
-    ------
-    FileExistsError
-        If *path* exists and *overwrite* is False.
-    """
-    from ruamel.yaml import YAML
-    from ruamel.yaml.comments import CommentedMap, CommentedSeq
-
-    path = Path(path)
-    if path.exists() and not overwrite:
-        raise FileExistsError(f"{path} already exists")
-
-    errors = [i.message for i in check(mooring) if i.level == "ERROR"]
-    if errors:
-        logger.warning(
-            "saving an incomplete mooring description (%d issue(s) to resolve): %s",
-            len(errors),
-            "; ".join(errors),
-        )
-
-    def _block(
-        items: Iterable[tuple[str, object]],
-        comments: Mapping[str, str],
-        seen: set[str] | None = None,
-    ) -> CommentedMap:
-        """CommentedMap of *items*; comment keys in *comments* (first occurrence if *seen*)."""
-        block = CommentedMap()
-        for key, value in items:
-            block[key] = value
-            if key in comments and (seen is None or key not in seen):
-                block.yaml_add_eol_comment(comments[key], key)
-                if seen is not None:
-                    seen.add(key)
-        return block
-
-    data = dict(mooring)
-    clamp = data.pop("clamp", None)
-    doc = _block(data.items(), _FIELD_COMMENTS)
-    if clamp is not None:
-        seen: set[str] = set()
-        doc["clamp"] = CommentedSeq(
-            _block(entry.items(), _INSTRUMENT_COMMENTS, seen) for entry in clamp
-        )
-        if optional_blocks:
-            doc.yaml_set_comment_before_after_key(
-                "clamp", before=_format_optional_blocks(), indent=0
-            )
-
-    path.parent.mkdir(parents=True, exist_ok=True)
-    writer = YAML()
-    writer.default_flow_style = False
-    writer.width = 120
-    # newline="\n": deterministic LF on every platform — Windows text mode would
-    # otherwise write CRLF and break the byte-identical init-template golden.
-    with path.open("w", newline="\n") as fh:
-        writer.dump(doc, fh)
-    return path
 
 
 def serial_collision_errors(mooring_config: str | Path | Mapping) -> list[str]:

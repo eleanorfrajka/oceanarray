@@ -4,7 +4,7 @@ OceanSITES 1.4 people lists: ``principal_investigator*`` comma-separated,
 ``contributor_*`` semicolon-separated, the *n*-th entries of the parallel attributes
 describing one person and role. Reading another file's lists is lenient (stage 1 cleans
 the ``originator_*`` lists once); writing and reading oceanarray's own lists is strict
-(:func:`read_own`). A description's ``people:`` block fills in a file that names nobody
+(:func:`read_own`). A mooring YAML's ``people:`` block fills in a file that names nobody
 (:func:`people_from_block`). ``source_*`` attributes keep where the data came from, the
 file's values first, then the ``source:`` block (:func:`source_attrs`); a product cites
 all its sources (:func:`product_citation`).
@@ -534,7 +534,7 @@ def cleaned_at_stage1(attrs: Mapping[str, object]) -> bool:
     )
 
 
-# ── People and source from the mooring description ─────────────────────────
+# ── People and source from the mooring YAML ─────────────────────────
 
 #: The ``source_*`` attributes a product carries: one per citation field, and the note.
 SOURCE_ATTRS: tuple[str, ...] = (
@@ -544,7 +544,7 @@ SOURCE_ATTRS: tuple[str, ...] = (
 
 
 def people_from_block(block: Mapping[str, object]) -> dict[str, str]:
-    """Return the people attributes a description's ``people:`` block gives.
+    """Return the people attributes a mooring YAML's ``people:`` block gives.
 
     The block is read with the same rules as a file's own lists
     (:func:`people_from_attrs`), so titles, ``"Surname, Given"`` and two-role
@@ -570,7 +570,7 @@ def source_attrs(
     """Return the ``source_*`` attributes for a file, its own values first.
 
     Field by field: a value the file gives (its ``originator_<field>``) is kept;
-    the description's ``source:`` block fills the fields the file lacks; a field
+    the mooring YAML's ``source:`` block fills the fields the file lacks; a field
     both give keeps the file's value and is reported.
 
     Parameters
@@ -578,7 +578,7 @@ def source_attrs(
     attrs : Mapping
         The file's global attributes (``originator_*`` from an import).
     block : Mapping or None
-        The description's ``source:`` block, if any.
+        The mooring YAML's ``source:`` block, if any.
 
     Returns
     -------
@@ -595,7 +595,7 @@ def source_attrs(
         given = str(block.get(field) or "").strip()
         if own and given and own != given:
             both.append(
-                f"source {field}: the file's value is kept; the description's "
+                f"source {field}: the file's value is kept; the mooring YAML's "
                 f"{given!r} is not used"
             )
         value = own or given

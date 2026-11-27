@@ -272,7 +272,7 @@ def test_a_stack_whose_people_were_not_cleaned_is_refused(site, tmp_path):
 
 def test_the_file_verb_will_not_write_into_a_deployment_folder(site):
     yamls = [site / n / f"{n}.mooring.yaml" for n in _NAMES]
-    with pytest.raises(MooringError, match="holds a mooring description"):
+    with pytest.raises(MooringError, match="holds a mooring YAML"):
         concat_moorings(yamls, name="egM2", out_dir=site / "egM2_2016")
 
 

@@ -1,7 +1,7 @@
-"""People and source from the mooring description, the version attribute and DOI links.
+"""People and source from the mooring YAML, the version attribute and DOI links.
 
 Real files only: the OSNAP OceanSITES imports (their own people, citation, license
-and acknowledgement), the egM2 2016 description (an RODB mooring whose files name
+and acknowledgement), the egM2 2016 mooring YAML (an RODB mooring whose files name
 no one) and a dune2 stage-3 file.
 """
 
@@ -53,7 +53,7 @@ def _own_people(path: Path) -> dict:
 
 
 def test_a_people_block_reads_like_the_file_it_was_copied_from():
-    """CF7's PI and contributor lists, typed into a description, clean as stage 1 cleans the file."""
+    """CF7's PI and contributor lists, typed into a mooring YAML, clean as stage 1 cleans the file."""
     block = _own_people(CF7)
     assert block["principal_investigator"] == "Fiamma Straneo"
     same_fields = {
@@ -169,7 +169,7 @@ def test_the_file_wins_field_by_field_and_the_block_fills_the_doi():
 
 
 def test_a_file_that_says_nothing_takes_the_whole_block():
-    """RODB files carry no source attributes: every field comes from the description."""
+    """RODB files carry no source attributes: every field comes from the mooring YAML."""
     block = {"doi": ADC_DOI, "citation": "NOC", "license": "CC-BY 4.0"}
     out, both = attribution.source_attrs({}, block)
     assert out == {

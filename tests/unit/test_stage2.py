@@ -39,7 +39,7 @@ def dune2_stage1() -> xr.Dataset:
 
 @pytest.fixture
 def dune2_entry() -> dict:
-    """The description entry of MicroCAT 2941."""
+    """The mooring YAML entry of MicroCAT 2941."""
     from oceanarray import mooring
 
     cfg = mooring.load(_DUNE2 / "dune2_1_2026.mooring.yaml")
@@ -255,7 +255,7 @@ class TestStage2Processor:
         assert len(result.time) == 0
 
     def test_add_missing_metadata(self, dune2_stage1, dune2_entry):
-        """The identity scalars are added from the description entry when absent."""
+        """The identity scalars are added from the mooring YAML entry when absent."""
         ds = dune2_stage1.drop_vars(["instrument_depth", "instrument_serial"])
         result = _add_missing_metadata(ds, dune2_entry)
 

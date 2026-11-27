@@ -39,7 +39,7 @@ def run(
     Parameters
     ----------
     mooring : str or os.PathLike or Mapping
-        A ``*.mooring.yaml``, a directory holding exactly one, or a loaded description
+        A ``*.mooring.yaml``, a directory holding exactly one, or a loaded mooring YAML
         (then *mooring_dir* is required).
     stages : int or "all" or iterable of int or None, optional
         Stages to run before the stack, from the first given through the stage the stack
@@ -118,7 +118,7 @@ def run(
     )
     grid_flags = resolve_grid_mask_flags(cfg)
     if mask_flags is not None and grid_flags is not None:
-        # --mask-flags sets the stack's rule; the description's grid: mask_flags
+        # --mask-flags sets the stack's rule; the mooring YAML's grid: mask_flags
         # then adds to it rather than clash with it.
 
         try:
@@ -322,7 +322,7 @@ def _set_aside_stale(paths_: list[Path], why: str) -> None:
 def _resolve_settings(
     cfg: Mapping[str, Any], **given: float | None
 ) -> dict[str, float]:
-    """Return checked stack/grid settings: call, else description, else the defaults."""
+    """Return checked stack/grid settings: call, else mooring YAML, else the defaults."""
     from oceanarray.exceptions import MooringError
 
     defaults = {
@@ -359,7 +359,7 @@ def _resolve_settings(
             problems.append(f"pmax={out['pmax']} must be above pmin={out['pmin']}")
     if problems:
         raise MooringError(
-            "stack/grid settings (from the call, else the description's stack:/grid: "
+            "stack/grid settings (from the call, else the mooring YAML's stack:/grid: "
             "blocks, else the defaults): " + "; ".join(problems)
         )
     return out
@@ -368,12 +368,12 @@ def _resolve_settings(
 def resolve_grid_mask_flags(
     cfg: Mapping[str, Any],
 ) -> dict[str, tuple[int, ...]] | None:
-    """Return the description's ``grid: mask_flags``, or None when it gives none.
+    """Return the mooring YAML's ``grid: mask_flags``, or None when it gives none.
 
     Parameters
     ----------
     cfg : Mapping
-        The mooring description.
+        The mooring YAML.
 
     Returns
     -------
@@ -395,7 +395,7 @@ def resolve_grid_mask_flags(
         return mask_rules.resolve_mask_flags(value)
     except ValueError as exc:
         raise MooringError(
-            f"{cfg.get('name', 'mooring')}: {exc} (the description's grid: block)"
+            f"{cfg.get('name', 'mooring')}: {exc} (the mooring YAML's grid: block)"
         ) from exc
 
 
@@ -409,12 +409,12 @@ def _dt_seconds_problem(value: Any) -> str | None:
 
 
 def resolve_dt_seconds(mooring: Mapping[str, Any], given: int | None = None) -> int:
-    """Return the stack's time step: the call, else the description, else the default.
+    """Return the stack's time step: the call, else the mooring YAML, else the default.
 
     Parameters
     ----------
     mooring : Mapping
-        The loaded mooring description; its ``stack: dt_seconds`` is used when
+        The loaded mooring YAML; its ``stack: dt_seconds`` is used when
         *given* is None.
     given : int or None, optional
         The time step the caller (or ``--dt-seconds``) gave, in seconds.
@@ -422,7 +422,7 @@ def resolve_dt_seconds(mooring: Mapping[str, Any], given: int | None = None) -> 
     Returns
     -------
     int
-        The time step in seconds: *given*, else the description's
+        The time step in seconds: *given*, else the mooring YAML's
         ``stack: dt_seconds``, else ``parameters.STACK_DT_SECONDS``.
 
     Raises
@@ -437,7 +437,7 @@ def resolve_dt_seconds(mooring: Mapping[str, Any], given: int | None = None) -> 
     else:
         from_yaml = (mooring.get("stack") or {}).get("dt_seconds")
         if from_yaml is not None:
-            value, where = from_yaml, "the description's stack: block"
+            value, where = from_yaml, "the mooring YAML's stack: block"
         else:
             value, where = params.STACK_DT_SECONDS, "the default"
     problem = _dt_seconds_problem(value)

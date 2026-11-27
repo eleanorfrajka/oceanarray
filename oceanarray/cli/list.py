@@ -1,4 +1,4 @@
-"""``oceanarray list`` — the instrument types and file types a description can use."""
+"""``oceanarray list`` — the instrument types and file types a mooring YAML can use."""
 
 from __future__ import annotations
 
@@ -51,7 +51,7 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
         help="List the instrument types and file_type values a mooring YAML may use.",
         description=(
             "Print the values the 'instrument' and 'file_type' fields of a mooring\n"
-            "description accept. Reads and writes nothing."
+            "mooring YAML accept. Reads and writes nothing."
         ),
         epilog="Examples:\n  oceanarray list\n  oceanarray list file-types",
         formatter_class=argparse.RawDescriptionHelpFormatter,

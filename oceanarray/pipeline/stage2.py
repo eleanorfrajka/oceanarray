@@ -614,7 +614,7 @@ def stage2(
     """Apply clock corrections and deployment trimming to a mooring's stage-1 datasets.
 
     Pure function over datasets: no file I/O.  *datasets* is keyed by serial (as
-    :func:`read_mooring` returns); *mooring* is the loaded description.  Returns the
+    :func:`read_mooring` returns); *mooring* is the loaded mooring YAML.  Returns the
     stage-2 datasets, each marked ``processing_stage = 2`` and holding the
     values its file will hold, so each equals its file read back.
 
@@ -623,7 +623,7 @@ def stage2(
     datasets : dict of str to xarray.Dataset
         Stage-1 datasets keyed by cleaned serial.
     mooring : dict
-        The loaded mooring description.
+        The loaded mooring YAML.
 
     Returns
     -------

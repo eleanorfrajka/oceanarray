@@ -30,7 +30,7 @@ def summary(
 ) -> str:
     """Return one line per processed instrument: records, time span, interval, variables.
 
-    The instruments and their files come from the mooring description, not from
+    The instruments and their files come from the mooring YAML, not from
     searching the folder: each listed instrument's stage-3 file is summarised, or
     its stage-2 file when there is no stage 3, with the stage-1 record count
     beside it.
@@ -39,9 +39,9 @@ def summary(
     ----------
     mooring : str or os.PathLike or Mapping
         A ``*.mooring.yaml`` path, a directory holding exactly one, or a loaded
-        description (then *mooring_dir* is required).
+        mooring YAML (then *mooring_dir* is required).
     mooring_dir : os.PathLike or None, optional
-        The mooring's own directory, when *mooring* is a loaded description.
+        The mooring's own directory, when *mooring* is a loaded mooring YAML.
 
     Returns
     -------

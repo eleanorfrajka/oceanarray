@@ -244,7 +244,7 @@ class GridContext:
     temp_levels, wavelet_levels, rotary_levels : tuple of int
         Grid levels of the temperature spectrum, wavelet and rotary spectrum.
     spectrum_markers : tuple of (str, float)
-        Extra spectrum markers from the mooring description (label, period in days).
+        Extra spectrum markers from the mooring YAML (label, period in days).
     stack_href : str or None
         Link to the stack page.
     """

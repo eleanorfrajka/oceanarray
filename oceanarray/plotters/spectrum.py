@@ -193,7 +193,7 @@ def spectrum_markers(
     lat : float or None
         Mooring latitude (degrees); no inertial marker when None or 0.
     extra : sequence of (str, float), optional
-        Further ``(label, period in days)`` markers (the mooring description's
+        Further ``(label, period in days)`` markers (the mooring YAML's
         ``spectrum_markers``).
 
     Returns

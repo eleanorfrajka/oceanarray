@@ -243,10 +243,10 @@ def _drop_file_type_variables(dataset: xr.Dataset, file_type: str) -> xr.Dataset
 def _add_global_attributes(
     dataset: xr.Dataset, yaml_data: dict[str, Any]
 ) -> xr.Dataset:
-    """Set the description's name, position, water depth and deployment window.
+    """Set the mooring YAML's name, position, water depth and deployment window.
 
     They replace any an imported file carries. Positions are decimal degrees, the
-    deployment and seabed positions only when the description gives them.
+    deployment and seabed positions only when the mooring YAML gives them.
     """
     header = header_attrs(yaml_data, warn=False)
     for key in _HEADER_ATTRS:
@@ -264,7 +264,7 @@ def _add_global_attributes(
     return dataset
 
 
-#: The description's header attributes stage 1 writes over an imported file's own.
+#: The mooring YAML's header attributes stage 1 writes over an imported file's own.
 _HEADER_ATTRS = (
     "mooring_name",
     "waterdepth",
@@ -276,9 +276,9 @@ _HEADER_ATTRS = (
 
 
 def _add_sources(dataset: xr.Dataset, yaml_data: dict[str, Any]) -> xr.Dataset:
-    """Copy each ``<field>_source`` of the description beside its field, with a history line.
+    """Copy each ``<field>_source`` of the mooring YAML beside its field, with a history line.
 
-    Provenance only: the field's value is the description's, as without it.
+    Provenance only: the field's value is the mooring YAML's, as without it.
     """
     for field in _mooring.SOURCE_FIELDS:
         source = yaml_data.get(f"{field}_source")
@@ -588,9 +588,9 @@ def _cleaned(
 
 
 def _add_people(dataset: xr.Dataset, mooring: Mapping[str, Any]) -> xr.Dataset:
-    """Add the people the file names, cleaned per OceanSITES 1.4, else the description's ``people:``.
+    """Add the people the file names, cleaned per OceanSITES 1.4, else the mooring YAML's ``people:``.
 
-    The file's own lists win: the description's block is used only when the file
+    The file's own lists win: the mooring YAML's block is used only when the file
     names no one (RODB headers carry no people), and is ignored, with a warning,
     when the file names someone. Either way a history line says where they came from.
     """
@@ -626,7 +626,7 @@ def _add_source(dataset: xr.Dataset, mooring: Mapping[str, Any]) -> xr.Dataset:
     """Add ``source_*`` (DOI, citation, license, acknowledgement, references) for the data.
 
     Field by field: the file's own value (its ``originator_*``) is kept; the
-    description's ``source:`` block fills the fields the file lacks; a field both give
+    mooring YAML's ``source:`` block fills the fields the file lacks; a field both give
     keeps the file's value, with a warning.
     """
     block = mooring.get("source")
@@ -747,7 +747,7 @@ def stage1(
         Raw datasets keyed by cleaned serial, as ``read_mooring(mooring,
         stage=None, raw_dir=...)`` returns them.
     mooring : dict
-        The loaded mooring description.
+        The loaded mooring YAML.
 
     Returns
     -------
@@ -760,7 +760,7 @@ def stage1(
     oceanarray.exceptions.StageError
         If a dataset already carries a ``processing_stage`` marker.
     oceanarray.exceptions.MooringError
-        If a dataset's serial has no entry in the description.
+        If a dataset's serial has no entry in the mooring YAML.
     oceanarray.config.unit_tables.UnitsError
         If a registered variable has an unknown or missing unit.
     """
@@ -781,7 +781,7 @@ def stage1(
         if entry is None:
             raise MooringError(
                 f"{mooring['name']}: dataset {serial!r} has no entry in the mooring "
-                "description; stage 1 needs the entry's metadata."
+                "mooring YAML; stage 1 needs the entry's metadata."
             )
         result = _stage1_instrument(ds.copy(deep=True), entry, mooring)
         out[serial] = _stage.stamp(as_stored(result), 1)

@@ -951,7 +951,7 @@ def _left_out_sentence(
 
 
 def _markers_sentence(c: Any, lo: float, hi: float) -> str:
-    """Return the sentence naming the description's extra markers, or ``""``."""
+    """Return the sentence naming the mooring YAML's extra markers, or ``""``."""
     extra = list(c.spectrum_markers)
     if not extra:
         return ""
@@ -1064,7 +1064,7 @@ def netcdf_caption(
     file : str
         What the file is: ``"file"``, ``"stack file"``, ``"site grid file"``.
     description : str, optional
-        Where the mooring description is, from this page.
+        Where the mooring YAML is, from this page.
 
     Returns
     -------

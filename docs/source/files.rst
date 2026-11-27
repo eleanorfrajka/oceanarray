@@ -44,7 +44,7 @@ lives in it:
 
    proc/
    └── dsG3_1_2026/
-       ├── dsG3_1_2026.mooring.yaml        the description
+       ├── dsG3_1_2026.mooring.yaml        the mooring YAML
        ├── microcat/
        │   ├── dsG3_1_2026_26261_stage1.nc   as read
        │   ├── dsG3_1_2026_26261_stage2.nc   trimmed, clock-corrected

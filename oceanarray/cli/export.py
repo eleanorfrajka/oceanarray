@@ -42,7 +42,7 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
         description=(
             "Write each instrument's stage-3 file as an OceanSITES 1.4 deployment file\n"
             "(OS_<platform>_<YYYYMM>_<mode>_<type>-<serial>-<depth>m.nc) and the grid as a\n"
-            "gridded file (..._GRD_<interval>-DP<step>.nc). The mooring description needs\n"
+            "gridded file (..._GRD_<interval>-DP<step>.nc). The mooring YAML needs\n"
             "platform_code. Instruments that cannot be exported are listed and left out.\n"
             "Exits 0 if any file was written, 1 if none."
         ),

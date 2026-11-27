@@ -9,7 +9,7 @@ Public API
 
 ``import oceanarray as oa`` gives every name below (``oceanarray.__all__``); each
 loads on first use. A mooring is given as its ``*.mooring.yaml`` path, the folder
-holding it, or a loaded description with ``mooring_dir=``.
+holding it, or a loaded mooring YAML with ``mooring_dir=``.
 
 .. code-block:: python
 
@@ -98,7 +98,7 @@ The ``pipeline`` package: ``process`` and ``run``, the ``STAGES`` registry and
 
 mooring
 ^^^^^^^
-``oceanarray.mooring`` is the single seam for reading one mooring's description
+``oceanarray.mooring`` is the single seam for reading one mooring YAML
 (a ``*.mooring.yaml`` file or the dict parsed from one): ``load`` (validates,
 raises ``MooringError`` on an invalid config), ``check`` (never raises), and
 ``template`` / ``save`` for the ``init`` stub. Every stage and report receives the
@@ -110,12 +110,13 @@ entries to process, the position — is the caller's job, through
    :members:
    :undoc-members:
 
-The constants beside them, defined in ``oceanarray.mooring.yaml_file``:
+The constants beside them, defined in ``oceanarray.mooring.yaml_keys`` and
+``oceanarray.mooring.settings``:
 
-.. autodata:: oceanarray.mooring.yaml_file.SOURCE_FIELDS
-.. autodata:: oceanarray.mooring.yaml_file.OPTIONAL_REPORT_SECTIONS
-.. autodata:: oceanarray.mooring.yaml_file.DEPLOYMENT_CODE_PATTERN
-.. autodata:: oceanarray.mooring.yaml_file.SETTINGS_BLOCKS
+.. autodata:: oceanarray.mooring.yaml_keys.SOURCE_FIELDS
+.. autodata:: oceanarray.mooring.settings.OPTIONAL_REPORT_SECTIONS
+.. autodata:: oceanarray.mooring.yaml_keys.DEPLOYMENT_CODE_PATTERN
+.. autodata:: oceanarray.mooring.settings.SETTINGS_BLOCKS
 
 validation
 ^^^^^^^^^^
@@ -137,7 +138,7 @@ The ``people:`` and ``source:`` blocks of a mooring YAML: their fields and check
 
 instruments
 ^^^^^^^^^^^
-The instruments a mooring description lists: its entries and inline hardware serials.
+The instruments a mooring YAML lists: its entries and inline hardware serials.
 
 .. automodule:: oceanarray.mooring.instruments
    :members:

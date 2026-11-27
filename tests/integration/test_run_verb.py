@@ -1,8 +1,8 @@
 """``oceanarray.run(mooring)``: stages 1–3, then stack and grid, on the dune2 fixtures.
 
-A fresh proc tree holding only the description is run against the committed raw
+A fresh proc tree holding only the mooring YAML is run against the committed raw
 files. Covers the files returned, ``data_mode``, the stack/grid settings from the
-call and from the description, carrying on past failures (the default), and the
+call and from the mooring YAML, carrying on past failures (the default), and the
 strict ``keep_going=False``.
 """
 
@@ -28,7 +28,7 @@ _INSTR = {"2941": "microcat", "9920": "aquadopp"}
 
 
 def _fresh_tree(tmp_path: Path, extra_yaml: str = "") -> Path:
-    """Return the path of a description, optionally extended, in an otherwise empty proc tree."""
+    """Return the path of a mooring YAML, optionally extended, in an otherwise empty proc tree."""
     moor = tmp_path / "proc" / _NAME
     moor.mkdir(parents=True)
     text = (_PROC / f"{_NAME}.mooring.yaml").read_text() + extra_yaml
@@ -44,7 +44,7 @@ def _attrs(path: Path) -> dict:
 
 @pytest.fixture(scope="module")
 def ran(tmp_path_factory) -> tuple[Path, list[Path]]:
-    """Run once over a fresh tree, hourly stack; return the description path and the files."""
+    """Run once over a fresh tree, hourly stack; return the mooring YAML path and the files."""
     yaml_path = _fresh_tree(tmp_path_factory.mktemp("run"))
     return yaml_path, oa.run(yaml_path, raw_dir=_RAW, dt_seconds=3600)
 
@@ -269,7 +269,7 @@ def test_cli_run_takes_stages_and_the_description_settings(ran, monkeypatch):
 
 
 def _copy(ran, tmp_path) -> Path:
-    """A copy of the processed tree; returns its description path."""
+    """A copy of the processed tree; returns its mooring YAML path."""
     yaml_path, _ = ran
     shutil.copytree(yaml_path.parent, tmp_path / _NAME)
     return tmp_path / _NAME / yaml_path.name

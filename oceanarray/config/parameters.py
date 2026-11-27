@@ -174,7 +174,7 @@ QC_MERGE_PRIORITY_LUT = np.array(
 QC_FLAG_VALUES_I8 = np.array(QC_FLAG_VALUES, dtype="int8")
 
 #: Flags whose values the figures and pages do not show and the grid leaves
-#: out, unless the call, ``--mask-flags`` or the description's ``stack: mask_flags``
+#: out, unless the call, ``--mask-flags`` or the mooring YAML's ``stack: mask_flags``
 #: says otherwise: bad (4) only. Suspect (3), value_changed (5), not QC'd (0) are
 #: shown and gridded; 9 marks a missing value, so there is nothing to show.
 MASK_FLAGS: tuple[int, ...] = (4,)

@@ -1,8 +1,8 @@
-"""A mooring description reached through a link resolves its relative paths from the real file.
+"""A mooring YAML reached through a link resolves its relative paths from the real file.
 
-A processing folder may hold a link to a description kept with the project's other
-descriptions; a relative ``sensor_catalog`` in it is relative to that real file.
-Built from the dune2 fixture description and the sensor-catalog fixture.
+A processing folder may hold a link to a mooring YAML kept with the project's other
+mooring YAMLs; a relative ``sensor_catalog`` in it is relative to that real file.
+Built from the dune2 fixture mooring YAML and the sensor-catalog fixture.
 """
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ _NAME = "dune2_1_2026"
 def linked(tmp_path: pathlib.Path) -> tuple[pathlib.Path, pathlib.Path]:
     """``proc/<name>/<name>.mooring.yaml`` a link to ``config/moorings/<name>.mooring.yaml``.
 
-    The real description names ``../sensor_catalog.yaml`` (``config/sensor_catalog.yaml``);
+    The real mooring YAML names ``../sensor_catalog.yaml`` (``config/sensor_catalog.yaml``);
     ``proc/`` holds no catalog, so a path taken from the link's folder fails.
     """
     if not hasattr(os, "symlink"):
@@ -68,7 +68,7 @@ def test_the_link_folder_still_names_the_mooring_and_holds_its_files(linked) -> 
 
 
 def test_a_dict_takes_the_catalog_from_the_linked_description(linked) -> None:
-    """A dict with ``mooring_dir=``: the relative path is taken where the description really is."""
+    """A dict with ``mooring_dir=``: the relative path is taken where the mooring YAML really is."""
     link, catalog = linked
     data = yaml.safe_load(link.read_text(encoding="utf-8"))
     cfg, folder = resolve_mooring(data, link.parent)

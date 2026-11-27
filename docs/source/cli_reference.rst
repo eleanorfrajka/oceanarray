@@ -4,7 +4,7 @@
 Command line
 ============
 
-The typical workflow is: ``oceanarray init`` a mooring description and fill it
+The typical workflow is: ``oceanarray init`` a mooring YAML and fill it
 in, ``oceanarray validate`` it, run ``oceanarray process`` stage by stage and look
 at the stage files with ``oceanarray report``, then ``oceanarray run`` for the
 whole pipeline (stages 1–3, stack, grid, report) in one command, and
@@ -16,7 +16,7 @@ as well as ``oceanarray``.
 forms:
 
 - the path to its ``*.mooring.yaml``, or to the folder holding it — the folder can
-  have any name, and every file is named from the description's ``name:``;
+  have any name, and every file is named from the mooring YAML's ``name:``;
 - with ``--proc-dir``, the mooring's name: the folder is ``{proc_dir}/{name}``.
 
 .. code-block:: bash
@@ -59,7 +59,7 @@ The flag lists below are generated from the argument parser
 ``oceanarray validate``
 ------------------------
 
-Check one or more mooring descriptions for missing fields, unrecognised values and
+Check one or more mooring YAMLs for missing fields, unrecognised values and
 structural errors, including the QC override blocks and the OceanSITES codes (see
 :doc:`yaml_configuration`).  Run it before any processing to catch typos in
 ``file_type``, a missing ``hab``, a malformed serial number or a misspelt QC
@@ -79,7 +79,7 @@ threshold.
 
    oceanarray validate /data/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml
 
-Prints every ERROR and WARNING.  Exits 1 if any description has an ERROR, or with
+Prints every ERROR and WARNING.  Exits 1 if any mooring YAML has an ERROR, or with
 ``--strict`` a WARNING; 0 otherwise.
 
 ----
@@ -344,7 +344,7 @@ links; it does not move where the page is written.
 
 Write a mooring's stage-3 files and grid as OceanSITES 1.4 files (see
 :doc:`methods/oceansites_export`): one deployment file per instrument and one
-gridded file.  The mooring description needs ``platform_code``; ``--array`` adds
+gridded file.  The mooring YAML needs ``platform_code``; ``--array`` adds
 the array's ``site_code`` and ``project``.  An instrument that cannot be exported
 is listed and left out; the command exits 1 only when nothing was written.
 

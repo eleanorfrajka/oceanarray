@@ -161,7 +161,7 @@ def _parse_hab_segments(entry: dict[str, Any], serial: str) -> list[tuple]:
 def _build_instrument_table(
     datasets: dict[str, xr.Dataset], mooring: dict[str, Any]
 ) -> list[dict[str, Any]]:
-    """Return one info dict per dataset (description order) with its QC config."""
+    """Return one info dict per dataset (mooring YAML order) with its QC config."""
     lat, lon, latlon_source = parse_latlon_with_source(mooring)
     water_depth_m = float(mooring.get("waterdepth") or 0.0)
 
@@ -222,7 +222,7 @@ def _build_instrument_table(
 
 
 def _is_pressure_bad(info: dict[str, Any]) -> bool:
-    """Return True when the description flags the instrument's own pressure as bad."""
+    """Return True when the mooring YAML flags the instrument's own pressure as bad."""
     return info["qc_flags"].get("pressure", 0) >= 3
 
 
@@ -295,7 +295,7 @@ def _interpolate_if_stuck(
         f"excluded from sources from the start."
     )
     # interpolate_pressure records pressure_orig_qc from the entry's flag: set it to the
-    # actual QC reason (4), not the description's default of 0.
+    # actual QC reason (4), not the mooring YAML's default of 0.
     info["qc_flags"]["pressure"] = 4
     ds, method = interpolate_pressure(
         ds, info, other_sources, target_time, pressure_bad_flag=True
@@ -554,7 +554,7 @@ def stage3(
     """Apply pressure interpolation, QC, coordinate rotation and derived variables to a mooring.
 
     Pure function over datasets: no file I/O. Pressure is interpolated onto
-    instruments that lack it (or whose pressure the description flags bad) from the
+    instruments that lack it (or whose pressure the mooring YAML flags bad) from the
     mooring's other instruments, so the whole mooring is processed together.
 
     Parameters
@@ -562,7 +562,7 @@ def stage3(
     datasets : dict of str to xarray.Dataset
         Stage-2 datasets keyed by cleaned serial, as :func:`read_mooring` returns them.
     mooring : dict
-        The loaded mooring description.
+        The loaded mooring YAML.
     caldip_dir : str or None, optional
         Calibration-dip directory. The correction is not yet implemented: supplying it
         leaves the science data unchanged and stamps ``caldip_applied`` on each output.

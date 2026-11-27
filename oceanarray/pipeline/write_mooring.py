@@ -3,7 +3,7 @@
 The counterpart to :func:`oceanarray.pipeline.read_mooring.read_mooring`: it
 names each file from the dataset's own stamped facts — identity (``name``),
 ``instrument`` and ``serial`` — under the directory the caller points at. It is
-pipeline orchestration (it interprets the stamped description to lay out files),
+pipeline orchestration (it interprets the stamped mooring YAML to lay out files),
 not a writer; the byte-level write seam is :func:`oceanarray.writers.write`.
 """
 

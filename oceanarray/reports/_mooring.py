@@ -595,7 +595,7 @@ class MooringReport:
         Parameters
         ----------
         mooring_name : str
-            The description's ``name``; every page and the stage, stack and grid
+            The mooring YAML's ``name``; every page and the stage, stack and grid
             files are named from it.
         force, skip_existing : bool, optional
             Rebuild pages newer than their inputs / keep any page that exists.
@@ -610,14 +610,14 @@ class MooringReport:
         instruments, grid, stack : bool, optional
             Also build these pages.
         cfg : Mapping or None, optional
-            The loaded description; read from *yaml_path* when not given. When
-            given, the summary page is rebuilt whatever its age (the description
+            The loaded mooring YAML; read from *yaml_path* when not given. When
+            given, the summary page is rebuilt whatever its age (the mooring YAML
             may differ from the file).
         mooring_dir : str or pathlib.Path or None, optional
             The mooring's folder, whatever it is called; default
             ``<proc_dir>/<mooring_name>``.
         yaml_path : str or pathlib.Path or None, optional
-            The description file (for staleness and display); default
+            The mooring YAML file (for staleness and display); default
             ``<mooring folder>/<mooring_name>.mooring.yaml``.
 
         Returns
@@ -635,8 +635,8 @@ class MooringReport:
         # unbounded.  (The b64->slot side registry is gone: the slot now travels
         # on the resolved panel.)
         _figdebug.clear()
-        # The mooring's folder is where its description is (any name); the pages
-        # and the files they read are named from the description's name.
+        # The mooring's folder is where its mooring YAML is (any name); the pages
+        # and the files they read are named from the mooring YAML's name.
         proc_dir = (
             Path(mooring_dir)
             if mooring_dir is not None
@@ -668,8 +668,8 @@ class MooringReport:
             cfg = _mooring.load(yaml_path)
         else:
             raise MooringError(f"{mooring_name}: mooring YAML not found: {yaml_path}")
-        # The summary's inputs are the description and its instruments' stage files,
-        # named from the description (not found by searching the folder).
+        # The summary's inputs are the mooring YAML and its instruments' stage files,
+        # named from the mooring YAML (not found by searching the folder).
         source_ncs = [
             path
             for entry in instrument_entries(cfg)
@@ -689,7 +689,7 @@ class MooringReport:
         products = [
             paths.product_file(proc_dir, mooring_name, p) for p in ("stack", "grid")
         ]
-        # A description passed in may differ from the file on disk, whose time is
+        # A mooring YAML passed in may differ from the file on disk, whose time is
         # all the freshness check can see: the summary is always rebuilt from it.
         summary_fresh = given_cfg is None and should_skip_regeneration(
             output_path, force, skip_existing, yaml_path, *source_ncs, *products

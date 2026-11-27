@@ -66,7 +66,7 @@ Products
 
 An ADCP is one file with its bins on ``DEPTH``: the nominal transducer depth plus (down-looking)
 or minus (up-looking) the distance to each bin, from the orientation in the mooring
-description or, without one, the instrument header; with neither, the export refuses.
+YAML or, without one, the instrument header; with neither, the export refuses.
 ``PRES`` holds the pressure at each bin, computed from the transducer's measured
 pressure, which the file also carries as ``TRANSDUCER_PRES(TIME)`` (its nominal depth in
 ``sensor_depth``): ``DEPTH`` is nominal, and the pressures show the knock-down.  The below-seabed flag that stage 3 keeps

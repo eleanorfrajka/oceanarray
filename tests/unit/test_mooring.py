@@ -1,4 +1,4 @@
-"""Tests for :mod:`oceanarray.mooring` — the mooring description loader."""
+"""Tests for :mod:`oceanarray.mooring` — the mooring YAML loader."""
 
 from pathlib import Path
 
@@ -138,7 +138,8 @@ def test_density_reference_is_a_known_key(tmp_path) -> None:
 
 def test_template_and_comment_keys_are_known() -> None:
     """The template and its field comments stay within ``KNOWN_KEYS`` (no drift)."""
-    from oceanarray.mooring.yaml_file import _FIELD_COMMENTS, KNOWN_KEYS
+    from oceanarray.mooring import KNOWN_KEYS
+    from oceanarray.mooring.write_yaml import _FIELD_COMMENTS
 
     assert set(_FIELD_COMMENTS) <= KNOWN_KEYS
     assert set(mooring.template("dsX_1_2026")) <= KNOWN_KEYS
@@ -269,7 +270,7 @@ def test_qc_overrides_as_documented_pass() -> None:
     ],
 )
 def test_qc_override_shape_mistakes_are_errors(keys: dict, fragment: str) -> None:
-    """A misspelt field or malformed value is an ERROR, so load() refuses the description."""
+    """A misspelt field or malformed value is an ERROR, so load() refuses the mooring YAML."""
     issues = _qc_issues(**keys)
     assert any(level == "ERROR" and fragment in msg for level, msg in issues), issues
     with pytest.raises(MooringError):
@@ -428,12 +429,12 @@ def test_report_sections_check_rejects_unknown_page_and_section() -> None:
 
 
 def test_resolve_report_sections_reads_the_mooring_description() -> None:
-    """The optional sections come from the description's report_sections, else []."""
+    """The optional sections come from the mooring YAML's report_sections, else []."""
     assert mooring.resolve_report_sections("grid", {}) == []
     assert mooring.resolve_report_sections(
         "grid", {"report_sections": {"grid": ["overflow"]}}
     ) == ["overflow"]
-    # a page the description does not list is empty (off)
+    # a page the mooring YAML does not list is empty (off)
     assert (
         mooring.resolve_report_sections("grid", {"report_sections": {"stack": ["x"]}})
         == []

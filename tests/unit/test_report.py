@@ -891,6 +891,6 @@ def test_grid_page_overflow_off_by_default_and_on_by_config(tmp_path, dune2_page
     )
     assert "Overflow" not in footer
 
-    # The fixture's own description has report_sections: {grid: [overflow]}.
+    # The fixture's own mooring YAML has report_sections: {grid: [overflow]}.
     on = (dune2_pages / "dune2_1_2026_grid_report.html").read_text(encoding="utf-8")
     assert "Overflow</h2>" in on

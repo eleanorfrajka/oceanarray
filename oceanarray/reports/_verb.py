@@ -41,13 +41,13 @@ def report(
     ----------
     mooring : str or os.PathLike or Mapping
         ``"mooring"`` / ``"recovery"``: a ``*.mooring.yaml``, a directory holding one, or a
-        loaded description (then *mooring_dir* is required); ``"array"``: an
+        loaded mooring YAML (then *mooring_dir* is required); ``"array"``: an
         ``*.array.yaml``.
     kind : {"mooring", "array", "recovery"}, optional
         The mooring's summary page (and its instrument, stack and grid pages), the array
         index, or the cruise-report recovery table.
     mooring_dir : os.PathLike or None, optional
-        The mooring's directory, for a loaded description.
+        The mooring's directory, for a loaded mooring YAML.
     proc_dir : os.PathLike or None, optional
         ``"array"``: the processed-data root; default the array description's directory.
     raw_dir : os.PathLike or None, optional
@@ -84,7 +84,7 @@ def report(
     Raises
     ------
     oceanarray.exceptions.MooringError
-        Invalid or missing description, a page that cannot be built, or a PDF that cannot
+        Invalid or missing mooring YAML, a page that cannot be built, or a PDF that cannot
         be made (``pdf`` extra not installed).
     ValueError
         Unknown *kind*.
@@ -140,7 +140,7 @@ def report(
             instruments=instruments or serial_list is not None,
             grid=grid,
             stack=stack,
-            # A loaded description may differ from the file on disk, so it is
+            # A loaded mooring YAML may differ from the file on disk, so it is
             # passed on (and rebuilds the summary); a path is read from disk.
             cfg=cfg if isinstance(mooring, Mapping) else None,
             mooring_dir=moor_dir,
@@ -161,7 +161,7 @@ def report_paths(
 ) -> dict[str, Path]:
     """Return where :func:`report` writes a mooring's pages, without building any.
 
-    The description is only read for its ``name``, not checked, so this works
+    The mooring YAML is only read for its ``name``, not checked, so this works
     on a half-filled one.
 
     Parameters
@@ -169,7 +169,7 @@ def report_paths(
     mooring : str or os.PathLike or Mapping
         As for :func:`report`.
     mooring_dir : os.PathLike or None, optional
-        The mooring's own folder, when *mooring* is a loaded description.
+        The mooring's own folder, when *mooring* is a loaded mooring YAML.
     out_dir, report_dir, pdf_dir : os.PathLike or None, optional
         As for :func:`report`.
 
@@ -193,8 +193,8 @@ def report_paths(
 def _resolve_name_and_dir(
     mooring: str | PathLike | Mapping[str, Any], mooring_dir: PathLike | None
 ) -> tuple[str, Path]:
-    """Return the description's ``name`` and the mooring's folder, without checking it."""
-    from oceanarray.mooring import yaml_file as _mooring
+    """Return the mooring YAML's ``name`` and the mooring's folder, without checking it."""
+    from oceanarray.mooring import check_yaml as _mooring
 
     if isinstance(mooring, Mapping):
         if mooring_dir is None:
@@ -218,7 +218,7 @@ def _resolve_name_and_dir(
 def _resolve_description_file(
     mooring: str | PathLike | Mapping[str, Any], moor_dir: Path, name: str
 ) -> Path:
-    """Return the description file: the path given, the one in the folder given, or ``<name>.mooring.yaml``."""
+    """Return the mooring YAML file: the path given, the one in the folder given, or ``<name>.mooring.yaml``."""
     if not isinstance(mooring, Mapping):
         path = Path(mooring)
         if path.is_file():

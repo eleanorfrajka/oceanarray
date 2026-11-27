@@ -1,6 +1,6 @@
 """The pipeline: the verbs' bodies (stages, stack, grid, process, run) and what they compose.
 
-:func:`process` runs stages 1–3 for one mooring from its description. The
+:func:`process` runs stages 1–3 for one mooring from its mooring YAML. The
 :data:`STAGES` tuple orders and dispatches all five stages for the form
 ``process(name, stage, proc_dir=…)``, deprecated and removed in 0.7.0.
 
@@ -324,7 +324,7 @@ def process(
     Parameters
     ----------
     mooring : str or os.PathLike or Mapping
-        A ``*.mooring.yaml``, a directory holding one, or a loaded description (then
+        A ``*.mooring.yaml``, a directory holding one, or a loaded mooring YAML (then
         *mooring_dir* is required).
     stages : int or "all" or iterable of int, optional
         Stages to run, always in order 1, 2, 3.
@@ -340,7 +340,7 @@ def process(
         The mooring's directory; taken from *mooring* when it is a path.
     raw_dir : os.PathLike or None, optional
         Raw-data root holding the mooring's folder; needed for stage 1 unless the
-        description gives an absolute ``directory:``.
+        mooring YAML gives an absolute ``directory:``.
     caldip_dir : os.PathLike or None, optional
         Calibration-dip results for stage 3 (recorded as ``caldip_applied``, not yet
         applied); rewrites existing stage-3 files.
@@ -356,7 +356,7 @@ def process(
     Raises
     ------
     oceanarray.exceptions.MooringError
-        Invalid description, missing directory, no instrument matched, or (with
+        Invalid mooring YAML, missing directory, no instrument matched, or (with
         ``keep_going=False``) any failed instrument.
     ValueError
         *stages* names anything but 1, 2 and 3.
@@ -426,13 +426,13 @@ def resolve_mooring(
     mooring_dir: PathLike | None,
     caller: str = "resolve_mooring",
 ) -> tuple[dict, Path]:
-    """Return a mooring's loaded, validated description and its directory.
+    """Return a mooring's loaded, validated mooring YAML and its directory.
 
     Parameters
     ----------
     mooring : str, os.PathLike or Mapping
         The ``*.mooring.yaml`` path, the folder holding it, or an already-loaded
-        description (then *mooring_dir* is required).
+        mooring YAML (then *mooring_dir* is required).
     mooring_dir : os.PathLike or None
         The mooring's processed folder; needed with a dict, optional with a path.
     caller : str, optional
@@ -441,13 +441,13 @@ def resolve_mooring(
     Returns
     -------
     tuple of (dict, pathlib.Path)
-        The description (checked by :func:`oceanarray.mooring.load`) and the folder its
+        The mooring YAML (checked by :func:`oceanarray.mooring.load`) and the folder its
         stage files live in.
 
     Raises
     ------
     oceanarray.exceptions.MooringError
-        When a dict comes without *mooring_dir*, the description fails the checks, or
+        When a dict comes without *mooring_dir*, the mooring YAML fails the checks, or
         the folder does not exist.
 
     Examples
@@ -467,8 +467,8 @@ def resolve_mooring(
             )
         cfg, moor_dir = _mooring.load(mooring), Path(mooring_dir)
         # A dict has no file to be relative to: a relative catalog path is taken
-        # from where the description lives — the real folder of the mooring
-        # directory's description when it is a link to a file kept elsewhere, else
+        # from where the mooring YAML lives — the real folder of the mooring
+        # directory's mooring YAML when it is a link to a file kept elsewhere, else
         # the mooring directory.
         catalog_path = cfg.get("sensor_catalog")
         if catalog_path and not Path(str(catalog_path)).is_absolute():

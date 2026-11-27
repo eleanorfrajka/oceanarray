@@ -33,7 +33,7 @@ def parse_coordinate(value: Any) -> float | None:
     Parameters
     ----------
     value : Any
-        The value as given in a description (number or string).
+        The value as given in a mooring YAML (number or string).
 
     Returns
     -------
@@ -111,7 +111,7 @@ def format_ddm(value: float, *, is_lat: bool) -> str:
 
 LATLON_UNKNOWN_SOURCE = "unknown (defaulting to 0, 0)"
 
-#: Position key pairs of a description, in the order they are tried.
+#: Position key pairs of a mooring YAML, in the order they are tried.
 LATLON_KEY_PAIRS: tuple[tuple[str, str], ...] = (
     ("seabed_latitude", "seabed_longitude"),
     ("deployment_latitude", "deployment_longitude"),

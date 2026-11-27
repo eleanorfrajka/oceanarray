@@ -549,7 +549,7 @@ def generate_instrument_pages(
                 disturbed = _instrument_text.disturbed_end(ds_page)
 
         # Vertical lines on the start/end windows: one per time, a suggested
-        # time (orange, from pressure) and the description's (green) drawn as one
+        # time (orange, from pressure) and the mooring YAML's (green) drawn as one
         # line when they agree.
         _window_vlines = _instrument_text.window_lines(
             (_sugg_deploy_utc, _sugg_recover_utc),

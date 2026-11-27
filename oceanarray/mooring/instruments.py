@@ -1,4 +1,4 @@
-"""The instruments a mooring description lists: its entries and inline hardware serials."""
+"""The instruments a mooring YAML lists: its entries and inline hardware serials."""
 
 from __future__ import annotations
 
@@ -241,7 +241,7 @@ def nominal_depth(entry: dict[str, Any], waterdepth: Any) -> float | None:
     Parameters
     ----------
     entry : dict
-        The instrument entry of a mooring description.
+        The instrument entry of a mooring YAML.
     waterdepth : float or None
         The mooring's water depth (m).
 
@@ -310,7 +310,7 @@ def instrument_entries(mooring: dict[str, Any]) -> list[dict[str, Any]]:
     Parameters
     ----------
     mooring : dict
-        A loaded mooring description.
+        A loaded mooring YAML.
 
     Returns
     -------

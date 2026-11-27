@@ -468,7 +468,7 @@ def concat(
     sources : sequence of (str, str), optional
         ``(file path, sha256)`` of each stack, in the order of *stacks*.
     descriptions : sequence of Mapping, optional
-        Each deployment's mooring description, in the order of *stacks*: its
+        Each deployment's mooring YAML, in the order of *stacks*: its
         cruises and ships go into the ``DEPLOYMENT`` record.
     mask_flags : iterable of int, or Mapping, optional
         The Stack cat's rule (``stack_mask_flags``). By default the deployments'
@@ -1269,11 +1269,11 @@ def concat_moorings(
     first_dir = Path(descriptions[0]).parent
     target_dir = Path(out_dir) if out_dir is not None else first_dir.parent / name
     out_path = paths.product_file(target_dir, name, "stackcat")
-    # A deployment's own folder holds its description and its stack; the site
+    # A deployment's own folder holds its mooring YAML and its stack; the site
     # stack goes elsewhere, so it can never replace a deployment's files.
     if any(target_dir.glob("*.mooring.yaml")):
         raise MooringError(
-            f"{target_dir} holds a mooring description; write the site stack to "
+            f"{target_dir} holds a mooring YAML; write the site stack to "
             "its own folder (out_dir= / -o)."
         )
     if out_path.exists() and not overwrite and not dry_run:

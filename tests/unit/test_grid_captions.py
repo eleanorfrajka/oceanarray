@@ -161,7 +161,7 @@ def test_captions_have_no_jargon_or_stale_claims(ctx):
 
 
 def test_spectrum_captions_name_windows_and_markers(ctx):
-    """Window lengths are those used; the description's markers are named."""
+    """Window lengths are those used; the mooring YAML's markers are named."""
     caps = _captions.grid_captions(ctx)
     n = ctx.ds.sizes["time"]
     days = welch_segment(n, 3600, 14.0) / 24
@@ -281,7 +281,7 @@ def test_potential_density_is_computed_once_and_only_on_the_grid_page(ctx, monke
 
 
 def test_spectrum_default_markers_are_tides_and_inertial():
-    """Only M2, K1 and f by default; the description adds the rest."""
+    """Only M2, K1 and f by default; the mooring YAML adds the rest."""
     from oceanarray.plotters.spectrum import spectrum_markers
 
     assert [m[0] for m in spectrum_markers(65.7)] == ["M2", "K1", "f"]

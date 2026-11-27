@@ -48,7 +48,7 @@ def _resolve_dirs(
 
 
 def _mooring_location(args: argparse.Namespace) -> Path:
-    """Return the mooring's folder or description from the positional argument."""
+    """Return the mooring's folder or mooring YAML from the positional argument."""
     _resolve_dirs(args, proc_required=False)
     if getattr(args, "proc_dir", None):
         proc_root = Path(args.proc_dir)
@@ -180,7 +180,7 @@ def _add_stack_grid_args(
     )
     for flag, key, kind, metavar, text, default in flags:
         where = (
-            f"the description's {'stack' if key == 'dt_seconds' else 'grid'}: "
+            f"the mooring YAML's {'stack' if key == 'dt_seconds' else 'grid'}: "
             f"block, else {default:g}"
             if from_description or key == "dt_seconds"
             else f"{default:g}"
@@ -189,7 +189,7 @@ def _add_stack_grid_args(
             flag,
             type=kind,
             dest=key,
-            # None lets the description's stack:/grid: blocks apply (run, and the
+            # None lets the mooring YAML's stack:/grid: blocks apply (run, and the
             # time step everywhere); process keeps the fixed grid defaults.
             default=None if from_description or key == "dt_seconds" else kind(default),
             metavar=metavar,
@@ -208,7 +208,7 @@ def _add_stack_grid_args(
 def _add_mask_flags_arg(p: argparse.ArgumentParser, *, from_description: bool) -> None:
     """Add ``--mask-flags``: the flags the pages hide and the grid leaves out."""
     where = (
-        "the description's stack: mask_flags, else 4"
+        "the mooring YAML's stack: mask_flags, else 4"
         if from_description
         else "the deployments' rule, which must agree"
     )
@@ -302,7 +302,7 @@ def _print_stage_plan(
     """Print each stage file *wanted* stages would write; write nothing."""
     from oceanarray import logger
     from oceanarray.exceptions import OceanarrayError
-    from oceanarray.mooring import yaml_file as _mooring
+    from oceanarray.mooring import check_yaml as _mooring
     from oceanarray.mooring.instruments import instrument_entries
     from oceanarray.reports._verb import (
         _resolve_description_file,

@@ -52,7 +52,7 @@ def build_parser() -> argparse.ArgumentParser:
     """Build and return the top-level argument parser for the oceanarray CLI."""
     epilog = (
         "Typical workflow (MOORING is the <name>.mooring.yaml, its folder, or a name with --proc-dir):\n"
-        "  oceanarray init     dsG3_1_2026 --proc-dir /data/proc          write a skeleton description\n"
+        "  oceanarray init     dsG3_1_2026 --proc-dir /data/proc          write a skeleton mooring YAML\n"
         "  oceanarray validate /data/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml\n"
         "  oceanarray process  MOORING --raw-dir /data/raw --stage 1      one stage on its own\n"
         "  oceanarray report   MOORING --instruments                     look at the stage files\n"

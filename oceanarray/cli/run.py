@@ -95,7 +95,7 @@ def cmd_run(args: argparse.Namespace) -> int:
 
 
 def _run_dry_run(args: argparse.Namespace, location: Path, wanted: list[int]) -> int:
-    """Print the files a run would write, from the description; write nothing."""
+    """Print the files a run would write, from the mooring YAML; write nothing."""
     from oceanarray import paths
     from oceanarray.reports import report_paths
 

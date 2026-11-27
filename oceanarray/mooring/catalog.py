@@ -1,6 +1,6 @@
 """The sensor catalog: what each instrument is, by serial, for its sensor record.
 
-A description names one catalog (``sensor_catalog: <path>``, relative to it).
+A mooring YAML names one catalog (``sensor_catalog: <path>``, relative to it).
 ``models:`` gives per model the attributes of the OG1 sensor record
 (``SENSOR_<type>_<serial>``) and their NERC vocabularies, with one ``sensor_model`` for
 the instrument with a pressure sensor and one without (L22 lists them apart);
@@ -49,7 +49,7 @@ from oceanarray.exceptions import MooringError
 #: The maker's label prefix of each instrument type, as the catalog keys it.
 PREFIX: dict[str, str] = {"microcat": "37-"}
 
-#: The mooring-description key that names the catalog file.
+#: The mooring YAML key that names the catalog file.
 KEY = "sensor_catalog"
 
 #: Record attributes a model gives (the pressure choice adds ``sensor_model`` and
@@ -171,12 +171,12 @@ def lookup(
 
     The instrument is looked up by its entry's serial, then by the serial its
     file states (an imported file's ``sensor_serial_number``), since a
-    description may name an imported instrument by a label such as ``MC76``.
+    mooring YAML may name an imported instrument by a label such as ``MC76``.
 
     Parameters
     ----------
     mooring : Mapping
-        The mooring description; its ``sensor_catalog`` is a path (made absolute
+        The mooring YAML; its ``sensor_catalog`` is a path (made absolute
         by :func:`oceanarray.mooring.load`).
     entry : Mapping
         The instrument's entry (``instrument``, ``serial``).
@@ -296,7 +296,7 @@ def digest(mooring: Mapping[str, Any], records: list[Mapping[str, Any]]) -> str:
     Parameters
     ----------
     mooring : Mapping
-        The mooring description (``sensor_catalog``).
+        The mooring YAML (``sensor_catalog``).
     records : list of Mapping
         The attributes of each sensor record (``SENSOR_*``) of a stack.
 

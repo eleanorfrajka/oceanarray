@@ -43,7 +43,7 @@ folder can have any name, and every file is named from ``name:``.
 - ``run`` rebuilds the stack and grid every time. A stack or grid that no longer
   matches its stage files is renamed ``<name>_stack.stale.nc`` /
   ``<name>_grid.stale.nc`` (one copy, replaced by the next rename).
-- The stack and grid settings can live in the description, in ``stack:``
+- The stack and grid settings can live in the mooring YAML, in ``stack:``
   (``dt_seconds``) and ``grid:`` (``pmin``, ``pmax``, ``dp``) blocks.
 - The stack's default time step is now 3600 s (was 60 s). A mooring stacked at 60 s
   before (MIXSED, ``odb2026``) sets ``stack: {dt_seconds: 60}`` in its mooring YAML.
@@ -200,7 +200,7 @@ Other changes
 -------------
 
 - **A stage file made under a different mooring name is refused.**  Reading a stage
-  file whose ``mooring_name`` differs from the description's ``name:`` by more than
+  file whose ``mooring_name`` differs from the mooring YAML's ``name:`` by more than
   case raises; reprocess it from stage 1.  A case-only difference is corrected.
 - **Stacking no longer reads ``sample_interval_seconds``.**  Each instrument's
   sampling interval is detected from its time stamps.
@@ -213,7 +213,7 @@ Other changes
   numbers, a threshold that is not a number, or a new variable without a
   ``fail_span`` is refused by ``load`` and is an ERROR in ``oceanarray validate``
   (before: dropped, and QC ran with the defaults). Run ``oceanarray validate`` on
-  each description.
+  each mooring YAML.
 - **An orientation needs its hab key.** An instrument with ``orientation: up`` and
   no ``hab_top`` (or ``down`` and no ``hab_bottom``), and no ``hab``, is refused by
   ``load`` and is an ERROR in ``oceanarray validate``. Add the missing key.
@@ -222,7 +222,7 @@ Other changes
 - **Exit codes.** ``oceanarray run`` and ``process`` exit 0 when they finish with
   instruments left out (before: 1); ``--strict`` stops at the first failure with
   exit 1. A usage error exits 2.
-- **Output names** come from the description's ``name:``, not the folder's name.
+- **Output names** come from the mooring YAML's ``name:``, not the folder's name.
 - ``current_direction`` carries ``standard_name = "sea_water_velocity_to_direction"``
   (CF deprecated ``direction_of_sea_water_velocity``).
 - Stage files without a ``processing_stage`` marker are read with a warning until

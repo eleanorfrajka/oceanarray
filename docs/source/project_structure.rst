@@ -16,10 +16,14 @@ Package layout
    │   ├── _version.py                # package version (written by setuptools-scm)
    │   ├── _deprecated.py             # the one table of deprecated names and their replacements
    │   ├── mooring/                   # the *.mooring.yaml and what it describes
-   │   │   ├── yaml_file.py           # the *.mooring.yaml: load / check / template / save
+   │   │   ├── load_yaml.py           # load the *.mooring.yaml; refuse it on an ERROR
+   │   │   ├── check_yaml.py          # check the *.mooring.yaml without raising
+   │   │   ├── write_yaml.py          # the init template; save with field comments
+   │   │   ├── yaml_keys.py           # the keys a mooring YAML may hold
+   │   │   ├── settings.py            # its settings: deployment_settings, report options
    │   │   ├── validation.py          # mooring YAML validation
    │   │   ├── blocks.py              # the people: and source: blocks: fields and checks
-   │   │   ├── instruments.py         # instrument entries of a description, inline-serial parsing
+   │   │   ├── instruments.py         # instrument entries of a mooring YAML, inline-serial parsing
    │   │   ├── location.py            # latitude/longitude parsing and formatting
    │   │   └── catalog.py             # the sensor catalog: what each instrument is, by serial
    │   ├── paths.py                   # file names, suffixes and folder layout

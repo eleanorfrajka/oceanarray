@@ -123,7 +123,7 @@ def test_init_writes_the_stack_and_grid_blocks_commented(tmp_path):
 
 
 def test_animate_finds_the_files_from_the_description(folder, monkeypatch, capsys):
-    """animate picks each instrument's stage-3 file from the description; --only matches exactly."""
+    """animate picks each instrument's stage-3 file from the mooring YAML; --only matches exactly."""
     import oceanarray.plotters as plotters
 
     seen = []
@@ -142,7 +142,7 @@ def test_animate_finds_the_files_from_the_description(folder, monkeypatch, capsy
     assert _cli(["animate", str(folder), "--only", "9920"]) == 0
     assert seen == [f"{_NAME}_9920_hodograph.gif"]
     assert _cli(["animate", str(folder), "--only", "99"]) == 1
-    assert "serial 99 is not in dune2_1_2026's description" in capsys.readouterr().out
+    assert "serial 99 is not in dune2_1_2026's mooring YAML" in capsys.readouterr().out
 
 
 def test_process_carries_on_and_strict_stops(folder, capsys):
@@ -191,7 +191,7 @@ def test_plot_takes_the_folder_path(folder):
 
 
 def test_process_report_on_a_broken_description_is_an_error_line(tmp_path, caplog):
-    """process --report on a description missing waterdepth: an ERROR and exit 1."""
+    """process --report on a mooring YAML missing waterdepth: an ERROR and exit 1."""
     moor = tmp_path / "m"
     moor.mkdir()
     (moor / "m.mooring.yaml").write_text("name: m\nclamp: []\n")

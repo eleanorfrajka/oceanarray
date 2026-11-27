@@ -2,7 +2,7 @@
 
 Reading the committed raw dune2 files with ``read_mooring(stage=None)`` and running
 ``stage1`` must reproduce, value for value, the committed stage-1 fixtures — also
-when the description names no files (found by the recovery-file naming convention)
+when the mooring YAML names no files (found by the recovery-file naming convention)
 and when the Aquadopp sits in the legacy ``nortek/`` folder.
 """
 
@@ -96,7 +96,7 @@ def test_stage1_reproduces_committed_fixtures(tmp_path):
 
 
 def test_raw_read_finds_files_by_naming_convention(tmp_path):
-    """With no filename, file_type or header in the description, the same files are found."""
+    """With no filename, file_type or header in the mooring YAML, the same files are found."""
     cfg = copy.deepcopy(_mooring.load(_YAML))
     for entry in cfg["clamp"]:
         for key in ("filename", "file_type", "header"):

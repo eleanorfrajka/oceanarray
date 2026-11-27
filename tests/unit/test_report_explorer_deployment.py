@@ -264,7 +264,7 @@ def test_stack_and_grid_pages_link_the_mooring_description(
 
 
 def test_pipeline_regrid_command_is_runnable(page: str) -> None:
-    """The copyable regrid command names the description and parses as ``oceanarray run``."""
+    """The copyable regrid command names the mooring YAML and parses as ``oceanarray run``."""
     import html as _html
     import re
     import shlex

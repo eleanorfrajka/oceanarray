@@ -164,7 +164,7 @@ def test_the_catalog_describes_the_sensor_the_file_gets_wrong(tmp_path, caplog):
 
     with caplog.at_level(logging.WARNING, logger="oceanarray"):
         (record,) = sensors.records(_ic1(tmp_path)).values()
-    # Found by the file's serial (12046), not the description's label (MC76); the
+    # Found by the file's serial (12046), not the mooring YAML's label (MC76); the
     # file holds pressure (unflagged), so the "with pressure" (CTP) entry.
     assert record["sensor_model"] == (
         "Sea-Bird SBE 37 MicroCat SMP-CTP (submersible) CTD sensor"

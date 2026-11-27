@@ -271,7 +271,7 @@ def stack(
     head level; a bin is at its own depth (water depth less its ``hab``), and one at
     or above the surface is left out. Instruments marked ``stack: false`` are left out and named in
     ``instruments_excluded``; instruments that cannot be stacked (no ``hab`` in
-    the description, non-canonical units, low-passed data) are left out and named
+    the mooring YAML, non-canonical units, low-passed data) are left out and named
     in ``instruments_omitted``. A level whose stage-3 ``magnetic_declination`` is
     ``"UNK"`` (no mooring position) gets NaN in the per-level
     ``magnetic_declination``, whose ``comment`` names those levels.
@@ -290,7 +290,7 @@ def stack(
     datasets : dict of str to xarray.Dataset
         Stage-3 (or stage-2) datasets keyed by cleaned serial.
     mooring : dict
-        The loaded mooring description: the deployment window is the time axis, and
+        The loaded mooring YAML: the deployment window is the time axis, and
         each entry's ``hab`` and ``stack`` flag are used. Each instrument's sampling
         interval is detected from its time axis.
     dt_seconds : int or None, optional
@@ -316,7 +316,7 @@ def stack(
     Raises
     ------
     oceanarray.exceptions.MooringError
-        If the description has no deployment window, the window holds no whole
+        If the mooring YAML has no deployment window, the window holds no whole
         step, the time step is not a whole number > 0, or no instrument can be
         stacked.
     """
@@ -1109,7 +1109,7 @@ def stack(
             "dt_seconds": dt_seconds,
             mask_rules.STACK_ATTR: mask_rules.to_json(rule),
             "stack_mask_flag_sources": mask_rules.FLAG_SOURCES,
-            # What built this stack, as YAML a description can take back.
+            # What built this stack, as text a mooring YAML can take back.
             "deployment_settings": _mooring.settings_yaml(
                 mooring_config, stack={"dt_seconds": dt_seconds}
             ),
@@ -1277,19 +1277,19 @@ def stack(
 
 
 def mooring_attrs(mooring_config: Mapping) -> dict[str, Any]:
-    """Return the mooring-level attributes a stack copies from its description.
+    """Return the mooring-level attributes a stack copies from its mooring YAML.
 
     Parameters
     ----------
     mooring_config : Mapping
-        The loaded mooring description.
+        The loaded mooring YAML.
 
     Returns
     -------
     dict of str to Any
         ``mooring_name``, ``waterdepth`` (m), ``latitude`` and ``longitude`` (decimal
-        degrees; the best position the description gives: seabed, deployment,
-        planned, then the bare pair), each when the description gives it, and each
+        degrees; the best position the mooring YAML gives: seabed, deployment,
+        planned, then the bare pair), each when the mooring YAML gives it, and each
         ``<field>_source`` it states.
     """
     lat, lon, source = parse_latlon_with_source(mooring_config)
@@ -1377,10 +1377,10 @@ def stack_stale_reason(
     """Return why the stack at *stack_path* must be rebuilt, or None when it is current.
 
     The stack is current when the stage files it would be built from are the ones it
-    records (same files, same SHA-256), the description's settings that shape it are
+    records (same files, same SHA-256), the mooring YAML's settings that shape it are
     the ones it records (``deployment_settings`` without the grid's settings and
     ``mask_flags``), its mooring-level attributes and deployment window match the
-    description, and the same oceanarray release built it (the commit is ignored).
+    mooring YAML, and the same oceanarray release built it (the commit is ignored).
 
     Parameters
     ----------
@@ -1389,14 +1389,14 @@ def stack_stale_reason(
     inputs : Mapping of str to pathlib.Path
         The stage file each instrument would be stacked from, keyed by serial.
     mooring : Mapping
-        The loaded mooring description.
+        The loaded mooring YAML.
     mooring_dir : pathlib.Path
         The mooring's processing directory (stage-file paths are recorded relative
         to it).
     dt_seconds : int
         The time step the new stack would use.
     mask_flags : iterable of int, or Mapping, optional
-        The rule the call gives (None: the description's or the default); a
+        The rule the call gives (None: the mooring YAML's or the default); a
         different rule from the one recorded rebuilds the stack.
 
     Returns
@@ -1449,16 +1449,16 @@ def stack_stale_reason(
         "recovery_time": _stage.iso_time(mooring["recovery_time"]),
     }
     for k in attrs:
-        # A <field>_source the stack holds but the description no longer states.
+        # A <field>_source the stack holds but the mooring YAML no longer states.
         if k.endswith("_source") and k[:-7] in _mooring.SOURCE_FIELDS:
             expected.setdefault(k, "")
     if (key := dtypes.changed_attr(attrs, expected)) is not None:
-        return f"the description's {key} changed"
+        return f"the mooring YAML's {key} changed"
     want = _stack_settings(
         _mooring.settings_yaml(mooring, stack={"dt_seconds": dt_seconds})
     )
     if _stack_settings(str(attrs.get("deployment_settings", ""))) != want:
-        return "the description's settings for the stack changed"
+        return "the mooring YAML's settings for the stack changed"
     if attrs.get(mask_rules.STACK_ATTR) != mask_rules.to_json(
         mask_rules.stack_rule(mooring, mask_flags)
     ):
@@ -1473,35 +1473,35 @@ def stack_stale_reason(
         changed_inputs.append("what its sensor catalog says of these instruments")
     if changed_inputs:
         log.warning(
-            f"{mooring.get('name', '')}: the description's "
+            f"{mooring.get('name', '')}: the mooring YAML's "
             f"{' and '.join(changed_inputs)} changed after stage 1 wrote the stage "
             "files; rerun with --force to bring them into the products"
         )
     return None
 
 
-#: The stack attribute holding the SHA-256 of the description's ``people:`` and
-#: ``source:`` blocks (absent when the description has neither).
+#: The stack attribute holding the SHA-256 of the mooring YAML's ``people:`` and
+#: ``source:`` blocks (absent when the mooring YAML has neither).
 PEOPLE_SOURCE_ATTR = "people_source_sha256"
 
 #: The stack attribute holding the SHA-256 of what the sensor catalog says of the
-#: stack's own instruments (absent when the description names no catalog).
+#: stack's own instruments (absent when the mooring YAML names no catalog).
 CATALOG_ATTR = "sensor_catalog_sha256"
 
 
 def people_source_sha256(mooring: Mapping) -> str:
-    """Return the SHA-256 of the description's ``people:`` and ``source:`` blocks.
+    """Return the SHA-256 of the mooring YAML's ``people:`` and ``source:`` blocks.
 
     Parameters
     ----------
     mooring : Mapping
-        The loaded mooring description.
+        The loaded mooring YAML.
 
     Returns
     -------
     str
         The hex digest of the two blocks as sorted JSON, or ``""`` when the
-        description has neither.
+        mooring YAML has neither.
     """
     import hashlib
     import json
