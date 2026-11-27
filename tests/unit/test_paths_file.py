@@ -136,15 +136,16 @@ def test_a_missing_paths_file_is_an_error(tmp_path):
 
 def test_mooring_override_is_the_exact_folder(project):
     """A mooring under ``moorings:`` gets its folder as written, no name appended."""
+    elsewhere = project.parent / "elsewhere" / "proc_M2"  # absolute on every system
     (project / "paths.yaml").write_text(
         _PATHS_YAML
         + "moorings:\n  egM2_2016:\n    raw_dir: data/raw/2016_recovery\n"
-        + "    proc_dir: /elsewhere/proc_M2\n",
+        + f"    proc_dir: {elsewhere.as_posix()}\n",
         encoding="utf-8",
     )
     paths = Paths.from_file(project / "paths.yaml")
     assert paths.raw_mooring_dir("egM2_2016") == project / "data/raw/2016_recovery"
-    assert paths.mooring_dir("egM2_2016") == Path("/elsewhere/proc_M2")
+    assert paths.mooring_dir("egM2_2016") == elsewhere
     assert paths.raw_mooring_dir("egM2_2018") == project / "data/raw/egM2_2018"
     assert paths.report_mooring_dir("egM2_2016") == (
         project / "outputs" / "report" / "egM2_2016"
