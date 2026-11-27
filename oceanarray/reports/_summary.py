@@ -54,10 +54,10 @@ def summary(
     from oceanarray.mooring.instruments import instrument_entries
     from oceanarray.pipeline import resolve_mooring
 
-    cfg, moor_dir = resolve_mooring(mooring, mooring_dir, "summary")
-    name = cfg["name"]
+    mooring_dict, moor_dir = resolve_mooring(mooring, mooring_dir, "summary")
+    name = mooring_dict["name"]
     by_type: dict[str, list[str]] = {}
-    for entry in instrument_entries(cfg):
+    for entry in instrument_entries(mooring_dict):
         if not isinstance(entry, dict) or entry.get("skip"):
             continue
         serial = paths.safe_serial(entry.get("serial", ""))

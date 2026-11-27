@@ -693,15 +693,15 @@ class Stage3Processor:
                 "science data is unchanged (see the caldip_applied attribute)."
             )
 
-        config_file = proc_dir / f"{mooring_name}.mooring.yaml"
-        if not config_file.exists():
-            raise MooringError(f"{mooring_name}: mooring YAML not found: {config_file}")
+        yaml_path = proc_dir / f"{mooring_name}.mooring.yaml"
+        if not yaml_path.exists():
+            raise MooringError(f"{mooring_name}: mooring YAML not found: {yaml_path}")
 
         try:
-            mooring_config = _mooring.load(config_file)
+            mooring_dict = _mooring.load(yaml_path)
             if dry_run:
                 datasets = read_mooring(
-                    mooring_config,
+                    mooring_dict,
                     stage=2,
                     serials=serials,
                     allow_missing=True,
@@ -716,7 +716,7 @@ class Stage3Processor:
                         return True
                     self._log("ERROR: No _stage2 datasets found for this mooring")
                     return False
-                instruments = _build_instrument_table(datasets, mooring_config)
+                instruments = _build_instrument_table(datasets, mooring_dict)
                 _, targets = _split_pressure_sources(instruments)
                 for info in instruments:
                     action = (
@@ -728,7 +728,7 @@ class Stage3Processor:
                 self._log("DRY RUN complete")
                 return True
             _stage3_files(
-                mooring_config,
+                mooring_dict,
                 proc_dir,
                 serials=serials,
                 force=force,

@@ -12,6 +12,8 @@ from typing import Any
 
 import pandas as pd
 
+from oceanarray._deprecated import REMOVED_IN
+
 #: The package logger. Modules log through ``logging.getLogger(__name__)`` (e.g.
 #: ``oceanarray.pipeline.stack``); those loggers propagate here, where the stage
 #: handlers and the console live. A :class:`~logging.NullHandler` keeps library
@@ -25,7 +27,7 @@ CONSOLE_LEVEL = logging.INFO
 
 #: Deprecation text for the ``log_fn=`` parameter on the public transform functions.
 LOG_FN_DEPRECATED = (
-    "log_fn= is deprecated and removed in 0.7.0; oceanarray logs through the "
+    f"log_fn= is deprecated and removed in {REMOVED_IN}; oceanarray logs through the "
     "'oceanarray' logger hierarchy — configure logging instead of passing a callback."
 )
 

@@ -129,11 +129,11 @@ def _format_interval(seconds: Any) -> str:
 def _build_rows(
     proc_dir: Path,
     mooring_name: str,
-    cfg: dict[str, Any],
+    mooring_dict: dict[str, Any],
 ) -> tuple:
     """Build ``(rows, comments)`` for the recovery table and its Notes section."""
-    waterdepth = cfg.get("waterdepth")
-    entries = instrument_entries(cfg)
+    waterdepth = mooring_dict.get("waterdepth")
+    entries = instrument_entries(mooring_dict)
 
     rows = []
     for entry in entries:
@@ -292,16 +292,18 @@ def generate_recovery_table(
         return out_path
 
     with yaml_path.open() as fh:
-        cfg = yaml.safe_load(fh) or {}
+        mooring_dict = yaml.safe_load(fh) or {}
 
-    rows, comments = _build_rows(proc_dir, mooring_name, cfg)
+    rows, comments = _build_rows(proc_dir, mooring_name, mooring_dict)
 
     ctx = {
         "mooring_name": mooring_name,
-        "year": cfg.get("year", ""),
+        "year": mooring_dict.get("year", ""),
         "meta_facts": [
             fact
-            for fact in _masthead.common_facts(cfg, instrument_entries(cfg))
+            for fact in _masthead.common_facts(
+                mooring_dict, instrument_entries(mooring_dict)
+            )
             if fact[0] in _MASTHEAD_LABELS
         ],
         "rows": rows,

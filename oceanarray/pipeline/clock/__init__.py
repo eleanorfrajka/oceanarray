@@ -8,11 +8,12 @@ keep working until the removal release.
 import sys
 import warnings
 
+from oceanarray import _deprecated
 from oceanarray.analysis.clock import deployment, offsets
 
 warnings.warn(
-    "oceanarray.pipeline.clock is deprecated and is removed in 0.8.0; "
-    "use oceanarray.analysis.clock.",
+    "oceanarray.pipeline.clock is deprecated and is removed in "
+    f"{_deprecated.REMOVED_IN_NEXT}; use oceanarray.analysis.clock.",
     DeprecationWarning,
     stacklevel=2,
 )

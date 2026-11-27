@@ -111,17 +111,17 @@ def export(
     from oceanarray.pipeline import resolve_mooring
     from oceanarray.pipeline.oceansites import deployment_code, platform_code
 
-    cfg, folder = resolve_mooring(mooring, mooring_dir, caller="export")
+    mooring_dict, folder = resolve_mooring(mooring, mooring_dir, caller="export")
     # Fail before any file is opened if the mooring YAML cannot name the files.
-    platform_code(cfg)
-    deployment_code(cfg)
+    platform_code(mooring_dict)
+    deployment_code(mooring_dict)
     array_cfg = _array_description(array)
     target = Path(out_dir) if out_dir is not None else folder / "oceansites"
-    name = cfg["name"]
+    name = mooring_dict["name"]
 
     written: list[Path] = []
     left_out: list[str] = []
-    for entry in instrument_entries(cfg):
+    for entry in instrument_entries(mooring_dict):
         if entry.get("skip"):
             continue
         serial = paths.safe_serial(entry.get("serial"))
@@ -132,7 +132,7 @@ def export(
         try:
             with xr.open_dataset(path) as ds:
                 out = to_oceansites(
-                    ds.load(), cfg, array=array_cfg, source_file=path.name
+                    ds.load(), mooring_dict, array=array_cfg, source_file=path.name
                 )
             written.append(_put(out, target, overwrite=overwrite, dry_run=dry_run))
         except _SKIPPABLE as e:
@@ -147,7 +147,7 @@ def export(
             with xr.open_dataset(grid_path) as g:
                 out = to_oceansites(
                     g.load(),
-                    cfg,
+                    mooring_dict,
                     array=array_cfg,
                     stack=stack,
                     source_file=grid_path.name,

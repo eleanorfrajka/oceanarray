@@ -59,6 +59,48 @@ to ``from oceanarray.mooring.instruments import instrument_entries``.
 ``oceanarray.catalog`` moved without an old path: import it as
 ``from oceanarray.mooring import catalog``.
 
+Keywords that say what they carry
+---------------------------------
+
+A keyword that takes the loaded mooring YAML (a dict) is now ``mooring_dict=``
+(``mooring_dicts=`` for several), one that takes the path of a ``*.mooring.yaml``
+file is ``yaml_paths=``, and one that takes either a path or a dict is
+``mooring=``. A call that gives the argument by position is unchanged. The old
+keyword still works, with a ``DeprecationWarning`` naming the new one, until
+0.8.0; change ``resolve_spectrum_markers(description=d)`` to
+``resolve_spectrum_markers(mooring_dict=d)`` or ``resolve_spectrum_markers(d)``.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 70 30
+
+   * - Old keyword
+     - New keyword
+   * - ``oceanarray.mooring.resolve_report_sections(description=)``
+     - ``mooring_dict=``
+   * - ``oceanarray.mooring.resolve_spectrum_markers(description=)``
+     - ``mooring_dict=``
+   * - ``oceanarray.mooring.settings_yaml(cfg=)``
+     - ``mooring_dict=``
+   * - ``oceanarray.mooring.serial_collision_errors(mooring_config=)``
+     - ``mooring=``
+   * - ``oceanarray.mooring.location.parse_latlon(cfg=)``
+     - ``mooring_dict=``
+   * - ``oceanarray.mooring.location.parse_latlon_with_source(cfg=)``
+     - ``mooring_dict=``
+   * - ``oceanarray.pipeline.read_mooring.header_attrs(cfg=)``
+     - ``mooring_dict=``
+   * - ``oceanarray.pipeline.stack.mooring_attrs(mooring_config=)``
+     - ``mooring_dict=``
+   * - ``oceanarray.pipeline.concat.concat(descriptions=)``
+     - ``mooring_dicts=``
+   * - ``oceanarray.pipeline.concat.concat_moorings(descriptions=)``
+     - ``yaml_paths=``
+   * - ``oceanarray.pipeline.qc.load_qc_config(mooring_cfg=)``
+     - ``mooring_dict=``
+   * - ``oceanarray.reports.MooringReport.generate(cfg=)``
+     - ``mooring_dict=``
+
 One base for the package's errors
 ---------------------------------
 

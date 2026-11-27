@@ -11,7 +11,7 @@ from typing import Any
 
 import numpy as np
 
-from oceanarray import logger, mask_rules, paths
+from oceanarray import _deprecated, logger, mask_rules, paths
 from oceanarray import mooring as _mooring
 from oceanarray.analysis.derived import knockdown as build_knockdown
 from oceanarray.exceptions import MooringError
@@ -586,9 +586,11 @@ class MooringReport:
         instruments: bool = False,
         grid: bool = False,
         stack: bool = False,
-        cfg: Mapping[str, Any] | None = None,
+        mooring_dict: Mapping[str, Any] | None = None,
         mooring_dir: str | Path | None = None,
         yaml_path: str | Path | None = None,
+        *,
+        cfg: Mapping[str, Any] | None = None,
     ) -> Path:
         """Build the mooring's summary page and, when asked, its other pages.
 
@@ -609,7 +611,7 @@ class MooringReport:
             Build instrument pages for these serials only.
         instruments, grid, stack : bool, optional
             Also build these pages.
-        cfg : Mapping or None, optional
+        mooring_dict : Mapping or None, optional
             The loaded mooring YAML; read from *yaml_path* when not given. When
             given, the summary page is rebuilt whatever its age (the mooring YAML
             may differ from the file).
@@ -619,6 +621,8 @@ class MooringReport:
         yaml_path : str or pathlib.Path or None, optional
             The mooring YAML file (for staleness and display); default
             ``<mooring folder>/<mooring_name>.mooring.yaml``.
+        cfg : Mapping or None, optional
+            Deprecated name of *mooring_dict*; removed in 0.8.0.
 
         Returns
         -------
@@ -634,6 +638,9 @@ class MooringReport:
         # long-lived process (a batch of moorings) does not accumulate it
         # unbounded.  (The b64->slot side registry is gone: the slot now travels
         # on the resolved panel.)
+        given = _deprecated.resolve_keyword(
+            "oceanarray.reports.MooringReport.generate(cfg=)", mooring_dict, cfg
+        )
         _figdebug.clear()
         # The mooring's folder is where its mooring YAML is (any name); the pages
         # and the files they read are named from the mooring YAML's name.
@@ -661,24 +668,23 @@ class MooringReport:
             if yaml_path is not None
             else proc_dir / f"{mooring_name}.mooring.yaml"
         )
-        given_cfg = cfg
-        if cfg is not None:
-            cfg = dict(cfg)
+        if given is not None:
+            mooring_dict = dict(given)
         elif yaml_path.exists():
-            cfg = _mooring.load(yaml_path)
+            mooring_dict = _mooring.load(yaml_path)
         else:
             raise MooringError(f"{mooring_name}: mooring YAML not found: {yaml_path}")
         # The summary's inputs are the mooring YAML and its instruments' stage files,
         # named from the mooring YAML (not found by searching the folder).
         source_ncs = [
             path
-            for entry in instrument_entries(cfg)
+            for entry in instrument_entries(mooring_dict)
             if isinstance(entry, dict)
             for n in (3, 2)
             if (
                 path := paths.stage_file(
                     proc_dir,
-                    cfg["name"],
+                    mooring_dict["name"],
                     entry.get("instrument", "unknown"),
                     paths.safe_serial(entry.get("serial", "")),
                     n,
@@ -691,7 +697,7 @@ class MooringReport:
         ]
         # A mooring YAML passed in may differ from the file on disk, whose time is
         # all the freshness check can see: the summary is always rebuilt from it.
-        summary_fresh = given_cfg is None and should_skip_regeneration(
+        summary_fresh = given is None and should_skip_regeneration(
             output_path, force, skip_existing, yaml_path, *source_ncs, *products
         )
         if summary_fresh and not (instruments or grid or stack):
@@ -701,7 +707,9 @@ class MooringReport:
         # Display root for pretty-printing paths in the instrument/grid/stack pages.
         display_root = self._proc_dir or proc_dir.parent
 
-        ctx = self._build_context(mooring_name, cfg, proc_dir, yaml_path, out_dir)
+        ctx = self._build_context(
+            mooring_name, mooring_dict, proc_dir, yaml_path, out_dir
+        )
         # The caller's breadcrumb ancestors ride in the context so every page (the
         # summary here and the stack/grid/instrument pages below) builds its own
         # trail from the same ancestors with page_breadcrumb().
@@ -718,7 +726,7 @@ class MooringReport:
             generate_instrument_pages(
                 mooring_name,
                 ctx["instruments"],
-                cfg,
+                mooring_dict,
                 proc_dir,
                 out_dir,
                 force,
@@ -781,18 +789,18 @@ class MooringReport:
     def _build_context(
         self,
         mooring_name: str,
-        cfg: dict[str, Any],
+        mooring_dict: dict[str, Any],
         proc_dir: Path,
         yaml_path: Path,
         out_dir: Path | None = None,
     ) -> dict[str, Any]:
-        deploy_dt = _parse_dt(cfg.get("deployment_time"))
-        recover_dt = _parse_dt(cfg.get("recovery_time"))
-        waterdepth = cfg.get("waterdepth")
+        deploy_dt = _parse_dt(mooring_dict.get("deployment_time"))
+        recover_dt = _parse_dt(mooring_dict.get("recovery_time"))
+        waterdepth = mooring_dict.get("waterdepth")
 
-        instrument_list = instrument_entries(cfg)
+        instrument_list = instrument_entries(mooring_dict)
         # The pressure ranges leave out what the figures hide: the mooring's rule.
-        rule = mask_rules.stack_rule(cfg)
+        rule = mask_rules.stack_rule(mooring_dict)
 
         stack_nc = paths.product_file(proc_dir, mooring_name, "stack")
         grid_nc = paths.product_file(proc_dir, mooring_name, "grid")
@@ -1113,10 +1121,10 @@ class MooringReport:
                     lambda: _make_knockdown_b64("displacement", _ds_kd, _kd)
                 )
 
-        common = _masthead.common_facts(cfg, instrument_list)
+        common = _masthead.common_facts(mooring_dict, instrument_list)
         return {
             "mooring_name": mooring_name,
-            "cruise": _masthead.cruise_label(cfg),
+            "cruise": _masthead.cruise_label(mooring_dict),
             "masthead_common": common,
             "meta_facts": _masthead.masthead_facts("mooring", common),
             "deploy_time": _format_dt(deploy_dt),
@@ -1124,7 +1132,7 @@ class MooringReport:
             "duration": _format_duration(deploy_dt, recover_dt),
             "waterdepth": waterdepth if waterdepth is not None else "—",
             "instruments": instruments,
-            "qc_threshold_note": _qcflags.threshold_note(cfg),
+            "qc_threshold_note": _qcflags.threshold_note(mooring_dict),
             "qc_table": _qc_table(instruments),
             "any_trimmed": any_trimmed,
             "yaml_text": _read_text(yaml_path),
@@ -1132,9 +1140,11 @@ class MooringReport:
             "timing_mode": _timing_mode(instruments),
             # Optional report sections turned on in the config. A standalone mooring
             # report resolves from the mooring YAML (the strongest level reachable here).
-            "report_sections_grid": _mooring.resolve_report_sections("grid", cfg),
+            "report_sections_grid": _mooring.resolve_report_sections(
+                "grid", mooring_dict
+            ),
             # Extra periods marked on the grid page's spectra.
-            "spectrum_markers": _mooring.resolve_spectrum_markers(cfg),
+            "spectrum_markers": _mooring.resolve_spectrum_markers(mooring_dict),
             "rec_deploy": rec_deploy,
             "rec_recover": rec_recover,
             "rec_deploy_sec": rec_deploy_sec,

@@ -10,7 +10,7 @@ from typing import Any
 import numpy as np
 import xarray as xr
 
-from oceanarray import logger, physics
+from oceanarray import _deprecated, logger, physics
 from oceanarray.exceptions import MooringError
 from oceanarray.pipeline.qc import set_qc_attrs
 from oceanarray.readers import adcp_geometry
@@ -20,7 +20,8 @@ log = logging.getLogger(__name__)
 HAB_THRESHOLD = 2.0  # metres — use near-neighbour below this Δhab
 
 #: Released names that moved out of this module: old name -> the module now holding
-#: it. Each still imports from here, with a DeprecationWarning, until 0.8.0.
+#: it. Each still imports from here, with a DeprecationWarning, until
+#: ``_deprecated.REMOVED_IN_NEXT``.
 _MOVED: dict[str, ModuleType] = {
     "pressure_from_depth": physics,
     "depth_from_pressure": physics,
@@ -35,8 +36,8 @@ def __getattr__(name: str) -> object:
         raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
     new = _MOVED[name]
     warnings.warn(
-        f"{__name__}.{name} is deprecated and is removed in 0.8.0; "
-        f"use {new.__name__}.{name}.",
+        f"{__name__}.{name} is deprecated and is removed in "
+        f"{_deprecated.REMOVED_IN_NEXT}; use {new.__name__}.{name}.",
         DeprecationWarning,
         stacklevel=2,
     )

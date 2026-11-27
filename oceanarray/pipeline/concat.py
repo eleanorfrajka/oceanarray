@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from oceanarray import mask_rules, paths, provenance
+from oceanarray import _deprecated, mask_rules, paths, provenance
 from oceanarray import mooring as _mooring
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
@@ -435,8 +435,9 @@ def concat(
     name: str,
     overlap: str = "newer",
     sources: Sequence[tuple[str, str]] | None = None,
-    descriptions: Sequence[Mapping] | None = None,
+    mooring_dicts: Sequence[Mapping] | None = None,
     mask_flags: Iterable[int] | Mapping[str, Iterable[int]] | None = None,
+    descriptions: Sequence[Mapping] | None = None,
 ) -> xr.Dataset:
     """Join one site's deployment stacks end to end on one time axis, by depth.
 
@@ -467,13 +468,15 @@ def concat(
         (also ``deployment_index``); the other's values go to the overlap block.
     sources : sequence of (str, str), optional
         ``(file path, sha256)`` of each stack, in the order of *stacks*.
-    descriptions : sequence of Mapping, optional
-        Each deployment's mooring YAML, in the order of *stacks*: its
+    mooring_dicts : sequence of Mapping, optional
+        Each deployment's loaded mooring YAML, in the order of *stacks*: its
         cruises and ships go into the ``DEPLOYMENT`` record.
     mask_flags : iterable of int, or Mapping, optional
         The Stack cat's rule (``stack_mask_flags``). By default the deployments'
         rule, which must then be the same for all of them; each deployment's own is
         kept in ``deployment_stack_mask_flags``.
+    descriptions : sequence of Mapping, optional
+        Deprecated name of *mooring_dicts*; removed in 0.8.0.
 
     Returns
     -------
@@ -489,6 +492,9 @@ def concat(
         differing ``mask_flags`` rules with none given, or a time axis not on whole
         steps.
     """
+    mooring_dicts = _deprecated.resolve_keyword(
+        "oceanarray.pipeline.concat.concat(descriptions=)", mooring_dicts, descriptions
+    )
     if len(stacks) < 2:
         raise MooringError("concat needs at least two deployment stacks.")
     if overlap not in ("newer", "older"):
@@ -496,8 +502,8 @@ def concat(
     order = np.argsort([ds["time"].values[0] for ds in stacks], kind="stable")
     stacks = [stacks[i] for i in order]
     sources = [sources[i] for i in order] if sources is not None else None
-    descriptions = (
-        [descriptions[i] for i in order] if descriptions is not None else None
+    mooring_dicts = (
+        [mooring_dicts[i] for i in order] if mooring_dicts is not None else None
     )
     names = [
         str(ds.attrs.get("mooring_name", f"deployment {i}"))
@@ -876,7 +882,7 @@ def concat(
             data_vars[f"deployment_{key}"] = _deployment_var(
                 ["" if v is None else str(v) for v in values]
             )
-    if descriptions is not None:
+    if mooring_dicts is not None:
         # The legacy single cruise/ship keys are the deployment values only.
         for side, keys in (
             ("deployment_cruise", ("deployment_cruise", "cruise")),
@@ -887,7 +893,7 @@ def concat(
             data_vars[side] = _deployment_var(
                 [
                     str(next((d[k] for k in keys if d.get(k) not in (None, "")), ""))
-                    for d in descriptions
+                    for d in mooring_dicts
                 ]
             )
     if sources is not None:
@@ -1227,19 +1233,20 @@ def chunks(ds: xr.Dataset) -> dict[str, int]:
 
 
 def concat_moorings(
-    descriptions: Sequence[str | Path],
+    yaml_paths: Sequence[str | Path] | None = None,
     *,
     name: str,
     out_dir: str | Path | None = None,
     overwrite: bool = False,
     dry_run: bool = False,
     mask_flags: Iterable[int] | Mapping[str, Iterable[int]] | None = None,
+    descriptions: Sequence[str | Path] | None = None,
 ) -> Path:
     """Concatenate the stacks of the moorings named, and write the site stack.
 
     Parameters
     ----------
-    descriptions : sequence of str or Path
+    yaml_paths : sequence of str or Path
         Each mooring's ``*.mooring.yaml``; its stack is read from the YAML's folder
         (``<name>_stack.nc``).
     name : str
@@ -1253,6 +1260,8 @@ def concat_moorings(
     mask_flags : iterable of int, or Mapping, optional
         The site's rule, needed when the deployments' rules differ (see
         :func:`concat`).
+    descriptions : sequence of str or Path, optional
+        Deprecated name of *yaml_paths*; removed in 0.8.0.
 
     Returns
     -------
@@ -1266,7 +1275,13 @@ def concat_moorings(
         written by an oceanarray that did not clean people at stage 1 (rerun
         from stage 1), or :func:`concat` refuses.
     """
-    first_dir = Path(descriptions[0]).parent
+    yaml_paths = _deprecated.resolve_keyword(
+        "oceanarray.pipeline.concat.concat_moorings(descriptions=)",
+        yaml_paths,
+        descriptions,
+        required="yaml_paths",
+    )
+    first_dir = Path(yaml_paths[0]).parent
     target_dir = Path(out_dir) if out_dir is not None else first_dir.parent / name
     out_path = paths.product_file(target_dir, name, "stackcat")
     # A deployment's own folder holds its mooring YAML and its stack; the site
@@ -1279,14 +1294,16 @@ def concat_moorings(
     if out_path.exists() and not overwrite and not dry_run:
         raise MooringError(f"{out_path} exists; pass overwrite=True (CLI --force).")
     with contextlib.ExitStack() as opened:
-        stacks, sources, cfgs = [], [], []
-        for desc in descriptions:
-            yaml_path = Path(desc)
-            cfg = _mooring.load(yaml_path)
-            stack_path = paths.product_file(yaml_path.parent, cfg["name"], "stack")
+        stacks, sources, mooring_dicts = [], [], []
+        for yaml_path in map(Path, yaml_paths):
+            mooring_dict = _mooring.load(yaml_path)
+            stack_path = paths.product_file(
+                yaml_path.parent, mooring_dict["name"], "stack"
+            )
             if not stack_path.exists():
                 raise MooringError(
-                    f"{cfg['name']}: no stack at {stack_path}; run its stack first."
+                    f"{mooring_dict['name']}: no stack at {stack_path}; "
+                    "run its stack first."
                 )
             # Opened, not loaded: concat reads one variable of one stack at a time.
             stacks.append(
@@ -1295,13 +1312,13 @@ def concat_moorings(
             # Relative to the site folder, so the site report can link each deployment.
             rel = os.path.relpath(stack_path.resolve(), target_dir.resolve())
             sources.append((Path(rel).as_posix(), sha256(stack_path)))
-            cfgs.append(cfg)
-        _check_people_cleaned(stacks, [c["name"] for c in cfgs])
+            mooring_dicts.append(mooring_dict)
+        _check_people_cleaned(stacks, [c["name"] for c in mooring_dicts])
         ds = concat(
             stacks,
             name=name,
             sources=sources,
-            descriptions=cfgs,
+            mooring_dicts=mooring_dicts,
             mask_flags=mask_flags,
         )
     if dry_run:

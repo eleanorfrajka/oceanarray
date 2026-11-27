@@ -12,7 +12,7 @@ from pathlib import Path
 import pandas as pd
 import yaml
 
-from oceanarray import mask_rules
+from oceanarray import _deprecated, mask_rules
 from oceanarray.exceptions import MooringError
 from oceanarray.mooring import catalog, validation
 from oceanarray.mooring.blocks import check_people_block, check_source_block
@@ -716,8 +716,12 @@ def _check_spectrum_markers(data: Mapping) -> list[ValidationIssue]:
     ]
 
 
-def serial_collision_errors(mooring_config: str | Path | Mapping) -> list[str]:
-    """Return the serial-collision ERROR messages for a mooring config, or ``[]``.
+def serial_collision_errors(
+    mooring: str | Path | Mapping | None = None,
+    *,
+    mooring_config: str | Path | Mapping | None = None,
+) -> list[str]:
+    """Return the serial-collision ERROR messages for a mooring YAML, or ``[]``.
 
     The pre-flight guard the processing path runs before any stage writes: it
     builds the combined instrument list (``clamp`` + ``instruments`` + inline, same
@@ -730,15 +734,23 @@ def serial_collision_errors(mooring_config: str | Path | Mapping) -> list[str]:
 
     Parameters
     ----------
-    mooring_config : str or pathlib.Path or Mapping
+    mooring : str or pathlib.Path or Mapping
         A mooring YAML path, or an already-parsed mapping.
+    mooring_config : str or pathlib.Path or Mapping, optional
+        Deprecated name of *mooring*; removed in 0.8.0.
 
     Returns
     -------
     list of str
         One message per serial collision; empty when the serials are safe.
     """
-    data = _parse(mooring_config)
+    mooring = _deprecated.resolve_keyword(
+        "oceanarray.mooring.serial_collision_errors(mooring_config=)",
+        mooring,
+        mooring_config,
+        required="mooring",
+    )
+    data = _parse(mooring)
     if not isinstance(data, dict):
         return []
     instrument_list = data.get("clamp", data.get("instruments", []))

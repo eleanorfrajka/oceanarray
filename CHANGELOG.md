@@ -15,6 +15,8 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 ### Changed
 
+- Deprecations removed in 0.8.0 have their own table and constant (`_deprecated.RENAMED_NEXT`, `REMOVED_IN_NEXT`); no warning writes a release number out.
+- Package code calls a loaded mooring YAML `mooring_dict` and its path `yaml_path` (was `cfg`, `mooring_config`, `description`, `config_path`).
 - The mooring YAML code is split by job into `mooring.load_yaml`, `check_yaml`, `write_yaml`, `yaml_keys` and `settings`; every name still imports from `oceanarray.mooring`.
 - Docstrings, messages and the docs call the `*.mooring.yaml` file "the mooring YAML", not "the description"; some error and log messages read differently.
 - All the mooring YAML code is in one package, `oceanarray.mooring`: `instruments`, `location`, `catalog` and `validation` moved into it, unchanged; it no longer imports the pipeline (#166).
@@ -32,6 +34,10 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 - Import rules are checked in CI by `lint-imports` (contracts in `pyproject.toml`), docstring examples run as doctests, and `AGENTS.md` points coding assistants to the developer guide (#156).
 - Every figure and the instrument summary hide flagged values by the `mask_flags` rule (default 4), like the grid: suspect (3) values are now drawn on instrument pages and on stacks without a recorded rule, and the Stack cat page marks them with black dots as the stack page does. Re-run the report to apply (#155).
 - Mooring check: warns when a recovery clock correction is over 120 s from the mooring median (`CLOCK_DRIFT_OUTLIER_SECONDS`), and errors on a non-numeric `clock_offset`/`clock_drift_seconds` (#157).
+
+### Deprecated
+
+- Twelve keywords renamed to say what they carry (`mooring_dict=`, `mooring_dicts=`, `yaml_paths=`, `mooring=`); the old ones warn until 0.8.0. See the 0.7.0 migration page.
 
 ### Fixed
 

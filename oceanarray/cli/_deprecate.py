@@ -6,8 +6,7 @@ import argparse
 import sys
 import warnings
 
-#: The release that removes the old spellings.
-REMOVED_IN = "0.7.0"
+from oceanarray._deprecated import REMOVED_IN
 
 
 class DeprecatedAlias(argparse.Action):

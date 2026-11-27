@@ -241,14 +241,14 @@ def _drop_file_type_variables(dataset: xr.Dataset, file_type: str) -> xr.Dataset
 
 
 def _add_global_attributes(
-    dataset: xr.Dataset, yaml_data: dict[str, Any]
+    dataset: xr.Dataset, mooring_dict: dict[str, Any]
 ) -> xr.Dataset:
     """Set the mooring YAML's name, position, water depth and deployment window.
 
     They replace any an imported file carries. Positions are decimal degrees, the
     deployment and seabed positions only when the mooring YAML gives them.
     """
-    header = header_attrs(yaml_data, warn=False)
+    header = header_attrs(mooring_dict, warn=False)
     for key in _HEADER_ATTRS:
         if key in header:
             dataset.attrs[key] = header[key]
@@ -258,7 +258,7 @@ def _add_global_attributes(
         "seabed_latitude",
         "seabed_longitude",
     ):
-        value = parse_coordinate(yaml_data.get(key))
+        value = parse_coordinate(mooring_dict.get(key))
         if value is not None:
             dataset.attrs[key] = value
     return dataset
@@ -275,17 +275,17 @@ _HEADER_ATTRS = (
 )
 
 
-def _add_sources(dataset: xr.Dataset, yaml_data: dict[str, Any]) -> xr.Dataset:
+def _add_sources(dataset: xr.Dataset, mooring_dict: dict[str, Any]) -> xr.Dataset:
     """Copy each ``<field>_source`` of the mooring YAML beside its field, with a history line.
 
     Provenance only: the field's value is the mooring YAML's, as without it.
     """
     for field in _mooring.SOURCE_FIELDS:
-        source = yaml_data.get(f"{field}_source")
+        source = mooring_dict.get(f"{field}_source")
         if not source:
             continue
         dataset.attrs[f"{field}_source"] = str(source)
-        value = yaml_data.get(field, "")
+        value = mooring_dict.get(field, "")
         unit = " m" if field == "waterdepth" else ""
         append_history(
             dataset, f"{field} {value}{unit} from the mooring YAML: {source}"
@@ -296,12 +296,12 @@ def _add_sources(dataset: xr.Dataset, yaml_data: dict[str, Any]) -> xr.Dataset:
 def _add_instrument_metadata(
     dataset: xr.Dataset,
     instrument_config: dict[str, Any],
-    yaml_data: dict[str, Any],
+    mooring_dict: dict[str, Any],
 ) -> xr.Dataset:
     """Add the instrument's identity and record window scalars."""
     # No clock_offset here: stage 2 applies it and writes it, only when nonzero.
     dataset = dataset.assign(
-        _stage.identity_variables(instrument_config, yaml_data.get("waterdepth"))
+        _stage.identity_variables(instrument_config, mooring_dict.get("waterdepth"))
     )
     dataset["instrument"] = instrument_config.get("instrument", "Unknown")
     dataset["start_time"] = instrument_config.get(
@@ -874,19 +874,19 @@ class MooringProcessor:
         self._setup_logging(mooring_name, output_path)
         self._log_print(f"Processing mooring: {mooring_name}")
 
-        config_file = output_path / f"{mooring_name}.mooring.yaml"
-        if not config_file.exists():
-            self._log_print(f"ERROR: Configuration file not found: {config_file}")
+        yaml_path = output_path / f"{mooring_name}.mooring.yaml"
+        if not yaml_path.exists():
+            self._log_print(f"ERROR: Configuration file not found: {yaml_path}")
             return False
         try:
-            mooring_config = _mooring.load(config_file)
+            mooring_dict = _mooring.load(yaml_path)
         except (OSError, KeyError, ValueError) as e:
             self._log_print(f"ERROR: Failed to load configuration: {e}")
             return False
 
         try:
             run = _stage1_files(
-                mooring_config,
+                mooring_dict,
                 output_path,
                 self._raw_dir,
                 folder=mooring_name,

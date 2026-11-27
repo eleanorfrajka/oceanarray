@@ -314,7 +314,7 @@ def _print_stage_plan(
     except OceanarrayError as e:
         logger.status("error", str(e))
         return None
-    cfg = (
+    mooring_dict = (
         _mooring._parse(_resolve_description_file(location, _folder(location), name))
         or {}
     )
@@ -330,10 +330,10 @@ def _print_stage_plan(
 
     logger.status("section", f"{title} (dry run): {name}")
     # Interpolated-pressure targets can be named only when the stage-2 files exist.
-    targets = _pressure_targets(cfg, moor_dir) if 3 in wanted else set()
+    targets = _pressure_targets(mooring_dict, moor_dir) if 3 in wanted else set()
     for n in wanted:
         print(f"Stage {n}:")
-        for entry in instrument_entries(cfg):
+        for entry in instrument_entries(mooring_dict):
             if not isinstance(entry, dict) or entry.get("skip"):
                 continue
             serial = paths.safe_serial(entry.get("serial", ""))
@@ -347,7 +347,7 @@ def _print_stage_plan(
     return name, moor_dir
 
 
-def _pressure_targets(cfg: dict, moor_dir: Path) -> set[str]:
+def _pressure_targets(mooring_dict: dict, moor_dir: Path) -> set[str]:
     """Return the serials stage 3 would give interpolated pressure, from the stage-2 files on disk."""
     from oceanarray.pipeline.read_mooring import read_mooring
     from oceanarray.pipeline.stage3 import (
@@ -356,8 +356,12 @@ def _pressure_targets(cfg: dict, moor_dir: Path) -> set[str]:
     )
 
     try:
-        datasets = read_mooring(cfg, stage=2, allow_missing=True, mooring_dir=moor_dir)
-        _, targets = _split_pressure_sources(_build_instrument_table(datasets, cfg))
+        datasets = read_mooring(
+            mooring_dict, stage=2, allow_missing=True, mooring_dir=moor_dir
+        )
+        _, targets = _split_pressure_sources(
+            _build_instrument_table(datasets, mooring_dict)
+        )
     except (
         OSError,
         KeyError,

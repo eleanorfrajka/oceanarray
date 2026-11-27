@@ -108,9 +108,9 @@ _PAGES: tuple[tuple[str, str], ...] = (
 )
 
 
-def _resolve_lat_lon(cfg: dict[str, Any]) -> tuple[float | None, float | None]:
+def _resolve_lat_lon(mooring_dict: dict[str, Any]) -> tuple[float | None, float | None]:
     """Return (lat, lon) decimal degrees from a mooring YAML dict, (None, None) if unknown."""
-    lat, lon, source = location.parse_latlon_with_source(cfg)
+    lat, lon, source = location.parse_latlon_with_source(mooring_dict)
     if location.is_unknown_latlon_source(source):
         return None, None
     return lat, lon
@@ -309,7 +309,7 @@ def _make_array_map_b64(rows: list[dict[str, Any]]) -> str | None:
 def _build_mooring_instruments(
     proc_dir: Path,
     mooring_id: str,
-    mcfg: dict[str, Any],
+    mooring_dict: dict[str, Any],
     recover_dt: Any,
 ) -> list[dict[str, Any]]:
     """Return one status record per instrument of a mooring, for the array tables."""
@@ -319,10 +319,10 @@ def _build_mooring_instruments(
     # array page reads YAMLs unchecked, so a rule it cannot read falls back to the
     # file's own.
     try:
-        rule = mask_rules.stack_rule(mcfg)
+        rule = mask_rules.stack_rule(mooring_dict)
     except ValueError:
         rule = None
-    for entry in instrument_entries(mcfg):
+    for entry in instrument_entries(mooring_dict):
         if not isinstance(entry, dict):
             continue
         serial = safe_serial(entry.get("serial", ""))
@@ -557,18 +557,18 @@ def _array_map_payload(rows: list[dict[str, Any]]) -> tuple[str, str, str]:
     return safe_json(payload), coastline_json, bounds_json
 
 
-def _mooring_yaml(config_path: Path) -> dict[str, Any]:
+def _mooring_yaml(yaml_path: Path) -> dict[str, Any]:
     """Return a mooring YAML, unvalidated when it has errors (its own page names them)."""
-    if not config_path.exists():
-        _log.warning("mooring YAML not found: %s", config_path)
+    if not yaml_path.exists():
+        _log.warning("mooring YAML not found: %s", yaml_path)
         return {}
     try:
-        return _mooring.load(config_path)
+        return _mooring.load(yaml_path)
     except MooringError as exc:
         _log.warning(
-            "%s has validation errors (%s); shown unvalidated.", config_path, exc
+            "%s has validation errors (%s); shown unvalidated.", yaml_path, exc
         )
-        with config_path.open() as fh:
+        with yaml_path.open() as fh:
             return yaml.safe_load(fh) or {}
 
 
@@ -582,23 +582,23 @@ def _mooring_row(
     mooring_id = entry.get("mooring", "")
     # A config path is relative to the array YAML (or absolute); the per-mooring
     # proc-dir convention is the fallback.
-    config_path = Path(entry.get("config", f"{mooring_id}.mooring.yaml"))
-    if not config_path.is_absolute():
-        beside = array_dir / config_path
-        config_path = beside if beside.exists() else proc_dir / mooring_id / config_path
-    mcfg = _mooring_yaml(config_path)
-    lat, lon = _resolve_lat_lon(mcfg)
-    deploy_dt = _parse_dt(mcfg.get("deployment_time"))
-    recover_dt = _parse_dt(mcfg.get("recovery_time"))
+    yaml_path = Path(entry.get("config", f"{mooring_id}.mooring.yaml"))
+    if not yaml_path.is_absolute():
+        beside = array_dir / yaml_path
+        yaml_path = beside if beside.exists() else proc_dir / mooring_id / yaml_path
+    mooring_dict = _mooring_yaml(yaml_path)
+    lat, lon = _resolve_lat_lon(mooring_dict)
+    deploy_dt = _parse_dt(mooring_dict.get("deployment_time"))
+    recover_dt = _parse_dt(mooring_dict.get("recovery_time"))
     rpt_dir, prefix = (
         (report_dir / mooring_id, mooring_id)
         if report_dir is not None
         else (proc_dir / mooring_id / "report", f"{mooring_id}/report")
     )
-    instrs = _build_mooring_instruments(proc_dir, mooring_id, mcfg, recover_dt)
+    instrs = _build_mooring_instruments(proc_dir, mooring_id, mooring_dict, recover_dt)
     # An unvalidated YAML may give the depth as text ("unknown", "~2000"): the
     # table shows that text and the header and map leave it out.
-    depth = mcfg.get("waterdepth")
+    depth = mooring_dict.get("waterdepth")
     try:
         depth_m = float(depth)
     except (TypeError, ValueError):
@@ -607,12 +607,12 @@ def _mooring_row(
         "mooring": mooring_id,
         "group": entry.get("subarray") or OTHER,
         "deployed_by": (
-            _masthead._first(mcfg, "deployment_cruise", "cruise"),
-            _masthead._first(mcfg, "deployment_ship", "ship"),
+            _masthead._first(mooring_dict, "deployment_cruise", "cruise"),
+            _masthead._first(mooring_dict, "deployment_ship", "ship"),
         ),
         "recovered_by": (
-            _masthead._first(mcfg, "recovery_cruise"),
-            _masthead._first(mcfg, "recovery_ship"),
+            _masthead._first(mooring_dict, "recovery_cruise"),
+            _masthead._first(mooring_dict, "recovery_ship"),
         ),
         "lat": lat,
         "lon": lon,

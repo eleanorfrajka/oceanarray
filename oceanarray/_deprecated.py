@@ -1,7 +1,9 @@
-"""Old public names kept for one release, in one table; each warns when used.
+"""Old public names kept for one release, in one table per removal release; each warns when used.
 
 Every entry in :data:`RENAMED` still works in 0.6 and is removed in
-:data:`REMOVED_IN`. The migration page lists every entry (a test checks it).
+:data:`REMOVED_IN`; every entry in :data:`RENAMED_NEXT` was deprecated during 0.7
+and is removed in :data:`REMOVED_IN_NEXT`. Each table's migration page lists every
+entry (a test checks it).
 """
 
 from __future__ import annotations
@@ -15,6 +17,10 @@ from typing import Any, TypeVar
 
 #: The release that removes every name in :data:`RENAMED`.
 REMOVED_IN = "0.7.0"
+
+#: The release that removes every name in :data:`RENAMED_NEXT`, and every module
+#: moved during 0.7.
+REMOVED_IN_NEXT = "0.8.0"
 
 #: Old dotted name -> what to use instead.
 RENAMED: dict[str, str] = {
@@ -48,7 +54,37 @@ RENAMED: dict[str, str] = {
     ),
 }
 
+#: Old dotted name -> what to use instead, for names deprecated during 0.7. A
+#: renamed keyword is written ``<function>(<old keyword>=)``.
+RENAMED_NEXT: dict[str, str] = {
+    "oceanarray.mooring.resolve_report_sections(description=)": (
+        "the mooring_dict= keyword"
+    ),
+    "oceanarray.mooring.resolve_spectrum_markers(description=)": (
+        "the mooring_dict= keyword"
+    ),
+    "oceanarray.mooring.serial_collision_errors(mooring_config=)": (
+        "the mooring= keyword"
+    ),
+    "oceanarray.mooring.settings_yaml(cfg=)": "the mooring_dict= keyword",
+    "oceanarray.mooring.location.parse_latlon(cfg=)": "the mooring_dict= keyword",
+    "oceanarray.mooring.location.parse_latlon_with_source(cfg=)": (
+        "the mooring_dict= keyword"
+    ),
+    "oceanarray.pipeline.concat.concat(descriptions=)": "the mooring_dicts= keyword",
+    "oceanarray.pipeline.concat.concat_moorings(descriptions=)": (
+        "the yaml_paths= keyword"
+    ),
+    "oceanarray.pipeline.qc.load_qc_config(mooring_cfg=)": "the mooring_dict= keyword",
+    "oceanarray.reports.MooringReport.generate(cfg=)": "the mooring_dict= keyword",
+    "oceanarray.pipeline.read_mooring.header_attrs(cfg=)": "the mooring_dict= keyword",
+    "oceanarray.pipeline.stack.mooring_attrs(mooring_config=)": (
+        "the mooring_dict= keyword"
+    ),
+}
+
 _F = TypeVar("_F", bound=Callable[..., Any])
+_T = TypeVar("_T")
 
 #: True while oceanarray itself calls a deprecated name on the user's behalf.
 _internal: contextvars.ContextVar[bool] = contextvars.ContextVar(
@@ -58,6 +94,11 @@ _internal: contextvars.ContextVar[bool] = contextvars.ContextVar(
 
 def message(old: str) -> str:
     """Return the warning text for the deprecated name *old*."""
+    if old in RENAMED_NEXT:
+        return (
+            f"{old} is deprecated and is removed in {REMOVED_IN_NEXT}; "
+            f"use {RENAMED_NEXT[old]}."
+        )
     return f"{old} is deprecated and is removed in {REMOVED_IN}; use {RENAMED[old]}."
 
 
@@ -67,7 +108,7 @@ def warn(old: str, *, stacklevel: int = 3) -> None:
     Parameters
     ----------
     old : str
-        A key of :data:`RENAMED`.
+        A key of :data:`RENAMED` or :data:`RENAMED_NEXT`.
     stacklevel : int, optional
         Passed to :func:`warnings.warn`; the default points at the caller of the
         function that calls this.
@@ -103,6 +144,45 @@ def alias(old: str, func: _F) -> _F:
         f"removed in {REMOVED_IN}."
     )
     return _alias  # type: ignore[return-value]
+
+
+def resolve_keyword(
+    old: str, value: _T | None, old_value: _T | None, *, required: str | None = None
+) -> _T | None:
+    """Return the argument given under its new keyword or under its old one, warning for the old.
+
+    Parameters
+    ----------
+    old : str
+        A key of :data:`RENAMED_NEXT`, ``<function>(<old keyword>=)``.
+    value : object or None
+        The argument given under the new name (positionally or by keyword).
+    old_value : object or None
+        The argument given under the old keyword.
+    required : str, optional
+        The new parameter's name, when the call must give one of the two.
+
+    Returns
+    -------
+    object or None
+        The argument given; None when neither was given and none is required.
+
+    Raises
+    ------
+    TypeError
+        Both were given, or neither while *required*.
+    """
+    function = old.partition("(")[0].rsplit(".", 1)[-1]
+    keyword = old.partition("(")[2].rstrip("=)")
+    if old_value is None:
+        if value is None and required is not None:
+            raise TypeError(f"{function}() missing required argument: {required!r}")
+        return value
+    if value is not None:
+        raise TypeError(f"{function}() got both {keyword}= and {RENAMED_NEXT[old]}")
+    # Points at the caller of the function whose keyword was renamed.
+    warn(old, stacklevel=4)
+    return old_value
 
 
 @contextlib.contextmanager

@@ -8,7 +8,7 @@ from typing import Any
 import numpy as np
 import xarray as xr
 
-from oceanarray import logger, mask_rules, paths, provenance
+from oceanarray import _deprecated, logger, mask_rules, paths, provenance
 from oceanarray import mooring as _mooring
 from oceanarray.config import parameters as params
 from oceanarray.config.unit_tables import UnitsError
@@ -322,7 +322,7 @@ def stack(
     """
     from oceanarray.pipeline._run import resolve_dt_seconds
 
-    mooring_config = mooring
+    mooring_dict = mooring
     mooring_name = mooring["name"]
     omitted = list(omitted or [])
     try:
@@ -334,19 +334,17 @@ def stack(
     # Stage 2 writing a window detected from the records (when the YAML omits
     # it) is later work; until then a window-less config fails loud here
     # rather than with a bare KeyError.
-    if "deployment_time" not in mooring_config or (
-        "recovery_time" not in mooring_config
-    ):
+    if "deployment_time" not in mooring_dict or ("recovery_time" not in mooring_dict):
         raise MooringError(
             f"Cannot stack {mooring_name}: the mooring config has no "
             f"'deployment_time'/'recovery_time' (the common time axis is the "
             f"deployment window). A window detected from the records is not yet "
             f"implemented — add both to the YAML."
         )
-    deploy_time = np.datetime64(mooring_config["deployment_time"], "ns")
-    recover_time = np.datetime64(mooring_config["recovery_time"], "ns")
+    deploy_time = np.datetime64(mooring_dict["deployment_time"], "ns")
+    recover_time = np.datetime64(mooring_dict["recovery_time"], "ns")
 
-    dt_seconds = resolve_dt_seconds(mooring_config, dt_seconds)
+    dt_seconds = resolve_dt_seconds(mooring_dict, dt_seconds)
     common_time = time_axis(deploy_time, recover_time, dt_seconds)
     n_time = len(common_time)
     if n_time == 0:
@@ -355,7 +353,7 @@ def stack(
             f"step falls between the deployment and recovery times."
         )
 
-    instrument_list = instrument_entries(mooring_config)
+    instrument_list = instrument_entries(mooring_dict)
 
     # Collect instruments with known hab and an available stage2/stage3 file.
     # An instrument marked ``stack: false`` in the mooring YAML is processed
@@ -459,7 +457,7 @@ def stack(
         head_depth = (
             float(parent["instrument_depth"].values)
             if "instrument_depth" in parent.variables
-            else nominal_depth({"hab": info["hab"]}, mooring_config.get("waterdepth"))
+            else nominal_depth({"hab": info["hab"]}, mooring_dict.get("waterdepth"))
         )
         # Rows keep the originator's bin numbers when bins are missing (RODB sets).
         bin_numbers = (
@@ -501,7 +499,7 @@ def stack(
             bin_depth = (
                 head_depth - (bin_hab - float(info["hab"]))
                 if head_depth is not None and np.isfinite(head_depth)
-                else nominal_depth({"hab": bin_hab}, mooring_config.get("waterdepth"))
+                else nominal_depth({"hab": bin_hab}, mooring_dict.get("waterdepth"))
             )
             if bin_depth is None and head_depth is not None:
                 bin_depth = head_depth - (bin_hab - float(info["hab"]))
@@ -839,7 +837,7 @@ def stack(
         return values
 
     # Compute potential density from stacked T, S, P
-    ref_p = int(mooring_config.get("density_reference", params.DENSITY_REFERENCE))
+    ref_p = int(mooring_dict.get("density_reference", params.DENSITY_REFERENCE))
     if (
         "temperature" in data_vars
         and "salinity" in data_vars
@@ -848,7 +846,7 @@ def stack(
         try:
             import gsw
 
-            lat, lon = parse_latlon(mooring_config)
+            lat, lon = parse_latlon(mooring_dict)
             T_arr = _usable("temperature")
             SP_arr = _usable("salinity")
             P_arr = _usable("pressure")
@@ -1103,7 +1101,7 @@ def stack(
     )
     ds_out.attrs.update(
         {
-            **mooring_attrs(mooring_config),
+            **mooring_attrs(mooring_dict),
             "deployment_time": _stage.iso_time(deploy_time),
             "recovery_time": _stage.iso_time(recover_time),
             "dt_seconds": dt_seconds,
@@ -1111,7 +1109,7 @@ def stack(
             "stack_mask_flag_sources": mask_rules.FLAG_SOURCES,
             # What built this stack, as text a mooring YAML can take back.
             "deployment_settings": _mooring.settings_yaml(
-                mooring_config, stack={"dt_seconds": dt_seconds}
+                mooring_dict, stack={"dt_seconds": dt_seconds}
             ),
             "Conventions": "CF-1.13",
             "history": "",
@@ -1276,13 +1274,17 @@ def stack(
     return as_stored(ds_out)
 
 
-def mooring_attrs(mooring_config: Mapping) -> dict[str, Any]:
+def mooring_attrs(
+    mooring_dict: Mapping | None = None, *, mooring_config: Mapping | None = None
+) -> dict[str, Any]:
     """Return the mooring-level attributes a stack copies from its mooring YAML.
 
     Parameters
     ----------
-    mooring_config : Mapping
+    mooring_dict : Mapping
         The loaded mooring YAML.
+    mooring_config : Mapping, optional
+        Deprecated name of *mooring_dict*; removed in 0.8.0.
 
     Returns
     -------
@@ -1292,19 +1294,25 @@ def mooring_attrs(mooring_config: Mapping) -> dict[str, Any]:
         planned, then the bare pair), each when the mooring YAML gives it, and each
         ``<field>_source`` it states.
     """
-    lat, lon, source = parse_latlon_with_source(mooring_config)
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.pipeline.stack.mooring_attrs(mooring_config=)",
+        mooring_dict,
+        mooring_config,
+        required="mooring_dict",
+    )
+    lat, lon, source = parse_latlon_with_source(mooring_dict)
     position = (
         {} if is_unknown_latlon_source(source) else {"latitude": lat, "longitude": lon}
     )
-    waterdepth = mooring_config.get("waterdepth")
+    waterdepth = mooring_dict.get("waterdepth")
     return {
-        "mooring_name": str(mooring_config.get("name", "")),
+        "mooring_name": str(mooring_dict.get("name", "")),
         **({} if waterdepth is None else {"waterdepth": float(waterdepth)}),
         **position,
         **{
-            f"{field}_source": str(mooring_config[f"{field}_source"])
+            f"{field}_source": str(mooring_dict[f"{field}_source"])
             for field in _mooring.SOURCE_FIELDS
-            if mooring_config.get(f"{field}_source")
+            if mooring_dict.get(f"{field}_source")
         },
     }
 
@@ -1853,16 +1861,16 @@ class MooringStacker:
             logger.status("skip", self._rel(output_path))
             return True
 
-        config_file = proc_dir / f"{mooring_name}.mooring.yaml"
-        if not config_file.exists():
-            log.warning(f"Config not found: {config_file}")
+        yaml_path = proc_dir / f"{mooring_name}.mooring.yaml"
+        if not yaml_path.exists():
+            log.warning(f"Config not found: {yaml_path}")
             return False
 
-        mooring_config = _mooring.load(config_file)
-        datasets, read_omitted = _read_best_stage(mooring_config, proc_dir)
+        mooring_dict = _mooring.load(yaml_path)
+        datasets, read_omitted = _read_best_stage(mooring_dict, proc_dir)
         try:
             ds_out = stack(
-                datasets, mooring_config, dt_seconds=dt_seconds, omitted=read_omitted
+                datasets, mooring_dict, dt_seconds=dt_seconds, omitted=read_omitted
             )
         except MooringError as e:
             if "deployment_time" in str(e):

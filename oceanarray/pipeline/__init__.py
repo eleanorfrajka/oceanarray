@@ -394,10 +394,10 @@ def process(
         )
 
     wanted = _canonical_stages(stages)
-    cfg, moor_dir = resolve_mooring(mooring, mooring_dir, "process")
+    mooring_dict, moor_dir = resolve_mooring(mooring, mooring_dir, "process")
     outcome = _Outcome()
     _process_stages(
-        cfg,
+        mooring_dict,
         moor_dir,
         wanted,
         outcome,
@@ -454,7 +454,7 @@ def resolve_mooring(
     --------
     Not run as tests: they need a mooring folder on disk.
 
-    >>> cfg, folder = resolve_mooring("proc/dune2_1_2026/dune2_1_2026.mooring.yaml", None)  # doctest: +SKIP
+    >>> mooring_dict, folder = resolve_mooring("proc/dune2_1_2026/dune2_1_2026.mooring.yaml", None)  # doctest: +SKIP
     """
     from oceanarray import mooring as _mooring
     from oceanarray.pipeline.read_mooring import _resolve_description
@@ -465,25 +465,29 @@ def resolve_mooring(
                 f"{caller} was given a mooring dict but no mooring_dir=; a dict has "
                 "no location for the stage files — pass mooring_dir=."
             )
-        cfg, moor_dir = _mooring.load(mooring), Path(mooring_dir)
+        mooring_dict, moor_dir = _mooring.load(mooring), Path(mooring_dir)
         # A dict has no file to be relative to: a relative catalog path is taken
         # from where the mooring YAML lives — the real folder of the mooring
         # directory's mooring YAML when it is a link to a file kept elsewhere, else
         # the mooring directory.
-        catalog_path = cfg.get("sensor_catalog")
+        catalog_path = mooring_dict.get("sensor_catalog")
         if catalog_path and not Path(str(catalog_path)).is_absolute():
-            description = moor_dir / f"{cfg.get('name', moor_dir.name)}.mooring.yaml"
-            base = description.resolve().parent if description.exists() else moor_dir
-            cfg["sensor_catalog"] = str((base / str(catalog_path)).resolve())
+            yaml_path = (
+                moor_dir / f"{mooring_dict.get('name', moor_dir.name)}.mooring.yaml"
+            )
+            base = yaml_path.resolve().parent if yaml_path.exists() else moor_dir
+            mooring_dict["sensor_catalog"] = str((base / str(catalog_path)).resolve())
     else:
-        cfg, moor_dir = _resolve_description(mooring, mooring_dir, 1, caller=caller)
+        mooring_dict, moor_dir = _resolve_description(
+            mooring, mooring_dir, 1, caller=caller
+        )
     if not moor_dir.is_dir():
         raise MooringError(f"Mooring directory not found: {moor_dir}")
-    return cfg, moor_dir
+    return mooring_dict, moor_dir
 
 
 def _process_stages(
-    cfg: dict,
+    mooring_dict: dict,
     moor_dir: Path,
     wanted: list[int],
     outcome: _Outcome,
@@ -504,7 +508,7 @@ def _process_stages(
     from oceanarray.pipeline.stage2 import _stage2_files
     from oceanarray.pipeline.stage3 import _stage3_files
 
-    name = cfg["name"]
+    name = mooring_dict["name"]
     for n in wanted:
         with StageLog(name, f"stage{n}", moor_dir) as log:
             log(f"Stage {n} for mooring: {name}")
@@ -512,7 +516,7 @@ def _process_stages(
                 readers = _attach_reader_logs(log.file)
                 try:
                     run = _stage1_files(
-                        cfg,
+                        mooring_dict,
                         moor_dir,
                         Path(raw_dir) if raw_dir is not None else None,
                         folder=moor_dir.name,
@@ -524,7 +528,7 @@ def _process_stages(
                     _detach_reader_logs(readers)
             elif n == 2:
                 run = _stage2_files(
-                    cfg,
+                    mooring_dict,
                     moor_dir,
                     serials=serial_list,
                     force=force,
@@ -541,7 +545,7 @@ def _process_stages(
                 # Stage 3 runs over the whole mooring: any failure fails it.
                 try:
                     run = _stage3_files(
-                        cfg,
+                        mooring_dict,
                         moor_dir,
                         serials=serial_list,
                         force=force,

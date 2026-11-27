@@ -17,8 +17,8 @@ def __getattr__(name: str) -> object:
     if not hasattr(_new, name):
         raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
     warnings.warn(
-        f"{__name__}.{name} is deprecated and is removed in 0.8.0; "
-        f"use {_new.__name__}.{name}.",
+        f"{__name__}.{name} is deprecated and is removed in "
+        f"{_deprecated.REMOVED_IN_NEXT}; use {_new.__name__}.{name}.",
         DeprecationWarning,
         stacklevel=2,
     )

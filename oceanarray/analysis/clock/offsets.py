@@ -53,14 +53,14 @@ def load_mooring_instruments(
 
     """
     proc_dir = output_path + mooring_name
-    moor_yaml = proc_dir + "/" + mooring_name + ".mooring.yaml"
+    yaml_path = proc_dir + "/" + mooring_name + ".mooring.yaml"
 
-    moor_yaml_data = _mooring.load(moor_yaml)
+    mooring_dict = _mooring.load(yaml_path)
 
-    instrument_list = instrument_entries(moor_yaml_data)
+    instrument_list = instrument_entries(mooring_dict)
     if not instrument_list:
         raise KeyError(
-            f"Mooring YAML {moor_yaml} has neither 'clamp' nor 'instruments' key."
+            f"Mooring YAML {yaml_path} has neither 'clamp' nor 'instruments' key."
         )
 
     datasets = []
@@ -80,7 +80,7 @@ def load_mooring_instruments(
 
             datasets.append(ds1)
 
-    return datasets, moor_yaml_data
+    return datasets, mooring_dict
 
 
 def create_common_time_grid(datasets):

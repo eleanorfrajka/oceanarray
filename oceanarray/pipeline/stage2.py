@@ -740,18 +740,18 @@ class Stage2Processor:
         self._log_print(f"Starting Stage 2 processing for mooring: {mooring_name}")
 
         # Load configuration
-        config_file = proc_dir / f"{mooring_name}.mooring.yaml"
-        if not config_file.exists():
-            raise MooringError(f"{mooring_name}: mooring YAML not found: {config_file}")
+        yaml_path = proc_dir / f"{mooring_name}.mooring.yaml"
+        if not yaml_path.exists():
+            raise MooringError(f"{mooring_name}: mooring YAML not found: {yaml_path}")
 
         try:
-            mooring_config = _mooring.load(config_file)
+            mooring_dict = _mooring.load(yaml_path)
         except Exception as e:  # noqa: BLE001  — intentional broad catch at I/O boundary
             self._log_print(f"ERROR: Failed to load configuration: {e}")
             return False
 
         run = _stage2_files(
-            mooring_config,
+            mooring_dict,
             proc_dir,
             serials=serials,
             force=force,

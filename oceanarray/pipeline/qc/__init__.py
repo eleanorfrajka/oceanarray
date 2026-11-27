@@ -9,7 +9,7 @@ from typing import Any
 import numpy as np
 import xarray as xr
 
-from oceanarray import logger, physics
+from oceanarray import _deprecated, logger, physics
 from oceanarray.config import parameters as params
 from oceanarray.config.unit_tables import UnitsError
 
@@ -130,8 +130,10 @@ def _tilt_from_span(qc_ranges: dict[str, Any]) -> dict[str, float]:
 
 
 def load_qc_config(
-    mooring_cfg: dict[str, Any],
-    entry: dict[str, Any],
+    mooring_dict: dict[str, Any] | None = None,
+    entry: dict[str, Any] | None = None,
+    *,
+    mooring_cfg: dict[str, Any] | None = None,
 ) -> tuple[dict, dict, dict, dict]:
     """Return ``(gross_range, spike, tilt, flat_line)`` thresholds for one instrument.
 
@@ -142,30 +144,40 @@ def load_qc_config(
 
     Parameters
     ----------
-    mooring_cfg : dict
-        The mooring YAML.
+    mooring_dict : dict
+        The loaded mooring YAML.
     entry : dict
         The instrument's entry.
+    mooring_cfg : dict, optional
+        Deprecated name of *mooring_dict*; removed in 0.8.0.
 
     Returns
     -------
     tuple of dict
     """
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.pipeline.qc.load_qc_config(mooring_cfg=)",
+        mooring_dict,
+        mooring_cfg,
+        required="mooring_dict",
+    )
+    if entry is None:
+        raise TypeError("load_qc_config() missing required argument: 'entry'")
     gr = copy.deepcopy(params.QC_GROSS_RANGE)
     sp = copy.deepcopy(params.QC_SPIKE)
     tilt = copy.deepcopy(params.QC_TILT)
     fl = copy.deepcopy(params.QC_FLAT_LINE)
 
     # Mooring-level overrides
-    if "qc_ranges" in mooring_cfg:
-        gr = _deep_merge(gr, mooring_cfg["qc_ranges"])
-        tilt.update(_tilt_from_span(mooring_cfg["qc_ranges"]))
-    if "qc_spike" in mooring_cfg:
-        sp = _deep_merge(sp, mooring_cfg["qc_spike"])
-    if "tilt_qc" in mooring_cfg:
-        tilt.update(mooring_cfg["tilt_qc"])
-    if "qc_flat_line" in mooring_cfg:
-        fl = _deep_merge(fl, mooring_cfg["qc_flat_line"])
+    if "qc_ranges" in mooring_dict:
+        gr = _deep_merge(gr, mooring_dict["qc_ranges"])
+        tilt.update(_tilt_from_span(mooring_dict["qc_ranges"]))
+    if "qc_spike" in mooring_dict:
+        sp = _deep_merge(sp, mooring_dict["qc_spike"])
+    if "tilt_qc" in mooring_dict:
+        tilt.update(mooring_dict["tilt_qc"])
+    if "qc_flat_line" in mooring_dict:
+        fl = _deep_merge(fl, mooring_dict["qc_flat_line"])
 
     # Instrument-level overrides
     if "qc_ranges" in entry:

@@ -55,10 +55,10 @@ _PAGE_FACTS: dict[str, tuple[tuple[str, str, str], ...]] = {
 }
 
 
-def _first(cfg: Mapping[str, Any], *keys: str) -> Any:
-    """Return the first non-empty value among *keys* in *cfg*, else None."""
+def _first(mooring_dict: Mapping[str, Any], *keys: str) -> Any:
+    """Return the first non-empty value among *keys* in *mooring_dict*, else None."""
     for key in keys:
-        value = cfg.get(key)
+        value = mooring_dict.get(key)
         if value not in (None, ""):
             return value
     return None
@@ -75,12 +75,12 @@ def _fact(label: str, value: Any, unit: str = "") -> Fact:
     return label, text, missing
 
 
-def cruise_label(cfg: Mapping[str, Any]) -> str:
+def cruise_label(mooring_dict: Mapping[str, Any]) -> str:
     """Return a mooring YAML's cruise as one line, for the page footer and instrument page.
 
     Parameters
     ----------
-    cfg : Mapping
+    mooring_dict : Mapping
         A loaded mooring YAML.
 
     Returns
@@ -90,17 +90,17 @@ def cruise_label(cfg: Mapping[str, Any]) -> str:
         recovery cruise differs; ``"—"`` when none is given.
 
     """
-    deploy = _first(cfg, "deployment_cruise", "cruise") or MISSING
-    recover = _first(cfg, "recovery_cruise") or deploy
+    deploy = _first(mooring_dict, "deployment_cruise", "cruise") or MISSING
+    recover = _first(mooring_dict, "recovery_cruise") or deploy
     return str(deploy) if deploy == recover else f"{deploy} / {recover}"
 
 
-def format_position(cfg: Mapping[str, Any]) -> tuple[str, str]:
+def format_position(mooring_dict: Mapping[str, Any]) -> tuple[str, str]:
     """Return a mooring YAML's (latitude, longitude) in degrees and decimal minutes.
 
     Parameters
     ----------
-    cfg : Mapping
+    mooring_dict : Mapping
         A loaded mooring YAML.
 
     Returns
@@ -110,7 +110,7 @@ def format_position(cfg: Mapping[str, Any]) -> tuple[str, str]:
         position key pair parses (stage 1 already warns about that).
 
     """
-    lat, lon, source = location.parse_latlon_with_source(dict(cfg))
+    lat, lon, source = location.parse_latlon_with_source(dict(mooring_dict))
     if location.is_unknown_latlon_source(source):
         return MISSING, MISSING
     return location.format_ddm(lat, is_lat=True), location.format_ddm(lon, is_lat=False)
@@ -175,15 +175,15 @@ def format_instrument_counts(
     return text
 
 
-def common_facts(cfg: Mapping[str, Any], entries: Iterable[Any]) -> list[Fact]:
+def common_facts(mooring_dict: Mapping[str, Any], entries: Iterable[Any]) -> list[Fact]:
     """Return the facts every mooring-level page shows, in their fixed order.
 
     Parameters
     ----------
-    cfg : Mapping
+    mooring_dict : Mapping
         A loaded mooring YAML.
     entries : iterable
-        Its instrument entries (``instruments.instrument_entries(cfg)``).
+        Its instrument entries (``instruments.instrument_entries(mooring_dict)``).
 
     Returns
     -------
@@ -195,17 +195,17 @@ def common_facts(cfg: Mapping[str, Any], entries: Iterable[Any]) -> list[Fact]:
         and ``ship`` keys are the deployment values only.
 
     """
-    deploy_dt = _parse_dt(cfg.get("deployment_time"))
-    recover_dt = _parse_dt(cfg.get("recovery_time"))
-    latitude, longitude = format_position(cfg)
+    deploy_dt = _parse_dt(mooring_dict.get("deployment_time"))
+    recover_dt = _parse_dt(mooring_dict.get("recovery_time"))
+    latitude, longitude = format_position(mooring_dict)
     return [
-        _fact("Deployment cruise", _first(cfg, "deployment_cruise", "cruise")),
-        _fact("Deployment ship", _first(cfg, "deployment_ship", "ship")),
-        _fact("Recovery cruise", _first(cfg, "recovery_cruise") or UNKNOWN),
-        _fact("Recovery ship", _first(cfg, "recovery_ship") or UNKNOWN),
+        _fact("Deployment cruise", _first(mooring_dict, "deployment_cruise", "cruise")),
+        _fact("Deployment ship", _first(mooring_dict, "deployment_ship", "ship")),
+        _fact("Recovery cruise", _first(mooring_dict, "recovery_cruise") or UNKNOWN),
+        _fact("Recovery ship", _first(mooring_dict, "recovery_ship") or UNKNOWN),
         _fact("Latitude", latitude),
         _fact("Longitude", longitude),
-        _fact("Water depth", cfg.get("waterdepth"), "m"),
+        _fact("Water depth", mooring_dict.get("waterdepth"), "m"),
         _fact("Deployment", _format_dt(deploy_dt)),
         _fact("Recovery", _format_dt(recover_dt)),
         _fact("Duration", _format_duration(deploy_dt, recover_dt)),

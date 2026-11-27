@@ -112,8 +112,8 @@ def report(
 
     from oceanarray.pipeline import resolve_mooring
 
-    cfg, moor_dir = resolve_mooring(mooring, mooring_dir, "report")
-    name, proc_root = cfg["name"], moor_dir.parent
+    mooring_dict, moor_dir = resolve_mooring(mooring, mooring_dir, "report")
+    name, proc_root = mooring_dict["name"], moor_dir.parent
     yaml_path = _resolve_description_file(mooring, moor_dir, name)
     if kind == "recovery":
         return _write_recovery_table(
@@ -142,7 +142,7 @@ def report(
             stack=stack,
             # A loaded mooring YAML may differ from the file on disk, so it is
             # passed on (and rebuilds the summary); a path is read from disk.
-            cfg=cfg if isinstance(mooring, Mapping) else None,
+            mooring_dict=mooring_dict if isinstance(mooring, Mapping) else None,
             mooring_dir=moor_dir,
             yaml_path=yaml_path,
         )
@@ -209,10 +209,10 @@ def _resolve_name_and_dir(
                 f"{path} holds {len(found)} '*.mooring.yaml' files; need exactly one."
             )
         path, moor_dir = found[0], moor_dir or path
-    cfg = _mooring._parse(path)
-    if not isinstance(cfg, Mapping) or not cfg.get("name"):
+    mooring_dict = _mooring._parse(path)
+    if not isinstance(mooring_dict, Mapping) or not mooring_dict.get("name"):
         raise MooringError(f"{path}: no 'name:' to name the report pages from.")
-    return str(cfg["name"]), moor_dir or path.parent
+    return str(mooring_dict["name"]), moor_dir or path.parent
 
 
 def _resolve_description_file(

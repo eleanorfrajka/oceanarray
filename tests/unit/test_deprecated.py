@@ -185,3 +185,23 @@ def test_moved_mooring_modules_reject_an_unknown_name(old):
     """A name the moved module does not have is an AttributeError on the old path too."""
     with pytest.raises(AttributeError, match=re.escape(old)):
         importlib.import_module(old).no_such_name  # noqa: B018
+
+
+_PAGE_NEXT = Path(__file__).parents[2] / "docs" / "source" / "migrating_0_7_0.rst"
+
+
+@pytest.mark.parametrize("old", sorted(_deprecated.RENAMED_NEXT))
+def test_every_name_deprecated_in_0_7_is_on_its_migration_page(old):
+    """The 0.7.0 migration page lists each old keyword with the new one."""
+    page = _PAGE_NEXT.read_text(encoding="utf-8")
+    assert f"``{old}``" in page
+    new = re.fullmatch(r"the (\w+=) keyword", _deprecated.RENAMED_NEXT[old])
+    assert new is not None
+    assert f"``{new.group(1)}``" in page
+
+
+@pytest.mark.parametrize("old", sorted(_deprecated.RENAMED_NEXT))
+def test_a_name_deprecated_in_0_7_is_removed_in_the_next_release(old):
+    """Its warning names the second removal release, not the first."""
+    assert f"removed in {_deprecated.REMOVED_IN_NEXT};" in _deprecated.message(old)
+    assert _deprecated.REMOVED_IN not in _deprecated.message(old)

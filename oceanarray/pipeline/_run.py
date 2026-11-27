@@ -112,24 +112,24 @@ def run(
         raise ValueError(f"stack_stage={stack_stage!r}: expected 3 or 2")
     wanted = _resolve_stages(stages, from_stage, stack_stage)
     serial_list = _as_serial_list(serials)
-    cfg, moor_dir = resolve_mooring(mooring, mooring_dir, "run")
+    mooring_dict, moor_dir = resolve_mooring(mooring, mooring_dir, "run")
     settings = _resolve_settings(
-        cfg, dt_seconds=dt_seconds, pmin=pmin, pmax=pmax, dp=dp
+        mooring_dict, dt_seconds=dt_seconds, pmin=pmin, pmax=pmax, dp=dp
     )
-    grid_flags = resolve_grid_mask_flags(cfg)
+    grid_flags = resolve_grid_mask_flags(mooring_dict)
     if mask_flags is not None and grid_flags is not None:
         # --mask-flags sets the stack's rule; the mooring YAML's grid: mask_flags
         # then adds to it rather than clash with it.
 
         try:
             grid_flags = mask_rules.union(
-                mask_rules.stack_rule(cfg, mask_flags), grid_flags
+                mask_rules.stack_rule(mooring_dict, mask_flags), grid_flags
             )
         except ValueError as exc:
             raise MooringError(
-                f"{cfg.get('name', 'mooring')}: {exc} (the call)"
+                f"{mooring_dict.get('name', 'mooring')}: {exc} (the call)"
             ) from exc
-    name = cfg["name"]
+    name = mooring_dict["name"]
     products = [paths.product_file(moor_dir, name, p) for p in ("stack", "grid")]
     outcome = _Outcome()
     # Collect the run's warnings on the package logger; the summary is logged and
@@ -139,7 +139,7 @@ def run(
     try:
         try:
             _process_stages(
-                cfg,
+                mooring_dict,
                 moor_dir,
                 wanted,
                 outcome,
@@ -151,7 +151,7 @@ def run(
             )
             log.info("Stack for mooring %s (dt = %s s)", name, settings["dt_seconds"])
             stack_path, ds_stack = _stack_file(
-                cfg,
+                mooring_dict,
                 moor_dir,
                 dt_seconds=int(settings["dt_seconds"]),
                 keep_going=keep_going,
@@ -193,7 +193,7 @@ def run(
         try:
             grid_path = _grid_file(
                 ds_stack,
-                cfg,
+                mooring_dict,
                 moor_dir,
                 pmin=settings["pmin"],
                 pmax=settings["pmax"],
@@ -221,7 +221,7 @@ def run(
 
             files.append(
                 _report(
-                    cfg,
+                    mooring_dict,
                     mooring_dir=moor_dir,
                     raw_dir=raw_dir,
                     serials=serial_list,
@@ -320,7 +320,7 @@ def _set_aside_stale(paths_: list[Path], why: str) -> None:
 
 
 def _resolve_settings(
-    cfg: Mapping[str, Any], **given: float | None
+    mooring_dict: Mapping[str, Any], **given: float | None
 ) -> dict[str, float]:
     """Return checked stack/grid settings: call, else mooring YAML, else the defaults."""
     from oceanarray.exceptions import MooringError
@@ -335,7 +335,7 @@ def _resolve_settings(
     }
     out: dict[str, float] = {}
     for block, keys in defaults.items():
-        from_yaml = cfg.get(block) or {}
+        from_yaml = mooring_dict.get(block) or {}
         for key, default in keys.items():
             value = given.get(key)
             out[key] = value if value is not None else from_yaml.get(key, default)
@@ -366,13 +366,13 @@ def _resolve_settings(
 
 
 def resolve_grid_mask_flags(
-    cfg: Mapping[str, Any],
+    mooring_dict: Mapping[str, Any],
 ) -> dict[str, tuple[int, ...]] | None:
     """Return the mooring YAML's ``grid: mask_flags``, or None when it gives none.
 
     Parameters
     ----------
-    cfg : Mapping
+    mooring_dict : Mapping
         The mooring YAML.
 
     Returns
@@ -388,14 +388,14 @@ def resolve_grid_mask_flags(
     """
     from oceanarray.exceptions import MooringError
 
-    value = (cfg.get("grid") or {}).get("mask_flags")
+    value = (mooring_dict.get("grid") or {}).get("mask_flags")
     if value is None:
         return None
     try:
         return mask_rules.resolve_mask_flags(value)
     except ValueError as exc:
         raise MooringError(
-            f"{cfg.get('name', 'mooring')}: {exc} (the mooring YAML's grid: block)"
+            f"{mooring_dict.get('name', 'mooring')}: {exc} (the mooring YAML's grid: block)"
         ) from exc
 
 

@@ -43,7 +43,7 @@ def cmd_animate(args: argparse.Namespace) -> int:
 
     location = _mooring_location(args)
     try:
-        cfg, proc_dir = resolve_mooring(location, None, "animate")
+        mooring_dict, proc_dir = resolve_mooring(location, None, "animate")
     except OceanarrayError as e:
         logger.status("error", str(e))
         return 1
@@ -51,7 +51,7 @@ def cmd_animate(args: argparse.Namespace) -> int:
 
     # Each listed instrument's stage-3 file, else its stage-2 file, from the mooring YAML.
     candidates: list[tuple[str, Path]] = []
-    for entry in instrument_entries(cfg):
+    for entry in instrument_entries(mooring_dict):
         if not isinstance(entry, dict) or entry.get("skip"):
             continue
         serial = paths.safe_serial(entry.get("serial", ""))
@@ -61,21 +61,25 @@ def cmd_animate(args: argparse.Namespace) -> int:
         found = [
             p
             for n in (3, 2)
-            if (p := paths.stage_file(proc_dir, cfg["name"], instr, serial, n)).exists()
+            if (
+                p := paths.stage_file(proc_dir, mooring_dict["name"], instr, serial, n)
+            ).exists()
         ]
         if found:
-            candidates.append((f"{cfg['name']}_{serial}", found[0]))
+            candidates.append((f"{mooring_dict['name']}_{serial}", found[0]))
         elif wanted is not None:
             print(
                 f"  WARNING: no stage-2 or stage-3 file for serial {serial} in {proc_dir}"
             )
     listed = {
         paths.safe_serial(e.get("serial", ""))
-        for e in instrument_entries(cfg)
+        for e in instrument_entries(mooring_dict)
         if isinstance(e, dict)
     }
     for serial in sorted((wanted or set()) - listed):
-        print(f"  WARNING: serial {serial} is not in {cfg['name']}'s mooring YAML")
+        print(
+            f"  WARNING: serial {serial} is not in {mooring_dict['name']}'s mooring YAML"
+        )
     if not candidates:
         print(f"  No processed files found under {proc_dir}")
         return 1

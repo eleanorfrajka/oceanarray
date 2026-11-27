@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Mapping
 from typing import Any
+
+from oceanarray import _deprecated
 
 
 def _parse_dms(s: str) -> float:
@@ -120,13 +123,17 @@ LATLON_KEY_PAIRS: tuple[tuple[str, str], ...] = (
 )
 
 
-def parse_latlon(cfg: dict) -> tuple[float, float]:
-    """Return (lat, lon) in decimal degrees from a mooring config dict.
+def parse_latlon(
+    mooring_dict: Mapping | None = None, *, cfg: Mapping | None = None
+) -> tuple[float, float]:
+    """Return (lat, lon) in decimal degrees from a loaded mooring YAML.
 
     Parameters
     ----------
-    cfg : dict
-        Mooring configuration dictionary (from a ``.mooring.yaml`` file).
+    mooring_dict : Mapping
+        The loaded mooring YAML (a ``*.mooring.yaml`` file).
+    cfg : Mapping, optional
+        Deprecated name of *mooring_dict*; removed in 0.8.0.
 
     Returns
     -------
@@ -134,7 +141,13 @@ def parse_latlon(cfg: dict) -> tuple[float, float]:
         ``(latitude, longitude)`` in decimal degrees.
 
     """
-    lat, lon, _ = parse_latlon_with_source(cfg)
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.mooring.location.parse_latlon(cfg=)",
+        mooring_dict,
+        cfg,
+        required="mooring_dict",
+    )
+    lat, lon, _ = parse_latlon_with_source(mooring_dict)
     return lat, lon
 
 
@@ -143,8 +156,10 @@ def is_unknown_latlon_source(source: str) -> bool:
     return source == LATLON_UNKNOWN_SOURCE
 
 
-def parse_latlon_with_source(cfg: dict) -> tuple[float, float, str]:
-    """Return (lat, lon, source_key) from a mooring config dict.
+def parse_latlon_with_source(
+    mooring_dict: Mapping | None = None, *, cfg: Mapping | None = None
+) -> tuple[float, float, str]:
+    """Return (lat, lon, source_key) from a loaded mooring YAML.
 
     source_key is the YAML key pair used, e.g. ``'seabed_latitude/seabed_longitude'``,
     or :data:`LATLON_UNKNOWN_SOURCE` if none found.
@@ -156,8 +171,11 @@ def parse_latlon_with_source(cfg: dict) -> tuple[float, float, str]:
 
     Parameters
     ----------
-    cfg : dict
-        Mooring configuration dictionary (from a ``.mooring.yaml`` file).
+    mooring_dict : Mapping
+        The loaded mooring YAML (a ``*.mooring.yaml`` file), or any mapping with
+        its position keys (a product's attributes).
+    cfg : Mapping, optional
+        Deprecated name of *mooring_dict*; removed in 0.8.0.
 
     Returns
     -------
@@ -166,9 +184,15 @@ def parse_latlon_with_source(cfg: dict) -> tuple[float, float, str]:
         YAML key pair was used.
 
     """
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.mooring.location.parse_latlon_with_source(cfg=)",
+        mooring_dict,
+        cfg,
+        required="mooring_dict",
+    )
     for lat_key, lon_key in LATLON_KEY_PAIRS:
-        lat_v = parse_coordinate(cfg.get(lat_key))
-        lon_v = parse_coordinate(cfg.get(lon_key))
+        lat_v = parse_coordinate(mooring_dict.get(lat_key))
+        lon_v = parse_coordinate(mooring_dict.get(lon_key))
         if lat_v is None or lon_v is None:
             continue  # absent, unparseable or non-finite: try the next pair
         if lat_v == 0.0 and lon_v == 0.0:

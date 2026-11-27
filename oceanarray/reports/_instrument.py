@@ -390,7 +390,7 @@ def _title(type_label: str, serial: str, depth: float | None) -> str:
 def generate_instrument_pages(
     mooring_name: str,
     instruments: list[dict[str, Any]],
-    cfg: dict[str, Any],
+    mooring_dict: dict[str, Any],
     proc_dir: Path,
     out_dir: Path,
     force: bool,
@@ -414,7 +414,7 @@ def generate_instrument_pages(
     instruments : list of dict
         Instrument records extracted from the mooring YAML, each containing at
         minimum ``serial``, ``instr_type``, and ``stages`` keys.
-    cfg : dict
+    mooring_dict : dict
         Full mooring configuration dictionary (from the mooring YAML).
     proc_dir : Path
         Mooring-level processed output directory (e.g. ``proc/dsG3_1_2026/``).
@@ -443,7 +443,7 @@ def generate_instrument_pages(
     generated = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
     stack_exists = paths.product_file(proc_dir, mooring_name, "stack").exists()
     grid_exists = paths.product_file(proc_dir, mooring_name, "grid").exists()
-    cruise = cruise_label(cfg)
+    cruise = cruise_label(mooring_dict)
     serial_filter = {safe_serial(s) for s in serials} if serials else None
 
     idx = 0
@@ -517,7 +517,7 @@ def generate_instrument_pages(
         captions: dict[str, str] = {}
         # The flag rule the stack and grid apply, chosen once for every figure and
         # caption of the page.
-        rule = mask_rules.stack_rule(cfg)
+        rule = mask_rules.stack_rule(mooring_dict)
         ds_page = None
         if best_nc:
             try:
@@ -553,7 +553,7 @@ def generate_instrument_pages(
         # line when they agree.
         _window_vlines = _instrument_text.window_lines(
             (_sugg_deploy_utc, _sugg_recover_utc),
-            (cfg.get("deployment_time"), cfg.get("recovery_time")),
+            (mooring_dict.get("deployment_time"), mooring_dict.get("recovery_time")),
         )
 
         # File listing — the data read and the file of each processing step
@@ -719,9 +719,11 @@ def generate_instrument_pages(
         # Look up the per-instrument YAML entry for analog metadata.
         # Search both 'clamp' and 'inline' lists (the serial in inline entries
         # may contain a comma; safe_serial strips it to the first token).
-        _instr_entries = list(cfg.get("clamp", cfg.get("instruments", []))) + [
+        _instr_entries = list(
+            mooring_dict.get("clamp", mooring_dict.get("instruments", []))
+        ) + [
             e
-            for e in cfg.get("inline", [])
+            for e in mooring_dict.get("inline", [])
             if isinstance(e, dict) and "instrument" in e
         ]
         _yaml_entry: dict[str, Any] = next(

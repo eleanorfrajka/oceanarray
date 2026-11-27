@@ -21,8 +21,8 @@ from typing import Any
 
 import xarray as xr
 
+from oceanarray import _deprecated, paths, readers
 from oceanarray import mooring as _mooring
-from oceanarray import paths, readers
 from oceanarray.exceptions import MooringError
 from oceanarray.history import append_history
 from oceanarray.mooring.instruments import instrument_entries
@@ -79,15 +79,22 @@ def _resolve_description(
     return _mooring.load(path), Path(mooring_dir or path.parent)
 
 
-def header_attrs(cfg: Mapping[str, Any], *, warn: bool = True) -> dict[str, Any]:
+def header_attrs(
+    mooring_dict: Mapping[str, Any] | None = None,
+    *,
+    warn: bool = True,
+    cfg: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
     """Return the per-mooring header attributes, stamped on every instrument.
 
     Parameters
     ----------
-    cfg : Mapping
+    mooring_dict : Mapping
         The loaded mooring YAML.
     warn : bool, optional
         Warn when the position or deployment window is missing (default True).
+    cfg : Mapping, optional
+        Deprecated name of *mooring_dict*; removed in 0.8.0.
 
     Returns
     -------
@@ -96,14 +103,20 @@ def header_attrs(cfg: Mapping[str, Any], *, warn: bool = True) -> dict[str, Any]
         and, when given, ``latitude`` / ``longitude`` (decimal degrees),
         ``waterdepth`` and ``density_reference``.
     """
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.pipeline.read_mooring.header_attrs(cfg=)",
+        mooring_dict,
+        cfg,
+        required="mooring_dict",
+    )
     # The deployment window is always stamped (placeholder + *_source "none" when
     # absent); a missing position is left out, so a file's own is kept.
-    name = cfg.get("name")
+    name = mooring_dict.get("name")
     if name is None:
         raise MooringError("the mooring YAML has no 'name'; it is required.")
     attrs: dict[str, Any] = {"mooring_name": name}
 
-    lat, lon, source = parse_latlon_with_source(cfg)
+    lat, lon, source = parse_latlon_with_source(mooring_dict)
     if is_unknown_latlon_source(source):
         attrs["location_source"] = "none"
         if warn:
@@ -121,8 +134,8 @@ def header_attrs(cfg: Mapping[str, Any], *, warn: bool = True) -> dict[str, Any]
         attrs["latitude_str"] = lat_s
         attrs["longitude_str"] = lon_s
 
-    deploy = cfg.get("deployment_time")
-    recover = cfg.get("recovery_time")
+    deploy = mooring_dict.get("deployment_time")
+    recover = mooring_dict.get("recovery_time")
     if deploy is not None and recover is not None:
         attrs["deployment_time"] = _stage.iso_time(deploy)
         attrs["recovery_time"] = _stage.iso_time(recover)
@@ -140,8 +153,8 @@ def header_attrs(cfg: Mapping[str, Any], *, warn: bool = True) -> dict[str, Any]
             )
 
     for key in ("waterdepth", "density_reference"):
-        if cfg.get(key) is not None:
-            attrs[key] = cfg[key]
+        if mooring_dict.get(key) is not None:
+            attrs[key] = mooring_dict[key]
 
     return attrs
 
@@ -201,16 +214,16 @@ def read_mooring(
     oceanarray.exceptions.StageError
         If an opened stage file carries the wrong ``processing_stage`` marker.
     """
-    cfg, mooring_dir = _resolve_description(mooring, mooring_dir, stage)
+    mooring_dict, mooring_dir = _resolve_description(mooring, mooring_dir, stage)
     if stage is None and raw_dir is None:
         raise ValueError("read_mooring(stage=None) needs raw_dir= to find raw files.")
 
-    name = cfg["name"]
+    name = mooring_dict["name"]
     wanted = {paths.safe_serial(s) for s in serials} if serials is not None else None
-    moor_attrs = header_attrs(cfg)
+    moor_attrs = header_attrs(mooring_dict)
 
     datasets: dict[str, xr.Dataset] = {}
-    for entry in instrument_entries(cfg):
+    for entry in instrument_entries(mooring_dict):
         if not isinstance(entry, dict):
             continue
         serial = paths.safe_serial(entry.get("serial", ""))
@@ -228,7 +241,7 @@ def read_mooring(
             if entry.get("skip"):
                 continue
             try:
-                raw = raw_files.resolve_raw_file(entry, cfg, raw_dir)
+                raw = raw_files.resolve_raw_file(entry, mooring_dict, raw_dir)
                 if not raw.path.exists():
                     raise FileNotFoundError(
                         f"{name}: {instr_type} s/n {serial} raw file not found at "

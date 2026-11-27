@@ -533,18 +533,29 @@ Python name goes in ``_deprecated.RENAMED`` and is wrapped with
 with ``help=argparse.SUPPRESS``. The removal release is one constant,
 ``_deprecated.REMOVED_IN``; the migration page lists every entry (a test checks
 it). A name deprecated during 0.7.x (0.7.0, 0.7.1, …) is removed in 0.8.0: the
-next minor release, never a patch release.
+next minor release, never a patch release. Those names go in the second table,
+``_deprecated.RENAMED_NEXT``, removed in the second constant,
+``_deprecated.REMOVED_IN_NEXT``; a moved module's alias names that constant
+too, and the 0.7.0 migration page lists every entry (a test checks it). A
+renamed keyword is written ``<function>(<old keyword>=)``: the old keyword
+becomes keyword-only, positional calls keep working, and
+``_deprecated.resolve_keyword`` warns and returns the argument given.
 
 .. code-block:: python
 
    vars = _deprecated.alias("oceanarray.inspect.vars", variables)
    attrs = _deprecated.alias("oceanarray.inspect.attrs", attributes)
 
+   def resolve_spectrum_markers(mooring_dict=None, *, description=None):
+       mooring_dict = _deprecated.resolve_keyword(
+           "oceanarray.mooring.resolve_spectrum_markers(description=)",
+           mooring_dict,
+           description,
+           required="mooring_dict",
+       )
+
 **Not.** An alias for something never released; a second spelling of the removal
-version. Planned: ``REMOVED_IN`` is also defined in ``cli/_deprecate.py``,
-``logger.LOG_FN_DEPRECATED`` writes "0.7.0" out, and the moved-module aliases
-in ``pipeline/clock`` and ``pipeline/pressure`` write "0.8.0" out (the
-mechanism has one removal release; these need the next one).
+version.
 
 3.12 Tests
 ~~~~~~~~~~
@@ -647,6 +658,20 @@ The rest:
    * - Term
      - Meaning
      - In the code
+   * - yaml_path
+     - The path of one ``*.mooring.yaml`` file (several: ``yaml_paths``). Not
+       ``config_path`` or ``description``.
+     - ``yaml_path``
+   * - mooring_dict
+     - The parsed contents of a mooring YAML, a dict or Mapping, as
+       ``mooring.load`` returns it (several: ``mooring_dicts``). Not ``cfg``,
+       ``mooring_config`` or ``description``.
+     - ``mooring_dict``
+   * - mooring (parameter)
+     - Anything ``mooring.load`` accepts: a mooring's name, the path of its
+       mooring YAML, or a mooring dict. A parameter holding only the name is
+       ``mooring_name`` (see **mooring** above).
+     - ``mooring``
    * - originator
      - Whoever produced the data files we read (a data center, a PI). Their
        values, flags and attributes are kept beside ours.

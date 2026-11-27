@@ -10,6 +10,7 @@ from typing import Any
 
 import yaml
 
+from oceanarray import _deprecated
 from oceanarray.mooring.instruments import instrument_entries
 
 #: Optional report sections that ``report_sections`` may turn on, keyed by page.
@@ -53,16 +54,23 @@ def _plain(value: Any) -> Any:
     return value
 
 
-def settings_yaml(cfg: Mapping, *, stack: Mapping | None = None) -> str:
+def settings_yaml(
+    mooring_dict: Mapping | None = None,
+    *,
+    stack: Mapping | None = None,
+    cfg: Mapping | None = None,
+) -> str:
     """Return the settings that built a product, as YAML text.
 
     Parameters
     ----------
-    cfg : Mapping
+    mooring_dict : Mapping
         A loaded mooring YAML.
     stack : Mapping, optional
         The ``stack:`` settings actually used (e.g. a ``dt_seconds`` given on the
         command line); they replace the mooring YAML's own ``stack:`` block.
+    cfg : Mapping, optional
+        Deprecated name of *mooring_dict*; removed in 0.8.0.
 
     Returns
     -------
@@ -72,12 +80,20 @@ def settings_yaml(cfg: Mapping, *, stack: Mapping | None = None) -> str:
         the hardware-only keys) under ``instruments``, the key ``load`` also
         reads. Pasted into a mooring YAML, it reruns the same product.
     """
-    out: dict = {k: cfg[k] for k in SETTINGS_BLOCKS if cfg.get(k) is not None}
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.mooring.settings_yaml(cfg=)",
+        mooring_dict,
+        cfg,
+        required="mooring_dict",
+    )
+    out: dict = {
+        k: mooring_dict[k] for k in SETTINGS_BLOCKS if mooring_dict.get(k) is not None
+    }
     if stack is not None:
         out["stack"] = {**(out.get("stack") or {}), **stack}
     out["instruments"] = [
         {k: v for k, v in e.items() if k not in _HARDWARE_ONLY_KEYS}
-        for e in instrument_entries(cfg)
+        for e in instrument_entries(mooring_dict)
         if isinstance(e, Mapping)
     ]
     return yaml.safe_dump(_plain(out), sort_keys=False)
@@ -123,14 +139,18 @@ def _period_days(value: object) -> float | None:
     return days if days > 0 else None
 
 
-def resolve_spectrum_markers(description: Mapping) -> list[tuple[str, float]]:
+def resolve_spectrum_markers(
+    mooring_dict: Mapping | None = None, *, description: Mapping | None = None
+) -> list[tuple[str, float]]:
     """Return the extra periods marked on the spectra, from the mooring YAML.
 
     Parameters
     ----------
-    description : Mapping
-        The mooring YAML; its optional ``spectrum_markers`` maps a label to
+    mooring_dict : Mapping
+        The loaded mooring YAML; its optional ``spectrum_markers`` maps a label to
         a period with its unit (``"1.8 d"``, ``"12.42 h"``, ``"9 min"``).
+    description : Mapping, optional
+        Deprecated name of *mooring_dict*; removed in 0.8.0.
 
     Returns
     -------
@@ -138,7 +158,13 @@ def resolve_spectrum_markers(description: Mapping) -> list[tuple[str, float]]:
         ``(label, period in days)``, in the mooring YAML's order; malformed entries
         (which ``check`` reports) are skipped.
     """
-    block = description.get("spectrum_markers")
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.mooring.resolve_spectrum_markers(description=)",
+        mooring_dict,
+        description,
+        required="mooring_dict",
+    )
+    block = mooring_dict.get("spectrum_markers")
     if not isinstance(block, Mapping):
         return []
     out = []
@@ -149,8 +175,13 @@ def resolve_spectrum_markers(description: Mapping) -> list[tuple[str, float]]:
     return out
 
 
-def resolve_report_sections(page: str, description: Mapping) -> list[str]:
-    """Return the optional sections turned on for a report *page*, from *description*.
+def resolve_report_sections(
+    page: str,
+    mooring_dict: Mapping | None = None,
+    *,
+    description: Mapping | None = None,
+) -> list[str]:
+    """Return the optional sections turned on for a report *page*, from *mooring_dict*.
 
     Reads ``report_sections.<page>`` from the mooring YAML and defaults to ``[]``
     (every optional section off).  Every report setting is read from the mooring YAML —
@@ -161,15 +192,23 @@ def resolve_report_sections(page: str, description: Mapping) -> list[str]:
     ----------
     page : str
         The report page, e.g. ``"grid"``.
-    description : Mapping
-        The mooring YAML.
+    mooring_dict : Mapping
+        The loaded mooring YAML.
+    description : Mapping, optional
+        Deprecated name of *mooring_dict*; removed in 0.8.0.
 
     Returns
     -------
     list of str
         The optional section names turned on for *page* (empty when none).
     """
-    block = description.get("report_sections")
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.mooring.resolve_report_sections(description=)",
+        mooring_dict,
+        description,
+        required="mooring_dict",
+    )
+    block = mooring_dict.get("report_sections")
     if not isinstance(block, Mapping):
         return []
     val = block.get(page)

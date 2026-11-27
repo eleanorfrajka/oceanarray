@@ -175,14 +175,14 @@ def _report_dry_run(
         # A dry run is a preview — never raise on a half-filled config. Show the
         # validation issues (as `validate` would), then list whatever the file
         # parses to; only a file that is not YAML at all stops the listing.
-        cfg = _mooring._parse(yaml_path)
-        if cfg is None:
+        mooring_dict = _mooring._parse(yaml_path)
+        if mooring_dict is None:
             print(f"  (cannot preview instruments: {yaml_path} is not valid YAML)")
         else:
             for issue in _mooring.check(yaml_path):
                 print(f"  {issue.level.lower()}: {issue.message}")
             only = {paths.safe_serial(s) for s in args.serials or []}
-            for entry in instrument_entries(cfg):
+            for entry in instrument_entries(mooring_dict):
                 if not isinstance(entry, dict):
                     continue
                 serial = paths.safe_serial(entry.get("serial", ""))
