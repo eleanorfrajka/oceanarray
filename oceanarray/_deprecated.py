@@ -77,6 +77,8 @@ RENAMED_NEXT: dict[str, str] = {
     ),
     "oceanarray.pipeline.qc.load_qc_config(mooring_cfg=)": "the mooring_dict= keyword",
     "oceanarray.reports.MooringReport.generate(cfg=)": "the mooring_dict= keyword",
+    "oceanarray.plotters.helpers.masked": "oceanarray.pipeline.masking.masked",
+    "oceanarray.plotters.helpers.ruled": "oceanarray.mask_rules.STACK_ATTR in ds.attrs",
     "oceanarray.pipeline.read_mooring.header_attrs(cfg=)": "the mooring_dict= keyword",
     "oceanarray.pipeline.stack.mooring_attrs(mooring_config=)": (
         "the mooring_dict= keyword"
@@ -123,7 +125,7 @@ def alias(old: str, func: _F) -> _F:
     Parameters
     ----------
     old : str
-        A key of :data:`RENAMED`, the full dotted old name.
+        A key of :data:`RENAMED` or :data:`RENAMED_NEXT`, the full dotted old name.
     func : callable
         The function that replaces it.
 
@@ -141,7 +143,7 @@ def alias(old: str, func: _F) -> _F:
     _alias.__name__ = _alias.__qualname__ = old.rsplit(".", 1)[-1]
     _alias.__doc__ = (
         f"Deprecated alias of :func:`{func.__module__}.{func.__name__}`; "
-        f"removed in {REMOVED_IN}."
+        f"removed in {REMOVED_IN_NEXT if old in RENAMED_NEXT else REMOVED_IN}."
     )
     return _alias  # type: ignore[return-value]
 

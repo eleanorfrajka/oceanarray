@@ -59,6 +59,56 @@ to ``from oceanarray.mooring.instruments import instrument_entries``.
 ``oceanarray.catalog`` moved without an old path: import it as
 ``from oceanarray.mooring import catalog``.
 
+Names moved without an old path
+-------------------------------
+
+These names moved, unchanged, and no longer import from their old module; change
+the import, e.g. ``from oceanarray.pipeline.masking import stack_rule`` to
+``from oceanarray.mask_rules import stack_rule``.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 60 40
+
+   * - Old path
+     - New path
+   * - ``oceanarray.pipeline.masking``: ``resolve_mask_flags``, ``stack_rule``,
+       ``combine``, ``union``, ``to_json``, ``rule_words``, ``Rule``,
+       ``STACK_ATTR``, ``FLAGGED_VARIABLES``, ``FLAG_SOURCES``
+     - ``oceanarray.mask_rules``
+   * - ``oceanarray.pipeline.attribution``: ``check_people_block``,
+       ``check_source_block``, ``PEOPLE_BLOCK_KEYS``, ``SOURCE_BLOCK_KEYS``
+     - ``oceanarray.mooring.blocks``
+   * - ``oceanarray.pipeline.qc.originator``: ``vocabulary``, ``OURS_ONLY``
+     - ``oceanarray.originator_flags``
+   * - ``oceanarray.provenance.changed_attr``
+     - ``oceanarray.writers.dtypes.changed_attr``
+
+``rule_words`` also takes a new keyword-only ``table=`` (default ``False``, the
+old text).
+
+Figure helpers ``masked`` and ``ruled``
+---------------------------------------
+
+The two figure helpers still work, with a ``DeprecationWarning``, until 0.8.0.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 50 50
+
+   * - Old name
+     - Use instead
+   * - ``oceanarray.plotters.helpers.masked``
+     - ``oceanarray.pipeline.masking.masked``
+   * - ``oceanarray.plotters.helpers.ruled``
+     - ``oceanarray.mask_rules.STACK_ATTR in ds.attrs``
+
+``masked(ds, var)`` now gives what ``oceanarray.pipeline.masking.masked`` gives,
+as the figures do: a file that records no ``mask_flags`` rule (an instrument file,
+a grid) hides values by the default rule (flag 4) in ``<var>_qc`` and in the
+originator's mapped flag, no longer by flags 3, 4 and 9 in ``<var>_qc``. A stack
+or Stack cat with a recorded rule gives the same values as before.
+
 Keywords that say what they carry
 ---------------------------------
 

@@ -192,12 +192,14 @@ _PAGE_NEXT = Path(__file__).parents[2] / "docs" / "source" / "migrating_0_7_0.rs
 
 @pytest.mark.parametrize("old", sorted(_deprecated.RENAMED_NEXT))
 def test_every_name_deprecated_in_0_7_is_on_its_migration_page(old):
-    """The 0.7.0 migration page lists each old keyword with the new one."""
+    """The 0.7.0 migration page lists each old name or keyword with what replaces it."""
     page = _PAGE_NEXT.read_text(encoding="utf-8")
     assert f"``{old}``" in page
-    new = re.fullmatch(r"the (\w+=) keyword", _deprecated.RENAMED_NEXT[old])
-    assert new is not None
-    assert f"``{new.group(1)}``" in page
+    keyword = re.fullmatch(r"the (\w+=) keyword", _deprecated.RENAMED_NEXT[old])
+    if keyword is not None:
+        assert f"``{keyword.group(1)}``" in page
+    else:
+        assert f"``{_deprecated.RENAMED_NEXT[old]}``" in page
 
 
 @pytest.mark.parametrize("old", sorted(_deprecated.RENAMED_NEXT))

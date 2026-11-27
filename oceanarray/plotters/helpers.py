@@ -14,7 +14,9 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
+from oceanarray import _deprecated, mask_rules
 from oceanarray.config.unit_tables import unit_label
+from oceanarray.pipeline import masking
 from oceanarray.pipeline._stage import normalize_identity_names
 
 if TYPE_CHECKING:
@@ -54,6 +56,17 @@ DEPLOYMENT_COLORS: list[str] = [
 
 #: Line styles that pair with :data:`DEPLOYMENT_COLORS` in :func:`deployment_line`.
 DEPLOYMENT_LINESTYLES: tuple[str, ...] = ("-", "--", ":", "-.")
+
+
+def ruled(ds: xr.Dataset) -> bool:
+    """Deprecated alias of ``oceanarray.mask_rules.STACK_ATTR in ds.attrs``; removed in 0.8.0."""  # noqa: D401 — the deprecated-alias wording
+    _deprecated.warn("oceanarray.plotters.helpers.ruled")
+    return mask_rules.STACK_ATTR in ds.attrs
+
+
+masked = _deprecated.alias("oceanarray.plotters.helpers.masked", masking.masked)
+# Listed on this module's API page, where it was documented.
+masked.__module__ = __name__
 
 
 def deployment_steps(ds: xr.Dataset, k: int) -> int:
