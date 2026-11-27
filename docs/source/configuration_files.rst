@@ -33,6 +33,11 @@ the call and the command line.
      - lab or project
      - What each instrument is, by serial: model, maker, sensor vocabularies
      - stage 1, for the sensor record
+   * - ``paths.yaml`` (:ref:`paths-file`)
+     - project
+     - *Where* the files are: the folders of the mooring YAMLs, raw files,
+       processed files, pages and exports
+     - ``oceanarray.Paths.from_file``
 
 The package also ships tables of its own (``config/logging.yaml``,
 ``flag_meanings.yaml``); they are not edited by users.
@@ -57,6 +62,55 @@ oceanarray supports two ways of working, and both are kept working:
 An array YAML lists its moorings by name. Each is found as ``{name}.mooring.yaml``
 beside the array file or in its processed folder; a mooring whose YAML is named
 differently gives that file name as ``config:`` (a file name only, no folders).
+
+.. _paths-file:
+
+Where the folders are: ``paths.yaml``
+-------------------------------------
+
+*New in 0.7.0.* A paths file states a project's folders in one place, so a project
+shared between people and machines needs no folder options. Relative folders are
+relative to the paths file; ``~`` is expanded.
+
+.. code-block:: yaml
+
+   # paths.yaml
+   yaml_dir: config/moorings        # the *.mooring.yaml files
+   raw_dir: ~/data/raw-OSNAP        # raw files, one folder per mooring
+   proc_dir: ~/data/proc-OSNAP      # stage, stack and grid files, one folder per mooring
+   report_dir: outputs/report       # report pages, one folder per mooring
+   export_dir: outputs/export       # OceanSITES files
+   # caldip_dir: ~/data/caldip      # optional: caldip outputs
+
+   moorings:                        # optional: exact folders for a mooring that differs
+     M2_2016:
+       raw_dir: ~/data/raw-OSNAP/2018_recovery/M2
+
+A mooring's folder is ``<dir>/<mooring_name>``; under ``moorings:`` it is the folder
+as written. The keys are exactly those above; any other key is an error. In Python:
+
+.. code-block:: python
+
+   import oceanarray as oa
+
+   paths = oa.Paths.from_file("paths.yaml")
+   paths.yaml_path("M2_2016")        # config/moorings/M2_2016.mooring.yaml
+   paths.raw_mooring_dir("M2_2016")  # the mooring's raw folder
+   paths.mooring_dir("M2_2016")      # its processed folder
+   paths.yaml_paths()                # every mooring YAML, sorted
+
+   # the standard structure under one folder: yamls/, raw/, proc/, reports/, exports/
+   paths = oa.Paths.standard("/data/OSNAP")
+
+   # or each folder given, and one mooring with its own raw folder
+   paths = oa.Paths(yaml_dir="config/moorings", raw_dir="/data/raw", proc_dir="/data/proc")
+   paths = paths.with_mooring("M2_2016", raw_dir="/media/usb/M2")
+
+A mooring YAML still in its processed folder (``{proc_dir}/{name}/``) is found
+there, with a deprecation warning, until 0.8.0.
+
+Coming next: the verbs (``run``, ``process``, ``report``, ``export``) and the
+command line take a ``Paths``.
 
 Each mooring YAML stands alone
 ------------------------------

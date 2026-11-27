@@ -69,6 +69,13 @@ On datasets
 .. autofunction:: oceanarray.write_mooring
    :no-index:
 
+Where things are
+^^^^^^^^^^^^^^^^
+
+.. autoclass:: oceanarray.Paths
+   :members:
+   :no-index:
+
 Errors
 ^^^^^^
 

@@ -37,6 +37,7 @@ if TYPE_CHECKING:
         ReaderError,
         StageError,
     )
+    from oceanarray.paths import Paths
     from oceanarray.pipeline import process, run
     from oceanarray.pipeline.concat import concat
     from oceanarray.pipeline.export import export
@@ -54,6 +55,7 @@ if TYPE_CHECKING:
 __all__ = [
     "MooringError",
     "OceanarrayError",
+    "Paths",
     "ReaderError",
     "StageError",
     "__version__",
@@ -80,6 +82,7 @@ _EXPORTS: dict[str, tuple[str, str | None]] = {
     "StageError": ("oceanarray.exceptions", "StageError"),
     "ReaderError": ("oceanarray.exceptions", "ReaderError"),
     "OceanarrayError": ("oceanarray.exceptions", "OceanarrayError"),
+    "Paths": ("oceanarray.paths", "Paths"),
     "concat": ("oceanarray.pipeline.concat", "concat"),
     "export": ("oceanarray.pipeline.export", "export"),
     "grid": ("oceanarray.pipeline.grid", "grid"),
