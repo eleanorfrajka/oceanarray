@@ -1,0 +1,561 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.mooring.catalog &mdash; oceanarray 0.6.0.post1.dev41 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a96f5941"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.mooring.catalog</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.mooring.catalog</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""The sensor catalog: what each instrument is, by serial, for its sensor record.</span>
+
+<span class="sd">A mooring YAML names one catalog (``sensor_catalog: &lt;path&gt;``, relative to it).</span>
+<span class="sd">``models:`` gives per model the attributes of the OG1 sensor record</span>
+<span class="sd">(``SENSOR_&lt;type&gt;_&lt;serial&gt;``) and their NERC vocabularies, with one ``sensor_model`` for</span>
+<span class="sd">the instrument with a pressure sensor and one without (L22 lists them apart);</span>
+<span class="sd">``instruments:`` maps the maker's label (``"37-12046"``) to a model and its report</span>
+<span class="sd">sources::</span>
+
+<span class="sd">    models:</span>
+<span class="sd">      SBE 37-SMP:</span>
+<span class="sd">        sensor_type: CTD</span>
+<span class="sd">        sensor_type_vocabulary: https://vocab.nerc.ac.uk/collection/L05/current/130/</span>
+<span class="sd">        sensor_maker: Sea-Bird Scientific</span>
+<span class="sd">        sensor_maker_vocabulary: https://vocab.nerc.ac.uk/collection/L35/current/MAN0013/</span>
+<span class="sd">        with_pressure:</span>
+<span class="sd">          sensor_model: Sea-Bird SBE 37 MicroCat SMP-CTP (submersible) CTD sensor</span>
+<span class="sd">          sensor_model_vocabulary: https://vocab.nerc.ac.uk/collection/L22/current/TOOL1457/</span>
+<span class="sd">        without_pressure:</span>
+<span class="sd">          sensor_model: Sea-Bird SBE 37 MicroCat SMP-CT with optional pressure ...</span>
+<span class="sd">          sensor_model_vocabulary: https://vocab.nerc.ac.uk/collection/L22/current/TOOL0018/</span>
+<span class="sd">    instruments:</span>
+<span class="sd">      "37-12046":</span>
+<span class="sd">        model: SBE 37-SMP</span>
+<span class="sd">        pumped: true</span>
+<span class="sd">        sources:</span>
+<span class="sd">          - {report: 2015_64PE400_NIOZ_cruise_report.pdf, pdf_page: 40,</span>
+<span class="sd">             text: "Instrument - MicroCat SBE 37-SMP SN 12046 88m --&gt; 172 m"}</span>
+
+<span class="sd">No calibrations are kept here (they come from the instrument's files). Stage 1 uses</span>
+<span class="sd">the catalog when the instrument's entry names no ``sensor_model``</span>
+<span class="sd">(:func:`oceanarray.pipeline.sensors.build_record`).</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">_deprecated</span><span class="p">,</span> <span class="n">originator_flags</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MooringError</span>
+
+<span class="c1">#: The maker's label prefix of each instrument type, as the catalog keys it.</span>
+<span class="n">PREFIX</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"microcat"</span><span class="p">:</span> <span class="s2">"37-"</span><span class="p">}</span>
+
+<span class="c1">#: The mooring YAML key that names the catalog file.</span>
+<span class="n">KEY</span> <span class="o">=</span> <span class="s2">"sensor_catalog"</span>
+
+<span class="c1">#: Record attributes a model gives (the pressure choice adds ``sensor_model`` and</span>
+<span class="c1">#: ``sensor_model_vocabulary``).</span>
+<span class="n">MODEL_ATTRS</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"long_name"</span><span class="p">,</span>
+    <span class="s2">"sensor_type"</span><span class="p">,</span>
+    <span class="s2">"sensor_type_vocabulary"</span><span class="p">,</span>
+    <span class="s2">"sensor_maker"</span><span class="p">,</span>
+    <span class="s2">"sensor_maker_vocabulary"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">#: The two ways a model is listed, by whether the instrument measured pressure.</span>
+<span class="n">PRESSURE_KEYS</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"with_pressure"</span><span class="p">,</span> <span class="s2">"without_pressure"</span><span class="p">)</span>
+
+<span class="c1">#: Our flags that say a pressure value was measured and good enough to keep.</span>
+<span class="n">_GOOD</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="key_for">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.mooring.catalog.key_for">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">key_for</span><span class="p">(</span><span class="n">instrument</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">serial</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the catalog key of an instrument, or None for a type it does not cover.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    instrument : str</span>
+<span class="sd">        The entry's ``instrument`` (e.g. ``"microcat"``).</span>
+<span class="sd">    serial : object</span>
+<span class="sd">        The serial (``12046``, ``"12046"``).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str or None</span>
+<span class="sd">        ``"37-12046"``, or None when *instrument* has no prefix in :data:`PREFIX`.</span>
+<span class="sd">    """</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="n">PREFIX</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">instrument</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="nb">str</span><span class="p">(</span><span class="n">serial</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">prefix</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_problems</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return what is wrong with a parsed catalog (an empty list when it is usable)."""</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"instruments"</span><span class="p">),</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">"no 'instruments:' mapping at the top"</span><span class="p">]</span>
+    <span class="n">models</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"models"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">"'models:' is not a mapping"</span><span class="p">]</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">PRESSURE_KEYS</span><span class="p">:</span>
+            <span class="n">entry</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sensor_model"</span><span class="p">):</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"model </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">: no </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: sensor_model"</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">"instruments"</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: not a mapping (model, pumped, sources)"</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"pumped"</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">"pumped"</span><span class="p">],</span> <span class="nb">bool</span><span class="p">):</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: pumped </span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="s1">'pumped'</span><span class="p">]</span><span class="si">!r}</span><span class="s2"> is not true or false"</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"model"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">model</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: model </span><span class="si">{</span><span class="n">model</span><span class="si">!r}</span><span class="s2"> is not under 'models:'"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_load</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mtime</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>  <span class="c1"># noqa: ARG001 — mtime keys the cache</span>
+<span class="w">    </span><span class="sd">"""Read and check a catalog file (cached per path and modification time)."""</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"sensor_catalog </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">: cannot be read: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+    <span class="k">if</span> <span class="n">problems</span> <span class="o">:=</span> <span class="n">_problems</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"sensor_catalog </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">: "</span> <span class="o">+</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">problems</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">data</span>
+
+
+<div class="viewcode-block" id="load">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.mooring.catalog.load">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return a catalog: ``{"models": {...}, "instruments": {...}}``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : str or pathlib.Path</span>
+<span class="sd">        The catalog file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        The parsed file, checked: every model lists ``with_pressure`` and</span>
+<span class="sd">        ``without_pressure``, and every instrument's ``model`` is a listed model.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    MooringError</span>
+<span class="sd">        When the file cannot be read or fails the checks.</span>
+<span class="sd">    """</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"sensor_catalog </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">: no such file"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_load</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()),</span> <span class="n">path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_serials</span><span class="p">(</span><span class="n">entry</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">file_serial</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the serials to look up: the entry's, then the file's (``12046.0`` → ``12046``)."""</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"serial"</span><span class="p">),</span> <span class="n">file_serial</span><span class="p">):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".0"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">text</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">text</span> <span class="ow">and</span> <span class="n">text</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">out</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<div class="viewcode-block" id="lookup">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.mooring.catalog.lookup">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">lookup</span><span class="p">(</span>
+    <span class="n">mooring_dict</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">entry</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">file_serial</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return what the mooring's catalog says of one instrument, or ``{}``.</span>
+
+<span class="sd">    The instrument is looked up by its entry's serial, then by the serial its</span>
+<span class="sd">    file states (an imported file's ``sensor_serial_number``), since a</span>
+<span class="sd">    mooring YAML may name an imported instrument by a label such as ``MC76``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring_dict : Mapping</span>
+<span class="sd">        The mooring YAML; its ``sensor_catalog`` is a path (made absolute</span>
+<span class="sd">        by :func:`oceanarray.mooring.load`).</span>
+<span class="sd">    entry : Mapping</span>
+<span class="sd">        The instrument's entry (``instrument``, ``serial``).</span>
+<span class="sd">    file_serial : object, optional</span>
+<span class="sd">        The serial the instrument's file states.</span>
+<span class="sd">    mooring : Mapping, optional</span>
+<span class="sd">        Deprecated name of *mooring_dict*; removed in 0.8.0.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        The instrument's catalog entry, with ``catalog_key``, ``catalog_file`` and,</span>
+<span class="sd">        when it names a model, that model's block under ``model_attrs``; ``{}``</span>
+<span class="sd">        when the mooring names no catalog or the catalog lacks the instrument.</span>
+<span class="sd">    """</span>
+    <span class="n">mooring_dict</span> <span class="o">=</span> <span class="n">_deprecated</span><span class="o">.</span><span class="n">resolve_keyword</span><span class="p">(</span>
+        <span class="s2">"oceanarray.mooring.catalog.lookup(mooring=)"</span><span class="p">,</span>
+        <span class="n">mooring_dict</span><span class="p">,</span>
+        <span class="n">mooring</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="s2">"mooring_dict"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">entry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"lookup() missing required argument: 'entry'"</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">mooring_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">KEY</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">serial</span> <span class="ow">in</span> <span class="n">_serials</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">file_serial</span><span class="p">):</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">key_for</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"instrument"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span> <span class="n">serial</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">"instruments"</span><span class="p">]:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"instruments"</span><span class="p">][</span><span class="n">key</span><span class="p">])</span>
+            <span class="n">found</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">catalog_key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">catalog_file</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">found</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"model"</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">found</span><span class="p">[</span><span class="s2">"model_attrs"</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"models"</span><span class="p">][</span><span class="n">found</span><span class="p">[</span><span class="s2">"model"</span><span class="p">]]</span>
+            <span class="k">return</span> <span class="n">found</span>
+    <span class="k">return</span> <span class="p">{}</span></div>
+
+
+
+<div class="viewcode-block" id="measured_pressure">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.mooring.catalog.measured_pressure">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">measured_pressure</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return whether an instrument measured pressure, and why that was decided.</span>
+
+<span class="sd">    It did when its file holds pressure values and, where the originator flagged</span>
+<span class="sd">    them, at least one is flagged good (1) or probably good (2), or none was</span>
+<span class="sd">    quality-controlled (all 0): pressure flagged only interpolated (8), bad or</span>
+<span class="sd">    missing was not measured by this instrument.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        The instrument's dataset at stage 1 (``pressure``, and</span>
+<span class="sd">        ``pressure_qc_originator`` for an imported file).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    measured : bool</span>
+<span class="sd">        Whether to describe the instrument by its "with pressure" model entry.</span>
+<span class="sd">    why : str</span>
+<span class="sd">        One phrase for the log.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s2">"pressure"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">"no pressure values"</span>
+    <span class="n">here</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">here</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">"no pressure values"</span>
+    <span class="k">if</span> <span class="s2">"pressure_qc_originator"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">"pressure values, not flagged"</span>
+    <span class="n">lut</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">num</span><span class="p">:</span> <span class="n">ours</span>
+        <span class="k">for</span> <span class="n">num</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">ours</span> <span class="ow">in</span> <span class="n">originator_flags</span><span class="o">.</span><span class="n">dictionary</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"pressure_qc_originator"</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">ours</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="p">}</span>
+    <span class="c1"># Only the samples with a value: a gap flagged 9 says nothing of the sensor.</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"pressure_qc_originator"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)[</span><span class="n">here</span><span class="p">]</span>
+    <span class="n">ours</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="k">lambda</span> <span class="n">n</span><span class="p">:</span> <span class="n">lut</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="mi">0</span><span class="p">),</span> <span class="n">otypes</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">])(</span><span class="n">raw</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">ours</span><span class="p">,</span> <span class="n">_GOOD</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">"pressure flagged good"</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">ours</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="c1"># Not quality-controlled is not the same as not measured.</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">"pressure values, not quality-controlled (flag 0)"</span>
+    <span class="n">seen</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">int</span><span class="p">((</span><span class="n">ours</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">ours</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+    <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"pressure values, but none flagged good (flags </span><span class="si">{</span><span class="n">seen</span><span class="si">}</span><span class="s2">)"</span></div>
+
+
+
+<div class="viewcode-block" id="record_attrs">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.mooring.catalog.record_attrs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">record_attrs</span><span class="p">(</span><span class="n">found</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">measured</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the record attributes a catalog entry gives.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    found : Mapping</span>
+<span class="sd">        From :func:`lookup`.</span>
+<span class="sd">    measured : bool</span>
+<span class="sd">        From :func:`measured_pressure`: choose the model's ``with_pressure`` or</span>
+<span class="sd">        ``without_pressure`` entry.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict of str to str</span>
+<span class="sd">        The model's attributes (:data:`MODEL_ATTRS`), ``sensor_model`` and</span>
+<span class="sd">        ``sensor_model_vocabulary``, ``long_name`` (the model's, else</span>
+<span class="sd">        ``sensor_model``), ``sensor_pumped`` when stated and</span>
+<span class="sd">        ``sensor_model_source`` (the entry's ``sources``); ``{}`` for an entry</span>
+<span class="sd">        with no model and no pumping.</span>
+<span class="sd">    """</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">found</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"model_attrs"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">model</span><span class="p">:</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">model</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">MODEL_ATTRS</span> <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">)})</span>
+        <span class="n">chosen</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="n">PRESSURE_KEYS</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">measured</span> <span class="k">else</span> <span class="n">PRESSURE_KEYS</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">"sensor_model"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">chosen</span><span class="p">[</span><span class="s2">"sensor_model"</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">chosen</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sensor_model_vocabulary"</span><span class="p">):</span>
+            <span class="n">out</span><span class="p">[</span><span class="s2">"sensor_model_vocabulary"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">chosen</span><span class="p">[</span><span class="s2">"sensor_model_vocabulary"</span><span class="p">])</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"long_name"</span><span class="p">,</span> <span class="n">out</span><span class="p">[</span><span class="s2">"sensor_model"</span><span class="p">])</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">"sensor_model_source"</span><span class="p">]</span> <span class="o">=</span> <span class="n">sources_text</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">found</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"pumped"</span><span class="p">),</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">"sensor_pumped"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">found</span><span class="p">[</span><span class="s2">"pumped"</span><span class="p">])</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<div class="viewcode-block" id="digest">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.mooring.catalog.digest">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">digest</span><span class="p">(</span>
+    <span class="n">mooring_dict</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the SHA-256 of what the mooring's catalog says of these instruments.</span>
+
+<span class="sd">    Only the entries that match the instruments' sensor records (by</span>
+<span class="sd">    ``sensor_serial_number`` or ``originator_sensor_serial_number``), with their</span>
+<span class="sd">    models, count: an edit to another instrument's entry, or a comment, changes</span>
+<span class="sd">    nothing here.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring_dict : Mapping</span>
+<span class="sd">        The mooring YAML (``sensor_catalog``).</span>
+<span class="sd">    records : list of Mapping</span>
+<span class="sd">        The attributes of each sensor record (``SENSOR_*``) of a stack.</span>
+<span class="sd">    mooring : Mapping, optional</span>
+<span class="sd">        Deprecated name of *mooring_dict*; removed in 0.8.0.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The hex digest, or ``""`` when the mooring names no catalog.</span>
+<span class="sd">    """</span>
+    <span class="n">mooring_dict</span> <span class="o">=</span> <span class="n">_deprecated</span><span class="o">.</span><span class="n">resolve_keyword</span><span class="p">(</span>
+        <span class="s2">"oceanarray.mooring.catalog.digest(mooring=)"</span><span class="p">,</span>
+        <span class="n">mooring_dict</span><span class="p">,</span>
+        <span class="n">mooring</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="s2">"mooring_dict"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">records</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"digest() missing required argument: 'records'"</span><span class="p">)</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="n">mooring_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">KEY</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">""</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">MooringError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"unreadable"</span>
+    <span class="n">found</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">attrs</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">serial</span> <span class="ow">in</span> <span class="n">_serials</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">"serial"</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sensor_serial_number"</span><span class="p">)},</span>
+            <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"originator_sensor_serial_number"</span><span class="p">),</span>
+        <span class="p">):</span>
+            <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="n">PREFIX</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">key</span> <span class="o">:=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">serial</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">"instruments"</span><span class="p">]:</span>
+                    <span class="n">entry</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"instruments"</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
+                    <span class="n">found</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="o">**</span><span class="n">entry</span><span class="p">,</span>
+                        <span class="s2">"model_attrs"</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s2">"models"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"model"</span><span class="p">),</span> <span class="p">{}),</span>
+                    <span class="p">}</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">found</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="sources_text">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.mooring.catalog.sources_text">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sources_text</span><span class="p">(</span><span class="n">found</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a catalog entry's ``sources`` as one line.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    found : Mapping</span>
+<span class="sd">        A catalog entry (from :func:`lookup`); its ``sources`` is a list of</span>
+<span class="sd">        ``{report, pdf_page, text}`` mappings or of strings.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        ``"report.pdf p.46: text; ..."``, or ``""`` when there are none.</span>
+<span class="sd">    """</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="n">found</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sources"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+            <span class="n">page</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">" p.</span><span class="si">{</span><span class="n">src</span><span class="p">[</span><span class="s1">'pdf_page'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"pdf_page"</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">""</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">": </span><span class="si">{</span><span class="n">src</span><span class="p">[</span><span class="s1">'text'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"text"</span><span class="p">)</span> <span class="k">else</span> <span class="s2">""</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">src</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'report'</span><span class="p">,</span><span class="w"> </span><span class="s1">''</span><span class="p">)</span><span class="si">}{</span><span class="n">page</span><span class="si">}{</span><span class="n">text</span><span class="si">}</span><span class="s2">"</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">elif</span> <span class="n">src</span><span class="p">:</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">src</span><span class="p">))</span>
+    <span class="k">return</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

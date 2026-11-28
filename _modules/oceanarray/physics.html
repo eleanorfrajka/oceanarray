@@ -1,0 +1,404 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.physics &mdash; oceanarray 0.6.0.post1.dev41 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=a96f5941"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.physics</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.physics</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Seawater and current formulas shared by the readers, the pipeline and the report pages.</span>
+
+<span class="sd">Imports nothing from oceanarray, so :mod:`oceanarray.readers`, :mod:`oceanarray.pipeline`</span>
+<span class="sd">(writing the products) and :mod:`oceanarray.analysis` (the figures) share one</span>
+<span class="sd">implementation.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="c1">#: Reference pressures (dbar) with a dedicated TEOS-10 function (``gsw.sigma0`` …</span>
+<span class="c1">#: ``gsw.sigma4``); any other reference goes through ``gsw.pot_rho_t_exact``.</span>
+<span class="n">SIGMA_REFERENCES_DBAR</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="flow_direction">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.physics.flow_direction">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">flow_direction</span><span class="p">(</span><span class="n">east</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">north</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the direction the water flows toward, in degrees clockwise from north.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    east, north : numpy.ndarray or xarray.DataArray</span>
+<span class="sd">        Eastward and northward velocity, of one shape and units.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray or xarray.DataArray</span>
+<span class="sd">        Of the type of *east*: in [0, 360), north 0 and east 90 (oceanographic</span>
+<span class="sd">        "toward", the opposite of the meteorological "from"); NaN where either</span>
+<span class="sd">        component is missing.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">east</span><span class="p">,</span> <span class="n">north</span><span class="p">)),</span> <span class="mf">360.0</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="speed_direction">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.physics.speed_direction">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">speed_direction</span><span class="p">(</span><span class="n">east</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">north</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return current speed and the direction the water flows toward.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    east, north : numpy.ndarray or xarray.DataArray</span>
+<span class="sd">        Eastward and northward velocity, of one shape and units.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    speed : numpy.ndarray or xarray.DataArray</span>
+<span class="sd">        ``hypot(east, north)``, in the units of the components.</span>
+<span class="sd">    direction : numpy.ndarray or xarray.DataArray</span>
+<span class="sd">        :func:`flow_direction` of the components.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">east</span><span class="p">,</span> <span class="n">north</span><span class="p">),</span> <span class="n">flow_direction</span><span class="p">(</span><span class="n">east</span><span class="p">,</span> <span class="n">north</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="tilt">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.physics.tilt">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">tilt</span><span class="p">(</span><span class="n">pitch</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">roll</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the angle of an instrument's axis from vertical, in degrees.</span>
+
+<span class="sd">    ``arccos(cos(pitch)·cos(roll))``: the geometric tilt, which is larger than</span>
+<span class="sd">    ``max(|pitch|, |roll|)`` whenever both are non-zero.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pitch, roll : numpy.ndarray</span>
+<span class="sd">        Pitch and roll in degrees, of one shape.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        Tilt in degrees; NaN where either angle is missing.</span>
+<span class="sd">    """</span>
+    <span class="n">cos_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">pitch</span><span class="p">))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">roll</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">cos_t</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)))</span></div>
+
+
+
+<div class="viewcode-block" id="instrument_tilt">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.physics.instrument_tilt">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">instrument_tilt</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the geometric tilt of an instrument dataset, in degrees.</span>
+
+<span class="sd">    :func:`tilt` of the dataset's pitch and roll (a missing one counts as 0). An RDI</span>
+<span class="sd">    ADCP (``file_type == "rdi-raw"`` or a ``firmware_coordinate_system`` attr) records</span>
+<span class="sd">    pitch as the raw tilt-1 reading; its true pitch is ``arctan(tan(tilt1)·cos(roll))``</span>
+<span class="sd">    (RDI ADCP Coordinate Transformation manual), used here in place of the recorded pitch.</span>
+<span class="sd">    Other instruments' pitch is used as recorded.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        With ``pitch`` and/or ``roll`` (degrees) on ``time``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray or None</span>
+<span class="sd">        Tilt on ``time``; None when both pitch and roll are absent.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s2">"pitch"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span> <span class="ow">and</span> <span class="s2">"roll"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">zeros</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"time"</span><span class="p">])</span>
+    <span class="n">pitch</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"pitch"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="k">if</span> <span class="s2">"pitch"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span> <span class="k">else</span> <span class="n">zeros</span>
+    <span class="n">roll</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"roll"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="k">if</span> <span class="s2">"roll"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span> <span class="k">else</span> <span class="n">zeros</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"file_type"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"rdi-raw"</span>
+        <span class="ow">or</span> <span class="s2">"firmware_coordinate_system"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span>
+    <span class="p">):</span>
+        <span class="n">pitch</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">pitch</span><span class="p">))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">roll</span><span class="p">)))</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">tilt</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="n">roll</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="sigma_function">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.physics.sigma_function">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sigma_function</span><span class="p">(</span><span class="n">reference_dbar</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the TEOS-10 potential-density function for *reference_dbar*.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    reference_dbar : int</span>
+<span class="sd">        Reference pressure in dbar.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    callable or None</span>
+<span class="sd">        ``gsw.sigma0`` … ``gsw.sigma4`` for a reference in</span>
+<span class="sd">        :data:`SIGMA_REFERENCES_DBAR`, taking ``(SA, CT)``; None for any other</span>
+<span class="sd">        reference.</span>
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">gsw</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="mi">0</span><span class="p">:</span> <span class="n">gsw</span><span class="o">.</span><span class="n">sigma0</span><span class="p">,</span>
+        <span class="mi">1000</span><span class="p">:</span> <span class="n">gsw</span><span class="o">.</span><span class="n">sigma1</span><span class="p">,</span>
+        <span class="mi">2000</span><span class="p">:</span> <span class="n">gsw</span><span class="o">.</span><span class="n">sigma2</span><span class="p">,</span>
+        <span class="mi">3000</span><span class="p">:</span> <span class="n">gsw</span><span class="o">.</span><span class="n">sigma3</span><span class="p">,</span>
+        <span class="mi">4000</span><span class="p">:</span> <span class="n">gsw</span><span class="o">.</span><span class="n">sigma4</span><span class="p">,</span>
+    <span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">reference_dbar</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="potential_density_anomaly">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.physics.potential_density_anomaly">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">potential_density_anomaly</span><span class="p">(</span>
+    <span class="n">absolute_salinity</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">conservative_temperature</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">reference_dbar</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">temperature</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">pressure</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the potential density anomaly σ (kg m⁻³) at *reference_dbar*.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    absolute_salinity : numpy.ndarray</span>
+<span class="sd">        Absolute Salinity SA (g kg⁻¹).</span>
+<span class="sd">    conservative_temperature : numpy.ndarray</span>
+<span class="sd">        Conservative Temperature CT (°C), of the shape of *absolute_salinity*.</span>
+<span class="sd">    reference_dbar : int</span>
+<span class="sd">        Reference pressure (dbar).</span>
+<span class="sd">    temperature, pressure : numpy.ndarray or None, optional</span>
+<span class="sd">        In-situ temperature (°C) and sea pressure (dbar).  Needed only for a</span>
+<span class="sd">        reference outside :data:`SIGMA_REFERENCES_DBAR`, which is computed as</span>
+<span class="sd">        ``gsw.pot_rho_t_exact(SA, t, p, reference) − 1000``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        σ of the shape of the inputs.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        For a reference outside :data:`SIGMA_REFERENCES_DBAR` without</span>
+<span class="sd">        *temperature* and *pressure*.</span>
+<span class="sd">    """</span>
+    <span class="n">fn</span> <span class="o">=</span> <span class="n">sigma_function</span><span class="p">(</span><span class="n">reference_dbar</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">fn</span><span class="p">(</span><span class="n">absolute_salinity</span><span class="p">,</span> <span class="n">conservative_temperature</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">temperature</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">pressure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"a </span><span class="si">{</span><span class="n">reference_dbar</span><span class="si">}</span><span class="s2"> dbar reference needs in-situ temperature and pressure"</span>
+        <span class="p">)</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">gsw</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">gsw</span><span class="o">.</span><span class="n">pot_rho_t_exact</span><span class="p">(</span><span class="n">absolute_salinity</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">pressure</span><span class="p">,</span> <span class="n">reference_dbar</span><span class="p">)</span>
+        <span class="o">-</span> <span class="mf">1000.0</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="pressure_from_depth">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.physics.pressure_from_depth">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pressure_from_depth</span><span class="p">(</span><span class="n">depth_m</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return sea pressure (dbar) at a depth below the surface, by TEOS-10.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    depth_m : float or numpy.ndarray</span>
+<span class="sd">        Depth below the sea surface (m, positive down).</span>
+<span class="sd">    latitude : float</span>
+<span class="sd">        Latitude (decimal degrees).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float or numpy.ndarray</span>
+<span class="sd">        ``gsw.p_from_z(-depth_m, latitude)`` (dbar); 1–1.5 % more than the depth in m.</span>
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">gsw</span>
+
+    <span class="n">p</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">p_from_z</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">depth_m</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">latitude</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">p</span></div>
+
+
+
+<div class="viewcode-block" id="depth_from_pressure">
+<a class="viewcode-back" href="../../oceanarray.html#oceanarray.physics.depth_from_pressure">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">depth_from_pressure</span><span class="p">(</span><span class="n">pressure_dbar</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return depth below the surface (m, positive down) at a sea pressure (dbar), by TEOS-10.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pressure_dbar : float or numpy.ndarray</span>
+<span class="sd">        Sea pressure (dbar).</span>
+<span class="sd">    latitude : float</span>
+<span class="sd">        Latitude (decimal degrees).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float or numpy.ndarray</span>
+<span class="sd">        Depth (m, positive down).</span>
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">gsw</span>
+
+    <span class="n">z</span> <span class="o">=</span> <span class="o">-</span><span class="n">gsw</span><span class="o">.</span><span class="n">z_from_p</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pressure_dbar</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">latitude</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">z</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

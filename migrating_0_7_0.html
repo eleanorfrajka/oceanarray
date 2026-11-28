@@ -1,0 +1,626 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upgrading from 0.6.1 to 0.7.0 &mdash; oceanarray 0.6.0.post1.dev41 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=a96f5941"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Upgrading from 0.6.0 to 0.6.1" href="migrating_0_6_1.html" />
+    <link rel="prev" title="oceanarray API reference" href="oceanarray.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            oceanarray
+              <img src="_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">From 0.6.1 to 0.7.0</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#stage-files-carry-clock-offset-only-when-applied">Stage files carry <code class="docutils literal notranslate"><span class="pre">clock_offset</span></code> only when applied</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-clock-tools-moved-to-analysis">The clock tools moved to <code class="docutils literal notranslate"><span class="pre">analysis</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#depth-and-pressure-conversion-moved-out-of-pipeline-pressure">Depth and pressure conversion moved out of <code class="docutils literal notranslate"><span class="pre">pipeline.pressure</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-mooring-yaml-modules-moved-into-oceanarray-mooring">The mooring YAML modules moved into <code class="docutils literal notranslate"><span class="pre">oceanarray.mooring</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#names-moved-without-an-old-path">Names moved without an old path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#figure-helpers-masked-and-ruled">Figure helpers <code class="docutils literal notranslate"><span class="pre">masked</span></code> and <code class="docutils literal notranslate"><span class="pre">ruled</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#keywords-that-say-what-they-carry">Keywords that say what they carry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mooring-yamls-in-their-own-folder">Mooring YAMLs in their own folder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-verbs-take-mooring-path-and-paths">The verbs take <code class="docutils literal notranslate"><span class="pre">mooring_path</span></code> and <code class="docutils literal notranslate"><span class="pre">paths</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-paths-functions-take-mooring-name">The <code class="docutils literal notranslate"><span class="pre">paths</span></code> functions take <code class="docutils literal notranslate"><span class="pre">mooring_name</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#one-base-for-the-package-s-errors">One base for the package’s errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-warnings-are-log-records">Data warnings are log records</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-missing-folder-or-mooring-yaml-raises">A missing folder or mooring YAML raises</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#no-pitch-or-roll-flags">No pitch or roll flags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#grid-levels-are-pmin-dbar-and-pmax-dbar">Grid levels are <code class="docutils literal notranslate"><span class="pre">pmin_dbar</span></code> and <code class="docutils literal notranslate"><span class="pre">pmax_dbar</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Upgrading from 0.6.1 to 0.7.0</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/migrating_0_7_0.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="upgrading-from-0-6-1-to-0-7-0">
+<span id="migrating-0-7-0"></span><h1>Upgrading from 0.6.1 to 0.7.0<a class="headerlink" href="#upgrading-from-0-6-1-to-0-7-0" title="Link to this heading"></a></h1>
+<section id="stage-files-carry-clock-offset-only-when-applied">
+<h2>Stage files carry <code class="docutils literal notranslate"><span class="pre">clock_offset</span></code> only when applied<a class="headerlink" href="#stage-files-carry-clock-offset-only-when-applied" title="Link to this heading"></a></h2>
+<p>Stage 1 no longer writes a <code class="docutils literal notranslate"><span class="pre">clock_offset</span></code> of 0 (it applies no clock correction),
+and stage 2 writes the <code class="docutils literal notranslate"><span class="pre">clock_offset</span></code> variable only when it applies a non-zero
+offset. A file with no offset therefore has no <code class="docutils literal notranslate"><span class="pre">clock_offset</span></code> variable: read it
+with <code class="docutils literal notranslate"><span class="pre">ds.get(&quot;clock_offset&quot;,</span> <span class="pre">0)</span></code> (an absent variable means no offset), not
+<code class="docutils literal notranslate"><span class="pre">ds[&quot;clock_offset&quot;]</span></code>. Rerun stage 2 to update existing files.</p>
+</section>
+<section id="the-clock-tools-moved-to-analysis">
+<h2>The clock tools moved to <code class="docutils literal notranslate"><span class="pre">analysis</span></code><a class="headerlink" href="#the-clock-tools-moved-to-analysis" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.clock</span></code> (<code class="docutils literal notranslate"><span class="pre">offsets</span></code>, <code class="docutils literal notranslate"><span class="pre">deployment</span></code>) is now
+<code class="docutils literal notranslate"><span class="pre">oceanarray.analysis.clock</span></code>, unchanged. The old path still imports, with a
+<code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code>, until 0.8.0; change <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">oceanarray.pipeline.clock</span> <span class="pre">import</span> <span class="pre">…</span></code>
+to <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">oceanarray.analysis.clock</span> <span class="pre">import</span> <span class="pre">…</span></code>.</p>
+</section>
+<section id="depth-and-pressure-conversion-moved-out-of-pipeline-pressure">
+<h2>Depth and pressure conversion moved out of <code class="docutils literal notranslate"><span class="pre">pipeline.pressure</span></code><a class="headerlink" href="#depth-and-pressure-conversion-moved-out-of-pipeline-pressure" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">pressure_from_depth</span></code> and <code class="docutils literal notranslate"><span class="pre">depth_from_pressure</span></code> are now in <code class="docutils literal notranslate"><span class="pre">oceanarray.physics</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">ORIGINATOR_BIN_PRESSURE_ATTRS</span></code> and <code class="docutils literal notranslate"><span class="pre">originator_bin_geometry</span></code> in
+<code class="docutils literal notranslate"><span class="pre">oceanarray.readers.adcp_geometry</span></code>, unchanged. Importing them from
+<code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.pressure</span></code> still works, with a <code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code>, until
+0.8.0; change <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">oceanarray.pipeline.pressure</span> <span class="pre">import</span> <span class="pre">pressure_from_depth</span></code> to
+<code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">oceanarray.physics</span> <span class="pre">import</span> <span class="pre">pressure_from_depth</span></code>.</p>
+</section>
+<section id="the-mooring-yaml-modules-moved-into-oceanarray-mooring">
+<h2>The mooring YAML modules moved into <code class="docutils literal notranslate"><span class="pre">oceanarray.mooring</span></code><a class="headerlink" href="#the-mooring-yaml-modules-moved-into-oceanarray-mooring" title="Link to this heading"></a></h2>
+<p>Everything about the mooring YAML is now in the <code class="docutils literal notranslate"><span class="pre">oceanarray.mooring</span></code> package,
+unchanged. <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">oceanarray</span> <span class="pre">import</span> <span class="pre">mooring</span></code> and <code class="docutils literal notranslate"><span class="pre">oceanarray.mooring.load</span></code>,
+<code class="docutils literal notranslate"><span class="pre">check</span></code>, <code class="docutils literal notranslate"><span class="pre">template</span></code>, <code class="docutils literal notranslate"><span class="pre">save</span></code> and the other names work as before.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Old path</p></th>
+<th class="head"><p>New path</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.instruments</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.mooring.instruments</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.location</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.mooring.location</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.config.validation</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.mooring.validation</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.catalog</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.mooring.catalog</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>The first three old paths still import, with a <code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code> naming the
+new one, until 0.8.0; change <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">oceanarray.instruments</span> <span class="pre">import</span> <span class="pre">instrument_entries</span></code>
+to <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">oceanarray.mooring.instruments</span> <span class="pre">import</span> <span class="pre">instrument_entries</span></code>.
+<code class="docutils literal notranslate"><span class="pre">oceanarray.catalog</span></code> moved without an old path: import it as
+<code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">oceanarray.mooring</span> <span class="pre">import</span> <span class="pre">catalog</span></code>.</p>
+</section>
+<section id="names-moved-without-an-old-path">
+<h2>Names moved without an old path<a class="headerlink" href="#names-moved-without-an-old-path" title="Link to this heading"></a></h2>
+<p>These names moved, unchanged, and no longer import from their old module; change
+the import, e.g. <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">oceanarray.pipeline.masking</span> <span class="pre">import</span> <span class="pre">stack_rule</span></code> to
+<code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">oceanarray.mask_rules</span> <span class="pre">import</span> <span class="pre">stack_rule</span></code>.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 60.0%" />
+<col style="width: 40.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Old path</p></th>
+<th class="head"><p>New path</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.masking</span></code>: <code class="docutils literal notranslate"><span class="pre">resolve_mask_flags</span></code>, <code class="docutils literal notranslate"><span class="pre">stack_rule</span></code>,
+<code class="docutils literal notranslate"><span class="pre">combine</span></code>, <code class="docutils literal notranslate"><span class="pre">union</span></code>, <code class="docutils literal notranslate"><span class="pre">to_json</span></code>, <code class="docutils literal notranslate"><span class="pre">rule_words</span></code>, <code class="docutils literal notranslate"><span class="pre">Rule</span></code>,
+<code class="docutils literal notranslate"><span class="pre">STACK_ATTR</span></code>, <code class="docutils literal notranslate"><span class="pre">FLAGGED_VARIABLES</span></code>, <code class="docutils literal notranslate"><span class="pre">FLAG_SOURCES</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.mask_rules</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.attribution</span></code>: <code class="docutils literal notranslate"><span class="pre">check_people_block</span></code>,
+<code class="docutils literal notranslate"><span class="pre">check_source_block</span></code>, <code class="docutils literal notranslate"><span class="pre">PEOPLE_BLOCK_KEYS</span></code>, <code class="docutils literal notranslate"><span class="pre">SOURCE_BLOCK_KEYS</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.mooring.blocks</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.qc.originator</span></code>: <code class="docutils literal notranslate"><span class="pre">vocabulary</span></code>, <code class="docutils literal notranslate"><span class="pre">OURS_ONLY</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.originator_flags</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.provenance.changed_attr</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.writers.dtypes.changed_attr</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p><code class="docutils literal notranslate"><span class="pre">rule_words</span></code> also takes a new keyword-only <code class="docutils literal notranslate"><span class="pre">table=</span></code> (default <code class="docutils literal notranslate"><span class="pre">False</span></code>, the
+old text).</p>
+</section>
+<section id="figure-helpers-masked-and-ruled">
+<h2>Figure helpers <code class="docutils literal notranslate"><span class="pre">masked</span></code> and <code class="docutils literal notranslate"><span class="pre">ruled</span></code><a class="headerlink" href="#figure-helpers-masked-and-ruled" title="Link to this heading"></a></h2>
+<p>The two figure helpers still work, with a <code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code>, until 0.8.0.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Old name</p></th>
+<th class="head"><p>Use instead</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.plotters.helpers.masked</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.masking.masked</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.plotters.helpers.ruled</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.mask_rules.STACK_ATTR</span> <span class="pre">in</span> <span class="pre">ds.attrs</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p><code class="docutils literal notranslate"><span class="pre">masked(ds,</span> <span class="pre">var)</span></code> now gives what <code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.masking.masked</span></code> gives,
+as the figures do: a file that records no <code class="docutils literal notranslate"><span class="pre">mask_flags</span></code> rule (an instrument file,
+a grid) hides values by the default rule (flag 4) in <code class="docutils literal notranslate"><span class="pre">&lt;var&gt;_qc</span></code> and in the
+originator’s mapped flag, no longer by flags 3, 4 and 9 in <code class="docutils literal notranslate"><span class="pre">&lt;var&gt;_qc</span></code>. A stack
+or Stack cat with a recorded rule gives the same values as before.</p>
+</section>
+<section id="keywords-that-say-what-they-carry">
+<h2>Keywords that say what they carry<a class="headerlink" href="#keywords-that-say-what-they-carry" title="Link to this heading"></a></h2>
+<p>A keyword that takes the loaded mooring YAML (a dict) is now <code class="docutils literal notranslate"><span class="pre">mooring_dict=</span></code>
+(<code class="docutils literal notranslate"><span class="pre">mooring_dicts=</span></code> for several), one that takes the path of a <code class="docutils literal notranslate"><span class="pre">*.mooring.yaml</span></code>
+file is <code class="docutils literal notranslate"><span class="pre">mooring_path=</span></code> (<code class="docutils literal notranslate"><span class="pre">mooring_paths=</span></code> for several), one that takes either a
+path or a dict is <code class="docutils literal notranslate"><span class="pre">mooring=</span></code>, and one that takes the loaded array YAML is
+<code class="docutils literal notranslate"><span class="pre">array_dict=</span></code>. A call that gives the argument by position is unchanged. The old
+keyword still works, with a <code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code> naming the new one, until
+0.8.0; change <code class="docutils literal notranslate"><span class="pre">resolve_spectrum_markers(description=d)</span></code> to
+<code class="docutils literal notranslate"><span class="pre">resolve_spectrum_markers(mooring_dict=d)</span></code> or <code class="docutils literal notranslate"><span class="pre">resolve_spectrum_markers(d)</span></code>.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 70.0%" />
+<col style="width: 30.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Old keyword</p></th>
+<th class="head"><p>New keyword</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.mooring.resolve_report_sections(description=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mooring_dict=</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.mooring.resolve_spectrum_markers(description=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mooring_dict=</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.mooring.settings_yaml(cfg=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mooring_dict=</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.mooring.serial_collision_errors(mooring_config=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mooring=</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.mooring.location.parse_latlon(cfg=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mooring_dict=</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.mooring.location.parse_latlon_with_source(cfg=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mooring_dict=</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.read_mooring.header_attrs(cfg=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mooring_dict=</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.stack.mooring_attrs(mooring_config=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mooring_dict=</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.concat.concat(descriptions=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mooring_dicts=</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.concat.concat_moorings(descriptions=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mooring_paths=</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.qc.load_qc_config(mooring_cfg=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mooring_dict=</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.reports.MooringReport.generate(cfg=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mooring_dict=</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.reports.MooringReport.generate(yaml_path=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mooring_path=</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.oceansites.to_oceansites(array=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">array_dict=</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.stage1(mooring=)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">oceanarray.stage2(mooring=)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">oceanarray.stage3(mooring=)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">oceanarray.stack(mooring=)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.stack.stack_stale_reason(mooring=)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.stack.people_source_sha256(mooring=)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">oceanarray.mask_rules.stack_rule(mooring=)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">oceanarray.mooring.catalog.lookup(mooring=)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">oceanarray.mooring.catalog.digest(mooring=)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">oceanarray.mooring.instruments.instrument_entries(mooring=)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">oceanarray.mooring.save(mooring=)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.oceansites.to_oceansites(mooring=)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.oceansites.deployment_code(mooring=)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.oceansites.platform_code(mooring=)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.raw_files.resolve_raw_file(mooring=)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.read_mooring.join_raw(mooring=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mooring_dict=</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="mooring-yamls-in-their-own-folder">
+<h2>Mooring YAMLs in their own folder<a class="headerlink" href="#mooring-yamls-in-their-own-folder" title="Link to this heading"></a></h2>
+<p>New in 0.7.0: a paths file, <code class="docutils literal notranslate"><span class="pre">paths.yaml</span></code>, says where a project’s folders are
+(<a class="reference internal" href="configuration_files.html#paths-file"><span class="std std-ref">Where the folders are: paths.yaml</span></a>), and the mooring YAMLs live in its <code class="docutils literal notranslate"><span class="pre">yaml_dir</span></code>, apart from the
+processed files. <code class="docutils literal notranslate"><span class="pre">oceanarray.Paths.mooring_path</span></code> and <code class="docutils literal notranslate"><span class="pre">mooring_paths</span></code> still find a
+mooring YAML in the processed-data folder, as in the standard structure until now,
+with a <code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code>, until 0.8.0; move each YAML to its <code class="docutils literal notranslate"><span class="pre">yaml_dir</span></code>.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Old location</p></th>
+<th class="head"><p>New location</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">mooring</span> <span class="pre">YAML</span> <span class="pre">inside</span> <span class="pre">proc_dir/&lt;mooring_name&gt;/</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&lt;yaml_dir&gt;/&lt;mooring_name&gt;.mooring.yaml</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="the-verbs-take-mooring-path-and-paths">
+<h2>The verbs take <code class="docutils literal notranslate"><span class="pre">mooring_path</span></code> and <code class="docutils literal notranslate"><span class="pre">paths</span></code><a class="headerlink" href="#the-verbs-take-mooring-path-and-paths" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">run</span></code>, <code class="docutils literal notranslate"><span class="pre">process</span></code>, <code class="docutils literal notranslate"><span class="pre">report</span></code> and <code class="docutils literal notranslate"><span class="pre">export</span></code> take the mooring YAML’s path and an
+<code class="docutils literal notranslate"><span class="pre">oceanarray.Paths</span></code> (<a class="reference internal" href="configuration_files.html#paths-file"><span class="std std-ref">Where the folders are: paths.yaml</span></a>), and nothing else about where files are;
+<code class="docutils literal notranslate"><span class="pre">oceanarray.mooring.load</span></code> and <code class="docutils literal notranslate"><span class="pre">check</span></code> take the YAML’s path. Every folder comes
+from <code class="docutils literal notranslate"><span class="pre">paths</span></code>: the stage, stack and grid files from <code class="docutils literal notranslate"><span class="pre">paths.mooring_dir(name)</span></code>,
+the raw files from <code class="docutils literal notranslate"><span class="pre">paths.raw_mooring_dir(name)</span></code>, the pages (and the PDF, beside
+them) from <code class="docutils literal notranslate"><span class="pre">paths.report_mooring_dir(name)</span></code>, the OceanSITES files from
+<code class="docutils literal notranslate"><span class="pre">paths.export_dir</span></code>. A mooring whose folder is not <code class="docutils literal notranslate"><span class="pre">&lt;dir&gt;/&lt;mooring_name&gt;</span></code> gets it
+from <code class="docutils literal notranslate"><span class="pre">paths.with_mooring</span></code>. Change</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">oa</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">"proc/M2_2016/M2_2016.mooring.yaml"</span><span class="p">,</span> <span class="n">raw_dir</span><span class="o">=</span><span class="s2">"raw"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>to</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">paths</span> <span class="o">=</span> <span class="n">oa</span><span class="o">.</span><span class="n">Paths</span><span class="p">(</span><span class="n">raw_dir</span><span class="o">=</span><span class="s2">"raw"</span><span class="p">,</span> <span class="n">proc_dir</span><span class="o">=</span><span class="s2">"proc"</span><span class="p">)</span>
+<span class="n">oa</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">"proc/M2_2016/M2_2016.mooring.yaml"</span><span class="p">,</span> <span class="n">paths</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The old forms still work, with one <code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code> naming the new call, until
+0.8.0, and write the same files to the same folders as before: a verb called without
+<code class="docutils literal notranslate"><span class="pre">paths</span></code> works in the folder holding the YAML (<code class="docutils literal notranslate"><span class="pre">mooring_dir=</span></code>, the mooring’s own
+folder, overrides it), its raw files in <code class="docutils literal notranslate"><span class="pre">&lt;raw_dir&gt;/&lt;that</span> <span class="pre">folder's</span> <span class="pre">name&gt;</span></code>, its
+pages in <code class="docutils literal notranslate"><span class="pre">&lt;folder&gt;/report</span></code> (the recovery table in the folder itself), its
+OceanSITES files in <code class="docutils literal notranslate"><span class="pre">&lt;folder&gt;/oceansites</span></code>. A mooring folder or a loaded mooring
+YAML (a dict) given in place of the path, and the first argument given as
+<code class="docutils literal notranslate"><span class="pre">mooring=</span></code>, warn the same way. The command line is unchanged.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 45.0%" />
+<col style="width: 55.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Old form</p></th>
+<th class="head"><p>Use instead</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">verb</span> <span class="pre">called</span> <span class="pre">without</span> <span class="pre">paths</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">an</span> <span class="pre">oceanarray.Paths</span> <span class="pre">as</span> <span class="pre">the</span> <span class="pre">second</span> <span class="pre">argument,</span> <span class="pre">e.g.</span> <span class="pre">oceanarray.run(mooring_path,</span> <span class="pre">paths)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">mooring</span> <span class="pre">folder</span> <span class="pre">in</span> <span class="pre">place</span> <span class="pre">of</span> <span class="pre">a</span> <span class="pre">verb's</span> <span class="pre">mooring_path</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">the</span> <span class="pre">folder's</span> <span class="pre">&lt;mooring_name&gt;.mooring.yaml</span> <span class="pre">as</span> <span class="pre">mooring_path</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">mooring</span> <span class="pre">dict</span> <span class="pre">in</span> <span class="pre">place</span> <span class="pre">of</span> <span class="pre">a</span> <span class="pre">mooring_path</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">the</span> <span class="pre">mooring</span> <span class="pre">YAML's</span> <span class="pre">path</span> <span class="pre">as</span> <span class="pre">mooring_path</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.process(mooring=)</span></code>, <code class="docutils literal notranslate"><span class="pre">oceanarray.run(mooring=)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">oceanarray.export(mooring=)</span></code>, <code class="docutils literal notranslate"><span class="pre">oceanarray.mooring.load(mooring=)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">oceanarray.mooring.check(mooring=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mooring_path=</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.report(mooring=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">the</span> <span class="pre">mooring_path=</span> <span class="pre">keyword,</span> <span class="pre">or</span> <span class="pre">array_path=</span> <span class="pre">for</span> <span class="pre">kind='array'</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.process(mooring_dir=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">paths.with_mooring(mooring_name,</span> <span class="pre">proc_dir=...)</span> <span class="pre">in</span> <span class="pre">oceanarray.process(mooring_path,</span> <span class="pre">paths)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.process(raw_dir=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.Paths(raw_dir=...)</span> <span class="pre">in</span> <span class="pre">oceanarray.process(mooring_path,</span> <span class="pre">paths)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.process(caldip_dir=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.Paths(caldip_dir=...)</span> <span class="pre">in</span> <span class="pre">oceanarray.process(mooring_path,</span> <span class="pre">paths)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.run(mooring_dir=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">paths.with_mooring(mooring_name,</span> <span class="pre">proc_dir=...)</span> <span class="pre">in</span> <span class="pre">oceanarray.run(mooring_path,</span> <span class="pre">paths)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.run(raw_dir=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.Paths(raw_dir=...)</span> <span class="pre">in</span> <span class="pre">oceanarray.run(mooring_path,</span> <span class="pre">paths)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.run(caldip_dir=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.Paths(caldip_dir=...)</span> <span class="pre">in</span> <span class="pre">oceanarray.run(mooring_path,</span> <span class="pre">paths)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.report(mooring_dir=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">paths.with_mooring(mooring_name,</span> <span class="pre">proc_dir=...)</span> <span class="pre">in</span> <span class="pre">oceanarray.report(mooring_path,</span> <span class="pre">paths)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.report(proc_dir=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.Paths(proc_dir=...)</span> <span class="pre">in</span> <span class="pre">oceanarray.report(array_path,</span> <span class="pre">paths,</span> <span class="pre">kind='array')</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.report(raw_dir=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.Paths(raw_dir=...)</span> <span class="pre">in</span> <span class="pre">oceanarray.report(mooring_path,</span> <span class="pre">paths)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.report(out_dir=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">paths.with_mooring(mooring_name,</span> <span class="pre">report_dir=...)</span> <span class="pre">in</span> <span class="pre">oceanarray.report(mooring_path,</span> <span class="pre">paths)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.report(report_dir=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.Paths(report_dir=...)</span> <span class="pre">in</span> <span class="pre">oceanarray.report(mooring_path,</span> <span class="pre">paths)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.report(pdf_dir=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.report(mooring_path,</span> <span class="pre">paths,</span> <span class="pre">pdf=True),</span> <span class="pre">which</span> <span class="pre">writes</span> <span class="pre">the</span> <span class="pre">PDF</span> <span class="pre">beside</span> <span class="pre">the</span> <span class="pre">pages</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.export(mooring_dir=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">paths.with_mooring(mooring_name,</span> <span class="pre">proc_dir=...)</span> <span class="pre">in</span> <span class="pre">oceanarray.export(mooring_path,</span> <span class="pre">paths)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.export(out_dir=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.Paths(export_dir=...)</span> <span class="pre">in</span> <span class="pre">oceanarray.export(mooring_path,</span> <span class="pre">paths)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.export(array=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">array_path=</span> <span class="pre">(a</span> <span class="pre">path);</span> <span class="pre">for</span> <span class="pre">a</span> <span class="pre">parsed</span> <span class="pre">mapping,</span> <span class="pre">oceanarray.pipeline.oceansites.to_oceansites(array_dict=)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.mooring.load(proc_dir=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.mooring.load(paths.mooring_path(mooring_name))</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="the-paths-functions-take-mooring-name">
+<h2>The <code class="docutils literal notranslate"><span class="pre">paths</span></code> functions take <code class="docutils literal notranslate"><span class="pre">mooring_name</span></code><a class="headerlink" href="#the-paths-functions-take-mooring-name" title="Link to this heading"></a></h2>
+<p>A mooring’s folders come from an <code class="docutils literal notranslate"><span class="pre">oceanarray.Paths</span></code>; the module functions that
+built them still work, with a <code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code>, until 0.8.0. The file-name
+functions keep their first argument (the folder, or for <code class="docutils literal notranslate"><span class="pre">stage_output_name</span></code> the
+mooring’s name) and take the rest by keyword, the name as <code class="docutils literal notranslate"><span class="pre">mooring_name=</span></code>;
+change <code class="docutils literal notranslate"><span class="pre">stage_file(folder,</span> <span class="pre">name,</span> <span class="pre">&quot;microcat&quot;,</span> <span class="pre">serial,</span> <span class="pre">3)</span></code> to
+<code class="docutils literal notranslate"><span class="pre">stage_file(folder,</span> <span class="pre">mooring_name=name,</span> <span class="pre">instrument=&quot;microcat&quot;,</span> <span class="pre">serial=serial,</span> <span class="pre">stage=3)</span></code>.
+The old order and the old keyword still work, with one <code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code>,
+until 0.8.0.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 45.0%" />
+<col style="width: 55.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Old form</p></th>
+<th class="head"><p>Use instead</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.paths.mooring_proc_dir</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.Paths(proc_dir=...).mooring_dir(mooring_name)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.paths.raw_mooring_dir</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.Paths(raw_dir=...).raw_mooring_dir(mooring_name)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.paths.resolve_report_dir</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.Paths(report_dir=...).report_mooring_dir(mooring_name)</span></code>
+(<code class="docutils literal notranslate"><span class="pre">report_dir/&lt;mooring_name&gt;</span></code>), or
+<code class="docutils literal notranslate"><span class="pre">paths.with_mooring(mooring_name,</span> <span class="pre">report_dir=folder)</span></code> for an exact folder
+such as <code class="docutils literal notranslate"><span class="pre">&lt;mooring_dir&gt;/report</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.paths.resolve_pdf_path</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">paths.report_mooring_dir(mooring_name),</span> <span class="pre">where</span> <span class="pre">oceanarray.report(mooring_path,</span> <span class="pre">paths,</span> <span class="pre">pdf=True)</span> <span class="pre">writes</span> <span class="pre">&lt;mooring_name&gt;_report.pdf</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.paths.stage_file(positional</span> <span class="pre">arguments)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">keyword</span> <span class="pre">arguments:</span> <span class="pre">mooring_name=,</span> <span class="pre">instrument=,</span> <span class="pre">serial=,</span> <span class="pre">stage=</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.paths.product_file(positional</span> <span class="pre">arguments)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">keyword</span> <span class="pre">arguments:</span> <span class="pre">mooring_name=,</span> <span class="pre">product=</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.paths.stage_output_name(positional</span> <span class="pre">arguments)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">keyword</span> <span class="pre">arguments:</span> <span class="pre">serial=,</span> <span class="pre">stage=,</span> <span class="pre">tag=</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.paths.stage_file(name=)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">oceanarray.paths.product_file(name=)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">oceanarray.paths.stage_output_name(mooring=)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">oceanarray.paths.require_current_layout(mooring=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mooring_name=</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.paths.require_current_layout(proc_root=)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">proc_dir=</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="one-base-for-the-package-s-errors">
+<h2>One base for the package’s errors<a class="headerlink" href="#one-base-for-the-package-s-errors" title="Link to this heading"></a></h2>
+<p>Every error oceanarray raises now derives from <code class="docutils literal notranslate"><span class="pre">OceanarrayError</span></code>
+(<code class="docutils literal notranslate"><span class="pre">MooringError</span></code>, <code class="docutils literal notranslate"><span class="pre">ReaderError</span></code>, <code class="docutils literal notranslate"><span class="pre">StageError</span></code>, <code class="docutils literal notranslate"><span class="pre">UnitsError</span></code>, <code class="docutils literal notranslate"><span class="pre">OceanSitesError</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CaldipError</span></code>, <code class="docutils literal notranslate"><span class="pre">LegacyLayoutError</span></code>); each keeps its built-in base, so <code class="docutils literal notranslate"><span class="pre">except</span> <span class="pre">ValueError</span></code>
+still works. A file a reader cannot read raises <code class="docutils literal notranslate"><span class="pre">ReaderError</span></code>, and a problem in the
+mooring YAML found while processing raises <code class="docutils literal notranslate"><span class="pre">MooringError</span></code>; both were a plain
+<code class="docutils literal notranslate"><span class="pre">ValueError</span></code>. <code class="docutils literal notranslate"><span class="pre">StageError</span></code> is no longer a <code class="docutils literal notranslate"><span class="pre">MooringError</span></code>: code that caught a
+wrong-stage file with <code class="docutils literal notranslate"><span class="pre">except</span> <span class="pre">MooringError</span></code> should catch <code class="docutils literal notranslate"><span class="pre">StageError</span></code> or
+<code class="docutils literal notranslate"><span class="pre">OceanarrayError</span></code>. <code class="docutils literal notranslate"><span class="pre">StageError</span></code> and <code class="docutils literal notranslate"><span class="pre">ValidationIssue</span></code> are defined in
+<code class="docutils literal notranslate"><span class="pre">oceanarray.exceptions</span></code>; import them from there (or <code class="docutils literal notranslate"><span class="pre">StageError</span></code> from
+<code class="docutils literal notranslate"><span class="pre">oceanarray</span></code>).</p>
+</section>
+<section id="data-warnings-are-log-records">
+<h2>Data warnings are log records<a class="headerlink" href="#data-warnings-are-log-records" title="Link to this heading"></a></h2>
+<p>Problems found while reading or reporting (records dropped for a missing time,
+unexpected units, a stage file without its marker, an attribute dropped on writing)
+were Python <code class="docutils literal notranslate"><span class="pre">UserWarning</span></code> s; they are now <code class="docutils literal notranslate"><span class="pre">WARNING</span></code> records of the <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code>
+logger, so they also reach the stage log files. Code that caught them with
+<code class="docutils literal notranslate"><span class="pre">warnings.catch_warnings</span></code> or <code class="docutils literal notranslate"><span class="pre">pytest.warns</span></code> should read the log instead
+(<code class="docutils literal notranslate"><span class="pre">caplog</span></code> in pytest). Deprecations are still <code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code> s.</p>
+</section>
+<section id="a-missing-folder-or-mooring-yaml-raises">
+<h2>A missing folder or mooring YAML raises<a class="headerlink" href="#a-missing-folder-or-mooring-yaml-raises" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">MooringReport.generate</span></code> and <code class="docutils literal notranslate"><span class="pre">generate_recovery_table</span></code> returned <code class="docutils literal notranslate"><span class="pre">None</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">Stage2Processor</span></code> / <code class="docutils literal notranslate"><span class="pre">Stage3Processor.process_mooring</span></code> returned <code class="docutils literal notranslate"><span class="pre">False</span></code>, when the
+processing folder or the mooring YAML was missing, printing the reason. They now raise
+<code class="docutils literal notranslate"><span class="pre">MooringError</span></code> with the path in the message. Replace a check for <code class="docutils literal notranslate"><span class="pre">None</span></code> or
+<code class="docutils literal notranslate"><span class="pre">False</span></code> with <code class="docutils literal notranslate"><span class="pre">except</span> <span class="pre">MooringError</span></code>. The <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code> commands already stopped
+with an error; only the message changes.</p>
+</section>
+<section id="no-pitch-or-roll-flags">
+<h2>No pitch or roll flags<a class="headerlink" href="#no-pitch-or-roll-flags" title="Link to this heading"></a></h2>
+<p>Tilt QC is on the geometric tilt only (<code class="docutils literal notranslate"><span class="pre">QC_TILT</span></code>, overridden by <code class="docutils literal notranslate"><span class="pre">tilt_qc</span></code>), so
+<code class="docutils literal notranslate"><span class="pre">qc_ranges:</span> <span class="pre">pitch</span></code> / <code class="docutils literal notranslate"><span class="pre">roll</span></code> are no longer applied and stage 3 writes no
+<code class="docutils literal notranslate"><span class="pre">pitch_qc</span></code> / <code class="docutils literal notranslate"><span class="pre">roll_qc</span></code>; the stack no longer carries them. A mooring YAML that
+still sets them gets a warning; remove them, and set <code class="docutils literal notranslate"><span class="pre">tilt_qc</span></code> to change the
+thresholds.</p>
+</section>
+<section id="grid-levels-are-pmin-dbar-and-pmax-dbar">
+<h2>Grid levels are <code class="docutils literal notranslate"><span class="pre">pmin_dbar</span></code> and <code class="docutils literal notranslate"><span class="pre">pmax_dbar</span></code><a class="headerlink" href="#grid-levels-are-pmin-dbar-and-pmax-dbar" title="Link to this heading"></a></h2>
+<p>A grid file now records its pressure range as <code class="docutils literal notranslate"><span class="pre">pmin_dbar</span></code> and <code class="docutils literal notranslate"><span class="pre">pmax_dbar</span></code> (with
+<code class="docutils literal notranslate"><span class="pre">dp_dbar</span></code>, unchanged), the same words as <code class="docutils literal notranslate"><span class="pre">pmin</span></code>/<code class="docutils literal notranslate"><span class="pre">pmax</span></code> in the YAML, the call and
+the CLI. Grids written before carry <code class="docutils literal notranslate"><span class="pre">p_start_dbar</span></code> / <code class="docutils literal notranslate"><span class="pre">p_end_dbar</span></code>; oceanarray still
+reads them (pages, the check whether a grid is current), but code of your own that reads
+these attributes should read the new names, falling back to the old ones for older
+files. The default levels (200 to 1000 dbar every 20 dbar) moved from
+<code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline._run.DEFAULTS</span></code>, which is gone, to
+<code class="docutils literal notranslate"><span class="pre">oceanarray.config.parameters</span></code>: <code class="docutils literal notranslate"><span class="pre">GRID_PMIN_DBAR</span></code>, <code class="docutils literal notranslate"><span class="pre">GRID_PMAX_DBAR</span></code> and
+<code class="docutils literal notranslate"><span class="pre">GRID_DP_DBAR</span></code> (and <code class="docutils literal notranslate"><span class="pre">STACK_DT_SECONDS</span></code> for the stack’s time step).</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="oceanarray.html" class="btn btn-neutral float-left" title="oceanarray API reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="migrating_0_6_1.html" class="btn btn-neutral float-right" title="Upgrading from 0.6.0 to 0.6.1" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

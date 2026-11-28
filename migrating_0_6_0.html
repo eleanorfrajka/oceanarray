@@ -1,0 +1,451 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upgrading from 0.5 to 0.6 &mdash; oceanarray 0.6.0.post1.dev41 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=a96f5941"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Older upgrades: 0.4 to 0.5, and the --basedir layout" href="migration.html" />
+    <link rel="prev" title="Upgrading from 0.6.0 to 0.6.1" href="migrating_0_6_1.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            oceanarray
+              <img src="_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">From 0.5 to 0.6</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-verbs">The verbs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#renamed-names-removed-in-0-7-0">Renamed names (removed in 0.7.0)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#removed-in-0-6-0">Removed in 0.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#moved-modules-no-alias">Moved modules (no alias)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#other-changes">Other changes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Upgrading from 0.5 to 0.6</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/migrating_0_6_0.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="upgrading-from-0-5-to-0-6">
+<span id="migrating-0-6-0"></span><h1>Upgrading from 0.5 to 0.6<a class="headerlink" href="#upgrading-from-0-5-to-0-6" title="Link to this heading"></a></h1>
+<p>0.6.0 is a breaking release. Most old names still work for one release: they warn
+(<code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code>) and are removed in 0.7.0. The changes below are grouped by
+what you have to do.</p>
+<section id="the-verbs">
+<h2>The verbs<a class="headerlink" href="#the-verbs" title="Link to this heading"></a></h2>
+<p>A mooring is processed from its <code class="docutils literal notranslate"><span class="pre">*.mooring.yaml</span></code>, wherever that file is; its
+folder can have any name, and every file is named from <code class="docutils literal notranslate"><span class="pre">name:</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">oa</span>
+
+<span class="n">mooring_path</span> <span class="o">=</span> <span class="s2">"proc/dune2_1_2026/dune2_1_2026.mooring.yaml"</span>
+<span class="n">oa</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">mooring_path</span><span class="p">,</span> <span class="n">raw_dir</span><span class="o">=</span><span class="s2">"raw/"</span><span class="p">,</span> <span class="n">report</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>   <span class="c1"># stages 1-3, stack, grid, report</span>
+<span class="n">oa</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">mooring_path</span><span class="p">,</span> <span class="n">stages</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>                  <span class="c1"># stages only</span>
+<span class="n">oa</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">mooring_path</span><span class="p">,</span> <span class="n">pdf</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>                   <span class="c1"># the report only</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">run</span></code> carries on past a failed instrument by default (<code class="docutils literal notranslate"><span class="pre">keep_going=True</span></code>) and
+records what it left out in the stack and grid. <code class="docutils literal notranslate"><span class="pre">keep_going=False</span></code> (CLI
+<code class="docutils literal notranslate"><span class="pre">--strict</span></code>) stops at the first failure.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run</span></code> rebuilds the stack from the stage-3 files, so its stages run through
+stage 3: <code class="docutils literal notranslate"><span class="pre">run(mooring_path,</span> <span class="pre">stages=(2,</span> <span class="pre">3))</span></code> or <code class="docutils literal notranslate"><span class="pre">run(mooring_path,</span> <span class="pre">from_stage=2)</span></code>
+(CLI <code class="docutils literal notranslate"><span class="pre">--stage</span> <span class="pre">2</span> <span class="pre">3</span></code> or <code class="docutils literal notranslate"><span class="pre">--from</span> <span class="pre">2</span></code>). <code class="docutils literal notranslate"><span class="pre">stages=2</span></code> alone is refused. Run one
+stage on its own with <code class="docutils literal notranslate"><span class="pre">process(mooring_path,</span> <span class="pre">stages=N)</span></code>.</p></li>
+<li><p>Renamed CLI flags, accepted with a note until 0.7.0: <code class="docutils literal notranslate"><span class="pre">--serial</span></code> → <code class="docutils literal notranslate"><span class="pre">--only</span></code>,
+<code class="docutils literal notranslate"><span class="pre">--dt</span></code> → <code class="docutils literal notranslate"><span class="pre">--dt-seconds</span></code>, <code class="docutils literal notranslate"><span class="pre">process</span> <span class="pre">--report</span></code> → <code class="docutils literal notranslate"><span class="pre">--summary</span></code>,
+<code class="docutils literal notranslate"><span class="pre">plot</span> <span class="pre">--downsample</span></code> → <code class="docutils literal notranslate"><span class="pre">--downsample-seconds</span></code>, <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">--overwrite</span></code> →
+<code class="docutils literal notranslate"><span class="pre">--force</span></code>, <code class="docutils literal notranslate"><span class="pre">stamp</span> <span class="pre">--stage</span></code> → <code class="docutils literal notranslate"><span class="pre">--declare</span></code>, <code class="docutils literal notranslate"><span class="pre">plot</span> <span class="pre">--var_y</span></code> / <code class="docutils literal notranslate"><span class="pre">--var_color</span></code> → <code class="docutils literal notranslate"><span class="pre">--var-y</span></code> /
+<code class="docutils literal notranslate"><span class="pre">--var-color</span></code>; the short <code class="docutils literal notranslate"><span class="pre">-i</span></code>, <code class="docutils literal notranslate"><span class="pre">-s</span></code>, <code class="docutils literal notranslate"><span class="pre">-g</span></code>, <code class="docutils literal notranslate"><span class="pre">-A</span></code> on <code class="docutils literal notranslate"><span class="pre">report</span></code> →
+<code class="docutils literal notranslate"><span class="pre">--instruments</span></code>, <code class="docutils literal notranslate"><span class="pre">--stack</span></code>, <code class="docutils literal notranslate"><span class="pre">--grid</span></code>, <code class="docutils literal notranslate"><span class="pre">--all</span></code>. <code class="docutils literal notranslate"><span class="pre">animate</span> <span class="pre">-o</span></code> is now the
+output directory (<code class="docutils literal notranslate"><span class="pre">--output</span></code> names one GIF).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run(...,</span> <span class="pre">stack_stage=2)</span></code> (CLI <code class="docutils literal notranslate"><span class="pre">--stack-stage</span> <span class="pre">2</span></code>) stacks the stage-2 files
+for a quick look at sea: no QC flags, no interpolated pressure, no magnetic
+declination — the report says so in amber.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run</span></code> rebuilds the stack and grid every time. A stack or grid that no longer
+matches its stage files is renamed <code class="docutils literal notranslate"><span class="pre">&lt;name&gt;_stack.stale.nc</span></code> /
+<code class="docutils literal notranslate"><span class="pre">&lt;name&gt;_grid.stale.nc</span></code> (one copy, replaced by the next rename).</p></li>
+<li><p>The stack and grid settings can live in the mooring YAML, in <code class="docutils literal notranslate"><span class="pre">stack:</span></code>
+(<code class="docutils literal notranslate"><span class="pre">dt_seconds</span></code>) and <code class="docutils literal notranslate"><span class="pre">grid:</span></code> (<code class="docutils literal notranslate"><span class="pre">pmin</span></code>, <code class="docutils literal notranslate"><span class="pre">pmax</span></code>, <code class="docutils literal notranslate"><span class="pre">dp</span></code>) blocks.</p></li>
+<li><p>The stack’s default time step is now 3600 s (was 60 s). A mooring stacked at 60 s
+before (MIXSED, <code class="docutils literal notranslate"><span class="pre">odb2026</span></code>) sets <code class="docutils literal notranslate"><span class="pre">stack:</span> <span class="pre">{dt_seconds:</span> <span class="pre">60}</span></code> in its mooring YAML.
+Every instrument is now placed by its nearest sample within ±dt/2 (a slow one is no
+longer interpolated in time), and the time axis starts on a whole multiple of the step.
+A sample exactly half a step from two steps now fills the later one only (before:
+both), so a sparse or phase-offset instrument can show an empty boundary step where
+an older stack had a value.</p></li>
+<li><p>Every stage-3, stack and grid file carries <code class="docutils literal notranslate"><span class="pre">data_mode</span> <span class="pre">=</span> <span class="pre">&quot;P&quot;</span></code> (provisional).</p></li>
+<li><p>The grid report’s <strong>Overflow</strong> section is now off by default; turn it on with a
+<code class="docutils literal notranslate"><span class="pre">report_sections</span></code> block (<code class="docutils literal notranslate"><span class="pre">report_sections:</span> <span class="pre">{grid:</span> <span class="pre">[overflow]}</span></code>) in the mooring
+YAML. An overflow mooring whose YAML does not set it loses the section — add the
+block to each overflow mooring’s YAML to keep it.</p></li>
+</ul>
+</section>
+<section id="renamed-names-removed-in-0-7-0">
+<h2>Renamed names (removed in 0.7.0)<a class="headerlink" href="#renamed-names-removed-in-0-7-0" title="Link to this heading"></a></h2>
+<p>Each old name warns and calls the new one.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 45.0%" />
+<col style="width: 55.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Old</p></th>
+<th class="head"><p>Use instead</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.plotters.timeseries.draw_grid</span></code></p></td>
+<td><p>xarray’s DataArray.plot.pcolormesh (or .plot.contourf) on the grid variable</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.parameters</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.config.parameters</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.config.validation.validate_mooring_yaml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.mooring.check</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.stage1.MooringProcessor</span></code></p></td>
+<td><p>oceanarray.process(mooring_path, stages=1), or oceanarray.stage1 on datasets</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.stage2.Stage2Processor</span></code></p></td>
+<td><p>oceanarray.process(mooring_path, stages=2), or oceanarray.stage2 on datasets</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.stage3.Stage3Processor</span></code></p></td>
+<td><p>oceanarray.process(mooring_path, stages=3), or oceanarray.stage3 on datasets</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.stack.MooringStacker</span></code></p></td>
+<td><p>oceanarray.run(mooring_path, stages=3), or oceanarray.stack on datasets</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.grid.MooringGridder</span></code></p></td>
+<td><p>oceanarray.run(mooring_path, stages=3), or oceanarray.grid on a stack</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.inspect.vars</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.inspect.variables</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.inspect.attrs</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.inspect.attributes</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.legacy.process_rodb.normalize_by_middle_percent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.legacy.process_rodb.to_zscore</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.legacy.process_rodb.normalize_dataset_by_middle_percent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.legacy.process_rodb.to_zscore_dataset</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>The old call form <code class="docutils literal notranslate"><span class="pre">oceanarray.process(name,</span> <span class="pre">stage,</span> <span class="pre">proc_dir=...)</span></code> (all five stages,
+returns a bool) also warns and is removed in 0.7.0: pass the <code class="docutils literal notranslate"><span class="pre">*.mooring.yaml</span></code>.</p>
+</section>
+<section id="removed-in-0-6-0">
+<h2>Removed in 0.6.0<a class="headerlink" href="#removed-in-0-6-0" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The plotting functions that return a Figure are renamed <code class="docutils literal notranslate"><span class="pre">draw_&lt;what&gt;</span></code>, with
+no alias: <code class="docutils literal notranslate"><span class="pre">plot_knockdown_pressure</span></code> / <code class="docutils literal notranslate"><span class="pre">_hab</span></code> / <code class="docutils literal notranslate"><span class="pre">_anomaly</span></code> /
+<code class="docutils literal notranslate"><span class="pre">_displacement</span></code>, <code class="docutils literal notranslate"><span class="pre">plot_clock_offset_check</span></code>, <code class="docutils literal notranslate"><span class="pre">plot_temperature_trajectory</span></code>,
+<code class="docutils literal notranslate"><span class="pre">plot_speed_boxplot</span></code>, <code class="docutils literal notranslate"><span class="pre">plot_multi_aquadopp_trajectories</span></code>, <code class="docutils literal notranslate"><span class="pre">plot_hodograph</span></code>,
+<code class="docutils literal notranslate"><span class="pre">plot_aquadopp_speed_profile</span></code>, <code class="docutils literal notranslate"><span class="pre">plot_adcp_trajectories</span></code>, <code class="docutils literal notranslate"><span class="pre">plot_trajectory</span></code>,
+<code class="docutils literal notranslate"><span class="pre">plot_microcat_raw</span></code>, <code class="docutils literal notranslate"><span class="pre">plot_aquadopp_raw</span></code>, <code class="docutils literal notranslate"><span class="pre">plot_mooring_timeseries</span></code> become
+<code class="docutils literal notranslate"><span class="pre">draw_*</span></code>; <code class="docutils literal notranslate"><span class="pre">draw_isopycnal_ts_fig</span></code>, <code class="docutils literal notranslate"><span class="pre">draw_overflow_temperature_fig</span></code> and
+<code class="docutils literal notranslate"><span class="pre">draw_grid_fig</span></code> become <code class="docutils literal notranslate"><span class="pre">draw_isopycnal_ts</span></code>, <code class="docutils literal notranslate"><span class="pre">draw_overflow_temperature</span></code> and
+<code class="docutils literal notranslate"><span class="pre">draw_grid</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.units.canonicalise_units</span></code> — use <code class="docutils literal notranslate"><span class="pre">to_canonical_units</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.units.format_units</span></code> — use
+<code class="docutils literal notranslate"><span class="pre">oceanarray.config.unit_tables.unit_label</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">oceanarray.config.parameters.UNIT_ALIASES</span></code> and <code class="docutils literal notranslate"><span class="pre">VARIABLE_UNIT_ALIASES</span></code> — use
+<code class="docutils literal notranslate"><span class="pre">oceanarray.config.unit_tables.TABLES</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TimeGriddingProcessor</span></code>, <code class="docutils literal notranslate"><span class="pre">time_gridding_mooring</span></code> and
+<code class="docutils literal notranslate"><span class="pre">process_multiple_moorings_time_gridding</span></code> (with their low-pass, de-tiding and
+band-pass filters) — the stack is the one way to put a mooring on a common time
+axis.</p></li>
+</ul>
+</section>
+<section id="moved-modules-no-alias">
+<h2>Moved modules (no alias)<a class="headerlink" href="#moved-modules-no-alias" title="Link to this heading"></a></h2>
+<p>Nothing outside oceanarray imported these, so they moved without a shim.
+<code class="docutils literal notranslate"><span class="pre">oceanarray.processors</span></code> is now <code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline</span></code> (every
+<code class="docutils literal notranslate"><span class="pre">oceanarray.processors.*</span></code> import becomes <code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.*</span></code>), and
+<code class="docutils literal notranslate"><span class="pre">oceanarray.tools</span></code>, <code class="docutils literal notranslate"><span class="pre">oceanarray.utilities</span></code>, <code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.helpers</span></code>
+and <code class="docutils literal notranslate"><span class="pre">oceanarray.legacy.tools</span></code> are gone. <code class="docutils literal notranslate"><span class="pre">oceanarray.tools.readers</span></code> moved to the
+<code class="docutils literal notranslate"><span class="pre">oceanarray.readers</span></code> package (<code class="docutils literal notranslate"><span class="pre">read_oceansites</span></code>, <code class="docutils literal notranslate"><span class="pre">read_rodb</span></code>,
+<code class="docutils literal notranslate"><span class="pre">load_nortek_csv</span></code>; <code class="docutils literal notranslate"><span class="pre">readers.read</span></code> picks the format).</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Old</p></th>
+<th class="head"><p>New</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.utilities</span></code> (<code class="docutils literal notranslate"><span class="pre">instrument_entries</span></code>, <code class="docutils literal notranslate"><span class="pre">extract_inline_instruments</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.instruments</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.utilities</span></code> (<code class="docutils literal notranslate"><span class="pre">parse_latlon</span></code>, <code class="docutils literal notranslate"><span class="pre">parse_latlon_with_source</span></code>, <code class="docutils literal notranslate"><span class="pre">format_latlon</span></code>, …)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.location</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.utilities</span></code> (<code class="docutils literal notranslate"><span class="pre">find_best_dtype</span></code>, <code class="docutils literal notranslate"><span class="pre">cast_output_dtypes</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.writers.dtypes</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.utilities</span></code> (<code class="docutils literal notranslate"><span class="pre">should_skip_regeneration</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.paths</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.utilities</span></code> (<code class="docutils literal notranslate"><span class="pre">drop_all_zero_vars</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.dataset</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.utilities</span></code> (<code class="docutils literal notranslate"><span class="pre">nice_colorbar_ticks</span></code>, <code class="docutils literal notranslate"><span class="pre">period_axis_ticks</span></code>; <code class="docutils literal notranslate"><span class="pre">_nice_colorbar_bounds</span></code> → <code class="docutils literal notranslate"><span class="pre">nice_colorbar_bounds</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.plotters.primitives</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.utilities._status</span></code>, <code class="docutils literal notranslate"><span class="pre">_format_rel_path</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.logger.status</span></code>, <code class="docutils literal notranslate"><span class="pre">logger.format_rel_path</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.tools.rapid_interp</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.gridders.rapid_interp</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.tools.process_dataset</span></code>, <code class="docutils literal notranslate"><span class="pre">analysis.science.process_dataset</span></code>, <code class="docutils literal notranslate"><span class="pre">analysis.temporal.downsample_to_sparse</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.gridders.climatology</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.tools</span></code> / <code class="docutils literal notranslate"><span class="pre">analysis.science</span></code> re-exports <code class="docutils literal notranslate"><span class="pre">calc_psal</span></code>, <code class="docutils literal notranslate"><span class="pre">calc_ds_difference</span></code>, <code class="docutils literal notranslate"><span class="pre">find_cold_entry_exit</span></code>, <code class="docutils literal notranslate"><span class="pre">isopycnal_dataset</span></code>, <code class="docutils literal notranslate"><span class="pre">isopycnal_pressure_series</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.analysis.hydrography</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.tools</span></code> / <code class="docutils literal notranslate"><span class="pre">analysis.science</span></code> re-exports <code class="docutils literal notranslate"><span class="pre">welch_psd</span></code>, <code class="docutils literal notranslate"><span class="pre">welch_psd_gapaware</span></code>, <code class="docutils literal notranslate"><span class="pre">compute_cwt</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.analysis.spectral</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.tools</span></code> re-exports <code class="docutils literal notranslate"><span class="pre">lag_correlation</span></code>, <code class="docutils literal notranslate"><span class="pre">split_value</span></code>, <code class="docutils literal notranslate"><span class="pre">downsample_to_sparse</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.analysis.clock.offsets</span></code> (<code class="docutils literal notranslate"><span class="pre">lag_correlation</span></code>, <code class="docutils literal notranslate"><span class="pre">split_value</span></code>), <code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.gridders.climatology</span></code> (<code class="docutils literal notranslate"><span class="pre">downsample_to_sparse</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.tools</span></code> re-exports <code class="docutils literal notranslate"><span class="pre">flag_salinity_outliers</span></code>, <code class="docutils literal notranslate"><span class="pre">flag_temporal_spikes</span></code>, <code class="docutils literal notranslate"><span class="pre">flag_vertical_inconsistencies</span></code>, <code class="docutils literal notranslate"><span class="pre">run_qc</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.legacy.qc_rodb</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.helpers</span></code> (was <code class="docutils literal notranslate"><span class="pre">processors.helpers</span></code>): <code class="docutils literal notranslate"><span class="pre">STACK_VARS</span></code> and the stack helpers</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.stack</span></code>; the QC mask and worst-flag merge → <code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.qc</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.analysis.temporal.filter_sigma_tukey</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.gridders.filters</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.analysis.clock</span></code> (<code class="docutils literal notranslate"><span class="pre">analyze_deployment_timing</span></code> → <code class="docutils literal notranslate"><span class="pre">deployment_timing</span></code>; + <code class="docutils literal notranslate"><span class="pre">analysis.temporal.lag_correlation</span></code>, <code class="docutils literal notranslate"><span class="pre">split_value</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.analysis.clock.offsets</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.analysis.vector.progressive_vector</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.plotters.current.progressive_vector</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.utilities</span></code> (<code class="docutils literal notranslate"><span class="pre">get_dims</span></code>, <code class="docutils literal notranslate"><span class="pre">check_necessary_variables</span></code>, <code class="docutils literal notranslate"><span class="pre">get_time_key</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.gridders.rapid_interp</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.utilities</span></code> (<code class="docutils literal notranslate"><span class="pre">concat_with_scalar_vars</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.legacy.mooring_rodb</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.utilities</span></code> (<code class="docutils literal notranslate"><span class="pre">iso8601_duration_from_seconds</span></code>, <code class="docutils literal notranslate"><span class="pre">is_iso8601_utc</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.legacy.convertOS</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.config.validation.print_validation_report</span></code></p></td>
+<td><p>removed (<code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">validate</span></code> prints the report)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.legacy.find_deployment</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.analysis.clock.deployment</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.caldip</span></code> (<code class="docutils literal notranslate"><span class="pre">normalize_serial</span></code> → <code class="docutils literal notranslate"><span class="pre">canonical_serial</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.calibration</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.coordinate.apply_adcp_seabed_qc</span></code> / <code class="docutils literal notranslate"><span class="pre">_surface_qc</span></code> / <code class="docutils literal notranslate"><span class="pre">_velocity_qc</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.qc.adcp</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.analysis.hydrographic</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.analysis.hydrography</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.analysis.science</span></code> QC flaggers (<code class="docutils literal notranslate"><span class="pre">flag_salinity_outliers</span></code>, <code class="docutils literal notranslate"><span class="pre">run_qc</span></code>, …)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.legacy.qc_rodb</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.analysis.vector.xyz_to_enu_2d</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.coordinate.xyz_to_enu</span></code> (same values; returns <code class="docutils literal notranslate"><span class="pre">up</span></code> too)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.config.validation.serial_collision_errors</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.mooring.serial_collision_errors</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline._resolve_mooring</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oceanarray.pipeline.resolve_mooring</span></code> (public)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="other-changes">
+<h2>Other changes<a class="headerlink" href="#other-changes" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>A stage file made under a different mooring name is refused.</strong>  Reading a stage
+file whose <code class="docutils literal notranslate"><span class="pre">mooring_name</span></code> differs from the mooring YAML’s <code class="docutils literal notranslate"><span class="pre">name:</span></code> by more than
+case raises; reprocess it from stage 1.  A case-only difference is corrected.</p></li>
+<li><p><strong>Stacking no longer reads ``sample_interval_seconds``.</strong>  Each instrument’s
+sampling interval is detected from its time stamps.</p></li>
+<li><p><strong>Stack and grid files change.</strong> Besides the hourly default above, a <code class="docutils literal notranslate"><span class="pre">clamp</span></code>
+ADCP whose height is given only as <code class="docutils literal notranslate"><span class="pre">hab_bottom</span></code> / <code class="docutils literal notranslate"><span class="pre">hab_top</span></code> is now placed by
+its <code class="docutils literal notranslate"><span class="pre">orientation</span></code> and stacked (before: silently left out). Rebuild stacks and
+grids with 0.6.</p></li>
+<li><p><strong>QC override blocks are checked.</strong> A <code class="docutils literal notranslate"><span class="pre">qc_ranges</span></code>, <code class="docutils literal notranslate"><span class="pre">qc_spike</span></code>, <code class="docutils literal notranslate"><span class="pre">tilt_qc</span></code> or
+<code class="docutils literal notranslate"><span class="pre">qc_flat_line</span></code> block with an unknown field, a span that is not two increasing
+numbers, a threshold that is not a number, or a new variable without a
+<code class="docutils literal notranslate"><span class="pre">fail_span</span></code> is refused by <code class="docutils literal notranslate"><span class="pre">load</span></code> and is an ERROR in <code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">validate</span></code>
+(before: dropped, and QC ran with the defaults). Run <code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">validate</span></code> on
+each mooring YAML.</p></li>
+<li><p><strong>An orientation needs its hab key.</strong> An instrument with <code class="docutils literal notranslate"><span class="pre">orientation:</span> <span class="pre">up</span></code> and
+no <code class="docutils literal notranslate"><span class="pre">hab_top</span></code> (or <code class="docutils literal notranslate"><span class="pre">down</span></code> and no <code class="docutils literal notranslate"><span class="pre">hab_bottom</span></code>), and no <code class="docutils literal notranslate"><span class="pre">hab</span></code>, is refused by
+<code class="docutils literal notranslate"><span class="pre">load</span></code> and is an ERROR in <code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">validate</span></code>. Add the missing key.</p></li>
+<li><p><strong>The writer does not overwrite.</strong> <code class="docutils literal notranslate"><span class="pre">oceanarray.writers.write(ds,</span> <span class="pre">path)</span></code> refuses
+an existing file unless <code class="docutils literal notranslate"><span class="pre">overwrite=True</span></code> and returns the path written.</p></li>
+<li><p><strong>Exit codes.</strong> <code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">run</span></code> and <code class="docutils literal notranslate"><span class="pre">process</span></code> exit 0 when they finish with
+instruments left out (before: 1); <code class="docutils literal notranslate"><span class="pre">--strict</span></code> stops at the first failure with
+exit 1. A usage error exits 2.</p></li>
+<li><p><strong>Output names</strong> come from the mooring YAML’s <code class="docutils literal notranslate"><span class="pre">name:</span></code>, not the folder’s name.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">current_direction</span></code> carries <code class="docutils literal notranslate"><span class="pre">standard_name</span> <span class="pre">=</span> <span class="pre">&quot;sea_water_velocity_to_direction&quot;</span></code>
+(CF deprecated <code class="docutils literal notranslate"><span class="pre">direction_of_sea_water_velocity</span></code>).</p></li>
+<li><p>Stage files without a <code class="docutils literal notranslate"><span class="pre">processing_stage</span></code> marker are read with a warning until
+0.7.0; mark them once with <code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">stamp</span> <span class="pre">FILE...</span> <span class="pre">--declare</span> <span class="pre">N</span></code>.</p></li>
+<li><p><strong>Logging replaces the ``log_fn`` callback.</strong> The transforms
+(<code class="docutils literal notranslate"><span class="pre">to_canonical_units</span></code>, <code class="docutils literal notranslate"><span class="pre">interpolate_pressure</span></code>, the ADCP-QC functions, …) log
+through the <code class="docutils literal notranslate"><span class="pre">oceanarray</span></code> logger hierarchy. A <code class="docutils literal notranslate"><span class="pre">log_fn=</span></code> argument still works but
+warns and is removed in 0.7.0; configure logging instead (the CLI does this — <code class="docutils literal notranslate"><span class="pre">-q</span></code>
+/ <code class="docutils literal notranslate"><span class="pre">-v</span></code> set the level). <code class="docutils literal notranslate"><span class="pre">oceanarray.logger.enable_logging</span></code> / <code class="docutils literal notranslate"><span class="pre">disable_logging</span></code>
+are likewise deprecated — set <code class="docutils literal notranslate"><span class="pre">logging.getLogger(&quot;oceanarray&quot;).disabled</span></code> or use
+<code class="docutils literal notranslate"><span class="pre">logging.disable</span></code>.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="migrating_0_6_1.html" class="btn btn-neutral float-left" title="Upgrading from 0.6.0 to 0.6.1" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="migration.html" class="btn btn-neutral float-right" title="Older upgrades: 0.4 to 0.5, and the --basedir layout" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

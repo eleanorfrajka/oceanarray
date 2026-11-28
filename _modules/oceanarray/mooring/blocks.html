@@ -1,0 +1,374 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.mooring.blocks &mdash; oceanarray 0.6.0.post1.dev41 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a96f5941"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.mooring.blocks</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.mooring.blocks</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""The ``people:`` and ``source:`` blocks of a mooring YAML: their fields and checks.</span>
+
+<span class="sd">A ``people:`` block holds the OceanSITES 1.4 people fields (``principal_investigator*``,</span>
+<span class="sd">``contributor_*``) and ``people_source``; a ``source:`` block holds the citation fields</span>
+<span class="sd">and ``source_note``. :func:`check_people_block` and :func:`check_source_block` return</span>
+<span class="sd">the errors and warnings :func:`oceanarray.mooring.check` reports for them.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+
+<span class="c1">#: Fields of one principal investigator, and of one contributor entry.</span>
+<span class="n">PI_FIELDS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">"email"</span><span class="p">,</span> <span class="s2">"url"</span><span class="p">,</span> <span class="s2">"id"</span><span class="p">)</span>
+<span class="n">CONTRIBUTOR_FIELDS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">"role"</span><span class="p">,</span> <span class="s2">"email"</span><span class="p">)</span>
+
+<span class="c1">#: The attribute names written, in order.</span>
+<span class="n">PI_ATTRS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">f</span><span class="p">:</span> <span class="s2">"principal_investigator"</span> <span class="o">+</span> <span class="p">(</span><span class="s2">""</span> <span class="k">if</span> <span class="n">f</span> <span class="o">==</span> <span class="s2">"name"</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"_</span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">PI_FIELDS</span>
+<span class="p">}</span>
+<span class="n">CONTRIBUTOR_ATTRS</span> <span class="o">=</span> <span class="p">{</span><span class="n">f</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"contributor_</span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">CONTRIBUTOR_FIELDS</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="split_list">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.mooring.blocks.split_list">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">split_list</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Split a list attribute on ``;`` when it has one, else on ``,``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : object</span>
+<span class="sd">        The attribute value; ``None`` or blank gives an empty list.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of str</span>
+<span class="sd">        The stripped parts.</span>
+<span class="sd">    """</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="s2">""</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">part</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">";"</span> <span class="k">if</span> <span class="s2">";"</span> <span class="ow">in</span> <span class="n">text</span> <span class="k">else</span> <span class="s2">","</span><span class="p">)]</span></div>
+
+
+
+<span class="c1">#: The fields a mooring YAML's ``people:`` block may hold: the OceanSITES 1.4 names</span>
+<span class="c1">#: of :data:`PI_ATTRS` and :data:`CONTRIBUTOR_ATTRS`, and where they came from.</span>
+<span class="n">PEOPLE_BLOCK_KEYS</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="o">*</span><span class="n">PI_ATTRS</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span>
+    <span class="o">*</span><span class="n">CONTRIBUTOR_ATTRS</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span>
+    <span class="s2">"people_source"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">#: What a ``source:`` block (and a file) can say about where the data came from;</span>
+<span class="c1">#: each is written as ``source_&lt;field&gt;``.</span>
+<span class="n">CITATION_FIELDS</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"doi"</span><span class="p">,</span>
+    <span class="s2">"citation"</span><span class="p">,</span>
+    <span class="s2">"license"</span><span class="p">,</span>
+    <span class="s2">"acknowledgement"</span><span class="p">,</span>
+    <span class="s2">"references"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">#: The fields a mooring YAML's ``source:`` block may hold.</span>
+<span class="n">SOURCE_BLOCK_KEYS</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">CITATION_FIELDS</span><span class="p">,</span> <span class="s2">"source_note"</span><span class="p">)</span>
+
+<span class="c1">#: A DOI: the ``10.`` prefix, a registrant code, a slash and a suffix.</span>
+<span class="n">_DOI</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^10\.\d{4,9}/\S+$"</span><span class="p">)</span>
+<span class="n">_DOI_PREFIXES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"https://doi.org/"</span><span class="p">,</span> <span class="s2">"http://doi.org/"</span><span class="p">,</span> <span class="s2">"https://dx.doi.org/"</span><span class="p">,</span> <span class="s2">"doi:"</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="bare_doi">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.mooring.blocks.bare_doi">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">bare_doi</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return *value* as a bare DOI (``10.xxxx/...``), or None if it is not one.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : object</span>
+<span class="sd">        A DOI as written: bare, ``doi:``-prefixed or as a ``https://doi.org/`` link.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str or None</span>
+<span class="sd">        The bare DOI, or None for an empty value or one that is not a DOI.</span>
+<span class="sd">    """</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="s2">""</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="n">_DOI_PREFIXES</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="p">:]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">break</span>
+    <span class="k">return</span> <span class="n">text</span> <span class="k">if</span> <span class="n">_DOI</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_entry_counts</span><span class="p">(</span>
+    <span class="n">block</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">],</span> <span class="n">names</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Return ``(field, problem)`` for each field of one list whose entry count differs from its names'."""</span>
+    <span class="n">name_attr</span> <span class="o">=</span> <span class="n">names</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">split_list</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name_attr</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="p">(</span>
+            <span class="n">field</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2"> has </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">split_list</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">attr</span><span class="p">)))</span><span class="si">}</span><span class="s2"> entries for </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"name</span><span class="si">{</span><span class="s1">''</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'s'</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">name_attr</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">names</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">field</span> <span class="o">!=</span> <span class="s2">"name"</span>
+        <span class="ow">and</span> <span class="n">split_list</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">attr</span><span class="p">))</span>
+        <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">split_list</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">attr</span><span class="p">)))</span> <span class="o">!=</span> <span class="n">n</span>
+    <span class="p">]</span>
+
+
+<div class="viewcode-block" id="check_people_block">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.mooring.blocks.check_people_block">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_people_block</span><span class="p">(</span><span class="n">block</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Check a mooring YAML's ``people:`` block.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    block : object</span>
+<span class="sd">        The ``people:`` value as parsed from the YAML.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple of (list of str, list of str)</span>
+<span class="sd">        Errors (not a mapping, an unknown field, a value that is not text, a field</span>
+<span class="sd">        whose entry count differs from its names') and warnings (no</span>
+<span class="sd">        ``people_source``, no ``principal_investigator`` or ``contributor_name``).</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">"'people:' must be a mapping of </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PEOPLE_BLOCK_KEYS</span><span class="p">)</span><span class="si">}</span><span class="s2">; got </span><span class="si">{</span><span class="n">block</span><span class="si">!r}</span><span class="s2">."</span>
+        <span class="p">],</span> <span class="p">[]</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s2">"'people: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">' is not an OceanSITES people field; expected one of "</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PEOPLE_BLOCK_KEYS</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">block</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">PEOPLE_BLOCK_KEYS</span>
+    <span class="p">]</span>
+    <span class="n">errors</span> <span class="o">+=</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s2">"'people: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">' must be text; got </span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2">."</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">block</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">PEOPLE_BLOCK_KEYS</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">errors</span><span class="p">,</span> <span class="p">[]</span>
+    <span class="n">warnings_</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">names</span> <span class="ow">in</span> <span class="p">(</span><span class="n">PI_ATTRS</span><span class="p">,</span> <span class="n">CONTRIBUTOR_ATTRS</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">problem</span> <span class="ow">in</span> <span class="n">_entry_counts</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">names</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"role"</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">split_list</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">names</span><span class="p">[</span><span class="s2">"role"</span><span class="p">])))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">warnings_</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"'people:' </span><span class="si">{</span><span class="n">problem</span><span class="si">}</span><span class="s2">: the first name gets the role, the others a "</span>
+                    <span class="s2">"blank one (write a role two people share for each, e.g. 'PI; PI')."</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"'people:' </span><span class="si">{</span><span class="n">problem</span><span class="si">}</span><span class="s2">; give one entry per person, in order."</span>
+                <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"people_source"</span><span class="p">):</span>
+        <span class="n">warnings_</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s2">"'people:' has no people_source; say where these people came from "</span>
+            <span class="s2">"(it is written into the files' history)."</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">PI_ATTRS</span><span class="p">[</span><span class="s2">"name"</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CONTRIBUTOR_ATTRS</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]):</span>
+        <span class="n">warnings_</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s2">"'people:' names no principal_investigator or contributor_name."</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">errors</span><span class="p">,</span> <span class="n">warnings_</span></div>
+
+
+
+<div class="viewcode-block" id="check_source_block">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.mooring.blocks.check_source_block">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_source_block</span><span class="p">(</span><span class="n">block</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Check a mooring YAML's ``source:`` block.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    block : object</span>
+<span class="sd">        The ``source:`` value as parsed from the YAML.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple of (list of str, list of str)</span>
+<span class="sd">        Errors (not a mapping, an unknown field, a value that is not text, a</span>
+<span class="sd">        ``doi`` that is not a DOI) and warnings (no ``source_note``).</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">"'source:' must be a mapping of </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SOURCE_BLOCK_KEYS</span><span class="p">)</span><span class="si">}</span><span class="s2">; got </span><span class="si">{</span><span class="n">block</span><span class="si">!r}</span><span class="s2">."</span>
+        <span class="p">],</span> <span class="p">[]</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s2">"'source: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">' is not a source field; expected one of "</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SOURCE_BLOCK_KEYS</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">block</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SOURCE_BLOCK_KEYS</span>
+    <span class="p">]</span>
+    <span class="n">errors</span> <span class="o">+=</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s2">"'source: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">' must be text; got </span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2">."</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">block</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">SOURCE_BLOCK_KEYS</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">doi</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"doi"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">doi</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">doi</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">and</span> <span class="n">bare_doi</span><span class="p">(</span><span class="n">doi</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"'source: doi' </span><span class="si">{</span><span class="n">doi</span><span class="si">!r}</span><span class="s2"> is not a DOI (expected 10.xxxx/..., with or "</span>
+            <span class="s2">"without doi: or https://doi.org/)."</span>
+        <span class="p">)</span>
+    <span class="n">warnings_</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"source_note"</span><span class="p">)</span>
+        <span class="k">else</span> <span class="p">[</span><span class="s2">"'source:' has no source_note; say where these values came from."</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">errors</span><span class="p">,</span> <span class="n">warnings_</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,880 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.pipeline.grid &mdash; oceanarray 0.6.0.post1.dev41 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a96f5941"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../pipeline.html">oceanarray.pipeline</a></li>
+      <li class="breadcrumb-item active">oceanarray.pipeline.grid</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.pipeline.grid</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Grid a mooring's stack onto regular pressure levels: the pure :func:`grid` and MooringGridder."""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span><span class="p">,</span> <span class="n">mask_rules</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">provenance</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameters</span> <span class="k">as</span> <span class="n">params</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MooringError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.history</span><span class="w"> </span><span class="kn">import</span> <span class="n">append_history</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.originator_flags</span><span class="w"> </span><span class="kn">import</span> <span class="n">MAPPED_SUFFIX</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">speed_direction</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">attribution</span><span class="p">,</span> <span class="n">masking</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.concat</span><span class="w"> </span><span class="kn">import</span> <span class="n">chunks</span><span class="p">,</span> <span class="n">is_site_stack</span><span class="p">,</span> <span class="n">own_levels</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">canonical_grid_attrs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.units</span><span class="w"> </span><span class="kn">import</span> <span class="n">to_canonical_units</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.writers</span><span class="w"> </span><span class="kn">import</span> <span class="n">dtypes</span><span class="p">,</span> <span class="n">write</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.writers.netcdf</span><span class="w"> </span><span class="kn">import</span> <span class="n">as_stored</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1">#: Derived from the gridded east and north velocity rather than interpolated: a</span>
+<span class="c1">#: direction interpolated across 0/360° would point the wrong way.</span>
+<span class="n">_FROM_COMPONENTS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">"current_speed"</span><span class="p">,</span> <span class="s2">"current_direction"</span><span class="p">})</span>
+
+<span class="c1">#: Variables on the levels that are not gridded. Instrument-frame and beam</span>
+<span class="c1">#: velocities are excluded because the rotation to east/north/up is already</span>
+<span class="c1">#: applied; diagnostics (amplitude, correlation, battery, orientation) have no</span>
+<span class="c1">#: meaning between instruments; ``velocity_flag`` is a flag, not physics.</span>
+<span class="n">_GRID_EXCLUDE</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"velocity_x"</span><span class="p">,</span>
+        <span class="s2">"velocity_y"</span><span class="p">,</span>
+        <span class="s2">"velocity_z"</span><span class="p">,</span>
+        <span class="s2">"velocity_beam1"</span><span class="p">,</span>
+        <span class="s2">"velocity_beam2"</span><span class="p">,</span>
+        <span class="s2">"velocity_beam3"</span><span class="p">,</span>
+        <span class="s2">"amplitude"</span><span class="p">,</span>
+        <span class="s2">"correlation"</span><span class="p">,</span>
+        <span class="s2">"battery_voltage"</span><span class="p">,</span>
+        <span class="s2">"velocity_flag"</span><span class="p">,</span>
+        <span class="s2">"tilt_from_pressure"</span><span class="p">,</span>
+        <span class="s2">"tilt_pressure_ref_hab"</span><span class="p">,</span>
+        <span class="s2">"heading"</span><span class="p">,</span>
+        <span class="s2">"pitch"</span><span class="p">,</span>
+        <span class="s2">"roll"</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="grid">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.grid">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">grid</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+    <span class="n">ds_stack</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">pmin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">pmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">mask_flags</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">slope_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Interpolate a mooring stack, or a site stack, onto a regular pressure grid.</span>
+
+<span class="sd">    Pure function: no file I/O. At each time step every variable is interpolated</span>
+<span class="sd">    linearly in pressure from the instruments with valid pressure and values onto</span>
+<span class="sd">    ``pmin:dp:pmax`` dbar, with no extrapolation. The stack keeps every value; the</span>
+<span class="sd">    values its rule hides (``stack_mask_flags``, default 4) are left out first, a</span>
+<span class="sd">    value when its ``&lt;var&gt;_qc`` or ``&lt;var&gt;_qc_originator_mapped`` is in the rule</span>
+<span class="sd">    (the velocity group also by ``velocity_flag`` and the ADCP seabed, percent-good</span>
+<span class="sd">    and error-velocity flags). *mask_flags* may add flags for the grid, never drop</span>
+<span class="sd">    one the stack hides.</span>
+
+<span class="sd">    A site stack (:func:`oceanarray.pipeline.concat.concat` output) is gridded one</span>
+<span class="sd">    mooring per profile: at each step only the levels of the deployment</span>
+<span class="sd">    ``deployment_index`` names; the overlap block is not gridded, and turnarounds</span>
+<span class="sd">    stay empty. Its grid also carries ``deployment_index`` and the ``DEPLOYMENT``</span>
+<span class="sd">    record.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_stack : xarray.Dataset</span>
+<span class="sd">        The stack, as :func:`oceanarray.pipeline.stack.stack` returns it, or a site</span>
+<span class="sd">        stack.</span>
+<span class="sd">    pmin, pmax, dp : float or None, optional</span>
+<span class="sd">        The pressure grid, in dbar; default ``parameters.GRID_PMIN_DBAR``,</span>
+<span class="sd">        ``GRID_PMAX_DBAR`` and ``GRID_DP_DBAR``. Recorded as ``pmin_dbar``,</span>
+<span class="sd">        ``pmax_dbar`` and ``dp_dbar``.</span>
+<span class="sd">    mask_flags : iterable of int, or Mapping of str to iterable of int, optional</span>
+<span class="sd">        The grid's own rule (see</span>
+<span class="sd">        :func:`oceanarray.mask_rules.resolve_mask_flags`), which must hide at</span>
+<span class="sd">        least what the stack's does; default the stack's rule. Recorded as</span>
+<span class="sd">        ``grid_mask_flags``.</span>
+<span class="sd">    slope_angle : float, optional</span>
+<span class="sd">        Deprecated and ignored: the Grid cat report chooses the rotation</span>
+<span class="sd">        (``rotate_to=``). Removed in 0.7.0.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        The gridded product on ``(time, pressure)``.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    oceanarray.exceptions.MooringError</span>
+<span class="sd">        If the stack has no ``pressure`` variable.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If *mask_flags* is invalid or drops a flag the stack's rule hides.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">mask_rules</span><span class="o">.</span><span class="n">STACK_ATTR</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_stack</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+        <span class="c1"># A stack written before the rule was recorded (its values are already</span>
+        <span class="c1"># masked with 3, 4 and 9): say which rule the grid uses.</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">ds_stack</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'mooring_name'</span><span class="p">,</span><span class="w"> </span><span class="s1">'stack'</span><span class="p">)</span><span class="si">}</span><span class="s2">: the stack records no "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mask_rules</span><span class="o">.</span><span class="n">STACK_ATTR</span><span class="si">}</span><span class="s2">; the grid uses the default "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">MASK_FLAGS</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">mask_rules</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span>
+        <span class="n">mask_rules</span><span class="o">.</span><span class="n">from_attrs</span><span class="p">(</span><span class="n">ds_stack</span><span class="o">.</span><span class="n">attrs</span><span class="p">),</span>
+        <span class="kc">None</span> <span class="k">if</span> <span class="n">mask_flags</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">mask_rules</span><span class="o">.</span><span class="n">resolve_mask_flags</span><span class="p">(</span><span class="n">mask_flags</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">slope_angle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray._deprecated</span><span class="w"> </span><span class="kn">import</span> <span class="n">REMOVED_IN</span>
+
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"slope_angle= is deprecated, ignored, and removed in </span><span class="si">{</span><span class="n">REMOVED_IN</span><span class="si">}</span><span class="s2">; the "</span>
+            <span class="s2">"grid no longer records a rotation: use rotate_to= of the Grid cat "</span>
+            <span class="s2">"report (oceanarray concat --rotate-to)."</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">pmin</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">GRID_PMIN_DBAR</span> <span class="k">if</span> <span class="n">pmin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pmin</span>
+    <span class="n">pmax</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">GRID_PMAX_DBAR</span> <span class="k">if</span> <span class="n">pmax</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pmax</span>
+    <span class="n">dp</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">GRID_DP_DBAR</span> <span class="k">if</span> <span class="n">dp</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">dp</span>
+    <span class="n">p_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">pmin</span><span class="p">,</span> <span class="n">pmax</span> <span class="o">+</span> <span class="n">dp</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">dp</span><span class="p">)</span>
+    <span class="n">n_p</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">p_grid</span><span class="p">)</span>
+
+    <span class="c1"># Canonicalise the stack's units (idempotent on a 0.5.0 stack; rewrites a</span>
+    <span class="c1"># pre-0.5.0 one) so the grid inherits one spelling per quantity.</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">to_canonical_units</span><span class="p">(</span><span class="n">ds_stack</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="s2">"grid"</span><span class="p">)</span>
+    <span class="n">site</span> <span class="o">=</span> <span class="n">is_site_stack</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+    <span class="n">level_dim</span> <span class="o">=</span> <span class="s2">"N_DEPTHS"</span> <span class="k">if</span> <span class="n">site</span> <span class="k">else</span> <span class="s2">"N_LEVELS"</span>
+    <span class="n">n_time</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span>
+    <span class="n">n_instr</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="n">level_dim</span><span class="p">]</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Gridding </span><span class="si">{</span><span class="n">n_instr</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">'depths'</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">site</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'instruments'</span><span class="si">}</span><span class="s2"> → </span><span class="si">{</span><span class="n">n_p</span><span class="si">}</span><span class="s2"> pressure "</span>
+        <span class="sa">f</span><span class="s2">"levels (</span><span class="si">{</span><span class="n">pmin</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">dp</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">pmax</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> dbar) × </span><span class="si">{</span><span class="n">n_time</span><span class="si">}</span><span class="s2"> time steps"</span>
+    <span class="p">)</span>
+
+    <span class="n">_warn_slow_instruments</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">"pressure"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ds_stack</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'mooring_name'</span><span class="p">,</span><span class="w"> </span><span class="s1">'stack'</span><span class="p">)</span><span class="si">}</span><span class="s2">: no 'pressure' variable "</span>
+            <span class="s2">"in the stack; cannot grid vertically"</span>
+        <span class="p">)</span>
+
+    <span class="n">own</span> <span class="o">=</span> <span class="n">own_levels</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span> <span class="k">if</span> <span class="n">site</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_values</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">own</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">values</span><span class="p">[</span><span class="o">~</span><span class="n">own</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="k">return</span> <span class="n">values</span>
+
+    <span class="n">pressure</span> <span class="o">=</span> <span class="n">_values</span><span class="p">(</span><span class="s2">"pressure"</span><span class="p">)</span>  <span class="c1"># (time, levels)</span>
+    <span class="n">pressure</span><span class="p">[</span><span class="n">masking</span><span class="o">.</span><span class="n">flagged</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"pressure"</span><span class="p">,</span> <span class="n">flags</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="c1"># Physics variables on the (time, levels) grid, excluding pressure and QC</span>
+    <span class="c1"># flags; the excluded ones present are named, not dropped silently.</span>
+    <span class="n">candidates</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">v</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"pressure"</span><span class="p">,</span> <span class="s2">"level_index"</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="n">ds</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span> <span class="o">==</span> <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">level_dim</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="ow">not</span> <span class="n">v</span><span class="o">.</span><span class="n">endswith</span><span class="p">((</span><span class="s2">"_qc"</span><span class="p">,</span> <span class="n">MAPPED_SUFFIX</span><span class="p">))</span>
+    <span class="p">]</span>
+    <span class="n">grid_vars</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">candidates</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_GRID_EXCLUDE</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_FROM_COMPONENTS</span>
+    <span class="p">]</span>
+    <span class="n">excluded</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">candidates</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_GRID_EXCLUDE</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">excluded</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"  NOTE: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">excluded</span><span class="p">)</span><span class="si">}</span><span class="s2"> variable(s) not gridded (instrument-frame, "</span>
+            <span class="sa">f</span><span class="s2">"diagnostic or flag): </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">excluded</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+
+    <span class="n">stacked</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">v</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_p</span><span class="p">,</span> <span class="n">n_time</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">grid_vars</span>
+    <span class="p">}</span>
+    <span class="n">var_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">_values</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">grid_vars</span><span class="p">}</span>
+
+    <span class="c1"># Left out before vertical interpolation: either flag set in the rule.</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">grid_vars</span><span class="p">:</span>
+        <span class="n">var_data</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="n">masking</span><span class="o">.</span><span class="n">flagged</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">flags</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_time</span><span class="p">):</span>
+        <span class="n">p_col</span> <span class="o">=</span> <span class="n">pressure</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">p_valid_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">p_col</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">p_valid_mask</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">grid_vars</span><span class="p">:</span>
+            <span class="n">v_col</span> <span class="o">=</span> <span class="n">var_data</span><span class="p">[</span><span class="n">vname</span><span class="p">][</span><span class="n">t</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">both_valid</span> <span class="o">=</span> <span class="n">p_valid_mask</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">v_col</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">both_valid</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">p_v</span> <span class="o">=</span> <span class="n">p_col</span><span class="p">[</span><span class="n">both_valid</span><span class="p">]</span>
+            <span class="n">v_v</span> <span class="o">=</span> <span class="n">v_col</span><span class="p">[</span><span class="n">both_valid</span><span class="p">]</span>
+            <span class="n">sort_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">p_v</span><span class="p">)</span>
+            <span class="n">stacked</span><span class="p">[</span><span class="n">vname</span><span class="p">][:,</span> <span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span>
+                <span class="n">p_grid</span><span class="p">,</span>
+                <span class="n">p_v</span><span class="p">[</span><span class="n">sort_idx</span><span class="p">],</span>
+                <span class="n">v_v</span><span class="p">[</span><span class="n">sort_idx</span><span class="p">],</span>
+                <span class="n">left</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                <span class="n">right</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Build output dataset; skip variables that are entirely NaN</span>
+    <span class="n">data_vars</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">grid_vars</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">stacked</span><span class="p">[</span><span class="n">vname</span><span class="p">])):</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+            <span class="n">a</span><span class="p">[</span><span class="s2">"vertical_interpolation"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"linear in pressure; no extrapolation outside </span><span class="si">{</span><span class="n">pmin</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">–</span><span class="si">{</span><span class="n">pmax</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> dbar"</span>
+            <span class="p">)</span>
+            <span class="n">data_vars</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"pressure"</span><span class="p">),</span> <span class="n">stacked</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">a</span>
+            <span class="p">)</span>
+    <span class="k">if</span> <span class="s2">"east_velocity"</span> <span class="ow">in</span> <span class="n">data_vars</span> <span class="ow">and</span> <span class="s2">"north_velocity"</span> <span class="ow">in</span> <span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">data_vars</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_speed_direction</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">stacked</span><span class="p">,</span> <span class="n">pmin</span><span class="p">,</span> <span class="n">pmax</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">site</span><span class="p">:</span>
+        <span class="n">data_vars</span><span class="p">[</span><span class="s2">"deployment_index"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"deployment_index"</span><span class="p">]</span><span class="o">.</span><span class="n">variable</span>
+        <span class="n">data_vars</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">ds</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">variable</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span> <span class="k">if</span> <span class="n">ds</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span> <span class="o">==</span> <span class="p">(</span><span class="s2">"DEPLOYMENT"</span><span class="p">,)}</span>
+        <span class="p">)</span>
+
+    <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+        <span class="n">data_vars</span><span class="p">,</span>
+        <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">"time"</span><span class="p">:</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"time"</span><span class="p">],</span>
+            <span class="s2">"pressure"</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                <span class="s2">"pressure"</span><span class="p">,</span>
+                <span class="n">p_grid</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"dbar"</span><span class="p">,</span>
+                    <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"sea water pressure"</span><span class="p">,</span>
+                    <span class="s2">"standard_name"</span><span class="p">:</span> <span class="s2">"sea_water_pressure"</span><span class="p">,</span>
+                    <span class="s2">"axis"</span><span class="p">:</span> <span class="s2">"Z"</span><span class="p">,</span>
+                    <span class="s2">"positive"</span><span class="p">:</span> <span class="s2">"down"</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+
+    <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="o">**</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">,</span>
+            <span class="s2">"data_mode"</span><span class="p">:</span> <span class="s2">"P"</span><span class="p">,</span>
+            <span class="s2">"pmin_dbar"</span><span class="p">:</span> <span class="n">pmin</span><span class="p">,</span>
+            <span class="s2">"pmax_dbar"</span><span class="p">:</span> <span class="n">pmax</span><span class="p">,</span>
+            <span class="s2">"dp_dbar"</span><span class="p">:</span> <span class="n">dp</span><span class="p">,</span>
+            <span class="s2">"grid_mask_flags"</span><span class="p">:</span> <span class="n">mask_rules</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">flags</span><span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">append_history</span><span class="p">(</span>
+        <span class="n">ds_out</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"flags: values flagged </span><span class="si">{</span><span class="n">mask_rules</span><span class="o">.</span><span class="n">rule_words</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span><span class="si">}</span><span class="s2"> left out before gridding "</span>
+        <span class="s2">"(grid_mask_flags)"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">append_history</span><span class="p">(</span>
+        <span class="n">ds_out</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"grid: linear interpolation in pressure onto </span><span class="si">{</span><span class="n">dp</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> dbar levels "</span>
+        <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">pmin</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">–</span><span class="si">{</span><span class="n">pmax</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> dbar), no extrapolation"</span>
+        <span class="o">+</span> <span class="p">(</span>
+            <span class="s2">", one mooring per profile (the one `deployment_index` names), the "</span>
+            <span class="s2">"overlap block not gridded, turnarounds empty"</span>
+            <span class="k">if</span> <span class="n">site</span>
+            <span class="k">else</span> <span class="s2">""</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="c1"># The grid's own citation, built from the sources it was derived from (each</span>
+    <span class="c1"># deployment's, on a site grid).</span>
+    <span class="n">record</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">v</span><span class="p">:</span> <span class="n">ds</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"deployment_source_"</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="n">attribution</span><span class="o">.</span><span class="n">apply_product_citation</span><span class="p">(</span>
+        <span class="n">ds_out</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'mooring_name'</span><span class="p">,</span><span class="w"> </span><span class="s1">''</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">'site grid'</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">site</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'grid'</span><span class="si">}</span><span class="s2">"</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+        <span class="n">attribution</span><span class="o">.</span><span class="n">deployment_sources</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">,</span> <span class="n">record</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">as_stored</span><span class="p">(</span><span class="n">to_canonical_units</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="s2">"grid"</span><span class="p">))</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_speed_direction</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">stacked</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">pmin</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">pmax</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return current speed and direction from the gridded east and north velocity."""</span>
+    <span class="n">east</span><span class="p">,</span> <span class="n">north</span> <span class="o">=</span> <span class="n">stacked</span><span class="p">[</span><span class="s2">"east_velocity"</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">stacked</span><span class="p">[</span><span class="s2">"north_velocity"</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">note</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">"from the gridded east_velocity and north_velocity (each linear in pressure; "</span>
+        <span class="sa">f</span><span class="s2">"no extrapolation outside </span><span class="si">{</span><span class="n">pmin</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">–</span><span class="si">{</span><span class="n">pmax</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> dbar)"</span>
+    <span class="p">)</span>
+    <span class="n">speed</span><span class="p">,</span> <span class="n">direction</span> <span class="o">=</span> <span class="n">speed_direction</span><span class="p">(</span><span class="n">east</span><span class="p">,</span> <span class="n">north</span><span class="p">)</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"current_speed"</span><span class="p">:</span> <span class="n">speed</span><span class="p">,</span> <span class="s2">"current_direction"</span><span class="p">:</span> <span class="n">direction</span><span class="p">}</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+            <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"pressure"</span><span class="p">),</span>
+            <span class="n">values</span><span class="p">[</span><span class="n">name</span><span class="p">],</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                <span class="o">**</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ds</span> <span class="k">else</span> <span class="n">params</span><span class="o">.</span><span class="n">cf_attrs</span><span class="p">(</span><span class="n">name</span><span class="p">)),</span>
+                <span class="s2">"vertical_interpolation"</span><span class="p">:</span> <span class="n">note</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">values</span>
+    <span class="p">}</span>
+
+
+<div class="viewcode-block" id="grid_stale_reason">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.grid_stale_reason">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">grid_stale_reason</span><span class="p">(</span>
+    <span class="n">grid_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">stack_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">pmin</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">pmax</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">dp</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">mask_flags</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return why the grid at *grid_path* must be rebuilt, or None when it is current.</span>
+
+<span class="sd">    The grid is current when it was built from the stack now on disk (same SHA-256),</span>
+<span class="sd">    with the same pressure levels and ``mask_flags``, by the same oceanarray release</span>
+<span class="sd">    (the commit is ignored).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    grid_path : pathlib.Path</span>
+<span class="sd">        The existing ``&lt;name&gt;_grid.nc``.</span>
+<span class="sd">    stack_path : pathlib.Path</span>
+<span class="sd">        The stack it would be built from.</span>
+<span class="sd">    pmin, pmax, dp : float</span>
+<span class="sd">        The pressure levels the new grid would use, in dbar.</span>
+<span class="sd">    mask_flags : Mapping, optional</span>
+<span class="sd">        The grid's own rule (see :func:`oceanarray.mask_rules.resolve_mask_flags`), or None for the</span>
+<span class="sd">        stack's.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str or None</span>
+<span class="sd">        The first reason found, in words, or None.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">grid_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="s2">"no grid yet"</span>
+    <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">grid_path</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">"netcdf4"</span><span class="p">)</span> <span class="k">as</span> <span class="n">old</span><span class="p">:</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="n">canonical_grid_attrs</span><span class="p">(</span><span class="n">old</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">reason</span> <span class="o">:=</span> <span class="n">provenance</span><span class="o">.</span><span class="n">release_change_reason</span><span class="p">(</span><span class="n">attrs</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">reason</span>
+    <span class="k">if</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"stack_sha256"</span><span class="p">)</span> <span class="o">!=</span> <span class="n">provenance</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">stack_path</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">stack_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> changed"</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">changed_attr</span><span class="p">(</span>
+        <span class="n">attrs</span><span class="p">,</span>
+        <span class="p">{</span><span class="s2">"pmin_dbar"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">pmin</span><span class="p">),</span> <span class="s2">"pmax_dbar"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">pmax</span><span class="p">),</span> <span class="s2">"dp_dbar"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">dp</span><span class="p">)},</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> changed"</span>
+    <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">stack_path</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">"netcdf4"</span><span class="p">)</span> <span class="k">as</span> <span class="n">stack</span><span class="p">:</span>
+        <span class="n">stack_rule</span> <span class="o">=</span> <span class="n">mask_rules</span><span class="o">.</span><span class="n">from_attrs</span><span class="p">(</span><span class="n">stack</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="n">mask_rules</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span>
+            <span class="n">stack_rule</span><span class="p">,</span>
+            <span class="kc">None</span> <span class="k">if</span> <span class="n">mask_flags</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">mask_rules</span><span class="o">.</span><span class="n">resolve_mask_flags</span><span class="p">(</span><span class="n">mask_flags</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"mask_flags changed"</span>  <span class="c1"># the rebuild reports why it cannot grid</span>
+    <span class="k">if</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"grid_mask_flags"</span><span class="p">)</span> <span class="o">!=</span> <span class="n">mask_rules</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">flags</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">"mask_flags changed"</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_grid_file</span><span class="p">(</span>
+    <span class="n">ds_stack</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">mooring_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">pmin</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">pmax</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">dp</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">mask_flags</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">stack_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Grid *ds_stack* and write ``&lt;name&gt;_grid.nc``; return its path.</span>
+
+<span class="sd">    With *stack_path*, the grid records the stack's file name and SHA-256; with</span>
+<span class="sd">    ``force=False`` too, an existing grid that is still current</span>
+<span class="sd">    (:func:`grid_stale_reason`) is kept.</span>
+<span class="sd">    """</span>
+    <span class="n">out_path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">product_file</span><span class="p">(</span>
+        <span class="n">mooring_dir</span><span class="p">,</span> <span class="n">mooring_name</span><span class="o">=</span><span class="n">mooring</span><span class="p">[</span><span class="s2">"name"</span><span class="p">],</span> <span class="n">product</span><span class="o">=</span><span class="s2">"grid"</span>
+    <span class="p">)</span>
+    <span class="n">reason</span> <span class="o">=</span> <span class="s2">"rebuild forced"</span>
+    <span class="k">if</span> <span class="n">stack_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force</span><span class="p">:</span>
+        <span class="n">reason</span> <span class="o">=</span> <span class="n">grid_stale_reason</span><span class="p">(</span>
+            <span class="n">out_path</span><span class="p">,</span> <span class="n">stack_path</span><span class="p">,</span> <span class="n">pmin</span><span class="o">=</span><span class="n">pmin</span><span class="p">,</span> <span class="n">pmax</span><span class="o">=</span><span class="n">pmax</span><span class="p">,</span> <span class="n">dp</span><span class="o">=</span><span class="n">dp</span><span class="p">,</span> <span class="n">mask_flags</span><span class="o">=</span><span class="n">mask_flags</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">reason</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"</span><span class="si">%s</span><span class="s2">: grid current (</span><span class="si">%s</span><span class="s2">)"</span><span class="p">,</span> <span class="n">mooring</span><span class="p">[</span><span class="s2">"name"</span><span class="p">],</span> <span class="n">out_path</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">out_path</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">grid</span><span class="p">(</span><span class="n">ds_stack</span><span class="p">,</span> <span class="n">pmin</span><span class="o">=</span><span class="n">pmin</span><span class="p">,</span> <span class="n">pmax</span><span class="o">=</span><span class="n">pmax</span><span class="p">,</span> <span class="n">dp</span><span class="o">=</span><span class="n">dp</span><span class="p">,</span> <span class="n">mask_flags</span><span class="o">=</span><span class="n">mask_flags</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">MooringError</span><span class="p">:</span>
+        <span class="k">raise</span>  <span class="c1"># already names the mooring</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="c1"># A rule that drops a flag the stack hides, or bad levels: the existing</span>
+        <span class="c1"># grid stays as it is.</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mooring</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'name'</span><span class="p">,</span><span class="w"> </span><span class="s1">'mooring'</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+    <span class="k">if</span> <span class="n">stack_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"stack_file"</span><span class="p">]</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">stack_path</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"stack_sha256"</span><span class="p">]</span> <span class="o">=</span> <span class="n">provenance</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">stack_path</span><span class="p">)</span>
+        <span class="n">append_history</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"grid rebuilt: </span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">write</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">out_path</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="site_levels">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.site_levels">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">site_levels</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">dp</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the default pressure range of a site grid: its instruments' span, to whole *dp*.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        A site stack.</span>
+<span class="sd">    dp : float</span>
+<span class="sd">        The grid spacing, in dbar.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple of float</span>
+<span class="sd">        ``(pmin, pmax)``: a low percentile of the shallowest depth's pressure and a</span>
+<span class="sd">        high percentile of the deepest depth's (``parameters.SITE_GRID_PERCENTILES``,</span>
+<span class="sd">        5 and 95), so the times an instrument rides above or below its usual</span>
+<span class="sd">        depth stay on the grid; rounded outward to a multiple of *dp*, ``pmin``</span>
+<span class="sd">        not below 0.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    oceanarray.exceptions.MooringError</span>
+<span class="sd">        No depth has a finite pressure.</span>
+<span class="sd">    """</span>
+    <span class="n">pressure</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>  <span class="c1"># an empty depth's median</span>
+        <span class="n">median</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">pressure</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">median</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'site_name'</span><span class="p">,</span><span class="w"> </span><span class="s1">'site stack'</span><span class="p">)</span><span class="si">}</span><span class="s2">: no depth of the site stack "</span>
+            <span class="s2">"has a finite pressure"</span>
+        <span class="p">)</span>
+    <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">SITE_GRID_PERCENTILES</span>
+    <span class="n">lo</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">pressure</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">nanargmin</span><span class="p">(</span><span class="n">median</span><span class="p">)],</span> <span class="n">low</span><span class="p">))</span>
+    <span class="n">hi</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">pressure</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">nanargmax</span><span class="p">(</span><span class="n">median</span><span class="p">)],</span> <span class="n">high</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">lo</span> <span class="o">/</span> <span class="n">dp</span><span class="p">)</span> <span class="o">*</span> <span class="n">dp</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">hi</span> <span class="o">/</span> <span class="n">dp</span><span class="p">)</span> <span class="o">*</span> <span class="n">dp</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_warn_other_settings</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">used</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Warn for each deployment whose own ``grid:`` settings differ from the site grid's."""</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">mooring</span>
+
+    <span class="k">if</span> <span class="s2">"deployment_settings"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s2">"deployment_name"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"deployment_settings"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">):</span>
+        <span class="n">own</span> <span class="o">=</span> <span class="n">mooring</span><span class="o">.</span><span class="n">settings_from_yaml</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">))</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"grid"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">own</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">differ</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">own</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"mask_flags"</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">same</span> <span class="o">=</span> <span class="n">mask_rules</span><span class="o">.</span><span class="n">resolve_mask_flags</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="n">used</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="n">same</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">same</span> <span class="o">=</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">used</span> <span class="ow">and</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="nb">float</span><span class="p">(</span><span class="n">used</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+                <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+                    <span class="n">same</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">same</span><span class="p">:</span>
+                <span class="n">differ</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">differ</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">'s own grid: settings (</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">differ</span><span class="p">)</span><span class="si">}</span><span class="s2">) differ "</span>
+                <span class="s2">"from the site grid's; the site grid uses the call's (recorded in the file)."</span>
+            <span class="p">)</span>
+
+
+<div class="viewcode-block" id="grid_site">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.grid_site">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">grid_site</span><span class="p">(</span>
+    <span class="n">stackcat</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">pmin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">pmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">mask_flags</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">slope_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Grid a site stack and write ``&lt;site&gt;_gridcat.nc`` beside it.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    stackcat : str or Path</span>
+<span class="sd">        The site stack, ``&lt;site&gt;_stackcat.nc``.</span>
+<span class="sd">    pmin, pmax : float, optional</span>
+<span class="sd">        The pressure range, in dbar. Default: :func:`site_levels`. The</span>
+<span class="sd">        deployments' own ``grid:`` settings are not used; a deployment whose</span>
+<span class="sd">        settings differ from the site grid's is named in a warning.</span>
+<span class="sd">    dp : float, optional</span>
+<span class="sd">        The grid spacing, in dbar; default ``parameters.GRID_DP_DBAR``.</span>
+<span class="sd">    mask_flags : iterable of int, or Mapping of str to iterable of int, optional</span>
+<span class="sd">        As for :func:`grid`.</span>
+<span class="sd">    slope_angle : float, optional</span>
+<span class="sd">        Deprecated and ignored, as for :func:`grid`.</span>
+<span class="sd">    overwrite : bool, optional</span>
+<span class="sd">        Replace an existing site grid.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">        The site grid's path.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    oceanarray.exceptions.MooringError</span>
+<span class="sd">        The file is not a site stack, the output exists without *overwrite*, or a</span>
+<span class="sd">        setting is invalid.</span>
+<span class="sd">    """</span>
+    <span class="n">stackcat</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">stackcat</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">stackcat</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">"netcdf4"</span><span class="p">)</span> <span class="k">as</span> <span class="n">opened</span><span class="p">:</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">opened</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_site_stack</span><span class="p">(</span><span class="n">ds</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">stackcat</span><span class="si">}</span><span class="s2"> is not a site stack (oceanarray concat output)."</span>
+        <span class="p">)</span>
+    <span class="n">site</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"site_name"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">stackcat</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">"_stackcat.nc"</span><span class="p">))</span>
+    <span class="n">out_path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">product_file</span><span class="p">(</span><span class="n">stackcat</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">mooring_name</span><span class="o">=</span><span class="n">site</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s2">"gridcat"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">out_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">out_path</span><span class="si">}</span><span class="s2"> exists; pass overwrite=True (CLI --force)."</span><span class="p">)</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">dp</span><span class="p">)</span> <span class="k">if</span> <span class="n">dp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">params</span><span class="o">.</span><span class="n">GRID_DP_DBAR</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">step</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"dp=</span><span class="si">{</span><span class="n">step</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> must be &gt; 0"</span><span class="p">)</span>
+        <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">site_levels</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+        <span class="n">top</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">pmin</span><span class="p">)</span> <span class="k">if</span> <span class="n">pmin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">lo</span>
+        <span class="n">bottom</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">pmax</span><span class="p">)</span> <span class="k">if</span> <span class="n">pmax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">hi</span>
+        <span class="k">if</span> <span class="n">bottom</span> <span class="o">&lt;=</span> <span class="n">top</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"pmax=</span><span class="si">{</span><span class="n">bottom</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> must be above pmin=</span><span class="si">{</span><span class="n">top</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="n">mask_rules</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span>
+            <span class="n">mask_rules</span><span class="o">.</span><span class="n">from_attrs</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">),</span>
+            <span class="kc">None</span> <span class="k">if</span> <span class="n">mask_flags</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">mask_rules</span><span class="o">.</span><span class="n">resolve_mask_flags</span><span class="p">(</span><span class="n">mask_flags</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">_warn_other_settings</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">,</span> <span class="p">{</span><span class="s2">"pmin"</span><span class="p">:</span> <span class="n">top</span><span class="p">,</span> <span class="s2">"pmax"</span><span class="p">:</span> <span class="n">bottom</span><span class="p">,</span> <span class="s2">"dp"</span><span class="p">:</span> <span class="n">step</span><span class="p">,</span> <span class="s2">"mask_flags"</span><span class="p">:</span> <span class="n">flags</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">grid</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">,</span>
+            <span class="n">pmin</span><span class="o">=</span><span class="n">top</span><span class="p">,</span>
+            <span class="n">pmax</span><span class="o">=</span><span class="n">bottom</span><span class="p">,</span>
+            <span class="n">dp</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
+            <span class="n">mask_flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span>
+            <span class="n">slope_angle</span><span class="o">=</span><span class="n">slope_angle</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="n">MooringError</span><span class="p">:</span>
+        <span class="k">raise</span>  <span class="c1"># already names the site</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">site</span><span class="si">}</span><span class="s2">: cannot grid the site stack: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"stackcat_file"</span><span class="p">]</span> <span class="o">=</span> <span class="n">stackcat</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"stackcat_sha256"</span><span class="p">]</span> <span class="o">=</span> <span class="n">provenance</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">stackcat</span><span class="p">)</span>
+    <span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">out_path</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="n">chunks</span><span class="p">(</span><span class="n">out</span><span class="p">))</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"wrote </span><span class="si">{</span><span class="n">out_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out_path</span></div>
+
+
+
+<div class="viewcode-block" id="MooringGridder">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.MooringGridder">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MooringGridder</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Step 2: vertically interpolate stacked instruments onto a pressure grid → ``_grid.nc``.</span>
+
+<span class="sd">    .. deprecated:: 0.6.0</span>
+<span class="sd">        Removed in 0.7.0; see the migration page.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">proc_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Interpolate a mooring stack onto a regular pressure grid.</span>
+
+<span class="sd">        Reads ``{mooring}_stack.nc`` (produced by :class:`MooringStacker`) and</span>
+<span class="sd">        interpolates all scalar variables onto a uniform pressure axis defined by</span>
+<span class="sd">        ``p_start``, ``p_end``, and ``dp`` (in dbar).  Writes</span>
+<span class="sd">        ``{mooring}_grid.nc`` in the mooring proc directory.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        proc_dir : str</span>
+<span class="sd">            Cruise-level processed output directory. The pipeline appends</span>
+<span class="sd">            ``/{mooring}/`` internally (see :meth:`oceanarray.Paths.mooring_dir`).</span>
+
+<span class="sd">        """</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">_deprecated</span>
+
+        <span class="n">_deprecated</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">"oceanarray.pipeline.grid.MooringGridder"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_proc_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_proc_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mooring_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the mooring-level proc directory."""</span>
+        <span class="k">return</span> <span class="n">paths</span><span class="o">.</span><span class="n">Paths</span><span class="p">(</span><span class="n">proc_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_proc_dir</span><span class="p">)</span><span class="o">.</span><span class="n">mooring_dir</span><span class="p">(</span><span class="n">mooring_name</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_rel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return a short display path relative to proc_dir."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proc_dir</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proc_dir</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
+
+<div class="viewcode-block" id="MooringGridder.grid">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.MooringGridder.grid">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">grid</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">mooring_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">p_start</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">p_end</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">dp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Interpolate the stacked mooring dataset onto a regular pressure grid.</span>
+
+<span class="sd">        Reads ``{mooring}_stack.nc``, interpolates all variables onto a pressure</span>
+<span class="sd">        axis from *p_start* to *p_end* in steps of *dp* dbar (each defaults to</span>
+<span class="sd">        ``GRID_PMIN_DBAR``, ``GRID_PMAX_DBAR``, ``GRID_DP_DBAR`` in</span>
+<span class="sd">        :mod:`oceanarray.config.parameters`), and writes ``{mooring}_grid.nc``.</span>
+
+<span class="sd">        Returns True on success, False on error.</span>
+<span class="sd">        """</span>
+        <span class="n">proc_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_proc_dir</span><span class="p">(</span><span class="n">mooring_name</span><span class="p">)</span>
+        <span class="n">merge_path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">product_file</span><span class="p">(</span>
+            <span class="n">proc_dir</span><span class="p">,</span> <span class="n">mooring_name</span><span class="o">=</span><span class="n">mooring_name</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s2">"stack"</span>
+        <span class="p">)</span>
+        <span class="n">output_path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">product_file</span><span class="p">(</span>
+            <span class="n">proc_dir</span><span class="p">,</span> <span class="n">mooring_name</span><span class="o">=</span><span class="n">mooring_name</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s2">"grid"</span>
+        <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">stack_found</span> <span class="o">=</span> <span class="n">merge_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+            <span class="n">output_found</span> <span class="o">=</span> <span class="n">output_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TimeoutError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">"Cannot access data drive — is it connected? "</span>
+                <span class="sa">f</span><span class="s2">"Path: </span><span class="si">{</span><span class="n">merge_path</span><span class="o">.</span><span class="n">parent</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">)"</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">stack_found</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Stack file not found: </span><span class="si">{</span><span class="n">merge_path</span><span class="si">}</span><span class="s2"> — run "</span>
+                <span class="s2">"'oceanarray process MOORING --stage stack' first."</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">output_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="s2">"skip"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rel</span><span class="p">(</span><span class="n">output_path</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span>
+                <span class="n">merge_path</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">"netcdf4"</span><span class="p">,</span> <span class="n">decode_timedelta</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+                <span class="n">ds_stack</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TimeoutError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">"Cannot read stack file — is the data drive connected? "</span>
+                <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">)"</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ds_out</span> <span class="o">=</span> <span class="n">grid</span><span class="p">(</span><span class="n">ds_stack</span><span class="p">,</span> <span class="n">pmin</span><span class="o">=</span><span class="n">p_start</span><span class="p">,</span> <span class="n">pmax</span><span class="o">=</span><span class="n">p_end</span><span class="p">,</span> <span class="n">dp</span><span class="o">=</span><span class="n">dp</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="c1"># write() replaces atomically (temp file then rename), so the previous</span>
+        <span class="c1"># output survives a failed write; do not unlink it first.</span>
+        <span class="n">write</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="s2">"file"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rel</span><span class="p">(</span><span class="n">output_path</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+</div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_warn_slow_instruments</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Warn for the instruments the stack recorded as sampling slower than its step."""</span>
+    <span class="n">slow</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"instruments_slower_than_step"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">slow</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"sampled slower than the stack step: </span><span class="si">{</span><span class="n">slow</span><span class="si">}</span><span class="s2">; the grid leaves "</span>
+            <span class="s2">"the steps between their samples empty."</span>
+        <span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,226 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stage 1: read the raw files &mdash; oceanarray 0.6.0.post1.dev41 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a96f5941"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Stage 2: trim and clocks" href="trimming.html" />
+    <link rel="prev" title="Files and folders" href="../files.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Stage 1: read</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-it-reads">What it reads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-it-does">What it does</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#output">Output</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Stage 1: read the raw files</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/methods/standardisation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="stage-1-read-the-raw-files">
+<h1>Stage 1: read the raw files<a class="headerlink" href="#stage-1-read-the-raw-files" title="Link to this heading"></a></h1>
+<p>Stage 1 reads each instrument’s raw file into CF-NetCDF, keeping the values as
+recorded: no trimming, no QC. Everything later starts from these files.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>oceanarray<span class="w"> </span>process<span class="w"> </span>dsG3_1_2026<span class="w"> </span>--raw-dir<span class="w"> </span>/data/raw<span class="w"> </span>--proc-dir<span class="w"> </span>/data/proc<span class="w"> </span>--stage<span class="w"> </span><span class="m">1</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">oa</span>
+
+<span class="n">paths</span> <span class="o">=</span> <span class="n">oa</span><span class="o">.</span><span class="n">Paths</span><span class="p">(</span><span class="n">raw_dir</span><span class="o">=</span><span class="s2">"/data/raw"</span><span class="p">,</span> <span class="n">proc_dir</span><span class="o">=</span><span class="s2">"/data/proc"</span><span class="p">)</span>
+<span class="n">oa</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="s2">"/data/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml"</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">stages</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="what-it-reads">
+<h2>What it reads<a class="headerlink" href="#what-it-reads" title="Link to this heading"></a></h2>
+<p>Raw files are read through <a class="reference external" href="https://pypi.org/project/seasenselib/">seasenselib</a>;
+<code class="docutils literal notranslate"><span class="pre">seasenselib</span> <span class="pre">list</span></code> prints the formats it reads. Each instrument entry names its
+file and format (<code class="docutils literal notranslate"><span class="pre">filename:</span></code>, <code class="docutils literal notranslate"><span class="pre">file_type:</span></code>; see <a class="reference internal" href="../yaml_configuration.html"><span class="doc">The mooring YAML file</span></a>).</p>
+<p>Files already processed by another group are read too: OceanSITES netCDF
+(<code class="docutils literal notranslate"><span class="pre">file_type:</span> <span class="pre">oceansites</span></code>) and RAPID RODB text (<code class="docutils literal notranslate"><span class="pre">file_type:</span> <span class="pre">rodb</span></code>), for
+MicroCATs, current meters and Aquadopps. They go through the same stages as raw
+files; their originator’s attributes are kept as <code class="docutils literal notranslate"><span class="pre">originator_*</span></code>, and a unit the
+file gets wrong is fixed with <code class="docutils literal notranslate"><span class="pre">units_override</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">clamp</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">serial</span><span class="p">:</span><span class="w"> </span><span class="s">"500"</span>
+<span class="w">    </span><span class="nt">instrument</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aquadopp</span>
+<span class="w">    </span><span class="nt">file_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">oceansites</span>
+<span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OS_OSNAP_WHOI_CF7_202007_CM_500m.nc</span>
+<span class="w">    </span><span class="nt">hab</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1401</span>
+</pre></div>
+</div>
+</section>
+<section id="what-it-does">
+<h2>What it does<a class="headerlink" href="#what-it-does" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Names</strong> — one name per quantity (<code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">conductivity</span></code>,
+<code class="docutils literal notranslate"><span class="pre">pressure</span></code>, <code class="docutils literal notranslate"><span class="pre">east_velocity</span></code>, …; the list is <code class="docutils literal notranslate"><span class="pre">parameters.VARIABLES</span></code>), and
+the reader’s derived variables dropped.</p></li>
+<li><p><strong>Units</strong> — one spelling per quantity (<code class="docutils literal notranslate"><span class="pre">degree_Celsius</span></code>, <code class="docutils literal notranslate"><span class="pre">mS</span> <span class="pre">cm-1</span></code>,
+<code class="docutils literal notranslate"><span class="pre">dbar</span></code>); a conversion is recorded in <code class="docutils literal notranslate"><span class="pre">units_converted</span></code>. A unit the file gets
+wrong is fixed with <code class="docutils literal notranslate"><span class="pre">units_override</span></code> in the instrument entry, with a reason.</p></li>
+<li><p><strong>Aquadopp velocity</strong> — rotated from the beams to the instrument frame (XYZ) with
+the header’s transformation matrix; stage 3 rotates it on to east/north/up.</p></li>
+<li><p><strong>Metadata</strong> — the mooring’s name, position, water depth and times, the
+instrument’s serial, type and nominal depth, and, for an imported file,
+its people as OceanSITES lists (<a class="reference internal" href="../oceanarray_format.html"><span class="doc">Output files</span></a>).</p></li>
+<li><p><strong>Provenance</strong> — the oceanarray version, the raw file’s name, and
+<code class="docutils literal notranslate"><span class="pre">processing_stage</span> <span class="pre">=</span> <span class="pre">1</span></code>.</p></li>
+</ul>
+</section>
+<section id="output">
+<h2>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">{proc_dir}/{mooring}/{instrument}/{mooring}_{serial}_stage1.nc</span></code>, on <code class="docutils literal notranslate"><span class="pre">time</span></code>.
+Instruments that fail are named in the log and the run carries on (<code class="docutils literal notranslate"><span class="pre">--strict</span></code>
+stops instead).</p>
+<p>Before trimming, open the instrument pages (<code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">report</span> <span class="pre">MOORING</span>
+<span class="pre">--instruments</span></code>) to see where each record starts and ends; see
+<a class="reference internal" href="trimming.html"><span class="doc">Stage 2: trim and clocks</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../files.html" class="btn btn-neutral float-left" title="Files and folders" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="trimming.html" class="btn btn-neutral float-right" title="Stage 2: trim and clocks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

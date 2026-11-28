@@ -1,0 +1,986 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.analysis.derived &mdash; oceanarray 0.6.0.post1.dev41 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a96f5941"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.analysis.derived</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.analysis.derived</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Quantities a report page derives once from its product and hands to its figures.</span>
+
+<span class="sd">Physics here, drawing in :mod:`oceanarray.plotters`; nothing is written back to a</span>
+<span class="sd">product. :func:`derived_fields` bundles position, θ, speed and direction.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">lru_cache</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">pressure_from_depth</span><span class="p">,</span> <span class="n">sigma_function</span><span class="p">,</span> <span class="n">speed_direction</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1">#: Attribute pairs that may carry a product's position, in the order they are tried.</span>
+<span class="n">_POSITION_ATTRS</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="s2">"seabed_latitude"</span><span class="p">,</span> <span class="s2">"seabed_longitude"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"deployment_latitude"</span><span class="p">,</span> <span class="s2">"deployment_longitude"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"latitude"</span><span class="p">,</span> <span class="s2">"longitude"</span><span class="p">),</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="mooring_position">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.derived.mooring_position">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mooring_position</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">warn</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the mooring's latitude and longitude from a product's attributes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        A stage-3, stack or grid product.  Its global attributes are searched for</span>
+<span class="sd">        ``seabed_*``, ``deployment_*`` and plain ``latitude`` / ``longitude``, in</span>
+<span class="sd">        that order; a pair at exactly (0, 0) is an unfilled placeholder and skipped.</span>
+<span class="sd">    warn : bool, optional</span>
+<span class="sd">        Log a warning when the latitude or the longitude is unknown (default True).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple of (float or None, float or None)</span>
+<span class="sd">        ``(latitude, longitude)`` in decimal degrees; None for a coordinate that is</span>
+<span class="sd">        not recorded.  Never substitutes 0.</span>
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.mooring.location</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_coordinate</span>
+
+    <span class="n">attrs</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span>
+    <span class="n">lat</span> <span class="o">=</span> <span class="n">lon</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">lat_key</span><span class="p">,</span> <span class="n">lon_key</span> <span class="ow">in</span> <span class="n">_POSITION_ATTRS</span><span class="p">:</span>
+        <span class="n">la</span> <span class="o">=</span> <span class="n">parse_coordinate</span><span class="p">(</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">lat_key</span><span class="p">))</span>
+        <span class="n">lo</span> <span class="o">=</span> <span class="n">parse_coordinate</span><span class="p">(</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">lon_key</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">la</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">lo</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">lat</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">la</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lat</span> <span class="o">=</span> <span class="n">la</span>
+        <span class="k">if</span> <span class="n">lon</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">lo</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lon</span> <span class="o">=</span> <span class="n">lo</span>
+        <span class="k">if</span> <span class="n">lat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">lon</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">break</span>
+    <span class="k">if</span> <span class="n">warn</span> <span class="ow">and</span> <span class="p">(</span><span class="n">lat</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">lon</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="s2">" and "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">n</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">((</span><span class="s2">"latitude"</span><span class="p">,</span> <span class="n">lat</span><span class="p">),</span> <span class="p">(</span><span class="s2">"longitude"</span><span class="p">,</span> <span class="n">lon</span><span class="p">))</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">"</span><span class="si">%s</span><span class="s2">: mooring </span><span class="si">%s</span><span class="s2"> unknown; quantities that need it are left out"</span><span class="p">,</span>
+            <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"mooring_name"</span><span class="p">,</span> <span class="s2">"product"</span><span class="p">),</span>
+            <span class="n">missing</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span></div>
+
+
+
+<div class="viewcode-block" id="level_of_max_speed">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.derived.level_of_max_speed">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">level_of_max_speed</span><span class="p">(</span><span class="n">speed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.70</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the column of *speed* with the highest time-mean speed.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    speed : numpy.ndarray</span>
+<span class="sd">        Current speed on ``(time, level)``.</span>
+<span class="sd">    min_coverage : float, optional</span>
+<span class="sd">        Only levels with at least this fraction of finite values compete</span>
+<span class="sd">        (default 0.70), so a briefly covered level does not win on a few strong</span>
+<span class="sd">        values; when no level qualifies, all do.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    int or None</span>
+<span class="sd">        The level index; None when every value is missing.</span>
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+    <span class="n">speed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">speed</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
+        <span class="n">mean_spd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">speed</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">mean_spd</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">coverage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">speed</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">speed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">eligible</span> <span class="o">=</span> <span class="n">coverage</span> <span class="o">&gt;=</span> <span class="n">min_coverage</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">eligible</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">mean_spd</span><span class="p">)):</span>
+        <span class="n">eligible</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">speed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanargmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">eligible</span><span class="p">,</span> <span class="n">mean_spd</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)))</span></div>
+
+
+
+<div class="viewcode-block" id="potential_temperature_of">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.derived.potential_temperature_of">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">potential_temperature_of</span><span class="p">(</span>
+    <span class="n">temperature</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">salinity</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">pressure</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">longitude</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return potential temperature θ referenced to the surface (°C), by TEOS-10.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    temperature, salinity : numpy.ndarray</span>
+<span class="sd">        In-situ temperature (°C) and practical salinity, of one shape.</span>
+<span class="sd">    pressure : numpy.ndarray</span>
+<span class="sd">        Sea pressure (dbar), broadcastable to *temperature* (one value per sample,</span>
+<span class="sd">        or the pressure levels along the last axis).</span>
+<span class="sd">    latitude, longitude : float or None</span>
+<span class="sd">        The mooring position, for Absolute Salinity.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray or None</span>
+<span class="sd">        θ of the shape of *temperature*; None when the position is unknown.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">latitude</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">longitude</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.analysis.site</span><span class="w"> </span><span class="kn">import</span> <span class="n">potential_temperature</span>
+
+    <span class="k">return</span> <span class="n">potential_temperature</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">salinity</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pressure</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+        <span class="n">longitude</span><span class="p">,</span>
+        <span class="n">latitude</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_density_grid</span><span class="p">(</span>
+    <span class="n">s_lo</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">s_hi</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">t_lo</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">t_hi</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">n_grid</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">longitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">reference_dbar</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">gsw</span>
+
+    <span class="n">sg</span><span class="p">,</span> <span class="n">tg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">s_lo</span><span class="p">,</span> <span class="n">s_hi</span><span class="p">,</span> <span class="n">n_grid</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">t_lo</span><span class="p">,</span> <span class="n">t_hi</span><span class="p">,</span> <span class="n">n_grid</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">sa</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">SA_from_SP</span><span class="p">(</span><span class="n">sg</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span> <span class="n">latitude</span><span class="p">)</span>
+    <span class="n">ct</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">CT_from_pt</span><span class="p">(</span><span class="n">sa</span><span class="p">,</span> <span class="n">tg</span><span class="p">)</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="n">sigma_function</span><span class="p">(</span><span class="n">reference_dbar</span><span class="p">)(</span><span class="n">sa</span><span class="p">,</span> <span class="n">ct</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sg</span><span class="p">,</span> <span class="n">tg</span><span class="p">,</span> <span class="n">sigma</span>
+
+
+<div class="viewcode-block" id="potential_density_grid">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.derived.potential_density_grid">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">potential_density_grid</span><span class="p">(</span>
+    <span class="n">s_lim</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="n">theta_lim</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">longitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">n_grid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="n">reference_dbar</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return potential density on a practical-salinity × θ grid, for T-S contours.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    s_lim : tuple of float</span>
+<span class="sd">        Practical-salinity range ``(low, high)``.</span>
+<span class="sd">    theta_lim : tuple of float</span>
+<span class="sd">        Potential-temperature range ``(low, high)`` (°C).</span>
+<span class="sd">    latitude, longitude : float</span>
+<span class="sd">        The mooring position, for Absolute Salinity (taken at the surface).</span>
+<span class="sd">    n_grid : int, optional</span>
+<span class="sd">        Grid points along each axis (default 200).</span>
+<span class="sd">    reference_dbar : int, optional</span>
+<span class="sd">        Reference pressure: 0 (σθ, default) or 2000 (σ2).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple of numpy.ndarray</span>
+<span class="sd">        ``(S, θ, σ)`` on ``(n_grid, n_grid)``; σ is the potential density anomaly</span>
+<span class="sd">        (kg m⁻³) at the reference pressure, from Conservative Temperature computed</span>
+<span class="sd">        from θ.  Results are cached on the limits rounded to 0.001, so panels of one</span>
+<span class="sd">        figure share a grid.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">reference_dbar</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2000</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"reference_dbar must be 0 or 2000, not </span><span class="si">{</span><span class="n">reference_dbar</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_density_grid</span><span class="p">(</span>
+        <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">s_lim</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">3</span><span class="p">),</span>
+        <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">s_lim</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">3</span><span class="p">),</span>
+        <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">theta_lim</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">3</span><span class="p">),</span>
+        <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">theta_lim</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">3</span><span class="p">),</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">n_grid</span><span class="p">),</span>
+        <span class="nb">float</span><span class="p">(</span><span class="n">longitude</span><span class="p">),</span>
+        <span class="nb">float</span><span class="p">(</span><span class="n">latitude</span><span class="p">),</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">reference_dbar</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="potential_density_fields">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.derived.potential_density_fields">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">potential_density_fields</span><span class="p">(</span>
+    <span class="n">theta</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">salinity</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">pressure</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">longitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return σ0 and σ2 from potential temperature and practical salinity.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    theta : numpy.ndarray</span>
+<span class="sd">        Potential temperature referenced to the surface (°C).</span>
+<span class="sd">    salinity : numpy.ndarray</span>
+<span class="sd">        Practical salinity, of the shape of *theta*.</span>
+<span class="sd">    pressure : numpy.ndarray</span>
+<span class="sd">        Sea pressure (dbar), broadcastable to *theta*; used only for Absolute</span>
+<span class="sd">        Salinity.</span>
+<span class="sd">    latitude, longitude : float</span>
+<span class="sd">        The mooring position.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple of numpy.ndarray</span>
+<span class="sd">        ``(sigma0, sigma2)``: potential density anomaly referenced to the surface</span>
+<span class="sd">        and to 2000 dbar (kg m⁻³), each over the whole array.</span>
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">gsw</span>
+
+    <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pressure</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">theta</span><span class="p">))</span>
+    <span class="n">sa</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">SA_from_SP</span><span class="p">(</span><span class="n">salinity</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span> <span class="n">latitude</span><span class="p">)</span>
+    <span class="n">ct</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">CT_from_pt</span><span class="p">(</span><span class="n">sa</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sigma_function</span><span class="p">(</span><span class="mi">0</span><span class="p">)(</span><span class="n">sa</span><span class="p">,</span> <span class="n">ct</span><span class="p">),</span> <span class="n">sigma_function</span><span class="p">(</span><span class="mi">2000</span><span class="p">)(</span><span class="n">sa</span><span class="p">,</span> <span class="n">ct</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="n_squared">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.derived.n_squared">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">n_squared</span><span class="p">(</span>
+    <span class="n">temperature</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">salinity</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">pressure</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">longitude</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return buoyancy frequency squared N² between neighbouring pressure levels.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    temperature, salinity : numpy.ndarray</span>
+<span class="sd">        In-situ temperature (°C) and practical salinity on ``(pressure, time)``.</span>
+<span class="sd">    pressure : numpy.ndarray</span>
+<span class="sd">        The pressure levels (dbar), one per row.</span>
+<span class="sd">    latitude : float</span>
+<span class="sd">        Mooring latitude (gravity).</span>
+<span class="sd">    longitude : float or None</span>
+<span class="sd">        Mooring longitude, for Absolute Salinity.  When None, a warning is logged</span>
+<span class="sd">        and 0 is used: Absolute Salinity depends on it only weakly.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    n2 : numpy.ndarray</span>
+<span class="sd">        N² (s⁻²) on ``(pressure − 1, time)``, by ``gsw.Nsquared``.</span>
+<span class="sd">    p_mid : numpy.ndarray</span>
+<span class="sd">        The mid-point pressure of each pair of levels (dbar), averaged over time.</span>
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">gsw</span>
+
+    <span class="k">if</span> <span class="n">longitude</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">"mooring longitude unknown; N² uses longitude 0 for Absolute Salinity "</span>
+            <span class="s2">"(a small effect)"</span>
+        <span class="p">)</span>
+        <span class="n">longitude</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">n_p</span><span class="p">,</span> <span class="n">n_t</span> <span class="o">=</span> <span class="n">temperature</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">p_2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pressure</span><span class="p">,</span> <span class="nb">float</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="p">(</span><span class="n">n_p</span><span class="p">,</span> <span class="n">n_t</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">sa</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">SA_from_SP</span><span class="p">(</span><span class="n">salinity</span><span class="p">,</span> <span class="n">p_2d</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span> <span class="n">latitude</span><span class="p">)</span>
+    <span class="n">ct</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">CT_from_t</span><span class="p">(</span><span class="n">sa</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">p_2d</span><span class="p">)</span>
+    <span class="n">n2</span><span class="p">,</span> <span class="n">p_mid</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">Nsquared</span><span class="p">(</span><span class="n">sa</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">p_2d</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">latitude</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">n2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">p_mid</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="seabed_pressure">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.derived.seabed_pressure">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">seabed_pressure</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the sea pressure (dbar) at the seabed, from the water depth.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        A product with the ``waterdepth`` (m) and position attributes.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float or None</span>
+<span class="sd">        ``pressure_from_depth(waterdepth, latitude)``; None (with a warning when</span>
+<span class="sd">        the depth is known but the latitude is not) when it cannot be computed.</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">waterdepth</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"waterdepth"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">waterdepth</span><span class="p">)</span> <span class="ow">or</span> <span class="n">waterdepth</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">lat</span><span class="p">,</span> <span class="n">_lon</span> <span class="o">=</span> <span class="n">mooring_position</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">lat</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">"</span><span class="si">%s</span><span class="s2">: mooring latitude unknown; the water depth is not converted to a "</span>
+            <span class="s2">"seabed pressure"</span><span class="p">,</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"mooring_name"</span><span class="p">,</span> <span class="s2">"product"</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">pressure_from_depth</span><span class="p">(</span><span class="n">waterdepth</span><span class="p">,</span> <span class="n">lat</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="InstrumentLevel">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.derived.InstrumentLevel">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">InstrumentLevel</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One instrument of a stack: what it measured and where.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    serial : str</span>
+<span class="sd">        The instrument's serial number.</span>
+<span class="sd">    instrument_type : str</span>
+<span class="sd">        Its type (``microcat``, ``aquadopp``, ...).</span>
+<span class="sd">    pressure : float</span>
+<span class="sd">        Median of its pressure record (dbar).</span>
+<span class="sd">    variables : frozenset of str</span>
+<span class="sd">        The variables it has values for (``temperature``, ``salinity``,</span>
+<span class="sd">        ``east_velocity``, ...).</span>
+<span class="sd">    """</span>
+
+    <span class="n">serial</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">instrument_type</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">pressure</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">variables</span><span class="p">:</span> <span class="nb">frozenset</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">frozenset</span><span class="p">)</span></div>
+
+
+
+<span class="c1">#: The variables :func:`instrument_levels` records an instrument as measuring.</span>
+<span class="n">_LEVEL_VARIABLES</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"temperature"</span><span class="p">,</span>
+    <span class="s2">"salinity"</span><span class="p">,</span>
+    <span class="s2">"conductivity"</span><span class="p">,</span>
+    <span class="s2">"dissolved_oxygen"</span><span class="p">,</span>
+    <span class="s2">"east_velocity"</span><span class="p">,</span>
+    <span class="s2">"north_velocity"</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="instrument_levels">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.derived.instrument_levels">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">instrument_levels</span><span class="p">(</span><span class="n">ds_stack</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">InstrumentLevel</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return each instrument of a stack with its median pressure, shallowest first.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_stack : xarray.Dataset or None</span>
+<span class="sd">        A stack (``time`` × ``N_LEVELS``) with ``pressure``, ``serial`` and</span>
+<span class="sd">        ``instrument_type``.  None (no stack beside the grid) gives no levels.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of InstrumentLevel</span>
+<span class="sd">        Instruments with a pressure record, sorted by median pressure.  Values</span>
+<span class="sd">        are counted as the stack holds them (its flags are not applied).</span>
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+    <span class="k">if</span> <span class="n">ds_stack</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="s2">"pressure"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_stack</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">dim</span> <span class="o">=</span> <span class="s2">"N_LEVELS"</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_stack</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">ds_stack</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
+        <span class="n">med</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">serials</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">ds_stack</span><span class="p">[</span><span class="s2">"serial"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">"serial"</span> <span class="ow">in</span> <span class="n">ds_stack</span><span class="o">.</span><span class="n">variables</span>
+        <span class="k">else</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ds_stack</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="n">dim</span><span class="p">])]</span>
+    <span class="p">)</span>
+    <span class="n">types</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">ds_stack</span><span class="p">[</span><span class="s2">"instrument_type"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">"instrument_type"</span> <span class="ow">in</span> <span class="n">ds_stack</span><span class="o">.</span><span class="n">variables</span>
+        <span class="k">else</span> <span class="p">[</span><span class="s2">""</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">serials</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">present</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">v</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">ds_stack</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_LEVEL_VARIABLES</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds_stack</span><span class="o">.</span><span class="n">data_vars</span> <span class="ow">and</span> <span class="n">ds_stack</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span> <span class="o">==</span> <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">InstrumentLevel</span><span class="p">(</span>
+            <span class="n">serial</span><span class="o">=</span><span class="n">serials</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="n">instrument_type</span><span class="o">=</span><span class="n">types</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="n">pressure</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">med</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span>
+            <span class="n">variables</span><span class="o">=</span><span class="nb">frozenset</span><span class="p">(</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">has</span> <span class="ow">in</span> <span class="n">present</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">has</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">serials</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">med</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">pressure</span><span class="p">)</span></div>
+
+
+
+<span class="c1">#: Share of the record a grid level must have velocity for to get a current rose.</span>
+<span class="n">ROSE_MIN_FILLED</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="c1">#: Most current roses (and hodographs) drawn on a grid page.</span>
+<span class="n">ROSE_MAX_LEVELS</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span>
+
+
+<div class="viewcode-block" id="velocity_coverage">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.derived.velocity_coverage">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">velocity_coverage</span><span class="p">(</span><span class="n">east</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">north</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the share of the record each level has both velocity components for.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    east, north : numpy.ndarray</span>
+<span class="sd">        Velocity components on ``(time, level)``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray or None</span>
+<span class="sd">        One share in [0, 1] per level; None when the arrays are not</span>
+<span class="sd">        ``(time, level)`` or hold no time.</span>
+<span class="sd">    """</span>
+    <span class="n">both</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">east</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">north</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">both</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">both</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">both</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">both</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="sparse_velocity_levels">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.derived.sparse_velocity_levels">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sparse_velocity_levels</span><span class="p">(</span>
+    <span class="n">east</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">north</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">min_filled</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">ROSE_MIN_FILLED</span><span class="p">,</span>
+    <span class="n">coverage</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the levels left out of the roses and hodographs for low coverage.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    east, north : numpy.ndarray</span>
+<span class="sd">        Velocity components on ``(time, level)``, levels shallowest first.</span>
+<span class="sd">    min_filled : float, optional</span>
+<span class="sd">        The share :func:`velocity_levels` requires (default</span>
+<span class="sd">        :data:`ROSE_MIN_FILLED`).</span>
+<span class="sd">    coverage : numpy.ndarray or None, optional</span>
+<span class="sd">        :func:`velocity_coverage` of *east* and *north*, when already computed.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of int</span>
+<span class="sd">        Levels with some velocity but less than *min_filled* of the record,</span>
+<span class="sd">        shallowest first.  Levels with no velocity at all (outside the current</span>
+<span class="sd">        meters) are not listed.</span>
+<span class="sd">    """</span>
+    <span class="n">filled</span> <span class="o">=</span> <span class="n">coverage</span> <span class="k">if</span> <span class="n">coverage</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">velocity_coverage</span><span class="p">(</span><span class="n">east</span><span class="p">,</span> <span class="n">north</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">filled</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">((</span><span class="n">filled</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">filled</span> <span class="o">&lt;</span> <span class="n">min_filled</span><span class="p">))</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="velocity_levels">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.derived.velocity_levels">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">velocity_levels</span><span class="p">(</span>
+    <span class="n">east</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">north</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">min_filled</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">ROSE_MIN_FILLED</span><span class="p">,</span>
+    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ROSE_MAX_LEVELS</span><span class="p">,</span>
+    <span class="n">coverage</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the grid levels the current roses and hodographs are drawn at.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    east, north : numpy.ndarray</span>
+<span class="sd">        Velocity components on ``(time, level)``, levels shallowest first.</span>
+<span class="sd">    min_filled : float, optional</span>
+<span class="sd">        Share of the record a level must have both components for (default</span>
+<span class="sd">        :data:`ROSE_MIN_FILLED`).</span>
+<span class="sd">    n : int, optional</span>
+<span class="sd">        Most levels taken (default :data:`ROSE_MAX_LEVELS`), evenly from the shallowest to the deepest</span>
+<span class="sd">        qualifying level, both always included.</span>
+<span class="sd">    coverage : numpy.ndarray or None, optional</span>
+<span class="sd">        :func:`velocity_coverage` of *east* and *north*, when already computed.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of int</span>
+<span class="sd">        Level indices, shallowest first; empty when no level qualifies.</span>
+<span class="sd">    """</span>
+    <span class="n">filled</span> <span class="o">=</span> <span class="n">coverage</span> <span class="k">if</span> <span class="n">coverage</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">velocity_coverage</span><span class="p">(</span><span class="n">east</span><span class="p">,</span> <span class="n">north</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">filled</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">ok</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">filled</span> <span class="o">&gt;=</span> <span class="n">min_filled</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ok</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ok</span>
+    <span class="n">picks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ok</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">ok</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">picks</span><span class="o">.</span><span class="n">tolist</span><span class="p">())]</span></div>
+
+
+
+<div class="viewcode-block" id="KnockdownRecord">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.derived.KnockdownRecord">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KnockdownRecord</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One instrument's pressure record against its design position.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    p_nom : float</span>
+<span class="sd">        Design depth as sea pressure (dbar); NaN when the latitude is unknown.</span>
+<span class="sd">    serial : str</span>
+<span class="sd">        Instrument serial.</span>
+<span class="sd">    pressure : numpy.ndarray</span>
+<span class="sd">        Measured pressure samples (dbar), finite, interpolated values excluded.</span>
+<span class="sd">    hab : float</span>
+<span class="sd">        Design height above bottom (m).</span>
+<span class="sd">    """</span>
+
+    <span class="n">p_nom</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">serial</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">pressure</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">hab</span><span class="p">:</span> <span class="nb">float</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Unpack as ``(p_nom, serial, pressure, hab)``."""</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">p_nom</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">serial</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pressure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hab</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="Knockdown">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.derived.Knockdown">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Knockdown</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A stack's knockdown inputs, built once per report.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    waterdepth : float</span>
+<span class="sd">        Water depth at the mooring (m).</span>
+<span class="sd">    latitude : float or None</span>
+<span class="sd">        Mooring latitude; None when unknown (design pressures are then NaN).</span>
+<span class="sd">    records : list of KnockdownRecord</span>
+<span class="sd">        One per non-ADCP instrument with at least 10 measured pressure samples.</span>
+<span class="sd">    """</span>
+
+    <span class="n">waterdepth</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">KnockdownRecord</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Knockdown.design_pressure">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.derived.Knockdown.design_pressure">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">design_pressure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hab</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the sea pressure (dbar) at height *hab* (m) above the seabed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        hab : float or numpy.ndarray</span>
+<span class="sd">            Height above bottom (m).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float or numpy.ndarray</span>
+<span class="sd">            Pressure at depth ``waterdepth − hab``; NaN when the latitude is unknown.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">latitude</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">hab</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">hab</span><span class="p">)</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"nan"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pressure_from_depth</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">waterdepth</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">hab</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">latitude</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="knockdown">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.derived.knockdown">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">knockdown</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Knockdown</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a stack's knockdown inputs: design pressures and measured pressures.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        Stack dataset with ``pressure`` (time, N_LEVELS), ``hab``, ``serial``,</span>
+<span class="sd">        ``instrument_type``, optionally ``pressure_qc``, and the ``waterdepth`` and</span>
+<span class="sd">        position attributes.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Knockdown or None</span>
+<span class="sd">        None when the stack has no pressure or HAB, or no positive water depth.</span>
+<span class="sd">        When the latitude is unknown a warning is logged once and every design</span>
+<span class="sd">        pressure is NaN.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s2">"pressure"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span> <span class="ow">or</span> <span class="s2">"hab"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">waterdepth</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"waterdepth"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">waterdepth</span><span class="p">)</span> <span class="ow">or</span> <span class="n">waterdepth</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">lat</span><span class="p">,</span> <span class="n">_lon</span> <span class="o">=</span> <span class="n">mooring_position</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">lat</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">"</span><span class="si">%s</span><span class="s2">: mooring latitude unknown; design depths are not converted to "</span>
+            <span class="s2">"pressure, so the knockdown reference is left out"</span><span class="p">,</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"mooring_name"</span><span class="p">,</span> <span class="s2">"stack"</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="n">kd</span> <span class="o">=</span> <span class="n">Knockdown</span><span class="p">(</span><span class="n">waterdepth</span><span class="o">=</span><span class="n">waterdepth</span><span class="p">,</span> <span class="n">latitude</span><span class="o">=</span><span class="n">lat</span><span class="p">)</span>
+    <span class="n">serials</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"serial"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">habs</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"hab"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">types</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"instrument_type"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">pressure</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">pqc</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"pressure_qc"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="k">if</span> <span class="s2">"pressure_qc"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"N_LEVELS"</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">types</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"adcp"</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">p_vals</span> <span class="o">=</span> <span class="n">pressure</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pqc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">qc</span> <span class="o">=</span> <span class="n">pqc</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">pqc</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">pqc</span>
+            <span class="n">p_vals</span><span class="p">[</span><span class="n">qc</span> <span class="o">==</span> <span class="mi">8</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>  <span class="c1"># interpolated pressure is not a measurement</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="n">p_vals</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">p_vals</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">hab</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">habs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">kd</span><span class="o">.</span><span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">KnockdownRecord</span><span class="p">(</span>
+                <span class="n">p_nom</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">kd</span><span class="o">.</span><span class="n">design_pressure</span><span class="p">(</span><span class="n">hab</span><span class="p">)),</span>
+                <span class="n">serial</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">serials</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span>
+                <span class="n">pressure</span><span class="o">=</span><span class="n">valid</span><span class="p">,</span>
+                <span class="n">hab</span><span class="o">=</span><span class="n">hab</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">kd</span></div>
+
+
+
+<div class="viewcode-block" id="DerivedFields">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.derived.DerivedFields">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DerivedFields</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Quantities a report page derives once from its product.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    latitude, longitude : float or None</span>
+<span class="sd">        Mooring position; None when not recorded.</span>
+<span class="sd">    theta : xarray.DataArray or None</span>
+<span class="sd">        Potential temperature (°C), on the dimensions of ``temperature``; None</span>
+<span class="sd">        without temperature, salinity, pressure or position.</span>
+<span class="sd">    speed, direction : xarray.DataArray or None</span>
+<span class="sd">        Current speed (units of the components) and direction toward which the</span>
+<span class="sd">        water flows (degrees clockwise from north); None without both horizontal</span>
+<span class="sd">        velocity components.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Potential density is not part of the bundle: only the grid page draws it, so</span>
+<span class="sd">    it is computed there, once, by :func:`potential_density`.</span>
+<span class="sd">    """</span>
+
+    <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">longitude</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">theta</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">speed</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">direction</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_pressure_like</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return pressure broadcast to the temperature's dimensions, or None."""</span>
+    <span class="k">if</span> <span class="s2">"pressure"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span> <span class="ow">and</span> <span class="s2">"pressure"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"pressure"</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">broadcast_like</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"temperature"</span><span class="p">])</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">ds</span><span class="p">[</span><span class="s2">"temperature"</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="derived_fields">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.derived.derived_fields">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">derived_fields</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DerivedFields</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the quantities a report page derives from its product, once.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        A stage-3 file, stack or grid.  θ needs ``temperature``, ``salinity``,</span>
+<span class="sd">        ``pressure`` (variable or coordinate) and the position; speed and direction</span>
+<span class="sd">        need ``east_velocity`` and ``north_velocity``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    DerivedFields</span>
+<span class="sd">        The bundle; a field is None when its inputs are missing.  An unknown</span>
+<span class="sd">        position is warned about once, here.</span>
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+    <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="n">mooring_position</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="p">{</span><span class="s2">"temperature"</span><span class="p">,</span> <span class="s2">"salinity"</span><span class="p">}</span> <span class="o">&lt;=</span> <span class="nb">set</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">_pressure_like</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">potential_temperature_of</span><span class="p">(</span>
+                <span class="n">ds</span><span class="p">[</span><span class="s2">"temperature"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"salinity"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">values</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">theta</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                    <span class="n">values</span><span class="p">,</span>
+                    <span class="n">dims</span><span class="o">=</span><span class="n">ds</span><span class="p">[</span><span class="s2">"temperature"</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span>
+                    <span class="n">coords</span><span class="o">=</span><span class="n">ds</span><span class="p">[</span><span class="s2">"temperature"</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">"potential_temperature"</span><span class="p">,</span>
+                    <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                        <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"degree_Celsius"</span><span class="p">,</span>
+                        <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"potential temperature referenced to 0 dbar"</span><span class="p">,</span>
+                        <span class="s2">"comment"</span><span class="p">:</span> <span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">"TEOS-10 pt0_from_t at </span><span class="si">{</span><span class="n">lat</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> N, </span><span class="si">{</span><span class="n">lon</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> E; "</span>
+                            <span class="s2">"computed for the report, not stored in the product"</span>
+                        <span class="p">),</span>
+                    <span class="p">},</span>
+                <span class="p">)</span>
+    <span class="n">speed</span> <span class="o">=</span> <span class="n">direction</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="p">{</span><span class="s2">"east_velocity"</span><span class="p">,</span> <span class="s2">"north_velocity"</span><span class="p">}</span> <span class="o">&lt;=</span> <span class="nb">set</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">):</span>
+        <span class="n">speed</span><span class="p">,</span> <span class="n">direction</span> <span class="o">=</span> <span class="n">speed_direction</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"east_velocity"</span><span class="p">],</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"north_velocity"</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">DerivedFields</span><span class="p">(</span>
+        <span class="n">latitude</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
+        <span class="n">longitude</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
+        <span class="n">theta</span><span class="o">=</span><span class="n">theta</span><span class="p">,</span>
+        <span class="n">speed</span><span class="o">=</span><span class="n">speed</span><span class="p">,</span>
+        <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="potential_density">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.analysis.derived.potential_density">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">potential_density</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">derived</span><span class="p">:</span> <span class="n">DerivedFields</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return σ0 and σ2 on the dimensions of *ds*'s temperature, from θ.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        The product *derived* was computed from, with ``salinity`` and</span>
+<span class="sd">        ``pressure`` (variable or coordinate).</span>
+<span class="sd">    derived : DerivedFields</span>
+<span class="sd">        Its derived quantities (θ and the position).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict of str to xarray.DataArray, or None</span>
+<span class="sd">        ``{"sigma0": …, "sigma2": …}``: potential density anomaly (kg m⁻³)</span>
+<span class="sd">        referenced to the surface and to 2000 dbar, from θ and practical salinity</span>
+<span class="sd">        (:func:`potential_density_fields`); None when θ is None.</span>
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">derived</span><span class="o">.</span><span class="n">theta</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">_pressure_like</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span> <span class="k">if</span> <span class="s2">"temperature"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">theta</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">p</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="s2">"salinity"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">s0</span><span class="p">,</span> <span class="n">s2</span> <span class="o">=</span> <span class="n">potential_density_fields</span><span class="p">(</span>
+        <span class="n">theta</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s2">"salinity"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="n">derived</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+        <span class="n">derived</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">values</span><span class="p">,</span>
+            <span class="n">dims</span><span class="o">=</span><span class="n">theta</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span>
+            <span class="n">coords</span><span class="o">=</span><span class="n">theta</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">"units"</span><span class="p">:</span> <span class="s2">"kg m-3"</span><span class="p">,</span>
+                <span class="s2">"long_name"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"potential density anomaly referenced to </span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                <span class="s2">"comment"</span><span class="p">:</span> <span class="s2">"TEOS-10, from potential temperature and practical "</span>
+                <span class="s2">"salinity; computed for the report, not stored in the product"</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">values</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ref</span> <span class="ow">in</span> <span class="p">((</span><span class="n">s0</span><span class="p">,</span> <span class="s2">"sigma0"</span><span class="p">,</span> <span class="s2">"0 dbar"</span><span class="p">),</span> <span class="p">(</span><span class="n">s2</span><span class="p">,</span> <span class="s2">"sigma2"</span><span class="p">,</span> <span class="s2">"2000 dbar"</span><span class="p">))</span>
+    <span class="p">}</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

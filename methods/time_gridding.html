@@ -1,0 +1,363 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stack: one time axis &mdash; oceanarray 0.6.0.post1.dev41 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a96f5941"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Grid: pressure levels" href="vertical_gridding.html" />
+    <link rel="prev" title="Calibration dips" href="../calibration_dips.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Stack</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#command">Command</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#python-api">Python API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#purpose">Purpose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#input-files">Input files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#algorithm">Algorithm</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#common-time-axis">Common time axis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#nearest-sample">Nearest sample</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ordering">Ordering</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#variables-stacked">Variables stacked</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#potential-density">Potential density</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#output">Output</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dimensions">Dimensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#coordinates">Coordinates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scalar-metadata">Scalar metadata</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#output-file">Output file</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#yaml-fields-used">YAML fields used</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Stack: one time axis</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/methods/time_gridding.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="stack-one-time-axis">
+<h1>Stack: one time axis<a class="headerlink" href="#stack-one-time-axis" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">stack</span></code> stage reads all instruments for one mooring deployment from their
+best available stage file, places them on a common time axis, and writes a single
+multi-instrument NetCDF file.</p>
+<section id="command">
+<h2>Command<a class="headerlink" href="#command" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>oceanarray<span class="w"> </span>run<span class="w"> </span><span class="o">{</span>mooring<span class="o">}</span><span class="w"> </span>--proc-dir<span class="w"> </span>/data/proc<span class="w"> </span>--stage<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="o">[</span>--dt-seconds<span class="w"> </span><span class="m">600</span><span class="o">]</span>
+</pre></div>
+</div>
+</section>
+<section id="python-api">
+<h2>Python API<a class="headerlink" href="#python-api" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">oa</span>
+
+<span class="c1"># stage 3 (kept where it exists), then the stack and grid</span>
+<span class="n">oa</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">mooring_path</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">stages</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">dt_seconds</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
+
+<span class="c1"># or on datasets: the stack itself, no files written</span>
+<span class="n">mooring_dict</span> <span class="o">=</span> <span class="n">oa</span><span class="o">.</span><span class="n">mooring</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">mooring_path</span><span class="p">)</span>
+<span class="n">stacked</span> <span class="o">=</span> <span class="n">oa</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">oa</span><span class="o">.</span><span class="n">read_mooring</span><span class="p">(</span><span class="n">mooring_path</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span> <span class="n">mooring_dict</span><span class="p">,</span> <span class="n">dt_seconds</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">dt_seconds</span></code> comes from the call (or <code class="docutils literal notranslate"><span class="pre">--dt-seconds</span></code>), else the YAML’s
+<code class="docutils literal notranslate"><span class="pre">stack:</span> <span class="pre">dt_seconds</span></code>, else <code class="docutils literal notranslate"><span class="pre">parameters.STACK_DT_SECONDS</span></code> (3600) — the same order
+for every entry point.</p>
+</section>
+<section id="purpose">
+<h2>Purpose<a class="headerlink" href="#purpose" title="Link to this heading"></a></h2>
+<p>Stack reads all instruments configured in the mooring YAML that have a <code class="docutils literal notranslate"><span class="pre">hab</span></code> (height
+above bottom) value and at least one stage file (stage3 or stage2). It places each
+instrument record on a common time axis and writes the result as a single
+<code class="docutils literal notranslate"><span class="pre">{mooring}_stack.nc</span></code> file with an <code class="docutils literal notranslate"><span class="pre">N_LEVELS</span></code> dimension ordered deepest first.</p>
+</section>
+<section id="input-files">
+<h2>Input files<a class="headerlink" href="#input-files" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">proc/{mooring}/{instr_type}/{mooring}_{serial}_stage3.nc</span></code> is used if present; otherwise
+<code class="docutils literal notranslate"><span class="pre">proc/{mooring}/{instr_type}/{mooring}_{serial}_stage2.nc</span></code> is used. Instruments without any
+stage2 or stage3 file are skipped with a warning. Instruments that have a stage file but no
+<code class="docutils literal notranslate"><span class="pre">hab</span></code> value in the YAML are also excluded.</p>
+</section>
+<section id="algorithm">
+<h2>Algorithm<a class="headerlink" href="#algorithm" title="Link to this heading"></a></h2>
+<section id="common-time-axis">
+<h3>Common time axis<a class="headerlink" href="#common-time-axis" title="Link to this heading"></a></h3>
+<p>The common time axis runs through the deployment window at <code class="docutils literal notranslate"><span class="pre">dt_seconds</span></code> intervals
+(default 3600 s). Its first step is <code class="docutils literal notranslate"><span class="pre">deployment_time</span></code> rounded up to a whole multiple of
+<code class="docutils literal notranslate"><span class="pre">dt_seconds</span></code> counted from 1970-01-01 UTC (on the hour at 3600 s), so deployments of one
+site share their steps; the last step is the last multiple at or before
+<code class="docutils literal notranslate"><span class="pre">recovery_time</span></code>.</p>
+</section>
+<section id="nearest-sample">
+<h3>Nearest sample<a class="headerlink" href="#nearest-sample" title="Link to this heading"></a></h3>
+<p>Every instrument is placed the same way: each step takes the instrument’s nearest sample
+within a ±dt/2 window (half-open: a sample exactly half a step from two steps goes to the
+later one; on equal distance the earlier sample wins), with that sample’s QC flags. Nothing
+is interpolated or averaged in time. A step with no sample in its window is NaN.</p>
+<p>An instrument sampling slower than <code class="docutils literal notranslate"><span class="pre">dt_seconds</span></code> therefore fills only the steps nearest
+its samples; the steps between are empty, and the stack prints a warning naming it. The
+grid leaves those steps empty at that level too (gap filling up to the instrument’s own
+interval is not done yet). For a gap-free grid, set <code class="docutils literal notranslate"><span class="pre">dt_seconds</span></code> no finer than the
+slowest instrument.</p>
+<p>Each instrument’s sampling interval is the median step of its time axis.</p>
+</section>
+<section id="ordering">
+<h3>Ordering<a class="headerlink" href="#ordering" title="Link to this heading"></a></h3>
+<p>Instruments are sorted by ascending HAB (height above bottom), so the deepest instrument
+is at index 0 of the <code class="docutils literal notranslate"><span class="pre">N_LEVELS</span></code> dimension.</p>
+</section>
+</section>
+<section id="variables-stacked">
+<h2>Variables stacked<a class="headerlink" href="#variables-stacked" title="Link to this heading"></a></h2>
+<p>Temperature, salinity, conductivity, pressure, the velocities and their direction
+and speed, heading, pitch and roll, turbidity and oxygen, with their QC flags, when
+an instrument has them (<code class="docutils literal notranslate"><span class="pre">stack.STACK_VARS</span></code>); a level without a variable is NaN
+there. Every value is kept, flagged or not, with two flag sets from the same
+sample: ours (<code class="docutils literal notranslate"><span class="pre">&lt;var&gt;_qc</span></code>) and the originator’s translated to our table
+(<code class="docutils literal notranslate"><span class="pre">&lt;var&gt;_qc_originator_mapped</span></code>). A level with a value but no flag variable gets 0
+(not QC’d); a step with no value gets 9 (missing), so a present value is never 9.</p>
+<p><code class="docutils literal notranslate"><span class="pre">stack:</span> <span class="pre">mask_flags</span></code> (default 4; <code class="docutils literal notranslate"><span class="pre">--mask-flags</span></code>) decides what the stack and Stack
+cat pages hide and the grid leaves out: a value is hidden when either of its flags is
+in the rule. It is recorded as <code class="docutils literal notranslate"><span class="pre">stack_mask_flags</span></code>. The velocity components are one
+measurement: a flag in the rule on any of them (ours or the originator’s, or
+<code class="docutils literal notranslate"><span class="pre">velocity_flag</span></code>) hides all of them at that step, so a page never shows a speed or
+direction built from one good and one bad component. The potential density and
+<code class="docutils literal notranslate"><span class="pre">tilt_from_pressure</span></code> use only values the rule does not hide.</p>
+</section>
+<section id="potential-density">
+<h2>Potential density<a class="headerlink" href="#potential-density" title="Link to this heading"></a></h2>
+<p>Potential density is computed at the stack step from the stacked temperature, salinity, and
+pressure fields. The reference pressure is controlled by the <code class="docutils literal notranslate"><span class="pre">density_reference</span></code> key in
+the mooring YAML (integer, dbar). If absent, the package default from
+<code class="docutils literal notranslate"><span class="pre">parameters.DENSITY_REFERENCE</span></code> is used (0 dbar, giving sigma-0).</p>
+<p>Computation uses the GSW Toolbox:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">gsw.SA_from_SP</span></code> — convert practical salinity to Absolute Salinity</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gsw.CT_from_t</span></code> — convert in-situ temperature to Conservative Temperature</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gsw.sigma0</span></code>, <code class="docutils literal notranslate"><span class="pre">gsw.sigma2</span></code>, etc. — potential density anomaly relative to the
+chosen reference pressure</p></li>
+</ol>
+<p>The output variable is named <code class="docutils literal notranslate"><span class="pre">sigma0</span></code>, <code class="docutils literal notranslate"><span class="pre">sigma2</span></code>, and so on. Each carries
+<code class="docutils literal notranslate"><span class="pre">standard_name</span></code>, <code class="docutils literal notranslate"><span class="pre">long_name</span></code>, and <code class="docutils literal notranslate"><span class="pre">reference_pressure_dbar</span></code> attributes.</p>
+<p>To use a non-default reference pressure, add <code class="docutils literal notranslate"><span class="pre">density_reference</span></code> to the mooring YAML:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">density_reference</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000</span><span class="w">   </span><span class="c1"># deep mooring; produces sigma2</span>
+</pre></div>
+</div>
+</section>
+<section id="output">
+<h2>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h2>
+<section id="dimensions">
+<h3>Dimensions<a class="headerlink" href="#dimensions" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">(time,</span> <span class="pre">N_LEVELS)</span></code> following the OceanSITES convention. <code class="docutils literal notranslate"><span class="pre">N_LEVELS</span></code> is the instrument
+index (deepest first); <code class="docutils literal notranslate"><span class="pre">time</span></code> is the common time axis at <code class="docutils literal notranslate"><span class="pre">dt_seconds</span></code> resolution.
+The <code class="docutils literal notranslate"><span class="pre">history</span></code> attribute records the method in one line.</p>
+</section>
+<section id="coordinates">
+<h3>Coordinates<a class="headerlink" href="#coordinates" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">time</span></code> — common time axis</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">serial</span></code> (N_LEVELS,) — instrument serial numbers</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hab</span></code> (N_LEVELS,) — height above bottom in metres</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">instrument_type</span></code> (N_LEVELS,) — instrument type string from YAML</p></li>
+</ul>
+</section>
+<section id="scalar-metadata">
+<h3>Scalar metadata<a class="headerlink" href="#scalar-metadata" title="Link to this heading"></a></h3>
+<p>Per-instrument scalar variables (such as <code class="docutils literal notranslate"><span class="pre">instrument_depth</span></code> and <code class="docutils literal notranslate"><span class="pre">instrument_serial</span></code>) carried in
+the stage files are preserved as <code class="docutils literal notranslate"><span class="pre">(N_LEVELS,)</span></code> arrays in the stack file.</p>
+</section>
+<section id="output-file">
+<h3>Output file<a class="headerlink" href="#output-file" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">proc/{mooring}/{mooring}_stack.nc</span></code></p>
+<p>Global attributes include <code class="docutils literal notranslate"><span class="pre">mooring_name</span></code>, <code class="docutils literal notranslate"><span class="pre">waterdepth</span></code>, <code class="docutils literal notranslate"><span class="pre">deployment_time</span></code>,
+<code class="docutils literal notranslate"><span class="pre">recovery_time</span></code>, <code class="docutils literal notranslate"><span class="pre">dt_seconds</span></code>, <code class="docutils literal notranslate"><span class="pre">Conventions:</span> <span class="pre">CF-1.13</span></code>, and <code class="docutils literal notranslate"><span class="pre">history</span></code>.</p>
+</section>
+</section>
+<section id="yaml-fields-used">
+<h2>YAML fields used<a class="headerlink" href="#yaml-fields-used" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">deployment_time</span></code></p></td>
+<td><p>Start of the common time axis</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">recovery_time</span></code></p></td>
+<td><p>End of the common time axis</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">clamp[].hab</span></code></p></td>
+<td><p>Height above bottom; required for inclusion; sets sort order</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">clamp[].instrument</span></code></p></td>
+<td><p>Sets the input subdirectory</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">clamp[].serial</span></code></p></td>
+<td><p>Instrument serial number</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">density_reference</span></code></p></td>
+<td><p>Optional; reference pressure in dbar for potential density (default 0)</p></td>
+</tr>
+</tbody>
+</table>
+<p>The stack’s report page is described in <a class="reference internal" href="../reports.html"><span class="doc">Reports</span></a>.</p>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="vertical_gridding.html"><span class="doc">Grid: pressure levels</span></a> — interpolate the stacked file onto a regular pressure grid</p></li>
+<li><p><a class="reference internal" href="../oceanarray.html"><span class="doc">oceanarray API reference</span></a> — full command reference</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../calibration_dips.html" class="btn btn-neutral float-left" title="Calibration dips" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="vertical_gridding.html" class="btn btn-neutral float-right" title="Grid: pressure levels" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

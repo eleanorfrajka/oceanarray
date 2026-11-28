@@ -1,0 +1,383 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.pipeline.export &mdash; oceanarray 0.6.0.post1.dev41 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a96f5941"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../pipeline.html">oceanarray.pipeline</a></li>
+      <li class="breadcrumb-item active">oceanarray.pipeline.export</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.pipeline.export</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""The ``export`` verb: a mooring's stage-3 files and grid as OceanSITES 1.4 files."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">_deprecated</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MooringError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.mooring.instruments</span><span class="w"> </span><span class="kn">import</span> <span class="n">instrument_entries</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">Paths</span><span class="p">,</span> <span class="n">product_file</span><span class="p">,</span> <span class="n">safe_serial</span><span class="p">,</span> <span class="n">stage_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.oceansites</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">OceanSitesError</span><span class="p">,</span>
+    <span class="n">oceansites_filename</span><span class="p">,</span>
+    <span class="n">to_oceansites</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.writers</span><span class="w"> </span><span class="kn">import</span> <span class="n">write</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1">#: Errors that leave one file out rather than stopping the export: a dataset that</span>
+<span class="c1">#: cannot be converted, a file that exists (without ``overwrite``), a file that</span>
+<span class="c1">#: cannot be read, or a value in it that cannot be parsed.</span>
+<span class="n">_SKIPPABLE</span> <span class="o">=</span> <span class="p">(</span><span class="n">OceanSitesError</span><span class="p">,</span> <span class="ne">FileExistsError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_array_dict</span><span class="p">(</span><span class="n">given</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="n">Mapping</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the parsed ``*.array.yaml`` at *given* ({} for None; a mapping, which the deprecated ``array=`` takes, as it is)."""</span>
+    <span class="k">if</span> <span class="n">given</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">given</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">given</span>
+    <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="n">given</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">given</span><span class="si">}</span><span class="s2">: not an array YAML (a YAML mapping)"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_put</span><span class="p">(</span><span class="n">out</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">dry_run</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Write *out* under its OceanSITES name in *target*, or only name it on a dry run."""</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">target</span> <span class="o">/</span> <span class="n">oceansites_filename</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dry_run</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> exists (use overwrite=True / --force)"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">path</span>
+    <span class="k">return</span> <span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="export">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.export">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">export</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+    <span class="n">mooring_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">paths</span><span class="p">:</span> <span class="n">Paths</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">array_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">grid</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">dry_run</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">mooring_dir</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">out_dir</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">array</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="n">Mapping</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Write a mooring's stage-3 files and grid as OceanSITES 1.4 files.</span>
+
+<span class="sd">    Each instrument's stage-3 file becomes a deployment data file and the grid a</span>
+<span class="sd">    gridded file (see :func:`oceanarray.pipeline.oceansites.to_oceansites`).  An</span>
+<span class="sd">    instrument whose stage-3 file is missing or cannot be converted is reported</span>
+<span class="sd">    and left out; the others are written.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring_path : str or os.PathLike</span>
+<span class="sd">        The ``*.mooring.yaml``; it must carry ``platform_code``.</span>
+<span class="sd">    paths : oceanarray.Paths</span>
+<span class="sd">        Where the files are: the stage-3 files and grid in ``paths.mooring_dir(name)``,</span>
+<span class="sd">        the OceanSITES files written to ``paths.export_dir``.</span>
+<span class="sd">    array_path : str, os.PathLike or None, optional</span>
+<span class="sd">        The ``*.array.yaml``; supplies ``site_code`` and ``project``.</span>
+<span class="sd">    grid : bool, optional</span>
+<span class="sd">        Also write the grid, when ``&lt;name&gt;_grid.nc`` exists (default True).</span>
+<span class="sd">    overwrite : bool, optional</span>
+<span class="sd">        Replace files that exist (default False).</span>
+<span class="sd">    dry_run : bool, optional</span>
+<span class="sd">        Convert but write nothing; return the paths that would be written.</span>
+<span class="sd">    mooring : str or os.PathLike or Mapping, optional</span>
+<span class="sd">        Deprecated name of *mooring_path*; removed in 0.8.0.</span>
+<span class="sd">    mooring_dir, out_dir : os.PathLike, optional</span>
+<span class="sd">        Deprecated folders (*out_dir* default ``&lt;mooring_dir&gt;/oceansites``), used when</span>
+<span class="sd">        *paths* is not given; removed in 0.8.0.</span>
+<span class="sd">    array : str, os.PathLike or Mapping, optional</span>
+<span class="sd">        Deprecated name of *array_path* (it also takes the parsed array YAML);</span>
+<span class="sd">        removed in 0.8.0.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of pathlib.Path</span>
+<span class="sd">        The files written, instruments first, then the grid.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    oceanarray.exceptions.MooringError</span>
+<span class="sd">        If the mooring YAML cannot be loaded, a folder is missing from *paths*, or</span>
+<span class="sd">        nothing could be exported.</span>
+<span class="sd">    oceanarray.pipeline.oceansites.OceanSitesError</span>
+<span class="sd">        If the mooring YAML has no usable ``platform_code`` or deployment code.</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        *paths* is not an :class:`oceanarray.Paths`, or *array_path* is a mapping.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Not run as tests: they need a mooring YAML and its files on disk.</span>
+
+<span class="sd">    &gt;&gt;&gt; import oceanarray as oa</span>
+<span class="sd">    &gt;&gt;&gt; paths = oa.Paths.from_file("paths.yaml")  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; oa.export(paths.mooring_path("M2_2016"), paths, array_path="OSNAPeast_2016.array.yaml")  # doctest: +SKIP</span>
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_verb_call</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline.oceansites</span><span class="w"> </span><span class="kn">import</span> <span class="n">deployment_code</span><span class="p">,</span> <span class="n">platform_code</span>
+
+    <span class="n">renamed</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"oceanarray.export(mooring=)"</span><span class="p">:</span> <span class="n">mooring</span><span class="p">,</span>
+        <span class="s2">"oceanarray.export(array=)"</span><span class="p">:</span> <span class="n">array</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">mooring_path</span> <span class="o">=</span> <span class="n">_deprecated</span><span class="o">.</span><span class="n">resolve_keyword</span><span class="p">(</span>
+        <span class="s2">"oceanarray.export(mooring=)"</span><span class="p">,</span>
+        <span class="n">mooring_path</span><span class="p">,</span>
+        <span class="n">mooring</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="s2">"mooring_path"</span><span class="p">,</span>
+        <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">array_path</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="s2">"export() array_path= takes the *.array.yaml path, not a mapping"</span>
+        <span class="p">)</span>
+    <span class="c1"># The deprecated array= may still be the parsed array YAML.</span>
+    <span class="n">array_given</span> <span class="o">=</span> <span class="n">_deprecated</span><span class="o">.</span><span class="n">resolve_keyword</span><span class="p">(</span>
+        <span class="s2">"oceanarray.export(array=)"</span><span class="p">,</span> <span class="n">array_path</span><span class="p">,</span> <span class="n">array</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">mooring_dict</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">resolve_verb_call</span><span class="p">(</span>
+        <span class="s2">"export"</span><span class="p">,</span>
+        <span class="n">mooring_path</span><span class="p">,</span>
+        <span class="n">paths</span><span class="p">,</span>
+        <span class="p">{</span><span class="s2">"mooring_dir"</span><span class="p">:</span> <span class="n">mooring_dir</span><span class="p">,</span> <span class="s2">"out_dir"</span><span class="p">:</span> <span class="n">out_dir</span><span class="p">},</span>
+        <span class="k">lambda</span> <span class="n">name</span><span class="p">,</span> <span class="n">folder</span><span class="p">:</span> <span class="n">Paths</span><span class="o">.</span><span class="n">from_mooring_dir</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="n">export_dir</span><span class="o">=</span><span class="n">out_dir</span> <span class="ow">or</span> <span class="n">folder</span> <span class="o">/</span> <span class="s2">"oceansites"</span>
+        <span class="p">),</span>
+        <span class="n">renamed</span><span class="o">=</span><span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">renamed</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="c1"># Fail before any file is opened if the mooring YAML cannot name the files.</span>
+    <span class="n">platform_code</span><span class="p">(</span><span class="n">mooring_dict</span><span class="p">)</span>
+    <span class="n">deployment_code</span><span class="p">(</span><span class="n">mooring_dict</span><span class="p">)</span>
+    <span class="n">array_dict</span> <span class="o">=</span> <span class="n">_read_array_dict</span><span class="p">(</span><span class="n">array_given</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">mooring_dict</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span>
+    <span class="n">folder</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">mooring_dir</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">folder</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Mooring directory not found: </span><span class="si">{</span><span class="n">folder</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">paths</span><span class="o">.</span><span class="n">export_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: no export_dir given; set export_dir in the paths file "</span>
+            <span class="s2">"(paths.yaml) or Paths(export_dir=...)."</span>
+        <span class="p">)</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">export_dir</span>
+
+    <span class="n">written</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">left_out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">instrument_entries</span><span class="p">(</span><span class="n">mooring_dict</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"skip"</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">serial</span> <span class="o">=</span> <span class="n">safe_serial</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"serial"</span><span class="p">))</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">stage_file</span><span class="p">(</span>
+            <span class="n">folder</span><span class="p">,</span>
+            <span class="n">mooring_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">instrument</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"instrument"</span><span class="p">)),</span>
+            <span class="n">serial</span><span class="o">=</span><span class="n">serial</span><span class="p">,</span>
+            <span class="n">stage</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">left_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2">: no stage-3 file (</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+                <span class="n">out</span> <span class="o">=</span> <span class="n">to_oceansites</span><span class="p">(</span>
+                    <span class="n">ds</span><span class="o">.</span><span class="n">load</span><span class="p">(),</span>
+                    <span class="n">mooring_dict</span><span class="p">,</span>
+                    <span class="n">array_dict</span><span class="o">=</span><span class="n">array_dict</span><span class="p">,</span>
+                    <span class="n">source_file</span><span class="o">=</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="n">written</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_put</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span> <span class="n">dry_run</span><span class="o">=</span><span class="n">dry_run</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">_SKIPPABLE</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># One instrument that cannot be exported does not stop the others.</span>
+            <span class="n">left_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="n">grid_path</span> <span class="o">=</span> <span class="n">product_file</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">mooring_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s2">"grid"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">grid</span> <span class="ow">and</span> <span class="n">grid_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">stack_path</span> <span class="o">=</span> <span class="n">product_file</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">mooring_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s2">"stack"</span><span class="p">)</span>
+        <span class="n">stack</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">stack_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">stack_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">grid_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">g</span><span class="p">:</span>
+                <span class="n">out</span> <span class="o">=</span> <span class="n">to_oceansites</span><span class="p">(</span>
+                    <span class="n">g</span><span class="o">.</span><span class="n">load</span><span class="p">(),</span>
+                    <span class="n">mooring_dict</span><span class="p">,</span>
+                    <span class="n">array_dict</span><span class="o">=</span><span class="n">array_dict</span><span class="p">,</span>
+                    <span class="n">stack</span><span class="o">=</span><span class="n">stack</span><span class="p">,</span>
+                    <span class="n">source_file</span><span class="o">=</span><span class="n">grid_path</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="n">written</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_put</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span> <span class="n">dry_run</span><span class="o">=</span><span class="n">dry_run</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">_SKIPPABLE</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">left_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"grid: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">stack</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">stack</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">left_out</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"export </span><span class="si">%s</span><span class="s2">: left out </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">written</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"export </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: nothing exported (</span><span class="si">{</span><span class="s1">'; '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">left_out</span><span class="p">)</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">written</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

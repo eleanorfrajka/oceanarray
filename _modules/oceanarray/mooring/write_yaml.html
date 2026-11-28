@@ -1,0 +1,441 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.mooring.write_yaml &mdash; oceanarray 0.6.0.post1.dev41 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a96f5941"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.mooring.write_yaml</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.mooring.write_yaml</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Write a mooring YAML: the ``init`` template and :func:`save` with field comments."""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">_deprecated</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.mooring.check_yaml</span><span class="w"> </span><span class="kn">import</span> <span class="n">_check_data</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># The one source for the commented ``init`` template: key -&gt; inline description.</span>
+<span class="c1"># ``save`` writes these as end-of-line comments; keep in sync with KNOWN_KEYS.</span>
+<span class="n">_FIELD_COMMENTS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"mooring identifier; every output file is named from it"</span><span class="p">,</span>
+    <span class="s2">"platform_code"</span><span class="p">:</span> <span class="s2">"OceanSITES station code, no '_' (e.g. DUNE2); used by the export"</span><span class="p">,</span>
+    <span class="s2">"deployment_code"</span><span class="p">:</span> <span class="s2">"YYYYMM of deployment_time (e.g. 202607); used by the export"</span><span class="p">,</span>
+    <span class="s2">"year"</span><span class="p">:</span> <span class="s2">"deployment year, e.g. 2026"</span><span class="p">,</span>
+    <span class="s2">"waterdepth"</span><span class="p">:</span> <span class="s2">"water depth at anchor in metres"</span><span class="p">,</span>
+    <span class="s2">"deployment_cruise"</span><span class="p">:</span> <span class="s2">"cruise ID, e.g. MSM142"</span><span class="p">,</span>
+    <span class="s2">"deployment_ship"</span><span class="p">:</span> <span class="s2">"ship name, e.g. MS Merian"</span><span class="p">,</span>
+    <span class="s2">"recovery_cruise"</span><span class="p">:</span> <span class="s2">"cruise ID at recovery (omit if same cruise)"</span><span class="p">,</span>
+    <span class="s2">"recovery_ship"</span><span class="p">:</span> <span class="s2">"ship name at recovery (omit if same ship)"</span><span class="p">,</span>
+    <span class="s2">"latitude"</span><span class="p">:</span> <span class="s2">"planned position, e.g. 65 29.840 N"</span><span class="p">,</span>
+    <span class="s2">"longitude"</span><span class="p">:</span> <span class="s2">"planned position, e.g. 029 24.600 W"</span><span class="p">,</span>
+    <span class="s2">"deployment_time"</span><span class="p">:</span> <span class="s2">"ISO-8601, e.g. '2026-05-07T17:06'"</span><span class="p">,</span>
+    <span class="s2">"recovery_time"</span><span class="p">:</span> <span class="s2">"ISO-8601, e.g. '2026-07-10T17:45'"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># Per-instrument field descriptions. ``save`` comments the first clamp entry that</span>
+<span class="c1"># carries each field, so the explanation appears once (as the hand-written stub did).</span>
+<span class="n">_INSTRUMENT_COMMENTS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"serial"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"if comma-separated (e.g. '16430, R01-024') the first token is the "</span>
+        <span class="s2">"primary serial used in filenames/output; the rest is beacon_id. "</span>
+        <span class="s2">"Characters illegal in filenames are stripped."</span>
+    <span class="p">),</span>
+    <span class="s2">"hab"</span><span class="p">:</span> <span class="s2">"height above bottom (m) of transducer"</span><span class="p">,</span>
+    <span class="s2">"header"</span><span class="p">:</span> <span class="s2">".hdr file for T-matrix (same base name if null)"</span><span class="p">,</span>
+    <span class="s2">"clock_offset"</span><span class="p">:</span> <span class="s2">"seconds added to instrument time (positive: clock slow)"</span><span class="p">,</span>
+    <span class="s2">"computer_clock_at_recovery"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"UTC when the clock was read; correction = computer - instrument"</span>
+    <span class="p">),</span>
+    <span class="s2">"hab_bottom"</span><span class="p">:</span> <span class="s2">"HAB of transducer face (downward-looking)"</span><span class="p">,</span>
+    <span class="s2">"hab_top"</span><span class="p">:</span> <span class="s2">"HAB of top of housing"</span><span class="p">,</span>
+    <span class="s2">"orientation"</span><span class="p">:</span> <span class="s2">"down or up"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># One example clamp block per instrument type; a user fills these in and deletes</span>
+<span class="c1"># the unused ones. Key order is the order written to the file.</span>
+<span class="n">_TEMPLATE_INSTRUMENTS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">"instrument"</span><span class="p">:</span> <span class="s2">"aquadopp"</span><span class="p">,</span>
+        <span class="s2">"serial"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"hab"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"sample_interval_seconds"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"filename"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"file_type"</span><span class="p">:</span> <span class="s2">"nortek-raw"</span><span class="p">,</span>
+        <span class="s2">"header"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"clock_offset"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">"computer_clock_at_recovery"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"instrument_clock_at_recovery"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">"instrument"</span><span class="p">:</span> <span class="s2">"microcat"</span><span class="p">,</span>
+        <span class="s2">"serial"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"hab"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"sample_interval_seconds"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"filename"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"file_type"</span><span class="p">:</span> <span class="s2">"sbe-cnv"</span><span class="p">,</span>
+        <span class="s2">"clock_offset"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">"computer_clock_at_recovery"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"instrument_clock_at_recovery"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">"instrument"</span><span class="p">:</span> <span class="s2">"rbrsolo"</span><span class="p">,</span>
+        <span class="s2">"serial"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"hab"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"sample_interval_seconds"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"filename"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"file_type"</span><span class="p">:</span> <span class="s2">"rbr-rsk"</span><span class="p">,</span>
+        <span class="s2">"clock_offset"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">"computer_clock_at_recovery"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"instrument_clock_at_recovery"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">"instrument"</span><span class="p">:</span> <span class="s2">"ADCP"</span><span class="p">,</span>
+        <span class="s2">"serial"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"hab_bottom"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"hab_top"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"sample_interval_seconds"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"filename"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"file_type"</span><span class="p">:</span> <span class="s2">"rdi-raw"</span><span class="p">,</span>
+        <span class="s2">"orientation"</span><span class="p">:</span> <span class="s2">"down"</span><span class="p">,</span>
+        <span class="s2">"clock_offset"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">"computer_clock_at_recovery"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"instrument_clock_at_recovery"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="template">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.mooring.template">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">template</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">instruments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a skeleton mooring YAML for *name*, as a plain dict.</span>
+
+<span class="sd">    The required and recommended keys are present with ``None`` values for a user</span>
+<span class="sd">    to fill in; ``clamp`` carries one example block per instrument type (or</span>
+<span class="sd">    *instruments* if given). :func:`save` renders it with the field comments.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The mooring name (becomes the ``name`` field; matches the directory).</span>
+<span class="sd">    instruments : list of dict or None, optional</span>
+<span class="sd">        Clamp entries to use instead of the one-per-type examples.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        The skeleton mooring YAML, keys in write order.</span>
+<span class="sd">    """</span>
+    <span class="n">doc</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="n">name</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="s2">"platform_code"</span><span class="p">,</span>
+        <span class="s2">"year"</span><span class="p">,</span>
+        <span class="s2">"waterdepth"</span><span class="p">,</span>
+        <span class="s2">"deployment_cruise"</span><span class="p">,</span>
+        <span class="s2">"deployment_ship"</span><span class="p">,</span>
+        <span class="s2">"recovery_cruise"</span><span class="p">,</span>
+        <span class="s2">"recovery_ship"</span><span class="p">,</span>
+        <span class="s2">"latitude"</span><span class="p">,</span>
+        <span class="s2">"longitude"</span><span class="p">,</span>
+        <span class="s2">"deployment_time"</span><span class="p">,</span>
+        <span class="s2">"deployment_code"</span><span class="p">,</span>
+        <span class="s2">"recovery_time"</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">doc</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">examples</span> <span class="o">=</span> <span class="n">_TEMPLATE_INSTRUMENTS</span> <span class="k">if</span> <span class="n">instruments</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">instruments</span>
+    <span class="n">doc</span><span class="p">[</span><span class="s2">"clamp"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">examples</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">doc</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_optional_blocks</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the commented-out ``stack:``, ``grid:``, ``people:`` and ``source:`` blocks."""</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameters</span> <span class="k">as</span> <span class="n">params</span>
+
+    <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">"optional: uncomment to change the stack and grid settings"</span><span class="p">,</span>
+            <span class="s2">"stack:"</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"  dt_seconds: </span><span class="si">{</span><span class="n">params</span><span class="o">.</span><span class="n">STACK_DT_SECONDS</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">  # time step of the stack, seconds"</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"  mask_flags: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">MASK_FLAGS</span><span class="p">)</span><span class="si">}</span><span class="s2">  # flags hidden from the pages "</span>
+            <span class="s2">"and the grid; or {default: [4], velocity: [3, 4]}"</span><span class="p">,</span>
+            <span class="s2">"grid:"</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"  pmin: </span><span class="si">{</span><span class="n">params</span><span class="o">.</span><span class="n">GRID_PMIN_DBAR</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">  # shallowest grid level, dbar"</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"  pmax: </span><span class="si">{</span><span class="n">params</span><span class="o">.</span><span class="n">GRID_PMAX_DBAR</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">  # deepest grid level, dbar"</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"  dp: </span><span class="si">{</span><span class="n">params</span><span class="o">.</span><span class="n">GRID_DP_DBAR</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">  # grid spacing, dbar"</span><span class="p">,</span>
+            <span class="s2">"  # mask_flags: [3, 4]  # the grid may leave out more than the stack hides"</span><span class="p">,</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"optional: who and where the data came from, for files that do not say"</span><span class="p">,</span>
+            <span class="s2">"people:  # used when the data files name no one"</span><span class="p">,</span>
+            <span class="s2">"  principal_investigator: Given Surname  # comma-separated"</span><span class="p">,</span>
+            <span class="s2">"  principal_investigator_email: name@example.org"</span><span class="p">,</span>
+            <span class="s2">"  principal_investigator_id: https://orcid.org/0000-0000-0000-0000"</span><span class="p">,</span>
+            <span class="s2">"  contributor_name: Given Surname; Given Surname  # semicolon-separated"</span><span class="p">,</span>
+            <span class="s2">"  contributor_role: data processing; technician"</span><span class="p">,</span>
+            <span class="s2">"  people_source: where these names came from"</span><span class="p">,</span>
+            <span class="s2">"source:  # fills what the data files do not say"</span><span class="p">,</span>
+            <span class="s2">"  doi: 10.xxxx/xxxxx  # the data package's DOI"</span><span class="p">,</span>
+            <span class="s2">"  citation: how the source asks to be cited"</span><span class="p">,</span>
+            <span class="s2">"  license: the source's license"</span><span class="p">,</span>
+            <span class="s2">"  acknowledgement: funding and acknowledgement"</span><span class="p">,</span>
+            <span class="s2">"  source_note: where these values came from"</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="save">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.mooring.save">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span>
+    <span class="n">mooring_dict</span><span class="p">:</span> <span class="n">Mapping</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="n">Mapping</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">optional_blocks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Write a mooring YAML to a file with field comments.</span>
+
+<span class="sd">    Lenient by design — a mooring YAML being drafted may be incomplete, so ``save``</span>
+<span class="sd">    checks it and logs a warning on any ERROR but still writes (unlike</span>
+<span class="sd">    :func:`load`, which refuses an invalid mooring YAML about to be processed). The</span>
+<span class="sd">    field comments come from the module's comment tables, so they cannot drift</span>
+<span class="sd">    from the validator.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring_dict : Mapping</span>
+<span class="sd">        The mooring YAML to write (e.g. from :func:`template`).</span>
+<span class="sd">    path : str or os.PathLike</span>
+<span class="sd">        Destination ``*.mooring.yaml`` path.</span>
+<span class="sd">    overwrite : bool, default False</span>
+<span class="sd">        Overwrite an existing file; otherwise a ``FileExistsError`` is raised.</span>
+<span class="sd">    optional_blocks : bool, default False</span>
+<span class="sd">        Also write the optional ``stack:`` and ``grid:`` blocks, commented out with</span>
+<span class="sd">        their default values, before ``clamp`` (``oceanarray init`` does).</span>
+<span class="sd">    mooring : Mapping, optional</span>
+<span class="sd">        Deprecated name of *mooring_dict*; removed in 0.8.0.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pathlib.Path</span>
+<span class="sd">        The path written.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    FileExistsError</span>
+<span class="sd">        If *path* exists and *overwrite* is False.</span>
+<span class="sd">    """</span>
+    <span class="n">mooring_dict</span> <span class="o">=</span> <span class="n">_deprecated</span><span class="o">.</span><span class="n">resolve_keyword</span><span class="p">(</span>
+        <span class="s2">"oceanarray.mooring.save(mooring=)"</span><span class="p">,</span>
+        <span class="n">mooring_dict</span><span class="p">,</span>
+        <span class="n">mooring</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="s2">"mooring_dict"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"save() missing required argument: 'path'"</span><span class="p">)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">ruamel.yaml</span><span class="w"> </span><span class="kn">import</span> <span class="n">YAML</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">ruamel.yaml.comments</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommentedMap</span><span class="p">,</span> <span class="n">CommentedSeq</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> already exists"</span><span class="p">)</span>
+
+    <span class="n">errors</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">i</span><span class="o">.</span><span class="n">message</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_check_data</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">mooring_dict</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="s2">"ERROR"</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">"saving an incomplete mooring YAML (</span><span class="si">%d</span><span class="s2"> issue(s) to resolve): </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">),</span>
+            <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">errors</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_block</span><span class="p">(</span>
+        <span class="n">items</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]],</span>
+        <span class="n">comments</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+        <span class="n">seen</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommentedMap</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""CommentedMap of *items*; comment keys in *comments* (first occurrence if *seen*)."""</span>
+        <span class="n">block</span> <span class="o">=</span> <span class="n">CommentedMap</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+            <span class="n">block</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">comments</span> <span class="ow">and</span> <span class="p">(</span><span class="n">seen</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">):</span>
+                <span class="n">block</span><span class="o">.</span><span class="n">yaml_add_eol_comment</span><span class="p">(</span><span class="n">comments</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">key</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">seen</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">block</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">mooring_dict</span><span class="p">)</span>
+    <span class="n">clamp</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"clamp"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">_block</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">_FIELD_COMMENTS</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">clamp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">seen</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"clamp"</span><span class="p">]</span> <span class="o">=</span> <span class="n">CommentedSeq</span><span class="p">(</span>
+            <span class="n">_block</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">_INSTRUMENT_COMMENTS</span><span class="p">,</span> <span class="n">seen</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">clamp</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">optional_blocks</span><span class="p">:</span>
+            <span class="n">doc</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
+                <span class="s2">"clamp"</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="n">_format_optional_blocks</span><span class="p">(),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">0</span>
+            <span class="p">)</span>
+
+    <span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">writer</span> <span class="o">=</span> <span class="n">YAML</span><span class="p">()</span>
+    <span class="n">writer</span><span class="o">.</span><span class="n">default_flow_style</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">writer</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="mi">120</span>
+    <span class="c1"># newline="\n": deterministic LF on every platform — Windows text mode would</span>
+    <span class="c1"># otherwise write CRLF and break the byte-identical init-template golden.</span>
+    <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"w"</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">fh</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

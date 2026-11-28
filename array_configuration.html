@@ -1,0 +1,247 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The array YAML file &mdash; oceanarray 0.6.0.post1.dev41 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=a96f5941"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="The sensor catalog" href="sensor_catalog.html" />
+    <link rel="prev" title="The mooring YAML file" href="yaml_configuration.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            oceanarray
+              <img src="_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="methods/standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="configuration_files.html">Configuration files</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="configuration_files.html#finding-a-mooring">Finding a mooring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_files.html#where-the-folders-are-paths-yaml">Where the folders are: <code class="docutils literal notranslate"><span class="pre">paths.yaml</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_files.html#each-mooring-yaml-stands-alone">Each mooring YAML stands alone</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_files.html#subarrays">Subarrays</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="configuration_files.html#which-value-wins">Which value wins</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="yaml_configuration.html">The mooring YAML file</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">The array YAML file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sensor_catalog.html">The sensor catalog</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="configuration_files.html">Configuration files</a></li>
+      <li class="breadcrumb-item active">The array YAML file</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/array_configuration.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="the-array-yaml-file">
+<span id="array-configuration"></span><h1>The array YAML file<a class="headerlink" href="#the-array-yaml-file" title="Link to this heading"></a></h1>
+<p>An array is several moorings deployed together on one cruise. Its YAML file,
+<code class="docutils literal notranslate"><span class="pre">{array}.array.yaml</span></code>, lists them and the facts they share; each mooring keeps its
+own <a class="reference internal" href="yaml_configuration.html"><span class="doc">mooring YAML file</span></a>. Two commands read it:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">report</span> <span class="pre">ARRAY.array.yaml</span> <span class="pre">--array</span> <span class="pre">[--bathymetry</span> <span class="pre">FILE]</span></code> builds the year
+page: a map (with depth contours from a GEBCO or ETOPO file), one row per mooring
+linking to its pages, and the instruments by function.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">oceanarray</span> <span class="pre">export</span> <span class="pre">MOORING</span> <span class="pre">--array</span> <span class="pre">ARRAY.array.yaml</span></code> takes <code class="docutils literal notranslate"><span class="pre">site_code</span></code> and
+<code class="docutils literal notranslate"><span class="pre">project</span></code> from it for the OceanSITES files.</p></li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MIXSED</span>
+<span class="nt">year</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2026</span>
+<span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AEI-DFG MIXSED</span>
+<span class="nt">site_code</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MIXSED</span><span class="w">                </span><span class="c1"># OceanSITES site; needed by the GDAC</span>
+<span class="nt">subarrays</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">sill</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="nv">Denmark Strait sill array</span><span class="p p-Indicator">,</span><span class="nt"> short</span><span class="p">:</span><span class="w"> </span><span class="nv">Sill</span><span class="p p-Indicator">}</span>
+<span class="nt">moorings</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">mooring</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dsG1_1_2026</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dsG1_1_2026.yaml</span><span class="w">           </span><span class="c1"># only when not {mooring}.mooring.yaml</span>
+<span class="w">    </span><span class="nt">subarray</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sill</span><span class="w">                     </span><span class="c1"># moorings are coloured by subarray</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">mooring</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dsK1_1_2026</span>
+<span class="w">    </span><span class="nt">subarray</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sill</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Use</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>The array’s name: the page’s file name (default: the YAML file name).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">moorings</span></code></p></td>
+<td><p>One entry per mooring: <code class="docutils literal notranslate"><span class="pre">mooring</span></code> (its name), <code class="docutils literal notranslate"><span class="pre">config</span></code> (its YAML’s file
+name, only when it is not <code class="docutils literal notranslate"><span class="pre">{mooring}.mooring.yaml</span></code>; looked for beside the
+array file, then in the mooring’s processed folder; a path, relative to the
+array file or absolute, is still accepted and is planned to be deprecated in
+0.7.0) and <code class="docutils literal notranslate"><span class="pre">subarray</span></code> (a key of
+<code class="docutils literal notranslate"><span class="pre">subarrays</span></code>: the map colours moorings by subarray; moorings without one
+are grouped as “other”; without any, one colour per mooring).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">subarrays</span></code></p></td>
+<td><p>Each subarray’s <code class="docutils literal notranslate"><span class="pre">name</span></code> (the moorings table’s Array column) and <code class="docutils literal notranslate"><span class="pre">short</span></code>
+name (the map legend). Not written to the OceanSITES <code class="docutils literal notranslate"><span class="pre">array</span></code> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">year</span></code>, <code class="docutils literal notranslate"><span class="pre">project</span></code></p></td>
+<td><p>The page’s title (“OSNAP East 2016”) and header; <code class="docutils literal notranslate"><span class="pre">project</span></code> is also
+written into the OceanSITES files.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">site_code</span></code></p></td>
+<td><p>The OceanSITES site code, written into the exported files (left out, with a
+warning, when absent).</p></td>
+</tr>
+</tbody>
+</table>
+<p>Other keys are not used by the year page, which takes cruises, ships, dates,
+positions and depths from each mooring’s own YAML file; <code class="docutils literal notranslate"><span class="pre">cruise</span></code>, <code class="docutils literal notranslate"><span class="pre">ship</span></code>,
+<code class="docutils literal notranslate"><span class="pre">deployment_time</span></code>, <code class="docutils literal notranslate"><span class="pre">recovery_time</span></code>, <code class="docutils literal notranslate"><span class="pre">latitude</span></code>, <code class="docutils literal notranslate"><span class="pre">longitude</span></code>, <code class="docutils literal notranslate"><span class="pre">position</span></code>,
+<code class="docutils literal notranslate"><span class="pre">waterdepth_min</span></code>, <code class="docutils literal notranslate"><span class="pre">waterdepth_max</span></code>, <code class="docutils literal notranslate"><span class="pre">vocab</span></code> and <code class="docutils literal notranslate"><span class="pre">bathymetry</span></code> get one warning
+naming them. The bathymetry file (GEBCO or ETOPO, one elevation variable on latitude
+and longitude) is given on the command line (<code class="docutils literal notranslate"><span class="pre">--bathymetry</span></code>) or as
+<code class="docutils literal notranslate"><span class="pre">oa.report(array_path,</span> <span class="pre">paths,</span> <span class="pre">kind=&quot;array&quot;,</span> <span class="pre">bathymetry=...)</span></code>: the map draws its 500, 1000, 2000
+and 2500 m contours, cached beside the page, and names the dataset from the file’s
+<code class="docutils literal notranslate"><span class="pre">title</span></code> (e.g. “ETOPO1”, “GEBCO 2025”).</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="yaml_configuration.html" class="btn btn-neutral float-left" title="The mooring YAML file" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sensor_catalog.html" class="btn btn-neutral float-right" title="The sensor catalog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

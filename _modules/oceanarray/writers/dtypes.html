@@ -1,0 +1,426 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.writers.dtypes &mdash; oceanarray 0.6.0.post1.dev41 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a96f5941"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.writers.dtypes</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.writers.dtypes</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Storage dtypes for written files: the smallest dtype that holds each variable."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="n">_INT32</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+<span class="n">_VALID_ATTRS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"valid_min"</span><span class="p">,</span> <span class="s2">"valid_max"</span><span class="p">,</span> <span class="s2">"valid_range"</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="is_position">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.writers.dtypes.is_position">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_position</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return whether *name* holds a position, kept at double precision.</span>
+
+<span class="sd">    One rule for variables and attributes: ``latitude`` / ``longitude`` anywhere in</span>
+<span class="sd">    the name, or ACDD's ``geospatial_lat_*`` / ``geospatial_lon_*``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        A variable or attribute name.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True for a position.</span>
+<span class="sd">    """</span>
+    <span class="n">low</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="s2">"latitude"</span> <span class="ow">in</span> <span class="n">low</span>
+        <span class="ow">or</span> <span class="s2">"longitude"</span> <span class="ow">in</span> <span class="n">low</span>
+        <span class="ow">or</span> <span class="n">low</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">"geospatial_lat"</span><span class="p">,</span> <span class="s2">"geospatial_lon"</span><span class="p">))</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="find_best_dtype">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.writers.dtypes.find_best_dtype">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_best_dtype</span><span class="p">(</span><span class="n">var_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Determine the optimal storage dtype for a variable.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    var_name : str</span>
+<span class="sd">        Variable name.</span>
+<span class="sd">    da : xr.DataArray</span>
+<span class="sd">        Data array to inspect.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    type</span>
+<span class="sd">        Recommended numpy dtype.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Rules applied in order:</span>
+
+<span class="sd">    - String / datetime / timedelta / object variables: unchanged.</span>
+<span class="sd">    - ``time`` in name: unchanged (preserve datetime64 / float encoding).</span>
+<span class="sd">    - ``*_qc`` suffix or ``flag`` in name: ``int8``.</span>
+<span class="sd">    - ``latitude`` / ``longitude`` in name: ``float64``.</span>
+<span class="sd">    - Integer input: downsize to ``int32`` if stored as ``int64``, else unchanged.</span>
+<span class="sd">    - ``float64`` input: ``float32``.</span>
+<span class="sd">    - Anything else: unchanged.</span>
+
+<span class="sd">    """</span>
+    <span class="n">input_dtype</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">type</span>
+    <span class="k">if</span> <span class="n">da</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"U"</span><span class="p">,</span> <span class="s2">"S"</span><span class="p">,</span> <span class="s2">"O"</span><span class="p">,</span> <span class="s2">"M"</span><span class="p">,</span> <span class="s2">"m"</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">input_dtype</span>
+    <span class="k">if</span> <span class="s2">"time"</span> <span class="ow">in</span> <span class="n">var_name</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">input_dtype</span>
+    <span class="k">if</span> <span class="n">var_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"_qc"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"flag"</span> <span class="ow">in</span> <span class="n">var_name</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span>
+    <span class="k">if</span> <span class="n">is_position</span><span class="p">(</span><span class="n">var_name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span>
+    <span class="k">if</span> <span class="n">da</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"i"</span><span class="p">,</span> <span class="s2">"u"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">da</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">itemsize</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span>
+    <span class="k">if</span> <span class="n">input_dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+    <span class="k">return</span> <span class="n">input_dtype</span></div>
+
+
+
+<div class="viewcode-block" id="cast_output_dtypes">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.writers.dtypes.cast_output_dtypes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cast_output_dtypes</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Cast every variable in *ds* to its optimal storage dtype.</span>
+
+<span class="sd">    Calls :func:`find_best_dtype` per variable and rebuilds only those that</span>
+<span class="sd">    change.  Attributes are preserved, ``valid_min`` / ``valid_max`` /</span>
+<span class="sd">    ``valid_range`` cast to their variable's dtype.  The input dataset is not</span>
+<span class="sd">    modified.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xr.Dataset</span>
+<span class="sd">        Dataset to cast.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.Dataset</span>
+<span class="sd">        New dataset with optimised dtypes, ready for NetCDF output.</span>
+
+<span class="sd">    """</span>
+    <span class="n">updates</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">find_best_dtype</span><span class="p">(</span><span class="n">vname</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">target</span><span class="p">)</span> <span class="o">!=</span> <span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span>
+                <span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span>
+            <span class="p">):</span>
+                <span class="c1"># NaN cannot be represented as an integer; replace before cast.</span>
+                <span class="c1"># QC variables use 9 (CF "missing value"); other integer vars use 0.</span>
+                <span class="n">fill_val</span> <span class="o">=</span> <span class="mi">9</span> <span class="k">if</span> <span class="p">(</span><span class="n">vname</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"_qc"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"flag"</span> <span class="ow">in</span> <span class="n">vname</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span>
+                <span class="n">safe_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">values</span><span class="p">),</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">fill_val</span><span class="p">)</span>
+                <span class="n">updates</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                    <span class="n">var</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span> <span class="n">safe_vals</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="n">attrs</span><span class="o">=</span><span class="n">var</span><span class="o">.</span><span class="n">attrs</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">updates</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                    <span class="n">var</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="n">attrs</span><span class="o">=</span><span class="n">var</span><span class="o">.</span><span class="n">attrs</span>
+                <span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">updates</span><span class="p">)</span> <span class="k">if</span> <span class="n">updates</span> <span class="k">else</span> <span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">_VALID_ATTRS</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">valid</span> <span class="ow">and</span> <span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="s2">"iuf"</span><span class="p">:</span>
+            <span class="c1"># CF 2.5.1: valid_min/max/range share the variable's stored type.</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="o">**</span><span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="p">,</span>
+                <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">_as_dtype</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">valid</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
+            <span class="p">}</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_dtype</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>  <span class="c1"># a number or a pair</span>
+<span class="w">    </span><span class="sd">"""Return *value* cast to *dtype*, a scalar staying a scalar."""</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span><span class="p">[()]</span> <span class="k">if</span> <span class="n">out</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">out</span>
+
+
+<div class="viewcode-block" id="cast_attr">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.writers.dtypes.cast_attr">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cast_attr</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>  <span class="c1"># any attribute value</span>
+<span class="w">    </span><span class="sd">"""Return an attribute value at its storage precision, as variables are stored.</span>
+
+<span class="sd">    A double becomes ``float32`` and a 64-bit integer ``int32`` (when it fits), so a</span>
+<span class="sd">    global attribute such as ``dp_dbar`` is not written at a precision its variable</span>
+<span class="sd">    counterparts are not. Positions (``latitude``, ``geospatial_lat_min`` ...) and</span>
+<span class="sd">    anything not numeric are returned unchanged.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The attribute name.</span>
+<span class="sd">    value : Any</span>
+<span class="sd">        The attribute value: a number, a numeric array, a string ...</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Any</span>
+<span class="sd">        The value cast, or *value* itself when no cast applies.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">))</span> <span class="ow">or</span> <span class="n">is_position</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span>
+    <span class="k">if</span> <span class="s2">"time"</span> <span class="ow">in</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">value</span>
+    <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"f"</span> <span class="ow">and</span> <span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">itemsize</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="s2">"iu"</span> <span class="ow">and</span> <span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">itemsize</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">arr</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">arr</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">_INT32</span><span class="o">.</span><span class="n">min</span> <span class="ow">or</span> <span class="n">arr</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">_INT32</span><span class="o">.</span><span class="n">max</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">out</span><span class="p">[()]</span> <span class="k">if</span> <span class="n">out</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">out</span></div>
+
+
+
+<div class="viewcode-block" id="cast_attr_dtypes">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.writers.dtypes.cast_attr_dtypes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cast_attr_dtypes</span><span class="p">(</span><span class="n">attrs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return *attrs* with each value cast by :func:`cast_attr`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    attrs : dict of str to Any</span>
+<span class="sd">        Global attributes.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict of str to Any</span>
+<span class="sd">        A new dict; *attrs* is not modified.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">cast_attr</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
+
+
+
+<div class="viewcode-block" id="same_attr">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.writers.dtypes.same_attr">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">same_attr</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">stored</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">expected</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return whether a stored attribute equals the value that would be written now.</span>
+
+<span class="sd">    *expected* is cast as the writer casts it before the two are compared, so a</span>
+<span class="sd">    ``dp_dbar`` of 0.1 read back as ``float32`` still matches 0.1.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The attribute name.</span>
+<span class="sd">    stored : Any</span>
+<span class="sd">        The value read from the file (None when absent).</span>
+<span class="sd">    expected : Any</span>
+<span class="sd">        The value the current run would write.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True when the two agree at storage precision.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">stored</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">expected</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">stored</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">expected</span> <span class="ow">is</span> <span class="kc">None</span>
+    <span class="n">want</span> <span class="o">=</span> <span class="n">cast_attr</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># equal_nan: a NaN position or depth recorded as NaN is unchanged.</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">stored</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">want</span><span class="p">),</span> <span class="n">equal_nan</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="k">pass</span>  <span class="c1"># text: compared as written below</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">stored</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">want</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="changed_attr">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.writers.dtypes.changed_attr">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">changed_attr</span><span class="p">(</span>
+    <span class="n">attrs</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">],</span> <span class="n">expected</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the first attribute (in name order) a product holds differently, or None.</span>
+
+<span class="sd">    Values are compared at the precision the writer stores them</span>
+<span class="sd">    (:func:`same_attr`), so a float32 ``dp_dbar`` or a NaN</span>
+<span class="sd">    position read back is not a change.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    attrs : Mapping</span>
+<span class="sd">        The product's global attributes.</span>
+<span class="sd">    expected : Mapping</span>
+<span class="sd">        The values the current run would write.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str or None</span>
+<span class="sd">        The attribute name, or None when all agree.</span>
+<span class="sd">    """</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">expected</span><span class="p">):</span>
+        <span class="c1"># An absent attribute reads as "" where the expected value is text.</span>
+        <span class="n">stored</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s2">""</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expected</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">same_attr</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">stored</span><span class="p">,</span> <span class="n">expected</span><span class="p">[</span><span class="n">key</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="n">key</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

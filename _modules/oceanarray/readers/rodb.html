@@ -1,0 +1,452 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.readers.rodb &mdash; oceanarray 0.6.0.post1.dev41 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a96f5941"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../readers.html">oceanarray.readers</a></li>
+      <li class="breadcrumb-item active">oceanarray.readers.rodb</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.readers.rodb</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Reader for RODB text files (``.microcat``, ``.edt``, ``.lowedt``).</span>
+
+<span class="sd">These are originator-processed RODB-format time series (RAPID/OSNAP).  Column</span>
+<span class="sd">codes are mapped to oceanarray names through :data:`RODB_COLUMNS`.  An ADCP</span>
+<span class="sd">delivered as one ``.edt`` file per bin is joined by :func:`read_rodb_bins`.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">provenance</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.config.parameters</span><span class="w"> </span><span class="kn">import</span> <span class="n">ADCP_BIN_DIM</span><span class="p">,</span> <span class="n">RDI_BAD_VALUE_CM_S</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReaderError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">pressure_from_depth</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.readers.adcp_geometry</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ORIGINATOR_BIN_PRESSURE_ATTRS</span><span class="p">,</span>
+    <span class="n">originator_bin_geometry</span><span class="p">,</span>
+    <span class="n">originator_range</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1">#: RODB column codes → (oceanarray name, units).  Units are those documented for</span>
+<span class="c1">#: each code in ``config/legacy/rodb_keys.yaml`` (RODB files carry no units).</span>
+<span class="n">RODB_COLUMNS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"T"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"temperature"</span><span class="p">,</span> <span class="s2">"degree_Celsius"</span><span class="p">),</span>
+    <span class="s2">"C"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"conductivity"</span><span class="p">,</span> <span class="s2">"mS/cm"</span><span class="p">),</span>
+    <span class="s2">"P"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"pressure"</span><span class="p">,</span> <span class="s2">"dbar"</span><span class="p">),</span>
+    <span class="s2">"U"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"east_velocity"</span><span class="p">,</span> <span class="s2">"cm s-1"</span><span class="p">),</span>
+    <span class="s2">"V"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"north_velocity"</span><span class="p">,</span> <span class="s2">"cm s-1"</span><span class="p">),</span>
+    <span class="s2">"W"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"up_velocity"</span><span class="p">,</span> <span class="s2">"cm s-1"</span><span class="p">),</span>
+    <span class="s2">"HDG"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"heading"</span><span class="p">,</span> <span class="s2">"degree"</span><span class="p">),</span>
+    <span class="s2">"PIT"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"pitch"</span><span class="p">,</span> <span class="s2">"degree"</span><span class="p">),</span>
+    <span class="s2">"ROL"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"roll"</span><span class="p">,</span> <span class="s2">"degree"</span><span class="p">),</span>
+    <span class="s2">"IPOW"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"input_power"</span><span class="p">,</span> <span class="s2">"V"</span><span class="p">),</span>
+    <span class="s2">"USS"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"signal_strength_east"</span><span class="p">,</span> <span class="s2">"counts"</span><span class="p">),</span>
+    <span class="s2">"VSS"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"signal_strength_north"</span><span class="p">,</span> <span class="s2">"counts"</span><span class="p">),</span>
+    <span class="s2">"WSS"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"signal_strength_up"</span><span class="p">,</span> <span class="s2">"counts"</span><span class="p">),</span>
+    <span class="s2">"Z"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"bin_depth"</span><span class="p">,</span> <span class="s2">"m"</span><span class="p">),</span>
+    <span class="s2">"EV"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"error_velocity"</span><span class="p">,</span> <span class="s2">"cm s-1"</span><span class="p">),</span>
+    <span class="o">**</span><span class="p">{</span><span class="sa">f</span><span class="s2">"BEAM</span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s2">SS"</span><span class="p">:</span> <span class="p">(</span><span class="sa">f</span><span class="s2">"amplitude_beam</span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"counts"</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">)},</span>
+    <span class="o">**</span><span class="p">{</span><span class="sa">f</span><span class="s2">"BEAM</span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s2">COR"</span><span class="p">:</span> <span class="p">(</span><span class="sa">f</span><span class="s2">"correlation_beam</span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"counts"</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">)},</span>
+    <span class="c1"># RDI percent-good fields 1-4 (field 4: four-beam solutions), as in a raw file.</span>
+    <span class="o">**</span><span class="p">{</span><span class="sa">f</span><span class="s2">"BEAM</span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s2">PGP"</span><span class="p">:</span> <span class="p">(</span><span class="sa">f</span><span class="s2">"percent_good_beam</span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"percent"</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">)},</span>
+<span class="p">}</span>
+
+<span class="c1">#: Variables of a per-bin ADCP file that are the same in every bin (the head's).</span>
+<span class="n">_HEAD_VARS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"temperature"</span><span class="p">,</span> <span class="s2">"heading"</span><span class="p">,</span> <span class="s2">"pitch"</span><span class="p">,</span> <span class="s2">"roll"</span><span class="p">)</span>
+
+<span class="c1">#: RODB missing-data markers.  Only these: a value such as ``-9.0`` is a real</span>
+<span class="c1">#: velocity or roll in an ``.edt`` file and must not be blanked.</span>
+<span class="n">RODB_FILL_VALUES</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">9999.0</span><span class="p">,</span> <span class="mf">1e32</span><span class="p">,</span> <span class="n">RDI_BAD_VALUE_CM_S</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_rodb_position</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return decimal degrees from a RODB ``"57 28.240 N"`` position string."""</span>
+    <span class="n">deg</span><span class="p">,</span> <span class="n">minutes</span><span class="p">,</span> <span class="n">hemi</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">deg</span><span class="p">)</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">minutes</span><span class="p">)</span> <span class="o">/</span> <span class="mf">60.0</span>
+    <span class="k">return</span> <span class="o">-</span><span class="n">value</span> <span class="k">if</span> <span class="n">hemi</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"S"</span><span class="p">,</span> <span class="s2">"W"</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
+
+
+<div class="viewcode-block" id="read_rodb">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.readers.read_rodb">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_rodb</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>  <span class="c1"># noqa: C901</span>
+<span class="w">    </span><span class="sd">"""Read a RODB text file (``.microcat``, ``.edt``, ``.lowedt``).</span>
+
+<span class="sd">    The header (``Key = value`` lines) is kept as ``originator_*`` attributes; the</span>
+<span class="sd">    ``Columns`` line names the data columns.  ``YY MM DD HH`` (decimal hours) build</span>
+<span class="sd">    ``time``, rounded to the nearest second.  Other columns are renamed through</span>
+<span class="sd">    :data:`RODB_COLUMNS` with their documented units; :data:`RODB_FILL_VALUES` become</span>
+<span class="sd">    NaN; a record with a fill in ``YY MM DD HH`` gets a ``NaT`` time (dropped, with</span>
+<span class="sd">    the count, by :func:`oceanarray.readers.read` and stage 1).  An</span>
+<span class="sd">    ``.edt``/``.lowedt`` header's ``MagDeviation`` (already applied by the</span>
+<span class="sd">    originator) is recorded as ``originator_magnetic_declination`` and the</span>
+<span class="sd">    velocities marked ``coordinate_system = "ENU"``.  A ``.lowedt`` file is marked</span>
+<span class="sd">    ``originator_low_passed``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : str or pathlib.Path</span>
+<span class="sd">        The RODB file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        One ``time`` dimension, oceanarray variable names and ``originator_*``</span>
+<span class="sd">        attributes.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ReaderError</span>
+<span class="sd">        If the header has no ``Columns`` line, a column is not in</span>
+<span class="sd">        :data:`RODB_COLUMNS`, ``YY:MM:DD:HH`` are missing, or no data rows follow</span>
+<span class="sd">        the header.</span>
+<span class="sd">    """</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+    <span class="n">header</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="s2">"="</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">i</span>
+            <span class="k">break</span>
+        <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"="</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">header</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+    <span class="k">if</span> <span class="s2">"Columns"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">header</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ReaderError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: no 'Columns' header line; not a RODB file"</span><span class="p">)</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="s2">"Columns"</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">":"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">columns</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span> <span class="o">!=</span> <span class="p">[</span><span class="s2">"YY"</span><span class="p">,</span> <span class="s2">"MM"</span><span class="p">,</span> <span class="s2">"DD"</span><span class="p">,</span> <span class="s2">"HH"</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="n">ReaderError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: columns must start YY:MM:DD:HH, got </span><span class="si">{</span><span class="n">columns</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">unknown</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">RODB_COLUMNS</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">unknown</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ReaderError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: RODB column code(s) </span><span class="si">{</span><span class="n">unknown</span><span class="si">}</span><span class="s2"> are not supported "</span>
+            <span class="sa">f</span><span class="s2">"(supported: </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">RODB_COLUMNS</span><span class="p">)</span><span class="si">}</span><span class="s2">); the file cannot be read until "</span>
+            <span class="s2">"the reader maps them, so report the code(s) and their units"</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ReaderError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: no data rows after the RODB header"</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">start</span><span class="p">:],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ReaderError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: data rows have fewer than 4 columns (need YY MM DD HH)"</span>
+        <span class="p">)</span>
+    <span class="k">for</span> <span class="n">fill</span> <span class="ow">in</span> <span class="n">RODB_FILL_VALUES</span><span class="p">:</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">data</span> <span class="o">==</span> <span class="n">fill</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="c1"># A fill in YY/MM/DD/HH leaves the record with no time: build it from the</span>
+    <span class="c1"># complete rows only and mark the rest NaT (a NaN hour cast to int64 is</span>
+    <span class="c1"># platform-dependent and can read as midnight).</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">data</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">4</span><span class="p">])</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s2">"NaT"</span><span class="p">,</span> <span class="s2">"ns"</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">valid</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span>
+        <span class="n">day</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">"year"</span><span class="p">:</span> <span class="n">rows</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="s2">"month"</span><span class="p">:</span> <span class="n">rows</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">"day"</span><span class="p">:</span> <span class="n">rows</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]}</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="n">seconds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">rows</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="mf">3600.0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"int64"</span><span class="p">)</span>
+        <span class="n">time</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">day</span> <span class="o">+</span> <span class="n">seconds</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"timedelta64[s]"</span><span class="p">)</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="s2">"time"</span><span class="p">:</span> <span class="n">time</span><span class="p">})</span>
+    <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">code</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">columns</span><span class="p">[</span><span class="mi">4</span><span class="p">:],</span> <span class="n">start</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">RODB_COLUMNS</span><span class="p">[</span><span class="n">code</span><span class="p">]</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">[:,</span> <span class="n">j</span><span class="p">],</span> <span class="n">dims</span><span class="o">=</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">"units"</span><span class="p">:</span> <span class="n">units</span><span class="p">,</span> <span class="s2">"original_name"</span><span class="p">:</span> <span class="n">code</span><span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">header</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="sa">f</span><span class="s2">"originator_</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"Latitude"</span><span class="p">,</span> <span class="s2">"Longitude"</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">header</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="sa">f</span><span class="s2">"originator_</span><span class="si">{</span><span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">_rodb_position</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"originator_file"</span><span class="p">]</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"originator_sha256"</span><span class="p">]</span> <span class="o">=</span> <span class="n">provenance</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"originator_format"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"RODB"</span>
+    <span class="k">if</span> <span class="s2">"MagDeviation"</span> <span class="ow">in</span> <span class="n">header</span><span class="p">:</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"originator_magnetic_declination"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="s2">"MagDeviation"</span><span class="p">])</span>
+    <span class="k">if</span> <span class="p">{</span><span class="s2">"east_velocity"</span><span class="p">,</span> <span class="s2">"north_velocity"</span><span class="p">}</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">data_vars</span><span class="p">):</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"coordinate_system"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"ENU"</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
+            <span class="s2">"originator_magnetic_declination"</span><span class="p">,</span>
+            <span class="s2">"applied by the originator; value not recorded"</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">".lowedt"</span><span class="p">:</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"originator_low_passed"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"2-day low-pass, 12-hour time step"</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<div class="viewcode-block" id="read_rodb_bins">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.readers.read_rodb_bins">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_rodb_bins</span><span class="p">(</span><span class="n">paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>  <span class="c1"># noqa: C901</span>
+<span class="w">    </span><span class="sd">"""Read one ADCP's RODB ``.edt`` files, one per bin, as one dataset on ``(time, N_BINS)``.</span>
+
+<span class="sd">    The bin number comes from ``_bin&lt;NN&gt;`` in each name; a missing number is</span>
+<span class="sd">    warned about and the bins present are kept, numbered by a ``bin_number``</span>
+<span class="sd">    coordinate. ``Z`` (bin depth) becomes ``bin_depth`` and ``bin_pressure``</span>
+<span class="sd">    (``gsw.p_from_z`` at the header latitude, kept as the originator's); ``range``</span>
+<span class="sd">    is the median distance from the head, placed one bin spacing before bin 1. Head variables are</span>
+<span class="sd">    taken from the first bin. The beam columns become ``amplitude``,</span>
+<span class="sd">    ``correlation`` and ``percent_good`` on ``(time, N_BINS, beam)``, ``beam``</span>
+<span class="sd">    numbered from the column names.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    paths : list of str or pathlib.Path</span>
+<span class="sd">        The per-bin files of one instrument.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        One ADCP on ``time`` and ``N_BINS``, with ``originator_files``.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ReaderError</span>
+<span class="sd">        If a file is not ``.edt`` or has no bin number, two files share a bin, the</span>
+<span class="sd">        header serials differ, or the files' times differ.</span>
+<span class="sd">    """</span>
+    <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+    <span class="n">numbered</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"_bin(\d+)$"</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">".edt"</span> <span class="ow">or</span> <span class="n">m</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ReaderError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: not a per-bin .edt file (&lt;name&gt;_binNN.edt)"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="ow">in</span> <span class="n">numbered</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ReaderError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">numbered</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))]</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: same bin"</span>
+            <span class="p">)</span>
+        <span class="n">numbered</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))]</span> <span class="o">=</span> <span class="n">p</span>
+    <span class="n">numbers</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">numbered</span><span class="p">)</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">read_rodb</span><span class="p">(</span><span class="n">numbered</span><span class="p">[</span><span class="n">n</span><span class="p">])</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">numbers</span><span class="p">]</span>
+    <span class="n">first</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">serials</span> <span class="o">=</span> <span class="p">{</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"originator_SerialNumber"</span><span class="p">)</span> <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">}</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">serials</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ReaderError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">first</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'originator_file'</span><span class="p">]</span><span class="si">}</span><span class="s2">: serials differ: </span><span class="si">{</span><span class="n">serials</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+    <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">first</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ReaderError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'originator_file'</span><span class="p">]</span><span class="si">}</span><span class="s2">: times differ from "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">first</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'originator_file'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+    <span class="n">missing</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">numbers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">numbers</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">first</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'originator_file'</span><span class="p">]</span><span class="si">}</span><span class="s2">: no file for bin(s) </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">_HEAD_VARS</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">first</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">],</span> <span class="n">first</span><span class="p">[</span><span class="n">var</span><span class="p">],</span> <span class="n">equal_nan</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">parts</span>
+        <span class="p">):</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">-</span> <span class="n">first</span><span class="p">[</span><span class="n">var</span><span class="p">])))</span> <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2"> differs between bins (max </span><span class="si">{</span><span class="n">diff</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">); bin </span><span class="si">{</span><span class="n">numbers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">'s kept"</span>
+            <span class="p">)</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">first</span><span class="p">[[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_HEAD_VARS</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">first</span><span class="p">]]</span>
+    <span class="n">per_bin</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">first</span><span class="o">.</span><span class="n">data_vars</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_HEAD_VARS</span> <span class="ow">and</span> <span class="s2">"_beam"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">v</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">per_bin</span><span class="p">:</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="n">ADCP_BIN_DIM</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"amplitude"</span><span class="p">,</span> <span class="s2">"correlation"</span><span class="p">,</span> <span class="s2">"percent_good"</span><span class="p">):</span>
+        <span class="n">beams</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"_beam"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">v</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">first</span><span class="o">.</span><span class="n">data_vars</span>
+            <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_beam"</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">beams</span><span class="p">:</span>
+            <span class="n">da</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">ds</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">beams</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="s2">"beam"</span><span class="p">)</span> <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">],</span>
+                <span class="n">dim</span><span class="o">=</span><span class="n">ADCP_BIN_DIM</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">ADCP_BIN_DIM</span><span class="p">,</span> <span class="s2">"beam"</span><span class="p">)</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span><span class="n">beam</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">beams</span><span class="p">],</span> <span class="s2">"int8"</span><span class="p">))</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"units"</span><span class="p">:</span> <span class="n">first</span><span class="p">[</span><span class="n">beams</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"units"</span><span class="p">]}</span>
+
+    <span class="n">lat</span> <span class="o">=</span> <span class="n">first</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"originator_latitude"</span><span class="p">]</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">"bin_pressure"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">pressure_from_depth</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">"bin_depth"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">lat</span><span class="p">),</span>
+        <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">ADCP_BIN_DIM</span><span class="p">),</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+            <span class="o">**</span><span class="n">ORIGINATOR_BIN_PRESSURE_ATTRS</span><span class="p">,</span>
+            <span class="s2">"comment"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"gsw.p_from_z(-Z, </span><span class="si">{</span><span class="n">lat</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">) from the per-bin files"</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="c1"># The header's InstrDepth can be the design depth, far from the deployed one, so</span>
+    <span class="c1"># the head is placed from the bins: one bin spacing before bin 1.</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">"bin_depth"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">numbers</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">spacing</span> <span class="o">=</span> <span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">z</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">numbers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">head</span><span class="p">,</span> <span class="n">source</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">spacing</span> <span class="o">*</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"one bin spacing before bin 1"</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">head</span><span class="p">,</span> <span class="n">source</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">first</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"originator_InstrDepth"</span><span class="p">]),</span> <span class="s2">"header InstrDepth"</span>
+    <span class="n">orientation</span><span class="p">,</span> <span class="n">rng</span> <span class="o">=</span> <span class="n">originator_bin_geometry</span><span class="p">(</span><span class="n">z</span> <span class="o">-</span> <span class="n">head</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span>
+        <span class="nb">range</span><span class="o">=</span><span class="n">originator_range</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"median Z with the head </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">"</span><span class="p">),</span>
+        <span class="n">bin_number</span><span class="o">=</span><span class="p">(</span><span class="n">ADCP_BIN_DIM</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">numbers</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"int16"</span><span class="p">)),</span>
+    <span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">first</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"originator_files"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">numbered</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">numbers</span><span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"orientation_instrument"</span><span class="p">]</span> <span class="o">=</span> <span class="n">orientation</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"orientation_instrument_source"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"file: Z relative to the head (</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">)"</span>
+    <span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"coordinate_system_source"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">"originator: geographic east/north velocity in the file"</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

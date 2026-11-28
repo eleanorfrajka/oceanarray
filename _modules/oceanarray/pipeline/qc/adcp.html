@@ -1,0 +1,500 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.pipeline.qc.adcp &mdash; oceanarray 0.6.0.post1.dev41 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=a96f5941"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../methods/calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../pipeline.html">oceanarray.pipeline</a></li>
+          <li class="breadcrumb-item"><a href="../qc.html">oceanarray.pipeline.qc</a></li>
+      <li class="breadcrumb-item active">oceanarray.pipeline.qc.adcp</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.pipeline.qc.adcp</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""ADCP QC steps: bins in the seabed or surface sidelobe zone, and velocity checks."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="apply_adcp_seabed_qc">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.qc.adcp.apply_adcp_seabed_qc">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_adcp_seabed_qc</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">water_depth_m</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">fail_margin_m</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.0</span><span class="p">,</span>
+    <span class="n">log_fn</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Add ``seabed_qc(time, N_BINS)``: 3 for bins below the seabed, 4 beyond *fail_margin_m*.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        Stage-3 ADCP dataset with ``bin_pressure(time, N_BINS)`` (dbar).</span>
+<span class="sd">    water_depth_m : float</span>
+<span class="sd">        Water depth (m, the YAML ``waterdepth``); no-op if ≤ 0.</span>
+<span class="sd">    lat : float</span>
+<span class="sd">        Latitude (decimal degrees), for :func:`~oceanarray.physics.pressure_from_depth`.</span>
+<span class="sd">    fail_margin_m : float, optional</span>
+<span class="sd">        Metres below the seabed beyond which a bin is bad (4) rather than suspect (3).</span>
+<span class="sd">    log_fn : callable, optional</span>
+<span class="sd">        Deprecated (removed in 0.7.0): configure logging instead.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        *ds* with ``seabed_qc`` (not merged into the velocity flags); unchanged without</span>
+<span class="sd">        ``bin_pressure``.</span>
+<span class="sd">    """</span>
+    <span class="k">with</span> <span class="n">logger</span><span class="o">.</span><span class="n">deprecated_log_fn</span><span class="p">(</span><span class="n">log_fn</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_apply_adcp_seabed_qc</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">water_depth_m</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">fail_margin_m</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_apply_adcp_seabed_qc</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">water_depth_m</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">fail_margin_m</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Flag ADCP bins at or below the seabed; see :func:`apply_adcp_seabed_qc`."""</span>
+    <span class="k">if</span> <span class="n">water_depth_m</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"  seabed QC: skipped (waterdepth not set in mooring YAML)"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ds</span>
+    <span class="k">if</span> <span class="s2">"bin_pressure"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"  seabed QC: skipped (bin_pressure not in dataset)"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ds</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameters</span> <span class="k">as</span> <span class="n">params</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">pressure_from_depth</span>
+
+    <span class="n">p_seabed</span> <span class="o">=</span> <span class="n">pressure_from_depth</span><span class="p">(</span><span class="n">water_depth_m</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+    <span class="n">p_fail</span> <span class="o">=</span> <span class="n">pressure_from_depth</span><span class="p">(</span><span class="n">water_depth_m</span> <span class="o">+</span> <span class="n">fail_margin_m</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+
+    <span class="n">bin_p</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"bin_pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>  <span class="c1"># (time, N_BINS)</span>
+    <span class="n">seabed_flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">bin_p</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>  <span class="c1"># 1 = good</span>
+    <span class="n">seabed_flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">bin_p</span> <span class="o">&gt;</span> <span class="n">p_seabed</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">seabed_flags</span><span class="p">)</span>  <span class="c1"># suspect</span>
+    <span class="n">seabed_flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">bin_p</span> <span class="o">&gt;</span> <span class="n">p_fail</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">seabed_flags</span><span class="p">)</span>  <span class="c1"># bad</span>
+    <span class="n">seabed_flags</span> <span class="o">=</span> <span class="n">seabed_flags</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+
+    <span class="n">n_suspect</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">seabed_flags</span> <span class="o">==</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">n_bad</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">seabed_flags</span> <span class="o">==</span> <span class="mi">4</span><span class="p">))</span>
+
+    <span class="n">ds</span><span class="p">[</span><span class="s2">"seabed_qc"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+        <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">ADCP_BIN_DIM</span><span class="p">),</span>
+        <span class="n">seabed_flags</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"Seabed proximity QC flag"</span><span class="p">,</span>
+            <span class="s2">"comment"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Bins at or below seabed (</span><span class="si">{</span><span class="n">water_depth_m</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> m, "</span>
+                <span class="sa">f</span><span class="s2">"p_seabed=</span><span class="si">{</span><span class="n">p_seabed</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> dbar): flag 3 (suspect); "</span>
+                <span class="sa">f</span><span class="s2">"bins &gt;</span><span class="si">{</span><span class="n">fail_margin_m</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> m below seabed "</span>
+                <span class="sa">f</span><span class="s2">"(p=</span><span class="si">{</span><span class="n">p_fail</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> dbar): flag 4 (bad). "</span>
+                <span class="s2">"Standalone — not merged into velocity_qc."</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"  seabed QC: water_depth=</span><span class="si">{</span><span class="n">water_depth_m</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> m, "</span>
+        <span class="sa">f</span><span class="s2">"p_seabed=</span><span class="si">{</span><span class="n">p_seabed</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> dbar, "</span>
+        <span class="sa">f</span><span class="s2">"p_fail=</span><span class="si">{</span><span class="n">p_fail</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> dbar (+</span><span class="si">{</span><span class="n">fail_margin_m</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> m), "</span>
+        <span class="sa">f</span><span class="s2">"suspect=</span><span class="si">{</span><span class="n">n_suspect</span><span class="si">}</span><span class="s2">, bad=</span><span class="si">{</span><span class="n">n_bad</span><span class="si">}</span><span class="s2">"</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds</span>
+
+
+<div class="viewcode-block" id="apply_adcp_surface_qc">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.qc.adcp.apply_adcp_surface_qc">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_adcp_surface_qc</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">suspect_margin_m</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.0</span><span class="p">,</span>
+    <span class="n">log_fn</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Add ``surface_qc(time, N_BINS)``: 4 at or above the surface, 3 within *suspect_margin_m* of it.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        Stage-3 ADCP dataset with ``bin_pressure(time, N_BINS)`` (dbar).</span>
+<span class="sd">    lat : float</span>
+<span class="sd">        Latitude (decimal degrees), for the depth-to-pressure conversion.</span>
+<span class="sd">    suspect_margin_m : float, optional</span>
+<span class="sd">        Depth (m) of the suspect zone below the surface.</span>
+<span class="sd">    log_fn : callable, optional</span>
+<span class="sd">        Deprecated (removed in 0.7.0): configure logging instead.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        *ds* with ``surface_qc`` (not merged into the velocity flags); unchanged without</span>
+<span class="sd">        ``bin_pressure``.</span>
+<span class="sd">    """</span>
+    <span class="k">with</span> <span class="n">logger</span><span class="o">.</span><span class="n">deprecated_log_fn</span><span class="p">(</span><span class="n">log_fn</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_apply_adcp_surface_qc</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">suspect_margin_m</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_apply_adcp_surface_qc</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">suspect_margin_m</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Flag ADCP bins at or above the sea surface; see :func:`apply_adcp_surface_qc`."""</span>
+    <span class="k">if</span> <span class="s2">"bin_pressure"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"  surface QC: skipped (bin_pressure not in dataset)"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ds</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameters</span> <span class="k">as</span> <span class="n">params</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.physics</span><span class="w"> </span><span class="kn">import</span> <span class="n">pressure_from_depth</span>
+
+    <span class="n">p_suspect</span> <span class="o">=</span> <span class="n">pressure_from_depth</span><span class="p">(</span><span class="n">suspect_margin_m</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+
+    <span class="n">bin_p</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"bin_pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>  <span class="c1"># (time, N_BINS)</span>
+    <span class="n">surface_flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">bin_p</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>  <span class="c1"># 1 = good</span>
+    <span class="n">surface_flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">bin_p</span> <span class="o">&lt;</span> <span class="n">p_suspect</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">surface_flags</span><span class="p">)</span>  <span class="c1"># suspect</span>
+    <span class="n">surface_flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">bin_p</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">surface_flags</span><span class="p">)</span>  <span class="c1"># bad</span>
+
+    <span class="n">n_suspect</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">surface_flags</span> <span class="o">==</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">n_bad</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">surface_flags</span> <span class="o">==</span> <span class="mi">4</span><span class="p">))</span>
+
+    <span class="n">ds</span><span class="p">[</span><span class="s2">"surface_qc"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+        <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">ADCP_BIN_DIM</span><span class="p">),</span>
+        <span class="n">surface_flags</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"Sea surface proximity QC flag"</span><span class="p">,</span>
+            <span class="s2">"comment"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Bins within </span><span class="si">{</span><span class="n">suspect_margin_m</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> m of sea surface "</span>
+                <span class="sa">f</span><span class="s2">"(bin_pressure &lt; </span><span class="si">{</span><span class="n">p_suspect</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> dbar): flag 3 (suspect); "</span>
+                <span class="sa">f</span><span class="s2">"bins at or above surface (bin_pressure ≤ 0 dbar): flag 4 (bad). "</span>
+                <span class="s2">"Standalone — not merged into velocity_qc."</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"  surface QC: p_suspect=</span><span class="si">{</span><span class="n">p_suspect</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> dbar (</span><span class="si">{</span><span class="n">suspect_margin_m</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> m), "</span>
+        <span class="sa">f</span><span class="s2">"suspect=</span><span class="si">{</span><span class="n">n_suspect</span><span class="si">}</span><span class="s2">, bad=</span><span class="si">{</span><span class="n">n_bad</span><span class="si">}</span><span class="s2">"</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds</span>
+
+
+<div class="viewcode-block" id="apply_adcp_velocity_qc">
+<a class="viewcode-back" href="../../../../oceanarray.html#oceanarray.pipeline.qc.adcp.apply_adcp_velocity_qc">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_adcp_velocity_qc</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">gr_cfg</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">prcnt_gd_bad</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">prcnt_gd_suspect</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">error_vel_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">log_fn</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Add the standalone ADCP flags on ``(time, N_BINS)``; none is merged into another.</span>
+
+<span class="sd">    ``east/north/up_velocity_qc`` are gross range on the value; ``percent_good_qc`` is 4</span>
+<span class="sd">    below *prcnt_gd_bad* and 3 below *prcnt_gd_suspect*; ``error_velocity_qc`` is 4 where</span>
+<span class="sd">    ``|error_velocity|`` exceeds *error_vel_threshold*.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        Stage-2 dataset with 2-D ADCP velocities.</span>
+<span class="sd">    gr_cfg : dict</span>
+<span class="sd">        Gross-range thresholds, as :func:`~oceanarray.pipeline.qc.load_qc_config` returns.</span>
+<span class="sd">    prcnt_gd_bad : float</span>
+<span class="sd">        Percent good (%) below which a bin is bad.</span>
+<span class="sd">    prcnt_gd_suspect : float</span>
+<span class="sd">        Percent good (%) below which a bin is suspect.</span>
+<span class="sd">    error_vel_threshold : float</span>
+<span class="sd">        Error-velocity magnitude (m s-1) above which a bin is bad.</span>
+<span class="sd">    log_fn : callable, optional</span>
+<span class="sd">        Deprecated (removed in 0.7.0): configure logging instead.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    RDI percent good has four columns; only column 3 (4-beam solutions) measures quality</span>
+<span class="sd">    (the mean of all four is ~25 % for perfect data). Fewer columns: their mean is used; a</span>
+<span class="sd">    ``percent_good`` on ``(time, N_BINS)`` is used as it is.</span>
+<span class="sd">    """</span>
+    <span class="k">with</span> <span class="n">logger</span><span class="o">.</span><span class="n">deprecated_log_fn</span><span class="p">(</span><span class="n">log_fn</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_apply_adcp_velocity_qc</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">,</span> <span class="n">gr_cfg</span><span class="p">,</span> <span class="n">prcnt_gd_bad</span><span class="p">,</span> <span class="n">prcnt_gd_suspect</span><span class="p">,</span> <span class="n">error_vel_threshold</span>
+        <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_apply_adcp_velocity_qc</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">gr_cfg</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">prcnt_gd_bad</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">prcnt_gd_suspect</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">error_vel_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Apply QC to ADCP 2D velocity variables; see :func:`apply_adcp_velocity_qc`."""</span>
+    <span class="c1"># 1. Gross-range on each ENU velocity component independently.</span>
+    <span class="c1">#    Flags only reflect whether that component's value is out of range.</span>
+    <span class="k">for</span> <span class="n">varname</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"east_velocity"</span><span class="p">,</span> <span class="s2">"north_velocity"</span><span class="p">,</span> <span class="s2">"up_velocity"</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">varname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="n">gr_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">varname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">cfg</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">fail_min</span><span class="p">,</span> <span class="n">fail_max</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">"fail_span"</span><span class="p">]</span>
+        <span class="n">susp_min</span><span class="p">,</span> <span class="n">susp_max</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"suspect_span"</span><span class="p">,</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">"fail_span"</span><span class="p">])</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">9</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">data</span> <span class="o">&lt;</span> <span class="n">fail_min</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">data</span> <span class="o">&gt;</span> <span class="n">fail_max</span><span class="p">),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">data</span> <span class="o">&lt;</span> <span class="n">susp_min</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">data</span> <span class="o">&gt;</span> <span class="n">susp_max</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span>
+            <span class="p">),</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+        <span class="n">qc_var</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">varname</span><span class="si">}</span><span class="s2">_qc"</span>
+        <span class="n">threshold_attrs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"qc_gross_range_fail_min"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">fail_min</span><span class="p">),</span>
+            <span class="s2">"qc_gross_range_fail_max"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">fail_max</span><span class="p">),</span>
+            <span class="s2">"qc_gross_range_suspect_min"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">susp_min</span><span class="p">),</span>
+            <span class="s2">"qc_gross_range_suspect_max"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">susp_max</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">ds</span><span class="p">[</span><span class="n">qc_var</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span>
+            <span class="n">flags</span><span class="p">,</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">"long_name"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"quality flag for </span><span class="si">{</span><span class="n">varname</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">threshold_attrs</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+
+    <span class="c1"># 2. percent_good QC — standalone variable, NOT merged into velocity_qc.</span>
+    <span class="c1">#    RDI ADCPs store four percent-good columns per bin:</span>
+    <span class="c1">#      [0] 3-beam solutions  [1] rejected (error vel)</span>
+    <span class="c1">#      [2] rejected (low corr/amp)  [3] 4-beam solutions  ← the useful one</span>
+    <span class="c1">#    Using column 3 only; averaging all columns gives ~25% even for</span>
+    <span class="c1">#    perfect data (100% 4-beam, 0% others), which would flag everything.</span>
+    <span class="k">if</span> <span class="s2">"percent_good"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">pg</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"percent_good"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>  <span class="c1"># (time, N_BINS[, beam])</span>
+        <span class="k">if</span> <span class="n">pg</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">pg_col3</span> <span class="o">=</span> <span class="n">pg</span>  <span class="c1"># one value per bin</span>
+        <span class="k">elif</span> <span class="n">pg</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">pg_col3</span> <span class="o">=</span> <span class="n">pg</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">3</span><span class="p">]</span>  <span class="c1"># 4-beam solutions column</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pg_col3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">pg</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># fallback for non-4-beam ADCPs</span>
+        <span class="n">pg_flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">pg_col3</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">9</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">pg_col3</span> <span class="o">&lt;</span> <span class="n">prcnt_gd_bad</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">pg_col3</span> <span class="o">&lt;</span> <span class="n">prcnt_gd_suspect</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span>
+            <span class="p">),</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+        <span class="n">n_bad_pg</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">pg_flags</span> <span class="o">==</span> <span class="mi">4</span><span class="p">))</span>
+        <span class="n">n_susp_pg</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">pg_flags</span> <span class="o">==</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"  ADCP percent_good QC (col-3 4-beam): bad=</span><span class="si">{</span><span class="n">n_bad_pg</span><span class="si">}</span><span class="s2">, suspect=</span><span class="si">{</span><span class="n">n_susp_pg</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"(thresholds: bad&lt;</span><span class="si">{</span><span class="n">prcnt_gd_bad</span><span class="si">}</span><span class="s2">%, suspect&lt;</span><span class="si">{</span><span class="n">prcnt_gd_suspect</span><span class="si">}</span><span class="s2">%)"</span>
+        <span class="p">)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameters</span> <span class="k">as</span> <span class="n">params</span>
+
+        <span class="n">ds</span><span class="p">[</span><span class="s2">"percent_good_qc"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+            <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">ADCP_BIN_DIM</span><span class="p">),</span>
+            <span class="n">pg_flags</span><span class="p">,</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"QC flag for ADCP percent good (4-beam solutions, column 3)"</span><span class="p">,</span>
+                <span class="s2">"comment"</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"Based on RDI percent_good column 3 (4-beam solutions). "</span>
+                    <span class="sa">f</span><span class="s2">"bad&lt;</span><span class="si">{</span><span class="n">prcnt_gd_bad</span><span class="si">}</span><span class="s2">%, suspect&lt;</span><span class="si">{</span><span class="n">prcnt_gd_suspect</span><span class="si">}</span><span class="s2">%. "</span>
+                    <span class="s2">"Standalone — not merged into velocity_qc."</span>
+                <span class="p">),</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+
+    <span class="c1"># 3. error_velocity QC — standalone variable, NOT merged into velocity_qc.</span>
+    <span class="k">if</span> <span class="s2">"error_velocity"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">ev</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"error_velocity"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>  <span class="c1"># (time, N_BINS)</span>
+        <span class="n">ev_flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">ev</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">9</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">error_vel_threshold</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+        <span class="n">n_ev_bad</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">ev_flags</span> <span class="o">==</span> <span class="mi">4</span><span class="p">))</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"  ADCP error_velocity QC: bad=</span><span class="si">{</span><span class="n">n_ev_bad</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"(threshold: |ev|&gt;</span><span class="si">{</span><span class="n">error_vel_threshold</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> m s-1). Standalone."</span>
+        <span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s2">"error_velocity_qc"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">[</span><span class="s2">"error_velocity"</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span>
+            <span class="n">ev_flags</span><span class="p">,</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"QC flag for error velocity"</span><span class="p">,</span>
+                <span class="s2">"comment"</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"|error_velocity| &gt; </span><span class="si">{</span><span class="n">error_vel_threshold</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> m s-1 → bad (4). "</span>
+                    <span class="s2">"Standalone — not merged into velocity_qc."</span>
+                <span class="p">),</span>
+                <span class="s2">"qc_threshold_fail_m_s"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">error_vel_threshold</span><span class="p">),</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ds</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

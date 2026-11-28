@@ -1,0 +1,533 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.mooring.instruments &mdash; oceanarray 0.6.0.post1.dev41 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a96f5941"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.mooring.instruments</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.mooring.instruments</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""The instruments a mooring YAML lists: its entries and inline hardware serials."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">NamedTuple</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">_deprecated</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MooringError</span>
+
+<span class="c1">#: How a logsheet says a clock was not read at recovery.</span>
+<span class="n">_NO_CLOCK_READING</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">,</span> <span class="s2">"n/a"</span><span class="p">,</span> <span class="s2">"na"</span><span class="p">,</span> <span class="s2">"none"</span><span class="p">,</span> <span class="s2">"not read"</span><span class="p">,</span> <span class="s2">"-"</span><span class="p">,</span> <span class="s2">"?"</span><span class="p">}</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="is_missing_clock_reading">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.mooring.instruments.is_missing_clock_reading">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_missing_clock_reading</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return whether a recovery clock reading is absent: null, or a word such as ``unknown``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : object</span>
+<span class="sd">        A ``computer_clock_at_recovery`` or ``instrument_clock_at_recovery`` value.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; is_missing_clock_reading("unknown"), is_missing_clock_reading("20260725T13:13:20")</span>
+<span class="sd">    (True, False)</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">_NO_CLOCK_READING</span></div>
+
+
+
+<div class="viewcode-block" id="parse_clock_reading">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.mooring.instruments.parse_clock_reading">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_clock_reading</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Parse a recovery clock reading; return ``None`` if it is absent or unparseable.</span>
+
+<span class="sd">    The one parser for recovery clock strings, used by stage 2, the mooring check and</span>
+<span class="sd">    the report so they agree. Accepts ISO-8601, compact ``YYYYMMDDTHH:MM:SS`` and</span>
+<span class="sd">    time-only ``HH:MM:SS`` (anchored to an arbitrary date, since only the</span>
+<span class="sd">    computer − instrument difference is used).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : object</span>
+<span class="sd">        A recovery clock reading from a mooring entry.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas.Timestamp or None</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^\d</span><span class="si">{2}</span><span class="s2">:\d</span><span class="si">{2}</span><span class="s2">:\d</span><span class="si">{2}</span><span class="s2">"</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">"T"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"2000-01-01T</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^\d</span><span class="si">{8}</span><span class="s2">T"</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">s</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">s</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">s</span><span class="p">[</span><span class="mi">6</span><span class="p">:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">T</span><span class="si">{</span><span class="n">s</span><span class="p">[</span><span class="mi">9</span><span class="p">:]</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_time_only</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return whether a reading is a bare ``HH:MM:SS`` time of day (no date)."""</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^\d</span><span class="si">{2}</span><span class="s2">:\d</span><span class="si">{2}</span><span class="s2">:\d</span><span class="si">{2}</span><span class="s2">"</span><span class="p">,</span> <span class="n">s</span><span class="p">))</span> <span class="ow">and</span> <span class="s2">"T"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">s</span>
+
+
+<div class="viewcode-block" id="ClockCorrection">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.mooring.instruments.ClockCorrection">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ClockCorrection</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""One instrument's recovery clock correction, resolved from its YAML entry.</span>
+
+<span class="sd">    ``seconds`` is the correction at recovery (seconds added to instrument time,</span>
+<span class="sd">    positive when the instrument clock was slow). ``applied`` is whether a non-zero</span>
+<span class="sd">    drift correction is made. ``reason`` is the history note. ``source`` is one of</span>
+<span class="sd">    ``"recovery readings"``, ``"clock_drift_seconds"``, ``"not read"``, ``"unparseable"``</span>
+<span class="sd">    or ``"none"``.</span>
+<span class="sd">    """</span>
+
+    <span class="n">seconds</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">applied</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_stated_clock_drift</span><span class="p">(</span><span class="n">entry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return ``clock_drift_seconds`` as a float (0 if absent, empty or non-numeric).</span>
+
+<span class="sd">    The loud error on a non-numeric value is raised by :func:`clock_seconds` (stage 2</span>
+<span class="sd">    and the mooring check); this read is tolerant so the report and the outlier check</span>
+<span class="sd">    never crash.</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"clock_drift_seconds"</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+
+
+<div class="viewcode-block" id="clock_seconds">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.mooring.instruments.clock_seconds">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">clock_seconds</span><span class="p">(</span><span class="n">entry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a clock field (``clock_offset`` or ``clock_drift_seconds``) in seconds.</span>
+
+<span class="sd">    ``None`` or ``""`` is 0.0. A non-numeric value (e.g. ``"unknown"``) or a non-finite</span>
+<span class="sd">    one (``nan``, ``inf``) raises :class:`~oceanarray.exceptions.MooringError` naming the</span>
+<span class="sd">    field and serial, so a hand-edited mistake fails loudly at stage 2 and is caught as an</span>
+<span class="sd">    ERROR by the mooring check (:class:`MooringError` is a :class:`ValueError`).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    entry : dict</span>
+<span class="sd">        One instrument entry of a mooring YAML.</span>
+<span class="sd">    field : str</span>
+<span class="sd">        ``"clock_offset"`` or ``"clock_drift_seconds"``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">    """</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">""</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">number</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="n">number</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">number</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+        <span class="n">serial</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"serial"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">))</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">"* "</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'instrument'</span><span class="p">,</span><span class="w"> </span><span class="s1">'instrument'</span><span class="p">)</span><span class="si">}</span><span class="s2"> s/n </span><span class="si">{</span><span class="n">serial</span><span class="si">}</span><span class="s2">: "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2"> is not a finite number of seconds"</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">number</span></div>
+
+
+
+<div class="viewcode-block" id="resolve_clock_correction">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.mooring.instruments.resolve_clock_correction">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_clock_correction</span><span class="p">(</span><span class="n">entry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ClockCorrection</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the recovery clock correction for a mooring YAML instrument entry.</span>
+
+<span class="sd">    The ``computer_clock_at_recovery`` / ``instrument_clock_at_recovery`` pair</span>
+<span class="sd">    (computer − instrument) takes priority over ``clock_drift_seconds``; a pair read</span>
+<span class="sd">    as ``unknown`` (see :func:`is_missing_clock_reading`) falls back to</span>
+<span class="sd">    ``clock_drift_seconds``, else there is no drift. Two time-only readings are</span>
+<span class="sd">    compared modulo 24 h. The constant ``clock_offset`` at deployment is separate.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    entry : dict</span>
+<span class="sd">        One instrument entry of a mooring YAML.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ClockCorrection</span>
+<span class="sd">        ``seconds``, whether it is ``applied``, the history ``reason`` and the</span>
+<span class="sd">        ``source`` (``"recovery readings"``, ``"clock_drift_seconds"``, ``"not read"``,</span>
+<span class="sd">        ``"unparseable"`` or ``"none"``).</span>
+<span class="sd">    """</span>
+    <span class="n">comp</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"computer_clock_at_recovery"</span><span class="p">)</span>
+    <span class="n">inst</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"instrument_clock_at_recovery"</span><span class="p">)</span>
+    <span class="n">stated</span> <span class="o">=</span> <span class="n">_stated_clock_drift</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">comp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">inst</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_missing_clock_reading</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span> <span class="ow">or</span> <span class="n">is_missing_clock_reading</span><span class="p">(</span><span class="n">inst</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">stated</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ClockCorrection</span><span class="p">(</span>
+                    <span class="n">stated</span><span class="p">,</span>
+                    <span class="kc">True</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"clock corrected: clock_drift=</span><span class="si">{</span><span class="n">stated</span><span class="si">:</span><span class="s2">+.1f</span><span class="si">}</span><span class="s2">s over deployment "</span>
+                    <span class="s2">"(clock_drift_seconds; no clock reading at recovery)"</span><span class="p">,</span>
+                    <span class="s2">"clock_drift_seconds"</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">ClockCorrection</span><span class="p">(</span>
+                <span class="mf">0.0</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">"clock: no reading at recovery, not corrected"</span><span class="p">,</span> <span class="s2">"not read"</span>
+            <span class="p">)</span>
+        <span class="n">comp_t</span> <span class="o">=</span> <span class="n">parse_clock_reading</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span>
+        <span class="n">inst_t</span> <span class="o">=</span> <span class="n">parse_clock_reading</span><span class="p">(</span><span class="n">inst</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">comp_t</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">inst_t</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">drift</span> <span class="o">=</span> <span class="p">(</span><span class="n">comp_t</span> <span class="o">-</span> <span class="n">inst_t</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">_is_time_only</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span> <span class="ow">and</span> <span class="n">_is_time_only</span><span class="p">(</span><span class="n">inst</span><span class="p">):</span>
+                <span class="c1"># Both are times of day: wrap the difference into ±12 h so a pair</span>
+                <span class="c1"># straddling midnight (23:59:50 vs 00:00:10) reads as −20 s, not +86 380 s.</span>
+                <span class="n">drift</span> <span class="o">=</span> <span class="p">((</span><span class="n">drift</span> <span class="o">+</span> <span class="mi">43200</span><span class="p">)</span> <span class="o">%</span> <span class="mi">86400</span><span class="p">)</span> <span class="o">-</span> <span class="mi">43200</span>
+            <span class="k">if</span> <span class="n">drift</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ClockCorrection</span><span class="p">(</span>
+                    <span class="n">drift</span><span class="p">,</span>
+                    <span class="kc">True</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"clock corrected: clock_drift=</span><span class="si">{</span><span class="n">drift</span><span class="si">:</span><span class="s2">+.1f</span><span class="si">}</span><span class="s2">s over deployment "</span>
+                    <span class="sa">f</span><span class="s2">"(computer=</span><span class="si">{</span><span class="n">comp</span><span class="si">}</span><span class="s2">, instrument=</span><span class="si">{</span><span class="n">inst</span><span class="si">}</span><span class="s2">)"</span><span class="p">,</span>
+                    <span class="s2">"recovery readings"</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">ClockCorrection</span><span class="p">(</span>
+                <span class="mf">0.0</span><span class="p">,</span>
+                <span class="kc">False</span><span class="p">,</span>
+                <span class="s2">"clock: not corrected, the recovery readings agree "</span>
+                <span class="sa">f</span><span class="s2">"(computer=</span><span class="si">{</span><span class="n">comp</span><span class="si">}</span><span class="s2">, instrument=</span><span class="si">{</span><span class="n">inst</span><span class="si">}</span><span class="s2">)"</span><span class="p">,</span>
+                <span class="s2">"recovery readings"</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="c1"># Present but neither a "missing" word nor a valid timestamp.</span>
+        <span class="k">return</span> <span class="n">ClockCorrection</span><span class="p">(</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="kc">False</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"clock: recovery reading is not a valid timestamp "</span>
+            <span class="sa">f</span><span class="s2">"(computer=</span><span class="si">{</span><span class="n">comp</span><span class="si">!r}</span><span class="s2">, instrument=</span><span class="si">{</span><span class="n">inst</span><span class="si">!r}</span><span class="s2">)"</span><span class="p">,</span>
+            <span class="s2">"unparseable"</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">stated</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ClockCorrection</span><span class="p">(</span>
+            <span class="n">stated</span><span class="p">,</span>
+            <span class="kc">True</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"clock corrected: clock_drift=</span><span class="si">{</span><span class="n">stated</span><span class="si">:</span><span class="s2">+.1f</span><span class="si">}</span><span class="s2">s over deployment"</span><span class="p">,</span>
+            <span class="s2">"clock_drift_seconds"</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ClockCorrection</span><span class="p">(</span>
+        <span class="mf">0.0</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">"clock: no correction (no offset or recovery reading)"</span><span class="p">,</span> <span class="s2">"none"</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="hab_for">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.mooring.instruments.hab_for">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">hab_for</span><span class="p">(</span><span class="n">entry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return an entry's height above bottom, filling it by orientation when absent.</span>
+
+<span class="sd">    An explicit ``hab`` always wins.  Otherwise an upward-looking instrument's HAB is</span>
+<span class="sd">    ``hab_top`` and a downward-looking one's is ``hab_bottom`` (the orientation</span>
+<span class="sd">    convention); an entry with no ``orientation`` falls back to ``hab_bottom`` — the</span>
+<span class="sd">    historical downward default.  Returns ``None`` when the needed key is absent.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"hab"</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"hab"</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"orientation"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"up"</span><span class="p">,</span> <span class="s2">"upward"</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"hab_top"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"hab_bottom"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="nominal_depth">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.mooring.instruments.nominal_depth">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">nominal_depth</span><span class="p">(</span><span class="n">entry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">waterdepth</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return an instrument's design depth below the surface (m).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    entry : dict</span>
+<span class="sd">        The instrument entry of a mooring YAML.</span>
+<span class="sd">    waterdepth : float or None</span>
+<span class="sd">        The mooring's water depth (m).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float or None</span>
+<span class="sd">        The entry's ``nominal_depth``, else ``waterdepth - hab``; None without either.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"nominal_depth"</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">"nominal_depth"</span><span class="p">])</span>
+    <span class="n">hab</span> <span class="o">=</span> <span class="n">hab_for</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">hab</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">waterdepth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">waterdepth</span><span class="p">)</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">hab</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="extract_inline_instruments">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.mooring.instruments.extract_inline_instruments">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_inline_instruments</span><span class="p">(</span>
+    <span class="n">inline_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Return the instrument entries of the YAML ``inline`` list, marked ``source: "inline"``.</span>
+
+<span class="sd">    Entries with an ``instrument`` and either a ``filename`` or ``skip: true``. ``serial`` is</span>
+<span class="sd">    split on the first comma: the first token is the serial (filenames, outputs), the rest</span>
+<span class="sd">    ``beacon_id``; the validator warns on any comma so the order can be confirmed. ``hab`` is</span>
+<span class="sd">    filled later (:func:`instrument_entries`).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    inline_list : list of dict</span>
+<span class="sd">        The ``inline`` list as parsed.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of dict</span>
+<span class="sd">    """</span>
+    <span class="n">result</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">inline_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="s2">"instrument"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"filename"</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"skip"</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="n">normalized</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+
+        <span class="n">serial_raw</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"serial"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+        <span class="k">if</span> <span class="s2">","</span> <span class="ow">in</span> <span class="n">serial_raw</span><span class="p">:</span>
+            <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">serial_raw</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)]</span>
+            <span class="n">normalized</span><span class="p">[</span><span class="s2">"serial"</span><span class="p">]</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">normalized</span><span class="p">[</span><span class="s2">"beacon_id"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+        <span class="n">normalized</span><span class="p">[</span><span class="s2">"source"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"inline"</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">normalized</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="instrument_entries">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.mooring.instruments.instrument_entries">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">instrument_entries</span><span class="p">(</span>
+    <span class="n">mooring_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">mooring</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Return a mooring's processable instruments: clamp (or legacy) plus inline.</span>
+
+<span class="sd">    The one place the clamp/``instruments`` fallback and the inline merge live:</span>
+<span class="sd">    the ``clamp`` list (falling back to the legacy ``instruments`` key) followed</span>
+<span class="sd">    by the normalised, processable entries from the ``inline`` hardware list. A</span>
+<span class="sd">    present-but-null ``clamp:`` / ``inline:`` (YAML ``None``) is treated as empty.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring_dict : dict</span>
+<span class="sd">        A loaded mooring YAML.</span>
+<span class="sd">    mooring : dict, optional</span>
+<span class="sd">        Deprecated name of *mooring_dict*; removed in 0.8.0.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of dict</span>
+<span class="sd">        One entry per instrument, in clamp-then-inline order.</span>
+<span class="sd">    """</span>
+    <span class="n">mooring_dict</span> <span class="o">=</span> <span class="n">_deprecated</span><span class="o">.</span><span class="n">resolve_keyword</span><span class="p">(</span>
+        <span class="s2">"oceanarray.mooring.instruments.instrument_entries(mooring=)"</span><span class="p">,</span>
+        <span class="n">mooring_dict</span><span class="p">,</span>
+        <span class="n">mooring</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="s2">"mooring_dict"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">clamp</span> <span class="o">=</span> <span class="n">mooring_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"clamp"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">clamp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">clamp</span> <span class="o">=</span> <span class="n">mooring_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"instruments"</span><span class="p">)</span>
+    <span class="n">entries</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">clamp</span> <span class="ow">or</span> <span class="p">[])</span> <span class="o">+</span> <span class="n">extract_inline_instruments</span><span class="p">(</span>
+        <span class="n">mooring_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"inline"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="p">)</span>
+    <span class="c1"># Fill hab from hab_bottom/hab_top by orientation (clamp and inline alike), so the</span>
+    <span class="c1"># stack, the report and validate all read the same resolved hab.</span>
+    <span class="n">resolved</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+        <span class="c1"># A malformed (non-mapping) entry passes through unchanged, as before the hab</span>
+        <span class="c1"># fill; callers skip it and validate reports it.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">resolved</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">hab</span> <span class="o">=</span> <span class="n">hab_for</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hab</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"hab"</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">entry</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">entry</span><span class="p">,</span> <span class="s2">"hab"</span><span class="p">:</span> <span class="n">hab</span><span class="p">}</span>
+        <span class="n">resolved</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">resolved</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

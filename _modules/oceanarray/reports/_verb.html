@@ -1,0 +1,555 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oceanarray.reports._verb &mdash; oceanarray 0.6.0.post1.dev41 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=a3d0f024" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a96f5941"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            oceanarray
+              <img src="../../../_static/oceanarray_icon.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reports.html">Reports</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://ocean-uhh.github.io/oceanarray/_static/demo/dune2/dune2_1_2026_report.html">Example report</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How it works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_framework.html">Processing stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../files.html">Files and folders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/standardisation.html">Stage 1: read</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/trimming.html">Stage 2: trim and clocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/auto_qc.html">Stage 3: QC flags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/nortek_coordinate_transform.html">Stage 3: Aquadopp velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration_dips.html">Calibration dips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/time_gridding.html">Stack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/vertical_gridding.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/concatenation.html">Several deployments of a site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/oceansites_export.html">OceanSITES export</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Inputs and outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration_files.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray_format.html">Output files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanSITES_manual.html">OceanSITES manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oceanarray.html">Python API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Upgrading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_7_0.html">From 0.6.1 to 0.7.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_1.html">From 0.6.0 to 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migrating_0_6_0.html">From 0.5 to 0.6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Older versions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../rapid_heritage.html">RAPID heritage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legacy.html">Legacy modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">Project structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../methods/calibration.html">Calibration correction (design)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/oceanarray">GitHub repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">oceanarray</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">oceanarray.reports._verb</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for oceanarray.reports._verb</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""The report verb: build a mooring's HTML report (and PDF), an array index, or a recovery table."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">contextlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">_deprecated</span><span class="p">,</span> <span class="n">logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MooringError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">Paths</span>
+
+<span class="n">Kind</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"mooring"</span><span class="p">,</span> <span class="s2">"array"</span><span class="p">,</span> <span class="s2">"recovery"</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="report">
+<a class="viewcode-back" href="../../../oceanarray.html#oceanarray.report">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">report</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+    <span class="n">mooring_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">paths</span><span class="p">:</span> <span class="n">Paths</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="n">Kind</span> <span class="o">=</span> <span class="s2">"mooring"</span><span class="p">,</span>
+    <span class="n">array_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">breadcrumb</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">instruments</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">stack</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">grid</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">serials</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">sig_level</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">pdf</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">skip_existing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">bathymetry</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">mooring_dir</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">proc_dir</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">raw_dir</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">out_dir</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">report_dir</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">pdf_dir</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Build a report and return the path of its main page.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring_path : str or os.PathLike</span>
+<span class="sd">        ``"mooring"`` / ``"recovery"``: the ``*.mooring.yaml``. For ``"array"`` a</span>
+<span class="sd">        first argument is read as *array_path*.</span>
+<span class="sd">    paths : oceanarray.Paths</span>
+<span class="sd">        Where the files are: the stage, stack and grid files in</span>
+<span class="sd">        ``paths.mooring_dir(name)``, the raw files (named on the instrument pages) in</span>
+<span class="sd">        ``paths.raw_mooring_dir(name)``, the pages, recovery table and PDF written to</span>
+<span class="sd">        ``paths.report_mooring_dir(name)``. ``"array"``: the moorings in</span>
+<span class="sd">        ``paths.proc_dir``, the index in ``paths.report_dir`` (default</span>
+<span class="sd">        ``paths.proc_dir``) and each mooring's pages under it.</span>
+<span class="sd">    kind : {"mooring", "array", "recovery"}, optional</span>
+<span class="sd">        The mooring's summary page (and its instrument, stack and grid pages), the array</span>
+<span class="sd">        index, or the cruise-report recovery table.</span>
+<span class="sd">    array_path : str or os.PathLike, optional</span>
+<span class="sd">        ``"array"``: the ``*.array.yaml``.</span>
+<span class="sd">    breadcrumb : iterable of (str, str or None), optional</span>
+<span class="sd">        Ancestor crumbs ``[(text, href), ...]`` (hrefs relative to the report directory)</span>
+<span class="sd">        shown before each page's own position.</span>
+<span class="sd">    instruments, stack, grid : bool, optional</span>
+<span class="sd">        ``"mooring"``: also build these pages.</span>
+<span class="sd">    serials : iterable of str or None, optional</span>
+<span class="sd">        Instrument pages for these serials only.</span>
+<span class="sd">    sig_level : iterable of float or None, optional</span>
+<span class="sd">        σ₀ targets of the grid page's isopycnal panels (default</span>
+<span class="sd">        :data:`~oceanarray.config.parameters.SIGMA_GRID`).</span>
+<span class="sd">    pdf : bool, optional</span>
+<span class="sd">        ``"mooring"``: also combine the pages into one A4 PDF, beside them.</span>
+<span class="sd">    force : bool, optional</span>
+<span class="sd">        Rebuild pages newer than their inputs.</span>
+<span class="sd">    skip_existing : bool, optional</span>
+<span class="sd">        Keep any existing page, however old.</span>
+<span class="sd">    bathymetry : os.PathLike or None, optional</span>
+<span class="sd">        ``"array"``: a GEBCO or ETOPO file for the map's depth contours.</span>
+<span class="sd">    mooring : str or os.PathLike or Mapping, optional</span>
+<span class="sd">        Deprecated name of *mooring_path* (of *array_path* for ``"array"``); removed</span>
+<span class="sd">        in 0.8.0.</span>
+<span class="sd">    mooring_dir, proc_dir, raw_dir, out_dir, report_dir, pdf_dir : os.PathLike, optional</span>
+<span class="sd">        Deprecated folders, used when *paths* is not given; removed in 0.8.0.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pathlib.Path</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    oceanarray.exceptions.MooringError</span>
+<span class="sd">        Invalid or missing mooring YAML, a folder missing from *paths*, a page that</span>
+<span class="sd">        cannot be built, or a PDF that cannot be made (``pdf`` extra not installed).</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        Unknown *kind*.</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        *paths* is not an :class:`oceanarray.Paths`, the array YAML is given twice</span>
+<span class="sd">        or not at all, or *array_path* is given for another *kind*.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Not run as tests: they need a mooring YAML and its files on disk.</span>
+
+<span class="sd">    &gt;&gt;&gt; import oceanarray as oa</span>
+<span class="sd">    &gt;&gt;&gt; paths = oa.Paths.from_file("paths.yaml")  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; oa.report(paths.mooring_path("M2_2016"), paths, pdf=True)  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; oa.report("OSNAPeast_2016.array.yaml", paths, kind="array")  # doctest: +SKIP</span>
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_verb_call</span>
+
+    <span class="n">renamed</span> <span class="o">=</span> <span class="s2">"oceanarray.report(mooring=)"</span>
+    <span class="n">first</span> <span class="o">=</span> <span class="n">_deprecated</span><span class="o">.</span><span class="n">resolve_keyword</span><span class="p">(</span>
+        <span class="n">renamed</span><span class="p">,</span>
+        <span class="n">mooring_path</span><span class="p">,</span>
+        <span class="n">mooring</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"array"</span> <span class="k">else</span> <span class="s2">"mooring_path"</span><span class="p">,</span>
+        <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">renamed_given</span> <span class="o">=</span> <span class="p">[</span><span class="n">renamed</span><span class="p">]</span> <span class="k">if</span> <span class="n">mooring</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
+    <span class="n">crumbs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">breadcrumb</span><span class="p">)</span> <span class="k">if</span> <span class="n">breadcrumb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">kind</span> <span class="o">!=</span> <span class="s2">"array"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">array_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"report(kind=</span><span class="si">{</span><span class="n">kind</span><span class="si">!r}</span><span class="s2">) takes mooring_path, not array_path="</span>
+            <span class="p">)</span>
+        <span class="n">mooring_path</span> <span class="o">=</span> <span class="n">first</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># The first argument is the array YAML, as in report(array_path, paths, kind="array").</span>
+        <span class="k">if</span> <span class="n">first</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">array_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"report() got the array YAML twice; give array_path= only"</span><span class="p">)</span>
+        <span class="n">array_path</span> <span class="o">=</span> <span class="n">array_path</span> <span class="k">if</span> <span class="n">array_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">first</span>
+        <span class="k">if</span> <span class="n">array_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"report() missing required argument: 'array_path'"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">paths</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">paths</span><span class="p">,</span> <span class="n">Paths</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"report() paths must be an oceanarray.Paths, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+        <span class="n">old</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"proc_dir"</span><span class="p">:</span> <span class="n">proc_dir</span><span class="p">,</span> <span class="s2">"report_dir"</span><span class="p">:</span> <span class="n">report_dir</span><span class="p">}</span>
+        <span class="n">given</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">old</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">paths</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">given</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"report() got paths and </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">k</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">'='</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">given</span><span class="p">)</span><span class="si">}</span><span class="s2">; "</span>
+                <span class="s2">"give every folder in paths"</span>
+            <span class="p">)</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">renamed_given</span> <span class="o">+</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"oceanarray.report(</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=)"</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">given</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">paths</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">keys</span><span class="p">:</span>
+            <span class="c1"># Points at the caller of report.</span>
+            <span class="n">_deprecated</span><span class="o">.</span><span class="n">warn</span><span class="p">((</span><span class="n">keys</span> <span class="ow">or</span> <span class="p">[</span><span class="n">_deprecated</span><span class="o">.</span><span class="n">NO_PATHS</span><span class="p">])[</span><span class="mi">0</span><span class="p">],</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">paths</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">paths</span> <span class="o">=</span> <span class="n">Paths</span><span class="p">(</span>
+                <span class="n">proc_dir</span><span class="o">=</span><span class="n">proc_dir</span> <span class="ow">or</span> <span class="n">Path</span><span class="p">(</span><span class="n">array_path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">report_dir</span><span class="o">=</span><span class="n">report_dir</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">_array_report</span><span class="p">(</span>
+            <span class="n">Path</span><span class="p">(</span><span class="n">array_path</span><span class="p">),</span>
+            <span class="n">paths</span><span class="p">,</span>
+            <span class="n">breadcrumb</span><span class="o">=</span><span class="n">crumbs</span><span class="p">,</span>
+            <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">,</span>
+            <span class="n">bathymetry</span><span class="o">=</span><span class="n">bathymetry</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">kind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"mooring"</span><span class="p">,</span> <span class="s2">"recovery"</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"kind=</span><span class="si">{</span><span class="n">kind</span><span class="si">!r}</span><span class="s2">: expected 'mooring', 'array' or 'recovery'"</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_old</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">folder</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Paths</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the Paths of the old folder keywords."""</span>
+        <span class="n">pages</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="kc">None</span> <span class="k">if</span> <span class="n">report_dir</span> <span class="k">else</span> <span class="n">folder</span> <span class="o">/</span> <span class="s2">"report"</span> <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"mooring"</span> <span class="k">else</span> <span class="n">folder</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">Paths</span><span class="o">.</span><span class="n">from_mooring_dir</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="n">folder</span><span class="p">,</span>
+            <span class="n">raw_dir</span><span class="o">=</span><span class="n">raw_dir</span><span class="p">,</span>
+            <span class="n">report_dir</span><span class="o">=</span><span class="n">report_dir</span><span class="p">,</span>
+            <span class="n">mooring_report_dir</span><span class="o">=</span><span class="n">out_dir</span> <span class="ow">or</span> <span class="n">pages</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">mooring_dict</span><span class="p">,</span> <span class="n">mooring_path</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">given_dict</span> <span class="o">=</span> <span class="n">resolve_verb_call</span><span class="p">(</span>
+        <span class="s2">"report"</span><span class="p">,</span>
+        <span class="n">mooring_path</span><span class="p">,</span>
+        <span class="n">paths</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s2">"mooring_dir"</span><span class="p">:</span> <span class="n">mooring_dir</span><span class="p">,</span>
+            <span class="s2">"proc_dir"</span><span class="p">:</span> <span class="n">proc_dir</span><span class="p">,</span>
+            <span class="s2">"raw_dir"</span><span class="p">:</span> <span class="n">raw_dir</span><span class="p">,</span>
+            <span class="s2">"out_dir"</span><span class="p">:</span> <span class="n">out_dir</span><span class="p">,</span>
+            <span class="s2">"report_dir"</span><span class="p">:</span> <span class="n">report_dir</span><span class="p">,</span>
+            <span class="s2">"pdf_dir"</span><span class="p">:</span> <span class="n">pdf_dir</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="n">_old</span><span class="p">,</span>
+        <span class="n">renamed</span><span class="o">=</span><span class="n">renamed_given</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">mooring_dict</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span>
+    <span class="n">moor_dir</span><span class="p">,</span> <span class="n">pages</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">mooring_dir</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="n">paths</span><span class="o">.</span><span class="n">report_mooring_dir</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">moor_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Mooring directory not found: </span><span class="si">{</span><span class="n">moor_dir</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"recovery"</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.reports._recovery_table</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_recovery_table</span>
+
+        <span class="n">pages</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span>
+            <span class="n">generate_recovery_table</span><span class="p">(</span>
+                <span class="n">mooring_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">proc_dir</span><span class="o">=</span><span class="n">moor_dir</span><span class="p">,</span>
+                <span class="n">mooring_path</span><span class="o">=</span><span class="n">mooring_path</span><span class="p">,</span>
+                <span class="n">out_path</span><span class="o">=</span><span class="n">pages</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_recovery_table.html"</span><span class="p">,</span>
+                <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.pipeline._run</span><span class="w"> </span><span class="kn">import</span> <span class="n">_as_serial_list</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.reports</span><span class="w"> </span><span class="kn">import</span> <span class="n">MooringReport</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># The folder stage 1 reads, so the pages find the files it read.</span>
+        <span class="n">raw_folder</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">raw_mooring_dir</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">MooringError</span><span class="p">:</span>
+        <span class="n">raw_folder</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># the instrument pages then name no raw files</span>
+    <span class="n">serial_list</span> <span class="o">=</span> <span class="n">_as_serial_list</span><span class="p">(</span><span class="n">serials</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">_sigma_grid</span><span class="p">(</span><span class="n">sig_level</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="s2">"section"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Report: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">page</span> <span class="o">=</span> <span class="n">MooringReport</span><span class="p">(</span><span class="n">proc_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">moor_dir</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">,</span>
+            <span class="n">skip_existing</span><span class="o">=</span><span class="n">skip_existing</span><span class="p">,</span>
+            <span class="n">outdir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">pages</span><span class="p">),</span>
+            <span class="n">breadcrumb</span><span class="o">=</span><span class="n">crumbs</span><span class="p">,</span>
+            <span class="n">serials</span><span class="o">=</span><span class="n">serial_list</span><span class="p">,</span>
+            <span class="n">instruments</span><span class="o">=</span><span class="n">instruments</span> <span class="ow">or</span> <span class="n">serial_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span>
+            <span class="n">stack</span><span class="o">=</span><span class="n">stack</span><span class="p">,</span>
+            <span class="c1"># A loaded mooring YAML may differ from the file on disk, so it is</span>
+            <span class="c1"># passed on (and rebuilds the summary); a path is read from disk.</span>
+            <span class="n">mooring_dict</span><span class="o">=</span><span class="n">mooring_dict</span> <span class="k">if</span> <span class="n">given_dict</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">mooring_dir</span><span class="o">=</span><span class="n">moor_dir</span><span class="p">,</span>
+            <span class="n">mooring_path</span><span class="o">=</span><span class="n">mooring_path</span><span class="p">,</span>
+            <span class="n">raw_mooring_dir</span><span class="o">=</span><span class="n">raw_folder</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">pdf</span><span class="p">:</span>
+        <span class="n">where</span> <span class="o">=</span> <span class="n">report_paths</span><span class="p">(</span>
+            <span class="n">mooring_dict</span><span class="p">,</span> <span class="n">mooring_dir</span><span class="o">=</span><span class="n">moor_dir</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="n">pages</span><span class="p">,</span> <span class="n">pdf_dir</span><span class="o">=</span><span class="n">pdf_dir</span>
+        <span class="p">)</span>
+        <span class="n">_combine_pdf</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">pages</span><span class="p">,</span> <span class="n">where</span><span class="p">[</span><span class="s2">"pdf"</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">page</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">report_paths</span><span class="p">(</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">mooring_dir</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">out_dir</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">report_dir</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">pdf_dir</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return where :func:`report` writes a mooring's pages, without building any.</span>
+
+<span class="sd">    The mooring YAML is only read for its ``name``, not checked, so this works</span>
+<span class="sd">    on a half-filled one.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mooring : str or os.PathLike or Mapping</span>
+<span class="sd">        As for :func:`report`.</span>
+<span class="sd">    mooring_dir : os.PathLike or None, optional</span>
+<span class="sd">        The mooring's own folder, when *mooring* is a loaded mooring YAML.</span>
+<span class="sd">    out_dir, report_dir, pdf_dir : os.PathLike or None, optional</span>
+<span class="sd">        As for :func:`report`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict of str to pathlib.Path</span>
+<span class="sd">        ``"summary"``, ``"stack"``, ``"grid"`` and ``"pdf"`` pages, and</span>
+<span class="sd">        ``"instrument_dir"`` (where ``&lt;name&gt;_&lt;serial&gt;_report.html`` go).</span>
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.reports._html_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">_pages_dir</span>
+
+    <span class="n">name</span><span class="p">,</span> <span class="n">moor_dir</span> <span class="o">=</span> <span class="n">_resolve_name_and_dir</span><span class="p">(</span><span class="n">mooring</span><span class="p">,</span> <span class="n">mooring_dir</span><span class="p">)</span>
+    <span class="n">html</span> <span class="o">=</span> <span class="n">_pages_dir</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span> <span class="n">report_dir</span><span class="p">,</span> <span class="n">moor_dir</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"summary"</span><span class="p">:</span> <span class="n">html</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_report.html"</span><span class="p">,</span>
+        <span class="s2">"stack"</span><span class="p">:</span> <span class="n">html</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_stack_report.html"</span><span class="p">,</span>
+        <span class="s2">"grid"</span><span class="p">:</span> <span class="n">html</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_grid_report.html"</span><span class="p">,</span>
+        <span class="s2">"instrument_dir"</span><span class="p">:</span> <span class="n">html</span> <span class="o">/</span> <span class="s2">"instrument"</span><span class="p">,</span>
+        <span class="s2">"pdf"</span><span class="p">:</span> <span class="n">Path</span><span class="p">(</span><span class="n">pdf_dir</span> <span class="ow">or</span> <span class="n">html</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_report.pdf"</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_name_and_dir</span><span class="p">(</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">mooring_dir</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the mooring YAML's ``name`` and the mooring's folder, without checking it."""</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.mooring</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_yaml</span> <span class="k">as</span> <span class="n">_mooring</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mooring</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">mooring_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span><span class="s2">"a mooring dict needs mooring_dir= to locate its pages."</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">mooring</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]),</span> <span class="n">Path</span><span class="p">(</span><span class="n">mooring_dir</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">mooring</span><span class="p">)</span>
+    <span class="n">moor_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">mooring_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">mooring_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"*.mooring.yaml"</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">found</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> holds </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">found</span><span class="p">)</span><span class="si">}</span><span class="s2"> '*.mooring.yaml' files; need exactly one."</span>
+            <span class="p">)</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">moor_dir</span> <span class="o">=</span> <span class="n">found</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">moor_dir</span> <span class="ow">or</span> <span class="n">path</span>
+    <span class="n">mooring_dict</span> <span class="o">=</span> <span class="n">_mooring</span><span class="o">.</span><span class="n">_parse</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mooring_dict</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">mooring_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">: no 'name:' to name the report pages from."</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">mooring_dict</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]),</span> <span class="n">moor_dir</span> <span class="ow">or</span> <span class="n">path</span><span class="o">.</span><span class="n">parent</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_description_file</span><span class="p">(</span>
+    <span class="n">mooring</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">moor_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the mooring YAML file: the path given, the one in the folder given, or ``&lt;name&gt;.mooring.yaml``."""</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mooring</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">mooring</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">path</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"*.mooring.yaml"</span><span class="p">))</span> <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">found</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">found</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">moor_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.mooring.yaml"</span>
+
+
+<span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_sigma_grid</span><span class="p">(</span><span class="n">sig_level</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Use *sig_level* as the grid page's σ₀ targets for the block, then restore them."""</span>
+    <span class="k">if</span> <span class="n">sig_level</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">yield</span>
+        <span class="k">return</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameters</span> <span class="k">as</span> <span class="n">params</span>
+
+    <span class="n">saved</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">SIGMA_GRID</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">SIGMA_GRID</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">sig_level</span><span class="p">))</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">SIGMA_GRID</span> <span class="o">=</span> <span class="n">saved</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_combine_pdf</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">html_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">pdf_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Combine the mooring's HTML pages into the PDF *pdf_path*; raise MooringError if it cannot."""</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.reports</span><span class="w"> </span><span class="kn">import</span> <span class="n">combine_mooring_pdf</span>
+
+    <span class="n">pdf_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">pdf_path</span> <span class="o">=</span> <span class="n">combine_mooring_pdf</span><span class="p">(</span><span class="n">html_dir</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="n">pdf_path</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">FileNotFoundError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: no PDF — </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="s2">"file"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">pdf_path</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">pdf_path</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_array_report</span><span class="p">(</span>
+    <span class="n">array_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">paths</span><span class="p">:</span> <span class="n">Paths</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">breadcrumb</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">bathymetry</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Build the year page; raise MooringError if it cannot be built."""</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">oceanarray.reports._array</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_array_report</span>
+
+    <span class="n">root</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">proc_dir</span>
+    <span class="k">if</span> <span class="n">root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">array_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: no proc_dir given; set proc_dir in the paths file "</span>
+            <span class="s2">"(paths.yaml) or Paths(proc_dir=...)."</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">array_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">array_path</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">():</span>
+        <span class="n">array_path</span> <span class="o">=</span> <span class="n">root</span> <span class="o">/</span> <span class="n">array_path</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="s2">"section"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Array report: </span><span class="si">{</span><span class="n">array_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">page</span> <span class="o">=</span> <span class="n">generate_array_report</span><span class="p">(</span>
+        <span class="n">array_path</span><span class="o">=</span><span class="n">array_path</span><span class="p">,</span>
+        <span class="n">proc_dir</span><span class="o">=</span><span class="n">root</span><span class="p">,</span>
+        <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">,</span>
+        <span class="n">report_dir</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">report_dir</span><span class="p">,</span>
+        <span class="n">breadcrumb</span><span class="o">=</span><span class="n">breadcrumb</span><span class="p">,</span>
+        <span class="n">bathymetry</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">bathymetry</span><span class="p">)</span> <span class="k">if</span> <span class="n">bathymetry</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">page</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">MooringError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">array_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: the array report could not be built."</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_recovery_path</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">moor_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">report_dir</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the recovery table's path: in *out_dir*, else ``report_dir/&lt;name&gt;``, else the mooring directory."""</span>
+    <span class="n">where</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span>
+        <span class="n">out_dir</span> <span class="ow">or</span> <span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">report_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">name</span> <span class="k">if</span> <span class="n">report_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">moor_dir</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">where</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_recovery_table.html"</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Eleanor Frajka-Williams.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
