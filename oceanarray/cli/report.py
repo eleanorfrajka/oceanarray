@@ -13,7 +13,7 @@ from oceanarray.cli._common import (
     _add_shared_report_args,
     _folder,
     _mooring_location,
-    _mooring_paths,
+    _mooring_path_and_paths,
     _resolve_dirs,
 )
 from oceanarray.cli._deprecate import DeprecatedAlias
@@ -53,12 +53,12 @@ def cmd_report(args: argparse.Namespace) -> int:
             )
         try:
             report(
-                args.mooring,
-                Paths(
+                paths=Paths(
                     proc_dir=proc_root or Path(args.mooring).parent,
                     report_dir=report_dir,
                 ),
                 kind="array",
+                array_path=args.mooring,
                 force=args.force,
                 bathymetry=getattr(args, "bathymetry", None),
             )
@@ -91,7 +91,7 @@ def cmd_report(args: argparse.Namespace) -> int:
 
     folder = _folder(moor_dir)
     try:
-        yaml_path, paths_ = _mooring_paths(
+        mooring_path, paths_ = _mooring_path_and_paths(
             moor_dir,
             "report",
             raw_dir=raw_dir,
@@ -99,7 +99,7 @@ def cmd_report(args: argparse.Namespace) -> int:
             mooring_report_dir=outdir or (None if report_dir else folder / "report"),
         )
         page = report(
-            yaml_path,
+            mooring_path,
             paths_,
             instruments=do_instruments,
             stack=do_stack,
@@ -111,13 +111,13 @@ def cmd_report(args: argparse.Namespace) -> int:
         )
         if getattr(args, "cruise_table", False):
             # The recovery table's default folder is the mooring's own.
-            _, table_paths = _mooring_paths(
+            _, table_paths = _mooring_path_and_paths(
                 moor_dir,
                 "report",
                 report_dir=report_dir,
                 mooring_report_dir=outdir or (None if report_dir else folder),
             )
-            report(yaml_path, table_paths, kind="recovery", force=args.force)
+            report(mooring_path, table_paths, kind="recovery", force=args.force)
     except OceanarrayError as e:
         logger.status("error", str(e))
         return 1
@@ -183,16 +183,16 @@ def _report_dry_run(
         print(f"Stack:    {where['stack']}  ({_state(where['stack'])})")
     if do_grid:
         print(f"Grid:     {where['grid']}  ({_state(where['grid'])})")
-    yaml_path = _resolve_description_file(moor_dir, _folder(moor_dir), name)
-    if do_instruments and yaml_path.exists():
+    mooring_path = _resolve_description_file(moor_dir, _folder(moor_dir), name)
+    if do_instruments and mooring_path.exists():
         # A dry run is a preview — never raise on a half-filled config. Show the
         # validation issues (as `validate` would), then list whatever the file
         # parses to; only a file that is not YAML at all stops the listing.
-        mooring_dict = _mooring._parse(yaml_path)
+        mooring_dict = _mooring._parse(mooring_path)
         if mooring_dict is None:
-            print(f"  (cannot preview instruments: {yaml_path} is not valid YAML)")
+            print(f"  (cannot preview instruments: {mooring_path} is not valid YAML)")
         else:
-            for issue in _mooring.check(yaml_path):
+            for issue in _mooring.check(mooring_path):
                 print(f"  {issue.level.lower()}: {issue.message}")
             only = {paths.safe_serial(s) for s in args.serials or []}
             for entry in instrument_entries(mooring_dict):

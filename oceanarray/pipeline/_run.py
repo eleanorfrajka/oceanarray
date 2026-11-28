@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 
 def run(
-    yaml_path: str | PathLike | None = None,
+    mooring_path: str | PathLike | None = None,
     paths: Paths | None = None,
     *,
     stages: int | str | Iterable[int] | None = None,
@@ -41,7 +41,7 @@ def run(
 
     Parameters
     ----------
-    yaml_path : str or os.PathLike
+    mooring_path : str or os.PathLike
         The ``*.mooring.yaml``.
     paths : oceanarray.Paths
         Where the files are, as for :func:`oceanarray.process`; with *report*, the pages
@@ -76,7 +76,7 @@ def run(
     report : bool, optional
         Also build the report pages (no PDF) with :func:`oceanarray.report`.
     mooring : str or os.PathLike or Mapping, optional
-        Deprecated name of *yaml_path*; removed in 0.8.0.
+        Deprecated name of *mooring_path*; removed in 0.8.0.
     mooring_dir, raw_dir, caldip_dir : os.PathLike, optional
         Deprecated folders, used when *paths* is not given; removed in 0.8.0.
 
@@ -105,8 +105,8 @@ def run(
 
     >>> import oceanarray as oa
     >>> paths = oa.Paths.from_file("paths.yaml")  # doctest: +SKIP
-    >>> oa.run(paths.yaml_path("M2_2016"), paths)  # doctest: +SKIP
-    >>> oa.run(yaml_path, paths, stages=3, dp=10)  # re-QC, regrid finer  # doctest: +SKIP
+    >>> oa.run(paths.mooring_path("M2_2016"), paths)  # doctest: +SKIP
+    >>> oa.run(mooring_path, paths, stages=3, dp=10)  # re-QC, regrid finer  # doctest: +SKIP
     """
     from oceanarray.exceptions import MooringError
     from oceanarray.pipeline import _Outcome, _process_stages, resolve_verb_call
@@ -119,12 +119,12 @@ def run(
     wanted = _resolve_stages(stages, from_stage, stack_stage)
     serial_list = _as_serial_list(serials)
     renamed = "oceanarray.run(mooring=)"
-    yaml_path = _deprecated.resolve_keyword(
-        renamed, yaml_path, mooring, required="yaml_path", quiet=True
+    mooring_path = _deprecated.resolve_keyword(
+        renamed, mooring_path, mooring, required="mooring_path", quiet=True
     )
-    mooring_dict, yaml_path, paths, given_dict = resolve_verb_call(
+    mooring_dict, mooring_path, paths, given_dict = resolve_verb_call(
         "run",
-        yaml_path,
+        mooring_path,
         paths,
         {"mooring_dir": mooring_dir, "raw_dir": raw_dir, "caldip_dir": caldip_dir},
         # The old run(report=True) wrote the pages in <mooring folder>/report.
@@ -250,7 +250,7 @@ def run(
             # A mooring dict given in place of the YAML is what the pages show.
             with _deprecated.internal():
                 page = _report(
-                    mooring_dict if given_dict else yaml_path,
+                    mooring_dict if given_dict else mooring_path,
                     paths,
                     serials=serial_list,
                     force=force,

@@ -9,9 +9,9 @@ Example usage::
     import oceanarray
 
     paths = oceanarray.Paths.standard("/data/OSNAP")
-    yaml_path = paths.yaml_path("dsG3_1_2026")
-    oceanarray.process(yaml_path, paths)                           # stages 1-3
-    oceanarray.process(yaml_path, paths, stages=3, serials=["2941"])  # stage 3, one instrument
+    mooring_path = paths.mooring_path("dsG3_1_2026")
+    oceanarray.process(mooring_path, paths)                           # stages 1-3
+    oceanarray.process(mooring_path, paths, stages=3, serials=["2941"])  # stage 3, one instrument
 
 """
 
@@ -34,7 +34,6 @@ __all__ = [
     "STAGES",
     "resolve_stage",
     "resolve_mooring",
-    "resolve_verb_call",
     "process",
     "run",
 ]
@@ -321,7 +320,7 @@ def _is_legacy_stage(value: Any) -> bool:
 
 
 def process(
-    yaml_path: str | PathLike | None = None,
+    mooring_path: str | PathLike | None = None,
     paths: Paths | None = None,
     *,
     stages: int | str | Iterable[int] = (1, 2, 3),
@@ -340,7 +339,7 @@ def process(
 
     Parameters
     ----------
-    yaml_path : str or os.PathLike
+    mooring_path : str or os.PathLike
         The ``*.mooring.yaml``.
     paths : oceanarray.Paths
         Where the files are: the stage files in ``paths.mooring_dir(name)``, the raw
@@ -358,7 +357,7 @@ def process(
         rest, and every stage-3 file is ``data_mode = "P"``. False: raise once a stage has
         written what worked, and stop.
     mooring : str or os.PathLike or Mapping, optional
-        Deprecated name of *yaml_path*; removed in 0.8.0.
+        Deprecated name of *mooring_path*; removed in 0.8.0.
     mooring_dir, raw_dir, caldip_dir : os.PathLike, optional
         Deprecated folders, used when *paths* is not given; removed in 0.8.0.
     stage, proc_dir, **legacy_kw
@@ -387,8 +386,8 @@ def process(
 
     >>> import oceanarray as oa
     >>> paths = oa.Paths.standard("/data/OSNAP")  # doctest: +SKIP
-    >>> oa.process(paths.yaml_path("M2_2016"), paths)  # doctest: +SKIP
-    >>> oa.process(yaml_path, paths, stages=3, serials=["2941"], force=True)  # doctest: +SKIP
+    >>> oa.process(paths.mooring_path("M2_2016"), paths)  # doctest: +SKIP
+    >>> oa.process(mooring_path, paths, stages=3, serials=["2941"], force=True)  # doctest: +SKIP
     """
     if paths is not None and not isinstance(paths, Paths):
         if not _is_legacy_stage(paths):
@@ -407,12 +406,14 @@ def process(
         )
     if stage is not _UNSET or proc_dir is not None or legacy_kw:
         if keep_going is not None:
-            raise TypeError("keep_going= needs the new form: process(yaml_path, ...)")
+            raise TypeError(
+                "keep_going= needs the new form: process(mooring_path, ...)"
+            )
         warnings.warn(
             "process(name, stage, proc_dir=...) is deprecated and will be removed in "
             "0.7.0. Pass the mooring's *.mooring.yaml instead: "
-            "oceanarray.process(yaml_path, paths) runs stages 1-3, and "
-            "oceanarray.run(yaml_path, paths) runs stages 1-3, stack and grid.",
+            "oceanarray.process(mooring_path, paths) runs stages 1-3, and "
+            "oceanarray.run(mooring_path, paths) runs stages 1-3, stack and grid.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -421,7 +422,7 @@ def process(
         if caldip_dir is not None:
             legacy_kw["caldip_dir"] = caldip_dir
         return _process_legacy(
-            yaml_path if mooring is None else mooring,
+            mooring_path if mooring is None else mooring,
             None if stage is _UNSET else stage,
             proc_dir=proc_dir,
             raw_dir=raw_dir,
@@ -431,12 +432,12 @@ def process(
 
     wanted = _canonical_stages(stages)
     renamed = "oceanarray.process(mooring=)"
-    yaml_path = _deprecated.resolve_keyword(
-        renamed, yaml_path, mooring, required="yaml_path", quiet=True
+    mooring_path = _deprecated.resolve_keyword(
+        renamed, mooring_path, mooring, required="mooring_path", quiet=True
     )
     mooring_dict, _, paths, _ = resolve_verb_call(
         "process",
-        yaml_path,
+        mooring_path,
         paths,
         {"mooring_dir": mooring_dir, "raw_dir": raw_dir, "caldip_dir": caldip_dir},
         renamed=[renamed] if mooring is not None else [],
@@ -518,10 +519,10 @@ def resolve_mooring(
         # the mooring directory.
         catalog_path = mooring_dict.get("sensor_catalog")
         if catalog_path and not Path(str(catalog_path)).is_absolute():
-            yaml_path = (
+            mooring_path = (
                 moor_dir / f"{mooring_dict.get('name', moor_dir.name)}.mooring.yaml"
             )
-            base = yaml_path.resolve().parent if yaml_path.exists() else moor_dir
+            base = mooring_path.resolve().parent if mooring_path.exists() else moor_dir
             mooring_dict["sensor_catalog"] = str((base / str(catalog_path)).resolve())
     else:
         mooring_dict, moor_dir = _resolve_description(
@@ -534,24 +535,24 @@ def resolve_mooring(
 
 def resolve_verb_call(
     verb: str,
-    yaml_path: str | PathLike | Mapping[str, Any],
+    mooring_path: str | PathLike | Mapping[str, Any],
     paths: Paths | None,
     old: Mapping[str, PathLike | None],
     to_paths: Callable[[str, Path], Paths] | None = None,
     *,
     renamed: Iterable[str] = (),
 ) -> tuple[dict, Path, Paths, bool]:
-    """Return a verb's mooring YAML, its path, its Paths and whether a dict was given.
+    """Return a verb's mooring YAML, its path, its Paths and whether a dict was given: the verbs' shared step.
 
     An old form of the call warns once, for the first it uses: a renamed keyword, a
-    mooring dict or folder in place of *yaml_path*, an old folder keyword, no *paths*.
+    mooring dict or folder in place of *mooring_path*, an old folder keyword, no *paths*.
 
     Parameters
     ----------
     verb : str
         The verb's name, used in messages and deprecation keys.
-    yaml_path : str, os.PathLike or Mapping
-        The verb's *yaml_path*.
+    mooring_path : str, os.PathLike or Mapping
+        The verb's *mooring_path*.
     paths : oceanarray.Paths or None
         The verb's *paths*.
     old : Mapping of str to os.PathLike or None
@@ -585,8 +586,8 @@ def resolve_verb_call(
             f"{verb}() got paths and {', '.join(k + '=' for k in given)}; "
             "give every folder in paths"
         )
-    is_dict = isinstance(yaml_path, Mapping)
-    is_folder = not is_dict and Path(yaml_path).is_dir()
+    is_dict = isinstance(mooring_path, Mapping)
+    is_folder = not is_dict and Path(mooring_path).is_dir()
     keys = list(renamed)
     keys += (
         [_deprecated.DICT_GIVEN]
@@ -602,23 +603,25 @@ def resolve_verb_call(
         # Points at the caller of the verb.
         _deprecated.warn(keys[0], stacklevel=4)
     if is_dict:
-        name = str(yaml_path.get("name", ""))
+        name = str(mooring_path.get("name", ""))
         where = old.get("mooring_dir") if paths is None else paths.mooring_dir(name)
-        mooring_dict, moor_dir = resolve_mooring(yaml_path, where, verb)
-        yaml_path = moor_dir / f"{mooring_dict['name']}.mooring.yaml"
+        mooring_dict, moor_dir = resolve_mooring(mooring_path, where, verb)
+        mooring_path = moor_dir / f"{mooring_dict['name']}.mooring.yaml"
         if paths is not None:
             try:
                 # The call has warned once already.
                 with _deprecated.internal():
-                    yaml_path = paths.yaml_path(mooring_dict["name"])
+                    mooring_path = paths.mooring_path(mooring_dict["name"])
             except MooringError:
                 pass  # no yaml_dir: the YAML beside the stage files, as before
     else:
-        yaml_path = (
-            _mooring.folder_yaml_path(yaml_path, verb) if is_folder else Path(yaml_path)
+        mooring_path = (
+            _mooring.folder_mooring_path(mooring_path, verb)
+            if is_folder
+            else Path(mooring_path)
         )
-        mooring_dict = _mooring.load(yaml_path)
-        moor_dir = Path(old.get("mooring_dir") or yaml_path.parent)
+        mooring_dict = _mooring.load(mooring_path)
+        moor_dir = Path(old.get("mooring_dir") or mooring_path.parent)
     if paths is None:
         if not moor_dir.is_dir():
             raise MooringError(f"Mooring directory not found: {moor_dir}")
@@ -627,7 +630,7 @@ def resolve_verb_call(
             paths = Paths.from_mooring_dir(mooring_dict["name"], moor_dir, **dirs)
         else:
             paths = to_paths(mooring_dict["name"], moor_dir)
-    return mooring_dict, yaml_path, paths, is_dict
+    return mooring_dict, mooring_path, paths, is_dict
 
 
 def _process_stages(

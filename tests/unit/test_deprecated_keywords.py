@@ -312,7 +312,7 @@ def site(tmp_path_factory) -> Path:
     return root
 
 
-def _yaml_paths(site: Path) -> list[Path]:
+def _mooring_paths(site: Path) -> list[Path]:
     """Return the two deployments' mooring YAML paths."""
     return [site / n / f"{n}.mooring.yaml" for n in _NAMES]
 
@@ -332,7 +332,7 @@ def _stacks(site: Path) -> list[xr.Dataset]:
 def test_concat_descriptions_warns_and_gives_the_same_site_stack(site):
     """concat(descriptions=) still fills the DEPLOYMENT record, as mooring_dicts= does."""
     stacks = _stacks(site)
-    mooring_dicts = [mooring.load(p) for p in _yaml_paths(site)]
+    mooring_dicts = [mooring.load(p) for p in _mooring_paths(site)]
     key = "oceanarray.pipeline.concat.concat(descriptions=)"
     with pytest.warns(
         DeprecationWarning, match=re.escape(_deprecated.message(key))
@@ -357,23 +357,23 @@ def test_concat_without_mooring_dicts_does_not_warn(site):
 
 
 def test_concat_moorings_descriptions_warns_and_writes_the_same_file(site, tmp_path):
-    """concat_moorings(descriptions=) writes the same site stack as yaml_paths=."""
+    """concat_moorings(descriptions=) writes the same site stack as mooring_paths=."""
     key = "oceanarray.pipeline.concat.concat_moorings(descriptions=)"
     with (
         contextlib.redirect_stdout(io.StringIO()),
         pytest.warns(DeprecationWarning, match=re.escape(_deprecated.message(key))),
     ):
         old = concat_module.concat_moorings(
-            descriptions=_yaml_paths(site), name="egM2", out_dir=tmp_path / "old"
+            descriptions=_mooring_paths(site), name="egM2", out_dir=tmp_path / "old"
         )
     with contextlib.redirect_stdout(io.StringIO()), warnings.catch_warnings():
         warnings.simplefilter("error", DeprecationWarning)
         positional = concat_module.concat_moorings(
-            _yaml_paths(site), name="egM2", out_dir=tmp_path / "positional"
+            _mooring_paths(site), name="egM2", out_dir=tmp_path / "positional"
         )
     with contextlib.redirect_stdout(io.StringIO()):
         new = concat_module.concat_moorings(
-            yaml_paths=_yaml_paths(site), name="egM2", out_dir=tmp_path / "new"
+            mooring_paths=_mooring_paths(site), name="egM2", out_dir=tmp_path / "new"
         )
     with (
         xr.open_dataset(old, engine="netcdf4") as a,
@@ -384,9 +384,9 @@ def test_concat_moorings_descriptions_warns_and_writes_the_same_file(site, tmp_p
         xr.testing.assert_equal(c, b)
 
 
-def test_concat_moorings_needs_its_yaml_paths():
+def test_concat_moorings_needs_its_mooring_paths():
     """concat_moorings with no mooring YAMLs names the new keyword."""
-    with pytest.raises(TypeError, match="missing required argument: 'yaml_paths'"):
+    with pytest.raises(TypeError, match="missing required argument: 'mooring_paths'"):
         concat_module.concat_moorings(name="egM2")
 
 
@@ -439,3 +439,62 @@ def test_mooring_report_generate_cfg_warns_and_writes_the_same_page(
         )
     assert old.name == new.name
     assert old.exists() and new.exists()
+
+
+def test_mooring_report_generate_yaml_path_warns_and_reads_the_same_file(
+    mooring_dict, tmp_path
+):
+    """MooringReport.generate(yaml_path=) reads the mooring YAML mooring_path= reads."""
+    proc = tmp_path / "proc"
+    shutil.copytree(_DUNE2.parent, proc / _DUNE2.parent.name)
+    # Not the default <folder>/<name>.mooring.yaml, so the keyword decides the file.
+    elsewhere = Path(shutil.copy(_DUNE2, tmp_path / "other.mooring.yaml"))
+    report = MooringReport(proc_dir=str(proc))
+    name = mooring_dict["name"]
+    key = "oceanarray.reports.MooringReport.generate(yaml_path=)"
+    quiet = contextlib.redirect_stdout(io.StringIO())
+    with (
+        quiet,
+        pytest.warns(
+            DeprecationWarning, match=re.escape(_deprecated.message(key))
+        ) as w,
+    ):
+        old = report.generate(name, outdir=str(tmp_path / "old"), yaml_path=elsewhere)
+    assert any(m.filename == __file__ for m in w)
+    with (
+        contextlib.redirect_stdout(io.StringIO()),
+        warnings.catch_warnings(record=True) as caught,
+    ):
+        # The plotting libraries' own deprecations are not this call's.
+        warnings.simplefilter("always")
+        new = report.generate(
+            name, outdir=str(tmp_path / "new"), mooring_path=elsewhere
+        )
+    assert not [m for m in caught if _deprecated.REMOVED_IN_NEXT in str(m.message)]
+    assert old.name == new.name
+    for page in (old, new):
+        assert "other.mooring.yaml" in page.read_text(encoding="utf-8")
+    with pytest.raises(TypeError, match="got both"):
+        report.generate(name, mooring_path=elsewhere, yaml_path=elsewhere)
+
+
+def test_to_oceansites_array_warns_and_gives_the_same_file(mooring_dict, dune2):
+    """to_oceansites(array=) gives the file array_dict= gives, site_code and project included."""
+    m = {**mooring_dict, "platform_code": "DUNE2"}
+    array_dict = {"site_code": "MIXSED", "project": "MIXSED"}
+    ds = dune2[3]["2941"]
+    key = "oceanarray.pipeline.oceansites.to_oceansites(array=)"
+    with pytest.warns(
+        DeprecationWarning, match=re.escape(_deprecated.message(key))
+    ) as w:
+        old = oceansites.to_oceansites(ds, m, array=array_dict, source_file="x.nc")
+    assert any(r.filename == __file__ for r in w)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", DeprecationWarning)
+        new = oceansites.to_oceansites(ds, m, array_dict=array_dict, source_file="x.nc")
+    xr.testing.assert_identical(old.drop_attrs(deep=False), new.drop_attrs(deep=False))
+    for out in (old, new):
+        assert out.attrs["site_code"] == "MIXSED"
+        assert out.attrs["project"] == "MIXSED"
+    with pytest.raises(TypeError, match="got both"):
+        oceansites.to_oceansites(ds, m, array_dict=array_dict, array=array_dict)

@@ -31,7 +31,7 @@ def test_load_from_mapping_round_trips_and_warns() -> None:
 
 def test_load_by_name_and_proc_dir_warns() -> None:
     """A bare mooring name resolves against ``proc_dir``, with a warning naming Paths."""
-    with pytest.warns(DeprecationWarning, match=r"paths\.yaml_path") as w:
+    with pytest.warns(DeprecationWarning, match=r"paths\.mooring_path") as w:
         data = mooring.load("dune2_1_2026", proc_dir="tests/fixtures/proc")
     assert len(w) == 1 and w[0].filename == __file__
     assert data == mooring.load(FIXTURE)
@@ -40,10 +40,10 @@ def test_load_by_name_and_proc_dir_warns() -> None:
 def test_load_and_check_by_their_old_keyword_warn() -> None:
     """``mooring=`` still works, warns once at the caller, and gives the same result."""
     for func in (mooring.load, mooring.check):
-        with pytest.warns(DeprecationWarning, match="yaml_path= keyword") as w:
+        with pytest.warns(DeprecationWarning, match="mooring_path= keyword") as w:
             given_old = func(mooring=FIXTURE)
         assert len(w) == 1 and w[0].filename == __file__
-        assert given_old == func(yaml_path=FIXTURE) == func(FIXTURE)
+        assert given_old == func(mooring_path=FIXTURE) == func(FIXTURE)
 
 
 def test_check_a_dict_warns_and_finds_the_same() -> None:

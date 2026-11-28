@@ -28,7 +28,7 @@ def _resolve_path(mooring: str | PathLike, proc_dir: str | PathLike | None) -> P
     return path
 
 
-def folder_yaml_path(folder: str | PathLike, caller: str) -> Path:
+def folder_mooring_path(folder: str | PathLike, caller: str) -> Path:
     """Return the path of the one ``*.mooring.yaml`` in *folder*, else raise MooringError.
 
     Parameters
@@ -48,7 +48,7 @@ def folder_yaml_path(folder: str | PathLike, caller: str) -> Path:
 
 
 def load(
-    yaml_path: str | PathLike | Mapping | None = None,
+    mooring_path: str | PathLike | Mapping | None = None,
     *,
     proc_dir: str | PathLike | None = None,
     mooring: str | PathLike | Mapping | None = None,
@@ -57,13 +57,13 @@ def load(
 
     Parameters
     ----------
-    yaml_path : str or os.PathLike
+    mooring_path : str or os.PathLike
         The ``*.mooring.yaml`` file. A bare mooring name (with *proc_dir*) or a
         loaded mapping (returned as a shallow copy) is deprecated; removed in 0.8.0.
     proc_dir : str or os.PathLike or None, optional
         Deprecated: the folder a bare name is looked up in; removed in 0.8.0.
     mooring : str or os.PathLike or Mapping, optional
-        Deprecated name of *yaml_path*; removed in 0.8.0.
+        Deprecated name of *mooring_path*; removed in 0.8.0.
 
     Returns
     -------
@@ -78,22 +78,22 @@ def load(
         ``issues`` attribute but do not raise.
     """
     renamed = "oceanarray.mooring.load(mooring=)"
-    yaml_path = _deprecated.resolve_keyword(
-        renamed, yaml_path, mooring, required="yaml_path", quiet=True
+    mooring_path = _deprecated.resolve_keyword(
+        renamed, mooring_path, mooring, required="mooring_path", quiet=True
     )
     old_forms = [renamed] if mooring is not None else []
-    if isinstance(yaml_path, Mapping):
+    if isinstance(mooring_path, Mapping):
         old_forms.append(_deprecated.DICT_GIVEN)
     elif proc_dir is not None:
         old_forms.append("oceanarray.mooring.load(proc_dir=)")
     if old_forms:
         # One warning for the call, the first old form it uses.
         _deprecated.warn(old_forms[0])
-    if isinstance(yaml_path, Mapping):
-        data = dict(yaml_path)
+    if isinstance(mooring_path, Mapping):
+        data = dict(mooring_path)
         dir_name = None
     else:
-        path = _resolve_path(yaml_path, proc_dir)
+        path = _resolve_path(mooring_path, proc_dir)
         if not path.exists():
             raise MooringError(f"Mooring config not found: {path}")
         try:

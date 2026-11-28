@@ -20,11 +20,11 @@ Python API
    import oceanarray as oa
 
    # stage 3 (kept where it exists), then the stack and grid
-   oa.run(yaml_path, paths, stages=3, dt_seconds=600)
+   oa.run(mooring_path, paths, stages=3, dt_seconds=600)
 
    # or on datasets: the stack itself, no files written
-   cfg = oa.mooring.load(yaml_path)
-   stacked = oa.stack(oa.read_mooring(yaml_path, stage=3), cfg, dt_seconds=600)
+   mooring_dict = oa.mooring.load(mooring_path)
+   stacked = oa.stack(oa.read_mooring(mooring_path, stage=3), mooring_dict, dt_seconds=600)
 
 ``dt_seconds`` comes from the call (or ``--dt-seconds``), else the YAML's
 ``stack: dt_seconds``, else ``parameters.STACK_DT_SECONDS`` (3600) — the same order

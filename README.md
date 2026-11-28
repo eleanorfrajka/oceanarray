@@ -54,11 +54,11 @@ paths = oa.Paths(
     report_dir="/data/reports",
     export_dir="/data/oceansites",
 )
-yaml_path = "/data/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml"
-oa.process(yaml_path, paths)  # stages 1-3
+mooring_path = "/data/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml"
+oa.process(mooring_path, paths)  # stages 1-3
 # re-run stage 3, the stack, the grid and the report
-oa.run(yaml_path, paths, from_stage=3, report=True)
-oa.export(yaml_path, paths)  # OceanSITES 1.4 files in paths.export_dir
+oa.run(mooring_path, paths, from_stage=3, report=True)
+oa.export(mooring_path, paths)  # OceanSITES 1.4 files in paths.export_dir
 ```
 
 See the [API reference](https://ocean-uhh.github.io/oceanarray/oceanarray.html) for the full interface.

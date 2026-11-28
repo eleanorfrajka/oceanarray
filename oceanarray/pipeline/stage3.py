@@ -699,12 +699,14 @@ class Stage3Processor:
                 "science data is unchanged (see the caldip_applied attribute)."
             )
 
-        yaml_path = proc_dir / f"{mooring_name}.mooring.yaml"
-        if not yaml_path.exists():
-            raise MooringError(f"{mooring_name}: mooring YAML not found: {yaml_path}")
+        mooring_path = proc_dir / f"{mooring_name}.mooring.yaml"
+        if not mooring_path.exists():
+            raise MooringError(
+                f"{mooring_name}: mooring YAML not found: {mooring_path}"
+            )
 
         try:
-            mooring_dict = _mooring.load(yaml_path)
+            mooring_dict = _mooring.load(mooring_path)
             if dry_run:
                 datasets = read_mooring(
                     mooring_dict,

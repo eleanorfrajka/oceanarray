@@ -58,10 +58,10 @@ def cf7(tmp_path_factory):
         (raw / inst["instrument"]).mkdir(parents=True, exist_ok=True)
         shutil.copy(OSNAP / inst["filename"], raw / inst["instrument"])
     cfg = {"name": name, **CF7, "stack": {"dt_seconds": 900}, "clamp": INSTRUMENTS}
-    yaml_path = proc / f"{name}.mooring.yaml"
-    yaml_path.write_text(yaml.safe_dump(cfg, sort_keys=False))
+    mooring_path = proc / f"{name}.mooring.yaml"
+    mooring_path.write_text(yaml.safe_dump(cfg, sort_keys=False))
     oa.run(
-        yaml_path,
+        mooring_path,
         oa.Paths(raw_dir=tmp / "raw", proc_dir=tmp / "proc"),
         pmin=40,
         pmax=520,
@@ -159,10 +159,10 @@ def _ic1(tmp_path, **extra):
         "clamp": [{**entry, "filename": IC1, "hab": 2396, **extra}],
         "sensor_catalog": "config/sensor_catalog.yaml",
     }
-    yaml_path = proc / "ic1_2016.mooring.yaml"
-    yaml_path.write_text(yaml.safe_dump(cfg, sort_keys=False))
-    paths = oa.Paths(raw_dir=tmp_path / "raw", proc_dir=yaml_path.parent.parent)
-    oa.process(yaml_path, paths, stages=1)
+    mooring_path = proc / "ic1_2016.mooring.yaml"
+    mooring_path.write_text(yaml.safe_dump(cfg, sort_keys=False))
+    paths = oa.Paths(raw_dir=tmp_path / "raw", proc_dir=mooring_path.parent.parent)
+    oa.process(mooring_path, paths, stages=1)
     return _stage(proc, "microcat", "MC76", 1)
 
 
@@ -267,7 +267,7 @@ def test_the_export_keeps_the_license_and_citation(cf7):
     # The current meter's file states its license (the MicroCAT's does not).
     s3 = _stage(cf7, "currentmeter", 500, 3)
     mooring = {**CF7, "name": "cf7_2020", "platform_code": "CF7", "clamp": INSTRUMENTS}
-    out = to_oceansites(s3, mooring, array={"site_code": "OSNAP"})
+    out = to_oceansites(s3, mooring, array_dict={"site_code": "OSNAP"})
     assert out.attrs["license"] == s3.attrs["source_license"]
     assert out.attrs["citation"].startswith(s3.attrs["source_citation"])
     with xr.open_dataset(cf7 / "cf7_2020_grid.nc", engine="netcdf4") as grid:

@@ -591,10 +591,11 @@ class MooringReport:
         stack: bool = False,
         mooring_dict: Mapping[str, Any] | None = None,
         mooring_dir: str | Path | None = None,
-        yaml_path: str | Path | None = None,
+        mooring_path: str | Path | None = None,
         *,
         raw_mooring_dir: str | Path | None = None,
         cfg: Mapping[str, Any] | None = None,
+        yaml_path: str | Path | None = None,
     ) -> Path:
         """Build the mooring's summary page and, when asked, its other pages.
 
@@ -616,13 +617,13 @@ class MooringReport:
         instruments, grid, stack : bool, optional
             Also build these pages.
         mooring_dict : Mapping or None, optional
-            The loaded mooring YAML; read from *yaml_path* when not given. When
+            The loaded mooring YAML; read from *mooring_path* when not given. When
             given, the summary page is rebuilt whatever its age (the mooring YAML
             may differ from the file).
         mooring_dir : str or pathlib.Path or None, optional
             The mooring's folder, whatever it is called; default
             ``<proc_dir>/<mooring_name>``.
-        yaml_path : str or pathlib.Path or None, optional
+        mooring_path : str or pathlib.Path or None, optional
             The mooring YAML file (for staleness and display); default
             ``<mooring folder>/<mooring_name>.mooring.yaml``.
         raw_mooring_dir : str or pathlib.Path or None, optional
@@ -630,6 +631,8 @@ class MooringReport:
             ``<raw_dir>/<mooring_name>`` when *raw_dir* was given.
         cfg : Mapping or None, optional
             Deprecated name of *mooring_dict*; removed in 0.8.0.
+        yaml_path : str or pathlib.Path or None, optional
+            Deprecated name of *mooring_path*; removed in 0.8.0.
 
         Returns
         -------
@@ -648,6 +651,11 @@ class MooringReport:
         given = _deprecated.resolve_keyword(
             "oceanarray.reports.MooringReport.generate(cfg=)", mooring_dict, cfg
         )
+        mooring_path = _deprecated.resolve_keyword(
+            "oceanarray.reports.MooringReport.generate(yaml_path=)",
+            mooring_path,
+            yaml_path,
+        )
         _figdebug.clear()
         # The mooring's folder is where its mooring YAML is (any name); the pages
         # and the files they read are named from the mooring YAML's name.
@@ -664,17 +672,19 @@ class MooringReport:
         out_dir = _pages_dir(mooring_name, outdir, self._report_dir, proc_dir)
         out_dir.mkdir(parents=True, exist_ok=True)
         output_path = out_dir / f"{mooring_name}_report.html"
-        yaml_path = (
-            Path(yaml_path)
-            if yaml_path is not None
+        mooring_path = (
+            Path(mooring_path)
+            if mooring_path is not None
             else proc_dir / f"{mooring_name}.mooring.yaml"
         )
         if given is not None:
             mooring_dict = dict(given)
-        elif yaml_path.exists():
-            mooring_dict = _mooring.load(yaml_path)
+        elif mooring_path.exists():
+            mooring_dict = _mooring.load(mooring_path)
         else:
-            raise MooringError(f"{mooring_name}: mooring YAML not found: {yaml_path}")
+            raise MooringError(
+                f"{mooring_name}: mooring YAML not found: {mooring_path}"
+            )
         # The summary's inputs are the mooring YAML and its instruments' stage files,
         # named from the mooring YAML (not found by searching the folder).
         source_ncs = [
@@ -700,7 +710,7 @@ class MooringReport:
         # A mooring YAML passed in may differ from the file on disk, whose time is
         # all the freshness check can see: the summary is always rebuilt from it.
         summary_fresh = given is None and should_skip_regeneration(
-            output_path, force, skip_existing, yaml_path, *source_ncs, *products
+            output_path, force, skip_existing, mooring_path, *source_ncs, *products
         )
         if summary_fresh and not (instruments or grid or stack):
             logger.status("skip", self._rel(output_path))
@@ -717,7 +727,7 @@ class MooringReport:
             else None
         )
         ctx = self._build_context(
-            mooring_name, mooring_dict, proc_dir, yaml_path, out_dir, raw_folder
+            mooring_name, mooring_dict, proc_dir, mooring_path, out_dir, raw_folder
         )
         # The caller's breadcrumb ancestors ride in the context so every page (the
         # summary here and the stack/grid/instrument pages below) builds its own
@@ -804,7 +814,7 @@ class MooringReport:
         mooring_name: str,
         mooring_dict: dict[str, Any],
         proc_dir: Path,
-        yaml_path: Path,
+        mooring_path: Path,
         out_dir: Path | None = None,
         raw_folder: Path | None = None,
     ) -> dict[str, Any]:
@@ -1152,8 +1162,8 @@ class MooringReport:
             "qc_threshold_note": _qcflags.threshold_note(mooring_dict),
             "qc_table": _qc_table(instruments),
             "any_trimmed": any_trimmed,
-            "yaml_text": _read_text(yaml_path),
-            "yaml_name": yaml_path.name if yaml_path else "",
+            "yaml_text": _read_text(mooring_path),
+            "yaml_name": mooring_path.name if mooring_path else "",
             "timing_mode": _timing_mode(instruments),
             # Optional report sections turned on in the config. A standalone mooring
             # report resolves from the mooring YAML (the strongest level reachable here).
@@ -1192,7 +1202,7 @@ class MooringReport:
                 array_href=_resolve_array_report_href(out_dir),
             ),
             "generated": datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC"),
-            "yaml_path": self._rel(yaml_path),
+            "mooring_path": self._rel(mooring_path),
             "diagram_b64": _read_pdf_b64(_resolve_diagram_pdf(proc_dir, mooring_name)),
             "issues": _build_issues(instruments, recover_dt),
         }

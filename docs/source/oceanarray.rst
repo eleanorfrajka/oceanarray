@@ -16,14 +16,14 @@ folders as an ``oceanarray.Paths`` (:ref:`paths-file`).
    import oceanarray as oa
 
    paths = oa.Paths(raw_dir="raw/", proc_dir="proc/", report_dir="reports/")
-   yaml_path = "proc/dune2_1_2026/dune2_1_2026.mooring.yaml"
-   oa.run(yaml_path, paths, report=True)   # stages 1-3, stack, grid, report
+   mooring_path = "proc/dune2_1_2026/dune2_1_2026.mooring.yaml"
+   oa.run(mooring_path, paths, report=True)   # stages 1-3, stack, grid, report
 
    # or step by step, on datasets
-   cfg = oa.mooring.load(yaml_path)
-   ds2 = oa.read_mooring(yaml_path, stage=2)
-   ds3 = oa.stage3(ds2, cfg)
-   stacked = oa.stack(ds3, cfg, dt_seconds=600)
+   mooring_dict = oa.mooring.load(mooring_path)
+   ds2 = oa.read_mooring(mooring_path, stage=2)
+   ds3 = oa.stage3(ds2, mooring_dict)
+   stacked = oa.stack(ds3, mooring_dict, dt_seconds=600)
 
 The verbs
 ^^^^^^^^^
@@ -394,7 +394,7 @@ Interpolate stacked mooring data onto a regular pressure grid
 
 OceanSITES export
 ^^^^^^^^^^^^^^^^^
-``oceanarray.export(yaml_path, paths)`` (``oceanarray export``) writes a mooring's stage-3 files
+``oceanarray.export(mooring_path, paths)`` (``oceanarray export``) writes a mooring's stage-3 files
 and grid as OceanSITES 1.4 files; see :doc:`methods/oceansites_export`.
 ``to_oceansites`` is the conversion it uses, for a dataset already in hand; it writes
 nothing.

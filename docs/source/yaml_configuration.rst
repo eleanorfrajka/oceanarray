@@ -258,8 +258,8 @@ mooring as a whole.
 
 The ``stack:`` and ``grid:`` blocks configure ``oceanarray run`` (and
 ``oceanarray.run``); the per-instrument ``stack: false`` flag one level down is a
-different key. From Python, ``oceanarray.mooring.load(yaml_path)`` returns the
-mooring YAML as a dict; the verbs take the path (``oceanarray.run(yaml_path, paths)``).
+different key. From Python, ``oceanarray.mooring.load(mooring_path)`` returns the
+mooring YAML as a dict; the verbs take the path (``oceanarray.run(mooring_path, paths)``).
 
 ----
 
@@ -1071,7 +1071,7 @@ The same file is read, written and validated from Python through
 
    # Load one mooring YAML, by its path or by its name in a paths file.
    m = mooring.load("config/moorings/dsG3_1_2026.mooring.yaml")
-   m = mooring.load(oa.Paths.from_file("paths.yaml").yaml_path("dsG3_1_2026"))
+   m = mooring.load(oa.Paths.from_file("paths.yaml").mooring_path("dsG3_1_2026"))
 
    # Validate without raising (returns a list of issues).
    issues = mooring.check("config/moorings/dsG3_1_2026.mooring.yaml")

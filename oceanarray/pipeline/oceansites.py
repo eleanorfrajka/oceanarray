@@ -412,7 +412,7 @@ def _coordinates(
 def _globals(
     out: xr.Dataset,
     mooring: Mapping,
-    array: Mapping,
+    array_dict: Mapping,
     *,
     file_id: str,
     title: str,
@@ -458,14 +458,14 @@ def _globals(
     }
     if mooring.get("waterdepth") is not None:
         attrs["sea_floor_depth_below_sea_surface"] = float(mooring["waterdepth"])
-    if array.get("site_code"):
-        attrs["site_code"] = str(array["site_code"])
+    if array_dict.get("site_code"):
+        attrs["site_code"] = str(array_dict["site_code"])
     else:
         # site_code is required by the GDAC and approved by the OceanSITES Project
         # Office; it is never invented here.
-        logger.warning("%s: no site_code in the array description; left out", file_id)
-    if array.get("project"):
-        attrs["project"] = str(array["project"])
+        logger.warning("%s: no site_code in the array YAML; left out", file_id)
+    if array_dict.get("project"):
+        attrs["project"] = str(array_dict["project"])
     for when in ("deployment", "recovery"):
         if mooring.get(f"{when}_time"):
             attrs[f"platform_{when}_date"] = _stage.iso_time(
@@ -521,10 +521,11 @@ def to_oceansites(
     ds: xr.Dataset,
     mooring_dict: Mapping | None = None,
     *,
-    mooring: Mapping | None = None,
-    array: Mapping | None = None,
+    array_dict: Mapping | None = None,
     stack: xr.Dataset | None = None,
     source_file: str | None = None,
+    mooring: Mapping | None = None,
+    array: Mapping | None = None,
 ) -> xr.Dataset:
     """Return a stage-3 or grid dataset as an OceanSITES 1.4 file.
 
@@ -540,8 +541,8 @@ def to_oceansites(
         The loaded mooring YAML; supplies ``platform_code``,
         ``deployment_code`` (default: ``YYYYMM`` of ``deployment_time``), the
         position, the ships and cruises, and each variable's data mode.
-    array : Mapping or None, optional
-        The array description; ``site_code`` and ``project`` are taken from it
+    array_dict : Mapping or None, optional
+        The parsed ``*.array.yaml``; ``site_code`` and ``project`` are taken from it
         when present.  Without ``site_code`` the attribute is left out.
     stack : xarray.Dataset or None, optional
         For a grid: the stack it was made from, whose instruments are listed in
@@ -551,6 +552,8 @@ def to_oceansites(
         dataset was opened from.
     mooring : Mapping, optional
         Deprecated name of *mooring_dict*; removed in 0.8.0.
+    array : Mapping, optional
+        Deprecated name of *array_dict*; removed in 0.8.0.
 
     Returns
     -------
@@ -572,13 +575,16 @@ def to_oceansites(
         mooring,
         required="mooring_dict",
     )
+    array_dict = _deprecated.resolve_keyword(
+        "oceanarray.pipeline.oceansites.to_oceansites(array=)", array_dict, array
+    )
     if "pressure" in ds.dims:
-        return _grid_file(ds, mooring_dict, array or {}, stack, source_file)
-    return _deployment_file(ds, mooring_dict, array or {}, source_file)
+        return _grid_file(ds, mooring_dict, array_dict or {}, stack, source_file)
+    return _deployment_file(ds, mooring_dict, array_dict or {}, source_file)
 
 
 def _deployment_file(
-    ds: xr.Dataset, mooring: Mapping, array: Mapping, source_file: str | None
+    ds: xr.Dataset, mooring: Mapping, array_dict: Mapping, source_file: str | None
 ) -> xr.Dataset:
     """Return one instrument's stage-3 dataset as a deployment data file (§4.1)."""
     platform = platform_code(mooring)
@@ -692,7 +698,7 @@ def _deployment_file(
     out.attrs = _globals(
         out,
         mooring,
-        array,
+        array_dict,
         file_id=file_id,
         title=f"{platform} deployment {deployment}: {kind} {serial} at {round(depth)} m",
         data_mode=data_mode,
@@ -731,7 +737,7 @@ def _stack_sources(stack: xr.Dataset | None, mooring: Mapping) -> str:
 def _grid_file(
     ds: xr.Dataset,
     mooring: Mapping,
-    array: Mapping,
+    array_dict: Mapping,
     stack: xr.Dataset | None,
     source_file: str | None,
 ) -> xr.Dataset:
@@ -805,7 +811,7 @@ def _grid_file(
     out.attrs = _globals(
         out,
         mooring,
-        array,
+        array_dict,
         file_id=file_id,
         title=f"{platform} deployment {deployment}: gridded in time and pressure",
         data_mode=data_mode,

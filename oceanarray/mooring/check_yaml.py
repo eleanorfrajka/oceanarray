@@ -79,7 +79,7 @@ def _resolve_relative_paths(data: object, path: Path) -> None:
 
 
 def check(
-    yaml_path: str | PathLike | Mapping | None = None,
+    mooring_path: str | PathLike | Mapping | None = None,
     *,
     dir_name: str | None = None,
     mooring: str | PathLike | Mapping | None = None,
@@ -88,13 +88,13 @@ def check(
 
     Parameters
     ----------
-    yaml_path : str or os.PathLike
+    mooring_path : str or os.PathLike
         The ``*.mooring.yaml`` file. A loaded mapping is deprecated; removed in 0.8.0.
     dir_name : str or None, optional
         The folder name the ``name`` field is compared against; default the file's
         folder.
     mooring : str or os.PathLike or Mapping, optional
-        Deprecated name of *yaml_path*; removed in 0.8.0.
+        Deprecated name of *mooring_path*; removed in 0.8.0.
 
     Returns
     -------
@@ -102,23 +102,23 @@ def check(
         Every finding (ERROR and WARNING); an empty list means it passed. An
         unknown top-level key is reported as a WARNING.
     """
-    yaml_path = _deprecated.resolve_keyword(
+    mooring_path = _deprecated.resolve_keyword(
         "oceanarray.mooring.check(mooring=)",
-        yaml_path,
+        mooring_path,
         mooring,
-        required="yaml_path",
+        required="mooring_path",
         quiet=True,
     )
-    if mooring is not None or isinstance(yaml_path, Mapping):
+    if mooring is not None or isinstance(mooring_path, Mapping):
         # One warning for the call, the first old form it uses.
         _deprecated.warn(
             "oceanarray.mooring.check(mooring=)"
             if mooring is not None
             else _deprecated.DICT_GIVEN
         )
-    if isinstance(yaml_path, Mapping):
-        return _check_data(dict(yaml_path), dir_name)
-    path = Path(yaml_path)
+    if isinstance(mooring_path, Mapping):
+        return _check_data(dict(mooring_path), dir_name)
+    path = Path(mooring_path)
     if not path.exists():
         return [ValidationIssue("ERROR", f"File not found: {path}")]
     try:

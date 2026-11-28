@@ -605,11 +605,13 @@ def test_a_waterdepth_source_reaches_the_stack_and_the_deployment_record(
     root = tmp_path / "osnap"
     for n in _NAMES:
         shutil.copytree(site / n, root / n)
-    yaml_path = root / "egM2_2018" / "egM2_2018.mooring.yaml"
-    cfg = mooring.load(yaml_path)
+    mooring_path = root / "egM2_2018" / "egM2_2018.mooring.yaml"
+    cfg = mooring.load(mooring_path)
     cfg["waterdepth_source"] = text
-    yaml_path.write_text(yaml.safe_dump(dict(cfg), sort_keys=False), encoding="utf-8")
-    cfg = mooring.load(yaml_path)
+    mooring_path.write_text(
+        yaml.safe_dump(dict(cfg), sort_keys=False), encoding="utf-8"
+    )
+    cfg = mooring.load(mooring_path)
     stack = _stack(cfg, root / "egM2_2018")
     assert stack.attrs["waterdepth_source"] == text
     oa.write(

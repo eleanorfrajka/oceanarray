@@ -18,18 +18,18 @@ folder can have any name, and every file is named from ``name:``.
 
    import oceanarray as oa
 
-   yaml_path = "proc/dune2_1_2026/dune2_1_2026.mooring.yaml"
-   oa.run(yaml_path, raw_dir="raw/", report=True)   # stages 1-3, stack, grid, report
-   oa.process(yaml_path, stages=3)                  # stages only
-   oa.report(yaml_path, pdf=True)                   # the report only
+   mooring_path = "proc/dune2_1_2026/dune2_1_2026.mooring.yaml"
+   oa.run(mooring_path, raw_dir="raw/", report=True)   # stages 1-3, stack, grid, report
+   oa.process(mooring_path, stages=3)                  # stages only
+   oa.report(mooring_path, pdf=True)                   # the report only
 
 - ``run`` carries on past a failed instrument by default (``keep_going=True``) and
   records what it left out in the stack and grid. ``keep_going=False`` (CLI
   ``--strict``) stops at the first failure.
 - ``run`` rebuilds the stack from the stage-3 files, so its stages run through
-  stage 3: ``run(yaml_path, stages=(2, 3))`` or ``run(yaml_path, from_stage=2)``
+  stage 3: ``run(mooring_path, stages=(2, 3))`` or ``run(mooring_path, from_stage=2)``
   (CLI ``--stage 2 3`` or ``--from 2``). ``stages=2`` alone is refused. Run one
-  stage on its own with ``process(yaml_path, stages=N)``.
+  stage on its own with ``process(mooring_path, stages=N)``.
 - Renamed CLI flags, accepted with a note until 0.7.0: ``--serial`` → ``--only``,
   ``--dt`` → ``--dt-seconds``, ``process --report`` → ``--summary``,
   ``plot --downsample`` → ``--downsample-seconds``, ``export --overwrite`` →
@@ -76,15 +76,15 @@ Each old name warns and calls the new one.
    * - ``oceanarray.config.validation.validate_mooring_yaml``
      - ``oceanarray.mooring.check``
    * - ``oceanarray.pipeline.stage1.MooringProcessor``
-     - oceanarray.process(yaml_path, stages=1), or oceanarray.stage1 on datasets
+     - oceanarray.process(mooring_path, stages=1), or oceanarray.stage1 on datasets
    * - ``oceanarray.pipeline.stage2.Stage2Processor``
-     - oceanarray.process(yaml_path, stages=2), or oceanarray.stage2 on datasets
+     - oceanarray.process(mooring_path, stages=2), or oceanarray.stage2 on datasets
    * - ``oceanarray.pipeline.stage3.Stage3Processor``
-     - oceanarray.process(yaml_path, stages=3), or oceanarray.stage3 on datasets
+     - oceanarray.process(mooring_path, stages=3), or oceanarray.stage3 on datasets
    * - ``oceanarray.pipeline.stack.MooringStacker``
-     - oceanarray.run(yaml_path, stages=3), or oceanarray.stack on datasets
+     - oceanarray.run(mooring_path, stages=3), or oceanarray.stack on datasets
    * - ``oceanarray.pipeline.grid.MooringGridder``
-     - oceanarray.run(yaml_path, stages=3), or oceanarray.grid on a stack
+     - oceanarray.run(mooring_path, stages=3), or oceanarray.grid on a stack
    * - ``oceanarray.inspect.vars``
      - ``oceanarray.inspect.variables``
    * - ``oceanarray.inspect.attrs``

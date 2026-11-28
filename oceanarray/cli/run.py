@@ -15,7 +15,7 @@ from oceanarray.cli._common import (
     _folder,
     _mask_flags,
     _mooring_location,
-    _mooring_paths,
+    _mooring_path_and_paths,
     _raw_dir,
     _usage_error,
 )
@@ -59,7 +59,7 @@ def cmd_run(args: argparse.Namespace) -> int:
 
     serials = args.serials
     try:
-        yaml_path, paths = _mooring_paths(
+        mooring_path, paths = _mooring_path_and_paths(
             location,
             "run",
             raw_dir=raw_dir,
@@ -68,7 +68,7 @@ def cmd_run(args: argparse.Namespace) -> int:
             or (None if args.report_dir else _folder(location) / "report"),
         )
         _run(
-            yaml_path,
+            mooring_path,
             paths,
             stages=wanted,
             serials=serials,
@@ -89,7 +89,7 @@ def cmd_run(args: argparse.Namespace) -> int:
 
     try:
         report(
-            yaml_path,
+            mooring_path,
             paths,
             serials=serials,
             sig_level=args.sig_level,

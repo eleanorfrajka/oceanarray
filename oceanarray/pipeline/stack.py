@@ -1901,12 +1901,12 @@ class MooringStacker:
             logger.status("skip", self._rel(output_path))
             return True
 
-        yaml_path = proc_dir / f"{mooring_name}.mooring.yaml"
-        if not yaml_path.exists():
-            log.warning(f"Config not found: {yaml_path}")
+        mooring_path = proc_dir / f"{mooring_name}.mooring.yaml"
+        if not mooring_path.exists():
+            log.warning(f"Config not found: {mooring_path}")
             return False
 
-        mooring_dict = _mooring.load(yaml_path)
+        mooring_dict = _mooring.load(mooring_path)
         datasets, read_omitted = _read_best_stage(mooring_dict, proc_dir)
         try:
             ds_out = stack(

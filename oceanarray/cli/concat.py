@@ -28,11 +28,11 @@ def cmd_concat(args: argparse.Namespace) -> int:
     from oceanarray.pipeline.concat import concat_moorings
     from oceanarray.pipeline.grid import grid_site
 
-    yaml_paths = [_description_path(m, args.proc_dir) for m in args.mooring]
+    mooring_paths = [_description_path(m, args.proc_dir) for m in args.mooring]
     mask_flags = _mask_flags(args)
     try:
         out = concat_moorings(
-            yaml_paths,
+            mooring_paths,
             name=args.name,
             out_dir=args.output_dir,
             overwrite=args.force,

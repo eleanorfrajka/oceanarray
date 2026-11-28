@@ -105,11 +105,11 @@ def test_required_globals_present(stage3: xr.Dataset, description: dict) -> None
 
 
 def test_site_code_only_from_the_array_description(description: dict) -> None:
-    """site_code comes from the array description and is never invented."""
+    """site_code comes from the array YAML and is never invented."""
     ds = xr.open_dataset(_MICROCAT)
     assert "site_code" not in to_oceansites(ds, description).attrs
     out = to_oceansites(
-        ds, description, array={"site_code": "MIXSED", "project": "MIXSED"}
+        ds, description, array_dict={"site_code": "MIXSED", "project": "MIXSED"}
     )
     assert out.attrs["site_code"] == "MIXSED"
 

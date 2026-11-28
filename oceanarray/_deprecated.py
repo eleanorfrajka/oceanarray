@@ -30,19 +30,19 @@ RENAMED: dict[str, str] = {
     "oceanarray.parameters": "oceanarray.config.parameters",
     "oceanarray.config.validation.validate_mooring_yaml": "oceanarray.mooring.check",
     "oceanarray.pipeline.stage1.MooringProcessor": (
-        "oceanarray.process(yaml_path, stages=1), or oceanarray.stage1 on datasets"
+        "oceanarray.process(mooring_path, stages=1), or oceanarray.stage1 on datasets"
     ),
     "oceanarray.pipeline.stage2.Stage2Processor": (
-        "oceanarray.process(yaml_path, stages=2), or oceanarray.stage2 on datasets"
+        "oceanarray.process(mooring_path, stages=2), or oceanarray.stage2 on datasets"
     ),
     "oceanarray.pipeline.stage3.Stage3Processor": (
-        "oceanarray.process(yaml_path, stages=3), or oceanarray.stage3 on datasets"
+        "oceanarray.process(mooring_path, stages=3), or oceanarray.stage3 on datasets"
     ),
     "oceanarray.pipeline.stack.MooringStacker": (
-        "oceanarray.run(yaml_path, stages=3), or oceanarray.stack on datasets"
+        "oceanarray.run(mooring_path, stages=3), or oceanarray.stack on datasets"
     ),
     "oceanarray.pipeline.grid.MooringGridder": (
-        "oceanarray.run(yaml_path, stages=3), or oceanarray.grid on a stack"
+        "oceanarray.run(mooring_path, stages=3), or oceanarray.grid on a stack"
     ),
     "oceanarray.inspect.vars": "oceanarray.inspect.variables",
     "oceanarray.inspect.attrs": "oceanarray.inspect.attributes",
@@ -54,14 +54,14 @@ RENAMED: dict[str, str] = {
     ),
 }
 
-#: The deprecation key for a mooring folder given where a verb takes its yaml_path.
-FOLDER_GIVEN = "a mooring folder in place of a verb's yaml_path"
+#: The deprecation key for a mooring folder given where a verb takes its mooring_path.
+FOLDER_GIVEN = "a mooring folder in place of a verb's mooring_path"
 
 #: The deprecation key for a verb called without a Paths.
 NO_PATHS = "a verb called without paths"
 
 #: The deprecation key for a loaded mooring YAML given where its path is taken.
-DICT_GIVEN = "a mooring dict in place of a yaml_path"
+DICT_GIVEN = "a mooring dict in place of a mooring_path"
 
 #: Old dotted name -> what to use instead, for names deprecated during 0.7. A
 #: renamed keyword is written ``<function>(<old keyword>=)``; a file location or
@@ -83,10 +83,13 @@ RENAMED_NEXT: dict[str, str] = {
     ),
     "oceanarray.pipeline.concat.concat(descriptions=)": "the mooring_dicts= keyword",
     "oceanarray.pipeline.concat.concat_moorings(descriptions=)": (
-        "the yaml_paths= keyword"
+        "the mooring_paths= keyword"
     ),
     "oceanarray.pipeline.qc.load_qc_config(mooring_cfg=)": "the mooring_dict= keyword",
     "oceanarray.reports.MooringReport.generate(cfg=)": "the mooring_dict= keyword",
+    "oceanarray.reports.MooringReport.generate(yaml_path=)": (
+        "the mooring_path= keyword"
+    ),
     "oceanarray.plotters.helpers.masked": "oceanarray.pipeline.masking.masked",
     "oceanarray.plotters.helpers.ruled": "oceanarray.mask_rules.STACK_ATTR in ds.attrs",
     "oceanarray.pipeline.read_mooring.header_attrs(cfg=)": "the mooring_dict= keyword",
@@ -113,6 +116,7 @@ RENAMED_NEXT: dict[str, str] = {
     "oceanarray.pipeline.oceansites.to_oceansites(mooring=)": (
         "the mooring_dict= keyword"
     ),
+    "oceanarray.pipeline.oceansites.to_oceansites(array=)": "the array_dict= keyword",
     "oceanarray.pipeline.oceansites.deployment_code(mooring=)": (
         "the mooring_dict= keyword"
     ),
@@ -127,62 +131,67 @@ RENAMED_NEXT: dict[str, str] = {
         "<yaml_dir>/<mooring_name>.mooring.yaml (yaml_dir of paths.yaml or oceanarray.Paths)"
     ),
     NO_PATHS: (
-        "an oceanarray.Paths as the second argument, e.g. oceanarray.run(yaml_path, paths)"
+        "an oceanarray.Paths as the second argument, e.g. oceanarray.run(mooring_path, paths)"
     ),
-    FOLDER_GIVEN: "the folder's <mooring_name>.mooring.yaml as yaml_path",
-    DICT_GIVEN: "the mooring YAML's path as yaml_path",
-    "oceanarray.process(mooring=)": "the yaml_path= keyword",
+    FOLDER_GIVEN: "the folder's <mooring_name>.mooring.yaml as mooring_path",
+    DICT_GIVEN: "the mooring YAML's path as mooring_path",
+    "oceanarray.process(mooring=)": "the mooring_path= keyword",
     "oceanarray.process(mooring_dir=)": (
-        "paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.process(yaml_path, paths)"
+        "paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.process(mooring_path, paths)"
     ),
     "oceanarray.process(raw_dir=)": (
-        "oceanarray.Paths(raw_dir=...) in oceanarray.process(yaml_path, paths)"
+        "oceanarray.Paths(raw_dir=...) in oceanarray.process(mooring_path, paths)"
     ),
     "oceanarray.process(caldip_dir=)": (
-        "oceanarray.Paths(caldip_dir=...) in oceanarray.process(yaml_path, paths)"
+        "oceanarray.Paths(caldip_dir=...) in oceanarray.process(mooring_path, paths)"
     ),
-    "oceanarray.run(mooring=)": "the yaml_path= keyword",
+    "oceanarray.run(mooring=)": "the mooring_path= keyword",
     "oceanarray.run(mooring_dir=)": (
-        "paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.run(yaml_path, paths)"
+        "paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.run(mooring_path, paths)"
     ),
     "oceanarray.run(raw_dir=)": (
-        "oceanarray.Paths(raw_dir=...) in oceanarray.run(yaml_path, paths)"
+        "oceanarray.Paths(raw_dir=...) in oceanarray.run(mooring_path, paths)"
     ),
     "oceanarray.run(caldip_dir=)": (
-        "oceanarray.Paths(caldip_dir=...) in oceanarray.run(yaml_path, paths)"
+        "oceanarray.Paths(caldip_dir=...) in oceanarray.run(mooring_path, paths)"
     ),
-    "oceanarray.report(mooring=)": "the yaml_path= keyword",
+    "oceanarray.report(mooring=)": (
+        "the mooring_path= keyword, or array_path= for kind='array'"
+    ),
     "oceanarray.report(mooring_dir=)": (
-        "paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.report(yaml_path, paths)"
+        "paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.report(mooring_path, paths)"
     ),
     "oceanarray.report(proc_dir=)": (
-        "oceanarray.Paths(proc_dir=...) in oceanarray.report(array_yaml, paths, kind='array')"
+        "oceanarray.Paths(proc_dir=...) in oceanarray.report(array_path, paths, kind='array')"
     ),
     "oceanarray.report(raw_dir=)": (
-        "oceanarray.Paths(raw_dir=...) in oceanarray.report(yaml_path, paths)"
+        "oceanarray.Paths(raw_dir=...) in oceanarray.report(mooring_path, paths)"
     ),
     "oceanarray.report(out_dir=)": (
-        "paths.with_mooring(mooring_name, report_dir=...) in oceanarray.report(yaml_path, paths)"
+        "paths.with_mooring(mooring_name, report_dir=...) in oceanarray.report(mooring_path, paths)"
     ),
     "oceanarray.report(report_dir=)": (
-        "oceanarray.Paths(report_dir=...) in oceanarray.report(yaml_path, paths)"
+        "oceanarray.Paths(report_dir=...) in oceanarray.report(mooring_path, paths)"
     ),
     "oceanarray.report(pdf_dir=)": (
-        "oceanarray.report(yaml_path, paths, pdf=True), which writes the PDF beside the pages"
+        "oceanarray.report(mooring_path, paths, pdf=True), which writes the PDF beside the pages"
     ),
-    "oceanarray.export(mooring=)": "the yaml_path= keyword",
+    "oceanarray.export(mooring=)": "the mooring_path= keyword",
     "oceanarray.export(mooring_dir=)": (
-        "paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.export(yaml_path, paths)"
+        "paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.export(mooring_path, paths)"
     ),
     "oceanarray.export(out_dir=)": (
-        "oceanarray.Paths(export_dir=...) in oceanarray.export(yaml_path, paths)"
+        "oceanarray.Paths(export_dir=...) in oceanarray.export(mooring_path, paths)"
     ),
-    "oceanarray.export(array=)": "the array_yaml= keyword",
-    "oceanarray.mooring.load(mooring=)": "the yaml_path= keyword",
+    "oceanarray.export(array=)": (
+        "array_path= (a path); for a parsed mapping, "
+        "oceanarray.pipeline.oceansites.to_oceansites(array_dict=)"
+    ),
+    "oceanarray.mooring.load(mooring=)": "the mooring_path= keyword",
     "oceanarray.mooring.load(proc_dir=)": (
-        "oceanarray.mooring.load(paths.yaml_path(mooring_name))"
+        "oceanarray.mooring.load(paths.mooring_path(mooring_name))"
     ),
-    "oceanarray.mooring.check(mooring=)": "the yaml_path= keyword",
+    "oceanarray.mooring.check(mooring=)": "the mooring_path= keyword",
     "oceanarray.paths.mooring_proc_dir": (
         "oceanarray.Paths(proc_dir=...).mooring_dir(mooring_name)"
     ),
@@ -195,7 +204,7 @@ RENAMED_NEXT: dict[str, str] = {
         "report_dir=folder) for an exact folder such as <mooring_dir>/report"
     ),
     "oceanarray.paths.resolve_pdf_path": (
-        "paths.report_mooring_dir(mooring_name), where oceanarray.report(yaml_path, "
+        "paths.report_mooring_dir(mooring_name), where oceanarray.report(mooring_path, "
         "paths, pdf=True) writes <mooring_name>_report.pdf"
     ),
     "oceanarray.paths.require_current_layout(proc_root=)": "the proc_dir= keyword",

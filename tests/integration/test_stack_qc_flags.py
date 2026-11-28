@@ -78,16 +78,16 @@ def cf7(tmp_path_factory):
         (raw / inst["instrument"]).mkdir(parents=True, exist_ok=True)
         shutil.copy(OSNAP / inst["filename"], raw / inst["instrument"])
     cfg = {"name": name, **CF7, "stack": {"dt_seconds": 900}, "clamp": INSTRUMENTS}
-    yaml_path = proc / f"{name}.mooring.yaml"
-    yaml_path.write_text(yaml.safe_dump(cfg, sort_keys=False))
+    mooring_path = proc / f"{name}.mooring.yaml"
+    mooring_path.write_text(yaml.safe_dump(cfg, sort_keys=False))
     files = oa.run(
-        yaml_path,
+        mooring_path,
         oa.Paths(raw_dir=tmp / "raw", proc_dir=tmp / "proc"),
         pmin=40,
         pmax=520,
         dp=40,
     )
-    return yaml_path, proc, files
+    return mooring_path, proc, files
 
 
 def _level(ds: xr.Dataset, serial: str) -> int:
@@ -260,8 +260,8 @@ def test_a_new_rule_rebuilds_the_stack(cf7, caplog):
     from oceanarray import mooring
     from oceanarray.pipeline.stack import _stack_file
 
-    yaml_path, proc, _ = cf7
-    cfg = mooring.load(yaml_path)
+    mooring_path, proc, _ = cf7
+    cfg = mooring.load(mooring_path)
     with caplog.at_level(logging.INFO, logger="oceanarray"):
         _, ds = _stack_file(cfg, proc, force=False)
     assert "cf7_2020: stack current (cf7_2020_stack.nc)" in caplog.text
@@ -331,7 +331,7 @@ def test_concat_refuses_different_rules_unless_given(cf7):
 def test_the_stack_page_has_the_quality_flags_section(cf7, tmp_path):
     from oceanarray.reports._qcflags import count_rows, translation_tables
 
-    yaml_path, proc, files = cf7
+    mooring_path, proc, files = cf7
     with xr.open_dataset(files[-2], engine="netcdf4") as ds:
         st = ds.load()
     rows, unflagged, quiet = count_rows(st)
@@ -351,8 +351,8 @@ def test_the_stack_page_has_the_quality_flags_section(cf7, tmp_path):
     assert "22225" in row["used_by"]
 
     page = oa.report(
-        yaml_path,
-        oa.Paths(proc_dir=yaml_path.parent.parent).with_mooring(
+        mooring_path,
+        oa.Paths(proc_dir=mooring_path.parent.parent).with_mooring(
             "cf7_2020", report_dir=tmp_path
         ),
         instruments=False,
@@ -394,8 +394,8 @@ def test_a_present_value_is_never_9_in_the_stack(cf7):
     """An originator 9 on a value that is there reads 0 in the stack."""
     from oceanarray import mooring
 
-    yaml_path, proc, _ = cf7
-    cfg = mooring.load(yaml_path)
+    mooring_path, proc, _ = cf7
+    cfg = mooring.load(mooring_path)
     data = {}
     for serial, inst in (("22225", "microcat"), ("500", "currentmeter")):
         path = proc / inst / f"cf7_2020_{serial}_stage3.nc"
@@ -419,8 +419,8 @@ def test_the_caption_names_where_the_description_changes_thresholds(cf7):
     from oceanarray import mooring
     from oceanarray.reports._qcflags import threshold_note
 
-    yaml_path, _, _ = cf7
-    cfg = mooring.load(yaml_path)
+    mooring_path, _, _ = cf7
+    cfg = mooring.load(mooring_path)
     assert threshold_note(cfg) == ""
     cfg["qc_spike"] = {"salinity": {"suspect_threshold": 0.02}}
     cfg["clamp"][0]["qc_ranges"] = {"temperature": {"fail_span": [-2, 30]}}
@@ -444,8 +444,8 @@ def test_a_grid_rule_that_drops_a_flag_stops_with_the_mooring_named(cf7):
     from oceanarray import mooring
     from oceanarray.pipeline.grid import _grid_file
 
-    yaml_path, proc, files = cf7
-    cfg = mooring.load(yaml_path)
+    mooring_path, proc, files = cf7
+    cfg = mooring.load(mooring_path)
     with xr.open_dataset(files[-2], engine="netcdf4") as ds:
         st = ds.load()
     st.attrs["stack_mask_flags"] = '{"default": [3, 4]}'
@@ -458,8 +458,8 @@ def test_a_grid_rule_that_drops_a_flag_stops_with_the_mooring_named(cf7):
 def test_a_present_value_flagged_missing_is_reported(cf7, caplog):
     from oceanarray import mooring
 
-    yaml_path, proc, _ = cf7
-    cfg = mooring.load(yaml_path)
+    mooring_path, proc, _ = cf7
+    cfg = mooring.load(mooring_path)
     data = {}
     for serial, inst in (("22225", "microcat"), ("500", "currentmeter")):
         with xr.open_dataset(
@@ -543,10 +543,10 @@ def test_no_declination_warning_when_the_originator_applied_it(cf7, tmp_path):
     assert declination_unapplied(none) == [
         ("Aquadopp s/n 500", "its stage-3 file records no declination")
     ]
-    yaml_path, _, _ = cf7
+    mooring_path, _, _ = cf7
     page = oa.report(
-        yaml_path,
-        oa.Paths(proc_dir=yaml_path.parent.parent).with_mooring(
+        mooring_path,
+        oa.Paths(proc_dir=mooring_path.parent.parent).with_mooring(
             "cf7_2020", report_dir=tmp_path
         ),
         instruments=False,

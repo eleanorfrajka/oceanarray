@@ -16,10 +16,11 @@ Kind = Literal["mooring", "array", "recovery"]
 
 
 def report(
-    yaml_path: str | PathLike | None = None,
+    mooring_path: str | PathLike | None = None,
     paths: Paths | None = None,
     *,
     kind: Kind = "mooring",
+    array_path: str | PathLike | None = None,
     breadcrumb: Iterable[tuple[str, str | None]] | None = None,
     instruments: bool = True,
     stack: bool = True,
@@ -42,9 +43,9 @@ def report(
 
     Parameters
     ----------
-    yaml_path : str or os.PathLike
-        ``"mooring"`` / ``"recovery"``: the ``*.mooring.yaml``; ``"array"``: the
-        ``*.array.yaml``.
+    mooring_path : str or os.PathLike
+        ``"mooring"`` / ``"recovery"``: the ``*.mooring.yaml``. For ``"array"`` a
+        first argument is read as *array_path*.
     paths : oceanarray.Paths
         Where the files are: the stage, stack and grid files in
         ``paths.mooring_dir(name)``, the raw files (named on the instrument pages) in
@@ -55,6 +56,8 @@ def report(
     kind : {"mooring", "array", "recovery"}, optional
         The mooring's summary page (and its instrument, stack and grid pages), the array
         index, or the cruise-report recovery table.
+    array_path : str or os.PathLike, optional
+        ``"array"``: the ``*.array.yaml``.
     breadcrumb : iterable of (str, str or None), optional
         Ancestor crumbs ``[(text, href), ...]`` (hrefs relative to the report directory)
         shown before each page's own position.
@@ -74,7 +77,8 @@ def report(
     bathymetry : os.PathLike or None, optional
         ``"array"``: a GEBCO or ETOPO file for the map's depth contours.
     mooring : str or os.PathLike or Mapping, optional
-        Deprecated name of *yaml_path*; removed in 0.8.0.
+        Deprecated name of *mooring_path* (of *array_path* for ``"array"``); removed
+        in 0.8.0.
     mooring_dir, proc_dir, raw_dir, out_dir, report_dir, pdf_dir : os.PathLike, optional
         Deprecated folders, used when *paths* is not given; removed in 0.8.0.
 
@@ -90,7 +94,8 @@ def report(
     ValueError
         Unknown *kind*.
     TypeError
-        *paths* is not an :class:`oceanarray.Paths`.
+        *paths* is not an :class:`oceanarray.Paths`, the array YAML is given twice
+        or not at all, or *array_path* is given for another *kind*.
 
     Examples
     --------
@@ -98,18 +103,34 @@ def report(
 
     >>> import oceanarray as oa
     >>> paths = oa.Paths.from_file("paths.yaml")  # doctest: +SKIP
-    >>> oa.report(paths.yaml_path("M2_2016"), paths, pdf=True)  # doctest: +SKIP
+    >>> oa.report(paths.mooring_path("M2_2016"), paths, pdf=True)  # doctest: +SKIP
     >>> oa.report("OSNAPeast_2016.array.yaml", paths, kind="array")  # doctest: +SKIP
     """
     from oceanarray.pipeline import resolve_verb_call
 
     renamed = "oceanarray.report(mooring=)"
-    yaml_path = _deprecated.resolve_keyword(
-        renamed, yaml_path, mooring, required="yaml_path", quiet=True
+    first = _deprecated.resolve_keyword(
+        renamed,
+        mooring_path,
+        mooring,
+        required=None if kind == "array" else "mooring_path",
+        quiet=True,
     )
     renamed_given = [renamed] if mooring is not None else []
     crumbs = list(breadcrumb) if breadcrumb is not None else None
-    if kind == "array":
+    if kind != "array":
+        if array_path is not None:
+            raise TypeError(
+                f"report(kind={kind!r}) takes mooring_path, not array_path="
+            )
+        mooring_path = first
+    else:
+        # The first argument is the array YAML, as in report(array_path, paths, kind="array").
+        if first is not None and array_path is not None:
+            raise TypeError("report() got the array YAML twice; give array_path= only")
+        array_path = array_path if array_path is not None else first
+        if array_path is None:
+            raise TypeError("report() missing required argument: 'array_path'")
         if paths is not None and not isinstance(paths, Paths):
             raise TypeError(
                 f"report() paths must be an oceanarray.Paths, got {type(paths).__name__}"
@@ -127,10 +148,10 @@ def report(
             _deprecated.warn((keys or [_deprecated.NO_PATHS])[0], stacklevel=3)
         if paths is None:
             paths = Paths(
-                proc_dir=proc_dir or Path(yaml_path).parent, report_dir=report_dir
+                proc_dir=proc_dir or Path(array_path).parent, report_dir=report_dir
             )
         return _array_report(
-            Path(yaml_path),
+            Path(array_path),
             paths,
             breadcrumb=crumbs,
             force=force,
@@ -152,9 +173,9 @@ def report(
             mooring_report_dir=out_dir or pages,
         )
 
-    mooring_dict, yaml_path, paths, given_dict = resolve_verb_call(
+    mooring_dict, mooring_path, paths, given_dict = resolve_verb_call(
         "report",
-        yaml_path,
+        mooring_path,
         paths,
         {
             "mooring_dir": mooring_dir,
@@ -179,7 +200,7 @@ def report(
             generate_recovery_table(
                 mooring_name=name,
                 proc_dir=moor_dir,
-                yaml_path=yaml_path,
+                mooring_path=mooring_path,
                 out_path=pages / f"{name}_recovery_table.html",
                 force=force,
             )
@@ -210,7 +231,7 @@ def report(
             # passed on (and rebuilds the summary); a path is read from disk.
             mooring_dict=mooring_dict if given_dict else None,
             mooring_dir=moor_dir,
-            yaml_path=yaml_path,
+            mooring_path=mooring_path,
             raw_mooring_dir=raw_folder,
         )
     if pdf:
@@ -333,7 +354,7 @@ def _combine_pdf(name: str, html_dir: Path, pdf_path: Path) -> Path:
 
 
 def _array_report(
-    array_yaml: Path,
+    array_path: Path,
     paths: Paths,
     *,
     breadcrumb: list[tuple[str, str | None]] | None = None,
@@ -346,14 +367,14 @@ def _array_report(
     root = paths.proc_dir
     if root is None:
         raise MooringError(
-            f"{array_yaml.name}: no proc_dir given; set proc_dir in the paths file "
+            f"{array_path.name}: no proc_dir given; set proc_dir in the paths file "
             "(paths.yaml) or Paths(proc_dir=...)."
         )
-    if not array_yaml.exists() and not array_yaml.is_absolute():
-        array_yaml = root / array_yaml
-    logger.status("section", f"Array report: {array_yaml.name}")
+    if not array_path.exists() and not array_path.is_absolute():
+        array_path = root / array_path
+    logger.status("section", f"Array report: {array_path.name}")
     page = generate_array_report(
-        array_yaml_path=array_yaml,
+        array_path=array_path,
         proc_dir=root,
         force=force,
         report_dir=paths.report_dir,
@@ -361,7 +382,7 @@ def _array_report(
         bathymetry=Path(bathymetry) if bathymetry is not None else None,
     )
     if not page:
-        raise MooringError(f"{array_yaml.name}: the array report could not be built.")
+        raise MooringError(f"{array_path.name}: the array report could not be built.")
     return Path(page)
 
 

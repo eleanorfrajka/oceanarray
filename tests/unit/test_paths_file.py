@@ -63,7 +63,7 @@ def test_from_file_resolves_relative_folders_against_the_files_folder(
     assert paths.export_dir == project / "outputs" / "export"
     assert paths.caldip_dir is None
     assert dict(paths.sources) == dict.fromkeys(PATHS_FIELDS[:5], "file")
-    assert paths.yaml_path("egM2_2016").read_text(encoding="utf-8") == _YAMLS[
+    assert paths.mooring_path("egM2_2016").read_text(encoding="utf-8") == _YAMLS[
         "egM2_2016"
     ].read_text(encoding="utf-8")
 
@@ -71,7 +71,7 @@ def test_from_file_resolves_relative_folders_against_the_files_folder(
 def test_a_yaml_from_the_paths_file_loads(project):
     """The path found is a mooring YAML that ``mooring.load`` reads, with its own name."""
     paths = Paths.from_file(project / "paths.yaml")
-    assert mooring.load(paths.yaml_path("dune2_1_2026"))["name"] == "dune2_1_2026"
+    assert mooring.load(paths.mooring_path("dune2_1_2026"))["name"] == "dune2_1_2026"
 
 
 def test_standard_structure_under_one_root(tmp_path):
@@ -170,10 +170,10 @@ def test_with_mooring_returns_a_copy(project):
         paths.with_mooring("egM2_2018", raw_folder="x")
 
 
-def test_yaml_path_finds_the_file_in_yaml_dir(project):
+def test_mooring_path_finds_the_file_in_yaml_dir(project):
     """The YAML is ``<yaml_dir>/<mooring_name>.mooring.yaml``."""
     paths = Paths.from_file(project / "paths.yaml")
-    assert paths.yaml_path("egM2_2018") == (
+    assert paths.mooring_path("egM2_2018") == (
         project / "config" / "moorings" / "egM2_2018.mooring.yaml"
     )
 
@@ -188,7 +188,7 @@ def test_yaml_in_the_old_proc_folder_is_found_with_a_deprecation_warning(tmp_pat
     )
     for paths in (Paths.standard(tmp_path), Paths(proc_dir=tmp_path / "proc")):
         with pytest.warns(DeprecationWarning, match=message) as record:
-            found = paths.yaml_path("dune2_1_2026")
+            found = paths.mooring_path("dune2_1_2026")
         assert found == old
         assert record[0].filename == __file__
         assert "0.8.0" in str(record[0].message)
@@ -202,7 +202,7 @@ def test_yaml_dir_file_wins_over_the_old_location(project):
     shutil.copy(_YAMLS["egM2_2016"], old)
     with warnings.catch_warnings():
         warnings.simplefilter("error", DeprecationWarning)
-        assert paths.yaml_path("egM2_2016") == paths.yaml_dir / old.name
+        assert paths.mooring_path("egM2_2016") == paths.yaml_dir / old.name
 
 
 def test_missing_field_error_names_the_field():
@@ -215,27 +215,27 @@ def test_missing_field_error_names_the_field():
     with pytest.raises(oa.MooringError, match="proc_dir"):
         Paths().mooring_dir("egM2_2016")
     with pytest.raises(oa.MooringError, match="yaml_dir"):
-        Paths().yaml_path("egM2_2016")
+        Paths().mooring_path("egM2_2016")
     with pytest.raises(oa.MooringError, match="yaml_dir"):
-        Paths(raw_dir="raw").yaml_paths()
+        Paths(raw_dir="raw").mooring_paths()
 
 
-def test_yaml_paths_lists_every_mooring_yaml_sorted(project):
-    """``yaml_paths`` gives the mooring YAMLs of yaml_dir in sorted order."""
+def test_mooring_paths_lists_every_mooring_yaml_sorted(project):
+    """``mooring_paths`` gives the mooring YAMLs of yaml_dir in sorted order."""
     paths = Paths.from_file(project / "paths.yaml")
     (paths.yaml_dir / "notes.yaml").write_text("x: 1\n", encoding="utf-8")
-    assert paths.yaml_paths() == [
+    assert paths.mooring_paths() == [
         paths.yaml_dir / f"{name}.mooring.yaml" for name in sorted(_YAMLS)
     ]
 
 
-def test_yaml_paths_in_the_old_proc_folders_warn(tmp_path):
+def test_mooring_paths_in_the_old_proc_folders_warn(tmp_path):
     """Without a yaml_dir, the YAMLs still in ``<proc_dir>/*/`` are listed, with a warning."""
     for name, source in _YAMLS.items():
         (tmp_path / "proc" / name).mkdir(parents=True)
         shutil.copy(source, tmp_path / "proc" / name / source.name)
     with pytest.warns(DeprecationWarning, match="proc_dir") as record:
-        found = Paths(proc_dir=tmp_path / "proc").yaml_paths()
+        found = Paths(proc_dir=tmp_path / "proc").mooring_paths()
     assert record[0].filename == __file__
     assert found == [
         tmp_path / "proc" / name / f"{name}.mooring.yaml" for name in sorted(_YAMLS)

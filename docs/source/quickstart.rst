@@ -275,10 +275,10 @@ The same steps from Python:
        report_dir="/data/cruise2026/reports",
        export_dir="/data/cruise2026/oceansites",
    )
-   yaml_path = "/data/cruise2026/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml"
-   oa.process(yaml_path, paths, stages=1)   # stage 1
-   oa.run(yaml_path, paths, report=True)    # everything
-   oa.export(yaml_path, paths)              # OceanSITES files
+   mooring_path = "/data/cruise2026/proc/dsG3_1_2026/dsG3_1_2026.mooring.yaml"
+   oa.process(mooring_path, paths, stages=1)   # stage 1
+   oa.run(mooring_path, paths, report=True)    # everything
+   oa.export(mooring_path, paths)              # OceanSITES files
 
 See :doc:`oceanarray` for the full API and :doc:`migrating_0_6_0` when updating
 code written for 0.5.

@@ -30,16 +30,16 @@ logger = logging.getLogger(__name__)
 _SKIPPABLE = (OceanSitesError, FileExistsError, OSError, KeyError, ValueError)
 
 
-def _array_description(array: str | PathLike | Mapping | None) -> Mapping:
-    """Return the array description as a mapping ({} when none is given)."""
-    if array is None:
+def _read_array_dict(given: str | PathLike | Mapping | None) -> Mapping:
+    """Return the parsed ``*.array.yaml`` at *given* ({} for None; a mapping, which the deprecated ``array=`` takes, as it is)."""
+    if given is None:
         return {}
-    if isinstance(array, Mapping):
-        return array
-    with Path(array).open() as f:
+    if isinstance(given, Mapping):
+        return given
+    with Path(given).open() as f:
         data = yaml.safe_load(f)
     if not isinstance(data, Mapping):
-        raise MooringError(f"{array}: not an array description (a YAML mapping)")
+        raise MooringError(f"{given}: not an array YAML (a YAML mapping)")
     return data
 
 
@@ -54,10 +54,10 @@ def _put(out: xr.Dataset, target: Path, *, overwrite: bool, dry_run: bool) -> Pa
 
 
 def export(
-    yaml_path: str | PathLike | None = None,
+    mooring_path: str | PathLike | None = None,
     paths: Paths | None = None,
     *,
-    array_yaml: str | PathLike | Mapping | None = None,
+    array_path: str | PathLike | None = None,
     grid: bool = True,
     overwrite: bool = False,
     dry_run: bool = False,
@@ -75,14 +75,13 @@ def export(
 
     Parameters
     ----------
-    yaml_path : str or os.PathLike
+    mooring_path : str or os.PathLike
         The ``*.mooring.yaml``; it must carry ``platform_code``.
     paths : oceanarray.Paths
         Where the files are: the stage-3 files and grid in ``paths.mooring_dir(name)``,
         the OceanSITES files written to ``paths.export_dir``.
-    array_yaml : str, os.PathLike, Mapping or None, optional
-        The ``*.array.yaml`` (or its loaded mapping); supplies ``site_code`` and
-        ``project``.
+    array_path : str, os.PathLike or None, optional
+        The ``*.array.yaml``; supplies ``site_code`` and ``project``.
     grid : bool, optional
         Also write the grid, when ``<name>_grid.nc`` exists (default True).
     overwrite : bool, optional
@@ -90,12 +89,13 @@ def export(
     dry_run : bool, optional
         Convert but write nothing; return the paths that would be written.
     mooring : str or os.PathLike or Mapping, optional
-        Deprecated name of *yaml_path*; removed in 0.8.0.
+        Deprecated name of *mooring_path*; removed in 0.8.0.
     mooring_dir, out_dir : os.PathLike, optional
         Deprecated folders (*out_dir* default ``<mooring_dir>/oceansites``), used when
         *paths* is not given; removed in 0.8.0.
     array : str, os.PathLike or Mapping, optional
-        Deprecated name of *array_yaml*; removed in 0.8.0.
+        Deprecated name of *array_path* (it also takes the parsed array YAML);
+        removed in 0.8.0.
 
     Returns
     -------
@@ -110,7 +110,7 @@ def export(
     oceanarray.pipeline.oceansites.OceanSitesError
         If the mooring YAML has no usable ``platform_code`` or deployment code.
     TypeError
-        *paths* is not an :class:`oceanarray.Paths`.
+        *paths* is not an :class:`oceanarray.Paths`, or *array_path* is a mapping.
 
     Examples
     --------
@@ -118,7 +118,7 @@ def export(
 
     >>> import oceanarray as oa
     >>> paths = oa.Paths.from_file("paths.yaml")  # doctest: +SKIP
-    >>> oa.export(paths.yaml_path("M2_2016"), paths, array_yaml="OSNAPeast_2016.array.yaml")  # doctest: +SKIP
+    >>> oa.export(paths.mooring_path("M2_2016"), paths, array_path="OSNAPeast_2016.array.yaml")  # doctest: +SKIP
     """
     from oceanarray.pipeline import resolve_verb_call
     from oceanarray.pipeline.oceansites import deployment_code, platform_code
@@ -127,19 +127,24 @@ def export(
         "oceanarray.export(mooring=)": mooring,
         "oceanarray.export(array=)": array,
     }
-    yaml_path = _deprecated.resolve_keyword(
+    mooring_path = _deprecated.resolve_keyword(
         "oceanarray.export(mooring=)",
-        yaml_path,
+        mooring_path,
         mooring,
-        required="yaml_path",
+        required="mooring_path",
         quiet=True,
     )
-    array_yaml = _deprecated.resolve_keyword(
-        "oceanarray.export(array=)", array_yaml, array, quiet=True
+    if isinstance(array_path, Mapping):
+        raise TypeError(
+            "export() array_path= takes the *.array.yaml path, not a mapping"
+        )
+    # The deprecated array= may still be the parsed array YAML.
+    array_given = _deprecated.resolve_keyword(
+        "oceanarray.export(array=)", array_path, array, quiet=True
     )
     mooring_dict, _, paths, _ = resolve_verb_call(
         "export",
-        yaml_path,
+        mooring_path,
         paths,
         {"mooring_dir": mooring_dir, "out_dir": out_dir},
         lambda name, folder: Paths.from_mooring_dir(
@@ -150,7 +155,7 @@ def export(
     # Fail before any file is opened if the mooring YAML cannot name the files.
     platform_code(mooring_dict)
     deployment_code(mooring_dict)
-    array_cfg = _array_description(array_yaml)
+    array_dict = _read_array_dict(array_given)
     name = mooring_dict["name"]
     folder = paths.mooring_dir(name)
     if not folder.is_dir():
@@ -181,7 +186,10 @@ def export(
         try:
             with xr.open_dataset(path) as ds:
                 out = to_oceansites(
-                    ds.load(), mooring_dict, array=array_cfg, source_file=path.name
+                    ds.load(),
+                    mooring_dict,
+                    array_dict=array_dict,
+                    source_file=path.name,
                 )
             written.append(_put(out, target, overwrite=overwrite, dry_run=dry_run))
         except _SKIPPABLE as e:
@@ -197,7 +205,7 @@ def export(
                 out = to_oceansites(
                     g.load(),
                     mooring_dict,
-                    array=array_cfg,
+                    array_dict=array_dict,
                     stack=stack,
                     source_file=grid_path.name,
                 )

@@ -71,16 +71,16 @@ def build_parser(sub: argparse._SubParsersAction) -> None:  # type: ignore[type-
     p_validate.set_defaults(func=cmd_validate)
 
 
-def _print_report(yaml_path: str, *, strict: bool = False) -> bool:
+def _print_report(mooring_path: str, *, strict: bool = False) -> bool:
     """Print a human-readable validation report; return True when the mooring YAML passes."""
     from oceanarray import mooring as _mooring
 
-    issues = _mooring.check(yaml_path)
+    issues = _mooring.check(mooring_path)
 
     errors = [i for i in issues if i.level == "ERROR"]
     warnings = [i for i in issues if i.level == "WARNING"]
 
-    print(f"Validating: {yaml_path}")
+    print(f"Validating: {mooring_path}")
 
     if not issues:
         print("  OK — no issues found")

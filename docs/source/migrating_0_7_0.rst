@@ -114,8 +114,9 @@ Keywords that say what they carry
 
 A keyword that takes the loaded mooring YAML (a dict) is now ``mooring_dict=``
 (``mooring_dicts=`` for several), one that takes the path of a ``*.mooring.yaml``
-file is ``yaml_paths=``, and one that takes either a path or a dict is
-``mooring=``. A call that gives the argument by position is unchanged. The old
+file is ``mooring_path=`` (``mooring_paths=`` for several), one that takes either a
+path or a dict is ``mooring=``, and one that takes the loaded array YAML is
+``array_dict=``. A call that gives the argument by position is unchanged. The old
 keyword still works, with a ``DeprecationWarning`` naming the new one, until
 0.8.0; change ``resolve_spectrum_markers(description=d)`` to
 ``resolve_spectrum_markers(mooring_dict=d)`` or ``resolve_spectrum_markers(d)``.
@@ -145,11 +146,15 @@ keyword still works, with a ``DeprecationWarning`` naming the new one, until
    * - ``oceanarray.pipeline.concat.concat(descriptions=)``
      - ``mooring_dicts=``
    * - ``oceanarray.pipeline.concat.concat_moorings(descriptions=)``
-     - ``yaml_paths=``
+     - ``mooring_paths=``
    * - ``oceanarray.pipeline.qc.load_qc_config(mooring_cfg=)``
      - ``mooring_dict=``
    * - ``oceanarray.reports.MooringReport.generate(cfg=)``
      - ``mooring_dict=``
+   * - ``oceanarray.reports.MooringReport.generate(yaml_path=)``
+     - ``mooring_path=``
+   * - ``oceanarray.pipeline.oceansites.to_oceansites(array=)``
+     - ``array_dict=``
    * - ``oceanarray.stage1(mooring=)``,
        ``oceanarray.stage2(mooring=)``,
        ``oceanarray.stage3(mooring=)``,
@@ -173,7 +178,7 @@ Mooring YAMLs in their own folder
 
 New in 0.7.0: a paths file, ``paths.yaml``, says where a project's folders are
 (:ref:`paths-file`), and the mooring YAMLs live in its ``yaml_dir``, apart from the
-processed files. ``oceanarray.Paths.yaml_path`` and ``yaml_paths`` still find a
+processed files. ``oceanarray.Paths.mooring_path`` and ``mooring_paths`` still find a
 mooring YAML in the processed-data folder, as in the standard structure until now,
 with a ``DeprecationWarning``, until 0.8.0; move each YAML to its ``yaml_dir``.
 
@@ -186,8 +191,8 @@ with a ``DeprecationWarning``, until 0.8.0; move each YAML to its ``yaml_dir``.
    * - ``a mooring YAML inside proc_dir/<mooring_name>/``
      - ``<yaml_dir>/<mooring_name>.mooring.yaml``
 
-The verbs take ``yaml_path`` and ``paths``
-------------------------------------------
+The verbs take ``mooring_path`` and ``paths``
+---------------------------------------------
 
 ``run``, ``process``, ``report`` and ``export`` take the mooring YAML's path and an
 ``oceanarray.Paths`` (:ref:`paths-file`), and nothing else about where files are;
@@ -225,47 +230,49 @@ YAML (a dict) given in place of the path, and the first argument given as
    * - Old form
      - Use instead
    * - ``a verb called without paths``
-     - ``an oceanarray.Paths as the second argument, e.g. oceanarray.run(yaml_path, paths)``
-   * - ``a mooring folder in place of a verb's yaml_path``
-     - ``the folder's <mooring_name>.mooring.yaml as yaml_path``
-   * - ``a mooring dict in place of a yaml_path``
-     - ``the mooring YAML's path as yaml_path``
+     - ``an oceanarray.Paths as the second argument, e.g. oceanarray.run(mooring_path, paths)``
+   * - ``a mooring folder in place of a verb's mooring_path``
+     - ``the folder's <mooring_name>.mooring.yaml as mooring_path``
+   * - ``a mooring dict in place of a mooring_path``
+     - ``the mooring YAML's path as mooring_path``
    * - ``oceanarray.process(mooring=)``, ``oceanarray.run(mooring=)``,
-       ``oceanarray.report(mooring=)``, ``oceanarray.export(mooring=)``,
-       ``oceanarray.mooring.load(mooring=)``, ``oceanarray.mooring.check(mooring=)``
-     - ``yaml_path=``
+       ``oceanarray.export(mooring=)``, ``oceanarray.mooring.load(mooring=)``,
+       ``oceanarray.mooring.check(mooring=)``
+     - ``mooring_path=``
+   * - ``oceanarray.report(mooring=)``
+     - ``the mooring_path= keyword, or array_path= for kind='array'``
    * - ``oceanarray.process(mooring_dir=)``
-     - ``paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.process(yaml_path, paths)``
+     - ``paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.process(mooring_path, paths)``
    * - ``oceanarray.process(raw_dir=)``
-     - ``oceanarray.Paths(raw_dir=...) in oceanarray.process(yaml_path, paths)``
+     - ``oceanarray.Paths(raw_dir=...) in oceanarray.process(mooring_path, paths)``
    * - ``oceanarray.process(caldip_dir=)``
-     - ``oceanarray.Paths(caldip_dir=...) in oceanarray.process(yaml_path, paths)``
+     - ``oceanarray.Paths(caldip_dir=...) in oceanarray.process(mooring_path, paths)``
    * - ``oceanarray.run(mooring_dir=)``
-     - ``paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.run(yaml_path, paths)``
+     - ``paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.run(mooring_path, paths)``
    * - ``oceanarray.run(raw_dir=)``
-     - ``oceanarray.Paths(raw_dir=...) in oceanarray.run(yaml_path, paths)``
+     - ``oceanarray.Paths(raw_dir=...) in oceanarray.run(mooring_path, paths)``
    * - ``oceanarray.run(caldip_dir=)``
-     - ``oceanarray.Paths(caldip_dir=...) in oceanarray.run(yaml_path, paths)``
+     - ``oceanarray.Paths(caldip_dir=...) in oceanarray.run(mooring_path, paths)``
    * - ``oceanarray.report(mooring_dir=)``
-     - ``paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.report(yaml_path, paths)``
+     - ``paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.report(mooring_path, paths)``
    * - ``oceanarray.report(proc_dir=)``
-     - ``oceanarray.Paths(proc_dir=...) in oceanarray.report(array_yaml, paths, kind='array')``
+     - ``oceanarray.Paths(proc_dir=...) in oceanarray.report(array_path, paths, kind='array')``
    * - ``oceanarray.report(raw_dir=)``
-     - ``oceanarray.Paths(raw_dir=...) in oceanarray.report(yaml_path, paths)``
+     - ``oceanarray.Paths(raw_dir=...) in oceanarray.report(mooring_path, paths)``
    * - ``oceanarray.report(out_dir=)``
-     - ``paths.with_mooring(mooring_name, report_dir=...) in oceanarray.report(yaml_path, paths)``
+     - ``paths.with_mooring(mooring_name, report_dir=...) in oceanarray.report(mooring_path, paths)``
    * - ``oceanarray.report(report_dir=)``
-     - ``oceanarray.Paths(report_dir=...) in oceanarray.report(yaml_path, paths)``
+     - ``oceanarray.Paths(report_dir=...) in oceanarray.report(mooring_path, paths)``
    * - ``oceanarray.report(pdf_dir=)``
-     - ``oceanarray.report(yaml_path, paths, pdf=True), which writes the PDF beside the pages``
+     - ``oceanarray.report(mooring_path, paths, pdf=True), which writes the PDF beside the pages``
    * - ``oceanarray.export(mooring_dir=)``
-     - ``paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.export(yaml_path, paths)``
+     - ``paths.with_mooring(mooring_name, proc_dir=...) in oceanarray.export(mooring_path, paths)``
    * - ``oceanarray.export(out_dir=)``
-     - ``oceanarray.Paths(export_dir=...) in oceanarray.export(yaml_path, paths)``
+     - ``oceanarray.Paths(export_dir=...) in oceanarray.export(mooring_path, paths)``
    * - ``oceanarray.export(array=)``
-     - ``array_yaml=``
+     - ``array_path= (a path); for a parsed mapping, oceanarray.pipeline.oceansites.to_oceansites(array_dict=)``
    * - ``oceanarray.mooring.load(proc_dir=)``
-     - ``oceanarray.mooring.load(paths.yaml_path(mooring_name))``
+     - ``oceanarray.mooring.load(paths.mooring_path(mooring_name))``
 
 The ``paths`` functions take ``mooring_name``
 ---------------------------------------------
@@ -295,7 +302,7 @@ until 0.8.0.
        ``paths.with_mooring(mooring_name, report_dir=folder)`` for an exact folder
        such as ``<mooring_dir>/report``
    * - ``oceanarray.paths.resolve_pdf_path``
-     - ``paths.report_mooring_dir(mooring_name), where oceanarray.report(yaml_path, paths, pdf=True) writes <mooring_name>_report.pdf``
+     - ``paths.report_mooring_dir(mooring_name), where oceanarray.report(mooring_path, paths, pdf=True) writes <mooring_name>_report.pdf``
    * - ``oceanarray.paths.stage_file(positional arguments)``
      - ``keyword arguments: mooring_name=, instrument=, serial=, stage=``
    * - ``oceanarray.paths.product_file(positional arguments)``

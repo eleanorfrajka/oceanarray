@@ -57,16 +57,16 @@ def pages(tmp_path_factory, dune2_pages, egm2_site) -> dict[str, str]:
     )
 
     array_dir = tmp_path_factory.mktemp("array_page")
-    array_yaml = array_dir / "DUNE.array.yaml"
+    array_path = array_dir / "DUNE.array.yaml"
     config = _FIX / _DUNE2 / f"{_DUNE2}.mooring.yaml"
-    array_yaml.write_text(
+    array_path.write_text(
         "name: DUNE\nmoorings:\n"
         f"- position: '1'\n  mooring: {_DUNE2}\n  config: {config}\n",
         encoding="utf-8",
     )
     page = _quiet(
         generate_array_report,
-        array_yaml,
+        array_path,
         _FIX,
         out_path=array_dir / "DUNE_array_report.html",
         force=True,

@@ -88,8 +88,8 @@ def test_a_fresh_summary_does_not_stop_the_stack_page(tree):
 
 def test_an_entry_with_no_hab_stays_in_the_mooring_tables(tree):
     """No hab: the row stays, noted as not stacked, so it agrees with the masthead count."""
-    yaml_path = tree / f"{_NAME}.mooring.yaml"
-    yaml_path.write_text(yaml_path.read_text().replace("  hab: 425\n", ""))
+    mooring_path = tree / f"{_NAME}.mooring.yaml"
+    mooring_path.write_text(mooring_path.read_text().replace("  hab: 425\n", ""))
     page = report(_yaml(tree), _paths(tree), stack=False, grid=False, instruments=False)
     html = page.read_text(encoding="utf-8")
     assert "<dd>2 (MicroCAT 1 · Aquadopp 1)</dd>" in html
@@ -239,7 +239,7 @@ def test_run_with_report_returns_the_summary_page_last(tree, monkeypatch):
     """run(report=True) builds the report after the grid and returns its summary page."""
     pages = []
 
-    def _fake_report(_yaml_path, paths_, **k):
+    def _fake_report(_mooring_path, paths_, **k):
         pages.append((paths_.mooring_dir(_NAME), k.get("serials")))
         return report_paths(tree)["summary"]
 

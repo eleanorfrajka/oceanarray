@@ -27,7 +27,7 @@
    to the "Mooring description" section of each deployment page this page was
    built from — renders under the jump-nav on the line of the expand-all
    button, just left of it. #}
-{% macro report_body(report, na_scope, generated, cruise, yaml_path="", description_links=None) %}
+{% macro report_body(report, na_scope, generated, cruise, mooring_path="", description_links=None) %}
 <nav class="jump-nav">
 {%- for sec in report.sections %}
 <a href="#{{ sec.id }}">{% if sec.number %}({{ sec.number }}) {% endif %}{{ sec.title }}</a>

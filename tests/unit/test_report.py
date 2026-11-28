@@ -388,30 +388,30 @@ class TestMooringReport:
         """Set up a minimal proc directory with YAML and return the mooring proc path."""
         mooring_proc = tmp_path / "proc" / "TEST_M1"
         mooring_proc.mkdir(parents=True)
-        yaml_path = mooring_proc / "TEST_M1.mooring.yaml"
-        yaml_path.write_text(yaml.dump(self._YAML))
+        mooring_path = mooring_proc / "TEST_M1.mooring.yaml"
+        mooring_path.write_text(yaml.dump(self._YAML))
         return tmp_path
 
     def test_build_context_has_required_keys(self, proc_dir):
         report = MooringReport(proc_dir=str(proc_dir / "proc"))
         mooring_proc = proc_dir / "proc" / "TEST_M1"
-        yaml_path = mooring_proc / "TEST_M1.mooring.yaml"
-        ctx = report._build_context("TEST_M1", self._YAML, mooring_proc, yaml_path)
+        mooring_path = mooring_proc / "TEST_M1.mooring.yaml"
+        ctx = report._build_context("TEST_M1", self._YAML, mooring_proc, mooring_path)
         for key in ("instruments", "stack_exists", "grid_exists"):
             assert key in ctx, f"missing key: {key}"
 
     def test_build_context_instrument_count(self, proc_dir):
         report = MooringReport(proc_dir=str(proc_dir / "proc"))
         mooring_proc = proc_dir / "proc" / "TEST_M1"
-        yaml_path = mooring_proc / "TEST_M1.mooring.yaml"
-        ctx = report._build_context("TEST_M1", self._YAML, mooring_proc, yaml_path)
+        mooring_path = mooring_proc / "TEST_M1.mooring.yaml"
+        ctx = report._build_context("TEST_M1", self._YAML, mooring_proc, mooring_path)
         assert len(ctx["instruments"]) == 1
 
     def test_build_context_no_stack_or_grid(self, proc_dir):
         report = MooringReport(proc_dir=str(proc_dir / "proc"))
         mooring_proc = proc_dir / "proc" / "TEST_M1"
-        yaml_path = mooring_proc / "TEST_M1.mooring.yaml"
-        ctx = report._build_context("TEST_M1", self._YAML, mooring_proc, yaml_path)
+        mooring_path = mooring_proc / "TEST_M1.mooring.yaml"
+        ctx = report._build_context("TEST_M1", self._YAML, mooring_proc, mooring_path)
         assert ctx["stack_exists"] is False
         assert ctx["grid_exists"] is False
 

@@ -141,7 +141,7 @@ Manual §2.2.
    * - ``platform_code``
      - ``platform_code`` in the mooring YAML (required; no ``_``)
    * - ``site_code``
-     - ``site_code`` in the array description; left out when absent, never invented
+     - ``site_code`` in the array YAML; left out when absent, never invented
    * - ``data_mode``
      - as above
    * - ``id``
@@ -160,7 +160,7 @@ Manual §2.2.
    * - ``sea_floor_depth_below_sea_surface``
      - ``waterdepth``
    * - ``project``
-     - the array description
+     - the array YAML
    * - ``history``
      - the stage-3 or grid file's history, then a line naming the source file (and,
        for a gridded file, the stage files it was built from)
@@ -305,4 +305,4 @@ Every grid records the QC flags it left out before gridding in ``grid_mask_flags
 ``stackcat_sha256``); the direction its page rotates the velocity to is the
 page's choice, not the file's. The rest
 of the attribution (``creator_*``, ``institution``, ``citation``, ``license``,
-``references``) is not written yet; it will come from the array description.
+``references``) is not written yet; it will come from the array YAML.

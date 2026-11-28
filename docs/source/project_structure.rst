@@ -132,7 +132,7 @@ Package layout
 Processing chain
 ----------------
 
-Each step writes a CF-NetCDF file. ``oceanarray.process(yaml_path, paths,
+Each step writes a CF-NetCDF file. ``oceanarray.process(mooring_path, paths,
 stages=…)`` runs any of stages 1–3; ``oceanarray.run`` adds the stack and grid,
 and the report with ``report=True``.
 

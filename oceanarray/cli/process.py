@@ -14,7 +14,7 @@ from oceanarray.cli._common import (
     _add_stack_grid_args,
     _folder,
     _mooring_location,
-    _mooring_paths,
+    _mooring_path_and_paths,
     _parse_stage_token,
     _raw_dir,
     _usage_error,
@@ -75,9 +75,11 @@ def cmd_process(args: argparse.Namespace) -> int:
         from ..pipeline import process
 
         try:
-            yaml_path, paths_ = _mooring_paths(location, "process", raw_dir=raw_dir)
+            mooring_path, paths_ = _mooring_path_and_paths(
+                location, "process", raw_dir=raw_dir
+            )
             process(
-                yaml_path,
+                mooring_path,
                 paths_,
                 stages=stages,
                 serials=args.serials,

@@ -72,19 +72,21 @@ def _mooring_location(args: argparse.Namespace) -> Path:
     return given
 
 
-def _mooring_paths(
+def _mooring_path_and_paths(
     location: Path, command: str, **dirs: Path | str | None
 ) -> tuple[Path, Paths]:
     """Return the mooring YAML at *location* and the Paths of the command's folder flags."""
     from oceanarray import mooring as _mooring
 
-    yaml_path = (
-        _mooring.folder_yaml_path(location, command) if location.is_dir() else location
+    mooring_path = (
+        _mooring.folder_mooring_path(location, command)
+        if location.is_dir()
+        else location
     )
     # A YAML that cannot be used raises OceanarrayError, which the command reports.
-    name = _mooring.load(yaml_path)["name"]
+    name = _mooring.load(mooring_path)["name"]
     # The mooring's folder is the one holding its YAML.
-    return yaml_path, Paths.from_mooring_dir(name, yaml_path.parent, **dirs)
+    return mooring_path, Paths.from_mooring_dir(name, mooring_path.parent, **dirs)
 
 
 def _raw_dir(args: argparse.Namespace) -> Path | None:

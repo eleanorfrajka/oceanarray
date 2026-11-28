@@ -75,10 +75,10 @@ def pages(tmp_path_factory) -> dict[str, tuple[str, xr.Dataset]]:
         proc = tmp / "proc" / name
         proc.mkdir(parents=True)
         cfg = {"name": name, **moor, "stack": {"dt_seconds": 3600}, "clamp": [inst]}
-        yaml_path = proc / f"{name}.mooring.yaml"
-        yaml_path.write_text(yaml.safe_dump(cfg, sort_keys=False))
+        mooring_path = proc / f"{name}.mooring.yaml"
+        mooring_path.write_text(yaml.safe_dump(cfg, sort_keys=False))
         oa.run(
-            yaml_path,
+            mooring_path,
             oa.Paths(raw_dir=tmp / "raw", proc_dir=tmp / "proc"),
             pmin=400,
             pmax=2300,

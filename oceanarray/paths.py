@@ -183,7 +183,7 @@ class Paths:
         Not run as a test: it needs a paths file on disk.
 
         >>> paths = Paths.from_file("paths.yaml")  # doctest: +SKIP
-        >>> paths.yaml_path("M2_2016")  # doctest: +SKIP
+        >>> paths.mooring_path("M2_2016")  # doctest: +SKIP
         PosixPath('config/moorings/M2_2016.mooring.yaml')
         """
         path = Path(path).expanduser()
@@ -317,7 +317,7 @@ class Paths:
             )
         return root / mooring_name
 
-    def yaml_path(self, mooring_name: str) -> Path:
+    def mooring_path(self, mooring_name: str) -> Path:
         """Return the path of a mooring's YAML, ``<yaml_dir>/<mooring_name>.mooring.yaml``.
 
         One still in ``<proc_dir>/<mooring_name>/`` is returned with a
@@ -356,7 +356,7 @@ class Paths:
             )
         return yaml_dir / file_name
 
-    def yaml_paths(self) -> list[Path]:
+    def mooring_paths(self) -> list[Path]:
         """Return every mooring YAML the paths know, sorted.
 
         The ``*.mooring.yaml`` files in *yaml_dir* and in the exact ``yaml_dir`` of

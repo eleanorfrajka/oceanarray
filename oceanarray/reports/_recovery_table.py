@@ -242,7 +242,7 @@ def _build_rows(
 def generate_recovery_table(
     mooring_name: str,
     proc_dir: Path,
-    yaml_path: Path | None = None,
+    mooring_path: Path | None = None,
     out_path: Path | None = None,
     force: bool = False,
 ) -> Path:
@@ -255,7 +255,7 @@ def generate_recovery_table(
     proc_dir : Path
         Mooring-level processing directory (contains the mooring YAML and
         processed NetCDF subdirectories).
-    yaml_path : Path, optional
+    mooring_path : Path, optional
         Path to the mooring YAML.  Defaults to
         ``proc_dir / "{mooring_name}.mooring.yaml"``.
     out_path : Path, optional
@@ -279,19 +279,19 @@ def generate_recovery_table(
 
     proc_dir = Path(proc_dir)
 
-    if yaml_path is None:
-        yaml_path = proc_dir / f"{mooring_name}.mooring.yaml"
+    if mooring_path is None:
+        mooring_path = proc_dir / f"{mooring_name}.mooring.yaml"
     if out_path is None:
         out_path = proc_dir / f"{mooring_name}_recovery_table.html"
 
-    if not yaml_path.exists():
-        raise MooringError(f"{mooring_name}: mooring YAML not found: {yaml_path}")
+    if not mooring_path.exists():
+        raise MooringError(f"{mooring_name}: mooring YAML not found: {mooring_path}")
 
     if out_path.exists() and not force:
         logger.status("skip", str(out_path))
         return out_path
 
-    with yaml_path.open() as fh:
+    with mooring_path.open() as fh:
         mooring_dict = yaml.safe_load(fh) or {}
 
     rows, comments = _build_rows(proc_dir, mooring_name, mooring_dict)

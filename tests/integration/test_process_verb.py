@@ -1,4 +1,4 @@
-"""``oceanarray.process(yaml_path, paths)`` runs stages 1–3 on the dune2 fixtures and writes their files.
+"""``oceanarray.process(mooring_path, paths)`` runs stages 1–3 on the dune2 fixtures and writes their files.
 
 Builds a fresh proc tree holding only the mooring YAML, runs ``process`` against the
 committed raw files, and checks the written stage files against the committed
@@ -56,9 +56,9 @@ def _values_differ(a: Path, b: Path) -> list[str]:
         return diffs
 
 
-def _paths(yaml_path: Path, raw_dir: Path | None = None) -> oa.Paths:
+def _paths(mooring_path: Path, raw_dir: Path | None = None) -> oa.Paths:
     """Return the Paths of a tree whose mooring folder holds its YAML, with *raw_dir*."""
-    return oa.Paths(raw_dir=raw_dir, proc_dir=yaml_path.parent.parent)
+    return oa.Paths(raw_dir=raw_dir, proc_dir=mooring_path.parent.parent)
 
 
 def _fresh_tree(tmp_path: Path) -> Path:
@@ -72,8 +72,8 @@ def _fresh_tree(tmp_path: Path) -> Path:
 @pytest.fixture(scope="module")
 def processed(tmp_path_factory) -> tuple[Path, list[Path]]:
     """Run process once over a fresh tree; return the mooring YAML path and the files written."""
-    yaml_path = _fresh_tree(tmp_path_factory.mktemp("process"))
-    return yaml_path, oa.process(yaml_path, _paths(yaml_path, _RAW))
+    mooring_path = _fresh_tree(tmp_path_factory.mktemp("process"))
+    return mooring_path, oa.process(mooring_path, _paths(mooring_path, _RAW))
 
 
 def test_process_writes_every_stage_file_in_stage_order(processed):
@@ -89,23 +89,23 @@ def test_process_writes_every_stage_file_in_stage_order(processed):
 @pytest.mark.parametrize("serial", ["2941", "9920"])
 def test_process_reproduces_the_committed_fixtures(processed, stage, serial):
     """Each written stage file holds the committed fixture's values."""
-    yaml_path, _ = processed
+    mooring_path, _ = processed
     rel = _rel(serial, stage)
-    assert _values_differ(yaml_path.parent / rel, _PROC / rel) == []
+    assert _values_differ(mooring_path.parent / rel, _PROC / rel) == []
 
 
 def test_process_writes_a_log_per_stage(processed):
     """Each stage leaves its own log under the mooring directory."""
-    yaml_path, _ = processed
-    logs = {p.name.rsplit("_", 1)[-1] for p in yaml_path.parent.rglob("*.log")}
+    mooring_path, _ = processed
+    logs = {p.name.rsplit("_", 1)[-1] for p in mooring_path.parent.rglob("*.log")}
     assert {"stage1.log", "stage2.log", "stage3.log"} <= logs
 
 
 def test_process_keeps_existing_files_and_returns_them(processed, capsys):
     """A second run rewrites nothing but still returns every file, and says so."""
-    yaml_path, written = processed
+    mooring_path, written = processed
     before = {p: p.stat().st_mtime_ns for p in written}
-    assert oa.process(yaml_path, _paths(yaml_path, _RAW)) == written
+    assert oa.process(mooring_path, _paths(mooring_path, _RAW)) == written
     assert {p: p.stat().st_mtime_ns for p in written} == before
     out = capsys.readouterr().out
     assert "Stage 3: 0 file(s) written, 2 kept" in out
@@ -124,14 +124,17 @@ def test_process_force_rewrites_the_serial_asked_for(own_tree, capsys):
 
 def test_process_takes_a_loaded_description_with_its_directory(processed):
     """A dict (deprecated) needs mooring_dir= or paths; given either, the run finds the files."""
-    yaml_path, _ = processed
-    cfg = oa.mooring.load(yaml_path)
+    mooring_path, _ = processed
+    cfg = oa.mooring.load(mooring_path)
     with (
         pytest.warns(DeprecationWarning, match="a mooring dict"),
         pytest.raises(MooringError, match="mooring_dir="),
     ):
         oa.process(cfg, stages=3)
-    for where in ({"mooring_dir": yaml_path.parent}, {"paths": _paths(yaml_path)}):
+    for where in (
+        {"mooring_dir": mooring_path.parent},
+        {"paths": _paths(mooring_path)},
+    ):
         with pytest.warns(DeprecationWarning, match="a mooring dict"):
             files = oa.process(cfg, stages=3, **where)
         assert [p.name for p in files] == [_rel(s, 3).name for s in ("2941", "9920")]
@@ -140,9 +143,9 @@ def test_process_takes_a_loaded_description_with_its_directory(processed):
 @pytest.mark.parametrize("stages", [4, 0, "stack", (), (1, "grid"), True])
 def test_process_refuses_anything_but_stages_1_to_3(processed, stages):
     """Stack and grid are not process's stages; nor is any other number."""
-    yaml_path, _ = processed
+    mooring_path, _ = processed
     with pytest.raises(ValueError, match="expected 1, 2, 3"):
-        oa.process(yaml_path, _paths(yaml_path), stages=stages)
+        oa.process(mooring_path, _paths(mooring_path), stages=stages)
 
 
 def test_process_raises_naming_the_instrument_whose_raw_file_is_missing(tmp_path):
@@ -151,32 +154,32 @@ def test_process_raises_naming_the_instrument_whose_raw_file_is_missing(tmp_path
     shutil.copytree(_RAW / _NAME, raw / _NAME)
     for f in (raw / _NAME / "aquadopp").iterdir():
         f.unlink()
-    yaml_path = _fresh_tree(tmp_path)
+    mooring_path = _fresh_tree(tmp_path)
     with pytest.raises(MooringError, match=r"(?s)stage 1 failed for 1 of 2.*9920"):
-        oa.process(yaml_path, _paths(yaml_path, raw), keep_going=False)
-    moor = yaml_path.parent
+        oa.process(mooring_path, _paths(mooring_path, raw), keep_going=False)
+    moor = mooring_path.parent
     assert (moor / _rel("2941", 1)).exists()
     assert not list(moor.rglob(paths.stage_glob(2))), "stage 2 ran after stage 1 failed"
 
 
 def test_process_raises_when_no_serial_matches(processed):
     """A serials filter that matches nothing is an error, not an empty success."""
-    yaml_path, _ = processed
+    mooring_path, _ = processed
     with pytest.raises(MooringError, match="no instrument matching 0000"):
-        oa.process(yaml_path, _paths(yaml_path), stages=2, serials=["0000"])
+        oa.process(mooring_path, _paths(mooring_path), stages=2, serials=["0000"])
 
 
 def test_process_raises_without_a_raw_directory(tmp_path):
     """Stage 1 with no raw_dir (and no absolute directory: in the mooring YAML) raises."""
-    yaml_path = _fresh_tree(tmp_path)
+    mooring_path = _fresh_tree(tmp_path)
     with pytest.raises(MooringError, match="raw_dir="):
-        oa.process(yaml_path, _paths(yaml_path), stages=1)
+        oa.process(mooring_path, _paths(mooring_path), stages=1)
 
 
 def test_process_keeps_the_name_and_stage_form_for_one_release(processed, tmp_path):
     """process(name, stage, proc_dir=…) still runs the old way and returns a bool."""
-    yaml_path, _ = processed
-    shutil.copytree(yaml_path.parent, tmp_path / _NAME)
+    mooring_path, _ = processed
+    shutil.copytree(mooring_path.parent, tmp_path / _NAME)
     with pytest.warns(DeprecationWarning, match=r"removed in 0\.7\.0.*oceanarray\.run"):
         assert oa.process(_NAME, 2, proc_dir=tmp_path) is True
 
@@ -191,13 +194,13 @@ def test_process_turns_a_stage3_failure_into_a_logged_mooring_error(
         raise ValueError("boom")
 
     monkeypatch.setattr(st3, "stage3", _boom)
-    yaml_path, _ = processed
+    mooring_path, _ = processed
     moor = tmp_path / _NAME
-    shutil.copytree(yaml_path.parent, moor)
+    shutil.copytree(mooring_path.parent, moor)
     with pytest.raises(MooringError, match="stage 3 failed.*boom"):
         oa.process(
-            moor / yaml_path.name,
-            _paths(moor / yaml_path.name),
+            moor / mooring_path.name,
+            _paths(moor / mooring_path.name),
             stages=3,
             force=True,
             keep_going=False,
@@ -212,8 +215,8 @@ def test_process_restores_the_reader_loggers(tmp_path):
 
     lib = logging.getLogger("seasenselib")
     before = (lib.level, lib.propagate, list(lib.handlers))
-    yaml_path = _fresh_tree(tmp_path)
-    oa.process(yaml_path, _paths(yaml_path, _RAW), stages=1)
+    mooring_path = _fresh_tree(tmp_path)
+    oa.process(mooring_path, _paths(mooring_path, _RAW), stages=1)
     assert (lib.level, lib.propagate, list(lib.handlers)) == before
 
 
@@ -229,9 +232,9 @@ def test_stage3_dry_run_with_no_stage2_files_still_fails(tmp_path):
 @pytest.fixture
 def own_tree(processed, tmp_path) -> Path:
     """A copy of the processed tree this test may change; returns its mooring YAML path."""
-    yaml_path, _ = processed
-    shutil.copytree(yaml_path.parent, tmp_path / _NAME)
-    return tmp_path / _NAME / yaml_path.name
+    mooring_path, _ = processed
+    shutil.copytree(mooring_path.parent, tmp_path / _NAME)
+    return tmp_path / _NAME / mooring_path.name
 
 
 def _pressure(path: Path) -> tuple[dict, np.ndarray]:
@@ -242,8 +245,8 @@ def _pressure(path: Path) -> tuple[dict, np.ndarray]:
 
 def test_target_records_the_stage2_files_its_pressure_came_from(processed):
     """The sensorless microcat names the aquadopp's stage-2 file and its hash; the source names none."""
-    yaml_path, _ = processed
-    moor = yaml_path.parent
+    mooring_path, _ = processed
+    moor = mooring_path.parent
     attrs, _ = _pressure(moor / _rel("2941", 3))
     assert attrs["pressure_source_serials"] == "9920"
     assert attrs["pressure_source_files"].startswith(f"{_rel('9920', 2).name} sha256=")
@@ -301,14 +304,14 @@ def test_a_stage_in_memory_equals_its_file(processed, tmp_path, stage):
     from oceanarray.pipeline.stage3 import stage3
     from oceanarray.writers import write
 
-    yaml_path, _ = processed
-    cfg = oa.mooring.load(yaml_path)
+    mooring_path, _ = processed
+    cfg = oa.mooring.load(mooring_path)
     if stage == 1:
         out = stage1(read_mooring(cfg, raw_dir=_RAW), cfg)
     else:
         step = {2: stage2, 3: stage3}[stage]
         out = step(
-            read_mooring(cfg, stage=stage - 1, mooring_dir=yaml_path.parent), cfg
+            read_mooring(cfg, stage=stage - 1, mooring_dir=mooring_path.parent), cfg
         )
     for serial, ds in out.items():
         path = write(ds, tmp_path / f"{serial}.nc")

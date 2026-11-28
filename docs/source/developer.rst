@@ -661,21 +661,28 @@ The rest:
    * - Term
      - Meaning
      - In the code
-   * - yaml_path
-     - The path of one ``*.mooring.yaml`` (for ``report(kind="array")``, the
-       ``*.array.yaml``; several: ``yaml_paths``). Not ``config_path`` or
-       ``description``.
-     - ``yaml_path``
+   * - mooring_path
+     - The path of one ``*.mooring.yaml`` (several: ``mooring_paths``). Not
+       ``config_path`` or ``description``.
+     - ``mooring_path``
    * - mooring_dict
      - The parsed contents of a mooring YAML, a dict or Mapping, as
        ``mooring.load`` returns it (several: ``mooring_dicts``). Not ``cfg``,
        ``mooring_config`` or ``description``.
      - ``mooring_dict``
+   * - array_path
+     - The path of one ``*.array.yaml``; ``report(array_path, paths, kind="array")``
+       takes it first (or as ``array_path=``). Not ``array_yaml`` or ``array=``.
+     - ``array_path``
+   * - array_dict
+     - The parsed contents of an array YAML, a dict or Mapping. Not
+       ``array_cfg`` or ``array=``.
+     - ``array_dict``
    * - ``*_path`` / ``*_dir`` / ``*_name``
      - A name ending ``_path`` holds a file (relative is fine; never
        ``*_fullpath``), ``_dir`` a folder, ``_name`` a bare name.
        ``paths.yaml`` is "path" in the general sense: it may also hold files.
-     - ``yaml_path``, ``raw_dir``, ``mooring_name``
+     - ``mooring_path``, ``raw_dir``, ``mooring_name``
    * - paths file / Paths
      - Where a project's files are, in one place: the ``paths.yaml`` file and
        the ``Paths`` read from it (or built in Python, or by
@@ -689,7 +696,7 @@ The rest:
    * - mooring (parameter)
      - A mooring's name, the path of its mooring YAML, its folder or a mooring
        dict, guessed from the value. The verbs, ``mooring.load`` and ``mooring.check``
-       take ``yaml_path`` (and the verbs ``paths``) instead; ``mooring=`` is deprecated
+       take ``mooring_path`` (and the verbs ``paths``) instead; ``mooring=`` is deprecated
        there until 0.8.0. A parameter holding only the name is ``mooring_name``
        (see **mooring** above).
      - ``mooring``

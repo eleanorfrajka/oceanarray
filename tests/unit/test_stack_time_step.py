@@ -62,10 +62,10 @@ def _tree(tmp_path: Path, extra_yaml: str = "") -> Path:
             "report", "processing_logs", ".DS_Store", "*_stack.nc", "*_grid.nc"
         ),
     )
-    yaml_path = moor / f"{_NAME}.mooring.yaml"
+    mooring_path = moor / f"{_NAME}.mooring.yaml"
     if extra_yaml:
-        yaml_path.write_text(yaml_path.read_text() + extra_yaml)
-    return yaml_path
+        mooring_path.write_text(mooring_path.read_text() + extra_yaml)
+    return mooring_path
 
 
 def _loop_nearest(ds: xr.Dataset, common_time: np.ndarray, half_window_s: float):
@@ -175,10 +175,14 @@ def test_run_stacker_and_process_obey_the_yaml(tmp_path):
     from oceanarray.cli import build_parser
     from oceanarray.pipeline.stack import MooringStacker
 
-    yaml_path = _tree(tmp_path, "stack:\n  dt_seconds: 1800\n")
-    stack_nc = paths.product_file(yaml_path.parent, mooring_name=_NAME, product="stack")
+    mooring_path = _tree(tmp_path, "stack:\n  dt_seconds: 1800\n")
+    stack_nc = paths.product_file(
+        mooring_path.parent, mooring_name=_NAME, product="stack"
+    )
 
-    files = oa.run(yaml_path, oa.Paths(proc_dir=yaml_path.parent.parent), stages=3)
+    files = oa.run(
+        mooring_path, oa.Paths(proc_dir=mooring_path.parent.parent), stages=3
+    )
     with xr.open_dataset(files[-2]) as ds:
         assert ds.attrs["dt_seconds"] == 1800
     stack_nc.unlink()

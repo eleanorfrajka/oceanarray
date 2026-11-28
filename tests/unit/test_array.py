@@ -254,11 +254,11 @@ class TestArrayModeOutputDir:
 
         monkeypatch.setattr(_array, "generate_array_report", _fake_generate)
 
-        yaml_path = tmp_path / "arr.array.yaml"
-        yaml_path.write_text("name: arr\n")
+        mooring_path = tmp_path / "arr.array.yaml"
+        mooring_path.write_text("name: arr\n")
         central = tmp_path / "central"
         args = argparse.Namespace(
-            mooring=str(yaml_path),
+            mooring=str(mooring_path),
             array=True,
             outdir="/tmp/ignored",
             report_dir=str(central),
@@ -283,8 +283,8 @@ class TestArrayModeOutputDir:
 
         fix = Path(__file__).resolve().parents[1] / "fixtures"
         config = fix / "proc" / "egM2_concat" / "egM2_2016" / "egM2_2016.mooring.yaml"
-        yaml_path = tmp_path / "EG.array.yaml"
-        yaml_path.write_text(
+        mooring_path = tmp_path / "EG.array.yaml"
+        mooring_path.write_text(
             "name: EG\nyear: 2016\nmoorings:\n"
             f"- mooring: egM2_2016\n  config: {config}\n",
             encoding="utf-8",
@@ -292,7 +292,7 @@ class TestArrayModeOutputDir:
         args = build_parser().parse_args(
             [
                 "report",
-                str(yaml_path),
+                str(mooring_path),
                 "--array",
                 "--proc-dir",
                 str(tmp_path),
@@ -511,8 +511,8 @@ class TestYearPage:
             + extra
             for n, extra in (("egM2_2016", "  subarray: eg\n"), ("egM2_2018", ""))
         )
-        array_yaml = root / "EG.array.yaml"
-        array_yaml.write_text(
+        array_path = root / "EG.array.yaml"
+        array_path.write_text(
             "name: EG\nyear: 2016\nproject: OSNAP East\ncruise: DY054\n"
             "subarrays:\n  eg: {name: East Greenland Array, short: East Greenland}\n"
             f"moorings:\n{moorings}",
@@ -521,7 +521,7 @@ class TestYearPage:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             out = generate_array_report(
-                array_yaml,
+                array_path,
                 root,
                 force=True,
                 bathymetry=self._FIX / "bathymetry" / "etopo1_osnap_east_8min.nc",
@@ -566,14 +566,14 @@ class TestYearPage:
         config = (
             self._FIX / "proc" / "egM2_concat" / "egM2_2016" / "egM2_2016.mooring.yaml"
         )
-        array_yaml = tmp_path / "EG.array.yaml"
-        array_yaml.write_text(
+        array_path = tmp_path / "EG.array.yaml"
+        array_path.write_text(
             "name: EG\ncruise: DY054\nvocab: []\nmoorings:\n"
             f"- mooring: egM2_2016\n  config: {config}\n  line: East Greenland\n",
             encoding="utf-8",
         )
         with caplog.at_level(logging.WARNING, logger="oceanarray.reports._array"):
-            generate_array_report(array_yaml, tmp_path)
+            generate_array_report(array_path, tmp_path)
         unused = [r.message for r in caplog.records if "not used" in r.message]
         assert unused == [
             "EG.array.yaml: keys not used by the year page: cruise, vocab, "
@@ -615,11 +615,11 @@ class TestYearPage:
                 ("egM2_2018", self._FIX / "proc" / "egM2_concat"),
             )
         )
-        array_yaml = tmp_path / "EG.array.yaml"
-        array_yaml.write_text(f"name: EG\nmoorings:\n{moorings}", encoding="utf-8")
+        array_path = tmp_path / "EG.array.yaml"
+        array_path.write_text(f"name: EG\nmoorings:\n{moorings}", encoding="utf-8")
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            out = generate_array_report(array_yaml, tmp_path)
+            out = generate_array_report(array_path, tmp_path)
         html = out.read_text(encoding="utf-8")
         assert '<td class="num">unknown</td>' in html
         assert '<td class="num">2436</td>' in html
@@ -642,14 +642,14 @@ class TestYearPage:
             f"- mooring: {n}\n  config: {self._FIX / 'proc' / 'egM2_concat' / n / f'{n}.mooring.yaml'}\n"
             for n in ("egM2_2016", "egM2_2018")
         )
-        array_yaml = tmp_path / "EG.array.yaml"
-        array_yaml.write_text(f"name: EG\nmoorings:\n{moorings}", encoding="utf-8")
+        array_path = tmp_path / "EG.array.yaml"
+        array_path.write_text(f"name: EG\nmoorings:\n{moorings}", encoding="utf-8")
         with (
             warnings.catch_warnings(),
             caplog.at_level(logging.WARNING, logger="oceanarray.reports._array"),
         ):
             warnings.simplefilter("ignore")
-            out = generate_array_report(array_yaml, tmp_path, bathymetry=north)
+            out = generate_array_report(array_path, tmp_path, bathymetry=north)
         html = out.read_text(encoding="utf-8")
         assert "one colour per mooring" in html and "coloured by array" not in html
         assert "<th>Array</th>" not in html

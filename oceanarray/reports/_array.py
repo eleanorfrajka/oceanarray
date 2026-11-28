@@ -443,7 +443,7 @@ def _with_note(value: Any, note: str) -> Any:
 
 
 def _build_array_masthead(
-    array_cfg: dict[str, Any],
+    array_dict: dict[str, Any],
     rows: list[dict[str, Any]],
     type_summary: list[dict[str, Any]],
     now: datetime | None = None,
@@ -452,8 +452,8 @@ def _build_array_masthead(
 
     Parameters
     ----------
-    array_cfg : dict
-        The array YAML.
+    array_dict : dict
+        The parsed array YAML.
     rows : list of dict
         One row per mooring (``_deploy_dt``, ``_recover_dt``, ``waterdepth``,
         ``deployed_by``, ``recovered_by``, ``group``).
@@ -487,9 +487,9 @@ def _build_array_masthead(
     return [
         f(
             "Year deployed",
-            array_cfg.get("year") or (min(deployed).year if deployed else None),
+            array_dict.get("year") or (min(deployed).year if deployed else None),
         ),
-        f("Project", array_cfg.get("project")),
+        f("Project", array_dict.get("project")),
         f(
             "Moorings",
             _with_note(
@@ -557,18 +557,18 @@ def _array_map_payload(rows: list[dict[str, Any]]) -> tuple[str, str, str]:
     return safe_json(payload), coastline_json, bounds_json
 
 
-def _mooring_yaml(yaml_path: Path) -> dict[str, Any]:
+def _mooring_yaml(mooring_path: Path) -> dict[str, Any]:
     """Return a mooring YAML, unvalidated when it has errors (its own page names them)."""
-    if not yaml_path.exists():
-        _log.warning("mooring YAML not found: %s", yaml_path)
+    if not mooring_path.exists():
+        _log.warning("mooring YAML not found: %s", mooring_path)
         return {}
     try:
-        return _mooring.load(yaml_path)
+        return _mooring.load(mooring_path)
     except MooringError as exc:
         _log.warning(
-            "%s has validation errors (%s); shown unvalidated.", yaml_path, exc
+            "%s has validation errors (%s); shown unvalidated.", mooring_path, exc
         )
-        with yaml_path.open() as fh:
+        with mooring_path.open() as fh:
             return yaml.safe_load(fh) or {}
 
 
@@ -582,11 +582,13 @@ def _mooring_row(
     mooring_id = entry.get("mooring", "")
     # A config path is relative to the array YAML (or absolute); the per-mooring
     # proc-dir convention is the fallback.
-    yaml_path = Path(entry.get("config", f"{mooring_id}.mooring.yaml"))
-    if not yaml_path.is_absolute():
-        beside = array_dir / yaml_path
-        yaml_path = beside if beside.exists() else proc_dir / mooring_id / yaml_path
-    mooring_dict = _mooring_yaml(yaml_path)
+    mooring_path = Path(entry.get("config", f"{mooring_id}.mooring.yaml"))
+    if not mooring_path.is_absolute():
+        beside = array_dir / mooring_path
+        mooring_path = (
+            beside if beside.exists() else proc_dir / mooring_id / mooring_path
+        )
+    mooring_dict = _mooring_yaml(mooring_path)
     lat, lon = _resolve_lat_lon(mooring_dict)
     deploy_dt = _parse_dt(mooring_dict.get("deployment_time"))
     recover_dt = _parse_dt(mooring_dict.get("recovery_time"))
@@ -637,7 +639,7 @@ def _mooring_row(
 
 
 def generate_array_report(
-    array_yaml_path: Path,
+    array_path: Path,
     proc_dir: Path,
     out_path: Path | None = None,
     force: bool = False,
@@ -649,7 +651,7 @@ def generate_array_report(
 
     Parameters
     ----------
-    array_yaml_path : Path
+    array_path : Path
         Path to the ``*.array.yaml`` file. A mooring entry may name its
         ``subarray``, a key of the top-level ``subarrays`` table (``{key: {name:
         ..., short: ...}}``); moorings are coloured by subarray.
@@ -675,14 +677,14 @@ def generate_array_report(
     Path or None
         The page written, or None when the array YAML is not found.
     """
-    array_yaml_path = Path(array_yaml_path)
+    array_path = Path(array_path)
     proc_dir = Path(proc_dir)
-    if not array_yaml_path.exists():
-        _log.warning("array YAML not found: %s", array_yaml_path)
+    if not array_path.exists():
+        _log.warning("array YAML not found: %s", array_path)
         return None
-    with array_yaml_path.open() as fh:
-        array_cfg = yaml.safe_load(fh)
-    array_name = array_cfg.get("name", array_yaml_path.stem)
+    with array_path.open() as fh:
+        array_dict = yaml.safe_load(fh)
+    array_name = array_dict.get("name", array_path.stem)
     if out_path is None:
         out_path = (report_dir or proc_dir) / f"{array_name}_array_report.html"
     if out_path.exists() and not force:
@@ -690,23 +692,23 @@ def generate_array_report(
         return out_path
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    entries = array_cfg.get("moorings", [])
-    ignored = [k for k in IGNORED_KEYS if k in array_cfg] + (
+    entries = array_dict.get("moorings", [])
+    ignored = [k for k in IGNORED_KEYS if k in array_dict] + (
         ["moorings: line (now subarray)"] if any("line" in e for e in entries) else []
     )
     if ignored:
         _log.warning(
             "%s: keys not used by the year page: %s",
-            array_yaml_path.name,
+            array_path.name,
             ", ".join(ignored),
         )
     rows, instruments = [], []
     for entry in entries:
-        row, instrs = _mooring_row(entry, array_yaml_path.parent, proc_dir, report_dir)
+        row, instrs = _mooring_row(entry, array_path.parent, proc_dir, report_dir)
         rows.append(row)
         instruments.extend(instrs)
     # One colour per subarray, "other" last; without subarrays, one per mooring.
-    names = array_cfg.get("subarrays") or {}
+    names = array_dict.get("subarrays") or {}
     groups = sorted(dict.fromkeys(r["group"] for r in rows), key=lambda g: g == OTHER)
     colors = report_tokens.TRACK_COLORS
     by_group = len(groups) > 1 or groups != [OTHER]
@@ -751,12 +753,12 @@ def generate_array_report(
             ),
             out_path.parent / f"_{array_name}_contours.json",
         )
-    year = array_cfg.get("year") or next(
+    year = array_dict.get("year") or next(
         (r["_deploy_dt"].year for r in rows if r["_deploy_dt"]), ""
     )
     html = render_template(
         "array.html",
-        title=f"{array_cfg.get('project') or array_name} {year}".strip(),
+        title=f"{array_dict.get('project') or array_name} {year}".strip(),
         year=year,
         moorings=rows,
         duration_unit=duration_unit,
@@ -772,10 +774,10 @@ def generate_array_report(
         contour_source=dataset_name(Path(bathymetry)) if contours else "",
         type_summary=type_summary,
         stopped_hours=STOPPED_EARLY_HOURS,
-        meta_facts=_build_array_masthead(array_cfg, rows, type_summary),
+        meta_facts=_build_array_masthead(array_dict, rows, type_summary),
         processing={
             "pages": {p: sum(r[f"{p}_exists"] for r in rows) for p, _ in _PAGES},
-            "source": array_yaml_path.name,
+            "source": array_path.name,
         },
         generated=datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC"),
         breadcrumb=page_crumbs(breadcrumb, "", []),

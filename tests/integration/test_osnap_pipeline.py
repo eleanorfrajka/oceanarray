@@ -36,9 +36,9 @@ def _mooring(tmp_path, name, header, instruments):
     return tmp_path / "raw", tmp_path / "proc"
 
 
-def _paths(yaml_path: Path, raw_dir: Path | None = None) -> oa.Paths:
+def _paths(mooring_path: Path, raw_dir: Path | None = None) -> oa.Paths:
     """Return the Paths of a tree from _mooring: the pages in the mooring folder's report/."""
-    folder = yaml_path.parent
+    folder = mooring_path.parent
     return oa.Paths(raw_dir=raw_dir, proc_dir=folder.parent).with_mooring(
         folder.name, report_dir=folder / "report"
     )
@@ -125,11 +125,11 @@ def test_imported_aquadopp_report_builds_without_panel_crash(tmp_path):
         ],
     )
     assert process("cf7", [1, 2, 3], proc_dir=proc, raw_dir=raw, force=True)
-    yaml_path = proc / "cf7" / "cf7.mooring.yaml"
+    mooring_path = proc / "cf7" / "cf7.mooring.yaml"
     summary = report(
-        yaml_path, _paths(yaml_path), instruments=True, stack=False, grid=False
+        mooring_path, _paths(mooring_path), instruments=True, stack=False, grid=False
     )
-    mooring_dir = yaml_path.parent
+    mooring_dir = mooring_path.parent
     assert Path(summary).exists()
     instr_page = mooring_dir / "report" / "instrument" / "cf7_500_report.html"
     assert instr_page.exists()
@@ -156,9 +156,9 @@ def test_imported_rodb_report_labels_current_meter(tmp_path):
         ],
     )
     assert process("rtwb1_01_2014", [1, 2, 3], proc_dir=proc, raw_dir=raw, force=True)
-    yaml_path = proc / "rtwb1_01_2014" / "rtwb1_01_2014.mooring.yaml"
+    mooring_path = proc / "rtwb1_01_2014" / "rtwb1_01_2014.mooring.yaml"
     summary = report(
-        yaml_path, _paths(yaml_path), instruments=True, stack=False, grid=False
+        mooring_path, _paths(mooring_path), instruments=True, stack=False, grid=False
     )
     html = Path(summary).read_text(encoding="utf-8")
     assert "Current meter" in html

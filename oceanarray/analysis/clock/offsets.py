@@ -53,14 +53,14 @@ def load_mooring_instruments(
 
     """
     proc_dir = output_path + mooring_name
-    yaml_path = proc_dir + "/" + mooring_name + ".mooring.yaml"
+    mooring_path = proc_dir + "/" + mooring_name + ".mooring.yaml"
 
-    mooring_dict = _mooring.load(yaml_path)
+    mooring_dict = _mooring.load(mooring_path)
 
     instrument_list = instrument_entries(mooring_dict)
     if not instrument_list:
         raise KeyError(
-            f"Mooring YAML {yaml_path} has neither 'clamp' nor 'instruments' key."
+            f"Mooring YAML {mooring_path} has neither 'clamp' nor 'instruments' key."
         )
 
     datasets = []

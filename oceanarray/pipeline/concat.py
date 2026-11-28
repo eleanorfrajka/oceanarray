@@ -1233,7 +1233,7 @@ def chunks(ds: xr.Dataset) -> dict[str, int]:
 
 
 def concat_moorings(
-    yaml_paths: Sequence[str | Path] | None = None,
+    mooring_paths: Sequence[str | Path] | None = None,
     *,
     name: str,
     out_dir: str | Path | None = None,
@@ -1246,7 +1246,7 @@ def concat_moorings(
 
     Parameters
     ----------
-    yaml_paths : sequence of str or Path
+    mooring_paths : sequence of str or Path
         Each mooring's ``*.mooring.yaml``; its stack is read from the YAML's folder
         (``<name>_stack.nc``).
     name : str
@@ -1261,7 +1261,7 @@ def concat_moorings(
         The site's rule, needed when the deployments' rules differ (see
         :func:`concat`).
     descriptions : sequence of str or Path, optional
-        Deprecated name of *yaml_paths*; removed in 0.8.0.
+        Deprecated name of *mooring_paths*; removed in 0.8.0.
 
     Returns
     -------
@@ -1275,13 +1275,13 @@ def concat_moorings(
         written by an oceanarray that did not clean people at stage 1 (rerun
         from stage 1), or :func:`concat` refuses.
     """
-    yaml_paths = _deprecated.resolve_keyword(
+    mooring_paths = _deprecated.resolve_keyword(
         "oceanarray.pipeline.concat.concat_moorings(descriptions=)",
-        yaml_paths,
+        mooring_paths,
         descriptions,
-        required="yaml_paths",
+        required="mooring_paths",
     )
-    first_dir = Path(yaml_paths[0]).parent
+    first_dir = Path(mooring_paths[0]).parent
     target_dir = Path(out_dir) if out_dir is not None else first_dir.parent / name
     out_path = paths.product_file(target_dir, mooring_name=name, product="stackcat")
     # A deployment's own folder holds its mooring YAML and its stack; the site
@@ -1295,10 +1295,10 @@ def concat_moorings(
         raise MooringError(f"{out_path} exists; pass overwrite=True (CLI --force).")
     with contextlib.ExitStack() as opened:
         stacks, sources, mooring_dicts = [], [], []
-        for yaml_path in map(Path, yaml_paths):
-            mooring_dict = _mooring.load(yaml_path)
+        for mooring_path in map(Path, mooring_paths):
+            mooring_dict = _mooring.load(mooring_path)
             stack_path = paths.product_file(
-                yaml_path.parent, mooring_name=mooring_dict["name"], product="stack"
+                mooring_path.parent, mooring_name=mooring_dict["name"], product="stack"
             )
             if not stack_path.exists():
                 raise MooringError(

@@ -25,7 +25,7 @@ or from Python:
 
    paths = oa.Paths(proc_dir="/data/proc", export_dir="/data/oceansites")
    oa.export("/data/proc/dune2_1_2026/dune2_1_2026.mooring.yaml", paths,
-             array_yaml="/data/proc/MIXSED2026.array.yaml")
+             array_path="/data/proc/MIXSED2026.array.yaml")
 
 The files go to ``<mooring folder>/oceansites/`` (``-o DIR`` to change it); from Python,
 to ``paths.export_dir``.

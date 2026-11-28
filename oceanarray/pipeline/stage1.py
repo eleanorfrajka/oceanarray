@@ -882,12 +882,12 @@ class MooringProcessor:
         self._setup_logging(mooring_name, output_path)
         self._log_print(f"Processing mooring: {mooring_name}")
 
-        yaml_path = output_path / f"{mooring_name}.mooring.yaml"
-        if not yaml_path.exists():
-            self._log_print(f"ERROR: Configuration file not found: {yaml_path}")
+        mooring_path = output_path / f"{mooring_name}.mooring.yaml"
+        if not mooring_path.exists():
+            self._log_print(f"ERROR: Configuration file not found: {mooring_path}")
             return False
         try:
-            mooring_dict = _mooring.load(yaml_path)
+            mooring_dict = _mooring.load(mooring_path)
         except (OSError, KeyError, ValueError) as e:
             self._log_print(f"ERROR: Failed to load configuration: {e}")
             return False
