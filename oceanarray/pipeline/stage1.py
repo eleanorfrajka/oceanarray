@@ -14,7 +14,7 @@ from typing import Any
 import numpy as np
 import xarray as xr
 
-from oceanarray import logger, paths
+from oceanarray import _deprecated, logger, paths
 from oceanarray import mooring as _mooring
 from oceanarray.config import parameters as params
 from oceanarray.config.unit_tables import UnitsError
@@ -733,7 +733,10 @@ def _stage1_instrument(
 
 
 def stage1(
-    datasets: dict[str, xr.Dataset], mooring: dict[str, Any]
+    datasets: dict[str, xr.Dataset],
+    mooring_dict: dict[str, Any] | None = None,
+    *,
+    mooring: dict[str, Any] | None = None,
 ) -> dict[str, xr.Dataset]:
     """Turn a mooring's raw datasets into stage-1 datasets.
 
@@ -746,8 +749,10 @@ def stage1(
     datasets : dict of str to xarray.Dataset
         Raw datasets keyed by cleaned serial, as ``read_mooring(mooring,
         stage=None, raw_dir=...)`` returns them.
-    mooring : dict
+    mooring_dict : dict
         The loaded mooring YAML.
+    mooring : dict, optional
+        Deprecated name of *mooring_dict*; removed in 0.8.0.
 
     Returns
     -------
@@ -764,9 +769,12 @@ def stage1(
     oceanarray.config.unit_tables.UnitsError
         If a registered variable has an unknown or missing unit.
     """
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.stage1(mooring=)", mooring_dict, mooring, required="mooring_dict"
+    )
     by_serial = {
         safe_serial(e.get("serial", "")): e
-        for e in instrument_entries(mooring)
+        for e in instrument_entries(mooring_dict)
         if isinstance(e, dict)
     }
     out: dict[str, xr.Dataset] = {}
@@ -780,10 +788,10 @@ def stage1(
         entry = by_serial.get(serial)
         if entry is None:
             raise MooringError(
-                f"{mooring['name']}: dataset {serial!r} has no entry in the mooring "
+                f"{mooring_dict['name']}: dataset {serial!r} has no entry in the mooring "
                 "mooring YAML; stage 1 needs the entry's metadata."
             )
-        result = _stage1_instrument(ds.copy(deep=True), entry, mooring)
+        result = _stage1_instrument(ds.copy(deep=True), entry, mooring_dict)
         out[serial] = _stage.stamp(as_stored(result), 1)
     return out
 

@@ -13,6 +13,7 @@ from collections.abc import Iterable, Mapping
 
 import numpy as np
 
+from oceanarray import _deprecated
 from oceanarray.config import parameters as params
 from oceanarray.originator_flags import MAPPED_SUFFIX
 
@@ -288,17 +289,21 @@ def union(
 
 
 def stack_rule(
-    mooring: Mapping[str, object],
+    mooring_dict: Mapping[str, object] | None = None,
     given: Iterable[int] | Mapping[str, Iterable[int]] | None = None,
+    *,
+    mooring: Mapping[str, object] | None = None,
 ) -> Rule:
     """Return the stack's rule: the call, else ``stack: mask_flags``, else the default.
 
     Parameters
     ----------
-    mooring : Mapping
+    mooring_dict : Mapping
         The loaded mooring YAML.
     given : iterable of int, or Mapping, optional
         The rule the caller (or ``--mask-flags``) gave.
+    mooring : Mapping, optional
+        Deprecated name of *mooring_dict*; removed in 0.8.0.
 
     Returns
     -------
@@ -310,8 +315,14 @@ def stack_rule(
     ValueError
         When the chosen value is not a valid rule.
     """
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.mask_rules.stack_rule(mooring=)",
+        mooring_dict,
+        mooring,
+        required="mooring_dict",
+    )
     if given is not None:
         return resolve_mask_flags(given)
-    block = mooring.get("stack") or {}
+    block = mooring_dict.get("stack") or {}
     value = block.get("mask_flags") if isinstance(block, Mapping) else None
     return resolve_mask_flags(value)

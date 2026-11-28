@@ -16,7 +16,7 @@ from typing import Any
 
 import xarray as xr
 
-from oceanarray import paths, readers
+from oceanarray import _deprecated, paths, readers
 from oceanarray.exceptions import MooringError
 from oceanarray.paths import safe_serial
 from oceanarray.readers import sbe
@@ -259,9 +259,10 @@ def guess_instrument_filename(
 
 def resolve_raw_file(
     entry: dict[str, Any],
-    mooring: dict[str, Any],
-    raw_dir: str | Path | None,
+    mooring_dict: dict[str, Any] | None = None,
+    raw_dir: str | Path | None = None,
     *,
+    mooring: dict[str, Any] | None = None,
     folder: str | None = None,
 ) -> RawFile:
     """Find one instrument's raw file (and Nortek header) from its mooring YAML entry.
@@ -276,13 +277,15 @@ def resolve_raw_file(
     ----------
     entry : dict
         The instrument's mooring YAML entry.
-    mooring : dict
+    mooring_dict : dict
         The loaded mooring YAML.
     raw_dir : str or pathlib.Path or None
-        The cruise-level raw-data root.
+        The cruise-level raw-data root; None only with an absolute ``directory:``.
     folder : str or None, optional
         The mooring's folder name under *raw_dir* (and under an absolute
         ``directory:``); defaults to the mooring YAML's ``name``.
+    mooring : dict, optional
+        Deprecated name of *mooring_dict*; removed in 0.8.0.
 
     Returns
     -------
@@ -294,12 +297,20 @@ def resolve_raw_file(
     oceanarray.exceptions.MooringError
         If the entry names no file and none is found by convention.
     """
-    name = folder or mooring["name"]
-    override = mooring.get("directory")
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.pipeline.raw_files.resolve_raw_file(mooring=)",
+        mooring_dict,
+        mooring,
+        required="mooring_dict",
+    )
+    name = folder or mooring_dict["name"]
+    override = mooring_dict.get("directory")
     if override and Path(override).is_absolute():
         input_dir: Path | None = Path(override)
         raw_mooring_dir: Path | None = None
     else:
+        if raw_dir is None:
+            raise TypeError("resolve_raw_file() missing required argument: 'raw_dir'")
         input_dir = None
         raw_mooring_dir = paths.raw_mooring_dir(raw_dir, name)
 

@@ -274,7 +274,11 @@ def read_mooring(
 
 
 def join_raw(
-    ds: xr.Dataset, entry: dict[str, Any], mooring: Mapping[str, Any]
+    ds: xr.Dataset,
+    entry: dict[str, Any],
+    mooring_dict: Mapping[str, Any] | None = None,
+    *,
+    mooring: Mapping[str, Any] | None = None,
 ) -> xr.Dataset:
     """Join one instrument's raw dataset with its mooring YAML, as ``read_mooring`` does.
 
@@ -287,23 +291,31 @@ def join_raw(
         The raw dataset, from :func:`oceanarray.pipeline.raw_files.read_raw_file`.
     entry : dict
         The instrument's mooring YAML entry.
-    mooring : Mapping
+    mooring_dict : Mapping
         The loaded mooring YAML.
+    mooring : Mapping, optional
+        Deprecated name of *mooring_dict*; removed in 0.8.0.
 
     Returns
     -------
     xarray.Dataset
         A copy carrying the stamping-contract attributes, unmarked.
     """
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.pipeline.read_mooring.join_raw(mooring=)",
+        mooring_dict,
+        mooring,
+        required="mooring_dict",
+    )
     serial = paths.safe_serial(entry.get("serial", ""))
     instr_type = entry.get("instrument")
     if not instr_type:
         raise MooringError(
-            f"{mooring['name']}: instrument entry for serial {serial!r} has no "
+            f"{mooring_dict['name']}: instrument entry for serial {serial!r} has no "
             "'instrument' key; it names the subdirectory and the stamped "
             "instrument type, so it cannot be defaulted."
         )
-    return _join_description(ds, entry, serial, instr_type, header_attrs(mooring))
+    return _join_description(ds, entry, serial, instr_type, header_attrs(mooring_dict))
 
 
 def _join_description(

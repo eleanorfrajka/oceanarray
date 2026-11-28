@@ -25,8 +25,8 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+from oceanarray import _deprecated, paths
 from oceanarray import mooring as _mooring
-from oceanarray import paths
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError
 from oceanarray.history import append_history
@@ -609,12 +609,15 @@ def _stage2_instrument(
 
 
 def stage2(
-    datasets: dict[str, xr.Dataset], mooring: dict[str, Any]
+    datasets: dict[str, xr.Dataset],
+    mooring_dict: dict[str, Any] | None = None,
+    *,
+    mooring: dict[str, Any] | None = None,
 ) -> dict[str, xr.Dataset]:
     """Apply clock corrections and deployment trimming to a mooring's stage-1 datasets.
 
     Pure function over datasets: no file I/O.  *datasets* is keyed by serial (as
-    :func:`read_mooring` returns); *mooring* is the loaded mooring YAML.  Returns the
+    :func:`read_mooring` returns); *mooring_dict* is the loaded mooring YAML.  Returns the
     stage-2 datasets, each marked ``processing_stage = 2`` and holding the
     values its file will hold, so each equals its file read back.
 
@@ -622,8 +625,10 @@ def stage2(
     ----------
     datasets : dict of str to xarray.Dataset
         Stage-1 datasets keyed by cleaned serial.
-    mooring : dict
+    mooring_dict : dict
         The loaded mooring YAML.
+    mooring : dict, optional
+        Deprecated name of *mooring_dict*; removed in 0.8.0.
 
     Returns
     -------
@@ -636,12 +641,15 @@ def stage2(
         If a stage-1 dataset holds records with no time (written before the
         readers dropped them); re-run stage 1.
     """
-    deploy_time = _parse_yaml_time(mooring, "deployment_time")
-    recover_time = _parse_yaml_time(mooring, "recovery_time")
-    mooring_name = mooring["name"]
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.stage2(mooring=)", mooring_dict, mooring, required="mooring_dict"
+    )
+    deploy_time = _parse_yaml_time(mooring_dict, "deployment_time")
+    recover_time = _parse_yaml_time(mooring_dict, "recovery_time")
+    mooring_name = mooring_dict["name"]
     by_serial = {
         paths.safe_serial(e.get("serial", "")): e
-        for e in instrument_entries(mooring)
+        for e in instrument_entries(mooring_dict)
         if isinstance(e, dict)
     }
     out: dict[str, xr.Dataset] = {}

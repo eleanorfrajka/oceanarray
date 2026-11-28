@@ -252,8 +252,9 @@ _SIGMA_ENTRY = {0: "potential_density"} | {
 
 def stack(
     datasets: dict[str, xr.Dataset],
-    mooring: dict,
+    mooring_dict: dict | None = None,
     *,
+    mooring: dict | None = None,
     dt_seconds: int | None = None,
     omitted: list[str] | None = None,
     stage2_reason: str = "no stage-3 file",
@@ -289,13 +290,13 @@ def stack(
     ----------
     datasets : dict of str to xarray.Dataset
         Stage-3 (or stage-2) datasets keyed by cleaned serial.
-    mooring : dict
+    mooring_dict : dict
         The loaded mooring YAML: the deployment window is the time axis, and
         each entry's ``hab`` and ``stack`` flag are used. Each instrument's sampling
         interval is detected from its time axis.
     dt_seconds : int or None, optional
         Spacing of the common time axis, in seconds. ``None`` takes
-        ``stack: dt_seconds`` from *mooring*, else
+        ``stack: dt_seconds`` from *mooring_dict*, else
         ``parameters.STACK_DT_SECONDS`` (3600).
     omitted : list of str or None, optional
         Instruments the caller already dropped (e.g. unreadable files), recorded
@@ -306,7 +307,9 @@ def stack(
     mask_flags : iterable of int, or Mapping of str to iterable of int, optional
         The flags hidden from the pages and left out of the grid
         (:func:`oceanarray.mask_rules.resolve_mask_flags`); ``None`` takes
-        ``stack: mask_flags`` from *mooring*, else ``parameters.MASK_FLAGS`` (4).
+        ``stack: mask_flags`` from *mooring_dict*, else ``parameters.MASK_FLAGS`` (4).
+    mooring : dict, optional
+        Deprecated name of *mooring_dict*; removed in 0.8.0.
 
     Returns
     -------
@@ -320,13 +323,15 @@ def stack(
         step, the time step is not a whole number > 0, or no instrument can be
         stacked.
     """
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.stack(mooring=)", mooring_dict, mooring, required="mooring_dict"
+    )
     from oceanarray.pipeline._run import resolve_dt_seconds
 
-    mooring_dict = mooring
-    mooring_name = mooring["name"]
+    mooring_name = mooring_dict["name"]
     omitted = list(omitted or [])
     try:
-        rule = mask_rules.stack_rule(mooring, mask_flags)
+        rule = mask_rules.stack_rule(mooring_dict, mask_flags)
     except ValueError as exc:
         raise MooringError(f"{mooring_name}: {exc}") from exc
 
@@ -1376,9 +1381,10 @@ def _relative(path: Path, mooring_dir: Path) -> str:
 def stack_stale_reason(
     stack_path: Path,
     inputs: Mapping[str, Path],
-    mooring: Mapping,
-    mooring_dir: Path,
+    mooring_dict: Mapping | None = None,
+    mooring_dir: Path | None = None,
     *,
+    mooring: Mapping | None = None,
     dt_seconds: int,
     mask_flags: Iterable[int] | Mapping[str, Iterable[int]] | None = None,
 ) -> str | None:
@@ -1396,7 +1402,7 @@ def stack_stale_reason(
         The existing ``<name>_stack.nc``.
     inputs : Mapping of str to pathlib.Path
         The stage file each instrument would be stacked from, keyed by serial.
-    mooring : Mapping
+    mooring_dict : Mapping
         The loaded mooring YAML.
     mooring_dir : pathlib.Path
         The mooring's processing directory (stage-file paths are recorded relative
@@ -1406,12 +1412,22 @@ def stack_stale_reason(
     mask_flags : iterable of int, or Mapping, optional
         The rule the call gives (None: the mooring YAML's or the default); a
         different rule from the one recorded rebuilds the stack.
+    mooring : Mapping, optional
+        Deprecated name of *mooring_dict*; removed in 0.8.0.
 
     Returns
     -------
     str or None
         The first reason found, in words, or None.
     """
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.pipeline.stack.stack_stale_reason(mooring=)",
+        mooring_dict,
+        mooring,
+        required="mooring_dict",
+    )
+    if mooring_dir is None:
+        raise TypeError("stack_stale_reason() missing required argument: 'mooring_dir'")
     if not stack_path.exists():
         return "no stack yet"
     with xr.open_dataset(stack_path, engine="netcdf4") as old:
@@ -1452,9 +1468,9 @@ def stack_stale_reason(
         if files:
             return f"{label}{'s' if len(files) > 1 else ''}: {', '.join(files)}"
     expected = {
-        **mooring_attrs(mooring),
-        "deployment_time": _stage.iso_time(mooring["deployment_time"]),
-        "recovery_time": _stage.iso_time(mooring["recovery_time"]),
+        **mooring_attrs(mooring_dict),
+        "deployment_time": _stage.iso_time(mooring_dict["deployment_time"]),
+        "recovery_time": _stage.iso_time(mooring_dict["recovery_time"]),
     }
     for k in attrs:
         # A <field>_source the stack holds but the mooring YAML no longer states.
@@ -1463,25 +1479,25 @@ def stack_stale_reason(
     if (key := dtypes.changed_attr(attrs, expected)) is not None:
         return f"the mooring YAML's {key} changed"
     want = _stack_settings(
-        _mooring.settings_yaml(mooring, stack={"dt_seconds": dt_seconds})
+        _mooring.settings_yaml(mooring_dict, stack={"dt_seconds": dt_seconds})
     )
     if _stack_settings(str(attrs.get("deployment_settings", ""))) != want:
         return "the mooring YAML's settings for the stack changed"
     if attrs.get(mask_rules.STACK_ATTR) != mask_rules.to_json(
-        mask_rules.stack_rule(mooring, mask_flags)
+        mask_rules.stack_rule(mooring_dict, mask_flags)
     ):
         return "mask_flags changed"
     # Stage 1 applies people:, source: and the sensor catalog, so a new stack from
     # the same stage files would carry the old values; only rerunning stage 1
     # brings them in.
     changed_inputs = []
-    if attrs.get(PEOPLE_SOURCE_ATTR, "") != people_source_sha256(mooring):
+    if attrs.get(PEOPLE_SOURCE_ATTR, "") != people_source_sha256(mooring_dict):
         changed_inputs.append("people:/source:")
-    if attrs.get(CATALOG_ATTR, "") != catalog.digest(mooring, old_records):
+    if attrs.get(CATALOG_ATTR, "") != catalog.digest(mooring_dict, old_records):
         changed_inputs.append("what its sensor catalog says of these instruments")
     if changed_inputs:
         log.warning(
-            f"{mooring.get('name', '')}: the mooring YAML's "
+            f"{mooring_dict.get('name', '')}: the mooring YAML's "
             f"{' and '.join(changed_inputs)} changed after stage 1 wrote the stage "
             "files; rerun with --force to bring them into the products"
         )
@@ -1497,13 +1513,17 @@ PEOPLE_SOURCE_ATTR = "people_source_sha256"
 CATALOG_ATTR = "sensor_catalog_sha256"
 
 
-def people_source_sha256(mooring: Mapping) -> str:
+def people_source_sha256(
+    mooring_dict: Mapping | None = None, *, mooring: Mapping | None = None
+) -> str:
     """Return the SHA-256 of the mooring YAML's ``people:`` and ``source:`` blocks.
 
     Parameters
     ----------
-    mooring : Mapping
+    mooring_dict : Mapping
         The loaded mooring YAML.
+    mooring : Mapping, optional
+        Deprecated name of *mooring_dict*; removed in 0.8.0.
 
     Returns
     -------
@@ -1511,10 +1531,16 @@ def people_source_sha256(mooring: Mapping) -> str:
         The hex digest of the two blocks as sorted JSON, or ``""`` when the
         mooring YAML has neither.
     """
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.pipeline.stack.people_source_sha256(mooring=)",
+        mooring_dict,
+        mooring,
+        required="mooring_dict",
+    )
     import hashlib
     import json
 
-    blocks = {k: mooring[k] for k in ("people", "source") if mooring.get(k)}
+    blocks = {k: mooring_dict[k] for k in ("people", "source") if mooring_dict.get(k)}
     if not blocks:
         return ""
     text = json.dumps(blocks, sort_keys=True, default=str)

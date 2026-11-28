@@ -43,7 +43,7 @@ import numpy as np
 import xarray as xr
 import yaml
 
-from oceanarray import originator_flags
+from oceanarray import _deprecated, originator_flags
 from oceanarray.exceptions import MooringError
 
 #: The maker's label prefix of each instrument type, as the catalog keys it.
@@ -163,9 +163,11 @@ def _serials(entry: Mapping[str, Any], file_serial: object) -> list[str]:
 
 
 def lookup(
-    mooring: Mapping[str, Any],
-    entry: Mapping[str, Any],
+    mooring_dict: Mapping[str, Any] | None = None,
+    entry: Mapping[str, Any] | None = None,
     file_serial: object = None,
+    *,
+    mooring: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Return what the mooring's catalog says of one instrument, or ``{}``.
 
@@ -175,13 +177,15 @@ def lookup(
 
     Parameters
     ----------
-    mooring : Mapping
+    mooring_dict : Mapping
         The mooring YAML; its ``sensor_catalog`` is a path (made absolute
         by :func:`oceanarray.mooring.load`).
     entry : Mapping
         The instrument's entry (``instrument``, ``serial``).
     file_serial : object, optional
         The serial the instrument's file states.
+    mooring : Mapping, optional
+        Deprecated name of *mooring_dict*; removed in 0.8.0.
 
     Returns
     -------
@@ -190,7 +194,15 @@ def lookup(
         when it names a model, that model's block under ``model_attrs``; ``{}``
         when the mooring names no catalog or the catalog lacks the instrument.
     """
-    path = mooring.get(KEY)
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.mooring.catalog.lookup(mooring=)",
+        mooring_dict,
+        mooring,
+        required="mooring_dict",
+    )
+    if entry is None:
+        raise TypeError("lookup() missing required argument: 'entry'")
+    path = mooring_dict.get(KEY)
     if not path:
         return {}
     data = load(path)
@@ -285,7 +297,12 @@ def record_attrs(found: Mapping[str, Any], measured: bool) -> dict[str, str]:
     return out
 
 
-def digest(mooring: Mapping[str, Any], records: list[Mapping[str, Any]]) -> str:
+def digest(
+    mooring_dict: Mapping[str, Any] | None = None,
+    records: list[Mapping[str, Any]] | None = None,
+    *,
+    mooring: Mapping[str, Any] | None = None,
+) -> str:
     """Return the SHA-256 of what the mooring's catalog says of these instruments.
 
     Only the entries that match the instruments' sensor records (by
@@ -295,20 +312,30 @@ def digest(mooring: Mapping[str, Any], records: list[Mapping[str, Any]]) -> str:
 
     Parameters
     ----------
-    mooring : Mapping
+    mooring_dict : Mapping
         The mooring YAML (``sensor_catalog``).
     records : list of Mapping
         The attributes of each sensor record (``SENSOR_*``) of a stack.
+    mooring : Mapping, optional
+        Deprecated name of *mooring_dict*; removed in 0.8.0.
 
     Returns
     -------
     str
         The hex digest, or ``""`` when the mooring names no catalog.
     """
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.mooring.catalog.digest(mooring=)",
+        mooring_dict,
+        mooring,
+        required="mooring_dict",
+    )
+    if records is None:
+        raise TypeError("digest() missing required argument: 'records'")
     import hashlib
     import json
 
-    path = mooring.get(KEY)
+    path = mooring_dict.get(KEY)
     if not path:
         return ""
     try:

@@ -93,6 +93,36 @@ RENAMED_NEXT: dict[str, str] = {
     "oceanarray.pipeline.stack.mooring_attrs(mooring_config=)": (
         "the mooring_dict= keyword"
     ),
+    "oceanarray.stage1(mooring=)": "the mooring_dict= keyword",
+    "oceanarray.stage2(mooring=)": "the mooring_dict= keyword",
+    "oceanarray.stage3(mooring=)": "the mooring_dict= keyword",
+    "oceanarray.stack(mooring=)": "the mooring_dict= keyword",
+    "oceanarray.pipeline.stack.stack_stale_reason(mooring=)": (
+        "the mooring_dict= keyword"
+    ),
+    "oceanarray.pipeline.stack.people_source_sha256(mooring=)": (
+        "the mooring_dict= keyword"
+    ),
+    "oceanarray.mask_rules.stack_rule(mooring=)": "the mooring_dict= keyword",
+    "oceanarray.mooring.catalog.lookup(mooring=)": "the mooring_dict= keyword",
+    "oceanarray.mooring.catalog.digest(mooring=)": "the mooring_dict= keyword",
+    "oceanarray.mooring.instruments.instrument_entries(mooring=)": (
+        "the mooring_dict= keyword"
+    ),
+    "oceanarray.mooring.save(mooring=)": "the mooring_dict= keyword",
+    "oceanarray.pipeline.oceansites.to_oceansites(mooring=)": (
+        "the mooring_dict= keyword"
+    ),
+    "oceanarray.pipeline.oceansites.deployment_code(mooring=)": (
+        "the mooring_dict= keyword"
+    ),
+    "oceanarray.pipeline.oceansites.platform_code(mooring=)": (
+        "the mooring_dict= keyword"
+    ),
+    "oceanarray.pipeline.raw_files.resolve_raw_file(mooring=)": (
+        "the mooring_dict= keyword"
+    ),
+    "oceanarray.pipeline.read_mooring.join_raw(mooring=)": "the mooring_dict= keyword",
     "a mooring YAML inside proc_dir/<mooring_name>/": (
         "<yaml_dir>/<mooring_name>.mooring.yaml (yaml_dir of paths.yaml or oceanarray.Paths)"
     ),

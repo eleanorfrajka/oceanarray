@@ -8,6 +8,7 @@ from typing import Any, NamedTuple
 
 import pandas as pd
 
+from oceanarray import _deprecated
 from oceanarray.exceptions import MooringError
 
 #: How a logsheet says a clock was not read at recovery.
@@ -299,7 +300,9 @@ def extract_inline_instruments(
     return result
 
 
-def instrument_entries(mooring: dict[str, Any]) -> list[dict[str, Any]]:
+def instrument_entries(
+    mooring_dict: dict[str, Any] | None = None, *, mooring: dict[str, Any] | None = None
+) -> list[dict[str, Any]]:
     """Return a mooring's processable instruments: clamp (or legacy) plus inline.
 
     The one place the clamp/``instruments`` fallback and the inline merge live:
@@ -309,19 +312,27 @@ def instrument_entries(mooring: dict[str, Any]) -> list[dict[str, Any]]:
 
     Parameters
     ----------
-    mooring : dict
+    mooring_dict : dict
         A loaded mooring YAML.
+    mooring : dict, optional
+        Deprecated name of *mooring_dict*; removed in 0.8.0.
 
     Returns
     -------
     list of dict
         One entry per instrument, in clamp-then-inline order.
     """
-    clamp = mooring.get("clamp")
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.mooring.instruments.instrument_entries(mooring=)",
+        mooring_dict,
+        mooring,
+        required="mooring_dict",
+    )
+    clamp = mooring_dict.get("clamp")
     if clamp is None:
-        clamp = mooring.get("instruments")
+        clamp = mooring_dict.get("instruments")
     entries = list(clamp or []) + extract_inline_instruments(
-        mooring.get("inline") or []
+        mooring_dict.get("inline") or []
     )
     # Fill hab from hab_bottom/hab_top by orientation (clamp and inline alike), so the
     # stack, the report and validate all read the same resolved hab.

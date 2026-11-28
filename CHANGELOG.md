@@ -42,7 +42,7 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 
 - The verbs' folder keywords (`raw_dir=`, `mooring_dir=`, `out_dir=`, ...), a folder or dict for the YAML, `mooring=` and calls without `paths` warn until 0.8.0; same files as before.
 - `plotters.helpers.masked` and `ruled`, removed without a warning, are back as aliases that warn until 0.8.0: use `pipeline.masking.masked` and `mask_rules.STACK_ATTR in ds.attrs`.
-- Twelve keywords renamed to say what they carry (`mooring_dict=`, `mooring_dicts=`, `yaml_paths=`, `mooring=`); the old ones warn until 0.8.0. See the 0.7.0 migration page.
+- Twenty-eight keywords renamed to say what they carry (`mooring_dict=`, `mooring_dicts=`, `yaml_paths=`, `mooring=`); the old ones warn until 0.8.0. See the 0.7.0 migration page.
 
 ### Fixed
 

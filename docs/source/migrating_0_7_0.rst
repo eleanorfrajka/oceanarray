@@ -150,6 +150,23 @@ keyword still works, with a ``DeprecationWarning`` naming the new one, until
      - ``mooring_dict=``
    * - ``oceanarray.reports.MooringReport.generate(cfg=)``
      - ``mooring_dict=``
+   * - ``oceanarray.stage1(mooring=)``,
+       ``oceanarray.stage2(mooring=)``,
+       ``oceanarray.stage3(mooring=)``,
+       ``oceanarray.stack(mooring=)``,
+       ``oceanarray.pipeline.stack.stack_stale_reason(mooring=)``,
+       ``oceanarray.pipeline.stack.people_source_sha256(mooring=)``,
+       ``oceanarray.mask_rules.stack_rule(mooring=)``,
+       ``oceanarray.mooring.catalog.lookup(mooring=)``,
+       ``oceanarray.mooring.catalog.digest(mooring=)``,
+       ``oceanarray.mooring.instruments.instrument_entries(mooring=)``,
+       ``oceanarray.mooring.save(mooring=)``,
+       ``oceanarray.pipeline.oceansites.to_oceansites(mooring=)``,
+       ``oceanarray.pipeline.oceansites.deployment_code(mooring=)``,
+       ``oceanarray.pipeline.oceansites.platform_code(mooring=)``,
+       ``oceanarray.pipeline.raw_files.resolve_raw_file(mooring=)``,
+       ``oceanarray.pipeline.read_mooring.join_raw(mooring=)``
+     - ``mooring_dict=``
 
 Mooring YAMLs in their own folder
 ---------------------------------

@@ -21,8 +21,8 @@ from typing import Any
 import numpy as np
 import xarray as xr
 
+from oceanarray import _deprecated, paths
 from oceanarray import mooring as _mooring
-from oceanarray import paths
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import MooringError, OceanarrayError
 from oceanarray.history import append_history
@@ -547,8 +547,9 @@ def _set_processing_level(ds: xr.Dataset) -> None:
 
 def stage3(
     datasets: dict[str, xr.Dataset],
-    mooring: dict[str, Any],
+    mooring_dict: dict[str, Any] | None = None,
     *,
+    mooring: dict[str, Any] | None = None,
     caldip_dir: str | None = None,
 ) -> dict[str, xr.Dataset]:
     """Apply pressure interpolation, QC, coordinate rotation and derived variables to a mooring.
@@ -561,11 +562,13 @@ def stage3(
     ----------
     datasets : dict of str to xarray.Dataset
         Stage-2 datasets keyed by cleaned serial, as :func:`read_mooring` returns them.
-    mooring : dict
+    mooring_dict : dict
         The loaded mooring YAML.
     caldip_dir : str or None, optional
         Calibration-dip directory. The correction is not yet implemented: supplying it
         leaves the science data unchanged and stamps ``caldip_applied`` on each output.
+    mooring : dict, optional
+        Deprecated name of *mooring_dict*; removed in 0.8.0.
 
     Returns
     -------
@@ -579,8 +582,11 @@ def stage3(
     oceanarray.exceptions.StageError
         If any dataset is not at stage 2.
     """
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.stage3(mooring=)", mooring_dict, mooring, required="mooring_dict"
+    )
     _stage.require(datasets, 2, 3)
-    instruments = _build_instrument_table(datasets, mooring)
+    instruments = _build_instrument_table(datasets, mooring_dict)
     # The caldip correction, when implemented, applies here — before the split — so a
     # sensorless target interpolates from already-corrected neighbours.
     sources, targets = _split_pressure_sources(instruments)

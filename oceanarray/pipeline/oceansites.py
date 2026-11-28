@@ -22,6 +22,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+from oceanarray import _deprecated
 from oceanarray.config import parameters as params
 from oceanarray.exceptions import OceanarrayError
 from oceanarray.mooring import DEPLOYMENT_CODE_PATTERN, location
@@ -293,24 +294,40 @@ def _first(mooring: Mapping, *keys: str) -> str | None:
     return None
 
 
-def deployment_code(mooring: Mapping) -> str:
+def deployment_code(
+    mooring_dict: Mapping | None = None, *, mooring: Mapping | None = None
+) -> str:
     """Return the deployment code: ``deployment_code``, else ``YYYYMM`` of ``deployment_time``."""
-    code = mooring.get("deployment_code")
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.pipeline.oceansites.deployment_code(mooring=)",
+        mooring_dict,
+        mooring,
+        required="mooring_dict",
+    )
+    code = mooring_dict.get("deployment_code")
     if code is None:
-        if not mooring.get("deployment_time"):
+        if not mooring_dict.get("deployment_time"):
             raise OceanSitesError(
                 "no deployment_code and no deployment_time to derive it"
             )
-        code = pd.Timestamp(str(mooring["deployment_time"])).strftime("%Y%m")
+        code = pd.Timestamp(str(mooring_dict["deployment_time"])).strftime("%Y%m")
     code = str(code)
     if not re.fullmatch(DEPLOYMENT_CODE_PATTERN, code):
         raise OceanSitesError(f"deployment_code {code!r} is not YYYYMM")
     return code
 
 
-def platform_code(mooring: Mapping) -> str:
+def platform_code(
+    mooring_dict: Mapping | None = None, *, mooring: Mapping | None = None
+) -> str:
     """Return ``platform_code``; refused if absent or holding ``_`` (the file-name separator)."""
-    code = mooring.get("platform_code")
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.pipeline.oceansites.platform_code(mooring=)",
+        mooring_dict,
+        mooring,
+        required="mooring_dict",
+    )
+    code = mooring_dict.get("platform_code")
     if code is None or code == "":
         raise OceanSitesError("the mooring YAML has no platform_code")
     if not isinstance(code, str):
@@ -502,8 +519,9 @@ def _source_name(ds: xr.Dataset, given: str | None, fallback: str) -> str:
 
 def to_oceansites(
     ds: xr.Dataset,
-    mooring: Mapping,
+    mooring_dict: Mapping | None = None,
     *,
+    mooring: Mapping | None = None,
     array: Mapping | None = None,
     stack: xr.Dataset | None = None,
     source_file: str | None = None,
@@ -518,7 +536,7 @@ def to_oceansites(
     ----------
     ds : xarray.Dataset
         A stage-3 dataset for one instrument, or a mooring's grid.
-    mooring : Mapping
+    mooring_dict : Mapping
         The loaded mooring YAML; supplies ``platform_code``,
         ``deployment_code`` (default: ``YYYYMM`` of ``deployment_time``), the
         position, the ships and cruises, and each variable's data mode.
@@ -531,6 +549,8 @@ def to_oceansites(
     source_file : str or None, optional
         Name of the input file, recorded in ``history``; defaults to the file the
         dataset was opened from.
+    mooring : Mapping, optional
+        Deprecated name of *mooring_dict*; removed in 0.8.0.
 
     Returns
     -------
@@ -546,9 +566,15 @@ def to_oceansites(
         not ``YYYYMM``, a data mode is invalid or unearned, or the instrument has
         no type code.
     """
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.pipeline.oceansites.to_oceansites(mooring=)",
+        mooring_dict,
+        mooring,
+        required="mooring_dict",
+    )
     if "pressure" in ds.dims:
-        return _grid_file(ds, mooring, array or {}, stack, source_file)
-    return _deployment_file(ds, mooring, array or {}, source_file)
+        return _grid_file(ds, mooring_dict, array or {}, stack, source_file)
+    return _deployment_file(ds, mooring_dict, array or {}, source_file)
 
 
 def _deployment_file(

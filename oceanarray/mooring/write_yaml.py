@@ -5,6 +5,7 @@ from collections.abc import Iterable, Mapping
 from os import PathLike
 from pathlib import Path
 
+from oceanarray import _deprecated
 from oceanarray.mooring.check_yaml import _check_data
 
 logger = logging.getLogger(__name__)
@@ -175,9 +176,10 @@ def _format_optional_blocks() -> str:
 
 
 def save(
-    mooring: Mapping,
-    path: str | PathLike,
+    mooring_dict: Mapping | None = None,
+    path: str | PathLike | None = None,
     *,
+    mooring: Mapping | None = None,
     overwrite: bool = False,
     optional_blocks: bool = False,
 ) -> Path:
@@ -191,7 +193,7 @@ def save(
 
     Parameters
     ----------
-    mooring : Mapping
+    mooring_dict : Mapping
         The mooring YAML to write (e.g. from :func:`template`).
     path : str or os.PathLike
         Destination ``*.mooring.yaml`` path.
@@ -200,6 +202,8 @@ def save(
     optional_blocks : bool, default False
         Also write the optional ``stack:`` and ``grid:`` blocks, commented out with
         their default values, before ``clamp`` (``oceanarray init`` does).
+    mooring : Mapping, optional
+        Deprecated name of *mooring_dict*; removed in 0.8.0.
 
     Returns
     -------
@@ -211,6 +215,14 @@ def save(
     FileExistsError
         If *path* exists and *overwrite* is False.
     """
+    mooring_dict = _deprecated.resolve_keyword(
+        "oceanarray.mooring.save(mooring=)",
+        mooring_dict,
+        mooring,
+        required="mooring_dict",
+    )
+    if path is None:
+        raise TypeError("save() missing required argument: 'path'")
     from ruamel.yaml import YAML
     from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
@@ -218,7 +230,9 @@ def save(
     if path.exists() and not overwrite:
         raise FileExistsError(f"{path} already exists")
 
-    errors = [i.message for i in _check_data(dict(mooring), None) if i.level == "ERROR"]
+    errors = [
+        i.message for i in _check_data(dict(mooring_dict), None) if i.level == "ERROR"
+    ]
     if errors:
         logger.warning(
             "saving an incomplete mooring YAML (%d issue(s) to resolve): %s",
@@ -241,7 +255,7 @@ def save(
                     seen.add(key)
         return block
 
-    data = dict(mooring)
+    data = dict(mooring_dict)
     clamp = data.pop("clamp", None)
     doc = _block(data.items(), _FIELD_COMMENTS)
     if clamp is not None:
