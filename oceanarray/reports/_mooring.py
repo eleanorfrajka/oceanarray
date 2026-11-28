@@ -31,6 +31,7 @@ from ._html_helpers import (
     _format_duration,
     _format_seconds,
     _instrument_report_exists,
+    _pages_dir,
     _parse_dt,
     _read_pdf_b64,
     _resolve_array_report_href,
@@ -565,9 +566,11 @@ class MooringReport:
             when both are supplied.
 
         """
-        self._proc_dir = Path(proc_dir) if proc_dir else None
-        self._raw_dir = Path(raw_dir) if raw_dir else None
-        self._report_dir: Path | None = Path(report_dir) if report_dir else None
+        self._proc_dir = Path(proc_dir).expanduser() if proc_dir else None
+        self._raw_dir = Path(raw_dir).expanduser() if raw_dir else None
+        self._report_dir: Path | None = (
+            Path(report_dir).expanduser() if report_dir else None
+        )
 
     def _rel(self, path: Path) -> str:
         """Return a short display path relative to proc_dir."""
@@ -649,22 +652,16 @@ class MooringReport:
         # The mooring's folder is where its mooring YAML is (any name); the pages
         # and the files they read are named from the mooring YAML's name.
         proc_dir = (
-            Path(mooring_dir)
+            Path(mooring_dir).expanduser()
             if mooring_dir is not None
-            else paths.mooring_proc_dir(self._proc_dir, mooring_name)
+            else paths.Paths(proc_dir=self._proc_dir).mooring_dir(mooring_name)
         )
         if not proc_dir.exists():
             raise MooringError(
                 f"{mooring_name}: processing directory not found: {proc_dir}"
             )
 
-        out_dir = paths.resolve_report_dir(
-            mooring_name,
-            outdir,
-            self._report_dir,
-            self._proc_dir,
-            mooring_dir=mooring_dir,
-        )
+        out_dir = _pages_dir(mooring_name, outdir, self._report_dir, proc_dir)
         out_dir.mkdir(parents=True, exist_ok=True)
         output_path = out_dir / f"{mooring_name}_report.html"
         yaml_path = (
@@ -688,16 +685,17 @@ class MooringReport:
             if (
                 path := paths.stage_file(
                     proc_dir,
-                    mooring_dict["name"],
-                    entry.get("instrument", "unknown"),
-                    paths.safe_serial(entry.get("serial", "")),
-                    n,
+                    mooring_name=mooring_dict["name"],
+                    instrument=entry.get("instrument", "unknown"),
+                    serial=paths.safe_serial(entry.get("serial", "")),
+                    stage=n,
                 )
             ).exists()
         ]
         # The summary also shows which instruments are in the stack and grid.
         products = [
-            paths.product_file(proc_dir, mooring_name, p) for p in ("stack", "grid")
+            paths.product_file(proc_dir, mooring_name=mooring_name, product=p)
+            for p in ("stack", "grid")
         ]
         # A mooring YAML passed in may differ from the file on disk, whose time is
         # all the freshness check can see: the summary is always rebuilt from it.
@@ -761,7 +759,9 @@ class MooringReport:
                     output_path.write_text(self._render(ctx), encoding="utf-8")
 
         if grid:
-            grid_path = paths.product_file(proc_dir, mooring_name, "grid")
+            grid_path = paths.product_file(
+                proc_dir, mooring_name=mooring_name, product="grid"
+            )
             if grid_path.exists():
                 generate_grid_page(
                     mooring_name,
@@ -778,7 +778,9 @@ class MooringReport:
                 )
 
         if stack:
-            stack_path = paths.product_file(proc_dir, mooring_name, "stack")
+            stack_path = paths.product_file(
+                proc_dir, mooring_name=mooring_name, product="stack"
+            )
             if stack_path.exists():
                 generate_stack_page(
                     mooring_name,
@@ -814,8 +816,12 @@ class MooringReport:
         # The pressure ranges leave out what the figures hide: the mooring's rule.
         rule = mask_rules.stack_rule(mooring_dict)
 
-        stack_nc = paths.product_file(proc_dir, mooring_name, "stack")
-        grid_nc = paths.product_file(proc_dir, mooring_name, "grid")
+        stack_nc = paths.product_file(
+            proc_dir, mooring_name=mooring_name, product="stack"
+        )
+        grid_nc = paths.product_file(
+            proc_dir, mooring_name=mooring_name, product="grid"
+        )
         stack_exists = stack_nc.exists()
         grid_exists = grid_nc.exists()
         stack_serials = _serials_in_nc(stack_nc) if stack_exists else frozenset()

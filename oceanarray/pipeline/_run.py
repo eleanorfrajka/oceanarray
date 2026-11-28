@@ -158,7 +158,9 @@ def run(
                 f"{mooring_dict.get('name', 'mooring')}: {exc} (the call)"
             ) from exc
     name = mooring_dict["name"]
-    products = [product_file(moor_dir, name, p) for p in ("stack", "grid")]
+    products = [
+        product_file(moor_dir, mooring_name=name, product=p) for p in ("stack", "grid")
+    ]
     outcome = _Outcome()
     # Collect the run's warnings on the package logger; the summary is logged and
     # written to processing_logs/<name>_summary.json at the end, whatever happens.

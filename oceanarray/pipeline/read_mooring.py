@@ -373,7 +373,13 @@ def _read_stage(
     allow_missing: bool,
 ) -> xr.Dataset | None:
     """Open one instrument's stage file, or refuse/skip when it is absent."""
-    stage_path = paths.stage_file(mooring_dir, name, instr_type, serial, stage)
+    stage_path = paths.stage_file(
+        mooring_dir,
+        mooring_name=name,
+        instrument=instr_type,
+        serial=serial,
+        stage=stage,
+    )
     if not stage_path.exists():
         if allow_missing:
             log.warning(

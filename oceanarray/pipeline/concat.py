@@ -1283,7 +1283,7 @@ def concat_moorings(
     )
     first_dir = Path(yaml_paths[0]).parent
     target_dir = Path(out_dir) if out_dir is not None else first_dir.parent / name
-    out_path = paths.product_file(target_dir, name, "stackcat")
+    out_path = paths.product_file(target_dir, mooring_name=name, product="stackcat")
     # A deployment's own folder holds its mooring YAML and its stack; the site
     # stack goes elsewhere, so it can never replace a deployment's files.
     if any(target_dir.glob("*.mooring.yaml")):
@@ -1298,7 +1298,7 @@ def concat_moorings(
         for yaml_path in map(Path, yaml_paths):
             mooring_dict = _mooring.load(yaml_path)
             stack_path = paths.product_file(
-                yaml_path.parent, mooring_dict["name"], "stack"
+                yaml_path.parent, mooring_name=mooring_dict["name"], product="stack"
             )
             if not stack_path.exists():
                 raise MooringError(

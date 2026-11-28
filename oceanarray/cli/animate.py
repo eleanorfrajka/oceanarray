@@ -62,7 +62,13 @@ def cmd_animate(args: argparse.Namespace) -> int:
             p
             for n in (3, 2)
             if (
-                p := paths.stage_file(proc_dir, mooring_dict["name"], instr, serial, n)
+                p := paths.stage_file(
+                    proc_dir,
+                    mooring_name=mooring_dict["name"],
+                    instrument=instr,
+                    serial=serial,
+                    stage=n,
+                )
             ).exists()
         ]
         if found:

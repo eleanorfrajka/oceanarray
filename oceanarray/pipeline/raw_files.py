@@ -312,7 +312,7 @@ def resolve_raw_file(
         if raw_dir is None:
             raise TypeError("resolve_raw_file() missing required argument: 'raw_dir'")
         input_dir = None
-        raw_mooring_dir = paths.raw_mooring_dir(raw_dir, name)
+        raw_mooring_dir = paths.Paths(raw_dir=raw_dir).raw_mooring_dir(name)
 
     entry = dict(entry)
     instrument = entry.get("instrument", "unknown")

@@ -640,13 +640,13 @@ class Stage3Processor:
         ----------
         proc_dir : str
             Cruise-level processed output directory. The pipeline appends
-            ``/{mooring}/`` internally (see :func:`oceanarray.paths.mooring_proc_dir`).
+            ``/{mooring}/`` internally (see :meth:`oceanarray.Paths.mooring_dir`).
 
         """
         from oceanarray import _deprecated
 
         _deprecated.warn("oceanarray.pipeline.stage3.Stage3Processor")
-        self._proc_dir = Path(proc_dir)
+        self._proc_dir = Path(proc_dir).expanduser()
         self.log_file = None
 
     def _setup_logging(self, mooring_name: str, output_path: Path) -> None:
@@ -684,7 +684,7 @@ class Stage3Processor:
         every instrument, not only freshly-written ones. ``None`` (the default) leaves the
         output exactly as before.
         """
-        proc_dir = paths.mooring_proc_dir(self._proc_dir, mooring_name)
+        proc_dir = paths.Paths(proc_dir=self._proc_dir).mooring_dir(mooring_name)
         if not proc_dir.exists():
             raise MooringError(
                 f"{mooring_name}: processing directory not found: {proc_dir}"
@@ -788,13 +788,21 @@ def _stage3_files(
     def _stage2_path(serial: str) -> Path:
         """Return *serial*'s stage-2 file."""
         return paths.stage_file(
-            mooring_dir, name, results[serial].attrs["instrument"], serial, 2
+            mooring_dir,
+            mooring_name=name,
+            instrument=results[serial].attrs["instrument"],
+            serial=serial,
+            stage=2,
         )
 
     to_write: dict[str, xr.Dataset] = {}
     for serial, ds in results.items():
         out_path = paths.stage_file(
-            mooring_dir, name, ds.attrs["instrument"], serial, 3
+            mooring_dir,
+            mooring_name=name,
+            instrument=ds.attrs["instrument"],
+            serial=serial,
+            stage=3,
         )
         # Provenance: a target records the stage-2 files its pressure came from; a
         # kept output whose sources have since changed gets a WARNING.

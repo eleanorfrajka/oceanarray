@@ -65,7 +65,15 @@ def summary(
         found = [
             (n, p)
             for n in (3, 2)
-            if (p := paths.stage_file(moor_dir, name, instr_type, serial, n)).exists()
+            if (
+                p := paths.stage_file(
+                    moor_dir,
+                    mooring_name=name,
+                    instrument=instr_type,
+                    serial=serial,
+                    stage=n,
+                )
+            ).exists()
         ]
         if not found:
             continue
@@ -111,7 +119,9 @@ def _format_instrument_line(
             interval = f"{dt_s:.0f} s"
         else:
             interval = "? s"
-    stage1 = paths.stage_file(moor_dir, name, instr_type, serial, 1)
+    stage1 = paths.stage_file(
+        moor_dir, mooring_name=name, instrument=instr_type, serial=serial, stage=1
+    )
     try:
         if stage1.exists():
             with xr.open_dataset(stage1, decode_timedelta=False) as raw:

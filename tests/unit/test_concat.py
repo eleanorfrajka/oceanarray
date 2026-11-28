@@ -97,7 +97,8 @@ def site(tmp_path_factory) -> Path:
         shutil.copytree(_FIX / name, root / name)
         cfg = mooring.load(root / name / f"{name}.mooring.yaml")
         oa.write(
-            _stack(cfg, root / name), paths.product_file(root / name, name, "stack")
+            _stack(cfg, root / name),
+            paths.product_file(root / name, mooring_name=name, product="stack"),
         )
     return root
 
@@ -108,7 +109,8 @@ def stacks(site) -> list[xr.Dataset]:
     out = []
     for n in _NAMES:
         with xr.open_dataset(
-            paths.product_file(site / n, n, "stack"), engine="netcdf4"
+            paths.product_file(site / n, mooring_name=n, product="stack"),
+            engine="netcdf4",
         ) as ds:
             out.append(ds.load())
     return out
@@ -262,7 +264,9 @@ def test_a_stack_whose_people_were_not_cleaned_is_refused(site, tmp_path):
     assert stale.attrs["people_not_cleaned"]
     oa.write(
         stale,
-        paths.product_file(root / "egM2_2018", "egM2_2018", "stack"),
+        paths.product_file(
+            root / "egM2_2018", mooring_name="egM2_2018", product="stack"
+        ),
         overwrite=True,
     )
     yamls = [root / n / f"{n}.mooring.yaml" for n in _NAMES]
@@ -610,7 +614,9 @@ def test_a_waterdepth_source_reaches_the_stack_and_the_deployment_record(
     assert stack.attrs["waterdepth_source"] == text
     oa.write(
         stack,
-        paths.product_file(root / "egM2_2018", "egM2_2018", "stack"),
+        paths.product_file(
+            root / "egM2_2018", mooring_name="egM2_2018", product="stack"
+        ),
         overwrite=True,
     )
     yamls = [root / n / f"{n}.mooring.yaml" for n in _NAMES]

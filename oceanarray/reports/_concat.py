@@ -1028,7 +1028,9 @@ def _gridcat_matches(stack_path: Path, name: str) -> bool:
 
     from oceanarray.provenance import sha256
 
-    gridcat = paths.product_file(stack_path.parent, name, "gridcat")
+    gridcat = paths.product_file(
+        stack_path.parent, mooring_name=name, product="gridcat"
+    )
     if not gridcat.exists():
         return False
     try:

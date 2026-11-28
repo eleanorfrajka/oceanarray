@@ -59,14 +59,16 @@ def test_run_returns_the_stage_files_then_the_stack_and_grid(ran):
     yaml_path, files = ran
     moor = yaml_path.parent
     stage = [
-        paths.stage_file(moor, _NAME, _INSTR[s], s, n)
+        paths.stage_file(
+            moor, mooring_name=_NAME, instrument=_INSTR[s], serial=s, stage=n
+        )
         for n in (1, 2, 3)
         for s in ("2941", "9920")
     ]
     assert files == [
         *stage,
-        paths.product_file(moor, _NAME, "stack"),
-        paths.product_file(moor, _NAME, "grid"),
+        paths.product_file(moor, mooring_name=_NAME, product="stack"),
+        paths.product_file(moor, mooring_name=_NAME, product="grid"),
     ]
     assert all(p.exists() for p in files)
 
@@ -103,7 +105,9 @@ def test_run_matches_the_stacker_and_gridder(ran, tmp_path):
     for product, ours in (("stack", files[-2]), ("grid", files[-1])):
         with (
             xr.open_dataset(ours) as a,
-            xr.open_dataset(paths.product_file(moor, _NAME, product)) as b,
+            xr.open_dataset(
+                paths.product_file(moor, mooring_name=_NAME, product=product)
+            ) as b,
         ):
             for v in b.data_vars:
                 assert np.array_equal(
@@ -161,7 +165,9 @@ def test_strict_run_stops_at_the_failed_stage(tmp_path):
     yaml_path = _fresh_tree(tmp_path)
     with pytest.raises(MooringError, match="stage 1 failed"):
         oa.run(yaml_path, _paths(yaml_path, raw), dt_seconds=3600, keep_going=False)
-    assert not paths.product_file(yaml_path.parent, _NAME, "stack").exists()
+    assert not paths.product_file(
+        yaml_path.parent, mooring_name=_NAME, product="stack"
+    ).exists()
 
 
 def test_keep_going_process_carries_on_without_the_failed_instrument(tmp_path, caplog):
@@ -201,7 +207,9 @@ def test_strict_stack_refuses_a_missing_stage3_file(ran, tmp_path):
     yaml_path, _ = ran
     moor = tmp_path / _NAME
     shutil.copytree(yaml_path.parent, moor)
-    paths.stage_file(moor, _NAME, "microcat", "2941", 3).unlink()
+    paths.stage_file(
+        moor, mooring_name=_NAME, instrument="microcat", serial="2941", stage=3
+    ).unlink()
     cfg = oa.mooring.load(moor / yaml_path.name)
     with pytest.raises(MooringError, match="no stage-3 file for microcat s/n 2941"):
         _stack_file(cfg, moor, dt_seconds=3600)
@@ -253,9 +261,13 @@ def test_cli_run_keep_going_stacks_what_exists(tmp_path, capsys, monkeypatch):
     ]
     assert _cli([*base, "--strict"]) == 1
     assert "stage 1 failed" in capsys.readouterr().out
-    assert not paths.product_file(yaml_path.parent, _NAME, "stack").exists()
+    assert not paths.product_file(
+        yaml_path.parent, mooring_name=_NAME, product="stack"
+    ).exists()
     assert _cli(base) == 0
-    with xr.open_dataset(paths.product_file(yaml_path.parent, _NAME, "stack")) as ds:
+    with xr.open_dataset(
+        paths.product_file(yaml_path.parent, mooring_name=_NAME, product="stack")
+    ) as ds:
         assert ds["serial"].values.tolist() == ["2941"]
         assert "9920" in ds.attrs["instruments_omitted"]
 
@@ -326,7 +338,9 @@ def test_keep_going_leaves_out_an_instrument_that_failed_this_run(ran, tmp_path)
         yaml_path, _paths(yaml_path, raw), force=True, dt_seconds=3600, keep_going=True
     )
     assert not [f for f in files if "9920" in f.name]
-    assert files[-1] == paths.product_file(yaml_path.parent, _NAME, "stack")
+    assert files[-1] == paths.product_file(
+        yaml_path.parent, mooring_name=_NAME, product="stack"
+    )
     s3 = next(f for f in files if f.name.endswith(f"2941{paths.stage_suffix(3)}"))
     with xr.open_dataset(s3) as ds:
         assert "pressure" not in ds or "9920" not in ds["pressure"].attrs.get(
@@ -337,7 +351,9 @@ def test_keep_going_leaves_out_an_instrument_that_failed_this_run(ran, tmp_path)
         assert "9920" in ds.attrs["instruments_omitted"]
         assert "failed in stage 1 this run" in ds.attrs["instruments_omitted"]
         assert "stage 1:" in ds.attrs["keep_going_failures"]
-    assert not paths.product_file(yaml_path.parent, _NAME, "grid").exists()
+    assert not paths.product_file(
+        yaml_path.parent, mooring_name=_NAME, product="grid"
+    ).exists()
 
 
 def test_strict_run_removes_a_grid_the_new_stack_no_longer_matches(
@@ -355,13 +371,15 @@ def test_strict_run_removes_a_grid_the_new_stack_no_longer_matches(
 
     monkeypatch.setattr(st, "stack", _omitting)
     yaml_path = _copy(ran, tmp_path)
-    grid = paths.product_file(yaml_path.parent, _NAME, "grid")
+    grid = paths.product_file(yaml_path.parent, mooring_name=_NAME, product="grid")
     assert grid.exists()
     with pytest.raises(MooringError, match="written but not gridded"):
         oa.run(
             yaml_path, _paths(yaml_path), stages=3, dt_seconds=1800, keep_going=False
         )
-    assert paths.product_file(yaml_path.parent, _NAME, "stack").exists()
+    assert paths.product_file(
+        yaml_path.parent, mooring_name=_NAME, product="stack"
+    ).exists()
     assert not grid.exists()
     assert paths.stale_file(grid).exists()
 
@@ -478,8 +496,8 @@ def test_any_error_after_the_stage_files_change_sets_the_products_aside(
         raise OSError("disk full")
 
     yaml_path = _copy(ran, tmp_path)
-    grid = paths.product_file(yaml_path.parent, _NAME, "grid")
-    stack_nc = paths.product_file(yaml_path.parent, _NAME, "stack")
+    grid = paths.product_file(yaml_path.parent, mooring_name=_NAME, product="grid")
+    stack_nc = paths.product_file(yaml_path.parent, mooring_name=_NAME, product="stack")
     monkeypatch.setattr(st, "stack", _broken)
     with pytest.raises(OSError, match="disk full"):
         oa.run(yaml_path, _paths(yaml_path), stages=3, force=True, dt_seconds=3600)
@@ -520,8 +538,12 @@ def test_a_wrong_stage_file_raises_stage_error_not_a_wrapped_failure(tmp_path):
     yaml_path = _fresh_tree(tmp_path)
     moor = yaml_path.parent
     oa.process(yaml_path, _paths(yaml_path, _RAW), stages=(1, 2), keep_going=False)
-    stage1 = paths.stage_file(moor, _NAME, "microcat", "2941", 1)
-    stage2 = paths.stage_file(moor, _NAME, "microcat", "2941", 2)
+    stage1 = paths.stage_file(
+        moor, mooring_name=_NAME, instrument="microcat", serial="2941", stage=1
+    )
+    stage2 = paths.stage_file(
+        moor, mooring_name=_NAME, instrument="microcat", serial="2941", stage=2
+    )
     shutil.copy(stage1, stage2)
     with pytest.raises(StageError):
         oa.process(yaml_path, _paths(yaml_path, _RAW), stages=3, keep_going=False)

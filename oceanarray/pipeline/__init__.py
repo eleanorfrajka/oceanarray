@@ -264,7 +264,9 @@ def _process_legacy(
     from oceanarray import _deprecated, paths
 
     stack_file = paths.product_file(
-        paths.mooring_proc_dir(proc_dir, mooring), mooring, "stack"
+        Paths(proc_dir=proc_dir).mooring_dir(mooring),
+        mooring_name=mooring,
+        product="stack",
     )
 
     overall = True

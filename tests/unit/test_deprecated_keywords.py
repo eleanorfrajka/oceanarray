@@ -306,7 +306,8 @@ def site(tmp_path_factory) -> Path:
                 loaded, stage=3, mooring_dir=root / name, allow_missing=True
             )
             oa.write(
-                oa.stack(data, loaded), paths.product_file(root / name, name, "stack")
+                oa.stack(data, loaded),
+                paths.product_file(root / name, mooring_name=name, product="stack"),
             )
     return root
 
@@ -321,7 +322,8 @@ def _stacks(site: Path) -> list[xr.Dataset]:
     out = []
     for n in _NAMES:
         with xr.open_dataset(
-            paths.product_file(site / n, n, "stack"), engine="netcdf4"
+            paths.product_file(site / n, mooring_name=n, product="stack"),
+            engine="netcdf4",
         ) as ds:
             out.append(ds.load())
     return out

@@ -814,17 +814,17 @@ class MooringProcessor:
         ----------
         raw_dir : str
             Cruise-level raw data directory. The pipeline appends ``/{mooring}/``
-            internally (see :func:`oceanarray.paths.raw_mooring_dir`).
+            internally (see :meth:`oceanarray.Paths.raw_mooring_dir`).
         proc_dir : str
             Cruise-level processed output directory. The pipeline appends
-            ``/{mooring}/`` internally (see :func:`oceanarray.paths.mooring_proc_dir`).
+            ``/{mooring}/`` internally (see :meth:`oceanarray.Paths.mooring_dir`).
 
         """
         from oceanarray import _deprecated
 
         _deprecated.warn("oceanarray.pipeline.stage1.MooringProcessor")
-        self._raw_dir = Path(raw_dir)
-        self._proc_dir = Path(proc_dir)
+        self._raw_dir = Path(raw_dir).expanduser()
+        self._proc_dir = Path(proc_dir).expanduser()
         self.log_file = None
 
     def _setup_logging(self, mooring_name: str, output_path: Path) -> None:
@@ -874,7 +874,7 @@ class MooringProcessor:
 
         """
         if output_path is None:
-            output_path = paths.mooring_proc_dir(self._proc_dir, mooring_name)
+            output_path = paths.Paths(proc_dir=self._proc_dir).mooring_dir(mooring_name)
         else:
             output_path = Path(output_path) / mooring_name
         output_path.mkdir(parents=True, exist_ok=True)
@@ -983,7 +983,12 @@ def _stage1_file(
     output_dir.mkdir(parents=True, exist_ok=True)
     clean = safe_serial(serial)
     output_file = paths.stage_file(
-        mooring_dir, mooring["name"], raw.instrument_dir, clean, 1, tag=raw.tag
+        mooring_dir,
+        mooring_name=mooring["name"],
+        instrument=raw.instrument_dir,
+        serial=clean,
+        stage=1,
+        tag=raw.tag,
     )
     # Skip only if the output is present and newer than its raw input. The
     # mooring YAML is deliberately not a staleness source; force regenerates.
@@ -1035,7 +1040,7 @@ def _stage1_files(
     else:
         if raw_dir is None:
             raise MooringError("stage 1 needs raw_dir= to find the raw files.")
-        raw_mooring_dir = paths.raw_mooring_dir(raw_dir, folder)
+        raw_mooring_dir = paths.Paths(raw_dir=raw_dir).raw_mooring_dir(folder)
         if not raw_mooring_dir.exists():
             raise MooringError(f"Raw mooring directory not found: {raw_mooring_dir}")
 

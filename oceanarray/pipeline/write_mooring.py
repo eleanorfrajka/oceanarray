@@ -76,6 +76,12 @@ def write_mooring(
                 f"{'mooring_name' if not name else 'instrument'}; both name the "
                 "output file and cannot be defaulted — stamp the dataset first."
             )
-        path = paths.stage_file(moor_dir, name, instr_type, serial, int(stage))
+        path = paths.stage_file(
+            moor_dir,
+            mooring_name=name,
+            instrument=instr_type,
+            serial=serial,
+            stage=int(stage),
+        )
         written.append(write(ds, path, overwrite=overwrite))
     return written

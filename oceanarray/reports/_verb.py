@@ -8,7 +8,7 @@ from os import PathLike
 from pathlib import Path
 from typing import Any, Literal
 
-from oceanarray import _deprecated, logger, paths
+from oceanarray import _deprecated, logger
 from oceanarray.exceptions import MooringError
 from oceanarray.paths import Paths
 
@@ -214,7 +214,10 @@ def report(
             raw_mooring_dir=raw_folder,
         )
     if pdf:
-        _combine_pdf(name, Path(page).parent, pdf_dir)
+        where = report_paths(
+            mooring_dict, mooring_dir=moor_dir, out_dir=pages, pdf_dir=pdf_dir
+        )
+        _combine_pdf(name, pages, where["pdf"])
     return Path(page)
 
 
@@ -246,14 +249,16 @@ def report_paths(
         ``"summary"``, ``"stack"``, ``"grid"`` and ``"pdf"`` pages, and
         ``"instrument_dir"`` (where ``<name>_<serial>_report.html`` go).
     """
+    from oceanarray.reports._html_helpers import _pages_dir
+
     name, moor_dir = _resolve_name_and_dir(mooring, mooring_dir)
-    html = paths.resolve_report_dir(name, out_dir, report_dir, mooring_dir=moor_dir)
+    html = _pages_dir(name, out_dir, report_dir, moor_dir)
     return {
         "summary": html / f"{name}_report.html",
         "stack": html / f"{name}_stack_report.html",
         "grid": html / f"{name}_grid_report.html",
         "instrument_dir": html / "instrument",
-        "pdf": paths.resolve_pdf_path(name, pdf_dir, html),
+        "pdf": Path(pdf_dir or html) / f"{name}_report.pdf",
     }
 
 
@@ -314,11 +319,10 @@ def _sigma_grid(sig_level: Iterable[float] | None) -> Iterator[None]:
         params.SIGMA_GRID = saved
 
 
-def _combine_pdf(name: str, html_dir: Path, pdf_dir: PathLike | None) -> Path:
-    """Combine the mooring's HTML pages into one PDF; raise MooringError if it cannot."""
+def _combine_pdf(name: str, html_dir: Path, pdf_path: Path) -> Path:
+    """Combine the mooring's HTML pages into the PDF *pdf_path*; raise MooringError if it cannot."""
     from oceanarray.reports import combine_mooring_pdf
 
-    pdf_path = paths.resolve_pdf_path(name, pdf_dir, html_dir)
     pdf_path.parent.mkdir(parents=True, exist_ok=True)
     try:
         pdf_path = combine_mooring_pdf(html_dir, name, output_path=pdf_path)

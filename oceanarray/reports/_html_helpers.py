@@ -332,6 +332,18 @@ def _resolve_diagram_pdf(proc_dir: Path, mooring_name: str) -> Path | None:
     return None
 
 
+def _pages_dir(
+    mooring_name: str,
+    out_dir: str | Path | None,
+    report_dir: str | Path | None,
+    mooring_dir: Path,
+) -> Path:
+    """Return a mooring's report folder: *out_dir*, else ``report_dir/<mooring_name>``, else ``<mooring_dir>/report``."""
+    if out_dir:
+        return Path(out_dir)
+    return Path(report_dir) / mooring_name if report_dir else mooring_dir / "report"
+
+
 # ---------------------------------------------------------------------------
 # NC metadata readers
 # ---------------------------------------------------------------------------
@@ -394,7 +406,13 @@ def _stage_files(
     proc_dir: Path, instr_type: str, mooring: str, serial: str
 ) -> dict[str, bool]:
     return {
-        f"stage{n}": paths.stage_file(proc_dir, mooring, instr_type, serial, n).exists()
+        f"stage{n}": paths.stage_file(
+            proc_dir,
+            mooring_name=mooring,
+            instrument=instr_type,
+            serial=serial,
+            stage=n,
+        ).exists()
         for n in (1, 2, 3)
     }
 

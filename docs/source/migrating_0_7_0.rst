@@ -267,6 +267,49 @@ YAML (a dict) given in place of the path, and the first argument given as
    * - ``oceanarray.mooring.load(proc_dir=)``
      - ``oceanarray.mooring.load(paths.yaml_path(mooring_name))``
 
+The ``paths`` functions take ``mooring_name``
+---------------------------------------------
+
+A mooring's folders come from an ``oceanarray.Paths``; the module functions that
+built them still work, with a ``DeprecationWarning``, until 0.8.0. The file-name
+functions keep their first argument (the folder, or for ``stage_output_name`` the
+mooring's name) and take the rest by keyword, the name as ``mooring_name=``;
+change ``stage_file(folder, name, "microcat", serial, 3)`` to
+``stage_file(folder, mooring_name=name, instrument="microcat", serial=serial, stage=3)``.
+The old order and the old keyword still work, with one ``DeprecationWarning``,
+until 0.8.0.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 45 55
+
+   * - Old form
+     - Use instead
+   * - ``oceanarray.paths.mooring_proc_dir``
+     - ``oceanarray.Paths(proc_dir=...).mooring_dir(mooring_name)``
+   * - ``oceanarray.paths.raw_mooring_dir``
+     - ``oceanarray.Paths(raw_dir=...).raw_mooring_dir(mooring_name)``
+   * - ``oceanarray.paths.resolve_report_dir``
+     - ``oceanarray.Paths(report_dir=...).report_mooring_dir(mooring_name)``
+       (``report_dir/<mooring_name>``), or
+       ``paths.with_mooring(mooring_name, report_dir=folder)`` for an exact folder
+       such as ``<mooring_dir>/report``
+   * - ``oceanarray.paths.resolve_pdf_path``
+     - ``paths.report_mooring_dir(mooring_name), where oceanarray.report(yaml_path, paths, pdf=True) writes <mooring_name>_report.pdf``
+   * - ``oceanarray.paths.stage_file(positional arguments)``
+     - ``keyword arguments: mooring_name=, instrument=, serial=, stage=``
+   * - ``oceanarray.paths.product_file(positional arguments)``
+     - ``keyword arguments: mooring_name=, product=``
+   * - ``oceanarray.paths.stage_output_name(positional arguments)``
+     - ``keyword arguments: serial=, stage=, tag=``
+   * - ``oceanarray.paths.stage_file(name=)``,
+       ``oceanarray.paths.product_file(name=)``,
+       ``oceanarray.paths.stage_output_name(mooring=)``,
+       ``oceanarray.paths.require_current_layout(mooring=)``
+     - ``mooring_name=``
+   * - ``oceanarray.paths.require_current_layout(proc_root=)``
+     - ``proc_dir=``
+
 One base for the package's errors
 ---------------------------------
 

@@ -65,7 +65,8 @@ def egm2_site(tmp_path_factory) -> Path:
             read_mooring, cfg, stage=3, mooring_dir=root / name, allow_missing=True
         )
         oa.write(
-            _quiet(oa.stack, data, cfg), paths.product_file(root / name, name, "stack")
+            _quiet(oa.stack, data, cfg),
+            paths.product_file(root / name, mooring_name=name, product="stack"),
         )
     yamls = [str(root / n / f"{n}.mooring.yaml") for n in EGM2]
     args = build_parser().parse_args(

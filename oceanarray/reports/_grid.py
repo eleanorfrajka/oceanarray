@@ -815,7 +815,9 @@ def generate_grid_page(
 
         # The stack beside the grid: its instruments' pressures, the velocity
         # reference and the instrument count, for the figures and captions.
-        stack_path = paths.product_file(grid_path.parent, mooring_name, "stack")
+        stack_path = paths.product_file(
+            grid_path.parent, mooring_name=mooring_name, product="stack"
+        )
         stack_exists = stack_path.exists()
         ds_stack = None
         if stack_exists:

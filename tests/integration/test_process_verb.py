@@ -28,7 +28,13 @@ _INSTR = {"2941": "microcat", "9920": "aquadopp"}
 
 def _rel(serial: str, stage: int) -> Path:
     """Return an instrument's stage file relative to the mooring directory."""
-    return paths.stage_file(Path(), _NAME, _INSTR[serial], serial, stage)
+    return paths.stage_file(
+        Path(),
+        mooring_name=_NAME,
+        instrument=_INSTR[serial],
+        serial=serial,
+        stage=stage,
+    )
 
 
 def _values_differ(a: Path, b: Path) -> list[str]:

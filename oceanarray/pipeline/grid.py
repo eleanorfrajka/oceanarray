@@ -397,7 +397,9 @@ def _grid_file(
     ``force=False`` too, an existing grid that is still current
     (:func:`grid_stale_reason`) is kept.
     """
-    out_path = paths.product_file(mooring_dir, mooring["name"], "grid")
+    out_path = paths.product_file(
+        mooring_dir, mooring_name=mooring["name"], product="grid"
+    )
     reason = "rebuild forced"
     if stack_path is not None and not force:
         reason = grid_stale_reason(
@@ -541,7 +543,7 @@ def grid_site(
             f"{stackcat} is not a site stack (oceanarray concat output)."
         )
     site = str(ds.attrs.get("site_name") or stackcat.name.removesuffix("_stackcat.nc"))
-    out_path = paths.product_file(stackcat.parent, site, "gridcat")
+    out_path = paths.product_file(stackcat.parent, mooring_name=site, product="gridcat")
     if out_path.exists() and not overwrite:
         raise MooringError(f"{out_path} exists; pass overwrite=True (CLI --force).")
     step = float(dp) if dp is not None else params.GRID_DP_DBAR
@@ -602,17 +604,17 @@ class MooringGridder:
         ----------
         proc_dir : str
             Cruise-level processed output directory. The pipeline appends
-            ``/{mooring}/`` internally (see :func:`oceanarray.paths.mooring_proc_dir`).
+            ``/{mooring}/`` internally (see :meth:`oceanarray.Paths.mooring_dir`).
 
         """
         from oceanarray import _deprecated
 
         _deprecated.warn("oceanarray.pipeline.grid.MooringGridder")
-        self._proc_dir = Path(proc_dir)
+        self._proc_dir = Path(proc_dir).expanduser()
 
     def _resolve_proc_dir(self, mooring_name: str) -> Path:
         """Return the mooring-level proc directory."""
-        return paths.mooring_proc_dir(self._proc_dir, mooring_name)
+        return paths.Paths(proc_dir=self._proc_dir).mooring_dir(mooring_name)
 
     def _rel(self, path: Path) -> str:
         """Return a short display path relative to proc_dir."""
@@ -641,8 +643,12 @@ class MooringGridder:
         Returns True on success, False on error.
         """
         proc_dir = self._resolve_proc_dir(mooring_name)
-        merge_path = paths.product_file(proc_dir, mooring_name, "stack")
-        output_path = paths.product_file(proc_dir, mooring_name, "grid")
+        merge_path = paths.product_file(
+            proc_dir, mooring_name=mooring_name, product="stack"
+        )
+        output_path = paths.product_file(
+            proc_dir, mooring_name=mooring_name, product="grid"
+        )
 
         try:
             stack_found = merge_path.exists()

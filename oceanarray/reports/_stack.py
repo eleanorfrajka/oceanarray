@@ -810,7 +810,7 @@ def generate_stack_page(
             else None
         )
         grid_exists = paths.product_file(
-            stack_path.parent, mooring_name, "grid"
+            stack_path.parent, mooring_name=mooring_name, product="grid"
         ).exists()
 
         report = resolve(

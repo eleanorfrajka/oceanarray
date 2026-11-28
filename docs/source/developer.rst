@@ -539,7 +539,10 @@ next minor release, never a patch release. Those names go in the second table,
 too, and the 0.7.0 migration page lists every entry (a test checks it). A
 renamed keyword is written ``<function>(<old keyword>=)``: the old keyword
 becomes keyword-only, positional calls keep working, and
-``_deprecated.resolve_keyword`` warns and returns the argument given.
+``_deprecated.resolve_keyword`` warns and returns the argument given. When the
+arguments after the first become keyword-only, the decorator
+``_deprecated.keyword_only`` reads an old positional call in the old order, and
+an old keyword, with one warning (``<function>(positional arguments)``).
 
 .. code-block:: python
 

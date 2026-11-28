@@ -179,7 +179,7 @@ def test_a_new_stack_file_rebuilds_the_summary(tree):
 
     page = report(_yaml(tree), _paths(tree), stack=False, grid=False, instruments=False)
     page.write_text("old", encoding="utf-8")
-    stack_nc = paths.product_file(tree, _NAME, "stack")
+    stack_nc = paths.product_file(tree, mooring_name=_NAME, product="stack")
     later = page.stat().st_mtime + 10
     os.utime(stack_nc, (later, later))
     report(_yaml(tree), _paths(tree), stack=False, grid=False, instruments=False)
@@ -256,8 +256,8 @@ def test_run_with_report_returns_the_summary_page_last(tree, monkeypatch):
     )
     assert files[-1] == report_paths(tree)["summary"]
     assert files[-3:-1] == [
-        paths.product_file(tree, _NAME, "stack"),
-        paths.product_file(tree, _NAME, "grid"),
+        paths.product_file(tree, mooring_name=_NAME, product="stack"),
+        paths.product_file(tree, mooring_name=_NAME, product="grid"),
     ]
     assert pages == [(tree, ["2941"])]  # a generator of serials is read once
 
@@ -287,7 +287,7 @@ def test_stage_2_velocities_are_flagged_as_magnetic_north(tree):
     """A stage-2 level with east/north velocity: the note says no declination, not 'position missing'."""
     import xarray as xr
 
-    stack_nc = paths.product_file(tree, _NAME, "stack")
+    stack_nc = paths.product_file(tree, mooring_name=_NAME, product="stack")
     with xr.open_dataset(stack_nc) as ds:
         ds = ds.load()
     # as if 9920 had been stacked from stage 2 with east/north velocities

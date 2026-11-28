@@ -69,7 +69,8 @@ def egm2(tmp_path_factory) -> Path:
             read_mooring, cfg, stage=3, mooring_dir=root / name, allow_missing=True
         )
         oa.write(
-            _quiet(oa.stack, data, cfg), paths.product_file(root / name, name, "stack")
+            _quiet(oa.stack, data, cfg),
+            paths.product_file(root / name, mooring_name=name, product="stack"),
         )
     return root
 
@@ -208,7 +209,8 @@ def test_the_turnaround_is_empty(egm2):
     stacks = []
     for n in _EGM2:
         with xr.open_dataset(
-            paths.product_file(egm2 / n, n, "stack"), engine="netcdf4"
+            paths.product_file(egm2 / n, mooring_name=n, product="stack"),
+            engine="netcdf4",
         ) as ds:
             stacks.append(ds.load())
     out = _quiet(grid, _quiet(concat, stacks, name="egM2"), pmin=1000, pmax=2450, dp=50)
@@ -271,7 +273,11 @@ def test_no_grid_writes_the_site_stack_only(egm2, tmp_path):
 
 def test_grid_site_refuses_a_deployment_stack(egm2):
     with pytest.raises(MooringError, match="is not a site stack"):
-        grid_site(paths.product_file(egm2 / "egM2_2016", "egM2_2016", "stack"))
+        grid_site(
+            paths.product_file(
+                egm2 / "egM2_2016", mooring_name="egM2_2016", product="stack"
+            )
+        )
 
 
 # ── display bins and colors ───────────────────────────────────────────

@@ -168,7 +168,13 @@ def export(
         if entry.get("skip"):
             continue
         serial = safe_serial(entry.get("serial"))
-        path = stage_file(folder, name, str(entry.get("instrument")), serial, 3)
+        path = stage_file(
+            folder,
+            mooring_name=name,
+            instrument=str(entry.get("instrument")),
+            serial=serial,
+            stage=3,
+        )
         if not path.exists():
             left_out.append(f"{serial}: no stage-3 file ({path.name})")
             continue
@@ -182,9 +188,9 @@ def export(
             # One instrument that cannot be exported does not stop the others.
             left_out.append(f"{serial}: {e}")
 
-    grid_path = product_file(folder, name, "grid")
+    grid_path = product_file(folder, mooring_name=name, product="grid")
     if grid and grid_path.exists():
-        stack_path = product_file(folder, name, "stack")
+        stack_path = product_file(folder, mooring_name=name, product="stack")
         stack = xr.open_dataset(stack_path) if stack_path.exists() else None
         try:
             with xr.open_dataset(grid_path) as g:

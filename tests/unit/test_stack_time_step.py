@@ -176,7 +176,7 @@ def test_run_stacker_and_process_obey_the_yaml(tmp_path):
     from oceanarray.pipeline.stack import MooringStacker
 
     yaml_path = _tree(tmp_path, "stack:\n  dt_seconds: 1800\n")
-    stack_nc = paths.product_file(yaml_path.parent, _NAME, "stack")
+    stack_nc = paths.product_file(yaml_path.parent, mooring_name=_NAME, product="stack")
 
     files = oa.run(yaml_path, oa.Paths(proc_dir=yaml_path.parent.parent), stages=3)
     with xr.open_dataset(files[-2]) as ds:

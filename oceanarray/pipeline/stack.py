@@ -1337,7 +1337,13 @@ def _read_best_stage(
         serial = safe_serial(entry.get("serial", ""))
         instr_type = entry.get("instrument", "unknown")
         for stage_n in (3, 2):
-            path = paths.stage_file(proc_dir, name, instr_type, serial, stage_n)
+            path = paths.stage_file(
+                proc_dir,
+                mooring_name=name,
+                instrument=instr_type,
+                serial=serial,
+                stage=stage_n,
+            )
             if not path.exists():
                 continue
             try:
@@ -1728,7 +1734,13 @@ def _stack_file(
             (n, path)
             for n in stages
             if (
-                path := paths.stage_file(mooring_dir, name, instr_type, serial, n)
+                path := paths.stage_file(
+                    mooring_dir,
+                    mooring_name=name,
+                    instrument=instr_type,
+                    serial=serial,
+                    stage=n,
+                )
             ).exists()
         ]
         if not found:
@@ -1740,7 +1752,7 @@ def _stack_file(
             f"{name}: no stage-3 file for {', '.join(missing)}. Run stage 3, mark "
             "the instrument 'skip: true', or use keep_going=True to stack what exists."
         )
-    out_path = paths.product_file(mooring_dir, name, "stack")
+    out_path = paths.product_file(mooring_dir, mooring_name=name, product="stack")
     stage_paths = {serial: path for serial, (_n, path) in inputs.items()}
     if force:
         reason = "rebuild forced"
@@ -1830,17 +1842,17 @@ class MooringStacker:
         ----------
         proc_dir : str
             Cruise-level processed output directory. The pipeline appends
-            ``/{mooring}/`` internally (see :func:`oceanarray.paths.mooring_proc_dir`).
+            ``/{mooring}/`` internally (see :meth:`oceanarray.Paths.mooring_dir`).
 
         """
         from oceanarray import _deprecated
 
         _deprecated.warn("oceanarray.pipeline.stack.MooringStacker")
-        self._proc_dir = Path(proc_dir)
+        self._proc_dir = Path(proc_dir).expanduser()
 
     def _resolve_proc_dir(self, mooring_name: str) -> Path:
         """Return the mooring-level proc directory."""
-        return paths.mooring_proc_dir(self._proc_dir, mooring_name)
+        return paths.Paths(proc_dir=self._proc_dir).mooring_dir(mooring_name)
 
     def _rel(self, path: Path) -> str:
         """Return a short display path relative to proc_dir."""
@@ -1882,7 +1894,9 @@ class MooringStacker:
             log.warning(f"Processing directory not found: {proc_dir}")
             return False
 
-        output_path = paths.product_file(proc_dir, mooring_name, "stack")
+        output_path = paths.product_file(
+            proc_dir, mooring_name=mooring_name, product="stack"
+        )
         if output_path.exists() and not force:
             logger.status("skip", self._rel(output_path))
             return True

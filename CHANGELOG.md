@@ -19,6 +19,7 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 - `run`, `process`, `report` and `export` take `(yaml_path, paths)`, every folder from the `oa.Paths`, and `mooring.load`/`check` take `yaml_path`, with the CLI unchanged.
 - `check_people_block`, `check_source_block` and their key lists moved from `pipeline.attribution` to `oceanarray.mooring.blocks`; every name moved without an old path is on the 0.7.0 migration page.
 - Deprecations removed in 0.8.0 have their own table and constant (`_deprecated.RENAMED_NEXT`, `REMOVED_IN_NEXT`); no warning writes a release number out.
+- A mooring's folders come from `Paths` methods, and `stage_file`, `product_file` and `stage_output_name` take `mooring_name=` and every argument after the first by keyword.
 - Package code calls a loaded mooring YAML `mooring_dict` and its path `yaml_path` (was `cfg`, `mooring_config`, `description`, `config_path`).
 - The mooring YAML code is split by job into `mooring.load_yaml`, `check_yaml`, `write_yaml`, `yaml_keys` and `settings`; every name still imports from `oceanarray.mooring`.
 - Docstrings, messages and the docs call the `*.mooring.yaml` file "the mooring YAML", not "the description"; some error and log messages read differently.
@@ -41,6 +42,7 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 ### Deprecated
 
 - The verbs' folder keywords (`raw_dir=`, `mooring_dir=`, `out_dir=`, ...), a folder or dict for the YAML, `mooring=` and calls without `paths` warn until 0.8.0; same files as before.
+- `paths.mooring_proc_dir`, `raw_mooring_dir`, `resolve_report_dir`, `resolve_pdf_path`, `require_current_layout`'s `proc_root=`/`mooring=` and the file-name functions' old arguments warn until 0.8.0.
 - `plotters.helpers.masked` and `ruled`, removed without a warning, are back as aliases that warn until 0.8.0: use `pipeline.masking.masked` and `mask_rules.STACK_ATTR in ds.attrs`.
 - Twenty-eight keywords renamed to say what they carry (`mooring_dict=`, `mooring_dicts=`, `yaml_paths=`, `mooring=`); the old ones warn until 0.8.0. See the 0.7.0 migration page.
 

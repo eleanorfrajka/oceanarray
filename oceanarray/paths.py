@@ -429,19 +429,14 @@ class Paths:
 
 
 def mooring_proc_dir(proc_root: _PathLike, mooring: str) -> Path:
-    """Return the mooring's processed-data directory, ``proc_root/<mooring>``.
+    """Deprecated alias of :meth:`Paths.mooring_dir`; removed in 0.8.0.
 
     Parameters
     ----------
-    proc_root : str or Path
-        Cruise-level processed-data root (``--proc-dir``).
-    mooring : str
-        Mooring name.
-
-    Returns
-    -------
-    Path
-    """
+    proc_root, mooring : str or Path, str
+        As ``Paths(proc_dir=proc_root).mooring_dir(mooring)``.
+    """  # noqa: D401 — the deprecated-alias wording
+    _deprecated.warn("oceanarray.paths.mooring_proc_dir")
     return Path(proc_root) / mooring
 
 
@@ -453,35 +448,23 @@ def resolve_report_dir(
     *,
     mooring_dir: _PathLike | None = None,
 ) -> Path:
-    """Return the directory a mooring's report pages are written to (shared by the pages and the PDF).
-
-    *outdir* wins; else ``report_dir/<mooring>``; else ``<mooring_dir>/report``
-    (``proc_root/<mooring>/report`` without *mooring_dir*).
+    """Deprecated; use :meth:`Paths.report_mooring_dir`; removed in 0.8.0.
 
     Parameters
     ----------
     mooring : str
-        Mooring name.
-    outdir : str or Path, optional
-        Explicit output directory (``--output-dir``).
-    report_dir : str or Path, optional
-        Central report root (``--report-dir``).
-    proc_root : str or Path, optional
-        Processed-data root, for the default without *mooring_dir*.
-    mooring_dir : str or Path, optional
-        The mooring's own folder.
-
-    Returns
-    -------
-    Path
-    """
+        The mooring's name.
+    outdir, report_dir, proc_root, mooring_dir : str or Path or None
+        The first given: *outdir*, ``report_dir/<mooring>``, ``<mooring_dir>/report``, ``proc_root/<mooring>/report``.
+    """  # noqa: D401 — the deprecated-alias wording
+    _deprecated.warn("oceanarray.paths.resolve_report_dir")
     if outdir:
         return Path(outdir)
     if report_dir:
         return Path(report_dir) / mooring
     if mooring_dir is not None:
         return Path(mooring_dir) / "report"
-    return mooring_proc_dir(proc_root, mooring) / "report"
+    return Path(proc_root) / mooring / "report"
 
 
 def resolve_pdf_path(
@@ -489,42 +472,26 @@ def resolve_pdf_path(
     pdf_dir: _PathLike | None,
     report_html_dir: _PathLike,
 ) -> Path:
-    """Return the path of a mooring's combined report PDF; creates nothing.
+    """Deprecated; the PDF is ``<mooring>_report.pdf`` in :meth:`Paths.report_mooring_dir`; removed in 0.8.0.
 
     Parameters
     ----------
-    mooring : str
-        Mooring name (the filename stem).
-    pdf_dir : str or Path, optional
-        Central PDF directory (``--pdf-dir``); default beside the pages.
-    report_html_dir : str or Path
-        The mooring's report directory (:func:`resolve_report_dir`).
-
-    Returns
-    -------
-    Path
-        ``<pdf_dir or report_html_dir>/<mooring>_report.pdf``.
-    """
-    filename = f"{mooring}_report.pdf"
-    if pdf_dir:
-        return Path(pdf_dir) / filename
-    return Path(report_html_dir) / filename
+    mooring, pdf_dir, report_html_dir : str or Path
+        Gives ``<pdf_dir or report_html_dir>/<mooring>_report.pdf``.
+    """  # noqa: D401 — the deprecated-alias wording
+    _deprecated.warn("oceanarray.paths.resolve_pdf_path")
+    return Path(pdf_dir or report_html_dir) / f"{mooring}_report.pdf"
 
 
 def raw_mooring_dir(raw_root: _PathLike, mooring: str) -> Path:
-    """Return the mooring's raw-data directory, ``raw_root/<mooring>``.
+    """Deprecated alias of :meth:`Paths.raw_mooring_dir`; removed in 0.8.0.
 
     Parameters
     ----------
-    raw_root : str or Path
-        Cruise-level raw-data root (``--raw-dir``).
-    mooring : str
-        Mooring name.
-
-    Returns
-    -------
-    Path
-    """
+    raw_root, mooring : str or Path, str
+        As ``Paths(raw_dir=raw_root).raw_mooring_dir(mooring)``.
+    """  # noqa: D401 — the deprecated-alias wording
+    _deprecated.warn("oceanarray.paths.raw_mooring_dir")
     return Path(raw_root) / mooring
 
 
@@ -562,13 +529,20 @@ def stage_glob(stage: int) -> str:
     return f"*{stage_suffix(stage)}"
 
 
-def stage_output_name(mooring: str, serial: Any, stage: int, tag: str = "") -> str:
-    """Return an instrument's stage filename, ``{mooring}_{serial}{tag}_stage{N}.nc``.
+@_deprecated.keyword_only(
+    "oceanarray.paths.stage_output_name",
+    ("serial", "stage", "tag"),
+    mooring="mooring_name",
+)
+def stage_output_name(
+    mooring_name: str, *, serial: Any, stage: int, tag: str = ""
+) -> str:
+    """Return an instrument's stage filename, ``{mooring_name}_{serial}{tag}_stage{N}.nc``.
 
     Parameters
     ----------
-    mooring : str
-        Mooring name.
+    mooring_name : str
+        The mooring's name.
     serial : Any
         Instrument serial as in the YAML (cleaned by :func:`safe_serial`).
     stage : int
@@ -580,7 +554,7 @@ def stage_output_name(mooring: str, serial: Any, stage: int, tag: str = "") -> s
     -------
     str
     """
-    return f"{mooring}_{safe_serial(serial)}{tag}{stage_suffix(stage)}"
+    return f"{mooring_name}_{safe_serial(serial)}{tag}{stage_suffix(stage)}"
 
 
 #: The multi-instrument products, each named ``{name}_{product}.nc``: a mooring's
@@ -589,23 +563,28 @@ def stage_output_name(mooring: str, serial: Any, stage: int, tag: str = "") -> s
 PRODUCTS: frozenset[str] = frozenset({"stack", "grid", "stackcat", "gridcat"})
 
 
+@_deprecated.keyword_only(
+    "oceanarray.paths.stage_file",
+    ("mooring_name", "instrument", "serial", "stage"),
+    name="mooring_name",
+)
 def stage_file(
     mooring_dir: _PathLike,
-    name: str,
+    *,
+    mooring_name: str,
     instrument: str,
     serial: Any,
     stage: int,
-    *,
     tag: str = "",
 ) -> Path:
-    """Return an instrument's stage file, ``<mooring_dir>/<instrument>/<name>_<serial>{tag}_stage<N>.nc``.
+    """Return an instrument's stage file, ``<mooring_dir>/<instrument>/<mooring_name>_<serial>{tag}_stage<N>.nc``.
 
     Parameters
     ----------
     mooring_dir : str or pathlib.Path
         The mooring's directory.
-    name : str
-        The mooring's ``name``.
+    mooring_name : str
+        The mooring's name.
     instrument : str
         Instrument type (the subdirectory, e.g. ``"microcat"``).
     serial : Any
@@ -619,7 +598,8 @@ def stage_file(
     -------
     pathlib.Path
     """
-    return Path(mooring_dir) / instrument / stage_output_name(name, serial, stage, tag)
+    file_name = stage_output_name(mooring_name, serial=serial, stage=stage, tag=tag)
+    return Path(mooring_dir) / instrument / file_name
 
 
 def stale_file(path: _PathLike) -> Path:
@@ -642,15 +622,18 @@ def stale_file(path: _PathLike) -> Path:
     return path.with_suffix(".stale" + path.suffix)
 
 
-def product_file(mooring_dir: _PathLike, name: str, product: str) -> Path:
-    """Return a mooring product's path, ``<mooring_dir>/<name>_<product>.nc``.
+@_deprecated.keyword_only(
+    "oceanarray.paths.product_file", ("mooring_name", "product"), name="mooring_name"
+)
+def product_file(mooring_dir: _PathLike, *, mooring_name: str, product: str) -> Path:
+    """Return a mooring product's path, ``<mooring_dir>/<mooring_name>_<product>.nc``.
 
     Parameters
     ----------
     mooring_dir : str or pathlib.Path
-        The mooring's directory.
-    name : str
-        The mooring's ``name``.
+        The mooring's directory (a site's, for ``stackcat`` and ``gridcat``).
+    mooring_name : str
+        The mooring's name (the site's).
     product : str
         One of :data:`PRODUCTS`.
 
@@ -667,46 +650,70 @@ def product_file(mooring_dir: _PathLike, name: str, product: str) -> Path:
         raise ValueError(
             f"unknown product {product!r}; expected one of {sorted(PRODUCTS)}."
         )
-    return Path(mooring_dir) / f"{name}_{product}.nc"
+    return Path(mooring_dir) / f"{mooring_name}_{product}.nc"
 
 
-def require_current_layout(proc_root: _PathLike, mooring: str) -> None:
+def require_current_layout(
+    proc_dir: _PathLike | None = None,
+    mooring_name: str | None = None,
+    *,
+    proc_root: _PathLike | None = None,
+    mooring: str | None = None,
+) -> None:
     """Raise when only the removed ``basedir`` layout holds the mooring, naming the folder to use.
 
     Parameters
     ----------
-    proc_root : str or Path
-        Cruise-level processed-data root (``--proc-dir``).
-    mooring : str
-        Mooring name.
+    proc_dir : str or Path
+        The processed-data folder (``--proc-dir``).
+    mooring_name : str
+        The mooring's name.
+    proc_root : str or Path, optional
+        Deprecated name of *proc_dir*; removed in 0.8.0.
+    mooring : str, optional
+        Deprecated name of *mooring_name*; removed in 0.8.0.
 
     Raises
     ------
     LegacyLayoutError
-        ``<proc_root>/moor/proc/<mooring>`` or ``<proc_root>/proc/<mooring>`` exists but
-        ``<proc_root>/<mooring>`` does not.
+        ``<proc_dir>/moor/proc/<mooring_name>`` or ``<proc_dir>/proc/<mooring_name>``
+        exists but ``<proc_dir>/<mooring_name>`` does not.
     """
-    proc_root = Path(proc_root)
-    legacy_roots = (proc_root / "moor" / "proc", proc_root / "proc")
-    if (proc_root / mooring).is_dir():
+    proc_dir = Path(
+        _deprecated.resolve_keyword(
+            "oceanarray.paths.require_current_layout(proc_root=)",
+            proc_dir,
+            proc_root,
+            required="proc_dir",
+        )
+    )
+    mooring_name = _deprecated.resolve_keyword(
+        "oceanarray.paths.require_current_layout(mooring=)",
+        mooring_name,
+        mooring,
+        required="mooring_name",
+        quiet=proc_root is not None,  # one warning per call
+    )
+    legacy_roots = (proc_dir / "moor" / "proc", proc_dir / "proc")
+    if (proc_dir / mooring_name).is_dir():
         # Current layout is present.  Warn (do not fail) if a stale legacy copy
         # also exists — a half-finished migration leaves two competing trees and
         # the legacy one is silently ignored.
         for legacy_root in legacy_roots:
-            if (legacy_root / mooring).is_dir():
+            if (legacy_root / mooring_name).is_dir():
                 log.warning(
                     "both the current '%s' and a legacy '%s' directory exist; the "
                     "legacy copy is ignored. Remove it to avoid confusion.",
-                    proc_root / mooring,
-                    legacy_root / mooring,
+                    proc_dir / mooring_name,
+                    legacy_root / mooring_name,
                 )
                 break
         return
     for legacy_root in legacy_roots:
-        if (legacy_root / mooring).is_dir():
+        if (legacy_root / mooring_name).is_dir():
             raise LegacyLayoutError(
                 f"--proc-dir points at an old-layout directory (found "
-                f"'{legacy_root / mooring}'). Use --proc-dir {legacy_root} "
+                f"'{legacy_root / mooring_name}'). Use --proc-dir {legacy_root} "
                 "instead (see the migration guide: docs/source/migration.rst "
                 f"or {DOCS_URL}migration.html)."
             )

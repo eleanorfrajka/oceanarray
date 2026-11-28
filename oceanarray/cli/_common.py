@@ -52,9 +52,9 @@ def _mooring_location(args: argparse.Namespace) -> Path:
     """Return the mooring's folder or mooring YAML from the positional argument."""
     _resolve_dirs(args, proc_required=False)
     if getattr(args, "proc_dir", None):
-        proc_root = Path(args.proc_dir)
-        paths.require_current_layout(proc_root, args.mooring)
-        folder = paths.mooring_proc_dir(proc_root, args.mooring)
+        proc_dir = Path(args.proc_dir).expanduser()
+        paths.require_current_layout(proc_dir, args.mooring)
+        folder = paths.Paths(proc_dir=proc_dir).mooring_dir(args.mooring)
         if not folder.is_dir():
             raise SystemExit(
                 f"ERROR: no mooring folder {folder}: {args.mooring} is not a mooring name "
@@ -356,7 +356,11 @@ def _print_stage_plan(
             if only and serial not in only:
                 continue
             f = paths.stage_file(
-                moor_dir, name, entry.get("instrument", "unknown"), serial, n
+                moor_dir,
+                mooring_name=name,
+                instrument=entry.get("instrument", "unknown"),
+                serial=serial,
+                stage=n,
             )
             note = "; pressure interpolated" if n == 3 and serial in targets else ""
             print(f"  {f}  ({_state(f, n)}{note})")

@@ -679,13 +679,13 @@ class Stage2Processor:
         ----------
         proc_dir : str
             Cruise-level processed output directory. The pipeline appends
-            ``/{mooring}/`` internally (see :func:`oceanarray.paths.mooring_proc_dir`).
+            ``/{mooring}/`` internally (see :meth:`oceanarray.Paths.mooring_dir`).
 
         """
         from oceanarray import _deprecated
 
         _deprecated.warn("oceanarray.pipeline.stage2.Stage2Processor")
-        self._proc_dir = Path(proc_dir)
+        self._proc_dir = Path(proc_dir).expanduser()
         self.log_file = None
 
     def _rel(self, path: Path) -> str:
@@ -734,7 +734,7 @@ class Stage2Processor:
         """
         # Set up paths — {proc_dir}/{mooring}/
         if output_path is None:
-            proc_dir = paths.mooring_proc_dir(self._proc_dir, mooring_name)
+            proc_dir = paths.Paths(proc_dir=self._proc_dir).mooring_dir(mooring_name)
         else:
             proc_dir = Path(output_path) / mooring_name
 
@@ -803,7 +803,13 @@ def _stage2_files(
             log(f"SKIP {instr_type} {serial}: failed earlier in this run")
             n_excluded += 1
             continue
-        out_path = paths.stage_file(mooring_dir, mooring["name"], instr_type, serial, 2)
+        out_path = paths.stage_file(
+            mooring_dir,
+            mooring_name=mooring["name"],
+            instrument=instr_type,
+            serial=serial,
+            stage=2,
+        )
         if out_path.exists() and not force:
             log(f"SKIP (exists): {rel(out_path)}")
             run.files.append(out_path)

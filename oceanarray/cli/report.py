@@ -122,11 +122,13 @@ def cmd_report(args: argparse.Namespace) -> int:
         logger.status("error", str(e))
         return 1
     if want_pdf:
-        from ..reports._verb import _combine_pdf, _resolve_name_and_dir
+        from ..reports._verb import _combine_pdf, _resolve_name_and_dir, report_paths
 
         name, _ = _resolve_name_and_dir(moor_dir, None)
+        pdf_dir = getattr(args, "pdf_dir", None)
+        where = report_paths(moor_dir, out_dir=page.parent, pdf_dir=pdf_dir)
         try:
-            _combine_pdf(name, page.parent, getattr(args, "pdf_dir", None))
+            _combine_pdf(name, page.parent, where["pdf"])
         except OceanarrayError as e:
             # An explicit --pdf that cannot be honoured is a failure; a PDF only
             # implied by --all is best-effort, so the HTML result stands.

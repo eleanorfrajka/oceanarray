@@ -183,6 +183,35 @@ RENAMED_NEXT: dict[str, str] = {
         "oceanarray.mooring.load(paths.yaml_path(mooring_name))"
     ),
     "oceanarray.mooring.check(mooring=)": "the yaml_path= keyword",
+    "oceanarray.paths.mooring_proc_dir": (
+        "oceanarray.Paths(proc_dir=...).mooring_dir(mooring_name)"
+    ),
+    "oceanarray.paths.raw_mooring_dir": (
+        "oceanarray.Paths(raw_dir=...).raw_mooring_dir(mooring_name)"
+    ),
+    "oceanarray.paths.resolve_report_dir": (
+        "oceanarray.Paths(report_dir=...).report_mooring_dir(mooring_name) "
+        "(report_dir/<mooring_name>), or paths.with_mooring(mooring_name, "
+        "report_dir=folder) for an exact folder such as <mooring_dir>/report"
+    ),
+    "oceanarray.paths.resolve_pdf_path": (
+        "paths.report_mooring_dir(mooring_name), where oceanarray.report(yaml_path, "
+        "paths, pdf=True) writes <mooring_name>_report.pdf"
+    ),
+    "oceanarray.paths.require_current_layout(proc_root=)": "the proc_dir= keyword",
+    "oceanarray.paths.require_current_layout(mooring=)": ("the mooring_name= keyword"),
+    "oceanarray.paths.stage_output_name(positional arguments)": (
+        "keyword arguments: serial=, stage=, tag="
+    ),
+    "oceanarray.paths.stage_output_name(mooring=)": "the mooring_name= keyword",
+    "oceanarray.paths.stage_file(positional arguments)": (
+        "keyword arguments: mooring_name=, instrument=, serial=, stage="
+    ),
+    "oceanarray.paths.stage_file(name=)": "the mooring_name= keyword",
+    "oceanarray.paths.product_file(positional arguments)": (
+        "keyword arguments: mooring_name=, product="
+    ),
+    "oceanarray.paths.product_file(name=)": "the mooring_name= keyword",
 }
 
 _F = TypeVar("_F", bound=Callable[..., Any])
@@ -293,6 +322,58 @@ def resolve_keyword(
         # Points at the caller of the function whose keyword was renamed.
         warn(old, stacklevel=4)
     return old_value
+
+
+def keyword_only(
+    old: str, order: tuple[str, ...], **renamed: str
+) -> Callable[[_F], _F]:
+    """Return a decorator that reads old calls of a function whose arguments after the first became keyword-only.
+
+    Arguments after the first given by position are read in their old *order*, and
+    an old keyword as its new one, with one warning: ``<old>(positional arguments)``
+    or ``<old>(<old keyword>=)``, keys of :data:`RENAMED_NEXT`.
+
+    Parameters
+    ----------
+    old : str
+        The function's full dotted name.
+    order : tuple of str
+        The new names of the arguments after the first, in their old order.
+    **renamed : str
+        Old keyword -> new keyword.
+
+    Returns
+    -------
+    callable
+        The decorator.
+    """
+
+    def decorate(func: _F) -> _F:
+        """Return *func* reading its old calls."""
+
+        @functools.wraps(func)
+        def _read_old(*args: Any, **kwargs: Any) -> Any:
+            keys = [f"{old}(positional arguments)"] if len(args) > 1 else []
+            if len(args) > len(order) + 1:
+                raise TypeError(
+                    f"{func.__name__}() takes at most {len(order) + 1} arguments"
+                )
+            moved = [*zip(order, args[1:], strict=False)]
+            for old_keyword, new_keyword in renamed.items():
+                if old_keyword in kwargs:
+                    keys.append(f"{old}({old_keyword}=)")
+                    moved.append((new_keyword, kwargs.pop(old_keyword)))
+            names = [k for k, _ in moved] + list(kwargs)
+            both = sorted({k for k in names if names.count(k) > 1})
+            if both:
+                raise TypeError(f"{func.__name__}() got multiple values for {both}")
+            if keys:
+                warn(keys[0])
+            return func(*args[:1], **dict(moved), **kwargs)
+
+        return _read_old  # type: ignore[return-value]
+
+    return decorate
 
 
 @contextlib.contextmanager

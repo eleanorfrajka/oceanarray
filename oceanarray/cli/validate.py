@@ -18,7 +18,9 @@ def _description_path(given: str, proc_dir: str | None) -> Path:
             return found[0]
         return path / f"{path.name}.mooring.yaml"
     if not path.exists() and proc_dir:
-        return paths.mooring_proc_dir(Path(proc_dir), given) / f"{given}.mooring.yaml"
+        return (
+            paths.Paths(proc_dir=proc_dir).mooring_dir(given) / f"{given}.mooring.yaml"
+        )
     return path
 
 

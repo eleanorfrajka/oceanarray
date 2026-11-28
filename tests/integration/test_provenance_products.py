@@ -303,7 +303,7 @@ def test_force_rebuilds_a_current_stack(egm2016):
 def test_the_stack_path_is_the_mooring_product(egm2016):
     cfg, folder = egm2016
     path, _ = _stack_file(cfg, folder, force=False)
-    assert path == paths.product_file(folder, "egM2_2016", "stack")
+    assert path == paths.product_file(folder, mooring_name="egM2_2016", product="stack")
 
 
 # ── sensor records ────────────────────────────────────────────────────

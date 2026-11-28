@@ -441,8 +441,12 @@ def generate_instrument_pages(
     """
     mooring_report_link = f"../{mooring_name}_report.html"
     generated = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
-    stack_exists = paths.product_file(proc_dir, mooring_name, "stack").exists()
-    grid_exists = paths.product_file(proc_dir, mooring_name, "grid").exists()
+    stack_exists = paths.product_file(
+        proc_dir, mooring_name=mooring_name, product="stack"
+    ).exists()
+    grid_exists = paths.product_file(
+        proc_dir, mooring_name=mooring_name, product="grid"
+    ).exists()
     cruise = cruise_label(mooring_dict)
     serial_filter = {safe_serial(s) for s in serials} if serials else None
 

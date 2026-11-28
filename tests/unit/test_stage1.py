@@ -140,7 +140,12 @@ class TestMooringProcessor:
 
         tag = find_file_tag(instrument_config["filename"])
         filename = paths.stage_file(
-            temp_dir, "test_mooring", "output", instrument_config["serial"], 1, tag=tag
+            temp_dir,
+            mooring_name="test_mooring",
+            instrument="output",
+            serial=instrument_config["serial"],
+            stage=1,
+            tag=tag,
         )
         expected = output_dir / "test_mooring_7518_stage1.nc"
         assert filename == expected

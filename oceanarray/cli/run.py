@@ -114,7 +114,7 @@ def _run_dry_run(args: argparse.Namespace, location: Path, wanted: list[int]) ->
         return 1
     name, moor_dir = found
     for product in ("stack", "grid"):
-        f = paths.product_file(moor_dir, name, product)
+        f = paths.product_file(moor_dir, mooring_name=name, product=product)
         print(
             f"{product.capitalize()}:  {f}  (rebuilt from the stage-{args.stack_stage} files)"
         )
