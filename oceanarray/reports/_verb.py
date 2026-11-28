@@ -15,7 +15,7 @@ from oceanarray.paths import Paths
 Kind = Literal["mooring", "array", "recovery"]
 
 
-def report(
+def report(  # noqa: C901
     mooring_path: str | PathLike | None = None,
     paths: Paths | None = None,
     *,

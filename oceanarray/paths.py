@@ -156,7 +156,7 @@ class Paths:
         return cls(**dirs, sources=dict.fromkeys(dirs, "standard"))
 
     @classmethod
-    def from_file(cls, path: _PathLike) -> "Paths":
+    def from_file(cls, path: _PathLike) -> "Paths":  # noqa: C901
         """Read a paths file (``paths.yaml``).
 
         The keys are those of :data:`PATHS_FIELDS`, each a folder, and an optional

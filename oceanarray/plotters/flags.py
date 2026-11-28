@@ -206,7 +206,7 @@ def _rows(
     return bars
 
 
-def _panel_bars(ds: xr.Dataset) -> dict[int, list[tuple[str, np.ndarray]]]:
+def _panel_bars(ds: xr.Dataset) -> dict[int, list[tuple[str, np.ndarray]]]:  # noqa: C901
     """Return, per panel (level or ADCP head), its ``(label, flags)`` bars.
 
     An ADCP is one panel at its head: the series the head carries once (its

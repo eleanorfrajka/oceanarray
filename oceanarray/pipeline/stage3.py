@@ -352,7 +352,7 @@ def _declination_clause(value: Any) -> str:
     return f"declination={float(value):.2f}° (ppigrf IGRF)"
 
 
-def _stage3_instrument(
+def _stage3_instrument(  # noqa: C901
     info: dict[str, Any],
     sources: list[dict[str, Any]],
     targets: list[dict[str, Any]],

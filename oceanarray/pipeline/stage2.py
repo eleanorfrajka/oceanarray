@@ -135,7 +135,7 @@ def detect_deployment_window(
     return time[start_idx], time[end_idx], "pressure_pmin10dbar"
 
 
-def _nonnull_time_bounds(
+def _nonnull_time_bounds(  # noqa: C901
     dataset: xr.Dataset,
 ) -> tuple[np.datetime64, np.datetime64]:
     """Return the first and last non-null times of the highest-priority variable."""
@@ -500,7 +500,7 @@ def _refuse_missing_time(ds: xr.Dataset, entry: dict[str, Any]) -> None:
         )
 
 
-def _stage2_instrument(
+def _stage2_instrument(  # noqa: C901
     ds: xr.Dataset,
     entry: dict[str, Any],
     mooring_name: str,

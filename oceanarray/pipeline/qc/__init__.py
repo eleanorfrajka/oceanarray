@@ -129,7 +129,7 @@ def _tilt_from_span(qc_ranges: dict[str, Any]) -> dict[str, float]:
     return out
 
 
-def load_qc_config(
+def load_qc_config(  # noqa: C901
     mooring_dict: dict[str, Any] | None = None,
     entry: dict[str, Any] | None = None,
     *,
@@ -378,7 +378,7 @@ def merge_salinity_parent_qc(
     return ds
 
 
-def apply_qc_tests(
+def apply_qc_tests(  # noqa: C901
     ds: xr.Dataset,
     gross_range: dict[str, Any],
     spike: dict[str, Any],

@@ -195,7 +195,7 @@ def check_serials(entries: list[dict]) -> list[ValidationIssue]:
     return issues
 
 
-def validate_mooring(
+def validate_mooring(  # noqa: C901
     data: object, *, dir_name: str | None = None
 ) -> list[ValidationIssue]:
     """Validate a parsed mooring configuration mapping.

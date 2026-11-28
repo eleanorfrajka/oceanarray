@@ -852,7 +852,7 @@ def check_necessary_variables(ds: xr.Dataset, vars: list) -> None:
         raise KeyError(msg)
 
 
-def get_dims(
+def get_dims(  # noqa: C901
     ds_gridded: xr.Dataset,
 ) -> tuple:
     """Extract pressure key, time key, and their dimensions from a dataset.

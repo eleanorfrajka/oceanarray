@@ -75,7 +75,7 @@ def find_file_tag(
     return ""
 
 
-def guess_instrument_filename(
+def guess_instrument_filename(  # noqa: C901
     instrument_config: dict[str, Any],
     mooring_name: str,
     raw_mooring_dir: Path | None,
@@ -257,7 +257,7 @@ def guess_instrument_filename(
     return None
 
 
-def resolve_raw_file(
+def resolve_raw_file(  # noqa: C901
     entry: dict[str, Any],
     mooring_dict: dict[str, Any] | None = None,
     raw_dir: str | Path | None = None,
@@ -396,7 +396,7 @@ def _is_pattern(filename: str) -> bool:
     return any(c in filename for c in "*?[")
 
 
-def read_raw_file(raw: RawFile) -> xr.Dataset:
+def read_raw_file(raw: RawFile) -> xr.Dataset:  # noqa: C901
     """Read one raw file and the metadata only its header holds.
 
     Adds the Nortek pressure calibration and transformation matrix as
@@ -497,7 +497,7 @@ def _add_sensor_var(
     )
 
 
-def _add_sbe_ascii_sensor_vars(
+def _add_sbe_ascii_sensor_vars(  # noqa: C901
     dataset: xr.Dataset, file_path: Path, instrument_config: dict[str, Any]
 ) -> xr.Dataset:
     """Parse calibration coefficients from an SBE ASCII header and add SENSOR_* vars."""

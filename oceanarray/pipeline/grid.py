@@ -52,7 +52,7 @@ _GRID_EXCLUDE: frozenset[str] = frozenset(
 )
 
 
-def grid(
+def grid(  # noqa: C901
     ds_stack: xr.Dataset,
     *,
     pmin: float | None = None,

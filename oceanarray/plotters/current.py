@@ -258,7 +258,7 @@ def _finish_progressive_vector(ax: Any, all_x: Any, all_y: Any) -> None:
     grid_despine(ax)
 
 
-def draw_multi_aquadopp_progressive_vector(
+def draw_multi_aquadopp_progressive_vector(  # noqa: C901
     ds: xr.Dataset,
     u_var: str = "east_velocity",
     v_var: str = "north_velocity",
@@ -907,7 +907,7 @@ def draw_instrument_rose(
     return helpers.draw_roses(roses, width_in=width_in, own_scale=True)
 
 
-def draw_rose_grid(
+def draw_rose_grid(  # noqa: C901
     ds: xr.Dataset,
     serial_list: list,
     *,
@@ -1131,7 +1131,7 @@ draw_multi_aquadopp_trajectories = draw_multi_aquadopp_progressive_vector
 draw_adcp_trajectories = draw_adcp_progressive_vector
 
 
-def draw_adcp_velocity(
+def draw_adcp_velocity(  # noqa: C901
     nc_path: str,
     *,
     width_in: float = report_tokens.W_FULL,
@@ -1335,7 +1335,7 @@ def draw_adcp_velocity(
         return fig
 
 
-def draw_adcp_rose(
+def draw_adcp_rose(  # noqa: C901
     nc_path: str,
     *,
     width_in: float = report_tokens.W_FULL,
@@ -1734,7 +1734,7 @@ def draw_grid_hodograph(
     return fig
 
 
-def draw_aquadopp_tilt_panels(
+def draw_aquadopp_tilt_panels(  # noqa: C901
     ds: xr.Dataset, *, step: int = 1, width_in: float = report_tokens.W_FULL
 ) -> plt.Figure | None:
     """One subplot per Aquadopp showing pitch, roll, and tilt_from_pressure.
@@ -2266,7 +2266,7 @@ def _daily_mean(time: np.ndarray, values: np.ndarray) -> np.ndarray:
     return series.resample("1D").mean().dropna().to_numpy()
 
 
-def draw_direction_profile_by_deployment(
+def draw_direction_profile_by_deployment(  # noqa: C901
     ds: xr.Dataset, *, width_in: float = report_tokens.W_HALF
 ) -> plt.Figure | None:
     """Draw the current direction per velocity depth and deployment of a concatenated stack.

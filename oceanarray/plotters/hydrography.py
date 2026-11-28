@@ -115,7 +115,7 @@ def draw_isopycnal_ts(
     return fig
 
 
-def draw_isopycnal_coverage(
+def draw_isopycnal_coverage(  # noqa: C901
     ds: xr.Dataset, *, width_in: float = report_tokens.W_FULL
 ) -> plt.Figure | None:
     """Three-panel isopycnal diagnostic; return a Figure.

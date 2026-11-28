@@ -250,7 +250,7 @@ _SIGMA_ENTRY = {0: "potential_density"} | {
 }
 
 
-def stack(
+def stack(  # noqa: C901
     datasets: dict[str, xr.Dataset],
     mooring_dict: dict | None = None,
     *,
@@ -1384,7 +1384,7 @@ def _relative(path: Path, mooring_dir: Path) -> str:
         return Path(path).name
 
 
-def stack_stale_reason(
+def stack_stale_reason(  # noqa: C901
     stack_path: Path,
     inputs: Mapping[str, Path],
     mooring_dict: Mapping | None = None,
@@ -1685,7 +1685,7 @@ def _add_stage_files(
     return ds
 
 
-def _stack_file(
+def _stack_file(  # noqa: C901
     mooring: dict,
     mooring_dir: Path,
     *,

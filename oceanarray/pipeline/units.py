@@ -118,7 +118,7 @@ def to_canonical_units(
         return _canonicalise_units(ds, tables=tables, stage=stage)
 
 
-def _canonicalise_units(
+def _canonicalise_units(  # noqa: C901
     ds: xr.Dataset,
     *,
     tables: Tables = TABLES,

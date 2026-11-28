@@ -387,7 +387,7 @@ def _title(type_label: str, serial: str, depth: float | None) -> str:
 # ---------------------------------------------------------------------------
 
 
-def generate_instrument_pages(
+def generate_instrument_pages(  # noqa: C901
     mooring_name: str,
     instruments: list[dict[str, Any]],
     mooring_dict: dict[str, Any],

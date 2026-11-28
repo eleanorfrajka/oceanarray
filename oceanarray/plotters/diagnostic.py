@@ -573,7 +573,7 @@ def draw_knockdown_displacement(
 # ---------------------------------------------------------------------------
 
 
-def draw_clock_offset_check(
+def draw_clock_offset_check(  # noqa: C901
     nc_paths: dict[str, Path],
     deploy_dt: datetime | None,
     recover_dt: datetime | None,
@@ -744,7 +744,7 @@ def draw_clock_offset_check(
 # ---------------------------------------------------------------------------
 
 
-def draw_windows(
+def draw_windows(  # noqa: C901
     nc_path: Path,
     instr_type: str,
     hours: int = 6,
@@ -851,7 +851,7 @@ def draw_windows(
             hspace=0.18,
         )
 
-        def _plot_panel(
+        def _plot_panel(  # noqa: C901
             ax: plt.Axes,
             vname: str,
             label: str,
@@ -1058,7 +1058,7 @@ def draw_windows(
             ds1.close()
 
 
-def draw_data_histogram(
+def draw_data_histogram(  # noqa: C901
     nc_path: Path,
     *,
     width_in: float = report_tokens.W_FULL,
@@ -1281,7 +1281,7 @@ def draw_data_histogram(
         return fig
 
 
-def draw_velocity_iqr_profile(
+def draw_velocity_iqr_profile(  # noqa: C901
     ds: xr.Dataset,
     *,
     width_in: float = report_tokens.W_FULL,

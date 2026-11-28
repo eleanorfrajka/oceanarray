@@ -226,7 +226,7 @@ def _originator_flags(da: xr.DataArray) -> xr.DataArray:
     return xr.DataArray(flags, dims=da.dims, attrs=attrs)
 
 
-def _add_bin_geometry(
+def _add_bin_geometry(  # noqa: C901
     out: xr.Dataset, src: xr.Dataset, prof: str, name: str
 ) -> xr.Dataset:
     """Add an ADCP profile's ``range`` coordinate, bin depths and orientation.
@@ -334,7 +334,7 @@ def _add_bin_geometry(
     return out.isel({ADCP_BIN_DIM: np.flatnonzero(np.isfinite(rng))}).sortby("range")
 
 
-def read_oceansites(path: str | Path) -> xr.Dataset:
+def read_oceansites(path: str | Path) -> xr.Dataset:  # noqa: C901
     """Read a single-instrument OceanSITES netCDF time series onto a ``time`` dimension.
 
     Takes the OceanSITES 1.3 layout (``(TIME, DEPTH)``) and the OSNAP one (``(TIME,)``,

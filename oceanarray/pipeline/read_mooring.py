@@ -159,7 +159,7 @@ def header_attrs(
     return attrs
 
 
-def read_mooring(
+def read_mooring(  # noqa: C901
     mooring: Mapping[str, Any] | str | Path,
     *,
     stage: int | None = None,

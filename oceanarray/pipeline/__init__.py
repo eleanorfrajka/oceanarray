@@ -533,7 +533,7 @@ def resolve_mooring(
     return mooring_dict, moor_dir
 
 
-def resolve_verb_call(
+def resolve_verb_call(  # noqa: C901
     verb: str,
     mooring_path: str | PathLike | Mapping[str, Any],
     paths: Paths | None,
@@ -633,7 +633,7 @@ def resolve_verb_call(
     return mooring_dict, mooring_path, paths, is_dict
 
 
-def _process_stages(
+def _process_stages(  # noqa: C901
     mooring_dict: dict,
     paths: Paths,
     wanted: list[int],

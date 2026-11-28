@@ -16,7 +16,7 @@ from oceanarray.paths import Paths, product_file, stale_file
 log = logging.getLogger(__name__)
 
 
-def run(
+def run(  # noqa: C901
     mooring_path: str | PathLike | None = None,
     paths: Paths | None = None,
     *,
@@ -267,7 +267,7 @@ def run(
             log.warning("could not write the run summary for %s: %s", name, exc)
 
 
-def _resolve_stages(
+def _resolve_stages(  # noqa: C901
     stages: int | str | Iterable[int] | None,
     from_stage: int | None,
     stack_stage: int,
@@ -347,7 +347,7 @@ def _set_aside_stale(paths_: list[Path], why: str) -> None:
             )
 
 
-def _resolve_settings(
+def _resolve_settings(  # noqa: C901
     mooring_dict: Mapping[str, Any], **given: float | None
 ) -> dict[str, float]:
     """Return checked stack/grid settings: call, else mooring YAML, else the defaults."""

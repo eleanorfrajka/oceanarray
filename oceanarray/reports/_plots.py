@@ -127,7 +127,7 @@ def _add_tilt(ds: xr.Dataset) -> xr.Dataset:
     return ds.assign(tilt=("time", tilt, attrs))
 
 
-def _draw_instrument_panels(
+def _draw_instrument_panels(  # noqa: C901
     ds: xr.Dataset,
     instr_type: str,
     show_qc: bool = True,

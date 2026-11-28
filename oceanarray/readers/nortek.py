@@ -141,7 +141,7 @@ def _parse_nortek_pressure_cal(hdr_path: Path) -> dict:
     return cal
 
 
-def to_canonical_nortek(dataset: xr.Dataset, coord_system: str = "ENU") -> xr.Dataset:
+def to_canonical_nortek(dataset: xr.Dataset, coord_system: str = "ENU") -> xr.Dataset:  # noqa: C901
     """Normalise variable names produced by the seasenselib nortek readers.
 
     The Nortek .hdr file describes columns for both the main .dat file and the
@@ -348,7 +348,7 @@ def _canonical_nortek_var_name(col: str) -> str:
     return re.sub(r"_+", "_", name)
 
 
-def _parse_nortek_csv_columns(df: pd.DataFrame) -> dict:
+def _parse_nortek_csv_columns(df: pd.DataFrame) -> dict:  # noqa: C901
     """Build a variable dict from all columns in a Nortek CSV DataFrame."""
     # AquaPro exports mix camelCase (velBeam1#1, speedOfSound) for the velocity block
     # and Title Case (Pressure, Soundspeed) for the environmental block, so canonical

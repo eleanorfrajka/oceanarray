@@ -182,6 +182,7 @@ select = [
   "NPY",     # numpy-specific rules
   "PTH",     # flake8-use-pathlib
   "RUF100",  # unused noqa directives
+  "C901",    # function complexity (developer guide, section 1)
 ]
 extend-select = ["D417"]  # numpy convention drops D417 (undocumented params); we want it
 ignore = [
@@ -189,6 +190,9 @@ ignore = [
   "E501",    # line length — ruff format owns wrapping
   "ANN401",  # typing.Any is allowed — common in dataset/xarray helper signatures
 ]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"   # handles D203 / D213 itself — do not hand-ignore those
@@ -206,7 +210,7 @@ convention = "numpy"   # handles D203 / D213 itself — do not hand-ignore those
 # Vendored byte-identical from ctdcast (source of truth); re-vendored, never edited here.
 # RUF100 (noqa managed upstream) and the docstring/annotation rules are off so oceanarray's
 # linter cannot force an edit that diverges from ctdcast/glidertest. Mirrors ctdcast's config.
-"oceanarray/reports/_vendored/*" = ["RUF100", "D", "ANN"]
+"oceanarray/reports/_vendored/*" = ["RUF100", "D", "ANN", "C901"]
 "oceanarray/reports/_html_helpers.py" = ["BLE001"]
 "oceanarray/reports/_read.py" = ["BLE001"]
 "oceanarray/reports/_grid.py" = ["BLE001"]

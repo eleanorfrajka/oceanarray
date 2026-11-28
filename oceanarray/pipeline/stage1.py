@@ -313,7 +313,7 @@ def _add_instrument_metadata(
     return dataset
 
 
-def _to_canonical_rdi(
+def _to_canonical_rdi(  # noqa: C901
     dataset: xr.Dataset,
     instrument_config: dict[str, Any],
 ) -> xr.Dataset:
@@ -654,7 +654,7 @@ def _add_source(dataset: xr.Dataset, mooring: Mapping[str, Any]) -> xr.Dataset:
     return dataset
 
 
-def _stage1_instrument(
+def _stage1_instrument(  # noqa: C901
     dataset: xr.Dataset, entry: dict[str, Any], mooring: dict[str, Any]
 ) -> xr.Dataset:
     """Apply stage 1's transforms to one instrument's raw dataset, in the order they run."""
@@ -1016,7 +1016,7 @@ def _stage1_file(
         return "failed", f"{instrument} {serial}: {e}"
 
 
-def _stage1_files(
+def _stage1_files(  # noqa: C901
     mooring: dict[str, Any],
     mooring_dir: Path,
     raw_dir: Path | None,

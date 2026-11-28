@@ -20,7 +20,7 @@ from oceanarray.cli._deprecate import DeprecatedAlias
 from oceanarray.paths import Paths
 
 
-def cmd_report(args: argparse.Namespace) -> int:
+def cmd_report(args: argparse.Namespace) -> int:  # noqa: C901
     """Generate HTML reports for a mooring or an array, through :func:`oceanarray.report`.
 
     Without ``--array``: the mooring summary page, plus ``--instruments``,
@@ -138,7 +138,7 @@ def cmd_report(args: argparse.Namespace) -> int:
     return 0
 
 
-def _report_dry_run(
+def _report_dry_run(  # noqa: C901
     args: argparse.Namespace,
     moor_dir: Path,
     outdir: str | None,

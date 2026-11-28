@@ -348,7 +348,7 @@ def _tests(ds: Any) -> list[str]:
     )
 
 
-def instrument_history_rows(
+def instrument_history_rows(  # noqa: C901
     ds: Any,
     *,
     file_type: str = "",
@@ -380,7 +380,7 @@ def instrument_history_rows(
     attrs = ds.attrs
     who = originator_identity(attrs)
 
-    def settings(text: str) -> str:
+    def settings(text: str) -> str:  # noqa: C901
         parts: list[str] = []
         if re.match(r"(stage 1:|processing_stage 1)", text):
             if file_type:
@@ -481,7 +481,7 @@ class FlagTable:
     n_good: int = 0
 
 
-def flag_table(ds: Any) -> FlagTable:
+def flag_table(ds: Any) -> FlagTable:  # noqa: C901
     """Return the instrument's flags by variable: the originator's and oceanarray's.
 
     Parameters

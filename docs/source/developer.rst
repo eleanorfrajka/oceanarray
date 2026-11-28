@@ -70,6 +70,10 @@ the code (analytic case, invariant, a ``gsw`` cross-check).
 - No new module when an existing one fits; a table of cases over repeated
   ``if``/``elif``.
 - Delete dead code found in a file you touch.
+- A function does one job. Its complexity stays at or below 10 (ruff ``C901``);
+  above that, split it into named steps, or replace a chain of ``if``/``elif``
+  with a table. A function over the limit carries ``# noqa: C901`` until it is
+  split; when you touch one, bring it under and remove the ``noqa``.
 
 
 2. Layers and what each owns

@@ -406,7 +406,7 @@ def _ts_heatmap_panel(
     return interval
 
 
-def draw_ts_diagram(
+def draw_ts_diagram(  # noqa: C901
     nc_path: Path,
     *,
     width_in: float = report_tokens.W_FULL,

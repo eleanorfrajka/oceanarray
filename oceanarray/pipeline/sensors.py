@@ -154,7 +154,7 @@ def _originator_variable_attrs(ds: xr.Dataset) -> dict[str, Any]:
     return out
 
 
-def build_record(
+def build_record(  # noqa: C901
     ds: xr.Dataset,
     entry: Mapping[str, Any],
     serial: str,

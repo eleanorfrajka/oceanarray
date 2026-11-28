@@ -261,7 +261,7 @@ def _resolve_clock(entry: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _check_readable(file_path: Path, file_type: str) -> tuple[bool, str]:
+def _check_readable(file_path: Path, file_type: str) -> tuple[bool, str]:  # noqa: C901
     """Quick format sanity check — reads a few bytes/lines, not the full file."""
     if not file_path.exists():
         return False, "file missing"

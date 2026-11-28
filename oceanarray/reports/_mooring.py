@@ -578,7 +578,7 @@ class MooringReport:
             return logger.format_rel_path(path, self._proc_dir)
         return path.name
 
-    def generate(
+    def generate(  # noqa: C901
         self,
         mooring_name: str,
         force: bool = False,
@@ -809,7 +809,7 @@ class MooringReport:
 
         return output_path
 
-    def _build_context(
+    def _build_context(  # noqa: C901
         self,
         mooring_name: str,
         mooring_dict: dict[str, Any],

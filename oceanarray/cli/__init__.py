@@ -109,7 +109,7 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main() -> None:
+def main() -> None:  # noqa: C901
     """Entry point for the ``oceanarray`` command-line tool."""
     parser = build_parser()
     args, _unknown = parser.parse_known_args()

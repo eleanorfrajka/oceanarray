@@ -23,7 +23,7 @@ from oceanarray.cli._deprecate import DeprecatedAlias
 from oceanarray.pipeline import STAGES
 
 
-def cmd_process(args: argparse.Namespace) -> int:
+def cmd_process(args: argparse.Namespace) -> int:  # noqa: C901
     """Run stages 1-3 for one mooring through :func:`oceanarray.process`.
 
     By default runs stages 1 (raw → CF-NetCDF), 2 (trim to deployment window +

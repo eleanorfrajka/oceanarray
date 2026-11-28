@@ -921,7 +921,7 @@ _FAMILY_VARIABLES: dict[str, frozenset[str]] = {
 }
 
 
-def _drop_short(
+def _drop_short(  # noqa: C901
     view: Any,
     member: np.ndarray,
     names: list[str],

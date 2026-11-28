@@ -12,6 +12,7 @@ All notable changes to oceanarray are documented here, one line per change. Upgr
 - `oa.Paths` and the paths file (`paths.yaml`): where a project's mooring YAMLs, raw, processed, report and export folders are, with exact folders per mooring.
 - A test imports every module with `DeprecationWarning` as an error, so package code never imports a moved module through its old path.
 - Developer guide (`developer`): principles, layers, one idiom per job, vocabulary, naming, branches and pull requests, known deviations; replaces the style guide (#154).
+- `ruff` checks function complexity (`C901`, at most 10); the functions over the limit carry `# noqa: C901` until they are split (developer guide, section 1).
 - Configuration files page (`configuration_files`): the YAML files, which value wins, finding a mooring by name or by path; a sensor catalog page (`sensor_catalog`) with an example (#154).
 
 ### Changed

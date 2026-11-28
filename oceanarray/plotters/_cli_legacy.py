@@ -134,7 +134,7 @@ def _instrument_label(nc_path: Path, ds: xr.Dataset) -> str:
 
 
 @_STYLE
-def draw_mooring_timeseries(
+def draw_mooring_timeseries(  # noqa: C901
     proc_dir: Path,
     mooring: str,
     var_y: str = "temperature",

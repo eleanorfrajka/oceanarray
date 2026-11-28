@@ -273,7 +273,7 @@ def _qc_field_issue(field: str, value: object) -> str | None:
     return None
 
 
-def _check_qc_block(
+def _check_qc_block(  # noqa: C901
     block: str, value: object, where: str, inherited: object = None
 ) -> list[ValidationIssue]:
     """Check one QC override block's shape; unknown variables are only a WARNING."""
@@ -383,7 +383,7 @@ _CALDIP_END_KEYS = frozenset({"cruise", "cast"})
 _CALDIP_OVERRIDE_KEYS = frozenset({"method", "use"})
 
 
-def _check_caldip(data: Mapping) -> list[ValidationIssue]:
+def _check_caldip(data: Mapping) -> list[ValidationIssue]:  # noqa: C901
     """Check the ``caldip:`` block: its keys, its two ends, the scheme and any override.
 
     Every shape mistake is an ERROR: a misspelt key or an unknown method would
@@ -563,7 +563,7 @@ def _check_people_and_source(data: Mapping) -> list[ValidationIssue]:
     return issues
 
 
-def _check_settings(data: Mapping) -> list[ValidationIssue]:
+def _check_settings(data: Mapping) -> list[ValidationIssue]:  # noqa: C901
     """Return ERRORs for a malformed ``stack:`` or ``grid:`` block (both optional)."""
     issues: list[ValidationIssue] = []
     for block, allowed in _SETTINGS_KEYS.items():

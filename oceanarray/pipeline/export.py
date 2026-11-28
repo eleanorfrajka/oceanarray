@@ -53,7 +53,7 @@ def _put(out: xr.Dataset, target: Path, *, overwrite: bool, dry_run: bool) -> Pa
     return write(out, path, overwrite=overwrite)
 
 
-def export(
+def export(  # noqa: C901
     mooring_path: str | PathLike | None = None,
     paths: Paths | None = None,
     *,

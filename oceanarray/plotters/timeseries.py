@@ -328,7 +328,7 @@ _VELOCITY_TITLES: dict[str, str] = {
 }
 
 
-def draw_grid_velocity_stacked(
+def draw_grid_velocity_stacked(  # noqa: C901
     ds: xr.Dataset,
     *,
     width_in: float = report_tokens.W_FULL,
@@ -869,7 +869,7 @@ def _as_time_level(values: np.ndarray) -> np.ndarray:
     return values[:, np.newaxis] if values.ndim == 1 else values
 
 
-def draw_stack_timeseries(
+def draw_stack_timeseries(  # noqa: C901
     ds: xr.Dataset,
     rows: list[tuple[str, str, bool, set[str] | None]],
     *,

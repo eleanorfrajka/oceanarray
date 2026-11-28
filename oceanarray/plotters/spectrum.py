@@ -259,7 +259,7 @@ def _level_colormap() -> mcolors.Colormap:
     )
 
 
-def draw_spectrum(
+def draw_spectrum(  # noqa: C901
     da_temp: xr.DataArray,
     dt_seconds: float,
     lat: float = 0.0,
@@ -620,7 +620,7 @@ def draw_wavelet(
     return fig
 
 
-def draw_grid_rotary_spectrum(
+def draw_grid_rotary_spectrum(  # noqa: C901
     ds: xr.Dataset,
     lat: float = 0.0,
     *,

@@ -64,7 +64,7 @@ def _rodb_position(text: str) -> float:
     return -value if hemi.upper() in ("S", "W") else value
 
 
-def read_rodb(path: str | Path) -> xr.Dataset:
+def read_rodb(path: str | Path) -> xr.Dataset:  # noqa: C901
     """Read a RODB text file (``.microcat``, ``.edt``, ``.lowedt``).
 
     The header (``Key = value`` lines) is kept as ``originator_*`` attributes; the
@@ -172,7 +172,7 @@ def read_rodb(path: str | Path) -> xr.Dataset:
     return out
 
 
-def read_rodb_bins(paths: list[str | Path]) -> xr.Dataset:
+def read_rodb_bins(paths: list[str | Path]) -> xr.Dataset:  # noqa: C901
     """Read one ADCP's RODB ``.edt`` files, one per bin, as one dataset on ``(time, N_BINS)``.
 
     The bin number comes from ``_bin<NN>`` in each name; a missing number is

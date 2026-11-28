@@ -248,7 +248,7 @@ def _profile(intro: str) -> Profile:
     )
 
 
-def _figures(
+def _figures(  # noqa: C901
     grid: Any, stackcat: Any, names: list[str], angle: float | None, given: bool
 ) -> tuple[dict, str]:
     """Return the page's figures and the averaging in words."""

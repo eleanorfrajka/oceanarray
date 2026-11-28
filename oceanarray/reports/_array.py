@@ -638,7 +638,7 @@ def _mooring_row(
     return row, instrs
 
 
-def generate_array_report(
+def generate_array_report(  # noqa: C901
     array_path: Path,
     proc_dir: Path,
     out_path: Path | None = None,

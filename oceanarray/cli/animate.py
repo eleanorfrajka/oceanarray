@@ -15,7 +15,7 @@ from oceanarray.cli._common import (
 )
 
 
-def cmd_animate(args: argparse.Namespace) -> int:
+def cmd_animate(args: argparse.Namespace) -> int:  # noqa: C901
     """Write animated hodograph GIF(s) for Aquadopp current-meter instruments.
 
     A hodograph plots the tip of the horizontal velocity vector (east vs north

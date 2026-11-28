@@ -364,7 +364,7 @@ def _read_instrument_info(
         return {"error": str(exc)[:80]}
 
 
-def _read_timing_info(
+def _read_timing_info(  # noqa: C901
     proc_dir: Path, instr_type: str, mooring: str, serial: str
 ) -> dict[str, Any]:
     """Read deployment-timing attrs from the stage 2 NC file."""

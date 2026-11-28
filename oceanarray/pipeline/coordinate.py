@@ -100,7 +100,7 @@ def apply_beam_to_enu(
         return _beam_to_enu(ds, entry, lat, lon, latlon_source)
 
 
-def _beam_to_enu(
+def _beam_to_enu(  # noqa: C901
     ds: xr.Dataset,
     entry: dict[str, Any],
     lat: float,

@@ -310,7 +310,7 @@ def _same(a: Mapping[str, str], b: Mapping[str, str]) -> bool:
     return bool(_name_key(a)) and _name_key(a) == _name_key(b)
 
 
-def union(
+def union(  # noqa: C901
     groups: Iterable[Mapping[str, list[dict[str, str]]]],
 ) -> dict[str, list[dict[str, str]]]:
     """Join several people lists without repeats, in order of first appearance.

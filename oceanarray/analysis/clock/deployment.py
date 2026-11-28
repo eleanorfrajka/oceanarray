@@ -240,7 +240,7 @@ def determine_sea_values(
     return sea_mean, sea_std
 
 
-def likely_at_surface(
+def likely_at_surface(  # noqa: C901
     time: np.ndarray,
     temp: np.ndarray,
     sea_mean: float,

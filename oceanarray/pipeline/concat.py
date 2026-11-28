@@ -429,7 +429,7 @@ _OWN_ATTRS = frozenset(
 )
 
 
-def concat(
+def concat(  # noqa: C901
     stacks: Sequence[xr.Dataset],
     *,
     name: str,

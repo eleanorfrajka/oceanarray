@@ -742,7 +742,7 @@ def _sentence(text: str) -> str:
     return text[:1].upper() + text[1:] if text else text
 
 
-def grid_captions(c: Any) -> dict[str, str]:
+def grid_captions(c: Any) -> dict[str, str]:  # noqa: C901
     """Return the grid page's captions, built from the page's context.
 
     Parameters
